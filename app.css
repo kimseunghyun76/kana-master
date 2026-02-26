@@ -315,6 +315,85 @@ html, body {
 .rate-ok { background: var(--green-light); color: var(--green); }
 .rate-ok:hover { background: var(--green); color: white; }
 
+/* ─── 일람 컨트롤 바 ─── */
+.browse-controls {
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 8px;
+  margin-bottom: 14px; padding: 10px 14px;
+  background: white; border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+.bc-left, .bc-right { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.bc-btn {
+  padding: 7px 13px; border-radius: 8px;
+  border: 1.5px solid var(--border);
+  background: white; cursor: pointer;
+  font-size: 12px; font-weight: 600; color: var(--gray);
+  transition: all 0.15s; font-family: inherit;
+}
+.bc-btn:hover { border-color: var(--red); color: var(--red); background: var(--red-light); }
+.bc-btn.bc-active { border-color: var(--blue); color: var(--blue); background: var(--blue-light); }
+.bc-btn.bc-primary { background: var(--red); color: white; border-color: var(--red); }
+.bc-btn.bc-primary:hover { background: var(--red-dark); }
+#bc-interval-select {
+  padding: 6px 8px; border: 1.5px solid var(--border);
+  border-radius: 6px; font-size: 12px; font-family: inherit;
+  cursor: pointer; background: white;
+}
+
+/* ─── 슬라이드쇼 패널 ─── */
+.slideshow-panel {
+  background: white; border-radius: var(--radius);
+  box-shadow: var(--shadow-md); padding: 24px 20px;
+  margin-bottom: 16px; text-align: center;
+}
+.ss-header {
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: 24px;
+}
+.ss-count-text { font-size: 13px; font-weight: 700; color: var(--gray); white-space: nowrap; }
+.ss-countdown-bar {
+  flex: 1; height: 8px; background: var(--border);
+  border-radius: 99px; overflow: hidden;
+}
+.ss-countdown-fill {
+  height: 100%; width: 100%;
+  background: linear-gradient(90deg, var(--red), var(--orange));
+  border-radius: 99px;
+}
+.ss-card { margin-bottom: 20px; }
+.ss-kana {
+  font-size: 130px; line-height: 1;
+  margin-bottom: 12px;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+.ss-hint-text { font-size: 13px; color: var(--gray); min-height: 20px; margin-bottom: 10px; }
+.ss-reveal {
+  transition: opacity 0.4s ease;
+  padding: 12px; background: var(--red-light);
+  border-radius: 10px; display: inline-block; min-width: 200px;
+}
+.ss-romaji { font-size: 28px; font-weight: 700; color: var(--red); letter-spacing: 2px; }
+.ss-readings { display: flex; align-items: center; justify-content: center; gap: 12px; margin-top: 6px; }
+.ss-kor { font-size: 22px; font-weight: 700; color: var(--blue); }
+.ss-eng { font-size: 16px; color: var(--gray); }
+.ss-controls {
+  display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;
+  padding-top: 16px; border-top: 1px solid var(--border);
+}
+.ss-ctrl-btn {
+  padding: 9px 18px; border-radius: 8px;
+  border: 1.5px solid var(--border);
+  background: white; cursor: pointer;
+  font-size: 13px; font-weight: 600; color: var(--text);
+  transition: all 0.15s; font-family: inherit;
+}
+.ss-ctrl-btn:hover { background: var(--gray-light); }
+.ss-ctrl-main { background: var(--blue); color: white; border-color: var(--blue); }
+.ss-ctrl-main:hover { background: #3451d1; }
+.ss-ctrl-stop { background: var(--red-light); color: var(--red); border-color: #fcc; }
+.ss-ctrl-stop:hover { background: var(--red); color: white; }
+
 /* 일람 보기 */
 .browse-grid {
   display: grid;

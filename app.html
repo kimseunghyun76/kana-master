@@ -162,6 +162,51 @@
 
       <!-- 일람 보기 -->
       <div class="browse-area" id="browse-area" style="display:none">
+        <!-- 컨트롤 바 -->
+        <div class="browse-controls">
+          <div class="bc-left">
+            <button class="bc-btn bc-active" id="bc-order-btn" title="순서 변경">📋 순서대로</button>
+            <button class="bc-btn" id="bc-random-btn" title="랜덤 순서">🔀 랜덤</button>
+          </div>
+          <div class="bc-right">
+            <button class="bc-btn" id="bc-readall-btn">🔊 전체 듣기</button>
+            <button class="bc-btn bc-primary" id="bc-slideshow-btn">▶ 슬라이드쇼</button>
+            <select id="bc-interval-select" title="슬라이드쇼 간격">
+              <option value="2">2초</option>
+              <option value="3" selected>3초</option>
+              <option value="5">5초</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- 슬라이드쇼 패널 -->
+        <div class="slideshow-panel" id="slideshow-panel" style="display:none">
+          <div class="ss-header">
+            <span class="ss-count-text" id="ss-count-text">1 / 15</span>
+            <div class="ss-countdown-bar">
+              <div class="ss-countdown-fill" id="ss-countdown-fill"></div>
+            </div>
+          </div>
+          <div class="ss-card">
+            <div class="ss-kana" id="ss-kana">あ</div>
+            <div class="ss-hint-text" id="ss-hint-text">읽어보세요 ↑</div>
+            <div class="ss-reveal" id="ss-reveal">
+              <div class="ss-romaji" id="ss-romaji">a</div>
+              <div class="ss-readings">
+                <span class="ss-kor" id="ss-korean">아</span>
+                <span class="ss-eng" id="ss-english">ah</span>
+              </div>
+            </div>
+          </div>
+          <div class="ss-controls">
+            <button class="ss-ctrl-btn" id="ss-prev-btn">◀ 이전</button>
+            <button class="ss-ctrl-btn ss-ctrl-main" id="ss-play-pause-btn">⏸ 일시정지</button>
+            <button class="ss-ctrl-btn ss-ctrl-stop" id="ss-stop-btn">⏹ 종료</button>
+            <button class="ss-ctrl-btn" id="ss-next-btn">다음 ▶</button>
+          </div>
+        </div>
+
+        <!-- 글자 목록 그리드 -->
         <div class="browse-grid" id="browse-grid"></div>
       </div>
     </div>
@@ -169,7 +214,7 @@
     <!-- ========== 퀴즈 뷰 ========== -->
     <div id="view-quiz" class="view">
       <div class="quiz-header">
-        <button class="back-btn" onclick="App.showView('home')">← 돌아가기</button>
+        <button class="back-btn" id="quiz-back-btn" onclick="App.backToQuizSetup()">← 퀴즈 설정</button>
         <h3>퀴즈</h3>
         <div class="quiz-stats-mini">
           <span class="qsm qsm-correct" id="qsm-correct">✓ 0</span>
@@ -251,8 +296,11 @@
         <div class="qr-xp" id="qr-xp">+0 XP 획득!</div>
         <div class="qr-wrong-list" id="qr-wrong-list"></div>
         <div class="qr-btns">
-          <button class="qr-btn-retry" id="qr-retry">🔄 다시 풀기</button>
-          <button class="qr-btn-home" onclick="App.showView('home')">🏠 홈으로</button>
+          <button class="qr-btn-retry" id="qr-retry">🔄 같은 설정으로 다시 풀기</button>
+          <button class="qr-btn-home" onclick="App.backToQuizSetup()">⚙️ 다른 설정으로 풀기</button>
+        </div>
+        <div style="text-align:center;margin-top:10px">
+          <button class="back-btn" onclick="App.showView('home')">🏠 홈으로</button>
         </div>
       </div>
     </div>

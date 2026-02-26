@@ -348,8 +348,12 @@ const App = (() => {
       if (state.learnIndex > 0) { state.learnIndex--; showFlashcard(); }
     };
     document.getElementById('fc-next').onclick = () => {
-      if (state.learnIndex < state.learnChars.length - 1) { state.learnIndex++; showFlashcard(); }
-      else { showToast('레벨 학습 완료! 🎉 퀴즈로 확인해보세요.'); }
+      if (state.learnIndex < state.learnChars.length - 1) {
+        state.learnIndex++; showFlashcard();
+      } else {
+        showToast('학습 완료! 🎉 퀴즈로 넘어갑니다...');
+        setTimeout(() => startQuizForLevel(state.learnLevelId), 900);
+      }
     };
     document.getElementById('fc-ok').onclick = () => {
       const char = state.learnChars[state.learnIndex];
@@ -368,10 +372,64 @@ const App = (() => {
     };
   }
 
+  // ─── 슬라이드쇼 상태 ───
+  const ss = {
+    chars: [], index: 0, paused: false,
+    timer: null, phase: 'reading', // 'reading' | 'revealed'
+    readAllTimer: null
+  };
+
   function renderBrowse() {
+    setupBrowseControls();
+    renderBrowseGrid(state.learnChars);
+  }
+
+  function setupBrowseControls() {
+    const orderBtn    = document.getElementById('bc-order-btn');
+    const randomBtn   = document.getElementById('bc-random-btn');
+    const readAllBtn  = document.getElementById('bc-readall-btn');
+    const slideshowBtn= document.getElementById('bc-slideshow-btn');
+
+    // 순서/랜덤 토글
+    orderBtn.onclick = () => {
+      state.browseRandom = false;
+      orderBtn.classList.add('bc-active');
+      randomBtn.classList.remove('bc-active');
+      renderBrowseGrid(state.learnChars);
+    };
+    randomBtn.onclick = () => {
+      state.browseRandom = true;
+      randomBtn.classList.add('bc-active');
+      orderBtn.classList.remove('bc-active');
+      const shuffled = [...state.learnChars].sort(() => Math.random() - 0.5);
+      renderBrowseGrid(shuffled);
+    };
+
+    // 전체 듣기
+    readAllBtn.onclick = () => {
+      const chars = state.browseRandom
+        ? [...state.learnChars].sort(() => Math.random() - 0.5)
+        : state.learnChars;
+      startReadAll(chars);
+    };
+
+    // 슬라이드쇼
+    slideshowBtn.onclick = () => {
+      const chars = state.browseRandom
+        ? [...state.learnChars].sort(() => Math.random() - 0.5)
+        : state.learnChars;
+      startSlideshow(chars);
+    };
+  }
+
+  function renderBrowseGrid(chars) {
+    // 슬라이드쇼 종료 시 그리드로 복귀
+    document.getElementById('slideshow-panel').style.display = 'none';
+    document.getElementById('browse-grid').style.display = 'grid';
+
     const grid = document.getElementById('browse-grid');
     grid.innerHTML = '';
-    state.learnChars.forEach((char, i) => {
+    chars.forEach((char) => {
       const el = document.createElement('div');
       el.className = 'browse-item';
       el.innerHTML = `
@@ -380,16 +438,126 @@ const App = (() => {
         <div class="bi-korean">${char.korean}</div>
         <div class="bi-audio">🔊 ${char.english}</div>
       `;
-      el.addEventListener('click', () => {
-        playAudio(char.kana);
-        markCharSeen(char.kana);
-      });
+      el.addEventListener('click', () => { playAudio(char.kana); markCharSeen(char.kana); });
       el.querySelector('.bi-audio').addEventListener('click', (e) => {
-        e.stopPropagation();
-        playAudio(char.kana);
+        e.stopPropagation(); playAudio(char.kana);
       });
       grid.appendChild(el);
     });
+  }
+
+  // ─── 전체 듣기 (순서대로 TTS 재생) ───
+  function startReadAll(chars) {
+    clearTimeout(ss.readAllTimer);
+    window.speechSynthesis.cancel();
+    let i = 0;
+    function next() {
+      if (i >= chars.length) { showToast('전체 듣기 완료! ✓'); return; }
+      playAudio(chars[i].kana);
+      i++;
+      ss.readAllTimer = setTimeout(next, 1200);
+    }
+    showToast(`🔊 전체 ${chars.length}자 듣기 시작`);
+    next();
+  }
+
+  // ─── 슬라이드쇼 ───
+  function startSlideshow(chars) {
+    ss.chars = chars;
+    ss.index = 0;
+    ss.paused = false;
+    ss.phase = 'reading';
+    clearTimeout(ss.timer);
+
+    document.getElementById('browse-grid').style.display = 'none';
+    document.getElementById('slideshow-panel').style.display = 'block';
+    document.getElementById('ss-reveal').style.opacity = '0';
+
+    document.getElementById('ss-play-pause-btn').onclick = toggleSlideshowPause;
+    document.getElementById('ss-stop-btn').onclick = stopSlideshow;
+    document.getElementById('ss-prev-btn').onclick = () => {
+      clearTimeout(ss.timer);
+      ss.index = Math.max(0, ss.index - 1);
+      showSlideshowCard();
+    };
+    document.getElementById('ss-next-btn').onclick = () => {
+      clearTimeout(ss.timer);
+      ss.index = Math.min(ss.chars.length - 1, ss.index + 1);
+      showSlideshowCard();
+    };
+
+    showSlideshowCard();
+  }
+
+  function showSlideshowCard() {
+    clearTimeout(ss.timer);
+    const char = ss.chars[ss.index];
+    if (!char) { stopSlideshow(); showToast('슬라이드쇼 완료! 🎉'); return; }
+
+    const interval = parseInt(document.getElementById('bc-interval-select').value) || 3;
+    const total = ss.chars.length;
+    document.getElementById('ss-count-text').textContent = `${ss.index + 1} / ${total}`;
+    document.getElementById('ss-kana').textContent = char.kana;
+    document.getElementById('ss-romaji').textContent = char.romaji;
+    document.getElementById('ss-korean').textContent = char.korean;
+    document.getElementById('ss-english').textContent = char.english;
+    document.getElementById('ss-hint-text').textContent = '읽어보세요 ↑';
+    document.getElementById('ss-reveal').style.opacity = '0';
+    document.getElementById('ss-play-pause-btn').textContent = '⏸ 일시정지';
+    ss.paused = false;
+    ss.phase = 'reading';
+
+    // 카운트다운 바 애니메이션
+    const fill = document.getElementById('ss-countdown-fill');
+    fill.style.transition = 'none';
+    fill.style.width = '100%';
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      fill.style.transition = `width ${interval}s linear`;
+      fill.style.width = '0%';
+    }));
+
+    if (!ss.paused) {
+      ss.timer = setTimeout(() => {
+        // 발음 재생 + 읽기 표시
+        ss.phase = 'revealed';
+        document.getElementById('ss-hint-text').textContent = '';
+        document.getElementById('ss-reveal').style.opacity = '1';
+        playAudio(char.kana);
+        markCharSeen(char.kana);
+        // 1.5초 후 다음 카드
+        ss.timer = setTimeout(() => {
+          if (!ss.paused) {
+            ss.index++;
+            showSlideshowCard();
+          }
+        }, 1500);
+      }, interval * 1000);
+    }
+  }
+
+  function toggleSlideshowPause() {
+    ss.paused = !ss.paused;
+    const btn = document.getElementById('ss-play-pause-btn');
+    if (ss.paused) {
+      clearTimeout(ss.timer);
+      btn.textContent = '▶ 재생';
+      // 카운트다운 바 정지
+      const fill = document.getElementById('ss-countdown-fill');
+      const computed = getComputedStyle(fill).width;
+      fill.style.transition = 'none';
+      fill.style.width = computed;
+    } else {
+      btn.textContent = '⏸ 일시정지';
+      // 일시정지된 위치에서 재개 (카드 처음부터)
+      showSlideshowCard();
+    }
+  }
+
+  function stopSlideshow() {
+    clearTimeout(ss.timer);
+    ss.paused = true;
+    document.getElementById('slideshow-panel').style.display = 'none';
+    document.getElementById('browse-grid').style.display = 'grid';
   }
 
   // ─── 퀴즈 ───
@@ -405,6 +573,20 @@ const App = (() => {
     document.getElementById('quiz-setup').style.display = 'block';
     document.getElementById('quiz-game').style.display = 'none';
     document.getElementById('quiz-result').style.display = 'none';
+
+    // 설정 화면에서는 back btn을 홈으로
+    document.getElementById('quiz-back-btn').textContent = '← 홈으로';
+    document.getElementById('quiz-back-btn').onclick = () => showView('home');
+  }
+
+  function backToQuizSetup() {
+    document.getElementById('quiz-setup').style.display = 'block';
+    document.getElementById('quiz-game').style.display = 'none';
+    document.getElementById('quiz-result').style.display = 'none';
+    populateQuizLevelSelect();
+    // 설정 화면에서 back은 홈으로
+    document.getElementById('quiz-back-btn').textContent = '← 홈으로';
+    document.getElementById('quiz-back-btn').onclick = () => showView('home');
   }
 
   function populateQuizLevelSelect() {
@@ -492,6 +674,10 @@ const App = (() => {
 
     document.getElementById('qsm-correct').textContent = '✓ 0';
     document.getElementById('qsm-wrong').textContent = '✗ 0';
+
+    // 게임 중에는 back 버튼이 퀴즈 설정으로
+    document.getElementById('quiz-back-btn').textContent = '← 퀴즈 설정';
+    document.getElementById('quiz-back-btn').onclick = backToQuizSetup;
 
     showQuizQuestion();
   }
@@ -1172,7 +1358,8 @@ const App = (() => {
     playAudio,
     startReview,
     startLearn,
-    startQuizForLevel
+    startQuizForLevel,
+    backToQuizSetup
   };
 })();
 
