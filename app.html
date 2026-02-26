@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>かな学習 - Kana Master</title>
+  <link rel="stylesheet" href="app.css">
+</head>
+<body>
+  <!-- ===== 헤더 ===== -->
+  <header class="app-header">
+    <div class="header-left">
+      <div class="header-logo">か</div>
+      <div>
+        <h1>かな学習</h1>
+        <span class="header-sub">Kana Master</span>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="header-stat">
+        <span class="hs-val" id="hdr-level">Lv.1</span>
+        <span class="hs-label">레벨</span>
+      </div>
+      <div class="header-stat">
+        <span class="hs-val" id="hdr-xp">0 XP</span>
+        <span class="hs-label">경험치</span>
+      </div>
+      <div class="header-stat">
+        <span class="hs-val" id="hdr-streak">0🔥</span>
+        <span class="hs-label">연속</span>
+      </div>
+      <button class="settings-btn" id="settings-btn" title="설정">⚙</button>
+    </div>
+  </header>
+
+  <!-- ===== 네비게이션 ===== -->
+  <nav class="app-nav">
+    <button class="nav-btn active" data-view="home">🏠 홈</button>
+    <button class="nav-btn" data-view="learn">📚 학습</button>
+    <button class="nav-btn" data-view="quiz">✏️ 퀴즈</button>
+    <button class="nav-btn" data-view="write">🖊️ 필기</button>
+    <button class="nav-btn" data-view="progress">📊 진도</button>
+  </nav>
+
+  <!-- ===== 메인 컨텐츠 ===== -->
+  <main class="app-main">
+
+    <!-- ========== 홈 뷰 ========== -->
+    <div id="view-home" class="view active">
+      <div class="home-hero">
+        <h2>일본어 가나 완전 정복! 🎌</h2>
+        <p>히라가나 → 가타가나 → 탁음 → 반탁음 → 요음까지<br>단계별로 차근차근 마스터해 보세요</p>
+      </div>
+
+      <div class="home-continue" id="home-continue" style="display:none">
+        <h3>이어서 학습하기</h3>
+        <button class="continue-btn" id="continue-btn">▶ 계속하기</button>
+      </div>
+
+      <div class="levels-section">
+        <h3>📚 학습 레벨</h3>
+        <div class="levels-grid" id="levels-grid">
+          <!-- JS로 생성 -->
+        </div>
+      </div>
+
+      <div class="home-quick">
+        <h3>⚡ 빠른 메뉴</h3>
+        <div class="quick-grid">
+          <button class="quick-card" onclick="App.showView('quiz')">
+            <span class="qc-icon">✏️</span>
+            <span class="qc-title">퀴즈 시작</span>
+            <span class="qc-desc">현재 레벨 퀴즈</span>
+          </button>
+          <button class="quick-card" onclick="App.showView('write')">
+            <span class="qc-icon">🖊️</span>
+            <span class="qc-title">필기 연습</span>
+            <span class="qc-desc">획순 따라 쓰기</span>
+          </button>
+          <button class="quick-card" onclick="App.startReview()">
+            <span class="qc-icon">🔄</span>
+            <span class="qc-title">틀린 문제</span>
+            <span class="qc-desc">약점 복습</span>
+          </button>
+          <button class="quick-card" onclick="App.showView('progress')">
+            <span class="qc-icon">📊</span>
+            <span class="qc-title">진도 확인</span>
+            <span class="qc-desc">내 학습 현황</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== 학습 뷰 ========== -->
+    <div id="view-learn" class="view">
+      <div class="learn-header">
+        <button class="back-btn" onclick="App.showView('home')">← 돌아가기</button>
+        <div class="learn-title-block">
+          <h3 id="learn-level-name">Level 1</h3>
+          <span id="learn-level-title">히라가나 기본 ①</span>
+        </div>
+        <div class="learn-prog">
+          <span id="learn-card-num">1 / 15</span>
+        </div>
+      </div>
+
+      <!-- 학습 모드 선택 -->
+      <div class="mode-selector" id="learn-mode-selector">
+        <h3>학습 모드 선택</h3>
+        <div class="mode-grid">
+          <button class="mode-card" id="mode-flash">
+            <span class="mc-icon">🃏</span>
+            <span class="mc-title">플래시카드</span>
+            <span class="mc-desc">카드 뒤집어 발음 확인</span>
+          </button>
+          <button class="mode-card" id="mode-browse">
+            <span class="mc-icon">📖</span>
+            <span class="mc-title">일람 보기</span>
+            <span class="mc-desc">전체 목록 한눈에</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 플래시카드 -->
+      <div class="flashcard-area" id="flashcard-area" style="display:none">
+        <div class="progress-bar-thin">
+          <div class="progress-thin-fill" id="fc-progress-fill"></div>
+        </div>
+
+        <div class="flashcard-container" id="flashcard" onclick="App.flipCard()">
+          <div class="flashcard-inner" id="fc-inner">
+            <div class="flashcard-front">
+              <div class="fc-kana" id="fc-kana">あ</div>
+              <div class="fc-hint">클릭하여 발음 확인 ↓</div>
+            </div>
+            <div class="flashcard-back">
+              <div class="fc-kana-small" id="fc-kana-back">あ</div>
+              <div class="fc-romaji" id="fc-romaji">a</div>
+              <div class="fc-pronunciations">
+                <span class="fc-kor" id="fc-korean">아</span>
+                <span class="fc-sep">·</span>
+                <span class="fc-eng" id="fc-english">ah</span>
+              </div>
+              <div class="fc-examples" id="fc-examples"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="fc-audio-row">
+          <button class="audio-btn" id="fc-audio-btn" title="발음 듣기">🔊 발음 듣기</button>
+        </div>
+
+        <div class="fc-nav">
+          <button class="fc-nav-btn" id="fc-prev">◀ 이전</button>
+          <div class="fc-self-rate">
+            <button class="rate-btn rate-wrong" id="fc-wrong">✗ 어려움</button>
+            <button class="rate-btn rate-ok" id="fc-ok">✓ 알았음</button>
+          </div>
+          <button class="fc-nav-btn" id="fc-next">다음 ▶</button>
+        </div>
+      </div>
+
+      <!-- 일람 보기 -->
+      <div class="browse-area" id="browse-area" style="display:none">
+        <div class="browse-grid" id="browse-grid"></div>
+      </div>
+    </div>
+
+    <!-- ========== 퀴즈 뷰 ========== -->
+    <div id="view-quiz" class="view">
+      <div class="quiz-header">
+        <button class="back-btn" onclick="App.showView('home')">← 돌아가기</button>
+        <h3>퀴즈</h3>
+        <div class="quiz-stats-mini">
+          <span class="qsm qsm-correct" id="qsm-correct">✓ 0</span>
+          <span class="qsm qsm-wrong" id="qsm-wrong">✗ 0</span>
+        </div>
+      </div>
+
+      <!-- 퀴즈 설정 -->
+      <div class="quiz-setup" id="quiz-setup">
+        <h3>📝 퀴즈 설정</h3>
+        <div class="setup-row">
+          <label>레벨 선택:</label>
+          <select id="quiz-level-select"></select>
+        </div>
+        <div class="setup-row">
+          <label>문제 유형:</label>
+          <div class="radio-group">
+            <label class="radio-label">
+              <input type="radio" name="qtype" value="kanaToReading" checked> 글자→발음
+            </label>
+            <label class="radio-label">
+              <input type="radio" name="qtype" value="readingToKana"> 발음→글자
+            </label>
+            <label class="radio-label">
+              <input type="radio" name="qtype" value="listen"> 듣기→글자
+            </label>
+          </div>
+        </div>
+        <div class="setup-row">
+          <label>문제 수:</label>
+          <div class="radio-group">
+            <label class="radio-label"><input type="radio" name="qcount" value="10" checked> 10문제</label>
+            <label class="radio-label"><input type="radio" name="qcount" value="20"> 20문제</label>
+            <label class="radio-label"><input type="radio" name="qcount" value="all"> 전체</label>
+          </div>
+        </div>
+        <div class="setup-row">
+          <label>발음 표기:</label>
+          <div class="radio-group">
+            <label class="radio-label"><input type="radio" name="qlang" value="korean" checked> 한국어</label>
+            <label class="radio-label"><input type="radio" name="qlang" value="romaji"> 로마자</label>
+            <label class="radio-label"><input type="radio" name="qlang" value="both"> 둘 다</label>
+          </div>
+        </div>
+        <button class="start-quiz-btn" id="start-quiz-btn">퀴즈 시작 →</button>
+      </div>
+
+      <!-- 퀴즈 진행 -->
+      <div class="quiz-game" id="quiz-game" style="display:none">
+        <div class="quiz-progress-row">
+          <div class="qpr-text" id="qpr-text">1 / 10</div>
+          <div class="qpr-bar-bg">
+            <div class="qpr-bar-fill" id="qpr-bar-fill"></div>
+          </div>
+        </div>
+
+        <div class="quiz-question-box" id="quiz-question-box">
+          <!-- 문제 유형에 따라 동적 생성 -->
+        </div>
+
+        <div class="quiz-choices" id="quiz-choices">
+          <!-- 선택지 4개 동적 생성 -->
+        </div>
+
+        <div class="quiz-feedback" id="quiz-feedback" style="display:none">
+          <div class="qf-result" id="qf-result"></div>
+          <div class="qf-correct" id="qf-correct"></div>
+          <div class="qf-examples" id="qf-examples"></div>
+          <button class="qf-next-btn" id="qf-next-btn">다음 문제 →</button>
+        </div>
+      </div>
+
+      <!-- 퀴즈 결과 -->
+      <div class="quiz-result" id="quiz-result" style="display:none">
+        <div class="qr-icon" id="qr-icon">🎉</div>
+        <h2 id="qr-title">퀴즈 완료!</h2>
+        <div class="qr-score" id="qr-score">0 / 0</div>
+        <div class="qr-pct" id="qr-pct">0%</div>
+        <div class="qr-xp" id="qr-xp">+0 XP 획득!</div>
+        <div class="qr-wrong-list" id="qr-wrong-list"></div>
+        <div class="qr-btns">
+          <button class="qr-btn-retry" id="qr-retry">🔄 다시 풀기</button>
+          <button class="qr-btn-home" onclick="App.showView('home')">🏠 홈으로</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== 필기 뷰 ========== -->
+    <div id="view-write" class="view">
+      <div class="write-header">
+        <button class="back-btn" onclick="App.showView('home')">← 돌아가기</button>
+        <h3>🖊️ 필기 연습</h3>
+      </div>
+
+      <div class="write-layout">
+        <!-- 좌측: 글자 목록 -->
+        <div class="write-list-panel">
+          <div class="write-filter">
+            <select id="write-type-select">
+              <option value="hiragana">히라가나 기본</option>
+              <option value="hiragana_dakuten">히라가나 탁음</option>
+              <option value="hiragana_handakuten">히라가나 반탁음</option>
+              <option value="hiragana_yoon">히라가나 요음</option>
+              <option value="katakana">가타가나 기본</option>
+              <option value="katakana_dakuten">가타가나 탁음/반탁음</option>
+              <option value="katakana_yoon">가타가나 요음</option>
+            </select>
+          </div>
+          <div class="write-char-list" id="write-char-list"></div>
+        </div>
+
+        <!-- 우측: 캔버스 -->
+        <div class="write-canvas-panel">
+          <div class="write-char-info">
+            <div class="wci-kana" id="wci-kana">あ</div>
+            <div class="wci-reading">
+              <span class="wci-romaji" id="wci-romaji">a</span>
+              <span class="wci-kor" id="wci-korean">아</span>
+            </div>
+            <button class="wci-audio" id="wci-audio-btn">🔊</button>
+          </div>
+
+          <div class="canvas-wrapper">
+            <canvas id="write-canvas" width="300" height="300"></canvas>
+            <div class="canvas-guide" id="canvas-guide">
+              <!-- 격자 안내선 -->
+            </div>
+          </div>
+
+          <div class="canvas-controls">
+            <button class="cc-btn cc-overlay" id="overlay-btn" title="글자 보기/숨기기">👁 글자 표시</button>
+            <button class="cc-btn cc-clear" id="clear-btn">🗑 지우기</button>
+            <button class="cc-btn cc-prev" id="write-prev">◀</button>
+            <button class="cc-btn cc-next" id="write-next">▶</button>
+          </div>
+
+          <div class="stroke-order-info">
+            <p>💡 <strong>획순 팁:</strong> 위→아래, 왼쪽→오른쪽 순서로 쓰세요</p>
+            <p class="stroke-hint" id="stroke-hint"></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== 진도 뷰 ========== -->
+    <div id="view-progress" class="view">
+      <div class="progress-header">
+        <button class="back-btn" onclick="App.showView('home')">← 돌아가기</button>
+        <h3>📊 학습 진도</h3>
+      </div>
+
+      <div class="progress-overview">
+        <div class="po-card">
+          <div class="poc-val" id="po-total">0</div>
+          <div class="poc-label">총 학습한 글자</div>
+        </div>
+        <div class="po-card">
+          <div class="poc-val" id="po-mastered">0</div>
+          <div class="poc-label">마스터한 글자</div>
+        </div>
+        <div class="po-card">
+          <div class="poc-val" id="po-accuracy">0%</div>
+          <div class="poc-label">정확도</div>
+        </div>
+        <div class="po-card">
+          <div class="poc-val" id="po-xp">0</div>
+          <div class="poc-label">총 XP</div>
+        </div>
+      </div>
+
+      <div class="progress-levels" id="progress-levels">
+        <!-- 레벨별 진도 -->
+      </div>
+
+      <div class="weak-chars-section">
+        <h3>⚠️ 약점 글자</h3>
+        <div class="weak-chars-grid" id="weak-chars-grid">
+          <p class="no-weak">아직 데이터가 없습니다. 퀴즈를 먼저 풀어보세요!</p>
+        </div>
+      </div>
+
+      <div class="reset-section">
+        <button class="reset-btn" id="reset-btn">⚠️ 진도 초기화</button>
+      </div>
+    </div>
+  </main>
+
+  <!-- ===== 설정 모달 ===== -->
+  <div class="modal-overlay" id="settings-modal" style="display:none">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>⚙️ 설정</h3>
+        <button class="modal-close" id="settings-close">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="setting-row">
+          <label>발음 표기 언어:</label>
+          <select id="pref-lang">
+            <option value="korean">한국어</option>
+            <option value="romaji">로마자</option>
+            <option value="both">한국어 + 로마자</option>
+          </select>
+        </div>
+        <div class="setting-row">
+          <label>TTS 음성 언어:</label>
+          <select id="pref-voice">
+            <option value="ja-JP">일본어</option>
+          </select>
+        </div>
+        <div class="setting-row">
+          <label>자동 발음:</label>
+          <label class="toggle">
+            <input type="checkbox" id="pref-autoplay">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="setting-row">
+          <label>퀴즈 자동 다음:</label>
+          <label class="toggle">
+            <input type="checkbox" id="pref-autonext">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 알림 토스트 ===== -->
+  <div class="toast" id="toast"></div>
+
+  <script src="js/kana-data.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

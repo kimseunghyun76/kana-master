@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>かな学習</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="popup-container">
+    <div class="popup-header">
+      <div class="logo">か</div>
+      <div class="title-block">
+        <h1>かな学習</h1>
+        <p>Kana Master</p>
+      </div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-value" id="stat-level">1</div>
+        <div class="stat-label">현재 레벨</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="stat-xp">0</div>
+        <div class="stat-label">총 XP</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="stat-streak">0🔥</div>
+        <div class="stat-label">연속 학습</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="stat-mastered">0</div>
+        <div class="stat-label">마스터한 글자</div>
+      </div>
+    </div>
+
+    <div class="progress-section">
+      <div class="progress-label">
+        <span>전체 진도</span>
+        <span id="progress-pct">0%</span>
+      </div>
+      <div class="progress-bar-bg">
+        <div class="progress-bar-fill" id="progress-fill" style="width:0%"></div>
+      </div>
+    </div>
+
+    <button class="open-btn" id="open-app">
+      📖 학습 시작하기
+    </button>
+
+    <div class="quick-links">
+      <button class="quick-btn" data-view="learn">📚 학습</button>
+      <button class="quick-btn" data-view="quiz">✏️ 퀴즈</button>
+      <button class="quick-btn" data-view="write">🖊️ 필기</button>
+      <button class="quick-btn" data-view="progress">📊 진도</button>
+    </div>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>
