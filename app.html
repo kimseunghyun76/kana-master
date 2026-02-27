@@ -87,6 +87,11 @@
             <span class="qc-title">진도 확인</span>
             <span class="qc-desc">내 학습 현황</span>
           </button>
+          <button class="quick-card" onclick="App.startAllBrowse()">
+            <span class="qc-icon">📋</span>
+            <span class="qc-title">전체 일람</span>
+            <span class="qc-desc">전체 글자 복습</span>
+          </button>
         </div>
       </div>
     </div>
@@ -170,6 +175,7 @@
           </div>
           <div class="bc-right">
             <button class="bc-btn" id="bc-readall-btn">🔊 전체 듣기</button>
+            <button class="bc-btn bc-secondary" id="bc-flashcard-btn">🃏 하나씩 맞추기</button>
             <button class="bc-btn bc-primary" id="bc-slideshow-btn">▶ 슬라이드쇼</button>
             <select id="bc-interval-select" title="슬라이드쇼 간격">
               <option value="2">2초</option>
@@ -352,6 +358,15 @@
             <button class="cc-btn cc-clear" id="clear-btn">🗑 지우기</button>
             <button class="cc-btn cc-prev" id="write-prev">◀</button>
             <button class="cc-btn cc-next" id="write-next">▶</button>
+            <button class="cc-btn cc-exam" id="exam-mode-btn">🎯 시험 모드</button>
+            <button class="cc-btn cc-check" id="exam-check-btn" style="display:none">✔ 정답 확인</button>
+          </div>
+          <div class="exam-result" id="exam-result" style="display:none">
+            <span class="exam-score" id="exam-score-text"></span>
+            <div class="exam-eval-btns">
+              <button class="ev-btn ev-ok" onclick="App.writeExamResult(true)">✅ 맞았어요</button>
+              <button class="ev-btn ev-fail" onclick="App.writeExamResult(false)">❌ 틀렸어요</button>
+            </div>
           </div>
 
           <div class="stroke-order-info">

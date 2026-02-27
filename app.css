@@ -186,7 +186,7 @@ html, body {
 .lc-btn-quiz:hover { background: var(--red); color: white; }
 
 .quick-grid {
-  display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 10px;
 }
 .quick-card {
   background: white; border: 1.5px solid var(--border);
@@ -335,6 +335,8 @@ html, body {
 .bc-btn.bc-active { border-color: var(--blue); color: var(--blue); background: var(--blue-light); }
 .bc-btn.bc-primary { background: var(--red); color: white; border-color: var(--red); }
 .bc-btn.bc-primary:hover { background: var(--red-dark); }
+.bc-btn.bc-secondary { background: var(--blue-light); color: var(--blue); border-color: var(--blue); font-weight: 600; }
+.bc-btn.bc-secondary:hover { background: var(--blue); color: white; }
 #bc-interval-select {
   padding: 6px 8px; border: 1.5px solid var(--border);
   border-radius: 6px; font-size: 12px; font-family: inherit;
@@ -637,6 +639,27 @@ html, body {
 .cc-overlay.on { background: var(--red-light); border-color: var(--red); color: var(--red); }
 .cc-clear:hover { border-color: #e53e3e; background: #fff0f0; color: #e53e3e; }
 .cc-prev, .cc-next { flex: 1; }
+.cc-exam { border-color: #ed8936; color: #c05621; }
+.cc-exam:hover, .cc-exam.on { background: #c05621; border-color: #c05621; color: white; }
+.cc-check { border-color: #4299e1; color: #2b6cb0; background: #ebf8ff; }
+.cc-check:hover { background: #4299e1; color: white; border-color: #4299e1; }
+
+.exam-result {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 10px; padding: 14px; margin-top: 10px;
+  background: #f0fff4; border-radius: 12px;
+  border: 2px solid #9ae6b4; animation: fadeIn 0.2s;
+}
+.exam-score { font-size: 13px; color: #2d6a4f; font-weight: 600; }
+.exam-eval-btns { display: flex; gap: 12px; }
+.ev-btn {
+  padding: 10px 22px; border-radius: 10px; font-size: 14px;
+  font-weight: 700; cursor: pointer; border: none; transition: all 0.15s;
+}
+.ev-ok { background: #c6f6d5; color: #276749; }
+.ev-ok:hover { background: #9ae6b4; transform: scale(1.05); }
+.ev-fail { background: #fed7d7; color: #c53030; }
+.ev-fail:hover { background: #feb2b2; transform: scale(1.05); }
 
 .stroke-order-info { padding-top: 12px; border-top: 1px solid var(--border); }
 .stroke-order-info p { font-size: 12px; color: var(--gray); line-height: 1.6; }

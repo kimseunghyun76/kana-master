@@ -33,6 +33,8 @@ const App = (() => {
     isDrawing: false,
     lastX: 0,
     lastY: 0,
+    writeExamMode: false,
+    writeExamScore: { ok: 0, fail: 0 },
     // 설정
     prefs: { lang: 'korean', autoplay: false, autonext: false },
     // 진도
@@ -419,6 +421,22 @@ const App = (() => {
         ? [...state.learnChars].sort(() => Math.random() - 0.5)
         : state.learnChars;
       startSlideshow(chars);
+    };
+
+    // 하나씩 맞추기 (플래시카드로 전환)
+    const flashcardBtn = document.getElementById('bc-flashcard-btn');
+    flashcardBtn.onclick = () => {
+      const chars = state.browseRandom
+        ? [...state.learnChars].sort(() => Math.random() - 0.5)
+        : [...state.learnChars];
+      state.learnChars = chars;
+      state.learnIndex = 0;
+      state.learnMode = 'flash';
+      state.learnFlipped = false;
+      document.getElementById('browse-area').style.display = 'none';
+      document.getElementById('flashcard-area').style.display = 'block';
+      showFlashcard();
+      setupFlashcardControls();
     };
   }
 
@@ -972,12 +990,24 @@ const App = (() => {
     document.getElementById('wci-romaji').textContent = char.romaji;
     document.getElementById('wci-korean').textContent = char.korean;
 
-    // 필기 힌트
-    const hints = getStrokeHint(char.kana);
-    document.getElementById('stroke-hint').textContent = hints;
-
-    // 오버레이 업데이트
-    updateCanvasOverlay(char.kana);
+    // 시험 모드: 글자 숨기기
+    const kanaEl = document.getElementById('wci-kana');
+    if (state.writeExamMode) {
+      kanaEl.style.visibility = 'hidden';
+      document.getElementById('exam-check-btn').style.display = 'inline-block';
+      document.getElementById('exam-result').style.display = 'none';
+      // 오버레이 강제 숨기기
+      state.overlayOn = false;
+      document.getElementById('overlay-btn').classList.remove('on');
+      document.getElementById('overlay-btn').textContent = '👁 글자 표시';
+      updateCanvasOverlay('');
+    } else {
+      kanaEl.style.visibility = 'visible';
+      // 필기 힌트
+      const hints = getStrokeHint(char.kana);
+      document.getElementById('stroke-hint').textContent = hints;
+      updateCanvasOverlay(char.kana);
+    }
   }
 
   function getStrokeHint(kana) {
@@ -1008,7 +1038,7 @@ const App = (() => {
     const canvas = document.getElementById('write-canvas');
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
-    ctx.lineWidth = 4;
+    ctx.lineWidth = 8;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
     ctx.strokeStyle = '#2d3748';
@@ -1099,6 +1129,101 @@ const App = (() => {
     drawGrid(ctx, canvas.width, canvas.height);
   }
 
+  function toggleWriteExam() {
+    state.writeExamMode = !state.writeExamMode;
+    state.writeExamScore = { ok: 0, fail: 0 };
+    const btn = document.getElementById('exam-mode-btn');
+    btn.classList.toggle('on', state.writeExamMode);
+    btn.textContent = state.writeExamMode ? '🎯 시험 중' : '🎯 시험 모드';
+
+    if (state.writeExamMode) {
+      // 시험 시작: 글자 숨기고 정답확인 버튼 표시
+      document.getElementById('wci-kana').style.visibility = 'hidden';
+      document.getElementById('exam-check-btn').style.display = 'inline-block';
+      document.getElementById('exam-result').style.display = 'none';
+      // 오버레이 끄기
+      state.overlayOn = false;
+      document.getElementById('overlay-btn').classList.remove('on');
+      document.getElementById('overlay-btn').textContent = '👁 글자 표시';
+      updateCanvasOverlay('');
+    } else {
+      // 시험 종료: 원상복귀
+      document.getElementById('wci-kana').style.visibility = 'visible';
+      document.getElementById('exam-check-btn').style.display = 'none';
+      document.getElementById('exam-result').style.display = 'none';
+      const char = state.writeChars[state.writeIndex];
+      if (char) updateCanvasOverlay(char.kana);
+    }
+    clearCanvas();
+  }
+
+  function writeExamCheck() {
+    const char = state.writeChars[state.writeIndex];
+    if (!char) return;
+    // 정답(글자) 드러내기
+    document.getElementById('wci-kana').style.visibility = 'visible';
+    // 오버레이 가이드 표시
+    state.overlayOn = true;
+    document.getElementById('overlay-btn').classList.add('on');
+    document.getElementById('overlay-btn').textContent = '👁 글자 숨기기';
+    updateCanvasOverlay(char.kana);
+    // 정답 확인 버튼 숨기고 평가 버튼 표시
+    document.getElementById('exam-check-btn').style.display = 'none';
+    const total = state.writeExamScore.ok + state.writeExamScore.fail;
+    const remaining = state.writeChars.length - total;
+    document.getElementById('exam-score-text').textContent =
+      `${state.writeExamScore.ok}✅  ${state.writeExamScore.fail}❌  남은 글자: ${remaining}`;
+    document.getElementById('exam-result').style.display = 'flex';
+  }
+
+  function writeExamResult(ok) {
+    if (ok) state.writeExamScore.ok++;
+    else state.writeExamScore.fail++;
+
+    if (state.writeIndex < state.writeChars.length - 1) {
+      state.writeIndex++;
+      document.querySelectorAll('.write-char-item').forEach((el, j) => {
+        el.classList.toggle('active', j === state.writeIndex);
+      });
+      updateWriteChar();
+      clearCanvas();
+    } else {
+      const total = state.writeExamScore.ok + state.writeExamScore.fail;
+      const pct = total > 0 ? Math.round(state.writeExamScore.ok / total * 100) : 0;
+      showToast(`시험 완료! 정답 ${state.writeExamScore.ok}/${total} (${pct}%) 🎉`);
+      toggleWriteExam();
+    }
+  }
+
+  function startAllBrowse() {
+    const allChars = [];
+    LEVELS.forEach(level => {
+      if (state.unlockedLevels.includes(level.id)) {
+        getLevelChars(level.id).forEach(ch => {
+          if (!allChars.find(c => c.kana === ch.kana)) allChars.push(ch);
+        });
+      }
+    });
+    if (allChars.length === 0) {
+      showToast('먼저 레벨을 해금하세요!');
+      return;
+    }
+    state.learnChars = allChars;
+    state.learnLevelId = 0;
+    state.browseRandom = false;
+
+    showView('learn');
+    document.getElementById('learn-level-name').textContent = '전체 일람';
+    document.getElementById('learn-level-title').textContent = `해금된 글자 ${allChars.length}자`;
+    document.getElementById('learn-card-num').textContent = '';
+
+    document.getElementById('learn-mode-selector').style.display = 'none';
+    document.getElementById('flashcard-area').style.display = 'none';
+    document.getElementById('browse-area').style.display = 'block';
+    state.learnMode = 'browse';
+    renderBrowse();
+  }
+
   function setupWriteControls() {
     document.getElementById('overlay-btn').onclick = () => {
       state.overlayOn = !state.overlayOn;
@@ -1133,6 +1258,8 @@ const App = (() => {
       const char = state.writeChars[state.writeIndex];
       if (char) playAudio(char.kana);
     };
+    document.getElementById('exam-mode-btn').onclick = toggleWriteExam;
+    document.getElementById('exam-check-btn').onclick = writeExamCheck;
   }
 
   // ─── 진도 ───
@@ -1359,7 +1486,11 @@ const App = (() => {
     startReview,
     startLearn,
     startQuizForLevel,
-    backToQuizSetup
+    backToQuizSetup,
+    startAllBrowse,
+    toggleWriteExam,
+    writeExamCheck,
+    writeExamResult
   };
 })();
 
