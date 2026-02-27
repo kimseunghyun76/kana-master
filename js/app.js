@@ -25,6 +25,7 @@ const App = (() => {
     quizWrong: 0,
     quizWrongList: [],
     quizAnswered: false,
+    quizCountdownTimer: null,
     // 필기
     writeType: 'hiragana',
     writeChars: [],
@@ -714,6 +715,7 @@ const App = (() => {
     state.quizWrong = 0;
     state.quizWrongList = [];
     state.quizAnswered = false;
+    if (state.quizCountdownTimer) { clearInterval(state.quizCountdownTimer); state.quizCountdownTimer = null; }
 
     document.getElementById('quiz-setup').style.display = 'none';
     document.getElementById('quiz-game').style.display = 'block';
@@ -758,32 +760,53 @@ const App = (() => {
 
     state.quizAnswered = false;
 
+    // 진행 중인 카운트다운 타이머 클리어
+    if (state.quizCountdownTimer) {
+      clearInterval(state.quizCountdownTimer);
+      state.quizCountdownTimer = null;
+    }
+
     // 질문 박스
     const qbox = document.getElementById('quiz-question-box');
     qbox.innerHTML = '';
 
+    let qInner = '';
     if (q.qtype === 'kanaToReading') {
-      qbox.innerHTML = `
-        <div>
+      qInner = `
+        <div style="width:100%">
           <div class="qb-kana">${q.kana}</div>
           <div class="qb-label">이 글자의 발음은?</div>
           <button class="audio-btn" style="margin-top:10px" onclick="App.playAudio('${q.kana}')">🔊 발음 듣기</button>
         </div>`;
     } else if (q.qtype === 'readingToKana') {
       const readingText = getReadingText(q.info, q.qlang);
-      qbox.innerHTML = `
-        <div>
+      qInner = `
+        <div style="width:100%">
           <div class="qb-reading">${readingText}</div>
           <div class="qb-label">이 발음에 해당하는 글자는?</div>
         </div>`;
     } else if (q.qtype === 'listen') {
-      qbox.innerHTML = `
-        <div style="text-align:center">
+      qInner = `
+        <div style="text-align:center; width:100%">
           <button class="qb-listen-btn" onclick="App.playAudio('${q.kana}')">🔊 발음 듣기</button>
           <div class="qb-label" style="margin-top:12px">들은 발음에 해당하는 글자는?</div>
         </div>`;
-      // 자동 재생
       setTimeout(() => playAudio(q.kana), 300);
+    }
+    qbox.innerHTML = qInner;
+
+    // ── 힌트: 예시 단어를 문제 하단에 표시 ──
+    const hints = (q.info.examples || []).slice(0, 3);
+    if (hints.length) {
+      const hintDiv = document.createElement('div');
+      hintDiv.className = 'quiz-question-hint';
+      hintDiv.innerHTML = `<span class="quiz-hint-label">💡 힌트 — 예시 단어</span>` +
+        hints.map(e =>
+          `<span class="quiz-hint-ex" onclick="App.playAudio('${e.word}')">` +
+          `<strong>${e.word}</strong> <span style="color:var(--red)">[${e.reading}]</span> ${e.meaning}` +
+          `</span>`
+        ).join('');
+      qbox.appendChild(hintDiv);
     }
 
     // 선택지
@@ -796,11 +819,9 @@ const App = (() => {
       btn.dataset.kana = choice.kana;
 
       if (q.qtype === 'kanaToReading') {
-        // 글자→발음: 선택지에 발음 표기 표시
         const reading = getReadingText(choice, q.qlang);
         btn.innerHTML = `<span class="choice-reading">${reading}</span>`;
       } else {
-        // 발음→글자 / 듣기→글자: 선택지에 일본어 글자만 표시 (발음 표기 없음)
         btn.innerHTML = `<span class="choice-kana">${choice.kana}</span>`;
       }
 
@@ -810,6 +831,8 @@ const App = (() => {
 
     // 피드백 숨김
     document.getElementById('quiz-feedback').style.display = 'none';
+    document.getElementById('qf-countdown').style.display = 'none';
+    document.getElementById('qf-countdown-label').style.display = 'none';
   }
 
   function getReadingText(info, lang) {
@@ -851,41 +874,70 @@ const App = (() => {
     const qfResult = document.getElementById('qf-result');
     const qfCorrect = document.getElementById('qf-correct');
     const qfExamples = document.getElementById('qf-examples');
+    const qfCountdown = document.getElementById('qf-countdown');
+    const qfCountdownLabel = document.getElementById('qf-countdown-label');
+    const nextBtn = document.getElementById('qf-next-btn');
+
+    qfExamples.innerHTML = '';
 
     if (isCorrect) {
       qfResult.textContent = '✓ 정답!';
       qfResult.className = 'qf-result correct';
+      qfCorrect.textContent = '';
       playCorrectSound();
+
+      // ── 3초 카운트다운 후 자동 이동 ──
+      let count = 3;
+      qfCountdown.textContent = count;
+      qfCountdown.style.display = 'block';
+      qfCountdownLabel.textContent = '초 후 자동으로 다음 문제';
+      qfCountdownLabel.style.display = 'block';
+      nextBtn.textContent = '지금 다음 문제 →';
+
+      state.quizCountdownTimer = setInterval(() => {
+        count--;
+        if (count <= 0) {
+          clearInterval(state.quizCountdownTimer);
+          state.quizCountdownTimer = null;
+          nextQuizQuestion();
+        } else {
+          qfCountdown.textContent = count;
+        }
+      }, 1000);
+
+      // 버튼으로 즉시 이동 (타이머 취소)
+      nextBtn.onclick = () => {
+        if (state.quizCountdownTimer) {
+          clearInterval(state.quizCountdownTimer);
+          state.quizCountdownTimer = null;
+        }
+        nextQuizQuestion();
+      };
+
     } else {
       qfResult.textContent = '✗ 틀렸어요';
       qfResult.className = 'qf-result wrong';
       qfCorrect.textContent = `정답: ${q.kana} = ${getReadingText(q.info, q.qlang)}`;
+      qfCountdown.style.display = 'none';
+      qfCountdownLabel.style.display = 'none';
+      nextBtn.textContent = '다음 문제 →';
       playWrongSound();
-    }
 
-    if (isCorrect) qfCorrect.textContent = '';
+      // 오답일 때만 피드백에 예시 표시
+      const examples = q.info.examples || [];
+      if (examples.length) {
+        examples.slice(0, 2).forEach(e => {
+          const row = document.createElement('div');
+          row.style.cssText = 'margin:4px 0; cursor:pointer; padding:3px 8px; border-radius:6px; display:inline-flex; align-items:center; gap:5px;';
+          row.innerHTML = `<span style="font-size:13px">🔊</span><strong>${e.word}</strong><span style="color:var(--red)">[${e.reading}]</span><span style="color:var(--gray)">${e.meaning}</span>`;
+          row.addEventListener('click', () => playAudio(e.word));
+          row.addEventListener('mouseenter', () => row.style.background = 'var(--red-light)');
+          row.addEventListener('mouseleave', () => row.style.background = '');
+          qfExamples.appendChild(row);
+        });
+      }
 
-    // 예시 단어 표시 (클릭 시 발음 재생)
-    const examples = q.info.examples || [];
-    qfExamples.innerHTML = '';
-    if (examples.length) {
-      examples.slice(0, 2).forEach(e => {
-        const row = document.createElement('div');
-        row.style.cssText = 'margin:4px 0; cursor:pointer; padding:3px 8px; border-radius:6px; display:inline-flex; align-items:center; gap:5px;';
-        row.innerHTML = `<span style="font-size:13px">🔊</span><strong>${e.word}</strong><span style="color:var(--red)">[${e.reading}]</span><span style="color:var(--gray)">${e.meaning}</span>`;
-        row.addEventListener('click', () => playAudio(e.word));
-        row.addEventListener('mouseenter', () => row.style.background = 'var(--red-light)');
-        row.addEventListener('mouseleave', () => row.style.background = '');
-        qfExamples.appendChild(row);
-      });
-    }
-
-    // 자동 다음 또는 버튼
-    const nextBtn = document.getElementById('qf-next-btn');
-    nextBtn.onclick = nextQuizQuestion;
-
-    if (state.prefs.autonext) {
-      setTimeout(nextQuizQuestion, isCorrect ? 1200 : 2000);
+      nextBtn.onclick = nextQuizQuestion;
     }
   }
 
@@ -1138,6 +1190,12 @@ const App = (() => {
     }
     overlay.textContent = kana;
     overlay.style.opacity = state.overlayOn ? '1' : '0';
+    // 요음(きゃ 등 2자 복합) 글자는 폰트 크기 축소
+    if (kana && kana.length > 1) {
+      overlay.classList.add('compound');
+    } else {
+      overlay.classList.remove('compound');
+    }
   }
 
   function getCanvasPos(canvas, e) {

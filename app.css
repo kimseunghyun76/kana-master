@@ -233,8 +233,8 @@ html, body {
   perspective: 1000px;
   cursor: pointer;
   margin: 0 auto 16px;
-  max-width: 500px;
-  height: 320px;
+  max-width: 560px;
+  height: 400px;
 }
 .flashcard-inner {
   width: 100%; height: 100%;
@@ -254,9 +254,9 @@ html, body {
   box-shadow: var(--shadow-md);
 }
 .flashcard-back { transform: rotateY(180deg); }
-.fc-kana { font-size: 110px; line-height: 1; color: var(--text); }
+.fc-kana { font-size: 130px; line-height: 1; color: var(--text); }
 .fc-hint { color: var(--gray); font-size: 13px; margin-top: 12px; }
-.fc-kana-small { font-size: 50px; line-height: 1; margin-bottom: 6px; }
+.fc-kana-small { font-size: 56px; line-height: 1; margin-bottom: 6px; }
 .fc-romaji { font-size: 32px; font-weight: 700; color: var(--red); letter-spacing: 2px; }
 .fc-pronunciations { display: flex; align-items: center; gap: 8px; margin: 8px 0; }
 .fc-kor { font-size: 22px; font-weight: 700; color: var(--blue); }
@@ -510,12 +510,40 @@ html, body {
 .qf-result.wrong { color: var(--red); }
 .qf-correct { font-size: 16px; margin-bottom: 8px; }
 .qf-examples { font-size: 13px; color: var(--gray); margin-bottom: 12px; }
+.qf-countdown {
+  font-size: 40px; font-weight: 900; color: var(--green);
+  margin: 4px 0 8px; line-height: 1;
+  animation: countdown-pulse 1s ease-in-out infinite;
+}
+@keyframes countdown-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(0.85); }
+}
+.qf-countdown-label { font-size: 12px; color: var(--gray); margin-bottom: 8px; }
 .qf-next-btn {
   background: var(--blue); color: white;
   border: none; border-radius: 8px;
   padding: 10px 24px; cursor: pointer; font-size: 15px; font-weight: 600;
 }
 .qf-next-btn:hover { background: #3451d1; }
+
+/* 퀴즈 문제 힌트 */
+.quiz-question-hint {
+  margin-top: 14px; padding-top: 10px;
+  border-top: 1px dashed var(--border);
+  font-size: 11px; color: var(--gray);
+  text-align: center; line-height: 1.8;
+  width: 100%;
+}
+.quiz-hint-label { font-weight: 600; margin-bottom: 4px; display: block; }
+.quiz-hint-ex {
+  display: inline-block; background: var(--bg);
+  border: 1px solid var(--border); border-radius: 6px;
+  padding: 2px 8px; margin: 2px;
+  font-size: 12px; cursor: pointer; transition: background 0.15s;
+}
+.quiz-hint-ex:hover { background: var(--red-light); }
+.quiz-hint-ex strong { color: var(--text); }
 
 .quiz-result {
   text-align: center; padding: 40px 20px;
@@ -601,7 +629,7 @@ html, body {
 
 .canvas-wrapper {
   position: relative; display: inline-block;
-  width: 300px; height: 300px;
+  width: 380px; height: 380px;
   border: 2px solid var(--border); border-radius: 12px;
   overflow: hidden; background: white; margin-bottom: 12px;
 }
@@ -614,11 +642,13 @@ html, body {
   position: absolute; top: 0; left: 0;
   width: 100%; height: 100%;
   display: flex; align-items: center; justify-content: center;
-  font-size: 200px; color: rgba(200,60,60,0.12);
+  font-size: 240px; color: rgba(200,60,60,0.12);
   pointer-events: none; z-index: 1;
   user-select: none;
   transition: opacity 0.3s;
+  letter-spacing: -4px;
 }
+.canvas-overlay-char.compound { font-size: 140px; letter-spacing: -6px; }
 /* 격자선 */
 .canvas-grid {
   position: absolute; top: 0; left: 0; width: 100%; height: 100%;
