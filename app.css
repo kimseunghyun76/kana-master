@@ -802,4 +802,135 @@ html, body {
   .mode-grid { flex-direction: column; }
   .header-stat { display: none; }
   .header-stat:first-child { display: block; }
+  .vocab-cat-grid { grid-template-columns: repeat(2,1fr); }
 }
+
+/* ============================================================
+   단어 학습 (4·5단계) - Vocab Styles
+   ============================================================ */
+
+/* ─── 홈 단어 섹션 ─── */
+.vocab-home-section {
+  margin-top: 24px;
+  padding: 16px;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.vocab-home-section h3 {
+  font-size: 16px; font-weight: 700; color: var(--text);
+  margin-bottom: 6px;
+}
+.vocab-home-desc {
+  font-size: 13px; color: var(--gray); margin-bottom: 14px;
+}
+.vocab-phase-row { margin-bottom: 16px; }
+.vocab-phase-heading {
+  display: flex; align-items: center; gap: 8px; margin-bottom: 10px;
+}
+.vpc-phase-badge {
+  font-size: 11px; font-weight: 700; padding: 2px 8px;
+  border-radius: 99px; color: white;
+}
+.vpc-phase-4 { background: var(--blue); }
+.vpc-phase-5 { background: #7c3aed; }
+.vpc-phase-title { font-size: 13px; font-weight: 600; color: var(--text); }
+
+/* ─── 카테고리 카드 그리드 ─── */
+.vocab-cat-grid {
+  display: grid;
+  grid-template-columns: repeat(3,1fr);
+  gap: 10px;
+}
+.vocab-cat-card {
+  background: var(--gray-light);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px 10px;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.18s;
+}
+.vocab-cat-card:hover {
+  border-color: var(--blue);
+  background: var(--blue-light);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
+.vocab-cat-card-sm { padding: 8px 6px; }
+.vcc-icon { font-size: 22px; margin-bottom: 4px; }
+.vcc-name { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 2px; }
+.vcc-sub { font-size: 11px; color: var(--gray); margin-bottom: 6px; }
+.vcc-prog-bar {
+  height: 4px; background: var(--border); border-radius: 99px; overflow: hidden;
+  margin-bottom: 2px;
+}
+.vcc-prog-fill { height: 100%; background: var(--blue); border-radius: 99px; transition: width 0.3s; }
+.vcc-prog-text { font-size: 10px; color: var(--gray); }
+
+/* ─── 단어 뷰 셋업 헤더 ─── */
+.vocab-setup-header {
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: 16px;
+}
+.vocab-setup-header h3 { font-size: 17px; font-weight: 700; }
+.vocab-phase-section { margin-bottom: 20px; }
+
+/* ─── 단어 플래시카드 앞면 - 카나/한자 ─── */
+.vfc-kanji {
+  font-size: 22px; color: var(--text-light);
+  font-weight: 400; margin-top: 4px;
+}
+.vfc-kanji-back {
+  font-size: 16px; color: var(--text-light); margin-bottom: 4px;
+}
+.vfc-tip {
+  margin-top: 10px; padding: 6px 12px;
+  background: #fffbeb; border-left: 3px solid #f59e0b;
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  font-size: 12px; color: #92400e;
+}
+.vfc-example {
+  margin-top: 8px; padding: 6px 12px;
+  background: var(--blue-light); border-left: 3px solid var(--blue);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  font-size: 12px; color: #1e40af;
+}
+
+/* ─── 단어 퀴즈 ─── */
+.qb-vocab-prompt { text-align: center; padding: 16px 8px; }
+.qb-vocab-korean {
+  font-size: 28px; font-weight: 700; color: var(--text);
+  margin-bottom: 8px;
+}
+.vocab-choice-btn {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 2px; padding: 12px 8px !important;
+}
+.vc-japanese { font-size: 20px; font-weight: 700; }
+.vc-kanji { font-size: 13px; color: var(--text-light); }
+
+/* ─── 단어 퀴즈 피드백 tip/example ─── */
+.vqf-tip {
+  margin-top: 6px; padding: 5px 10px;
+  background: #fffbeb; border-left: 3px solid #f59e0b;
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  font-size: 12px; color: #92400e;
+}
+.vqf-example {
+  margin-top: 5px; padding: 5px 10px;
+  background: var(--blue-light); border-left: 3px solid var(--blue);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  font-size: 12px; color: #1e40af;
+}
+
+/* ─── 퀴즈 결과 버튼 ─── */
+.qr-btns { display: flex; gap: 10px; justify-content: center; margin-top: 16px; }
+.qr-btn {
+  padding: 10px 20px; border: none; border-radius: var(--radius-sm);
+  font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.18s;
+}
+.qr-btn-retry { background: var(--blue); color: white; }
+.qr-btn-retry:hover { background: #3451d1; }
+.qr-btn-back { background: var(--gray-light); color: var(--text); border: 1px solid var(--border); }
+.qr-btn-back:hover { background: var(--border); }

@@ -42,7 +42,18 @@ const App = (() => {
     totalXP: 0,
     streak: 0,
     lastStudied: null,
-    unlockedLevels: [1]
+    unlockedLevels: [1],
+    // 단어 학습
+    vocabCurrentCategoryId: null,
+    vocabItems: [],
+    vocabIndex: 0,
+    vocabFlipped: false,
+    vocabMode: null,
+    vocabQuizQuestions: [],
+    vocabQuizCurrentIdx: 0,
+    vocabQuizCorrect: 0,
+    vocabQuizAnswered: false,
+    vocabProgress: {}
   };
 
   // ─── 초기화 ───
@@ -85,6 +96,7 @@ const App = (() => {
     state.unlockedLevels = data.unlockedLevels || [1];
     state.currentLevel = data.currentLevel || 1;
     state.prefs = data.prefs || { lang: 'korean', autoplay: false, autonext: false };
+    state.vocabProgress = data.vocabProgress || {};
 
     // 연속 학습 체크
     const today = new Date().toDateString();
@@ -103,7 +115,8 @@ const App = (() => {
       lastStudied: state.lastStudied,
       unlockedLevels: state.unlockedLevels,
       currentLevel: state.currentLevel,
-      prefs: state.prefs
+      prefs: state.prefs,
+      vocabProgress: state.vocabProgress
     };
     if (typeof chrome !== 'undefined' && chrome.storage) {
       chrome.storage.local.set({ kanaProgress: data });
@@ -147,6 +160,7 @@ const App = (() => {
     if (viewName === 'quiz') setupQuizView();
     if (viewName === 'write') setupWriteView();
     if (viewName === 'progress') renderProgress();
+    if (viewName === 'vocab') setupVocabView();
   }
 
   // ─── 홈 ───
@@ -206,6 +220,9 @@ const App = (() => {
       }
       grid.appendChild(card);
     });
+
+    // 홈 단어 카드 렌더링
+    renderHomeVocabCards();
   }
 
   function getLevelProgress(level) {
@@ -1340,12 +1357,16 @@ const App = (() => {
         state.streak = 0;
         state.unlockedLevels = [1];
         state.currentLevel = 1;
+        state.vocabProgress = {};
         saveToStorage();
         updateHeader();
         renderProgress();
         showToast('진도가 초기화되었습니다.');
       }
     };
+
+    // 단어 진도 표시
+    renderVocabProgress();
   }
 
   // ─── 설정 ───
@@ -1469,6 +1490,383 @@ const App = (() => {
     } catch (e) {}
   }
 
+  // ─── 단어 학습 (4·5단계) ───
+
+  function setupVocabView() {
+    renderVocabCategories();
+    document.getElementById('vocab-setup').style.display = 'block';
+    document.getElementById('vocab-flash-panel').style.display = 'none';
+    document.getElementById('vocab-flash-back').onclick = vocabBackToSetup;
+  }
+
+  function renderVocabCategories() {
+    [4, 5].forEach(phase => {
+      const grid = document.getElementById(`vocab-cat-grid-${phase}`);
+      if (!grid) return;
+      grid.innerHTML = '';
+      VOCAB_CATEGORIES.filter(c => c.phase === phase).forEach(cat => {
+        const prog = getVocabCategoryProgress(cat.id);
+        const card = document.createElement('div');
+        card.className = 'vocab-cat-card';
+        card.innerHTML = `
+          <div class="vcc-icon">${cat.icon}</div>
+          <div class="vcc-name">${cat.name}</div>
+          <div class="vcc-sub">${cat.subtitle}</div>
+          <div class="vcc-prog-bar"><div class="vcc-prog-fill" style="width:${prog}%"></div></div>
+          <div class="vcc-prog-text">${prog}% · ${cat.items.length}개</div>`;
+        card.addEventListener('click', () => startVocabCategory(cat.id));
+        grid.appendChild(card);
+      });
+    });
+  }
+
+  function renderHomeVocabCards() {
+    [4, 5].forEach(phase => {
+      const grid = document.getElementById(`home-vocab-grid-${phase}`);
+      if (!grid) return;
+      grid.innerHTML = '';
+      VOCAB_CATEGORIES.filter(c => c.phase === phase).forEach(cat => {
+        const prog = getVocabCategoryProgress(cat.id);
+        const card = document.createElement('div');
+        card.className = 'vocab-cat-card vocab-cat-card-sm';
+        card.innerHTML = `
+          <div class="vcc-icon">${cat.icon}</div>
+          <div class="vcc-name">${cat.name}</div>
+          <div class="vcc-prog-bar"><div class="vcc-prog-fill" style="width:${prog}%"></div></div>`;
+        card.addEventListener('click', () => {
+          showView('vocab');
+          setTimeout(() => startVocabCategory(cat.id), 100);
+        });
+        grid.appendChild(card);
+      });
+    });
+  }
+
+  function startVocabCategory(catId) {
+    const cat = VOCAB_CATEGORIES.find(c => c.id === catId);
+    if (!cat) return;
+    state.vocabCurrentCategoryId = catId;
+    state.vocabItems = getVocabCategoryItems(catId);
+    state.vocabIndex = 0;
+    state.vocabFlipped = false;
+    state.vocabMode = null;
+
+    document.getElementById('vocab-cat-name').textContent = `${cat.icon} ${cat.name}`;
+    document.getElementById('vocab-cat-subtitle').textContent = cat.subtitle;
+
+    document.getElementById('vocab-setup').style.display = 'none';
+    document.getElementById('vocab-flash-panel').style.display = 'block';
+    document.getElementById('vocab-mode-selector').style.display = 'block';
+    document.getElementById('vocab-flashcard-area').style.display = 'none';
+    document.getElementById('vocab-quiz-area').style.display = 'none';
+
+    document.getElementById('vocab-mode-flash').onclick = () => {
+      state.vocabMode = 'flash';
+      state.vocabIndex = 0;
+      state.vocabFlipped = false;
+      document.getElementById('vocab-mode-selector').style.display = 'none';
+      document.getElementById('vocab-flashcard-area').style.display = 'block';
+      showVocabFlashcard();
+      setupVocabFlashcardControls();
+    };
+    document.getElementById('vocab-mode-quiz').onclick = () => {
+      state.vocabMode = 'quiz';
+      document.getElementById('vocab-mode-selector').style.display = 'none';
+      document.getElementById('vocab-quiz-area').style.display = 'block';
+      startVocabQuiz();
+    };
+  }
+
+  function getVocabCategoryProgress(catId) {
+    const cat = VOCAB_CATEGORIES.find(c => c.id === catId);
+    if (!cat || !cat.items.length) return 0;
+    const mastered = cat.items.filter(id => isVocabItemMastered(id)).length;
+    return Math.round((mastered / cat.items.length) * 100);
+  }
+
+  function isVocabItemMastered(id) {
+    const p = state.vocabProgress[id];
+    if (!p || p.correct < 3) return false;
+    const total = (p.correct || 0) + (p.incorrect || 0);
+    return total > 0 && (p.correct / total) >= 0.75;
+  }
+
+  // ─── 단어 플래시카드 ───
+
+  function showVocabFlashcard() {
+    const items = state.vocabItems;
+    if (!items.length) return;
+    const idx = state.vocabIndex;
+    const total = items.length;
+    const item = items[idx];
+
+    document.getElementById('vocab-card-num').textContent = `${idx + 1} / ${total}`;
+    document.getElementById('vfc-progress-fill').style.width = `${(idx / total) * 100}%`;
+
+    // 앞면
+    document.getElementById('vfc-japanese').textContent = item.japanese;
+    const kanjiEl = document.getElementById('vfc-kanji');
+    if (item.kanji) { kanjiEl.textContent = item.kanji; kanjiEl.style.display = 'block'; }
+    else { kanjiEl.textContent = ''; kanjiEl.style.display = 'none'; }
+
+    // 뒷면
+    document.getElementById('vfc-japanese-back').textContent = item.japanese;
+    const kanjiBEl = document.getElementById('vfc-kanji-back');
+    if (item.kanji) { kanjiBEl.textContent = item.kanji; kanjiBEl.style.display = 'block'; }
+    else { kanjiBEl.textContent = ''; kanjiBEl.style.display = 'none'; }
+    document.getElementById('vfc-romaji').textContent = item.romaji;
+    document.getElementById('vfc-korean').textContent = item.korean;
+
+    const tipEl = document.getElementById('vfc-tip');
+    if (item.tip) { tipEl.textContent = '💡 ' + item.tip; tipEl.style.display = 'block'; }
+    else tipEl.style.display = 'none';
+
+    const exEl = document.getElementById('vfc-example');
+    if (item.example) { exEl.textContent = '📝 ' + item.example; exEl.style.display = 'block'; }
+    else exEl.style.display = 'none';
+
+    // 카드 리셋
+    state.vocabFlipped = false;
+    document.getElementById('vfc-inner').classList.remove('flipped');
+
+    // 자동 발음
+    setTimeout(() => playAudio(item.japanese), 350);
+    markVocabSeen(item.id);
+  }
+
+  function vocabFlipCard() {
+    state.vocabFlipped = !state.vocabFlipped;
+    document.getElementById('vfc-inner').classList.toggle('flipped', state.vocabFlipped);
+    if (state.vocabFlipped) {
+      const item = state.vocabItems[state.vocabIndex];
+      playAudio(item.japanese);
+    }
+  }
+
+  function setupVocabFlashcardControls() {
+    document.getElementById('vfc-prev').onclick = () => {
+      if (state.vocabIndex > 0) { state.vocabIndex--; showVocabFlashcard(); }
+    };
+    document.getElementById('vfc-next').onclick = () => {
+      if (state.vocabIndex < state.vocabItems.length - 1) {
+        state.vocabIndex++; showVocabFlashcard();
+      } else {
+        showToast('플래시카드 완료! 🎉 퀴즈로 넘어갑니다...');
+        setTimeout(() => {
+          state.vocabMode = 'quiz';
+          document.getElementById('vocab-flashcard-area').style.display = 'none';
+          document.getElementById('vocab-quiz-area').style.display = 'block';
+          startVocabQuiz();
+        }, 900);
+      }
+    };
+    document.getElementById('vfc-ok').onclick = () => {
+      const item = state.vocabItems[state.vocabIndex];
+      recordVocabResult(item.id, true);
+      if (state.vocabIndex < state.vocabItems.length - 1) { state.vocabIndex++; showVocabFlashcard(); }
+      else showToast('카테고리 완료! 🎉');
+    };
+    document.getElementById('vfc-wrong').onclick = () => {
+      const item = state.vocabItems[state.vocabIndex];
+      recordVocabResult(item.id, false);
+      if (state.vocabIndex < state.vocabItems.length - 1) { state.vocabIndex++; showVocabFlashcard(); }
+    };
+    document.getElementById('vfc-audio-btn').onclick = () => {
+      const item = state.vocabItems[state.vocabIndex];
+      playAudio(item.japanese);
+    };
+  }
+
+  // ─── 단어 퀴즈 ───
+
+  function startVocabQuiz() {
+    const items = [...state.vocabItems].sort(() => Math.random() - 0.5);
+    state.vocabQuizQuestions = items.map(item => buildVocabQuestion(item));
+    state.vocabQuizCurrentIdx = 0;
+    state.vocabQuizCorrect = 0;
+    state.vocabQuizAnswered = false;
+
+    document.getElementById('vq-correct-count').textContent = '✓ 0';
+    document.getElementById('vq-wrong-count').textContent = '✗ 0';
+    document.getElementById('vocab-quiz-result').style.display = 'none';
+    document.getElementById('vocab-quiz-feedback').style.display = 'none';
+
+    document.getElementById('vqr-retry').onclick = startVocabQuiz;
+
+    showVocabQuizQuestion();
+  }
+
+  function buildVocabQuestion(item) {
+    const catId = state.vocabCurrentCategoryId;
+    const wrongs = getVocabWrongOptions(item.id, catId, 3);
+    const choices = [item, ...wrongs].sort(() => Math.random() - 0.5);
+    return { item, choices, correctId: item.id };
+  }
+
+  function showVocabQuizQuestion() {
+    const q = state.vocabQuizQuestions[state.vocabQuizCurrentIdx];
+    if (!q) return;
+    const total = state.vocabQuizQuestions.length;
+    const idx = state.vocabQuizCurrentIdx;
+
+    document.getElementById('vq-progress-text').textContent = `${idx + 1} / ${total}`;
+    document.getElementById('vq-progress-fill').style.width = `${(idx / total) * 100}%`;
+    state.vocabQuizAnswered = false;
+
+    // 문제: 한국어 뜻 표시
+    const qbox = document.getElementById('vocab-question-box');
+    qbox.innerHTML = `
+      <div class="qb-vocab-prompt">
+        <div class="qb-vocab-korean">${q.item.korean}</div>
+        <div class="qb-label">이 뜻에 해당하는 일본어는?</div>
+      </div>`;
+
+    // 선택지: 일본어(히라가나) 표시
+    const choicesDiv = document.getElementById('vocab-quiz-choices');
+    choicesDiv.innerHTML = '';
+    q.choices.forEach(choice => {
+      const btn = document.createElement('button');
+      btn.className = 'choice-btn vocab-choice-btn';
+      btn.dataset.vid = choice.id;
+      btn.innerHTML = `
+        <span class="vc-japanese">${choice.japanese}</span>
+        ${choice.kanji ? `<span class="vc-kanji">${choice.kanji}</span>` : ''}`;
+      btn.addEventListener('click', () => handleVocabQuizAnswer(choice.id));
+      choicesDiv.appendChild(btn);
+    });
+
+    document.getElementById('vocab-quiz-feedback').style.display = 'none';
+  }
+
+  function handleVocabQuizAnswer(chosenId) {
+    if (state.vocabQuizAnswered) return;
+    state.vocabQuizAnswered = true;
+
+    const q = state.vocabQuizQuestions[state.vocabQuizCurrentIdx];
+    const isCorrect = chosenId === q.correctId;
+
+    // 버튼 시각화
+    document.querySelectorAll('.vocab-choice-btn').forEach(btn => {
+      btn.classList.add('disabled');
+      if (btn.dataset.vid === q.correctId) btn.classList.add('correct');
+      if (btn.dataset.vid === chosenId && !isCorrect) btn.classList.add('wrong');
+    });
+
+    // 결과 기록
+    recordVocabResult(q.item.id, isCorrect);
+
+    if (isCorrect) {
+      state.vocabQuizCorrect++;
+      document.getElementById('vq-correct-count').textContent = '✓ ' + state.vocabQuizCorrect;
+      playCorrectSound();
+    } else {
+      const wrongCount = state.vocabQuizCurrentIdx + 1 - state.vocabQuizCorrect;
+      document.getElementById('vq-wrong-count').textContent = '✗ ' + wrongCount;
+      playWrongSound();
+    }
+
+    // 피드백
+    const fb = document.getElementById('vocab-quiz-feedback');
+    fb.style.display = 'block';
+    const resultEl = document.getElementById('vq-result-text');
+    const ansEl = document.getElementById('vq-correct-ans');
+    const tipEl = document.getElementById('vq-tip-text');
+    const exEl = document.getElementById('vq-example-text');
+
+    if (isCorrect) {
+      resultEl.textContent = '✓ 정답!';
+      resultEl.className = 'qf-result correct';
+      ansEl.textContent = '';
+    } else {
+      resultEl.textContent = '✗ 틀렸어요';
+      resultEl.className = 'qf-result wrong';
+      ansEl.textContent = `정답: ${q.item.japanese}${q.item.kanji ? ' (' + q.item.kanji + ')' : ''} = ${q.item.korean}`;
+    }
+
+    if (q.item.tip) { tipEl.textContent = '💡 ' + q.item.tip; tipEl.style.display = 'block'; }
+    else tipEl.style.display = 'none';
+
+    if (q.item.example) { exEl.textContent = '📝 ' + q.item.example; exEl.style.display = 'block'; }
+    else exEl.style.display = 'none';
+
+    document.getElementById('vq-next-btn').onclick = nextVocabQuestion;
+  }
+
+  function nextVocabQuestion() {
+    state.vocabQuizCurrentIdx++;
+    if (state.vocabQuizCurrentIdx >= state.vocabQuizQuestions.length) {
+      showVocabQuizResult();
+    } else {
+      showVocabQuizQuestion();
+    }
+  }
+
+  function showVocabQuizResult() {
+    const correct = state.vocabQuizCorrect;
+    const total = state.vocabQuizQuestions.length;
+    const pct = Math.round((correct / total) * 100);
+
+    document.getElementById('vocab-quiz-feedback').style.display = 'none';
+    document.getElementById('vocab-quiz-result').style.display = 'block';
+    document.getElementById('vqr-score').textContent = `${correct} / ${total}`;
+    document.getElementById('vqr-pct').textContent = pct + '%';
+
+    saveToStorage();
+  }
+
+  // ─── 단어 진도 기록 ───
+
+  function markVocabSeen(id) {
+    if (!state.vocabProgress[id]) state.vocabProgress[id] = { seen: 0, correct: 0, incorrect: 0 };
+    state.vocabProgress[id].seen = (state.vocabProgress[id].seen || 0) + 1;
+    saveToStorage();
+  }
+
+  function recordVocabResult(id, ok) {
+    if (!state.vocabProgress[id]) state.vocabProgress[id] = { seen: 0, correct: 0, incorrect: 0 };
+    if (ok) state.vocabProgress[id].correct = (state.vocabProgress[id].correct || 0) + 1;
+    else state.vocabProgress[id].incorrect = (state.vocabProgress[id].incorrect || 0) + 1;
+    state.vocabProgress[id].seen = (state.vocabProgress[id].seen || 0) + 1;
+    saveToStorage();
+  }
+
+  function renderVocabProgress() {
+    const container = document.getElementById('progress-levels');
+    if (!container) return;
+
+    const section = document.createElement('div');
+    section.style.marginTop = '24px';
+    section.innerHTML = '<h3 style="margin-bottom:12px">📖 단어 학습 진도 (4·5단계)</h3>';
+
+    VOCAB_CATEGORIES.forEach(cat => {
+      const prog = getVocabCategoryProgress(cat.id);
+      const seenCount = cat.items.filter(id => state.vocabProgress[id] && state.vocabProgress[id].seen > 0).length;
+
+      const el = document.createElement('div');
+      el.className = 'pl-level';
+      el.innerHTML = `
+        <div class="pll-header">
+          <div>
+            <div class="pll-title">${cat.icon} ${cat.name}</div>
+            <div class="pll-sub">${cat.subtitle} · ${cat.items.length}개 단어</div>
+          </div>
+          <div class="pll-pct">${prog}%</div>
+        </div>
+        <div class="pll-bar-bg"><div class="pll-bar-fill" style="width:${prog}%"></div></div>
+        <div style="font-size:11px;color:#718096;margin-top:4px">${seenCount} / ${cat.items.length}개 학습</div>`;
+      section.appendChild(el);
+    });
+
+    container.appendChild(section);
+  }
+
+  function vocabBackToSetup() {
+    state.vocabMode = null;
+    document.getElementById('vocab-setup').style.display = 'block';
+    document.getElementById('vocab-flash-panel').style.display = 'none';
+    renderVocabCategories();
+  }
+
   // ─── 토스트 알림 ───
   function showToast(msg, duration = 2500) {
     const toast = document.getElementById('toast');
@@ -1490,7 +1888,9 @@ const App = (() => {
     startAllBrowse,
     toggleWriteExam,
     writeExamCheck,
-    writeExamResult
+    writeExamResult,
+    vocabFlipCard,
+    vocabBackToSetup
   };
 })();
 
