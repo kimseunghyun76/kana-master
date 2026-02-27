@@ -172,6 +172,58 @@ const VOCAB_ITEMS = [
   { id:'emg_nakushi', japanese:'〜をなくしました',                  kanji:'〜をなくしました',     romaji:'~wo nakushimashita', korean:'〜을 잃어버렸어요', example:'パスポートをなくしました' },
   { id:'emg_taishi',  japanese:'たいしかん',                        kanji:'大使館',               romaji:'taishikan',       korean:'대사관 (한국대사관)' },
   { id:'emg_hoken',   japanese:'りょこうほけん',                    kanji:'旅行保険',             romaji:'ryokou hoken',    korean:'여행 보험',         tip:'해외여행 필수! 여행 전 가입 권장' },
+
+  // ════════════════════════════════════
+  //  [6단계] 스몰토크 (small_talk) — 15개
+  // ════════════════════════════════════
+  { id:'st_hisashiburi', japanese:'おひさしぶりです',              kanji:'お久しぶりです',        romaji:'o hisashiburi desu',      korean:'오랜만이에요',        tip:'친구나 아는 사람을 오래만에 만났을 때' },
+  { id:'st_ogenki',      japanese:'おげんきですか',                kanji:'お元気ですか',          romaji:'o genki desu ka',         korean:'잘 지내세요?',        example:'はい、げんきです = 네, 잘 지냈어요' },
+  { id:'st_tenki',       japanese:'きょうはいいてんきですね',      kanji:'今日はいい天気ですね',  romaji:'kyou wa ii tenki desu ne', korean:'오늘 날씨 좋죠?',     tip:'일본에서 날씨 스몰토크는 기본!' },
+  { id:'st_atsui',       japanese:'あついですね',                  kanji:'暑いですね',            romaji:'atsui desu ne',           korean:'덥네요',              tip:'さむいですね = 춥네요' },
+  { id:'st_samui',       japanese:'さむいですね',                  kanji:'寒いですね',            romaji:'samui desu ne',           korean:'춥네요',              tip:'あついですね = 덥네요' },
+  { id:'st_shumi',       japanese:'しゅみはなんですか',            kanji:'趣味は何ですか',        romaji:'shumi wa nan desu ka',    korean:'취미가 뭐예요?',      example:'わたしのしゅみはりょこうです = 취미는 여행이에요' },
+  { id:'st_suki',        japanese:'〜がすきです',                  kanji:'〜が好きです',          romaji:'~ga suki desu',           korean:'〜을/를 좋아해요',     example:'にほんりょうりがすきです = 일본 요리 좋아해요' },
+  { id:'st_tanoshii',    japanese:'たのしいですね！',              kanji:'楽しいですね！',        romaji:'tanoshii desu ne',        korean:'즐겁네요! 재미있어요!', tip:'여행·파티 등에서 자주 쓰임' },
+  { id:'st_sugoi',       japanese:'すごいですね！',                kanji:'すごいですね！',        romaji:'sugoi desu ne',           korean:'대단하네요! 굉장해요!', tip:'칭찬할 때 만능 표현' },
+  { id:'st_taihen',      japanese:'たいへんですね',                kanji:'大変ですね',            romaji:'taihen desu ne',          korean:'힘들겠네요 / 고생이에요', tip:'상대방을 위로할 때 사용' },
+  { id:'st_mata',        japanese:'またあいましょう！',             kanji:'また会いましょう！',    romaji:'mata aimashou',           korean:'또 만나요!',           tip:'헤어질 때 자주 쓰는 인사' },
+  { id:'st_omedetou',    japanese:'おめでとうございます',          kanji:'おめでとうございます',  romaji:'omedetou gozaimasu',      korean:'축하합니다!',          tip:'생일, 합격, 결혼 등에 사용' },
+  { id:'st_issho',       japanese:'いっしょにいきましょう！',      kanji:'一緒に行きましょう！',  romaji:'issho ni ikimashou',      korean:'같이 가요!',           example:'しょくじにいきましょう = 식사하러 가요' },
+  { id:'st_nani',        japanese:'なにがたべたいですか',          kanji:'何が食べたいですか',    romaji:'nani ga tabetai desu ka', korean:'뭐 먹고 싶어요?',      tip:'밥 먹기 전 자주 쓰는 표현' },
+  { id:'st_yoroshiku',   japanese:'どうぞよろしくおねがいします',  kanji:'どうぞよろしくお願いします', romaji:'douzo yoroshiku onegaishimasu', korean:'잘 부탁드립니다 (처음 만남)', tip:'명함 교환 또는 첫 만남 시 필수' },
+
+  // ════════════════════════════════════
+  //  [6단계] 호텔 숙박 (hotel_stay) — 13개
+  // ════════════════════════════════════
+  { id:'ht_checkin',     japanese:'チェックイン',                  romaji:'chekku in',            korean:'체크인',              tip:'フロントでチェックインします = 프론트에서 체크인해요' },
+  { id:'ht_checkout',    japanese:'チェックアウト',                romaji:'chekku auto',          korean:'체크아웃',            example:'なんじにチェックアウトですか = 몇 시에 체크아웃인가요?' },
+  { id:'ht_yoyaku',      japanese:'よやくをしています',            kanji:'予約をしています',      romaji:'yoyaku wo shite imasu', korean:'예약하셨어요 (나)',   tip:'フロントで = 프론트에서 쓰는 표현' },
+  { id:'ht_goushitsu',   japanese:'なんごうしつですか',            kanji:'何号室ですか',          romaji:'nan goushitsu desu ka', korean:'몇 호실인가요?',     example:'ごひゃくさんごうしつです = 503호실이에요' },
+  { id:'ht_choshoku',    japanese:'あさごはんはつきますか',        kanji:'朝ごはんはつきますか',  romaji:'asagohan wa tsukimasu ka', korean:'조식 포함인가요?',  tip:'조식 포함=ちょうしょくつき, 미포함=なし' },
+  { id:'ht_kagi',        japanese:'かぎをなくしました',            kanji:'鍵をなくしました',      romaji:'kagi wo nakushimashita', korean:'열쇠를 잃어버렸어요', tip:'カードキーも同じ表現 (카드키도 동일 표현)' },
+  { id:'ht_taoru',       japanese:'タオルをください',              romaji:'taoru wo kudasai',     korean:'수건 주세요',          example:'もういちまいタオルをください = 수건 한 장 더 주세요' },
+  { id:'ht_moningcall',  japanese:'モーニングコールをおねがいします', romaji:'mooningu kooru wo onegaishimasu', korean:'모닝콜 부탁드려요', example:'しちじにおねがいします = 7시로 부탁해요' },
+  { id:'ht_room',        japanese:'ルームサービス',                romaji:'ruumu saabisu',        korean:'룸서비스',            tip:'メニューはテレビ横にあります = 메뉴는 TV 옆에 있어요' },
+  { id:'ht_elevator',    japanese:'エレベーター',                  romaji:'erebeetaa',            korean:'엘리베이터',          tip:'계단 = かいだん, 비상계단 = ひじょうかいだん' },
+  { id:'ht_laundry',     japanese:'コインランドリー',              romaji:'koin randorii',        korean:'코인 세탁기',         tip:'コインランドリーはどこですか = 코인세탁기 어디 있어요?' },
+  { id:'ht_lobby',       japanese:'ロビー',                        romaji:'robii',                korean:'로비',                example:'ロビーでまっています = 로비에서 기다릴게요' },
+  { id:'ht_extend',      japanese:'チェックアウトをのばせますか',  romaji:'chekku auto wo nobasemasu ka', korean:'체크아웃을 연장할 수 있나요?', tip:'もう一泊お願いしたい = 하룻밤 더 묵고 싶어요' },
+
+  // ════════════════════════════════════
+  //  [6단계] 교통 상세 (transport_detail) — 12개
+  // ════════════════════════════════════
+  { id:'td_shink',       japanese:'しんかんせん',                  kanji:'新幹線',                romaji:'shinkansen',         korean:'신칸센 (고속철도)',    tip:'のぞみ・ひかり・こだま 등 종류가 있음' },
+  { id:'td_jiyuuseki',   japanese:'じゆうせき',                    kanji:'自由席',                romaji:'jiyuuseki',          korean:'자유석',              tip:'していせき(指定席) = 지정석, 요금 차이 있음' },
+  { id:'td_suica',       japanese:'スイカ',                        romaji:'suika',                korean:'스이카 IC카드',       tip:'PASMO도 동일하게 사용 가능. 편의점도 OK!' },
+  { id:'td_kippu',       japanese:'きっぷ',                        kanji:'切符',                  romaji:'kippu',              korean:'표 (승차권)',           example:'きっぷをかいたい = 표를 사고 싶어요' },
+  { id:'td_norikae',     japanese:'のりかえ',                      kanji:'乗り換え',              romaji:'norikae',            korean:'환승',                 tip:'のりかえはどこですか = 환승은 어디서 해요?' },
+  { id:'td_yuki',        japanese:'〜ゆき',                        kanji:'〜行き',                romaji:'~yuki',              korean:'〜행 (방향)',           example:'とうきょうゆき = 도쿄행' },
+  { id:'td_noriba',      japanese:'のりば',                        kanji:'乗り場',                romaji:'noriba',             korean:'승강장 / 탑승장',       tip:'バスのりば = 버스 승강장' },
+  { id:'td_jikanhyo',    japanese:'じかんひょう',                  kanji:'時刻表',                romaji:'jikanhyou',          korean:'시간표',               example:'しかんひょうをみてください = 시간표를 보세요' },
+  { id:'td_maniau',      japanese:'まにあいますか',                kanji:'間に合いますか',        romaji:'maniau masu ka',     korean:'시간에 맞을까요? (제시간에 될까요?)', tip:'버스·기차 놓칠 것 같을 때' },
+  { id:'td_taxi',        japanese:'タクシーをよんでください',       romaji:'takushii wo yonde kudasai', korean:'택시 불러 주세요',  example:'ホテルまでおねがいします = 호텔까지 가주세요' },
+  { id:'td_teiryu',      japanese:'ていりゅうじょ',                kanji:'停留所',                romaji:'teiryuujo',          korean:'정류장 (버스 정류장)',  tip:'バスていりゅうじょはどこですか = 버스 정류장 어디예요?' },
+  { id:'td_madogawa',    japanese:'まどがわのせき',                kanji:'窓側の席',              romaji:'madogawa no seki',   korean:'창가석',               tip:'つうろがわのせき(通路側の席) = 복도석' },
 ];
 
 // ─── 카테고리 정의 ───
@@ -275,6 +327,36 @@ const VOCAB_CATEGORIES = [
     desc: '만일을 대비한 긴급 표현 + 여행 필수어',
     icon: '🚨',
     items: ['emg_tasuke','emg_byouin','emg_keisatsu','emg_guai','emg_kusuri','emg_nakushi','emg_taishi','emg_hoken']
+  },
+  {
+    id: 'small_talk',
+    phase: 6,
+    name: '스몰토크',
+    title: '스몰토크 (スモールトーク)',
+    subtitle: '날씨·취미·감정·일상 대화',
+    desc: '친구를 사귀는 첫걸음! 자연스러운 일상 대화 표현',
+    icon: '💬',
+    items: ['st_hisashiburi','st_ogenki','st_tenki','st_atsui','st_samui','st_shumi','st_suki','st_tanoshii','st_sugoi','st_taihen','st_mata','st_omedetou','st_issho','st_nani','st_yoroshiku']
+  },
+  {
+    id: 'hotel_stay',
+    phase: 6,
+    name: '호텔 숙박',
+    title: '호텔·숙박 표현',
+    subtitle: 'チェックイン·ルームサービス',
+    desc: '호텔 체크인부터 연장까지 — 숙박 필수 표현',
+    icon: '🏨',
+    items: ['ht_checkin','ht_checkout','ht_yoyaku','ht_goushitsu','ht_choshoku','ht_kagi','ht_taoru','ht_moningcall','ht_room','ht_elevator','ht_laundry','ht_lobby','ht_extend']
+  },
+  {
+    id: 'transport_detail',
+    phase: 6,
+    name: '교통 상세',
+    title: '교통 상세 표현',
+    subtitle: '新幹線·スイカ·乗り換え',
+    desc: '신칸센·IC카드·환승까지 일본 교통 완전 정복',
+    icon: '🚅',
+    items: ['td_shink','td_jiyuuseki','td_suica','td_kippu','td_norikae','td_yuki','td_noriba','td_jikanhyo','td_maniau','td_taxi','td_teiryu','td_madogawa']
   }
 ];
 

@@ -934,3 +934,26 @@ html, body {
 .qr-btn-retry:hover { background: #3451d1; }
 .qr-btn-back { background: var(--gray-light); color: var(--text); border: 1px solid var(--border); }
 .qr-btn-back:hover { background: var(--border); }
+
+/* ─── vocab 플래시카드 텍스트 오버플로우 방지 ─── */
+#vfc-japanese { transition: font-size 0.15s ease; }
+#vfc-japanese.text-long  { font-size: 28px; line-height: 1.3; }
+#vfc-japanese.text-xlong { font-size: 20px; line-height: 1.4; word-break: break-all; }
+#vfc-japanese-back { transition: font-size 0.15s ease; }
+#vfc-japanese-back.text-long  { font-size: 20px; }
+#vfc-japanese-back.text-xlong { font-size: 16px; word-break: break-all; }
+
+/* ─── Level 11 전체복습 특별 카드 ─── */
+.level-card.level-special {
+  background: linear-gradient(135deg, #fffbeb, #fef3c7);
+  border: 2px solid #f59e0b !important;
+}
+.level-card.level-special .lc-name { color: #92400e; }
+.level-card.level-special .lc-prog-fill { background: #f59e0b; }
+.lc-badge.special-badge {
+  background: linear-gradient(135deg, #f59e0b, #ef6c00);
+  color: #fff;
+}
+
+/* ─── Phase 6 배지 색상 (에메랄드 그린) ─── */
+.vpc-phase-6 { background: #059669; }

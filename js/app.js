@@ -174,15 +174,18 @@ const App = (() => {
       const prog = getLevelProgress(level);
       const isCompleted = prog >= 100;
 
+      const isSpecial = level.id === 11;
       const card = document.createElement('div');
       card.className = 'level-card' +
         (isCompleted ? ' completed' : '') +
         (isCurrent && !isCompleted ? ' active-level' : '') +
-        (!isUnlocked ? ' locked' : '');
+        (!isUnlocked ? ' locked' : '') +
+        (isSpecial ? ' level-special' : '');
 
       let badgeClass = 'locked-badge', badgeText = '🔒 잠김';
       if (isUnlocked) {
-        if (isCompleted) { badgeClass = 'done'; badgeText = '✓ 완료'; }
+        if (isSpecial) { badgeClass = 'special-badge'; badgeText = '⭐ 최종 복습'; }
+        else if (isCompleted) { badgeClass = 'done'; badgeText = '✓ 완료'; }
         else if (isCurrent) { badgeClass = 'current'; badgeText = '▶ 진행 중'; }
         else { badgeClass = ''; badgeText = ''; }
       }
@@ -270,7 +273,15 @@ const App = (() => {
     state.learnLevelId = levelId;
     const level = LEVELS.find(l => l.id === levelId);
     if (!level) return;
-    state.learnChars = getLevelChars(levelId);
+
+    // Level 11: 전체 복습 — 모든 가나 랜덤 순서
+    if (levelId === 11) {
+      state.learnChars = Object.keys(KANA_MAP)
+        .map(k => ({ kana: k, ...KANA_MAP[k] }))
+        .sort(() => Math.random() - 0.5);
+    } else {
+      state.learnChars = getLevelChars(levelId);
+    }
     state.learnIndex = 0;
 
     showView('learn');
@@ -314,11 +325,12 @@ const App = (() => {
     document.getElementById('fc-korean').textContent = char.korean;
     document.getElementById('fc-english').textContent = char.english;
 
-    // 예시 단어 (각 단어마다 발음 버튼 포함)
+    // 예시 단어 (각 단어마다 발음 버튼 포함) — 셔플 후 최대 4개
     const exDiv = document.getElementById('fc-examples');
     exDiv.innerHTML = '';
     if (char.examples && char.examples.length) {
-      char.examples.slice(0, 2).forEach(ex => {
+      const shuffledEx = [...char.examples].sort(() => Math.random() - 0.5);
+      shuffledEx.slice(0, 4).forEach(ex => {
         const el = document.createElement('div');
         el.className = 'fc-ex-item';
         el.innerHTML = `
@@ -1500,7 +1512,7 @@ const App = (() => {
   }
 
   function renderVocabCategories() {
-    [4, 5].forEach(phase => {
+    [4, 5, 6].forEach(phase => {
       const grid = document.getElementById(`vocab-cat-grid-${phase}`);
       if (!grid) return;
       grid.innerHTML = '';
@@ -1521,7 +1533,7 @@ const App = (() => {
   }
 
   function renderHomeVocabCards() {
-    [4, 5].forEach(phase => {
+    [4, 5, 6].forEach(phase => {
       const grid = document.getElementById(`home-vocab-grid-${phase}`);
       if (!grid) return;
       grid.innerHTML = '';
@@ -1603,8 +1615,18 @@ const App = (() => {
     document.getElementById('vocab-card-num').textContent = `${idx + 1} / ${total}`;
     document.getElementById('vfc-progress-fill').style.width = `${(idx / total) * 100}%`;
 
-    // 앞면
-    document.getElementById('vfc-japanese').textContent = item.japanese;
+    // 앞면 — 텍스트 길이에 따라 폰트 크기 자동 조정
+    const jpEl = document.getElementById('vfc-japanese');
+    jpEl.textContent = item.japanese;
+    jpEl.classList.remove('text-long', 'text-xlong');
+    if (item.japanese.length > 14) jpEl.classList.add('text-xlong');
+    else if (item.japanese.length > 7) jpEl.classList.add('text-long');
+
+    const jpBackEl = document.getElementById('vfc-japanese-back');
+    jpBackEl.classList.remove('text-long', 'text-xlong');
+    if (item.japanese.length > 14) jpBackEl.classList.add('text-xlong');
+    else if (item.japanese.length > 7) jpBackEl.classList.add('text-long');
+
     const kanjiEl = document.getElementById('vfc-kanji');
     if (item.kanji) { kanjiEl.textContent = item.kanji; kanjiEl.style.display = 'block'; }
     else { kanjiEl.textContent = ''; kanjiEl.style.display = 'none'; }
