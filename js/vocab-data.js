@@ -224,6 +224,170 @@ const VOCAB_ITEMS = [
   { id:'td_taxi',        japanese:'タクシーをよんでください',       romaji:'takushii wo yonde kudasai', korean:'택시 불러 주세요',  example:'ホテルまでおねがいします = 호텔까지 가주세요' },
   { id:'td_teiryu',      japanese:'ていりゅうじょ',                kanji:'停留所',                romaji:'teiryuujo',          korean:'정류장 (버스 정류장)',  tip:'バスていりゅうじょはどこですか = 버스 정류장 어디예요?' },
   { id:'td_madogawa',    japanese:'まどがわのせき',                kanji:'窓側の席',              romaji:'madogawa no seki',   korean:'창가석',               tip:'つうろがわのせき(通路側の席) = 복도석' },
+
+  // ════════════════════════════════════
+  //  [7단계] 실전 시뮬레이션 ① — 음식주문·쇼핑·교통
+  // ════════════════════════════════════
+
+  // ── 음식 주문 (sim_order) — 10개 ──
+  { id:'so_1',  japanese:'すみません、注文お願いします',          romaji:'sumimasen, chuumon onegai shimasu',    korean:'저기요, 주문할게요',             tip:'손을 살짝 들며 말하면 자연스러움' },
+  { id:'so_2',  japanese:'メニューをください',                    romaji:'menyuu o kudasai',                     korean:'메뉴 주세요',                    tip:'お願いします로 대체 가능' },
+  { id:'so_3',  japanese:'これをひとつお願いします',              romaji:'kore o hitotsu onegai shimasu',         korean:'이거 하나 주세요',               tip:'ふたつ(2개), みっつ(3개)로 수량 변경' },
+  { id:'so_4',  japanese:'おすすめは何ですか',                    romaji:'osusume wa nan desu ka',                korean:'추천 메뉴는 뭐예요?',            tip:'인기있는 것: にんきがあるもの' },
+  { id:'so_5',  japanese:'辛くしないでください',                  romaji:'karaku shinaide kudasai',               korean:'맵지 않게 해주세요',             tip:'アレルギーがあります = 알레르기가 있어요' },
+  { id:'so_6',  japanese:'お水をください',                        romaji:'omizu o kudasai',                      korean:'물 주세요',                      tip:'일본 식당은 물이 보통 무료' },
+  { id:'so_7',  japanese:'お会計お願いします',                    romaji:'okaikei onegai shimasu',                korean:'계산해 주세요',                  tip:'レジでお願いします = 카운터에서 계산' },
+  { id:'so_8',  japanese:'別々にお願いします',                    romaji:'betsubetsu ni onegai shimasu',          korean:'따로따로 계산해 주세요',         tip:'一緒に(いっしょに) = 함께' },
+  { id:'so_9',  japanese:'持ち帰りでお願いします',                romaji:'mochikaeri de onegai shimasu',          korean:'포장해 주세요',                  tip:'テイクアウト도 통함' },
+  { id:'so_10', japanese:'ごちそうさまでした',                    romaji:'gochisousama deshita',                  korean:'잘 먹었습니다',                  tip:'식사 후 인사 — 가게 나갈 때 필수!' },
+
+  // ── 쇼핑 (sim_shopping) — 10개 ──
+  { id:'ss_1',  japanese:'これはいくらですか',                    romaji:'kore wa ikura desu ka',                 korean:'이거 얼마예요?',                 tip:'가장 기본적인 쇼핑 표현' },
+  { id:'ss_2',  japanese:'見ているだけです',                      romaji:'mite iru dake desu',                    korean:'그냥 보는 중이에요',             tip:'점원이 말 걸 때 부담 없이' },
+  { id:'ss_3',  japanese:'試着してもいいですか',                  romaji:'shichaku shite mo ii desu ka',          korean:'입어봐도 되나요?',               tip:'試食(ししょく) = 시식' },
+  { id:'ss_4',  japanese:'もう少し安くなりますか',                romaji:'mou sukoshi yasuku narimasu ka',        korean:'좀 더 싸게 되나요?',             tip:'대형 전자상가에서 가능' },
+  { id:'ss_5',  japanese:'カードで払えますか',                    romaji:'kaado de haraemasu ka',                 korean:'카드로 결제 되나요?',            tip:'現金(げんきん)のみ = 현금만' },
+  { id:'ss_6',  japanese:'免税になりますか',                      romaji:'menzei ni narimasu ka',                 korean:'면세 되나요?',                   tip:'パスポートを見せてください = 여권 보여주세요' },
+  { id:'ss_7',  japanese:'Sサイズはありますか',                   romaji:'esu saizu wa arimasu ka',               korean:'S사이즈 있나요?',                tip:'M/L/XL도 같은 패턴' },
+  { id:'ss_8',  japanese:'色違いはありますか',                    romaji:'irochihai wa arimasu ka',                korean:'다른 색 있나요?',                tip:'色(いろ) = 색, 違い(ちがい) = 다른' },
+  { id:'ss_9',  japanese:'プレゼント用に包んでください',          romaji:'purezento you ni tsutsunde kudasai',    korean:'선물용으로 포장해 주세요',       tip:'일본은 포장 문화가 발달' },
+  { id:'ss_10', japanese:'袋をください',                          romaji:'fukuro o kudasai',                      korean:'봉투 주세요',                    tip:'일본은 봉투가 유료 (3~5엔)' },
+
+  // ── 이것저것 가리키기 (sim_pointing) — 10개 ──
+  { id:'sp_1',  japanese:'これをください',                        romaji:'kore o kudasai',                        korean:'이거 주세요',                    tip:'가장 만능인 쇼핑 표현!' },
+  { id:'sp_2',  japanese:'それは何ですか',                        romaji:'sore wa nan desu ka',                   korean:'그건 뭐예요?',                   tip:'それ = 상대방 가까이 있는 것' },
+  { id:'sp_3',  japanese:'あれをお願いします',                    romaji:'are o onegai shimasu',                  korean:'저거 부탁합니다',                tip:'あれ = 둘 다 멀리 있는 것' },
+  { id:'sp_4',  japanese:'こっちの方がいいです',                  romaji:'kocchi no hou ga ii desu',              korean:'이쪽이 더 좋아요',               tip:'比較(ひかく)할 때 유용' },
+  { id:'sp_5',  japanese:'どれがおすすめですか',                  romaji:'dore ga osusume desu ka',               korean:'어떤 게 추천이에요?',            tip:'どれ = 여러 개 중 어떤 것' },
+  { id:'sp_6',  japanese:'もう少し大きいのはありますか',          romaji:'mou sukoshi ookii no wa arimasu ka',    korean:'좀 더 큰 거 있나요?',            tip:'小さい(ちいさい) = 작은' },
+  { id:'sp_7',  japanese:'写真を撮ってもいいですか',              romaji:'shashin o totte mo ii desu ka',         korean:'사진 찍어도 되나요?',            tip:'촬영금지: 撮影禁止(さつえいきんし)' },
+  { id:'sp_8',  japanese:'これとこれをください',                  romaji:'kore to kore o kudasai',                korean:'이거랑 이거 주세요',             tip:'と = ~와/과 (나열)' },
+  { id:'sp_9',  japanese:'ここに書いてください',                  romaji:'koko ni kaite kudasai',                 korean:'여기에 써 주세요',               tip:'주소나 이름을 부탁할 때' },
+  { id:'sp_10', japanese:'日本語がわかりません',                  romaji:'nihongo ga wakarimasen',                korean:'일본어를 모르겠어요',            tip:'英語を話せますか = 영어 할 수 있나요?' },
+
+  // ── 택시 (sim_taxi) — 10개 ──
+  { id:'st_1',  japanese:'ここまでお願いします',                  romaji:'koko made onegai shimasu',              korean:'여기까지 부탁합니다',            tip:'지도나 주소를 보여주며' },
+  { id:'st_2',  japanese:'この住所までお願いします',              romaji:'kono juusho made onegai shimasu',       korean:'이 주소까지 부탁합니다',         tip:'住所(じゅうしょ) = 주소' },
+  { id:'st_3',  japanese:'だいたいいくらぐらいですか',            romaji:'daitai ikura gurai desu ka',            korean:'대략 얼마 정도예요?',            tip:'乗る前(のるまえ)に確認 = 타기 전 확인' },
+  { id:'st_4',  japanese:'急いでください',                        romaji:'isoide kudasai',                        korean:'서둘러 주세요',                  tip:'飛行機に間に合わない = 비행기 놓칠 것 같아요' },
+  { id:'st_5',  japanese:'ここで降ろしてください',                romaji:'koko de oroshite kudasai',              korean:'여기서 내려 주세요',             tip:'次の角で(つぎのかどで) = 다음 모퉁이에서' },
+  { id:'st_6',  japanese:'トランクを開けてください',              romaji:'toranku o akete kudasai',               korean:'트렁크 열어 주세요',             tip:'大きい荷物がある = 큰 짐이 있어요' },
+  { id:'st_7',  japanese:'領収書をください',                      romaji:'ryoushuusho o kudasai',                 korean:'영수증 주세요',                  tip:'レシート도 같은 의미' },
+  { id:'st_8',  japanese:'カードで支払えますか',                  romaji:'kaado de shiharaemasu ka',              korean:'카드로 결제 가능한가요?',        tip:'일본 택시는 카드 가능한 곳이 많음' },
+  { id:'st_9',  japanese:'まっすぐ行ってください',                romaji:'massugu itte kudasai',                  korean:'직진해 주세요',                  tip:'右(みぎ) = 오른쪽, 左(ひだり) = 왼쪽' },
+  { id:'st_10', japanese:'あそこで止めてください',                romaji:'asoko de tomete kudasai',               korean:'저기서 세워 주세요',             tip:'信号(しんごう)の前で = 신호등 앞에서' },
+
+  // ── 버스 (sim_bus) — 10개 ──
+  { id:'sb_1',  japanese:'このバスは〜に行きますか',              romaji:'kono basu wa ~ ni ikimasu ka',          korean:'이 버스 ~에 가나요?',            tip:'目的地(もくてきち) = 목적지' },
+  { id:'sb_2',  japanese:'次の停留所で降ります',                  romaji:'tsugi no teiryuujo de orimasu',         korean:'다음 정류장에서 내릴게요',       tip:'降車ボタン(こうしゃボタン) = 하차 버튼' },
+  { id:'sb_3',  japanese:'一日乗車券はありますか',                romaji:'ichinichi joushaken wa arimasu ka',     korean:'1일 승차권 있나요?',             tip:'お得(おとく) = 이득, 가성비' },
+  { id:'sb_4',  japanese:'バス停はどこですか',                    romaji:'basutei wa doko desu ka',               korean:'버스 정류장 어디예요?',          tip:'近くの(ちかくの) = 근처의' },
+  { id:'sb_5',  japanese:'何番のバスですか',                      romaji:'nanban no basu desu ka',                korean:'몇 번 버스예요?',                tip:'番(ばん) = 번호' },
+  { id:'sb_6',  japanese:'整理券を取ってください',                romaji:'seiriken o totte kudasai',              korean:'정리권을 뽑아주세요',            tip:'후불 버스에서 번호표 같은 것' },
+  { id:'sb_7',  japanese:'両替はできますか',                      romaji:'ryougae wa dekimasu ka',                korean:'환전/잔돈 교환 되나요?',         tip:'버스 안 양전기: 両替機(りょうがえき)' },
+  { id:'sb_8',  japanese:'終点まで行きます',                      romaji:'shuuten made ikimasu',                  korean:'종점까지 갑니다',                tip:'終点(しゅうてん) = 종점' },
+  { id:'sb_9',  japanese:'降りる時に払いますか',                  romaji:'oriru toki ni haraimasu ka',            korean:'내릴 때 내나요?',                tip:'前払い(まえばらい) = 선불' },
+  { id:'sb_10', japanese:'このバスの時刻表はありますか',          romaji:'kono basu no jikokuhyou wa arimasu ka', korean:'이 버스 시간표 있나요?',          tip:'時刻表(じこくひょう) = 시간표' },
+
+  // ── 지하철 (sim_subway) — 10개 ──
+  { id:'sw_1',  japanese:'〜線はどこですか',                      romaji:'~ sen wa doko desu ka',                 korean:'~호선은 어디예요?',              tip:'路線図(ろせんず) = 노선도' },
+  { id:'sw_2',  japanese:'乗り換えはどこですか',                  romaji:'norikae wa doko desu ka',               korean:'환승은 어디서 하나요?',          tip:'乗り換え(のりかえ) = 환승' },
+  { id:'sw_3',  japanese:'切符を買いたいです',                    romaji:'kippu o kaitai desu',                   korean:'표를 사고 싶어요',               tip:'券売機(けんばいき) = 자동판매기' },
+  { id:'sw_4',  japanese:'ICカードにチャージしたいです',          romaji:'ai shii kaado ni chaaji shitai desu',   korean:'IC카드 충전하고 싶어요',         tip:'スイカ, パスモ = 일본 교통카드' },
+  { id:'sw_5',  japanese:'この電車は〜に止まりますか',            romaji:'kono densha wa ~ ni tomarimasu ka',     korean:'이 전철 ~에 서나요?',            tip:'快速(かいそく) = 쾌속 (일부역 통과)' },
+  { id:'sw_6',  japanese:'急行と各停、どちらが早いですか',        romaji:'kyuukou to kakutei, dochira ga hayai desu ka', korean:'급행과 각역정차, 어느 게 빨라요?', tip:'急行(きゅうこう) = 급행' },
+  { id:'sw_7',  japanese:'出口はどちらですか',                    romaji:'deguchi wa dochira desu ka',            korean:'출구는 어느 쪽인가요?',          tip:'北口(きたぐち)·南口(みなみぐち) 등' },
+  { id:'sw_8',  japanese:'終電は何時ですか',                      romaji:'shuuden wa nanji desu ka',              korean:'막차가 몇 시예요?',              tip:'始発(しはつ) = 첫차' },
+  { id:'sw_9',  japanese:'ホームはどこですか',                    romaji:'hoomu wa doko desu ka',                 korean:'플랫폼은 어디예요?',             tip:'番線(ばんせん) = ~번 플랫폼' },
+  { id:'sw_10', japanese:'反対方向に乗ってしまいました',          romaji:'hantai houkou ni notte shimaimashita',  korean:'반대 방향으로 타버렸어요',       tip:'戻る(もどる) = 되돌아가다' },
+
+  // ── 엘리베이터 (sim_elevator) — 8개 ──
+  { id:'se_1',  japanese:'何階ですか',                            romaji:'nankai desu ka',                        korean:'몇 층이에요?',                   tip:'階(かい/がい) = 층' },
+  { id:'se_2',  japanese:'開けてください',                        romaji:'akete kudasai',                         korean:'(문) 열어 주세요',               tip:'開(ひらく) = 열다' },
+  { id:'se_3',  japanese:'閉めないでください',                    romaji:'shimenaide kudasai',                    korean:'닫지 마세요',                    tip:'ちょっと待って! = 잠깐만요!' },
+  { id:'se_4',  japanese:'地下一階をお願いします',                romaji:'chika ikkai o onegai shimasu',          korean:'지하 1층 부탁합니다',            tip:'地下(ちか) = 지하, B1F' },
+  { id:'se_5',  japanese:'屋上はありますか',                      romaji:'okujou wa arimasu ka',                  korean:'옥상 있나요?',                   tip:'展望台(てんぼうだい) = 전망대' },
+  { id:'se_6',  japanese:'エスカレーターはどこですか',            romaji:'esukareetaa wa doko desu ka',           korean:'에스컬레이터 어디예요?',         tip:'階段(かいだん) = 계단' },
+  { id:'se_7',  japanese:'上に行きます',                          romaji:'ue ni ikimasu',                         korean:'위로 올라갑니다',                tip:'下(した) = 아래' },
+  { id:'se_8',  japanese:'すみません、降ります',                  romaji:'sumimasen, orimasu',                    korean:'실례합니다, 내립니다',           tip:'엘리베이터에서 내릴 때' },
+
+  // ════════════════════════════════════
+  //  [8단계] 실전 시뮬레이션 ② — 호텔·전화·편의점 등
+  // ════════════════════════════════════
+
+  // ── 룸서비스 (sim_roomservice) — 8개 ──
+  { id:'sr_1',  japanese:'ルームサービスをお願いします',          romaji:'ruumu saabisu o onegai shimasu',         korean:'룸서비스 부탁합니다',            tip:'メニューを見せてください = 메뉴 보여주세요' },
+  { id:'sr_2',  japanese:'部屋まで届けてください',                romaji:'heya made todokete kudasai',             korean:'방까지 배달해 주세요',           tip:'部屋番号(へやばんごう) = 방 번호' },
+  { id:'sr_3',  japanese:'タオルを持ってきてください',            romaji:'taoru o motte kite kudasai',             korean:'수건 가져다 주세요',             tip:'枕(まくら) = 베개, 毛布(もうふ) = 담요' },
+  { id:'sr_4',  japanese:'氷をお願いします',                      romaji:'koori o onegai shimasu',                 korean:'얼음 부탁합니다',                tip:'アイスペール = 얼음통' },
+  { id:'sr_5',  japanese:'朝食は何時からですか',                  romaji:'choushoku wa nanji kara desu ka',        korean:'조식은 몇 시부터예요?',          tip:'朝食(ちょうしょく) = 조식' },
+  { id:'sr_6',  japanese:'エアコンが効きません',                  romaji:'eakon ga kikimasen',                     korean:'에어컨이 안 돼요',               tip:'暖房(だんぼう) = 난방, 冷房(れいぼう) = 냉방' },
+  { id:'sr_7',  japanese:'お湯が出ません',                        romaji:'oyu ga demasen',                         korean:'뜨거운 물이 안 나와요',          tip:'水(みず)が出ない = 물이 안 나와요' },
+  { id:'sr_8',  japanese:'Wi-Fiのパスワードは何ですか',           romaji:'waifai no pasuwaado wa nan desu ka',     korean:'와이파이 비밀번호 뭐예요?',      tip:'接続(せつぞく) = 연결' },
+
+  // ── 전화 (sim_phone) — 8개 ──
+  { id:'sph_1', japanese:'もしもし',                              romaji:'moshi moshi',                            korean:'여보세요',                       tip:'전화 받을 때/걸 때 첫마디' },
+  { id:'sph_2', japanese:'もう一度お願いします',                  romaji:'mou ichido onegai shimasu',              korean:'한 번 더 말씀해 주세요',         tip:'ゆっくり話してください = 천천히 말해주세요' },
+  { id:'sph_3', japanese:'日本語があまり話せません',              romaji:'nihongo ga amari hanasemasen',           korean:'일본어를 잘 못해요',             tip:'英語は大丈夫ですか = 영어 괜찮으세요?' },
+  { id:'sph_4', japanese:'予約をしたいのですが',                  romaji:'yoyaku o shitai no desu ga',             korean:'예약을 하고 싶은데요',           tip:'何名様ですか = 몇 분이세요?' },
+  { id:'sph_5', japanese:'キャンセルしたいのですが',              romaji:'kyanseru shitai no desu ga',             korean:'취소하고 싶은데요',              tip:'変更(へんこう) = 변경' },
+  { id:'sph_6', japanese:'電話番号を教えてください',              romaji:'denwa bangou o oshiete kudasai',         korean:'전화번호 알려주세요',            tip:'番号(ばんごう) = 번호' },
+  { id:'sph_7', japanese:'少々お待ちください',                    romaji:'shoushou omachi kudasai',                korean:'잠시만 기다려 주세요',           tip:'상대방이 말하는 표현 (이해용)' },
+  { id:'sph_8', japanese:'また電話します',                        romaji:'mata denwa shimasu',                     korean:'다시 전화할게요',                tip:'後で(あとで) = 나중에' },
+
+  // ── 체크인 (sim_checkin) — 10개 ──
+  { id:'sci_1',  japanese:'チェックインお願いします',              romaji:'chekku in onegai shimasu',               korean:'체크인 부탁합니다' },
+  { id:'sci_2',  japanese:'予約した〜です',                        romaji:'yoyaku shita ~ desu',                    korean:'예약한 ~입니다',                 tip:'名前(なまえ) = 이름' },
+  { id:'sci_3',  japanese:'パスポートはこちらです',                romaji:'pasupooto wa kochira desu',              korean:'여권 여기 있습니다' },
+  { id:'sci_4',  japanese:'禁煙の部屋でお願いします',              romaji:'kinen no heya de onegai shimasu',        korean:'금연 방으로 부탁합니다',         tip:'喫煙(きつえん) = 흡연' },
+  { id:'sci_5',  japanese:'もう少し上の階がいいのですが',          romaji:'mou sukoshi ue no kai ga ii no desu ga', korean:'좀 더 높은 층이면 좋겠는데요',   tip:'静かな部屋 = 조용한 방' },
+  { id:'sci_6',  japanese:'朝食は付いていますか',                  romaji:'choushoku wa tsuite imasu ka',           korean:'조식 포함인가요?',               tip:'別料金(べつりょうきん) = 별도 요금' },
+  { id:'sci_7',  japanese:'何時まで開いていますか',                romaji:'nanji made aite imasu ka',               korean:'몇 시까지 열려 있나요?',         tip:'フロント, 大浴場 등에 대해' },
+  { id:'sci_8',  japanese:'荷物を先に預けられますか',              romaji:'nimotsu o saki ni azukeraremasu ka',     korean:'짐을 먼저 맡길 수 있나요?',      tip:'チェックイン前(まえ)に = 체크인 전에' },
+  { id:'sci_9',  japanese:'近くにコンビニはありますか',            romaji:'chikaku ni konbini wa arimasu ka',       korean:'근처에 편의점 있나요?' },
+  { id:'sci_10', japanese:'部屋の鍵をもらえますか',                romaji:'heya no kagi o moraemasu ka',            korean:'방 열쇠 받을 수 있나요?',        tip:'カードキー = 카드키' },
+
+  // ── 체크아웃 (sim_checkout) — 8개 ──
+  { id:'sco_1', japanese:'チェックアウトお願いします',             romaji:'chekku auto onegai shimasu',             korean:'체크아웃 부탁합니다' },
+  { id:'sco_2', japanese:'荷物を預かってもらえますか',             romaji:'nimotsu o azukatte moraemasu ka',        korean:'짐 좀 맡아주실 수 있나요?',      tip:'ロッカー = 사물함(코인락커)' },
+  { id:'sco_3', japanese:'レイトチェックアウトはできますか',       romaji:'reito chekku auto wa dekimasu ka',       korean:'늦은 체크아웃 가능한가요?',      tip:'追加料金(ついかりょうきん) = 추가 요금' },
+  { id:'sco_4', japanese:'タクシーを呼んでいただけますか',         romaji:'takushii o yonde itadakemasu ka',        korean:'택시 불러주실 수 있나요?' },
+  { id:'sco_5', japanese:'明細書をください',                       romaji:'meisaisho o kudasai',                    korean:'명세서 주세요',                  tip:'領収書(りょうしゅうしょ) = 영수증' },
+  { id:'sco_6', japanese:'忘れ物をしました',                       romaji:'wasuremono o shimashita',                korean:'잊어버린 물건이 있어요',         tip:'部屋に忘れた = 방에 두고 왔어요' },
+  { id:'sco_7', japanese:'空港までどのくらいかかりますか',         romaji:'kuukou made dono kurai kakarimasu ka',   korean:'공항까지 얼마나 걸려요?',        tip:'時間(じかん)と料金(りょうきん)' },
+  { id:'sco_8', japanese:'楽しかったです、ありがとうございます',   romaji:'tanoshikatta desu, arigatou gozaimasu',  korean:'즐거웠어요, 감사합니다',         tip:'감사 인사로 마무리!' },
+
+  // ── 화장실 (sim_toilet) — 8개 ──
+  { id:'stl_1', japanese:'トイレはどこですか',                    romaji:'toire wa doko desu ka',                  korean:'화장실 어디예요?',               tip:'お手洗い(おてあらい) = 정중한 표현' },
+  { id:'stl_2', japanese:'お手洗いをお借りできますか',            romaji:'otearai o okari dekimasu ka',             korean:'화장실 좀 빌릴 수 있나요?',      tip:'가게에서 정중하게 물을 때' },
+  { id:'stl_3', japanese:'多目的トイレはありますか',              romaji:'tamokuteki toire wa arimasu ka',          korean:'다목적 화장실 있나요?',          tip:'車いす(くるまいす) = 휠체어' },
+  { id:'stl_4', japanese:'トイレットペーパーがありません',        romaji:'toiretto peepaa ga arimasen',             korean:'화장지가 없어요',                tip:'직원에게 알릴 때' },
+  { id:'stl_5', japanese:'水が流れません',                        romaji:'mizu ga nagaremasen',                     korean:'물이 안 내려가요',               tip:'故障(こしょう) = 고장' },
+  { id:'stl_6', japanese:'ウォシュレットの使い方がわかりません',  romaji:'woshuretto no tsukaikata ga wakarimasen', korean:'비데 사용법을 모르겠어요',       tip:'止(と)める = 멈추다' },
+  { id:'stl_7', japanese:'女性用はどちらですか',                  romaji:'josei you wa dochira desu ka',            korean:'여성용은 어느 쪽인가요?',        tip:'男性用(だんせいよう) = 남성용' },
+  { id:'stl_8', japanese:'並んでいますか',                        romaji:'narande imasu ka',                        korean:'줄 서 있는 건가요?',             tip:'列(れつ) = 줄' },
+
+  // ── 흡연/담배 (sim_smoking) — 8개 ──
+  { id:'smk_1', japanese:'喫煙所はどこですか',                    romaji:'kitsuenjo wa doko desu ka',               korean:'흡연실 어디예요?',               tip:'喫煙所(きつえんじょ) = 흡연 장소' },
+  { id:'smk_2', japanese:'ここで吸ってもいいですか',              romaji:'koko de sutte mo ii desu ka',             korean:'여기서 피워도 되나요?',          tip:'禁煙(きんえん) = 금연' },
+  { id:'smk_3', japanese:'タバコをください',                      romaji:'tabako o kudasai',                        korean:'담배 주세요',                    tip:'편의점 카운터 뒤에 있음' },
+  { id:'smk_4', japanese:'ライターはありますか',                  romaji:'raitaa wa arimasu ka',                    korean:'라이터 있나요?',                 tip:'マッチ = 성냥' },
+  { id:'smk_5', japanese:'灰皿はありますか',                      romaji:'haizara wa arimasu ka',                   korean:'재떨이 있나요?',                 tip:'灰皿(はいざら) = 재떨이' },
+  { id:'smk_6', japanese:'喫煙席はありますか',                    romaji:'kitsuen seki wa arimasu ka',              korean:'흡연석 있나요?',                 tip:'식당에서 물을 때' },
+  { id:'smk_7', japanese:'加熱式タバコは使えますか',              romaji:'kanetsu shiki tabako wa tsukaemasu ka',   korean:'전자담배 사용 가능한가요?',      tip:'アイコス(IQOS) 등' },
+  { id:'smk_8', japanese:'外で吸ってきます',                      romaji:'soto de sutte kimasu',                    korean:'밖에서 피우고 올게요',           tip:'ちょっと出てきます = 잠깐 나갔다 올게요' },
+
+  // ── 편의점 (sim_conveni) — 10개 ──
+  { id:'scv_1',  japanese:'温めてください',                        romaji:'atatamete kudasai',                      korean:'데워 주세요',                    tip:'お弁当(おべんとう) = 도시락' },
+  { id:'scv_2',  japanese:'袋はいりません',                        romaji:'fukuro wa irimasen',                     korean:'봉투 필요 없어요',               tip:'エコバッグ = 에코백' },
+  { id:'scv_3',  japanese:'お箸をください',                        romaji:'ohashi o kudasai',                       korean:'젓가락 주세요',                  tip:'フォーク = 포크, スプーン = 숟가락' },
+  { id:'scv_4',  japanese:'ATMはどこですか',                       romaji:'eitiemu wa doko desu ka',                korean:'ATM 어디예요?',                  tip:'일본 편의점 ATM은 해외카드 사용 가능' },
+  { id:'scv_5',  japanese:'チケットの支払いをしたいです',          romaji:'chiketto no shiharai o shitai desu',     korean:'티켓 결제를 하고 싶어요',        tip:'콘서트·이벤트 티켓 결제' },
+  { id:'scv_6',  japanese:'コピーをしたいです',                    romaji:'kopii o shitai desu',                    korean:'복사를 하고 싶어요',             tip:'マルチコピー機 = 복합기' },
+  { id:'scv_7',  japanese:'宅配便を送りたいです',                  romaji:'takuhaibin o okuritai desu',             korean:'택배를 보내고 싶어요',           tip:'ヤマト運輸, 佐川急便 = 일본 택배사' },
+  { id:'scv_8',  japanese:'トイレを借りてもいいですか',            romaji:'toire o karite mo ii desu ka',           korean:'화장실 빌려도 되나요?',          tip:'편의점 화장실은 대부분 사용 가능' },
+  { id:'scv_9',  japanese:'ポイントカードはお持ちですか',          romaji:'pointo kaado wa omochi desu ka',         korean:'포인트 카드 가지고 계세요?',     tip:'점원이 묻는 표현 (이해용). ないです = 없어요' },
+  { id:'scv_10', japanese:'これは何味ですか',                      romaji:'kore wa nani aji desu ka',               korean:'이거 무슨 맛이에요?',            tip:'甘い(あまい)=달다, 辛い(からい)=맵다' },
 ];
 
 // ─── 카테고리 정의 ───

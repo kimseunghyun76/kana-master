@@ -37,7 +37,9 @@ const App = (() => {
     writeExamMode: false,
     writeExamScore: { ok: 0, fail: 0 },
     // 설정
-    prefs: { lang: 'korean', autoplay: false, autonext: false },
+    prefs: { lang: 'korean', autoplay: false, autonext: false, voiceFemale: 'none', voiceMale: 'none' },
+    // 음성 교대 카운터
+    voiceCallCount: 0,
     // 진도
     progress: {},
     totalXP: 0,
@@ -358,8 +360,10 @@ const App = (() => {
     const inner = document.getElementById('fc-inner');
     inner.classList.remove('flipped');
 
-    // 카드 로드 시 항상 자동 발음
-    setTimeout(() => playAudio(char.kana), 350);
+    // 자동 발음 설정 시 카드 로드 시 자동 재생
+    if (state.prefs.autoplay) {
+      setTimeout(() => playAudio(char.kana), 350);
+    }
 
     // 진도 기록
     markCharSeen(char.kana);
@@ -937,7 +941,36 @@ const App = (() => {
         });
       }
 
-      nextBtn.onclick = nextQuizQuestion;
+      // 자동 다음 설정 시 오답도 5초 후 자동 이동
+      if (state.prefs.autonext) {
+        let count = 5;
+        qfCountdown.textContent = count;
+        qfCountdown.style.display = 'block';
+        qfCountdownLabel.textContent = '초 후 자동으로 다음 문제';
+        qfCountdownLabel.style.display = 'block';
+        nextBtn.textContent = '지금 다음 문제 →';
+
+        state.quizCountdownTimer = setInterval(() => {
+          count--;
+          if (count <= 0) {
+            clearInterval(state.quizCountdownTimer);
+            state.quizCountdownTimer = null;
+            nextQuizQuestion();
+          } else {
+            qfCountdown.textContent = count;
+          }
+        }, 1000);
+
+        nextBtn.onclick = () => {
+          if (state.quizCountdownTimer) {
+            clearInterval(state.quizCountdownTimer);
+            state.quizCountdownTimer = null;
+          }
+          nextQuizQuestion();
+        };
+      } else {
+        nextBtn.onclick = nextQuizQuestion;
+      }
     }
   }
 
@@ -1459,12 +1492,36 @@ const App = (() => {
     document.getElementById('pref-lang').value = state.prefs.lang || 'korean';
     document.getElementById('pref-autoplay').checked = state.prefs.autoplay || false;
     document.getElementById('pref-autonext').checked = state.prefs.autonext || false;
+
+    // 음성 목록이 로드된 후 select 값 설정
+    if (voicesCached) populateVoiceSelects();
+    restoreVoiceSelects();
+
+    // 음성 변경 시 테스트 재생
+    const femaleSelect = document.getElementById('pref-voice-female');
+    const maleSelect = document.getElementById('pref-voice-male');
+
+    femaleSelect.onchange = () => {
+      state.prefs.voiceFemale = femaleSelect.value;
+      state.voiceCallCount = 0;
+      saveToStorage();
+      if (femaleSelect.value !== 'none') playTestVoice(femaleSelect.value);
+    };
+    maleSelect.onchange = () => {
+      state.prefs.voiceMale = maleSelect.value;
+      state.voiceCallCount = 0;
+      saveToStorage();
+      if (maleSelect.value !== 'none') playTestVoice(maleSelect.value);
+    };
   }
 
   function savePrefs() {
     state.prefs.lang = document.getElementById('pref-lang').value;
+    state.prefs.voiceFemale = document.getElementById('pref-voice-female').value;
+    state.prefs.voiceMale = document.getElementById('pref-voice-male').value;
     state.prefs.autoplay = document.getElementById('pref-autoplay').checked;
     state.prefs.autonext = document.getElementById('pref-autonext').checked;
+    state.voiceCallCount = 0;
     saveToStorage();
   }
 
@@ -1512,6 +1569,131 @@ const App = (() => {
   }
 
   // ─── 오디오 ───
+
+  const NATURAL_VOICES = ['kyoko', 'otoya', 'o-ren', 'haruka', 'ayumi', 'nanami', 'ichiro', 'google 日本語'];
+  const TEST_PHRASE = '私の声はこんな感じです。選んでいただければ、全力を尽くします。スンヒョン様！';
+
+  let allJaVoices = [];
+  let voicesCached = false;
+
+
+
+  function isNaturalVoice(name) {
+    return NATURAL_VOICES.some(n => name.toLowerCase().includes(n));
+  }
+
+  function getVoiceDisplayName(v) {
+    const natural = isNaturalVoice(v.name) ? ' ⭐' : '';
+    const displayName = v.name.replace(/\s*\(.*?\)\s*/g, '').trim();
+    return `${displayName}${natural}`;
+  }
+
+  function loadJapaneseVoices() {
+    const voices = window.speechSynthesis.getVoices();
+    const jaVoices = voices.filter(v => v.lang === 'ja-JP' || v.lang.startsWith('ja'));
+    if (jaVoices.length === 0) return;
+
+    // 자연스러운 음성 우선, 그 다음 이름순
+    allJaVoices = jaVoices.slice().sort((a, b) => {
+      const aNat = isNaturalVoice(a.name) ? 0 : 1;
+      const bNat = isNaturalVoice(b.name) ? 0 : 1;
+      if (aNat !== bNat) return aNat - bNat;
+      return a.name.localeCompare(b.name);
+    });
+    voicesCached = true;
+    populateVoiceSelects();
+  }
+
+  function populateVoiceSelects() {
+    const femaleSelect = document.getElementById('pref-voice-female');
+    const maleSelect = document.getElementById('pref-voice-male');
+    if (!femaleSelect || !maleSelect || allJaVoices.length === 0) return;
+
+    // 기존 옵션 제거 ("사용 안함" 유지)
+    while (femaleSelect.options.length > 1) femaleSelect.remove(1);
+    while (maleSelect.options.length > 1) maleSelect.remove(1);
+
+    allJaVoices.forEach((v, i) => {
+      const opt1 = document.createElement('option');
+      opt1.value = String(i);
+      opt1.textContent = getVoiceDisplayName(v);
+      femaleSelect.appendChild(opt1);
+
+      const opt2 = document.createElement('option');
+      opt2.value = String(i);
+      opt2.textContent = getVoiceDisplayName(v);
+      maleSelect.appendChild(opt2);
+    });
+
+    // 저장된 설정 복원
+    restoreVoiceSelects();
+  }
+
+  function restoreVoiceSelects() {
+    const femaleSelect = document.getElementById('pref-voice-female');
+    const maleSelect = document.getElementById('pref-voice-male');
+    if (!femaleSelect || !maleSelect) return;
+
+    const fv = state.prefs.voiceFemale;
+    const mv = state.prefs.voiceMale;
+
+    femaleSelect.value = (fv !== undefined && fv !== null && fv !== 'none') ? String(fv) : 'none';
+    maleSelect.value = (mv !== undefined && mv !== null && mv !== 'none') ? String(mv) : 'none';
+
+    // 선택값이 없으면 none으로 복원
+    if (!femaleSelect.querySelector(`option[value="${fv}"]`)) femaleSelect.value = 'none';
+    if (!maleSelect.querySelector(`option[value="${mv}"]`)) maleSelect.value = 'none';
+  }
+
+  // 음성 목록 로드 (비동기 대응 + 폴링 fallback)
+  if (window.speechSynthesis) {
+    window.speechSynthesis.onvoiceschanged = loadJapaneseVoices;
+    loadJapaneseVoices();
+    let voicePollCount = 0;
+    const voicePoll = setInterval(() => {
+      voicePollCount++;
+      if (voicesCached || voicePollCount > 20) { clearInterval(voicePoll); return; }
+      loadJapaneseVoices();
+    }, 200);
+  }
+
+  function playTestVoice(voiceIndex) {
+    if (!window.speechSynthesis) return;
+    window.speechSynthesis.cancel();
+    const utter = new SpeechSynthesisUtterance(TEST_PHRASE);
+    utter.lang = 'ja-JP';
+    utter.rate = 0.9;
+    utter.pitch = 1.0;
+
+    if (voiceIndex !== 'none' && allJaVoices[parseInt(voiceIndex)]) {
+      utter.voice = allJaVoices[parseInt(voiceIndex)];
+    }
+    window.speechSynthesis.speak(utter);
+  }
+
+  function getVoiceForPlayback() {
+    if (!voicesCached) loadJapaneseVoices();
+
+    const fIdx = state.prefs.voiceFemale;
+    const mIdx = state.prefs.voiceMale;
+
+    const femaleVoice = (fIdx !== 'none' && fIdx !== undefined) ? allJaVoices[parseInt(fIdx)] : null;
+    const maleVoice = (mIdx !== 'none' && mIdx !== undefined) ? allJaVoices[parseInt(mIdx)] : null;
+
+    // 둘 다 선택 → 번갈아
+    if (femaleVoice && maleVoice) {
+      const voice = (state.voiceCallCount % 2 === 0) ? femaleVoice : maleVoice;
+      state.voiceCallCount++;
+      return voice;
+    }
+    // 하나만 선택
+    if (femaleVoice) return femaleVoice;
+    if (maleVoice) return maleVoice;
+
+    // 아무것도 선택 안 됨 → 기본 첫 번째 음성
+    return allJaVoices[0] || null;
+  }
+
   function playAudio(kana) {
     if (!window.speechSynthesis) {
       showToast('이 브라우저는 음성 합성을 지원하지 않습니다.');
@@ -1523,10 +1705,8 @@ const App = (() => {
     utter.rate = 0.8;
     utter.pitch = 1.0;
 
-    // 일본어 음성 찾기
-    const voices = window.speechSynthesis.getVoices();
-    const jaVoice = voices.find(v => v.lang === 'ja-JP' || v.lang.startsWith('ja'));
-    if (jaVoice) utter.voice = jaVoice;
+    const voice = getVoiceForPlayback();
+    if (voice) utter.voice = voice;
 
     window.speechSynthesis.speak(utter);
   }

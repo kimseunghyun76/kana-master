@@ -967,11 +967,19 @@ html, body {
 
 /* ─── vocab 플래시카드 텍스트 오버플로우 방지 ─── */
 #vfc-japanese { transition: font-size 0.15s ease; }
-#vfc-japanese.text-long  { font-size: 28px; line-height: 1.3; }
-#vfc-japanese.text-xlong { font-size: 20px; line-height: 1.4; word-break: break-all; }
+#vfc-japanese.text-long     { font-size: 28px; line-height: 1.3; }
+#vfc-japanese.text-xlong    { font-size: 20px; line-height: 1.4; word-break: keep-all; overflow-wrap: break-word; }
+#vfc-japanese.text-sentence { font-size: 16px; line-height: 1.5; word-break: keep-all; overflow-wrap: break-word; text-align: center; padding: 0 12px; }
 #vfc-japanese-back { transition: font-size 0.15s ease; }
-#vfc-japanese-back.text-long  { font-size: 20px; }
-#vfc-japanese-back.text-xlong { font-size: 16px; word-break: break-all; }
+#vfc-japanese-back.text-long     { font-size: 20px; }
+#vfc-japanese-back.text-xlong    { font-size: 16px; word-break: keep-all; overflow-wrap: break-word; }
+#vfc-japanese-back.text-sentence { font-size: 14px; line-height: 1.5; word-break: keep-all; overflow-wrap: break-word; text-align: center; padding: 0 10px; }
+
+/* ─── 긴 문장용 카드 높이 확장 ─── */
+.flashcard-container.fc-tall { height: 460px; }
+
+/* ─── 퀴즈 선택지 긴 텍스트 ─── */
+.vc-japanese.vc-long { font-size: 14px; line-height: 1.4; }
 
 /* ─── Level 11 전체복습 특별 카드 ─── */
 .level-card.level-special {
@@ -985,5 +993,7 @@ html, body {
   color: #fff;
 }
 
-/* ─── Phase 6 배지 색상 (에메랄드 그린) ─── */
+/* ─── Phase 배지 색상 ─── */
 .vpc-phase-6 { background: #059669; }
+.vpc-phase-7 { background: #7c3aed; }
+.vpc-phase-8 { background: #dc2626; }
