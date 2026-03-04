@@ -997,3 +997,160 @@ html, body {
 .vpc-phase-6 { background: #059669; }
 .vpc-phase-7 { background: #7c3aed; }
 .vpc-phase-8 { background: #dc2626; }
+
+/* ============================================================
+   관리자 패널 (Admin Panel)
+   ============================================================ */
+#admin-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.65);
+  z-index: 9999;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(3px);
+}
+#admin-overlay.open {
+  display: flex;
+}
+#admin-panel {
+  background: #1a1a2e;
+  border: 2px solid #e63946;
+  border-radius: 16px;
+  width: 420px;
+  max-width: 94vw;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 8px 40px rgba(230,57,70,0.35);
+  animation: adminSlideIn 0.2s ease;
+}
+@keyframes adminSlideIn {
+  from { transform: scale(0.92) translateY(-16px); opacity: 0; }
+  to   { transform: scale(1) translateY(0); opacity: 1; }
+}
+.admin-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  border-bottom: 1px solid rgba(230,57,70,0.4);
+  font-size: 16px;
+  font-weight: 700;
+  color: #e63946;
+  letter-spacing: 0.3px;
+}
+#admin-close-btn {
+  background: none;
+  border: none;
+  color: #718096;
+  font-size: 18px;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 6px;
+  transition: background 0.15s, color 0.15s;
+}
+#admin-close-btn:hover { background: rgba(255,255,255,0.1); color: #fff; }
+
+.admin-body { padding: 16px; display: flex; flex-direction: column; gap: 14px; }
+
+.admin-status-bar {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  background: rgba(255,255,255,0.05);
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 13px;
+  color: #a0aec0;
+}
+.admin-status-bar strong { color: #ffd166; }
+
+.admin-section {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.admin-section-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: #718096;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin-bottom: 2px;
+}
+.admin-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.admin-row input[type="number"],
+.admin-row select {
+  flex: 1;
+  min-width: 100px;
+  padding: 8px 10px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 8px;
+  color: #e2e8f0;
+  font-size: 13px;
+  outline: none;
+}
+.admin-row input[type="number"]:focus,
+.admin-row select:focus { border-color: #e63946; }
+.admin-row select option { background: #1a1a2e; color: #e2e8f0; }
+
+.adm-btn {
+  padding: 8px 14px;
+  border: none;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.1s;
+  white-space: nowrap;
+}
+.adm-btn:hover { opacity: 0.85; transform: translateY(-1px); }
+.adm-btn:active { transform: translateY(0); }
+
+.adm-set   { background: #4361ee; color: #fff; }
+.adm-add   { background: #52c41a; color: #fff; }
+.adm-unlock  { background: #ffd166; color: #1a1a2e; }
+.adm-complete { background: #06d6a0; color: #1a1a2e; }
+.adm-reset   { background: rgba(230,57,70,0.25); color: #e63946; border: 1px solid rgba(230,57,70,0.4); }
+.adm-reset-all { background: #e63946; color: #fff; }
+
+.admin-quick-row {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.adm-quick {
+  padding: 5px 10px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 6px;
+  color: #a0aec0;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.adm-quick:hover { background: rgba(255,255,255,0.18); color: #fff; }
+.adm-quick-max { background: rgba(230,57,70,0.2); color: #e63946; border-color: rgba(230,57,70,0.4); }
+.adm-quick-max:hover { background: rgba(230,57,70,0.35); }
+
+/* 로고 클릭 힌트 애니메이션 */
+.header-logo.admin-hint {
+  animation: adminHint 0.15s ease;
+}
+@keyframes adminHint {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.3); background: #e63946; }
+  100% { transform: scale(1); }
+}

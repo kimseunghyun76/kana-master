@@ -177,7 +177,7 @@ const App = (() => {
       const prog = getLevelProgress(level);
       const isCompleted = prog >= 100;
 
-      const isSpecial = level.id === 11;
+      const isSpecial = level.id === 12;
       const card = document.createElement('div');
       card.className = 'level-card' +
         (isCompleted ? ' completed' : '') +
@@ -202,7 +202,7 @@ const App = (() => {
         <div class="lc-sub">${level.subtitle}</div>
         ${xpNeeded}
         <div class="lc-prog-bar"><div class="lc-prog-fill" style="width:${prog}%"></div></div>
-        <div class="lc-prog-text">${prog}% 완료 · ${level.chars.length}자</div>
+        <div class="lc-prog-text">${isSpecial ? '전체 가나 랜덤 복습' : `${prog}% 완료 · ${level.chars.length}자`}</div>
         ${isUnlocked ? `
           <div class="lc-actions">
             <button class="lc-btn lc-btn-learn" data-lid="${level.id}">📚 학습</button>
@@ -277,8 +277,8 @@ const App = (() => {
     const level = LEVELS.find(l => l.id === levelId);
     if (!level) return;
 
-    // Level 11: 전체 복습 — 모든 가나 랜덤 순서
-    if (levelId === 11) {
+    // Level 12: 전체 복습 — 모든 가나 랜덤 순서
+    if (levelId === 12) {
       state.learnChars = Object.keys(KANA_MAP)
         .map(k => ({ kana: k, ...KANA_MAP[k] }))
         .sort(() => Math.random() - 0.5);
@@ -696,8 +696,15 @@ const App = (() => {
       const level = LEVELS.find(l => l.id === state.currentLevel);
       if (level) chars = [...level.chars];
     } else {
-      const level = LEVELS.find(l => l.id === parseInt(levelSel));
-      if (level) chars = [...level.chars];
+      const levelId = parseInt(levelSel);
+      const level = LEVELS.find(l => l.id === levelId);
+      if (level) {
+        if (levelId === 12) {
+          chars = Object.keys(KANA_MAP); // 전체 복습: 모든 가나
+        } else {
+          chars = [...level.chars];
+        }
+      }
     }
 
     // 유효한 글자만
@@ -739,18 +746,21 @@ const App = (() => {
     const info = KANA_MAP[kana];
     if (!info) return null;
 
+    // 실제 표시 가나 (는_p → は 같은 특수 키 대응)
+    const displayKana = info.kana || kana;
+
     // 오답 3개 생성 (같은 타입에서)
     const sameType = Object.entries(KANA_MAP)
       .filter(([k, v]) => k !== kana && v.type === info.type)
       .sort(() => Math.random() - 0.5)
       .slice(0, 3)
-      .map(([k, v]) => ({ kana: k, ...v }));
+      .map(([k, v]) => ({ kana: v.kana || k, ...v }));
 
     // 정답 포함 4개 셔플
-    const correct = { kana, ...info };
+    const correct = { kana: displayKana, ...info };
     const choices = [correct, ...sameType].sort(() => Math.random() - 0.5);
 
-    return { kana, info, qtype, qlang, choices, correctKana: kana };
+    return { kana, displayKana, info, qtype, qlang, choices, correctKana: displayKana };
   }
 
   function showQuizQuestion() {
@@ -778,9 +788,9 @@ const App = (() => {
     if (q.qtype === 'kanaToReading') {
       qInner = `
         <div style="width:100%">
-          <div class="qb-kana">${q.kana}</div>
+          <div class="qb-kana">${q.displayKana || q.kana}</div>
           <div class="qb-label">이 글자의 발음은?</div>
-          <button class="audio-btn" style="margin-top:10px" onclick="App.playAudio('${q.kana}')">🔊 발음 듣기</button>
+          <button class="audio-btn" style="margin-top:10px" onclick="App.playAudio('${q.displayKana || q.kana}')">🔊 발음 듣기</button>
         </div>`;
     } else if (q.qtype === 'readingToKana') {
       const readingText = getReadingText(q.info, q.qlang);
@@ -792,10 +802,10 @@ const App = (() => {
     } else if (q.qtype === 'listen') {
       qInner = `
         <div style="text-align:center; width:100%">
-          <button class="qb-listen-btn" onclick="App.playAudio('${q.kana}')">🔊 발음 듣기</button>
+          <button class="qb-listen-btn" onclick="App.playAudio('${q.displayKana || q.kana}')">🔊 발음 듣기</button>
           <div class="qb-label" style="margin-top:12px">들은 발음에 해당하는 글자는?</div>
         </div>`;
-      setTimeout(() => playAudio(q.kana), 300);
+      setTimeout(() => playAudio(q.displayKana || q.kana), 300);
     }
     qbox.innerHTML = qInner;
 
@@ -2126,6 +2136,168 @@ const App = (() => {
     document.getElementById('vocab-flash-panel').style.display = 'none';
     renderVocabCategories();
   }
+
+  // ─── 관리자 패널 ───
+  (function setupAdminPanel() {
+    let clickCount = 0;
+    let clickTimer = null;
+
+    // 로고를 5번 빠르게 클릭하면 관리자 패널 열림
+    const logo = document.querySelector('.header-logo');
+    if (logo) {
+      logo.style.cursor = 'pointer';
+      logo.addEventListener('click', () => {
+        clickCount++;
+        logo.classList.remove('admin-hint');
+        void logo.offsetWidth; // reflow
+        logo.classList.add('admin-hint');
+        clearTimeout(clickTimer);
+        if (clickCount >= 5) {
+          clickCount = 0;
+          openAdminPanel();
+        } else {
+          clickTimer = setTimeout(() => { clickCount = 0; }, 2000);
+        }
+      });
+    }
+
+    function openAdminPanel() {
+      const overlay = document.getElementById('admin-overlay');
+      if (!overlay) return;
+      refreshAdminStatus();
+      populateAdminLevelSelect();
+      overlay.classList.add('open');
+    }
+
+    function closeAdminPanel() {
+      document.getElementById('admin-overlay').classList.remove('open');
+    }
+
+    function refreshAdminStatus() {
+      document.getElementById('adm-cur-xp').textContent = state.totalXP.toLocaleString();
+      document.getElementById('adm-unlocked').textContent = state.unlockedLevels.length;
+      const completed = LEVELS.filter(l => l.chars.length > 0 && getLevelProgress(l) >= 100).length;
+      document.getElementById('adm-completed').textContent = completed;
+    }
+
+    function populateAdminLevelSelect() {
+      const sel = document.getElementById('adm-level-select');
+      sel.innerHTML = '<option value="">── 레벨 선택 ──</option>';
+      LEVELS.filter(l => l.chars.length > 0).forEach(l => {
+        const opt = document.createElement('option');
+        opt.value = l.id;
+        opt.textContent = `Level ${l.id}: ${l.title} (${l.chars.length}자)`;
+        sel.appendChild(opt);
+      });
+    }
+
+    function applyAndRefresh() {
+      checkLevelUnlock();
+      saveToStorage();
+      updateHeader();
+      refreshAdminStatus();
+      renderLevels();
+    }
+
+    // 닫기
+    document.getElementById('admin-close-btn').addEventListener('click', closeAdminPanel);
+    document.getElementById('admin-overlay').addEventListener('click', (e) => {
+      if (e.target.id === 'admin-overlay') closeAdminPanel();
+    });
+
+    // XP 직접 설정
+    document.getElementById('adm-xp-set').addEventListener('click', () => {
+      const val = parseInt(document.getElementById('adm-xp-input').value);
+      if (isNaN(val) || val < 0) { showToast('올바른 XP 값을 입력하세요.'); return; }
+      state.totalXP = val;
+      applyAndRefresh();
+      showToast(`✅ XP를 ${val.toLocaleString()}으로 설정했습니다.`);
+    });
+
+    // XP 추가
+    document.getElementById('adm-xp-add').addEventListener('click', () => {
+      const val = parseInt(document.getElementById('adm-xp-input').value);
+      if (isNaN(val) || val <= 0) { showToast('추가할 XP 값을 입력하세요.'); return; }
+      state.totalXP += val;
+      applyAndRefresh();
+      showToast(`✅ ${val.toLocaleString()} XP 추가 → 총 ${state.totalXP.toLocaleString()} XP`);
+    });
+
+    // 빠른 XP 버튼
+    document.querySelectorAll('.adm-quick').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const xp = parseInt(btn.dataset.xp);
+        if (btn.classList.contains('adm-quick-max')) {
+          state.totalXP = xp;
+          showToast(`🚀 XP MAX (${xp.toLocaleString()}) 설정!`);
+        } else {
+          state.totalXP += xp;
+          showToast(`⚡ +${xp.toLocaleString()} XP → 총 ${state.totalXP.toLocaleString()} XP`);
+        }
+        applyAndRefresh();
+      });
+    });
+
+    // 모든 레벨 해금
+    document.getElementById('adm-unlock-all').addEventListener('click', () => {
+      state.unlockedLevels = LEVELS.map(l => l.id);
+      state.currentLevel = LEVELS[LEVELS.length - 1].id;
+      applyAndRefresh();
+      showToast('🔓 모든 레벨이 해금되었습니다!');
+    });
+
+    // 선택 레벨 완료처리
+    document.getElementById('adm-level-complete').addEventListener('click', () => {
+      const levelId = parseInt(document.getElementById('adm-level-select').value);
+      if (!levelId) { showToast('레벨을 선택하세요.'); return; }
+      const level = LEVELS.find(l => l.id === levelId);
+      if (!level) return;
+      level.chars.forEach(k => {
+        if (!state.progress[k]) state.progress[k] = { seen: 0, correct: 0, incorrect: 0 };
+        state.progress[k].correct = 5;
+        state.progress[k].incorrect = 0;
+        state.progress[k].seen = (state.progress[k].seen || 0) + 5;
+      });
+      applyAndRefresh();
+      showToast(`✅ Level ${levelId} (${level.chars.length}자) 완료처리 완료!`);
+    });
+
+    // 전체 레벨 완료처리
+    document.getElementById('adm-complete-all').addEventListener('click', () => {
+      LEVELS.filter(l => l.chars.length > 0).forEach(level => {
+        level.chars.forEach(k => {
+          if (!state.progress[k]) state.progress[k] = { seen: 0, correct: 0, incorrect: 0 };
+          state.progress[k].correct = 5;
+          state.progress[k].incorrect = 0;
+          state.progress[k].seen = (state.progress[k].seen || 0) + 5;
+        });
+      });
+      applyAndRefresh();
+      showToast('✅ 모든 레벨 완료처리 완료!');
+    });
+
+    // 진도만 초기화
+    document.getElementById('adm-reset-progress').addEventListener('click', () => {
+      if (!confirm('진도(정답/오답 기록)를 초기화할까요?\nXP와 해금 상태는 유지됩니다.')) return;
+      state.progress = {};
+      applyAndRefresh();
+      showToast('🗑️ 진도가 초기화되었습니다.');
+    });
+
+    // 전체 초기화
+    document.getElementById('adm-reset-all').addEventListener('click', () => {
+      if (!confirm('⚠️ 모든 진도·XP·해금 상태를 초기화합니다.\n정말 초기화하시겠습니까?')) return;
+      state.progress = {};
+      state.totalXP = 0;
+      state.streak = 0;
+      state.lastStudied = null;
+      state.unlockedLevels = [1];
+      state.currentLevel = 1;
+      applyAndRefresh();
+      closeAdminPanel();
+      showToast('🗑️ 전체 초기화 완료.');
+    });
+  })();
 
   // ─── 토스트 알림 ───
   function showToast(msg, duration = 2500) {

@@ -85,14 +85,44 @@ const LEVELS = [
     unlockXP: 3700
   },
   {
+    id: 9,
+    name: 'Level 9',
+    title: '특수 박자',
+    subtitle: 'っ·ッ·ー·장음 패턴 (8가지)',
+    desc: '촉음·장음부·장음 패턴! 실제 일본어 읽기의 핵심 규칙을 마스터하자.',
+    type: 'special',
+    chars: ['っ','ッ','ー','おう','えい','ああ','いい','うう'],
+    unlockXP: 4200
+  },
+  {
+    id: 10,
+    name: 'Level 10',
+    title: '외래어 가타카나 확장',
+    subtitle: 'ファ·ティ·ヴ 등 (20가지)',
+    desc: '외국어 발음을 표기하는 특수 가타카나 조합! 현대 일본어 필수.',
+    type: 'katakana_extended',
+    chars: ['ファ','フィ','フェ','フォ','ティ','ディ','トゥ','ドゥ','ウィ','ウェ','ウォ','チェ','シェ','ジェ','ヴ','ヴァ','ヴィ','ヴェ','ヴォ','イェ'],
+    unlockXP: 5000
+  },
+  {
     id: 11,
     name: 'Level 11',
+    title: '조사 읽기 예외',
+    subtitle: 'は→wa · へ→e · を→o',
+    desc: '표기와 발음이 다른 조사 3개! 문장 읽기의 함정을 완전히 해결.',
+    type: 'particle',
+    chars: ['は_p','へ_p','を_p'],
+    unlockXP: 5800
+  },
+  {
+    id: 12,
+    name: 'Level 12',
     title: '⭐ 전체 복습',
-    subtitle: '히라가나 + 가타가나 모든 가나',
+    subtitle: '모든 가나 + 특수 박자 + 외래어',
     desc: '최종 보스! 모든 가나를 랜덤 셔플로 완전 정복!',
     type: 'hiragana',
     chars: [],
-    unlockXP: 4500
+    unlockXP: 6600
   }
 ];
 
@@ -581,7 +611,75 @@ const KANA_MAP = {
   'ピュ': { romaji:'pyu', korean:'퓨', english:'pyoo', type:'katakana_yoon',
     examples:[{word:'ピュア',reading:'pyua',meaning:'순수 (pure)'},{word:'コンピュータ',reading:'kon·pyū·ta',meaning:'컴퓨터 (computer)'}]},
   'ピョ': { romaji:'pyo', korean:'표', english:'pyoh', type:'katakana_yoon',
-    examples:[{word:'(드물게 사용)',reading:'',meaning:'rarely used in katakana'}]}
+    examples:[{word:'(드물게 사용)',reading:'',meaning:'rarely used in katakana'}]},
+
+  // ─────────────────── 특수 박자 (Special Mora) ───────────────────
+  'っ': { romaji:'(tt/kk/ss)', korean:'촉음', english:'dbl.cons.', type:'special',
+    examples:[{word:'きって',reading:'kit·te',meaning:'우표 (stamp)'},{word:'ざっし',reading:'zas·shi',meaning:'잡지 (magazine)'},{word:'ちょっと',reading:'chot·to',meaning:'잠깐 (just a moment)'},{word:'きっぷ',reading:'kip·pu',meaning:'표 (ticket)'},{word:'がっこう',reading:'gak·kō',meaning:'학교 (school)'},{word:'もっと',reading:'mot·to',meaning:'더 (more)'}]},
+  'ッ': { romaji:'(TT/KK/SS)', korean:'촉음(가타)', english:'dbl.cons.', type:'special',
+    examples:[{word:'コップ',reading:'kop·pu',meaning:'컵 (cup)'},{word:'ベッド',reading:'bed·do',meaning:'침대 (bed)'},{word:'ネット',reading:'net·to',meaning:'인터넷 (net)'},{word:'バッグ',reading:'bag·gu',meaning:'가방 (bag)'},{word:'チケット',reading:'chi·ket·to',meaning:'티켓 (ticket)'},{word:'ショッピング',reading:'shop·pin·gu',meaning:'쇼핑 (shopping)'}]},
+  'ー': { romaji:'ā/ī/ū/ē/ō', korean:'장음부', english:'long vowel', type:'special',
+    examples:[{word:'コーヒー',reading:'kō·hī',meaning:'커피 (coffee)'},{word:'スーパー',reading:'sū·pā',meaning:'슈퍼마켓 (supermarket)'},{word:'ケーキ',reading:'kē·ki',meaning:'케이크 (cake)'},{word:'ラーメン',reading:'rā·men',meaning:'라멘 (ramen)'},{word:'バター',reading:'ba·tā',meaning:'버터 (butter)'},{word:'ビール',reading:'bī·ru',meaning:'맥주 (beer)'}]},
+  'おう': { romaji:'ō (오~)', korean:'お+う 장음', english:'long O', type:'special',
+    examples:[{word:'おとうさん',reading:'o·tō·san',meaning:'아버지 (father)'},{word:'おうさま',reading:'ō·sa·ma',meaning:'임금님 (king)'},{word:'とうきょう',reading:'tō·kyō',meaning:'도쿄 (Tokyo)'},{word:'こうえん',reading:'kō·en',meaning:'공원 (park)'},{word:'どうぞ',reading:'dō·zo',meaning:'어서요 (please)'},{word:'もうすぐ',reading:'mō·su·gu',meaning:'곧 (soon)'}]},
+  'えい': { romaji:'ē (에~)', korean:'え+い 장음', english:'long E', type:'special',
+    examples:[{word:'えいご',reading:'ē·go',meaning:'영어 (English)'},{word:'えいが',reading:'ē·ga',meaning:'영화 (movie)'},{word:'せんせい',reading:'sen·sē',meaning:'선생님 (teacher)'},{word:'けいたい',reading:'kē·ta·i',meaning:'휴대폰 (mobile phone)'},{word:'えいきゅう',reading:'ē·kyū',meaning:'영원 (eternity)'},{word:'めいし',reading:'mē·shi',meaning:'명함 (business card)'}]},
+  'ああ': { romaji:'ā (아~)', korean:'あ+あ 장음', english:'long A', type:'special',
+    examples:[{word:'おかあさん',reading:'o·kā·san',meaning:'어머니 (mother)'},{word:'おばあさん',reading:'o·bā·san',meaning:'할머니 (grandmother)'},{word:'おばあちゃん',reading:'o·bā·chan',meaning:'할머니 (grandma, familiar)'},{word:'さあ',reading:'sā',meaning:'자~ (now then / come on)'}]},
+  'いい': { romaji:'ī (이~)', korean:'い+い 장음', english:'long I', type:'special',
+    examples:[{word:'おにいさん',reading:'o·nī·san',meaning:'오빠/형 (older brother)'},{word:'おじいさん',reading:'o·jī·san',meaning:'할아버지 (grandfather)'},{word:'いい',reading:'ī',meaning:'좋다 (good/fine)'},{word:'ちいさい',reading:'chī·sa·i',meaning:'작다 (small)'}]},
+  'うう': { romaji:'ū (우~)', korean:'う+う 장음', english:'long U', type:'special',
+    examples:[{word:'ふうせん',reading:'fū·sen',meaning:'풍선 (balloon)'},{word:'くうき',reading:'kū·ki',meaning:'공기 (air)'},{word:'すうじ',reading:'sū·ji',meaning:'숫자 (number)'},{word:'じゆう',reading:'ji·yū',meaning:'자유 (freedom)'},{word:'ゆうめい',reading:'yū·mē',meaning:'유명하다 (famous)'},{word:'つうきん',reading:'tsū·kin',meaning:'통근 (commute)'}]},
+
+  // ─────────────────── 가타가나 외래어 확장 (Extended Katakana) ───────────────────
+  'ファ': { romaji:'fa', korean:'파', english:'fah', type:'katakana_extended',
+    examples:[{word:'ファッション',reading:'fash·shon',meaning:'패션 (fashion)'},{word:'ソファ',reading:'so·fa',meaning:'소파 (sofa)'},{word:'ファイル',reading:'fa·i·ru',meaning:'파일 (file)'},{word:'ファン',reading:'fan',meaning:'팬 (fan)'}]},
+  'フィ': { romaji:'fi', korean:'피', english:'fee', type:'katakana_extended',
+    examples:[{word:'フィルム',reading:'fi·ru·mu',meaning:'필름 (film)'},{word:'フィナーレ',reading:'fi·nā·re',meaning:'피날레 (finale)'},{word:'フィットネス',reading:'fit·to·ne·su',meaning:'피트니스 (fitness)'},{word:'フィンランド',reading:'fin·ran·do',meaning:'핀란드 (Finland)'}]},
+  'フェ': { romaji:'fe', korean:'페', english:'feh', type:'katakana_extended',
+    examples:[{word:'カフェ',reading:'ka·fe',meaning:'카페 (cafe)'},{word:'フェリー',reading:'fe·rī',meaning:'페리 (ferry)'},{word:'フェスティバル',reading:'fe·su·ti·ba·ru',meaning:'페스티벌 (festival)'},{word:'フェイク',reading:'fē·ku',meaning:'가짜 (fake)'}]},
+  'フォ': { romaji:'fo', korean:'포', english:'foh', type:'katakana_extended',
+    examples:[{word:'フォーク',reading:'fō·ku',meaning:'포크 (fork)'},{word:'フォーム',reading:'fō·mu',meaning:'폼/양식 (form)'},{word:'フォルダ',reading:'fo·ru·da',meaning:'폴더 (folder)'},{word:'フォロー',reading:'fo·rō',meaning:'팔로우 (follow)'}]},
+  'ティ': { romaji:'ti', korean:'티', english:'tee', type:'katakana_extended',
+    examples:[{word:'ティッシュ',reading:'tis·shu',meaning:'티슈 (tissue)'},{word:'パーティー',reading:'pā·tī',meaning:'파티 (party)'},{word:'ティアラ',reading:'ti·a·ra',meaning:'티아라 (tiara)'},{word:'ティーム',reading:'tī·mu',meaning:'팀 (team)'}]},
+  'ディ': { romaji:'di', korean:'디', english:'dee', type:'katakana_extended',
+    examples:[{word:'ディスコ',reading:'dis·ko',meaning:'디스코 (disco)'},{word:'ディズニー',reading:'di·zu·nī',meaning:'디즈니 (Disney)'},{word:'ディナー',reading:'di·nā',meaning:'디너 (dinner)'},{word:'メディア',reading:'me·di·a',meaning:'미디어 (media)'}]},
+  'トゥ': { romaji:'tu', korean:'투', english:'too', type:'katakana_extended',
+    examples:[{word:'トゥデイ',reading:'tu·dē',meaning:'오늘 (today)'},{word:'トゥルー',reading:'tu·rū',meaning:'진실 (true)'},{word:'トゥーン',reading:'tūn',meaning:'툰/만화 (toon)'}]},
+  'ドゥ': { romaji:'du', korean:'두', english:'doo', type:'katakana_extended',
+    examples:[{word:'ドゥ',reading:'du',meaning:'두 (do - 드물게 사용 / rarely used)'},{word:'ドゥオ',reading:'du·o',meaning:'듀오 (duo)'}]},
+  'ウィ': { romaji:'wi', korean:'위', english:'wee', type:'katakana_extended',
+    examples:[{word:'ウィンドウ',reading:'win·dō',meaning:'창문/윈도우 (window)'},{word:'ウィキ',reading:'wi·ki',meaning:'위키 (wiki)'},{word:'ウィスキー',reading:'wis·kī',meaning:'위스키 (whisky)'},{word:'ウィルス',reading:'wi·ru·su',meaning:'바이러스 (virus)'}]},
+  'ウェ': { romaji:'we', korean:'웨', english:'weh', type:'katakana_extended',
+    examples:[{word:'ウェブ',reading:'we·bu',meaning:'웹 (web)'},{word:'ウェイター',reading:'wē·tā',meaning:'웨이터 (waiter)'},{word:'ウェルカム',reading:'we·ru·ka·mu',meaning:'웰컴 (welcome)'},{word:'スウェーデン',reading:'su·wē·den',meaning:'스웨덴 (Sweden)'}]},
+  'ウォ': { romaji:'wo', korean:'워', english:'woh', type:'katakana_extended',
+    examples:[{word:'ウォーター',reading:'wō·tā',meaning:'물 (water)'},{word:'ウォーク',reading:'wō·ku',meaning:'워크 (walk)'},{word:'ウォーミング',reading:'wō·min·gu',meaning:'워밍업 (warming up)'},{word:'ウォレット',reading:'wo·ret·to',meaning:'지갑 (wallet)'}]},
+  'チェ': { romaji:'che', korean:'체', english:'cheh', type:'katakana_extended',
+    examples:[{word:'チェック',reading:'chek·ku',meaning:'체크 (check)'},{word:'チェリー',reading:'che·rī',meaning:'체리 (cherry)'},{word:'チェンジ',reading:'chen·ji',meaning:'체인지 (change)'},{word:'チェーン',reading:'chēn',meaning:'체인 (chain)'}]},
+  'シェ': { romaji:'she', korean:'셰', english:'sheh', type:'katakana_extended',
+    examples:[{word:'シェア',reading:'she·a',meaning:'공유 (share)'},{word:'シェフ',reading:'she·fu',meaning:'셰프 (chef)'},{word:'シェルター',reading:'she·ru·tā',meaning:'대피소 (shelter)'},{word:'シェイク',reading:'shē·ku',meaning:'쉐이크 (shake)'}]},
+  'ジェ': { romaji:'je', korean:'제', english:'jeh', type:'katakana_extended',
+    examples:[{word:'ジェット',reading:'jet·to',meaning:'제트 (jet)'},{word:'ジェリー',reading:'je·rī',meaning:'젤리 (jelly)'},{word:'ジェスチャー',reading:'jes·chā',meaning:'제스처 (gesture)'},{word:'ジェネレーション',reading:'je·ne·rē·shon',meaning:'세대 (generation)'}]},
+  'ヴ': { romaji:'vu', korean:'뷔', english:'voo', type:'katakana_extended',
+    examples:[{word:'ヴァイオリン',reading:'va·i·o·rin',meaning:'바이올린 (violin)'},{word:'ヴェネチア',reading:'ve·ne·chi·a',meaning:'베네치아 (Venice)'}]},
+  'ヴァ': { romaji:'va', korean:'바(v)', english:'vah', type:'katakana_extended',
+    examples:[{word:'ヴァイオリン',reading:'va·i·o·rin',meaning:'바이올린 (violin)'},{word:'ヴァカンス',reading:'va·kan·su',meaning:'바캉스 (vacation)'},{word:'ヴァレンタイン',reading:'va·ren·ta·in',meaning:'발렌타인 (Valentine)'}]},
+  'ヴィ': { romaji:'vi', korean:'비(v)', english:'vee', type:'katakana_extended',
+    examples:[{word:'ヴィラ',reading:'vi·ra',meaning:'빌라 (villa)'},{word:'ヴィジョン',reading:'vi·jon',meaning:'비전 (vision)'},{word:'ヴィーナス',reading:'vī·na·su',meaning:'비너스 (Venus)'}]},
+  'ヴェ': { romaji:'ve', korean:'베(v)', english:'veh', type:'katakana_extended',
+    examples:[{word:'ヴェネチア',reading:'ve·ne·chi·a',meaning:'베네치아 (Venice)'},{word:'ヴェール',reading:'vē·ru',meaning:'베일 (veil)'},{word:'ヴェテラン',reading:'ve·te·ran',meaning:'베테랑 (veteran)'}]},
+  'ヴォ': { romaji:'vo', korean:'보(v)', english:'voh', type:'katakana_extended',
+    examples:[{word:'ヴォーカル',reading:'vō·ka·ru',meaning:'보컬 (vocal)'},{word:'ヴォリューム',reading:'vo·ryū·mu',meaning:'볼륨 (volume)'}]},
+  'イェ': { romaji:'ye', korean:'예', english:'yeh', type:'katakana_extended',
+    examples:[{word:'イェルサレム',reading:'ye·ru·sa·re·mu',meaning:'예루살렘 (Jerusalem)'},{word:'イェス',reading:'ye·su',meaning:'예스 (yes - 고어)'}]},
+
+  // ─────────────────── 조사 읽기 예외 (Particle Reading Exceptions) ───────────────────
+  'は_p': { kana:'は', romaji:'wa', korean:'와 (주제조사)', english:'wa (topic)', type:'particle',
+    examples:[{word:'わたし は',reading:'wa·ta·shi·wa',meaning:'나는 (I [topic])'},{word:'これ は',reading:'ko·re·wa',meaning:'이것은 (this is...)'},{word:'きょう は',reading:'kyō·wa',meaning:'오늘은 (today...)'},{word:'あなた は',reading:'a·na·ta·wa',meaning:'당신은 (you [topic])'}]},
+  'へ_p': { kana:'へ', romaji:'e', korean:'에 (방향조사)', english:'e (direction)', type:'particle',
+    examples:[{word:'がっこう へ',reading:'gak·kō·e',meaning:'학교로 (to school)'},{word:'にほん へ',reading:'ni·hon·e',meaning:'일본으로 (to Japan)'},{word:'うち へ',reading:'u·chi·e',meaning:'집으로 (to home)'},{word:'どこ へ',reading:'do·ko·e',meaning:'어디로 (to where)'}]},
+  'を_p': { kana:'を', romaji:'o', korean:'을/를 (목적조사)', english:'o (object)', type:'particle',
+    examples:[{word:'みず を',reading:'mi·zu·o',meaning:'물을 (water [object])'},{word:'りんご を',reading:'rin·go·o',meaning:'사과를 (apple [object])'},{word:'にほんご を',reading:'ni·hon·go·o',meaning:'일본어를 (Japanese [object])'},{word:'おんがく を',reading:'on·ga·ku·o',meaning:'음악을 (music [object])'}]}
 };
 
 // 모든 가나를 타입별로 그룹화
