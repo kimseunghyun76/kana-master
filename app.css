@@ -175,13 +175,16 @@ html, body {
 .lc-prog-bar { background: var(--border); border-radius: 99px; height: 5px; overflow: hidden; }
 .lc-prog-fill { height: 100%; background: linear-gradient(90deg, var(--red), var(--orange)); border-radius: 99px; transition: width 0.4s; }
 .lc-prog-text { font-size: 11px; color: var(--gray); margin-top: 3px; }
-.lc-actions { display: flex; gap: 6px; margin-top: 10px; }
+.lc-actions { display: flex; gap: 4px; margin-top: 10px; flex-wrap: wrap; }
 .lc-btn {
-  flex: 1; padding: 7px; font-size: 12px; font-weight: 600;
+  flex: 1; min-width: 50px; padding: 6px 4px; font-size: 11px; font-weight: 600;
   border-radius: 6px; cursor: pointer; border: none; transition: all 0.15s;
+  white-space: nowrap;
 }
 .lc-btn-learn { background: var(--blue-light); color: var(--blue); }
 .lc-btn-learn:hover { background: var(--blue); color: white; }
+.lc-btn-browse { background: #f0faf0; color: #2d8a40; }
+.lc-btn-browse:hover { background: #2d8a40; color: white; }
 .lc-btn-quiz { background: var(--red-light); color: var(--red); }
 .lc-btn-quiz:hover { background: var(--red); color: white; }
 
@@ -232,9 +235,9 @@ html, body {
 .flashcard-container {
   perspective: 1000px;
   cursor: pointer;
-  margin: 0 auto 16px;
+  margin: 0 auto 12px;
   max-width: 560px;
-  height: 400px;
+  height: clamp(320px, 52vh, 520px);
 }
 .flashcard-inner {
   width: 100%; height: 100%;
@@ -295,15 +298,85 @@ html, body {
 
 .fc-nav {
   display: flex; align-items: center; justify-content: space-between;
+  gap: 8px;
   max-width: 500px; margin: 0 auto;
 }
 .fc-nav-btn {
   background: white; border: 1.5px solid var(--border);
   border-radius: 8px; padding: 8px 16px;
   cursor: pointer; font-size: 14px; color: var(--gray);
-  transition: all 0.15s;
+  transition: all 0.15s; flex-shrink: 0;
 }
 .fc-nav-btn:hover { background: var(--gray-light); }
+
+/* 다음→ 메인 버튼 */
+.fc-next-main {
+  background: linear-gradient(135deg, var(--red), var(--red-dark));
+  color: white; border: none; border-radius: 10px;
+  padding: 10px 22px; font-size: 15px; font-weight: 700;
+  cursor: pointer; flex: 1; transition: all 0.15s;
+  box-shadow: 0 2px 8px rgba(230,57,70,0.3);
+}
+.fc-next-main:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(230,57,70,0.4); }
+.fc-next-main:active { transform: translateY(0); }
+
+/* 📌 나중에 버튼 */
+.fc-bookmark-btn {
+  background: #fff8e1; color: #d48000; border: 1.5px solid #f0c040;
+  border-radius: 10px; padding: 10px 14px; font-size: 14px; font-weight: 600;
+  cursor: pointer; flex-shrink: 0; transition: all 0.15s;
+}
+.fc-bookmark-btn:hover { background: #f0c040; color: white; border-color: #f0c040; }
+.fc-bookmark-btn.bookmarked { background: #f0c040; color: white; }
+
+/* 키보드 힌트 */
+.fc-key-hint {
+  text-align: center; font-size: 11px; color: var(--gray);
+  margin-top: 8px; opacity: 0.7;
+}
+
+/* 네비게이션 스트립 */
+.fc-nav-strip {
+  display: flex; overflow-x: auto; gap: 4px;
+  padding: 6px 0 8px; margin-bottom: 10px;
+  scrollbar-width: thin; scrollbar-color: var(--border) transparent;
+  -webkit-overflow-scrolling: touch;
+}
+.fc-nav-strip::-webkit-scrollbar { height: 3px; }
+.fc-nav-strip::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
+.fc-ns-btn {
+  flex-shrink: 0; min-width: 38px; height: 38px;
+  border: 2px solid var(--border); background: white;
+  border-radius: 8px; font-size: 16px; font-family: inherit;
+  cursor: pointer; transition: all 0.15s; line-height: 1;
+  display: flex; align-items: center; justify-content: center;
+}
+.fc-ns-btn:hover { border-color: var(--red); background: var(--red-light); }
+.fc-ns-btn.ns-active { background: var(--red); color: white; border-color: var(--red); font-weight: 700; }
+.fc-ns-btn.ns-mastered { background: var(--green-light); border-color: var(--green); color: #2d8a40; }
+.fc-ns-btn.ns-bookmarked { border-color: #f0c040; }
+
+/* 문장 예시 섹션 */
+.fc-sentences {
+  text-align: left; padding: 6px 16px 0; margin-top: 6px;
+  border-top: 1px solid var(--border); width: 100%;
+}
+.fc-sent-label {
+  font-size: 10px; font-weight: 700; color: var(--gray);
+  text-transform: uppercase; letter-spacing: 0.5px;
+  margin-bottom: 4px; display: block;
+}
+.fc-sent-item {
+  font-size: 11px; color: var(--gray);
+  margin-bottom: 5px; padding: 4px 6px;
+  background: var(--gray-light); border-radius: 6px;
+  cursor: pointer; transition: background 0.15s;
+}
+.fc-sent-item:hover { background: var(--blue-light); }
+.fc-sent-jp { font-size: 13px; font-weight: 600; color: var(--text); display: block; }
+.fc-sent-rd { font-size: 10px; color: var(--red); display: block; margin: 1px 0; }
+.fc-sent-ko { font-size: 11px; color: var(--gray); display: block; }
+
 .fc-self-rate { display: flex; gap: 8px; }
 .rate-btn {
   padding: 8px 18px; border: none; border-radius: 8px;
@@ -877,17 +950,13 @@ html, body {
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   padding: 12px 10px;
-  cursor: pointer;
+  cursor: default;
   text-align: center;
   transition: all 0.18s;
 }
-.vocab-cat-card:hover {
-  border-color: var(--blue);
-  background: var(--blue-light);
-  transform: translateY(-2px);
-  box-shadow: var(--shadow);
-}
-.vocab-cat-card-sm { padding: 8px 6px; }
+.vocab-cat-card:hover { border-color: var(--blue); box-shadow: var(--shadow); }
+.vocab-cat-card-sm { padding: 8px 6px; cursor: pointer; }
+.vocab-cat-card-sm:hover { border-color: var(--blue); background: var(--blue-light); transform: translateY(-2px); box-shadow: var(--shadow); }
 .vcc-icon { font-size: 22px; margin-bottom: 4px; }
 .vcc-name { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 2px; }
 .vcc-sub { font-size: 11px; color: var(--gray); margin-bottom: 6px; }
@@ -896,7 +965,83 @@ html, body {
   margin-bottom: 2px;
 }
 .vcc-prog-fill { height: 100%; background: var(--blue); border-radius: 99px; transition: width 0.3s; }
-.vcc-prog-text { font-size: 10px; color: var(--gray); }
+.vcc-prog-text { font-size: 10px; color: var(--gray); margin-bottom: 8px; }
+
+/* 단어 카드 3버튼 */
+.vcc-actions { display: flex; gap: 4px; }
+.vcc-btn {
+  flex: 1; padding: 5px 2px; font-size: 10px; font-weight: 600;
+  border-radius: 5px; cursor: pointer; border: none; transition: all 0.15s;
+  font-family: inherit;
+}
+.vcc-btn-flash { background: var(--blue-light); color: var(--blue); }
+.vcc-btn-flash:hover { background: var(--blue); color: white; }
+.vcc-btn-browse { background: #f0faf0; color: #2d8a40; }
+.vcc-btn-browse:hover { background: #2d8a40; color: white; }
+.vcc-btn-quiz { background: var(--red-light); color: var(--red); }
+.vcc-btn-quiz:hover { background: var(--red); color: white; }
+
+/* ─── 북마크 섹션 ─── */
+.bookmark-section {
+  margin-top: 16px; padding: 16px;
+  background: #fffdf0;
+  border: 1.5px solid #f0c040;
+  border-radius: var(--radius);
+}
+.bookmark-section h3 { font-size: 15px; font-weight: 700; color: #d48000; margin-bottom: 10px; }
+.bookmark-list {
+  display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px;
+}
+.bookmark-item {
+  display: flex; align-items: center; gap: 6px;
+  background: white; border: 1.5px solid #f0c040;
+  border-radius: 8px; padding: 5px 10px;
+  cursor: pointer; transition: all 0.15s;
+}
+.bookmark-item:hover { background: #fff3cd; }
+.bm-kana { font-size: 20px; font-weight: 700; }
+.bm-romaji { font-size: 11px; color: var(--red); font-weight: 600; }
+.bm-korean { font-size: 11px; color: var(--gray); }
+.bm-type { font-size: 10px; background: var(--blue-light); color: var(--blue); padding: 1px 5px; border-radius: 4px; }
+.bm-remove {
+  background: none; border: none; cursor: pointer;
+  color: var(--gray); font-size: 13px; padding: 0 2px;
+  opacity: 0.6; transition: opacity 0.15s; margin-left: 2px;
+}
+.bm-remove:hover { opacity: 1; color: var(--red); }
+.bookmark-actions { display: flex; gap: 8px; }
+.review-bookmark-btn {
+  background: linear-gradient(135deg, var(--red), var(--red-dark));
+  color: white; border: none; border-radius: 8px;
+  padding: 9px 18px; font-size: 13px; font-weight: 700;
+  cursor: pointer; transition: all 0.15s;
+}
+.review-bookmark-btn:hover { transform: translateY(-1px); box-shadow: var(--shadow-md); }
+.clear-bookmark-btn {
+  background: white; color: var(--gray); border: 1.5px solid var(--border);
+  border-radius: 8px; padding: 9px 14px; font-size: 13px;
+  cursor: pointer; transition: all 0.15s;
+}
+.clear-bookmark-btn:hover { background: var(--gray-light); }
+
+/* ─── 단어 일람 그리드 ─── */
+.vocab-browse-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 8px;
+  padding: 10px 0;
+}
+.vb-item {
+  background: white; border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm); padding: 10px;
+  cursor: pointer; transition: all 0.15s; text-align: center;
+}
+.vb-item:hover { border-color: var(--blue); background: var(--blue-light); }
+.vb-jp { font-size: 16px; font-weight: 700; color: var(--text); }
+.vb-kanji { font-size: 12px; color: var(--gray); margin: 2px 0; }
+.vb-romaji { font-size: 11px; color: var(--red); font-weight: 600; }
+.vb-korean { font-size: 12px; color: var(--gray); margin-top: 3px; }
+.vb-audio { font-size: 11px; color: var(--blue); margin-top: 4px; opacity: 0.7; }
 
 /* ─── 단어 뷰 셋업 헤더 ─── */
 .vocab-setup-header {

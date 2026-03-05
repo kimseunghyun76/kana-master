@@ -96,6 +96,16 @@
         </div>
       </div>
 
+      <!-- 📌 북마크 섹션 -->
+      <div class="bookmark-section" id="bookmark-section" style="display:none">
+        <h3>📌 나중에 볼 것들</h3>
+        <div class="bookmark-list" id="bookmark-list"></div>
+        <div class="bookmark-actions">
+          <button class="review-bookmark-btn" id="review-bookmark-btn">▶ 지금 복습하기</button>
+          <button class="clear-bookmark-btn" id="clear-bookmark-btn">🗑 전체 삭제</button>
+        </div>
+      </div>
+
       <!-- 단어 학습 섹션 -->
       <div class="vocab-home-section">
         <h3>📖 단어 학습 (4·5단계)</h3>
@@ -137,28 +147,14 @@
         </div>
       </div>
 
-      <!-- 학습 모드 선택 -->
-      <div class="mode-selector" id="learn-mode-selector">
-        <h3>학습 모드 선택</h3>
-        <div class="mode-grid">
-          <button class="mode-card" id="mode-flash">
-            <span class="mc-icon">🃏</span>
-            <span class="mc-title">플래시카드</span>
-            <span class="mc-desc">카드 뒤집어 발음 확인</span>
-          </button>
-          <button class="mode-card" id="mode-browse">
-            <span class="mc-icon">📖</span>
-            <span class="mc-title">일람 보기</span>
-            <span class="mc-desc">전체 목록 한눈에</span>
-          </button>
-        </div>
-      </div>
-
       <!-- 플래시카드 -->
       <div class="flashcard-area" id="flashcard-area" style="display:none">
         <div class="progress-bar-thin">
           <div class="progress-thin-fill" id="fc-progress-fill"></div>
         </div>
+
+        <!-- 글자 네비게이션 스트립 -->
+        <div class="fc-nav-strip" id="fc-nav-strip"></div>
 
         <div class="flashcard-container" id="flashcard" onclick="App.flipCard()">
           <div class="flashcard-inner" id="fc-inner">
@@ -175,6 +171,7 @@
                 <span class="fc-eng" id="fc-english">ah</span>
               </div>
               <div class="fc-examples" id="fc-examples"></div>
+              <div class="fc-sentences" id="fc-sentences"></div>
             </div>
           </div>
         </div>
@@ -185,12 +182,10 @@
 
         <div class="fc-nav">
           <button class="fc-nav-btn" id="fc-prev">◀ 이전</button>
-          <div class="fc-self-rate">
-            <button class="rate-btn rate-wrong" id="fc-wrong">✗ 어려움</button>
-            <button class="rate-btn rate-ok" id="fc-ok">✓ 알았음</button>
-          </div>
-          <button class="fc-nav-btn" id="fc-next">다음 ▶</button>
+          <button class="fc-bookmark-btn" id="fc-bookmark">📌 나중에</button>
+          <button class="fc-next-main" id="fc-next">다음 →</button>
         </div>
+        <div class="fc-key-hint">← → 키보드 이동 · Space 뒤집기</div>
       </div>
 
       <!-- 일람 보기 -->
@@ -481,7 +476,7 @@
         </div>
       </div>
 
-      <!-- PANEL 2: 플래시카드 + 퀴즈 -->
+      <!-- PANEL 2: 플래시카드 + 퀴즈 + 일람 -->
       <div id="vocab-flash-panel" style="display:none">
         <div class="learn-header">
           <button class="back-btn" id="vocab-flash-back">← 카테고리</button>
@@ -493,25 +488,16 @@
             <span id="vocab-card-num">1 / 13</span>
           </div>
         </div>
-        <div class="mode-selector" id="vocab-mode-selector">
-          <h3>학습 모드 선택</h3>
-          <div class="mode-grid">
-            <button class="mode-card" id="vocab-mode-flash">
-              <span class="mc-icon">🃏</span>
-              <span class="mc-title">플래시카드</span>
-              <span class="mc-desc">카드 뒤집어 뜻 확인</span>
-            </button>
-            <button class="mode-card" id="vocab-mode-quiz">
-              <span class="mc-icon">✏️</span>
-              <span class="mc-title">4지선다 퀴즈</span>
-              <span class="mc-desc">한국어 뜻 → 일본어 고르기</span>
-            </button>
-          </div>
-        </div>
+
+        <!-- 단어 플래시카드 -->
         <div class="flashcard-area" id="vocab-flashcard-area" style="display:none">
           <div class="progress-bar-thin">
             <div class="progress-thin-fill" id="vfc-progress-fill"></div>
           </div>
+
+          <!-- 단어 네비게이션 스트립 -->
+          <div class="fc-nav-strip" id="vfc-nav-strip"></div>
+
           <div class="flashcard-container" id="vocab-flashcard" onclick="App.vocabFlipCard()">
             <div class="flashcard-inner" id="vfc-inner">
               <div class="flashcard-front">
@@ -536,12 +522,21 @@
           </div>
           <div class="fc-nav">
             <button class="fc-nav-btn" id="vfc-prev">◀ 이전</button>
-            <div class="fc-self-rate">
-              <button class="rate-btn rate-wrong" id="vfc-wrong">✗ 어려움</button>
-              <button class="rate-btn rate-ok" id="vfc-ok">✓ 알았음</button>
-            </div>
-            <button class="fc-nav-btn" id="vfc-next">다음 ▶</button>
+            <button class="fc-bookmark-btn" id="vfc-bookmark">📌 나중에</button>
+            <button class="fc-next-main" id="vfc-next">다음 →</button>
           </div>
+          <div class="fc-key-hint">← → 키보드 이동 · Space 뒤집기</div>
+        </div>
+
+        <!-- 단어 일람 보기 -->
+        <div id="vocab-browse-area" style="display:none">
+          <div class="browse-controls">
+            <div class="bc-left">
+              <button class="bc-btn bc-secondary" id="vbc-flash-btn">🃏 플래시카드로</button>
+              <button class="bc-btn bc-secondary" id="vbc-quiz-btn">✏️ 퀴즈로</button>
+            </div>
+          </div>
+          <div class="vocab-browse-grid" id="vocab-browse-grid"></div>
         </div>
         <div id="vocab-quiz-area" style="display:none">
           <div class="quiz-progress-row">
@@ -690,6 +685,7 @@
 
   <script src="js/kana-data.js"></script>
   <script src="js/vocab-data.js"></script>
+  <script src="js/examples-data.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>
