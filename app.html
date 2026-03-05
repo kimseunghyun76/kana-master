@@ -159,12 +159,11 @@
         <div class="flashcard-container" id="flashcard" onclick="App.flipCard()">
           <div class="flashcard-inner" id="fc-inner">
             <div class="flashcard-front">
-              <div class="fc-kana" id="fc-kana">あ</div>
-              <div class="fc-hint">클릭하여 발음 확인 ↓</div>
+              <div class="fc-kana vfc-audio-word" id="fc-kana" title="🔊 발음 듣기" onclick="event.stopPropagation(); App.playAudio(this.textContent)">あ</div>
+              <div class="fc-hint">글자 클릭 🔊 · 카드 클릭 뒤집기 ↓</div>
             </div>
             <div class="flashcard-back">
-              <div class="fc-kana-small" id="fc-kana-back">あ</div>
-              <div class="fc-romaji" id="fc-romaji">a</div>
+              <div class="fc-kana-small vfc-audio-word" id="fc-kana-back" title="🔊 발음 듣기" onclick="event.stopPropagation(); App.playAudio(this.textContent)">あ</div>
               <div class="fc-pronunciations">
                 <span class="fc-kor" id="fc-korean">아</span>
                 <span class="fc-sep">·</span>
@@ -174,10 +173,6 @@
               <div class="fc-sentences" id="fc-sentences"></div>
             </div>
           </div>
-        </div>
-
-        <div class="fc-audio-row">
-          <button class="audio-btn" id="fc-audio-btn" title="발음 듣기">🔊 발음 듣기</button>
         </div>
 
         <div class="fc-nav">
@@ -220,7 +215,6 @@
             <div class="ss-kana" id="ss-kana">あ</div>
             <div class="ss-hint-text" id="ss-hint-text">읽어보세요 ↑</div>
             <div class="ss-reveal" id="ss-reveal">
-              <div class="ss-romaji" id="ss-romaji">a</div>
               <div class="ss-readings">
                 <span class="ss-kor" id="ss-korean">아</span>
                 <span class="ss-eng" id="ss-english">ah</span>
@@ -365,7 +359,6 @@
           <div class="write-char-info">
             <div class="wci-kana" id="wci-kana">あ</div>
             <div class="wci-reading">
-              <span class="wci-romaji" id="wci-romaji">a</span>
               <span class="wci-kor" id="wci-korean">아</span>
             </div>
             <button class="wci-audio" id="wci-audio-btn">🔊</button>
@@ -501,31 +494,29 @@
           <div class="flashcard-container" id="vocab-flashcard" onclick="App.vocabFlipCard()">
             <div class="flashcard-inner" id="vfc-inner">
               <div class="flashcard-front">
-                <div class="fc-kana" id="vfc-japanese">いち</div>
+                <div class="fc-kana vfc-audio-word" id="vfc-japanese" title="🔊 발음 듣기" onclick="event.stopPropagation(); App.playAudio(this.textContent)">いち</div>
                 <div class="vfc-kanji" id="vfc-kanji"></div>
-                <div class="fc-hint">클릭하여 뜻 확인 ↓</div>
+                <div class="fc-hint">단어 클릭 🔊 · 카드 클릭 뒤집기 ↓</div>
               </div>
               <div class="flashcard-back">
-                <div class="fc-kana-small" id="vfc-japanese-back">いち</div>
+                <div class="fc-kana-small vfc-audio-word" id="vfc-japanese-back" title="🔊 발음 듣기" onclick="event.stopPropagation(); App.playAudio(this.textContent)">いち</div>
                 <div class="vfc-kanji-back" id="vfc-kanji-back"></div>
-                <div class="fc-romaji" id="vfc-romaji">ichi</div>
                 <div class="fc-pronunciations">
                   <span class="fc-kor" id="vfc-korean">일 (1)</span>
                 </div>
                 <div class="vfc-tip" id="vfc-tip" style="display:none"></div>
                 <div class="vfc-example" id="vfc-example" style="display:none"></div>
+                <div class="fc-examples" id="vfc-compounds"></div>
+                <div class="fc-sentences" id="vfc-sentences"></div>
               </div>
             </div>
-          </div>
-          <div class="fc-audio-row">
-            <button class="audio-btn" id="vfc-audio-btn">🔊 발음 듣기</button>
           </div>
           <div class="fc-nav">
             <button class="fc-nav-btn" id="vfc-prev">◀ 이전</button>
             <button class="fc-bookmark-btn" id="vfc-bookmark">📌 나중에</button>
             <button class="fc-next-main" id="vfc-next">다음 →</button>
           </div>
-          <div class="fc-key-hint">← → 키보드 이동 · Space 뒤집기</div>
+          <div class="fc-key-hint">← → 이동 · Space/↓ 뒤집기+발음 · ↑ 앞면으로</div>
         </div>
 
         <!-- 단어 일람 보기 -->
@@ -581,14 +572,7 @@
         <button class="modal-close" id="settings-close">✕</button>
       </div>
       <div class="modal-body">
-        <div class="setting-row">
-          <label>발음 표기 언어:</label>
-          <select id="pref-lang">
-            <option value="korean">한국어</option>
-            <option value="romaji">로마자</option>
-            <option value="both">한국어 + 로마자</option>
-          </select>
-        </div>
+        <div class="setting-section-title">🔊 음성 설정</div>
         <div class="setting-row">
           <label>👩 여자 음성:</label>
           <select id="pref-voice-female">
@@ -602,6 +586,21 @@
           </select>
         </div>
         <div class="setting-row">
+          <label>🎭 캐릭터 목소리:</label>
+          <select id="pref-voice-char">
+            <option value="none">없음</option>
+            <option value="anime_girl">🎌 애니 소녀</option>
+            <option value="child">🧒 어린이</option>
+            <option value="hero">🦸 용사</option>
+            <option value="wizard">🧙 마법사</option>
+            <option value="robot">🤖 로봇</option>
+            <option value="grandma">👵 할머니</option>
+            <option value="villain">😈 악당</option>
+            <option value="ghost">👻 유령</option>
+            <option value="narrator">📺 내레이터</option>
+          </select>
+        </div>
+        <div class="setting-row">
           <label>자동 발음:</label>
           <label class="toggle">
             <input type="checkbox" id="pref-autoplay">
@@ -612,6 +611,22 @@
           <label>퀴즈 자동 다음:</label>
           <label class="toggle">
             <input type="checkbox" id="pref-autonext">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <div class="setting-section-title">👁 플래시카드 표시 설정 <span class="setting-note">(기본: 비노출)</span></div>
+        <div class="setting-row">
+          <label>단어 예시 표시:</label>
+          <label class="toggle">
+            <input type="checkbox" id="pref-show-word-ex">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="setting-row">
+          <label>문장 예시 표시:</label>
+          <label class="toggle">
+            <input type="checkbox" id="pref-show-sent-ex">
             <span class="toggle-slider"></span>
           </label>
         </div>
@@ -686,6 +701,7 @@
   <script src="js/kana-data.js"></script>
   <script src="js/vocab-data.js"></script>
   <script src="js/examples-data.js"></script>
+  <script src="js/vocab-examples-data.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>

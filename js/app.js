@@ -37,7 +37,11 @@ const App = (() => {
     writeExamMode: false,
     writeExamScore: { ok: 0, fail: 0 },
     // 설정
-    prefs: { lang: 'korean', autoplay: false, autonext: false, voiceFemale: 'none', voiceMale: 'none' },
+    prefs: {
+      lang: 'korean', autoplay: false, autonext: false,
+      voiceFemale: 'none', voiceMale: 'none', voiceChar: 'none',
+      showWordEx: false, showSentEx: false, showReading: false
+    },
     // 음성 교대 카운터
     voiceCallCount: 0,
     // 진도
@@ -64,6 +68,7 @@ const App = (() => {
   // ─── 초기화 ───
   function init() {
     loadFromStorage(() => {
+      applyVisibilityPrefs();   // ← 저장된 표시 설정 즉시 적용
       updateHeader();
       renderLevels();
       setupNavigation();
@@ -103,7 +108,16 @@ const App = (() => {
     state.lastStudied = data.lastStudied || null;
     state.unlockedLevels = data.unlockedLevels || [1];
     state.currentLevel = data.currentLevel || 1;
-    state.prefs = data.prefs || { lang: 'korean', autoplay: false, autonext: false };
+    const savedPrefs = data.prefs || {};
+    state.prefs = {
+      autoplay:    savedPrefs.autoplay    || false,
+      autonext:    savedPrefs.autonext    || false,
+      voiceFemale: savedPrefs.voiceFemale !== undefined ? savedPrefs.voiceFemale : 'none',
+      voiceMale:   savedPrefs.voiceMale   !== undefined ? savedPrefs.voiceMale   : 'none',
+      voiceChar:   savedPrefs.voiceChar   !== undefined ? savedPrefs.voiceChar   : 'none',
+      showWordEx:  savedPrefs.showWordEx  !== undefined ? savedPrefs.showWordEx  : false,
+      showSentEx:  savedPrefs.showSentEx  !== undefined ? savedPrefs.showSentEx  : false,
+    };
     state.vocabProgress = data.vocabProgress || {};
     state.bookmarks = data.bookmarks || [];
 
@@ -339,7 +353,6 @@ const App = (() => {
 
     document.getElementById('fc-kana').textContent = char.kana;
     document.getElementById('fc-kana-back').textContent = char.kana;
-    document.getElementById('fc-romaji').textContent = char.romaji;
     document.getElementById('fc-korean').textContent = char.korean;
     document.getElementById('fc-english').textContent = char.english;
 
@@ -354,7 +367,6 @@ const App = (() => {
         el.innerHTML = `
           <button class="fc-ex-audio-btn" title="단어 발음 듣기">🔊</button>
           <span class="fc-ex-word">${ex.word}</span>
-          <span class="fc-ex-reading"> [${ex.reading}]</span>
           <span class="fc-ex-meaning"> ${ex.meaning}</span>`;
         el.querySelector('.fc-ex-audio-btn').addEventListener('click', (e) => {
           e.stopPropagation(); playAudio(ex.word);
@@ -382,7 +394,6 @@ const App = (() => {
         el.className = 'fc-sent-item';
         el.innerHTML = `
           <span class="fc-sent-jp">${s.japanese}</span>
-          <span class="fc-sent-rd">${s.reading}</span>
           <span class="fc-sent-ko">${s.meaning}</span>`;
         el.addEventListener('click', (e) => {
           e.stopPropagation(); playAudio(s.japanese);
@@ -452,10 +463,6 @@ const App = (() => {
       if (!wasLast) { state.learnIndex++; showFlashcard(); }
       else { showToast('📌 추가! 큐 끝에 한 번 더 나옵니다.'); }
     };
-    document.getElementById('fc-audio-btn').onclick = () => {
-      const char = state.learnChars[state.learnIndex];
-      playAudio(char.kana);
-    };
   }
 
   // ─── 네비게이션 스트립 ───
@@ -468,7 +475,7 @@ const App = (() => {
       btn.className = 'fc-ns-btn';
       const displayText = char.kana || char.japanese || '?';
       btn.textContent = displayText.length > 4 ? displayText.slice(0, 4) + '…' : displayText;
-      btn.title = `${displayText} [${char.romaji || char.korean || ''}]`;
+      btn.title = `${displayText} — ${char.korean || ''}`;
       if (i === activeIdx) btn.classList.add('ns-active');
       const kanaKey = char.kana || char.id;
       if (isCharMastered(kanaKey)) btn.classList.add('ns-mastered');
@@ -531,6 +538,16 @@ const App = (() => {
         } else if (e.key === ' ') {
           e.preventDefault();
           vocabFlipCard();
+        } else if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          // 뒤집어서 뜻 보기 + 발음 재생
+          if (!state.vocabFlipped) vocabFlipCard();
+          const item = state.vocabItems[state.vocabIndex];
+          if (item) playAudio(item.japanese);
+        } else if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          // 앞면으로 복귀 (다시 외우기)
+          if (state.vocabFlipped) vocabFlipCard();
         } else if (e.key === 'p' || e.key === 'P') {
           e.preventDefault();
           document.getElementById('vfc-bookmark').click();
@@ -607,7 +624,6 @@ const App = (() => {
       if (bm.type === 'kana') {
         item.innerHTML = `
           <span class="bm-kana">${bm.kana}</span>
-          <span class="bm-romaji">${bm.romaji}</span>
           <span class="bm-korean">${bm.korean}</span>
           <button class="bm-remove" title="삭제">✕</button>`;
         item.addEventListener('click', () => playAudio(bm.kana));
@@ -751,9 +767,8 @@ const App = (() => {
       el.className = 'browse-item';
       el.innerHTML = `
         <span class="bi-kana">${char.kana}</span>
-        <div class="bi-romaji">${char.romaji}</div>
         <div class="bi-korean">${char.korean}</div>
-        <div class="bi-audio">🔊 ${char.english}</div>
+        <div class="bi-audio">🔊</div>
       `;
       el.addEventListener('click', () => { playAudio(char.kana); markCharSeen(char.kana); });
       el.querySelector('.bi-audio').addEventListener('click', (e) => {
@@ -815,7 +830,6 @@ const App = (() => {
     const total = ss.chars.length;
     document.getElementById('ss-count-text').textContent = `${ss.index + 1} / ${total}`;
     document.getElementById('ss-kana').textContent = char.kana;
-    document.getElementById('ss-romaji').textContent = char.romaji;
     document.getElementById('ss-korean').textContent = char.korean;
     document.getElementById('ss-english').textContent = char.english;
     document.getElementById('ss-hint-text').textContent = '읽어보세요 ↑';
@@ -1058,7 +1072,7 @@ const App = (() => {
           <button class="audio-btn" style="margin-top:10px" onclick="App.playAudio('${q.displayKana || q.kana}')">🔊 발음 듣기</button>
         </div>`;
     } else if (q.qtype === 'readingToKana') {
-      const readingText = getReadingText(q.info, q.qlang);
+      const readingText = getReadingText(q.info);
       qInner = `
         <div style="width:100%">
           <div class="qb-reading">${readingText}</div>
@@ -1082,7 +1096,7 @@ const App = (() => {
       hintDiv.innerHTML = `<span class="quiz-hint-label">💡 힌트 — 예시 단어</span>` +
         hints.map(e =>
           `<span class="quiz-hint-ex" onclick="App.playAudio('${e.word}')">` +
-          `<strong>${e.word}</strong> <span style="color:var(--red)">[${e.reading}]</span> ${e.meaning}` +
+          `<strong>${e.word}</strong> ${e.meaning}` +
           `</span>`
         ).join('');
       qbox.appendChild(hintDiv);
@@ -1098,7 +1112,7 @@ const App = (() => {
       btn.dataset.kana = choice.kana;
 
       if (q.qtype === 'kanaToReading') {
-        const reading = getReadingText(choice, q.qlang);
+        const reading = getReadingText(choice);
         btn.innerHTML = `<span class="choice-reading">${reading}</span>`;
       } else {
         btn.innerHTML = `<span class="choice-kana">${choice.kana}</span>`;
@@ -1114,12 +1128,9 @@ const App = (() => {
     document.getElementById('qf-countdown-label').style.display = 'none';
   }
 
-  function getReadingText(info, lang) {
+  function getReadingText(info) {
     if (!info) return '';
-    if (lang === 'korean') return info.korean || info.romaji;
-    if (lang === 'romaji') return info.romaji;
-    if (lang === 'both') return `${info.korean} (${info.romaji})`;
-    return info.korean || info.romaji;
+    return info.korean || '';
   }
 
   function handleQuizAnswer(chosenKana, q) {
@@ -1196,7 +1207,7 @@ const App = (() => {
     } else {
       qfResult.textContent = '✗ 틀렸어요';
       qfResult.className = 'qf-result wrong';
-      qfCorrect.textContent = `정답: ${q.kana} = ${getReadingText(q.info, q.qlang)}`;
+      qfCorrect.textContent = `정답: ${q.kana} = ${getReadingText(q.info)}`;
       qfCountdown.style.display = 'none';
       qfCountdownLabel.style.display = 'none';
       nextBtn.textContent = '다음 문제 →';
@@ -1293,7 +1304,7 @@ const App = (() => {
         <div class="qr-wrong-chars">
           ${chars.map(k => {
             const info = KANA_MAP[k];
-            return `<div class="qr-wrong-char" title="${info ? info.romaji : ''}">${k}</div>`;
+            return `<div class="qr-wrong-char" title="${info ? info.korean : ''}">${k}</div>`;
           }).join('')}
         </div>`;
     } else {
@@ -1356,8 +1367,7 @@ const App = (() => {
       el.innerHTML = `
         <span class="wci-list-kana">${char.kana}</span>
         <span class="wci-list-info">
-          <span class="wci-list-romaji">${char.romaji}</span>
-          <span class="wci-list-kor"> ${char.korean}</span>
+          <span class="wci-list-kor">${char.korean}</span>
         </span>`;
       el.addEventListener('click', () => {
         state.writeIndex = i;
@@ -1376,7 +1386,6 @@ const App = (() => {
     if (!char) return;
 
     document.getElementById('wci-kana').textContent = char.kana;
-    document.getElementById('wci-romaji').textContent = char.romaji;
     document.getElementById('wci-korean').textContent = char.korean;
 
     // 시험 모드: 글자 숨기기
@@ -1697,7 +1706,7 @@ const App = (() => {
               let cls = 'unseen';
               if (p && p.seen > 0) cls = isCharMastered(k) ? 'mastered' : 'learning';
               const info = KANA_MAP[k];
-              return `<div class="pll-char ${cls}" title="${k}: ${info ? info.romaji : ''}">${k}</div>`;
+              return `<div class="pll-char ${cls}" title="${k}: ${info ? info.korean : ''}">${k}</div>`;
             }).join('')}
           </div>` : '<div style="color:#718096;font-size:12px">아직 잠금 상태입니다</div>'
         }`;
@@ -1721,7 +1730,6 @@ const App = (() => {
         return `
           <div class="weak-char-card" onclick="App.playAudio('${k}')">
             <span class="wcc-kana">${k}</span>
-            <span class="wcc-romaji">${info ? info.romaji : ''}</span>
             <span class="wcc-acc">${acc}% (${v.incorrect}틀)</span>
           </div>`;
       }).join('');
@@ -1763,40 +1771,80 @@ const App = (() => {
     });
   }
 
+  function applyVisibilityPrefs() {
+    document.body.classList.toggle('hide-word-ex', !state.prefs.showWordEx);
+    document.body.classList.toggle('hide-sent-ex', !state.prefs.showSentEx);
+  }
+
   function loadPrefsUI() {
-    document.getElementById('pref-lang').value = state.prefs.lang || 'korean';
     document.getElementById('pref-autoplay').checked = state.prefs.autoplay || false;
     document.getElementById('pref-autonext').checked = state.prefs.autonext || false;
+
+    // 표시 설정 토글
+    document.getElementById('pref-show-word-ex').checked = state.prefs.showWordEx || false;
+    document.getElementById('pref-show-sent-ex').checked = state.prefs.showSentEx || false;
 
     // 음성 목록이 로드된 후 select 값 설정
     if (voicesCached) populateVoiceSelects();
     restoreVoiceSelects();
 
-    // 음성 변경 시 테스트 재생
+    // 음성 변경 시 즉시 테스트 재생
     const femaleSelect = document.getElementById('pref-voice-female');
-    const maleSelect = document.getElementById('pref-voice-male');
+    const maleSelect   = document.getElementById('pref-voice-male');
+    const charSelect   = document.getElementById('pref-voice-char');
 
     femaleSelect.onchange = () => {
       state.prefs.voiceFemale = femaleSelect.value;
       state.voiceCallCount = 0;
       saveToStorage();
-      if (femaleSelect.value !== 'none') playTestVoice(femaleSelect.value);
+      if (femaleSelect.value !== 'none') playTestVoice(femaleSelect.value, null);
     };
     maleSelect.onchange = () => {
       state.prefs.voiceMale = maleSelect.value;
       state.voiceCallCount = 0;
       saveToStorage();
-      if (maleSelect.value !== 'none') playTestVoice(maleSelect.value);
+      if (maleSelect.value !== 'none') playTestVoice(maleSelect.value, null);
     };
+    if (charSelect) {
+      charSelect.onchange = () => {
+        state.prefs.voiceChar = charSelect.value;
+        state.voiceCallCount = 0;
+        saveToStorage();
+        if (charSelect.value !== 'none') {
+          // 캐릭터 테스트: 현재 선택된 여자/남자 음성 기반으로 재생
+          const baseIdx = state.prefs.voiceFemale !== 'none'
+            ? state.prefs.voiceFemale
+            : state.prefs.voiceMale;
+          playTestVoice(baseIdx, charSelect.value);
+        }
+      };
+    }
+
+    // 표시 설정 변경 시 실시간 반영
+    ['pref-show-word-ex','pref-show-sent-ex','pref-show-reading'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.onchange = () => {
+        state.prefs.showWordEx  = document.getElementById('pref-show-word-ex').checked;
+        state.prefs.showSentEx  = document.getElementById('pref-show-sent-ex').checked;
+        state.prefs.showReading = document.getElementById('pref-show-reading').checked;
+        applyVisibilityPrefs();
+        saveToStorage();
+      };
+    });
   }
 
   function savePrefs() {
-    state.prefs.lang = document.getElementById('pref-lang').value;
+    state.prefs.lang        = document.getElementById('pref-lang').value;
     state.prefs.voiceFemale = document.getElementById('pref-voice-female').value;
-    state.prefs.voiceMale = document.getElementById('pref-voice-male').value;
-    state.prefs.autoplay = document.getElementById('pref-autoplay').checked;
-    state.prefs.autonext = document.getElementById('pref-autonext').checked;
-    state.voiceCallCount = 0;
+    state.prefs.voiceMale   = document.getElementById('pref-voice-male').value;
+    state.prefs.voiceChar   = (document.getElementById('pref-voice-char') || {}).value || 'none';
+    state.prefs.autoplay    = document.getElementById('pref-autoplay').checked;
+    state.prefs.autonext    = document.getElementById('pref-autonext').checked;
+    state.prefs.showWordEx  = document.getElementById('pref-show-word-ex').checked;
+    state.prefs.showSentEx  = document.getElementById('pref-show-sent-ex').checked;
+    state.prefs.showReading = document.getElementById('pref-show-reading').checked;
+    state.voiceCallCount    = 0;
+    applyVisibilityPrefs();
     saveToStorage();
   }
 
@@ -1846,7 +1894,21 @@ const App = (() => {
   // ─── 오디오 ───
 
   const NATURAL_VOICES = ['kyoko', 'otoya', 'o-ren', 'haruka', 'ayumi', 'nanami', 'ichiro', 'google 日本語'];
-  const TEST_PHRASE = '私の声はこんな感じです。選んでいただければ、全力を尽くします。スンヒョン様！';
+  const TEST_PHRASE = 'こんにちは！私の声はこんな感じです。よろしくお願いします！';
+
+  // 캐릭터 목소리 프리셋 (pitch + rate 조합으로 개성 표현)
+  const CHARACTER_VOICES = [
+    { id: 'none',       label: '없음',         pitch: 1.0,  rate: 0.8  },
+    { id: 'anime_girl', label: '🎌 애니 소녀', pitch: 1.85, rate: 1.0  },
+    { id: 'child',      label: '🧒 어린이',    pitch: 1.55, rate: 1.1  },
+    { id: 'hero',       label: '🦸 용사',      pitch: 0.72, rate: 0.82 },
+    { id: 'wizard',     label: '🧙 마법사',    pitch: 0.82, rate: 0.70 },
+    { id: 'robot',      label: '🤖 로봇',      pitch: 1.0,  rate: 1.45 },
+    { id: 'grandma',    label: '👵 할머니',    pitch: 1.30, rate: 0.62 },
+    { id: 'villain',    label: '😈 악당',      pitch: 0.52, rate: 0.80 },
+    { id: 'ghost',      label: '👻 유령',      pitch: 1.45, rate: 0.72 },
+    { id: 'narrator',   label: '📺 내레이터',  pitch: 0.88, rate: 0.68 },
+  ];
 
   let allJaVoices = [];
   let voicesCached = false;
@@ -1907,13 +1969,16 @@ const App = (() => {
   function restoreVoiceSelects() {
     const femaleSelect = document.getElementById('pref-voice-female');
     const maleSelect = document.getElementById('pref-voice-male');
+    const charSelect = document.getElementById('pref-voice-char');
     if (!femaleSelect || !maleSelect) return;
 
     const fv = state.prefs.voiceFemale;
     const mv = state.prefs.voiceMale;
+    const cv = state.prefs.voiceChar || 'none';
 
     femaleSelect.value = (fv !== undefined && fv !== null && fv !== 'none') ? String(fv) : 'none';
     maleSelect.value = (mv !== undefined && mv !== null && mv !== 'none') ? String(mv) : 'none';
+    if (charSelect) charSelect.value = cv;
 
     // 선택값이 없으면 none으로 복원
     if (!femaleSelect.querySelector(`option[value="${fv}"]`)) femaleSelect.value = 'none';
@@ -1932,41 +1997,60 @@ const App = (() => {
     }, 200);
   }
 
-  function playTestVoice(voiceIndex) {
+  // voiceIndex: 시스템 음성 인덱스, charId: 캐릭터 프리셋 id
+  function playTestVoice(voiceIndex, charId) {
     if (!window.speechSynthesis) return;
     window.speechSynthesis.cancel();
     const utter = new SpeechSynthesisUtterance(TEST_PHRASE);
     utter.lang = 'ja-JP';
-    utter.rate = 0.9;
-    utter.pitch = 1.0;
 
-    if (voiceIndex !== 'none' && allJaVoices[parseInt(voiceIndex)]) {
-      utter.voice = allJaVoices[parseInt(voiceIndex)];
+    const preset = CHARACTER_VOICES.find(c => c.id === (charId || 'none'));
+    if (preset && charId && charId !== 'none') {
+      // 캐릭터 테스트: 사용 가능한 시스템 음성 + 캐릭터 pitch/rate
+      const baseVoice = (voiceIndex !== 'none' && allJaVoices[parseInt(voiceIndex)])
+        ? allJaVoices[parseInt(voiceIndex)]
+        : (allJaVoices[0] || null);
+      if (baseVoice) utter.voice = baseVoice;
+      utter.pitch = preset.pitch;
+      utter.rate  = preset.rate;
+    } else {
+      utter.rate  = 0.82;
+      utter.pitch = 1.0;
+      if (voiceIndex !== 'none' && allJaVoices[parseInt(voiceIndex)]) {
+        utter.voice = allJaVoices[parseInt(voiceIndex)];
+      }
     }
     window.speechSynthesis.speak(utter);
   }
 
+  // 반환값: { voice, pitch, rate }
   function getVoiceForPlayback() {
     if (!voicesCached) loadJapaneseVoices();
 
-    const fIdx = state.prefs.voiceFemale;
-    const mIdx = state.prefs.voiceMale;
+    const fIdx   = state.prefs.voiceFemale;
+    const mIdx   = state.prefs.voiceMale;
+    const charId = state.prefs.voiceChar || 'none';
 
     const femaleVoice = (fIdx !== 'none' && fIdx !== undefined) ? allJaVoices[parseInt(fIdx)] : null;
-    const maleVoice = (mIdx !== 'none' && mIdx !== undefined) ? allJaVoices[parseInt(mIdx)] : null;
+    const maleVoice   = (mIdx !== 'none' && mIdx !== undefined) ? allJaVoices[parseInt(mIdx)] : null;
+    const charPreset  = charId !== 'none' ? CHARACTER_VOICES.find(c => c.id === charId) : null;
 
-    // 둘 다 선택 → 번갈아
-    if (femaleVoice && maleVoice) {
-      const voice = (state.voiceCallCount % 2 === 0) ? femaleVoice : maleVoice;
-      state.voiceCallCount++;
-      return voice;
+    // 활성 슬롯 구성: [여자, 캐릭터, 남자] 중 설정된 것만
+    const slots = [];
+    if (femaleVoice) slots.push({ voice: femaleVoice, pitch: 1.0, rate: 0.8 });
+    if (charPreset) {
+      // 캐릭터는 여자→남자 순의 첫 번째 시스템 음성을 기반으로 사용
+      const base = femaleVoice || maleVoice || allJaVoices[0] || null;
+      slots.push({ voice: base, pitch: charPreset.pitch, rate: charPreset.rate });
     }
-    // 하나만 선택
-    if (femaleVoice) return femaleVoice;
-    if (maleVoice) return maleVoice;
+    if (maleVoice) slots.push({ voice: maleVoice, pitch: 1.0, rate: 0.8 });
 
-    // 아무것도 선택 안 됨 → 기본 첫 번째 음성
-    return allJaVoices[0] || null;
+    if (slots.length === 0) {
+      return { voice: allJaVoices[0] || null, pitch: 1.0, rate: 0.8 };
+    }
+    const slot = slots[state.voiceCallCount % slots.length];
+    state.voiceCallCount++;
+    return slot;
   }
 
   function playAudio(kana) {
@@ -1977,11 +2061,11 @@ const App = (() => {
     window.speechSynthesis.cancel();
     const utter = new SpeechSynthesisUtterance(kana);
     utter.lang = 'ja-JP';
-    utter.rate = 0.8;
-    utter.pitch = 1.0;
 
-    const voice = getVoiceForPlayback();
+    const { voice, pitch, rate } = getVoiceForPlayback();
     if (voice) utter.voice = voice;
+    utter.pitch = pitch;
+    utter.rate  = rate;
 
     window.speechSynthesis.speak(utter);
   }
@@ -2134,7 +2218,6 @@ const App = (() => {
       el.innerHTML = `
         <div class="vb-jp">${item.japanese || item}</div>
         ${item.kanji ? `<div class="vb-kanji">${item.kanji}</div>` : ''}
-        <div class="vb-romaji">${item.romaji || ''}</div>
         <div class="vb-korean">${item.korean || ''}</div>
         <div class="vb-audio">🔊 듣기</div>`;
       el.addEventListener('click', () => {
@@ -2171,6 +2254,35 @@ const App = (() => {
 
   // ─── 단어 플래시카드 ───
 
+  // 텍스트가 카드 너비를 벗어나지 않도록 폰트 크기 자동 조정
+  function fitVocabText(el, defaultSize) {
+    // 측정 중 CSS transition 비활성화 (transition이 켜진 상태에서 scrollWidth를 읽으면 이전 값 반환)
+    el.style.transition = 'none';
+    el.style.whiteSpace = 'nowrap';
+    el.style.fontSize = defaultSize + 'px';
+    el.style.lineHeight = '1';
+    el.style.textAlign = '';
+    el.style.padding = '';
+    el.style.wordBreak = '';
+    const container = document.getElementById('vocab-flashcard');
+    const maxW = (container ? container.offsetWidth : 620) - 64;
+    let size = defaultSize;
+    while (el.scrollWidth > maxW && size > 16) {
+      size -= 4;
+      el.style.fontSize = size + 'px';
+    }
+    // 매우 긴 문장은 줄바꿈 허용
+    if (size <= 22) {
+      el.style.whiteSpace = 'normal';
+      el.style.lineHeight = '1.4';
+      el.style.textAlign = 'center';
+      el.style.padding = '0 16px';
+      el.style.wordBreak = 'keep-all';
+    }
+    // 측정 완료 후 transition 복원
+    requestAnimationFrame(() => { el.style.transition = ''; });
+  }
+
   function showVocabFlashcard() {
     const items = state.vocabItems;
     if (!items.length) return;
@@ -2181,28 +2293,22 @@ const App = (() => {
     document.getElementById('vocab-card-num').textContent = `${idx + 1} / ${total}`;
     document.getElementById('vfc-progress-fill').style.width = `${(idx / total) * 100}%`;
 
-    // 앞면 — 텍스트 길이에 따라 폰트 크기 자동 조정
+    // 앞면 — 폰트 크기 자동 조정 (fitVocabText)
     const jpEl = document.getElementById('vfc-japanese');
     jpEl.textContent = item.japanese;
-    jpEl.classList.remove('text-long', 'text-xlong');
-    if (item.japanese.length > 14) jpEl.classList.add('text-xlong');
-    else if (item.japanese.length > 7) jpEl.classList.add('text-long');
-
-    const jpBackEl = document.getElementById('vfc-japanese-back');
-    jpBackEl.classList.remove('text-long', 'text-xlong');
-    if (item.japanese.length > 14) jpBackEl.classList.add('text-xlong');
-    else if (item.japanese.length > 7) jpBackEl.classList.add('text-long');
+    fitVocabText(jpEl, 130);
 
     const kanjiEl = document.getElementById('vfc-kanji');
     if (item.kanji) { kanjiEl.textContent = item.kanji; kanjiEl.style.display = 'block'; }
     else { kanjiEl.textContent = ''; kanjiEl.style.display = 'none'; }
 
     // 뒷면
-    document.getElementById('vfc-japanese-back').textContent = item.japanese;
+    const jpBackEl = document.getElementById('vfc-japanese-back');
+    jpBackEl.textContent = item.japanese;
+    fitVocabText(jpBackEl, 56);
     const kanjiBEl = document.getElementById('vfc-kanji-back');
     if (item.kanji) { kanjiBEl.textContent = item.kanji; kanjiBEl.style.display = 'block'; }
     else { kanjiBEl.textContent = ''; kanjiBEl.style.display = 'none'; }
-    document.getElementById('vfc-romaji').textContent = item.romaji;
     document.getElementById('vfc-korean').textContent = item.korean;
 
     const tipEl = document.getElementById('vfc-tip');
@@ -2212,6 +2318,35 @@ const App = (() => {
     const exEl = document.getElementById('vfc-example');
     if (item.example) { exEl.textContent = '📝 ' + item.example; exEl.style.display = 'block'; }
     else exEl.style.display = 'none';
+
+    // 합성어 & 예시 문장 (vocab-examples-data.js)
+    const exData = typeof VOCAB_EXAMPLES_DB !== 'undefined' ? VOCAB_EXAMPLES_DB[item.id] : null;
+    const compoundsEl = document.getElementById('vfc-compounds');
+    const sentencesEl = document.getElementById('vfc-sentences');
+    if (compoundsEl) {
+      if (exData && exData.compounds && exData.compounds.length) {
+        compoundsEl.style.display = '';
+        compoundsEl.innerHTML = '<div class="vfc-ex-title">📚 관련 단어</div>' +
+          exData.compounds.map(c =>
+            `<div class="vfc-ex-item"><span class="vfc-ex-jp vfc-audio-word" onclick="event.stopPropagation();App.playAudio(this.textContent)" title="🔊 발음 듣기">${c.japanese}</span><span class="vfc-ex-kr">${c.meaning}</span></div>`
+          ).join('');
+      } else {
+        compoundsEl.style.display = 'none';
+        compoundsEl.innerHTML = '';
+      }
+    }
+    if (sentencesEl) {
+      if (exData && exData.sentences && exData.sentences.length) {
+        sentencesEl.style.display = '';
+        sentencesEl.innerHTML = '<div class="vfc-ex-title">💬 예시 문장</div>' +
+          exData.sentences.map(s =>
+            `<div class="vfc-ex-item vfc-sent"><span class="vfc-sent-jp vfc-audio-word" onclick="event.stopPropagation();App.playAudio(this.textContent)" title="🔊 발음 듣기">${s.japanese}</span><span class="vfc-ex-kr">${s.meaning}</span></div>`
+          ).join('');
+      } else {
+        sentencesEl.style.display = 'none';
+        sentencesEl.innerHTML = '';
+      }
+    }
 
     // 카드 리셋
     state.vocabFlipped = false;
@@ -2273,10 +2408,6 @@ const App = (() => {
       });
       if (!wasLast) { state.vocabIndex++; showVocabFlashcard(); }
       else { showToast('📌 추가! 큐 끝에 한 번 더 나옵니다.'); }
-    };
-    document.getElementById('vfc-audio-btn').onclick = () => {
-      const item = state.vocabItems[state.vocabIndex];
-      playAudio(item.japanese);
     };
   }
 
