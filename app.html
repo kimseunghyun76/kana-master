@@ -48,9 +48,10 @@
 
     <!-- ========== 홈 뷰 ========== -->
     <div id="view-home" class="view active">
-      <div class="home-hero">
-        <h2>일본어 가나 완전 정복! 🎌</h2>
-        <p>히라가나 → 가타가나 → 탁음 → 반탁음 → 요음까지<br>단계별로 차근차근 마스터해 보세요</p>
+      <div class="home-hero home-hero-sentence">
+        <div class="hero-label">🌸 오늘의 문장</div>
+        <div class="hero-sentence" id="hero-sentence">読み込み中…</div>
+        <div class="hero-translation" id="hero-translation"></div>
       </div>
 
       <div class="home-continue" id="home-continue" style="display:none">
@@ -108,28 +109,63 @@
 
       <!-- 단어 학습 섹션 -->
       <div class="vocab-home-section">
-        <h3>📖 단어 학습 (4·5단계)</h3>
-        <p class="vocab-home-desc">가나 마스터 후 — 관광에 꼭 필요한 단어와 회화 패턴</p>
+        <h3>📖 단어 학습</h3>
+        <p class="vocab-home-desc">가나 마스터 후 — 기초 어휘부터 실전 시뮬레이션까지 단계별 완성</p>
+        <div class="vocab-phase-row">
+          <div class="vocab-phase-heading">
+            <span class="vpc-phase-badge vpc-phase-3">3단계</span>
+            <span class="vpc-phase-title">기초 어휘 — 대명사 · 동사 · 형용사</span>
+          </div>
+          <div class="vocab-cat-grid" id="home-vocab-grid-3"></div>
+        </div>
         <div class="vocab-phase-row">
           <div class="vocab-phase-heading">
             <span class="vpc-phase-badge vpc-phase-4">4단계</span>
-            <span class="vpc-phase-title">N5 기초 단어 · 숫자 · 날짜</span>
+            <span class="vpc-phase-title">숫자 · 날짜 · 시간</span>
           </div>
           <div class="vocab-cat-grid" id="home-vocab-grid-4"></div>
         </div>
         <div class="vocab-phase-row">
           <div class="vocab-phase-heading">
             <span class="vpc-phase-badge vpc-phase-5">5단계</span>
-            <span class="vpc-phase-title">관광 회화 패턴</span>
+            <span class="vpc-phase-title">기본 표현 — 인사 · 긴급</span>
           </div>
           <div class="vocab-cat-grid" id="home-vocab-grid-5"></div>
         </div>
         <div class="vocab-phase-row">
           <div class="vocab-phase-heading">
             <span class="vpc-phase-badge vpc-phase-6">6단계</span>
-            <span class="vpc-phase-title">스몰토크 · 호텔 · 교통</span>
+            <span class="vpc-phase-title">음식 · 식당 · 카페</span>
           </div>
           <div class="vocab-cat-grid" id="home-vocab-grid-6"></div>
+        </div>
+        <div class="vocab-phase-row">
+          <div class="vocab-phase-heading">
+            <span class="vpc-phase-badge vpc-phase-7">7단계</span>
+            <span class="vpc-phase-title">이동 · 교통 · 길 찾기</span>
+          </div>
+          <div class="vocab-cat-grid" id="home-vocab-grid-7"></div>
+        </div>
+        <div class="vocab-phase-row">
+          <div class="vocab-phase-heading">
+            <span class="vpc-phase-badge vpc-phase-8">8단계</span>
+            <span class="vpc-phase-title">숙박 · 호텔 · 스몰토크</span>
+          </div>
+          <div class="vocab-cat-grid" id="home-vocab-grid-8"></div>
+        </div>
+        <div class="vocab-phase-row">
+          <div class="vocab-phase-heading">
+            <span class="vpc-phase-badge vpc-phase-9">9단계</span>
+            <span class="vpc-phase-title">실전 시뮬레이션 I — 식당 · 쇼핑 · 교통</span>
+          </div>
+          <div class="vocab-cat-grid" id="home-vocab-grid-9"></div>
+        </div>
+        <div class="vocab-phase-row">
+          <div class="vocab-phase-heading">
+            <span class="vpc-phase-badge vpc-phase-10">10단계</span>
+            <span class="vpc-phase-title">실전 시뮬레이션 II — 호텔 · 전화 · 편의점</span>
+          </div>
+          <div class="vocab-cat-grid" id="home-vocab-grid-10"></div>
         </div>
       </div>
     </div>
@@ -448,24 +484,59 @@
         </div>
         <div class="vocab-phase-section">
           <div class="vocab-phase-heading">
+            <span class="vpc-phase-badge vpc-phase-3">3단계</span>
+            <span class="vpc-phase-title">기초 어휘 — 대명사 · 동사 · 형용사</span>
+          </div>
+          <div class="vocab-cat-grid" id="vocab-cat-grid-3"></div>
+        </div>
+        <div class="vocab-phase-section">
+          <div class="vocab-phase-heading">
             <span class="vpc-phase-badge vpc-phase-4">4단계</span>
-            <span class="vpc-phase-title">N5 기초 단어 + 숫자</span>
+            <span class="vpc-phase-title">숫자 · 날짜 · 시간</span>
           </div>
           <div class="vocab-cat-grid" id="vocab-cat-grid-4"></div>
         </div>
         <div class="vocab-phase-section">
           <div class="vocab-phase-heading">
             <span class="vpc-phase-badge vpc-phase-5">5단계</span>
-            <span class="vpc-phase-title">관광 회화 패턴</span>
+            <span class="vpc-phase-title">기본 표현 — 인사 · 긴급</span>
           </div>
           <div class="vocab-cat-grid" id="vocab-cat-grid-5"></div>
         </div>
         <div class="vocab-phase-section">
           <div class="vocab-phase-heading">
             <span class="vpc-phase-badge vpc-phase-6">6단계</span>
-            <span class="vpc-phase-title">스몰토크 · 호텔 · 교통</span>
+            <span class="vpc-phase-title">음식 · 식당 · 카페</span>
           </div>
           <div class="vocab-cat-grid" id="vocab-cat-grid-6"></div>
+        </div>
+        <div class="vocab-phase-section">
+          <div class="vocab-phase-heading">
+            <span class="vpc-phase-badge vpc-phase-7">7단계</span>
+            <span class="vpc-phase-title">이동 · 교통 · 길 찾기</span>
+          </div>
+          <div class="vocab-cat-grid" id="vocab-cat-grid-7"></div>
+        </div>
+        <div class="vocab-phase-section">
+          <div class="vocab-phase-heading">
+            <span class="vpc-phase-badge vpc-phase-8">8단계</span>
+            <span class="vpc-phase-title">숙박 · 호텔 · 스몰토크</span>
+          </div>
+          <div class="vocab-cat-grid" id="vocab-cat-grid-8"></div>
+        </div>
+        <div class="vocab-phase-section">
+          <div class="vocab-phase-heading">
+            <span class="vpc-phase-badge vpc-phase-9">9단계</span>
+            <span class="vpc-phase-title">실전 시뮬레이션 I — 식당 · 쇼핑 · 교통</span>
+          </div>
+          <div class="vocab-cat-grid" id="vocab-cat-grid-9"></div>
+        </div>
+        <div class="vocab-phase-section">
+          <div class="vocab-phase-heading">
+            <span class="vpc-phase-badge vpc-phase-10">10단계</span>
+            <span class="vpc-phase-title">실전 시뮬레이션 II — 호텔 · 전화 · 편의점</span>
+          </div>
+          <div class="vocab-cat-grid" id="vocab-cat-grid-10"></div>
         </div>
       </div>
 
@@ -494,12 +565,12 @@
           <div class="flashcard-container" id="vocab-flashcard" onclick="App.vocabFlipCard()">
             <div class="flashcard-inner" id="vfc-inner">
               <div class="flashcard-front">
-                <div class="fc-kana vfc-audio-word" id="vfc-japanese" title="🔊 발음 듣기" onclick="event.stopPropagation(); App.playAudio(this.textContent)">いち</div>
+                <div class="fc-kana vfc-audio-word" id="vfc-japanese" title="🔊 발음 듣기" onclick="event.stopPropagation(); App.playAudio(this.dataset.audio||this.textContent)">いち</div>
                 <div class="vfc-kanji" id="vfc-kanji"></div>
                 <div class="fc-hint">단어 클릭 🔊 · 카드 클릭 뒤집기 ↓</div>
               </div>
               <div class="flashcard-back">
-                <div class="fc-kana-small vfc-audio-word" id="vfc-japanese-back" title="🔊 발음 듣기" onclick="event.stopPropagation(); App.playAudio(this.textContent)">いち</div>
+                <div class="fc-kana-small vfc-audio-word" id="vfc-japanese-back" title="🔊 발음 듣기" onclick="event.stopPropagation(); App.playAudio(this.dataset.audio||this.textContent)">いち</div>
                 <div class="vfc-kanji-back" id="vfc-kanji-back"></div>
                 <div class="fc-pronunciations">
                   <span class="fc-kor" id="vfc-korean">일 (1)</span>

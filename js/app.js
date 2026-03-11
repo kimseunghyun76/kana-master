@@ -253,6 +253,8 @@ const App = (() => {
       grid.appendChild(card);
     });
 
+    // 오늘의 문장
+    renderDailySentence();
     // 홈 단어 카드 렌더링
     renderHomeVocabCards();
     // 북마크 섹션 업데이트
@@ -2111,7 +2113,7 @@ const App = (() => {
   }
 
   function renderVocabCategories() {
-    [4, 5, 6].forEach(phase => {
+    [3, 4, 5, 6, 7, 8, 9, 10].forEach(phase => {
       const grid = document.getElementById(`vocab-cat-grid-${phase}`);
       if (!grid) return;
       grid.innerHTML = '';
@@ -2145,25 +2147,91 @@ const App = (() => {
   }
 
   function renderHomeVocabCards() {
-    [4, 5, 6].forEach(phase => {
+    [3, 4, 5, 6, 7, 8, 9, 10].forEach(phase => {
       const grid = document.getElementById(`home-vocab-grid-${phase}`);
       if (!grid) return;
       grid.innerHTML = '';
       VOCAB_CATEGORIES.filter(c => c.phase === phase).forEach(cat => {
         const prog = getVocabCategoryProgress(cat.id);
         const card = document.createElement('div');
-        card.className = 'vocab-cat-card vocab-cat-card-sm';
+        card.className = 'vocab-cat-card';
         card.innerHTML = `
           <div class="vcc-icon">${cat.icon}</div>
           <div class="vcc-name">${cat.name}</div>
-          <div class="vcc-prog-bar"><div class="vcc-prog-fill" style="width:${prog}%"></div></div>`;
-        card.addEventListener('click', () => {
+          <div class="vcc-sub">${cat.subtitle}</div>
+          <div class="vcc-prog-bar"><div class="vcc-prog-fill" style="width:${prog}%"></div></div>
+          <div class="vcc-prog-text">${prog}% · ${cat.items.length}개</div>
+          <div class="vcc-actions">
+            <button class="vcc-btn vcc-btn-flash" data-cid="${cat.id}">📚 학습</button>
+            <button class="vcc-btn vcc-btn-browse" data-cid="${cat.id}">📖 일람</button>
+            <button class="vcc-btn vcc-btn-quiz" data-cid="${cat.id}">✏️ 퀴즈</button>
+          </div>`;
+        card.querySelector('.vcc-btn-flash').addEventListener('click', (e) => {
+          e.stopPropagation();
           showView('vocab');
-          setTimeout(() => startVocabCategory(cat.id), 100);
+          setTimeout(() => startVocabCategory(cat.id, 'flash'), 100);
+        });
+        card.querySelector('.vcc-btn-browse').addEventListener('click', (e) => {
+          e.stopPropagation();
+          showView('vocab');
+          setTimeout(() => startVocabCategory(cat.id, 'browse'), 100);
+        });
+        card.querySelector('.vcc-btn-quiz').addEventListener('click', (e) => {
+          e.stopPropagation();
+          showView('vocab');
+          setTimeout(() => startVocabCategory(cat.id, 'quiz'), 100);
         });
         grid.appendChild(card);
       });
     });
+  }
+
+  // ─── 오늘의 문장 ───
+  const DAILY_SENTENCES = [
+    { jp: '今日もいい天気ですね。',       kr: '오늘도 날씨가 좋네요.' },
+    { jp: 'ありがとうございます。',        kr: '감사합니다.' },
+    { jp: 'すみません、駅はどこですか？', kr: '저기요, 역이 어디인가요?' },
+    { jp: 'これをひとつください。',        kr: '이것 하나 주세요.' },
+    { jp: 'お会計をお願いします。',        kr: '계산해 주세요.' },
+    { jp: '日本語を勉強しています。',      kr: '일본어를 공부하고 있어요.' },
+    { jp: 'もう一度言ってください。',      kr: '다시 한 번 말해 주세요.' },
+    { jp: '写真を撮ってもいいですか？',    kr: '사진 찍어도 되나요?' },
+    { jp: 'おいしいですね！',              kr: '맛있네요!' },
+    { jp: 'このあたりに観光地はありますか？', kr: '이 근처에 관광지가 있나요?' },
+    { jp: 'トイレはどこですか？',          kr: '화장실이 어디예요?' },
+    { jp: '少し待ってください。',          kr: '잠깐 기다려 주세요.' },
+    { jp: 'いくらですか？',               kr: '얼마예요?' },
+    { jp: 'カードで払えますか？',          kr: '카드로 결제할 수 있나요?' },
+    { jp: '迷子になってしまいました。',    kr: '길을 잃어버렸어요.' },
+    { jp: '〜まで行ってください。',        kr: '〜까지 가 주세요.' },
+    { jp: '日本は初めてですか？',          kr: '일본은 처음이에요?' },
+    { jp: 'よい旅を！',                   kr: '좋은 여행 되세요!' },
+    { jp: '荷物を預かってもらえますか？',  kr: '짐을 맡아주실 수 있나요?' },
+    { jp: 'チェックインをお願いします。',  kr: '체크인 부탁드립니다.' },
+    { jp: '何がおすすめですか？',          kr: '뭐가 추천인가요?' },
+    { jp: '英語は話せますか？',            kr: '영어를 할 수 있나요?' },
+    { jp: '領収書をください。',            kr: '영수증 주세요.' },
+    { jp: '電車は何時に来ますか？',        kr: '전철은 몇 시에 오나요?' },
+    { jp: '近くにコンビニはありますか？',  kr: '근처에 편의점이 있나요?' },
+    { jp: '予約をしたいです。',            kr: '예약을 하고 싶어요.' },
+    { jp: '温めてください。',              kr: '데워 주세요.' },
+    { jp: 'お土産を探しています。',        kr: '기념품을 찾고 있어요.' },
+    { jp: 'バスは何番ですか？',            kr: '버스가 몇 번이에요?' },
+    { jp: 'もっとゆっくり話してください。', kr: '좀 더 천천히 말해 주세요.' },
+  ];
+
+  function renderDailySentence() {
+    const el = document.getElementById('hero-sentence');
+    const krEl = document.getElementById('hero-translation');
+    if (!el || !krEl) return;
+    // 날짜 기반 인덱스: 매일 다른 문장, 새로 고침마다 랜덤
+    const idx = Math.floor(Math.random() * DAILY_SENTENCES.length);
+    const s = DAILY_SENTENCES[idx];
+    el.textContent = s.jp;
+    el.onclick = () => playAudio(s.jp);
+    el.title = '🔊 클릭해서 발음 듣기';
+    el.style.cursor = 'pointer';
+    krEl.textContent = s.kr;
   }
 
   function startVocabCategory(catId, mode) {
@@ -2293,21 +2361,23 @@ const App = (() => {
     document.getElementById('vocab-card-num').textContent = `${idx + 1} / ${total}`;
     document.getElementById('vfc-progress-fill').style.width = `${(idx / total) * 100}%`;
 
-    // 앞면 — 폰트 크기 자동 조정 (fitVocabText)
+    // 앞면 — 한자 있으면 한자 표시(大), 히라가나는 후리가나로(小)
     const jpEl = document.getElementById('vfc-japanese');
-    jpEl.textContent = item.japanese;
+    jpEl.textContent = item.kanji || item.japanese;   // 한자 우선 표시
+    jpEl.dataset.audio = item.japanese;               // TTS는 히라가나로
     fitVocabText(jpEl, 130);
 
     const kanjiEl = document.getElementById('vfc-kanji');
-    if (item.kanji) { kanjiEl.textContent = item.kanji; kanjiEl.style.display = 'block'; }
+    if (item.kanji) { kanjiEl.textContent = item.japanese; kanjiEl.style.display = 'block'; }  // 후리가나
     else { kanjiEl.textContent = ''; kanjiEl.style.display = 'none'; }
 
     // 뒷면
     const jpBackEl = document.getElementById('vfc-japanese-back');
-    jpBackEl.textContent = item.japanese;
+    jpBackEl.textContent = item.kanji || item.japanese;
+    jpBackEl.dataset.audio = item.japanese;
     fitVocabText(jpBackEl, 56);
     const kanjiBEl = document.getElementById('vfc-kanji-back');
-    if (item.kanji) { kanjiBEl.textContent = item.kanji; kanjiBEl.style.display = 'block'; }
+    if (item.kanji) { kanjiBEl.textContent = item.japanese; kanjiBEl.style.display = 'block'; }  // 후리가나
     else { kanjiBEl.textContent = ''; kanjiBEl.style.display = 'none'; }
     document.getElementById('vfc-korean').textContent = item.korean;
 

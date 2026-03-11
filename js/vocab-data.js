@@ -388,10 +388,128 @@ const VOCAB_ITEMS = [
   { id:'scv_8',  japanese:'トイレを借りてもいいですか',            romaji:'toire o karite mo ii desu ka',           korean:'화장실 빌려도 되나요?',          tip:'편의점 화장실은 대부분 사용 가능' },
   { id:'scv_9',  japanese:'ポイントカードはお持ちですか',          romaji:'pointo kaado wa omochi desu ka',         korean:'포인트 카드 가지고 계세요?',     tip:'점원이 묻는 표현 (이해용). ないです = 없어요' },
   { id:'scv_10', japanese:'これは何味ですか',                      romaji:'kore wa nani aji desu ka',               korean:'이거 무슨 맛이에요?',            tip:'甘い(あまい)=달다, 辛い(からい)=맵다' },
+
+  // ── Phase 3: 기초 어휘 — 대명사·지시어 (prn) ──
+  { id:'prn_1',  japanese:'わたし',           kanji:'私',           romaji:'watashi',     korean:'나/저',           tip:'남녀 공용 정중 표현. 「私、これにします」' },
+  { id:'prn_2',  japanese:'ぼく',             kanji:'僕',           romaji:'boku',        korean:'나 (남성)',         tip:'남성 가벼운 표현. 「僕もそれ食べたい！」' },
+  { id:'prn_3',  japanese:'あなた',                                 romaji:'anata',       korean:'당신/너',           tip:'부부 사이에도 쓰임. 「あなたはどうする？」' },
+  { id:'prn_4',  japanese:'かれ',             kanji:'彼',           romaji:'kare',        korean:'그 (남성)',          tip:'남자친구·남편을 지칭. 「彼、日本語うまいね」' },
+  { id:'prn_5',  japanese:'かのじょ',         kanji:'彼女',         romaji:'kanojo',      korean:'그녀',               tip:'여자친구·아내를 지칭. 「彼女はどこ？」' },
+  { id:'prn_6',  japanese:'これ',                                   romaji:'kore',        korean:'이것 (바로 앞)',     tip:'손에 들거나 가까이 있는 것. 「これください」' },
+  { id:'prn_7',  japanese:'それ',                                   romaji:'sore',        korean:'그것 (상대방 쪽)',   tip:'상대방 가까이 있는 것. 「それ、おいしそう！」' },
+  { id:'prn_8',  japanese:'あれ',                                   romaji:'are',         korean:'저것 (멀리)',        tip:'둘 다 멀리 있는 것. 「あれ、何？」' },
+  { id:'prn_9',  japanese:'ここ',                                   romaji:'koko',        korean:'여기',               tip:'말하는 사람 근처. 「ここ座れる？」' },
+  { id:'prn_10', japanese:'そこ',                                   romaji:'soko',        korean:'거기',               tip:'상대방 근처. 「そこで待ってて」' },
+  { id:'prn_11', japanese:'あそこ',                                 romaji:'asoko',       korean:'저기',               tip:'둘 다에게서 먼 곳. 「あそこに出口がある」' },
+  { id:'prn_12', japanese:'この',                                   romaji:'kono',        korean:'이 〜',              tip:'この+명사. 「このラーメン、辛い？」' },
+  { id:'prn_13', japanese:'その',                                   romaji:'sono',        korean:'그 〜',              tip:'その+명사. 「そのバッグ、かわいい！」' },
+  { id:'prn_14', japanese:'あの',                                   romaji:'ano',         korean:'저 〜',              tip:'あの+명사. 「あのお店、入ろう」' },
+
+  // ── Phase 3: 기초 어휘 — 기본 동사 I (vb1) ──
+  { id:'vb1_1',  japanese:'たべる',           kanji:'食べる',       romaji:'taberu',      korean:'먹다',               tip:'「二人で何食べようか？」부부의 단골 대화' },
+  { id:'vb1_2',  japanese:'のむ',             kanji:'飲む',         romaji:'nomu',        korean:'마시다',             tip:'「ビール飲む？」「うん、飲む！」' },
+  { id:'vb1_3',  japanese:'ねる',             kanji:'寝る',         romaji:'neru',        korean:'자다',               tip:'「もう寝ようか」호텔에서 부부 대화' },
+  { id:'vb1_4',  japanese:'おきる',           kanji:'起きる',       romaji:'okiru',       korean:'일어나다',           tip:'「何時に起きる？」' },
+  { id:'vb1_5',  japanese:'いく',             kanji:'行く',         romaji:'iku',         korean:'가다',               tip:'「次、渋谷に行こう！」' },
+  { id:'vb1_6',  japanese:'くる',             kanji:'来る',         romaji:'kuru',        korean:'오다',               tip:'「どこから来ましたか？」현지인이 묻는 말' },
+  { id:'vb1_7',  japanese:'みる',             kanji:'見る',         romaji:'miru',        korean:'보다',               tip:'「あれ見て！すごいね！」' },
+  { id:'vb1_8',  japanese:'きく',             kanji:'聞く',         romaji:'kiku',        korean:'듣다/묻다',          tip:'「店員さんに聞こう」모를 땐 물어보기' },
+  { id:'vb1_9',  japanese:'あそぶ',           kanji:'遊ぶ',         romaji:'asobu',       korean:'놀다',               tip:'「明日、どこで遊ぶ？」' },
+  { id:'vb1_10', japanese:'する',                                   romaji:'suru',        korean:'하다',               tip:'「何する？」「買い物する！」범용 동사' },
+  { id:'vb1_11', japanese:'ある',                                   romaji:'aru',         korean:'있다 (사물)',         tip:'「近くにコンビニある？」' },
+  { id:'vb1_12', japanese:'いる',                                   romaji:'iru',         korean:'있다 (사람·동물)',   tip:'「駅員さん、いる？」' },
+
+  // ── Phase 3: 기초 어휘 — 기본 동사 II (vb2) ──
+  { id:'vb2_1',  japanese:'よむ',             kanji:'読む',         romaji:'yomu',        korean:'읽다',               tip:'「このメニュー、読める？」' },
+  { id:'vb2_2',  japanese:'かく',             kanji:'書く',         romaji:'kaku',        korean:'쓰다',               tip:'「名前を書いてください」점원에게' },
+  { id:'vb2_3',  japanese:'はなす',           kanji:'話す',         romaji:'hanasu',      korean:'말하다',             tip:'「ゆっくり話してください」' },
+  { id:'vb2_4',  japanese:'かう',             kanji:'買う',         romaji:'kau',         korean:'사다',               tip:'「これ買う？どうする？」쇼핑 중 부부 대화' },
+  { id:'vb2_5',  japanese:'あるく',           kanji:'歩く',         romaji:'aruku',       korean:'걷다',               tip:'「歩いて行ける？近い？」' },
+  { id:'vb2_6',  japanese:'はしる',           kanji:'走る',         romaji:'hashiru',     korean:'달리다',             tip:'「走って！電車来るよ！」' },
+  { id:'vb2_7',  japanese:'わらう',           kanji:'笑う',         romaji:'warau',       korean:'웃다',               tip:'「なんで笑ってるの？」' },
+  { id:'vb2_8',  japanese:'なく',             kanji:'泣く',         romaji:'naku',        korean:'울다',               tip:'「感動して泣いちゃった…」여행의 감동' },
+  { id:'vb2_9',  japanese:'あらう',           kanji:'洗う',         romaji:'arau',        korean:'씻다',               tip:'「手を洗ってきます」식사 전' },
+  { id:'vb2_10', japanese:'つかう',           kanji:'使う',         romaji:'tsukau',      korean:'쓰다/사용하다',      tip:'「Suicaが使える？ここ」' },
+
+  // ── Phase 3: 기초 어휘 — 기본 형용사 I 상태·감각 (adj1) ──
+  { id:'adj1_1',  japanese:'あつい',          kanji:'暑い',         romaji:'atsui',       korean:'덥다 (날씨)',         tip:'「今日、暑い！アイス食べたい！」' },
+  { id:'adj1_2',  japanese:'さむい',          kanji:'寒い',         romaji:'samui',       korean:'춥다',               tip:'「寒い！コートどこ？」' },
+  { id:'adj1_3',  japanese:'あつい',          kanji:'熱い',         romaji:'atsui(netsu)',korean:'뜨겁다 (음식)',       tip:'暑い(날씨)와 구별! 「スープ、熱いから気をつけて」' },
+  { id:'adj1_4',  japanese:'つめたい',        kanji:'冷たい',       romaji:'tsumetai',    korean:'차갑다',             tip:'「このビール、冷たくて最高！」' },
+  { id:'adj1_5',  japanese:'たかい',          kanji:'高い',         romaji:'takai',       korean:'비싸다·높다',        tip:'「これ高い…やめとこう」' },
+  { id:'adj1_6',  japanese:'やすい',          kanji:'安い',         romaji:'yasui',       korean:'싸다',               tip:'「安い！買っちゃおう！」' },
+  { id:'adj1_7',  japanese:'おおきい',        kanji:'大きい',       romaji:'ookii',       korean:'크다',               tip:'「大きいサイズある？」' },
+  { id:'adj1_8',  japanese:'ちいさい',        kanji:'小さい',       romaji:'chiisai',     korean:'작다',               tip:'「ちょっと小さいかな…」' },
+  { id:'adj1_9',  japanese:'からい',          kanji:'辛い',         romaji:'karai',       korean:'맵다',               tip:'「辛い！水ちょうだい！」' },
+  { id:'adj1_10', japanese:'あまい',          kanji:'甘い',         romaji:'amai',        korean:'달다',               tip:'「甘い！これ好き！」' },
+  { id:'adj1_11', japanese:'おもい',          kanji:'重い',         romaji:'omoi',        korean:'무겁다',             tip:'「荷物、重い…タクシーにしよう」' },
+  { id:'adj1_12', japanese:'かるい',          kanji:'軽い',         romaji:'karui',       korean:'가볍다',             tip:'「これ、軽くて持ちやすい」' },
+
+  // ── Phase 3: 기초 어휘 — 기본 형용사 II 감정·느낌 (adj2) ──
+  { id:'adj2_1',  japanese:'うれしい',        kanji:'嬉しい',       romaji:'ureshii',     korean:'기쁘다',             tip:'「来れてうれしい！念願の日本！」' },
+  { id:'adj2_2',  japanese:'かなしい',        kanji:'悲しい',       romaji:'kanashii',    korean:'슬프다',             tip:'「もう帰るの、悲しいね」' },
+  { id:'adj2_3',  japanese:'たのしい',        kanji:'楽しい',       romaji:'tanoshii',    korean:'즐겁다',             tip:'「楽しいね！また来ようね」' },
+  { id:'adj2_4',  japanese:'こわい',          kanji:'怖い',         romaji:'kowai',       korean:'무섭다',             tip:'「迷子になったら怖い…」' },
+  { id:'adj2_5',  japanese:'ねむい',          kanji:'眠い',         romaji:'nemui',       korean:'졸리다',             tip:'「眠い…カフェ寄っていい？」' },
+  { id:'adj2_6',  japanese:'おなかがすいた',  kanji:'お腹が空いた', romaji:'onaka ga suita', korean:'배고프다',         tip:'「お腹空いた！何食べる？」' },
+  { id:'adj2_7',  japanese:'つかれた',        kanji:'疲れた',       romaji:'tsukareta',   korean:'피곤하다',           tip:'「疲れた！ちょっと休もう」' },
+  { id:'adj2_8',  japanese:'すき',            kanji:'好き',         romaji:'suki',        korean:'좋아하다',           tip:'「この街、大好き！」' },
+  { id:'adj2_9',  japanese:'きらい',          kanji:'嫌い',         romaji:'kirai',       korean:'싫다',               tip:'「納豆は嫌い…ごめんね」' },
+  { id:'adj2_10', japanese:'いたい',          kanji:'痛い',         romaji:'itai',        korean:'아프다',             tip:'「足が痛い…靴買おうか」' },
 ];
 
 // ─── 카테고리 정의 ───
 const VOCAB_CATEGORIES = [
+  {
+    id: 'pronouns_basic',
+    phase: 3,
+    name: '나·너·이것·여기',
+    title: '대명사·지시어 (代名詞)',
+    subtitle: '私·これ·ここ·この〜',
+    desc: '가장 기본! 사람과 사물, 장소를 가리키는 단어',
+    icon: '👤',
+    items: ['prn_1','prn_2','prn_3','prn_4','prn_5','prn_6','prn_7','prn_8','prn_9','prn_10','prn_11','prn_12','prn_13','prn_14']
+  },
+  {
+    id: 'verbs_daily',
+    phase: 3,
+    name: '기본 동사 I',
+    title: '기본 동사 I (動詞)',
+    subtitle: '食べる·飲む·行く·見る',
+    desc: '먹고 마시고 가고 보고 — 일상의 모든 행동',
+    icon: '🏃',
+    items: ['vb1_1','vb1_2','vb1_3','vb1_4','vb1_5','vb1_6','vb1_7','vb1_8','vb1_9','vb1_10','vb1_11','vb1_12']
+  },
+  {
+    id: 'verbs_activity',
+    phase: 3,
+    name: '기본 동사 II',
+    title: '기본 동사 II (動詞)',
+    subtitle: '読む·書く·買う·歩く',
+    desc: '읽고 쓰고 사고 걷고 — 활동 동사 완성',
+    icon: '✍️',
+    items: ['vb2_1','vb2_2','vb2_3','vb2_4','vb2_5','vb2_6','vb2_7','vb2_8','vb2_9','vb2_10']
+  },
+  {
+    id: 'adj_physical',
+    phase: 3,
+    name: '기본 형용사 I',
+    title: '기본 형용사 I (形容詞)',
+    subtitle: '暑い·寒い·高い·辛い',
+    desc: '덥다 춥다 비싸다 맵다 — 여행에서 매일 쓰는 감각 형용사',
+    icon: '🌡️',
+    items: ['adj1_1','adj1_2','adj1_3','adj1_4','adj1_5','adj1_6','adj1_7','adj1_8','adj1_9','adj1_10','adj1_11','adj1_12']
+  },
+  {
+    id: 'adj_emotion',
+    phase: 3,
+    name: '기본 형용사 II',
+    title: '기본 형용사 II (感情)',
+    subtitle: '嬉しい·疲れた·お腹が空いた',
+    desc: '기쁘다 피곤하다 배고프다 — 여행 중 느끼는 모든 감정',
+    icon: '😊',
+    items: ['adj2_1','adj2_2','adj2_3','adj2_4','adj2_5','adj2_6','adj2_7','adj2_8','adj2_9','adj2_10']
+  },
   {
     id: 'numbers_basic',
     phase: 4,
@@ -424,7 +542,7 @@ const VOCAB_CATEGORIES = [
   },
   {
     id: 'food_n5',
-    phase: 4,
+    phase: 6,
     name: 'N5 음식',
     title: 'N5 음식 단어 (食)',
     subtitle: '라멘·스시·우동·계산',
@@ -434,7 +552,7 @@ const VOCAB_CATEGORIES = [
   },
   {
     id: 'transport_n5',
-    phase: 4,
+    phase: 7,
     name: 'N5 교통/장소',
     title: 'N5 교통·장소 (交通)',
     subtitle: '역·공항·호텔·출입구',
@@ -444,7 +562,7 @@ const VOCAB_CATEGORIES = [
   },
   {
     id: 'adjectives_n5',
-    phase: 4,
+    phase: 3,
     name: 'N5 형용사',
     title: 'N5 형용사 (形容詞)',
     subtitle: 'おいしい·たかい·かわいい',
@@ -464,7 +582,7 @@ const VOCAB_CATEGORIES = [
   },
   {
     id: 'tourism_directions',
-    phase: 5,
+    phase: 7,
     name: '관광 위치',
     title: '관광 위치·길 묻기',
     subtitle: '〜はどこですか・まっすぐ',
@@ -474,7 +592,7 @@ const VOCAB_CATEGORIES = [
   },
   {
     id: 'tourism_restaurant',
-    phase: 5,
+    phase: 6,
     name: '식당/쇼핑',
     title: '관광 식당·쇼핑 표현',
     subtitle: 'これをください·いくらですか',
@@ -494,7 +612,7 @@ const VOCAB_CATEGORIES = [
   },
   {
     id: 'small_talk',
-    phase: 6,
+    phase: 8,
     name: '스몰토크',
     title: '스몰토크 (スモールトーク)',
     subtitle: '날씨·취미·감정·일상 대화',
@@ -504,7 +622,7 @@ const VOCAB_CATEGORIES = [
   },
   {
     id: 'hotel_stay',
-    phase: 6,
+    phase: 8,
     name: '호텔 숙박',
     title: '호텔·숙박 표현',
     subtitle: 'チェックイン·ルームサービス',
@@ -514,13 +632,157 @@ const VOCAB_CATEGORIES = [
   },
   {
     id: 'transport_detail',
-    phase: 6,
+    phase: 7,
     name: '교통 상세',
     title: '교통 상세 표현',
     subtitle: '新幹線·スイカ·乗り換え',
     desc: '신칸센·IC카드·환승까지 일본 교통 완전 정복',
     icon: '🚅',
     items: ['td_shink','td_jiyuuseki','td_suica','td_kippu','td_norikae','td_yuki','td_noriba','td_jikanhyo','td_maniau','td_taxi','td_teiryu','td_madogawa']
+  },
+
+  // ────────────── 7단계: 실전 시뮬레이션 I ──────────────
+  {
+    id: 'sim_food_order',
+    phase: 9,
+    name: '음식 주문',
+    title: '실전: 음식 주문 시뮬레이션',
+    subtitle: 'これをひとつください · 〜はありますか',
+    desc: '레스토랑·카페에서 실제로 주문하는 시나리오 연습',
+    icon: '🍽️',
+    items: ['so_1','so_2','so_3','so_4','so_5','so_6','so_7','so_8','so_9','so_10']
+  },
+  {
+    id: 'sim_shopping',
+    phase: 9,
+    name: '쇼핑',
+    title: '실전: 쇼핑 시뮬레이션',
+    subtitle: 'これをください · 試着してもいいですか',
+    desc: '편의점·백화점·드럭스토어 쇼핑 실전 표현',
+    icon: '🛍️',
+    items: ['ss_1','ss_2','ss_3','ss_4','ss_5','ss_6','ss_7','ss_8','ss_9','ss_10']
+  },
+  {
+    id: 'sim_pointing',
+    phase: 9,
+    name: '가리키기',
+    title: '실전: 가리키기 표현',
+    subtitle: 'これ·それ·あれ + ください',
+    desc: '말이 안 통할 때 손가락으로 가리키며 쓰는 핵심 표현',
+    icon: '👆',
+    items: ['sp_1','sp_2','sp_3','sp_4','sp_5','sp_6','sp_7','sp_8','sp_9','sp_10']
+  },
+  {
+    id: 'sim_taxi',
+    phase: 9,
+    name: '택시',
+    title: '실전: 택시 이용 시뮬레이션',
+    subtitle: '〜まで行ってください · ここで止めて',
+    desc: '택시 탑승부터 목적지 안내까지 실전 회화',
+    icon: '🚕',
+    items: ['st_1','st_2','st_3','st_4','st_5','st_6','st_7','st_8','st_9','st_10']
+  },
+  {
+    id: 'sim_bus',
+    phase: 9,
+    name: '버스',
+    title: '실전: 버스 이용 시뮬레이션',
+    subtitle: '〜行きですか · 降ります',
+    desc: '버스 탑승·환승·하차까지 완벽 시나리오',
+    icon: '🚌',
+    items: ['sb_1','sb_2','sb_3','sb_4','sb_5','sb_6','sb_7','sb_8','sb_9','sb_10']
+  },
+  {
+    id: 'sim_subway',
+    phase: 9,
+    name: '지하철',
+    title: '실전: 지하철 이용 시뮬레이션',
+    subtitle: '〜線·乗り換え·終点',
+    desc: '일본 지하철 노선·환승·IC카드 실전 표현',
+    icon: '🚇',
+    items: ['sw_1','sw_2','sw_3','sw_4','sw_5','sw_6','sw_7','sw_8','sw_9','sw_10']
+  },
+  {
+    id: 'sim_elevator',
+    phase: 9,
+    name: '엘리베이터',
+    title: '실전: 엘리베이터 표현',
+    subtitle: '何階ですか · 開ける·閉める',
+    desc: '백화점·호텔 엘리베이터에서 쓰는 핵심 표현',
+    icon: '🛗',
+    items: ['se_1','se_2','se_3','se_4','se_5','se_6','se_7','se_8']
+  },
+
+  // ────────────── 8단계: 실전 시뮬레이션 II ──────────────
+  {
+    id: 'sim_roomservice',
+    phase: 10,
+    name: '룸서비스',
+    title: '실전: 룸서비스 시뮬레이션',
+    subtitle: 'ルームサービスをお願いします',
+    desc: '호텔 룸서비스·어메니티 요청 실전 표현',
+    icon: '🛎️',
+    items: ['sr_1','sr_2','sr_3','sr_4','sr_5','sr_6','sr_7','sr_8']
+  },
+  {
+    id: 'sim_phone',
+    phase: 10,
+    name: '전화',
+    title: '실전: 전화 통화 시뮬레이션',
+    subtitle: 'もしもし · 〜はいますか',
+    desc: '예약·문의 전화 걸기 — 청취 + 말하기 동시 훈련',
+    icon: '📞',
+    items: ['sph_1','sph_2','sph_3','sph_4','sph_5','sph_6','sph_7','sph_8']
+  },
+  {
+    id: 'sim_checkin',
+    phase: 10,
+    name: '체크인',
+    title: '실전: 호텔 체크인 시뮬레이션',
+    subtitle: 'チェックイン · 予約した〜です',
+    desc: '프런트 체크인부터 방 안내까지 전체 흐름 연습',
+    icon: '🏨',
+    items: ['sci_1','sci_2','sci_3','sci_4','sci_5','sci_6','sci_7','sci_8','sci_9','sci_10']
+  },
+  {
+    id: 'sim_checkout',
+    phase: 10,
+    name: '체크아웃',
+    title: '실전: 호텔 체크아웃 시뮬레이션',
+    subtitle: 'チェックアウト · 精算をお願いします',
+    desc: '체크아웃·짐 보관·영수증 요청까지 완벽 표현',
+    icon: '🧳',
+    items: ['sco_1','sco_2','sco_3','sco_4','sco_5','sco_6','sco_7','sco_8']
+  },
+  {
+    id: 'sim_toilet',
+    phase: 10,
+    name: '화장실',
+    title: '실전: 화장실 관련 표현',
+    subtitle: 'トイレはどこですか · 故障中',
+    desc: '화장실 위치·사용·비상 상황까지 완벽 대비',
+    icon: '🚻',
+    items: ['stl_1','stl_2','stl_3','stl_4','stl_5','stl_6','stl_7','stl_8']
+  },
+  {
+    id: 'sim_smoking',
+    phase: 10,
+    name: '흡연',
+    title: '실전: 흡연 관련 표현',
+    subtitle: '喫煙所はどこですか · 禁煙',
+    desc: '흡연구역 확인·금연 공간 안내 실전 표현',
+    icon: '🚬',
+    items: ['smk_1','smk_2','smk_3','smk_4','smk_5','smk_6','smk_7','smk_8']
+  },
+  {
+    id: 'sim_conveni',
+    phase: 10,
+    name: '편의점',
+    title: '실전: 편의점 시뮬레이션',
+    subtitle: '温めてください · ポイントカード',
+    desc: '일본 편의점에서 자주 쓰는 표현 완전 정복',
+    icon: '🏪',
+    items: ['scv_1','scv_2','scv_3','scv_4','scv_5','scv_6','scv_7','scv_8','scv_9','scv_10']
   }
 ];
 
