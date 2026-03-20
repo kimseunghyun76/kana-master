@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>の</text></svg>">
   <title>かな学習 - Kana Master</title>
   <link rel="stylesheet" href="app.css">
 </head>
@@ -10,37 +11,32 @@
   <!-- ===== 헤더 ===== -->
   <header class="app-header">
     <div class="header-left">
-      <div class="header-logo">か</div>
+      <div class="header-logo">デ</div>
       <div>
-        <h1>かな学習</h1>
-        <span class="header-sub">Kana Master</span>
+        <h1>デニスの日本語マスター</h1>
+        <span class="header-sub">Denis's Japanese Master</span>
       </div>
     </div>
     <div class="header-right">
-      <div class="header-stat">
-        <span class="hs-val" id="hdr-level">Lv.1</span>
-        <span class="hs-label">레벨</span>
-      </div>
-      <div class="header-stat">
-        <span class="hs-val" id="hdr-xp">0 XP</span>
-        <span class="hs-label">경험치</span>
-      </div>
-      <div class="header-stat">
-        <span class="hs-val" id="hdr-streak">0🔥</span>
-        <span class="hs-label">연속</span>
-      </div>
-      <button class="settings-btn" id="settings-btn" title="설정">⚙</button>
+      <div id="vv-active-badge" style="display:none"></div>
+      <button class="hdr-icon-btn" id="hdr-speaker-btn" title="화자 설정">🎤</button>
+      <div id="ambient-music-badge" style="display:none" title="클릭하여 정지"></div>
+      <button class="hdr-icon-btn" id="hdr-ambient-btn" title="배경음 설정">🎵</button>
+      <button class="settings-btn" id="settings-btn" title="Settings">⚙</button>
     </div>
   </header>
+  <!-- 발화 중 캐릭터 인디케이터 (현재 미사용) -->
+  <div id="speaking-indicator" class="speaking-indicator"></div>
 
   <!-- ===== 네비게이션 ===== -->
   <nav class="app-nav">
-    <button class="nav-btn active" data-view="home">🏠 홈</button>
-    <button class="nav-btn" data-view="learn">📚 학습</button>
-    <button class="nav-btn" data-view="quiz">✏️ 퀴즈</button>
-    <button class="nav-btn" data-view="write">🖊️ 필기</button>
-    <button class="nav-btn" data-view="progress">📊 진도</button>
-    <button class="nav-btn" data-view="vocab">📖 단어</button>
+    <button class="nav-btn active" data-view="home"><span class="nav-jp">ホーム</span><span class="nav-en">Home</span></button>
+    <button class="nav-btn" data-view="kana"><span class="nav-jp">かなマスター</span><span class="nav-en">Kana</span></button>
+    <button class="nav-btn" data-view="vocab"><span class="nav-jp">語彙マスター</span><span class="nav-en">Vocab</span></button>
+    <button class="nav-btn" data-view="convo"><span class="nav-jp">会話マスター</span><span class="nav-en">Convo</span></button>
+    <button class="nav-btn" data-view="roleplay"><span class="nav-jp">実戦ロールプレイ</span><span class="nav-en">Play</span></button>
+    <button class="nav-btn" data-view="write"><span class="nav-jp">筆記</span><span class="nav-en">Write</span></button>
+    <button class="nav-btn" data-view="progress"><span class="nav-jp">進捗</span><span class="nav-en">Progress</span></button>
   </nav>
 
   <!-- ===== 메인 컨텐츠 ===== -->
@@ -48,56 +44,89 @@
 
     <!-- ========== 홈 뷰 ========== -->
     <div id="view-home" class="view active">
-      <div class="home-hero home-hero-sentence">
-        <div class="hero-label">🌸 오늘의 문장</div>
-        <div class="hero-sentence" id="hero-sentence">読み込み中…</div>
-        <div class="hero-translation" id="hero-translation"></div>
-      </div>
 
-      <div class="home-continue" id="home-continue" style="display:none">
-        <h3>이어서 학습하기</h3>
-        <button class="continue-btn" id="continue-btn">▶ 계속하기</button>
-      </div>
-
-      <div class="levels-section">
-        <h3>📚 학습 레벨</h3>
-        <div class="levels-grid" id="levels-grid">
-          <!-- JS로 생성 -->
+      <!-- ── 히어로: 오늘의 문장 ── -->
+      <div class="home-hero">
+        <div class="home-hero-inner">
+          <div class="home-hero-label">🌸 오늘의 문장</div>
+          <div class="home-hero-sentence" id="hero-sentence">読み込み中…</div>
+          <div class="home-hero-trans" id="hero-translation"></div>
+          <div class="home-hero-footer">
+            <button class="home-hero-audio" id="hero-audio-btn">🔊 발음 듣기</button>
+            <button class="home-hero-refresh" id="hero-refresh-btn">🔄 다른 문장</button>
+          </div>
         </div>
       </div>
 
-      <div class="home-quick">
-        <h3>⚡ 빠른 메뉴</h3>
-        <div class="quick-grid">
-          <button class="quick-card" onclick="App.showView('quiz')">
-            <span class="qc-icon">✏️</span>
-            <span class="qc-title">퀴즈 시작</span>
-            <span class="qc-desc">현재 레벨 퀴즈</span>
-          </button>
-          <button class="quick-card" onclick="App.showView('write')">
-            <span class="qc-icon">🖊️</span>
-            <span class="qc-title">필기 연습</span>
-            <span class="qc-desc">획순 따라 쓰기</span>
-          </button>
-          <button class="quick-card" onclick="App.startReview()">
-            <span class="qc-icon">🔄</span>
-            <span class="qc-title">틀린 문제</span>
-            <span class="qc-desc">약점 복습</span>
-          </button>
-          <button class="quick-card" onclick="App.showView('progress')">
-            <span class="qc-icon">📊</span>
-            <span class="qc-title">진도 확인</span>
-            <span class="qc-desc">내 학습 현황</span>
-          </button>
-          <button class="quick-card" onclick="App.startAllBrowse()">
-            <span class="qc-icon">📋</span>
-            <span class="qc-title">전체 일람</span>
-            <span class="qc-desc">전체 글자 복습</span>
-          </button>
+      <!-- ── 이어서 학습하기 ── -->
+      <div class="home-section" id="home-recent" style="display:none">
+        <div class="home-section-header">
+          <span class="home-section-title">⏱ 이어서 학습하기</span>
         </div>
+        <div class="home-hscroll" id="home-recent-list"></div>
       </div>
 
-      <!-- 📌 북마크 섹션 -->
+      <!-- ── かなマスター ── -->
+      <div class="home-section">
+        <div class="home-section-header">
+          <div class="home-section-left">
+            <span class="home-section-badge badge-kana">✍️</span>
+            <div>
+              <span class="home-section-title">かなマスター</span>
+              <span class="home-section-sub">ひらがな · カタカナ</span>
+            </div>
+          </div>
+          <button class="home-section-more" data-view="kana">전체보기 ›</button>
+        </div>
+        <div class="home-hscroll" id="home-kana-cards"></div>
+      </div>
+
+      <!-- ── 어휘 마스터 ── -->
+      <div class="home-section">
+        <div class="home-section-header">
+          <div class="home-section-left">
+            <span class="home-section-badge badge-vocab">📝</span>
+            <div>
+              <span class="home-section-title">어휘 마스터</span>
+              <span class="home-section-sub">기초 단어 · 한자 읽기 · 8단계</span>
+            </div>
+          </div>
+          <button class="home-section-more" data-view="vocab">전체보기 ›</button>
+        </div>
+        <div class="home-hscroll" id="home-vocab-cards"></div>
+      </div>
+
+      <!-- ── 회화 마스터 ── -->
+      <div class="home-section">
+        <div class="home-section-header">
+          <div class="home-section-left">
+            <span class="home-section-badge badge-convo">💬</span>
+            <div>
+              <span class="home-section-title">회화 마스터</span>
+              <span class="home-section-sub">인사 → 여행 · 6단계</span>
+            </div>
+          </div>
+          <button class="home-section-more" data-view="convo">전체보기 ›</button>
+        </div>
+        <div class="home-hscroll" id="home-convo-cards"></div>
+      </div>
+
+      <!-- ── 실전 롤플레이 ── -->
+      <div class="home-section">
+        <div class="home-section-header">
+          <div class="home-section-left">
+            <span class="home-section-badge badge-sim">🎯</span>
+            <div>
+              <span class="home-section-title">실전 롤플레이</span>
+              <span class="home-section-sub">시나리오 기반 · 4단계</span>
+            </div>
+          </div>
+          <button class="home-section-more" data-view="roleplay">전체보기 ›</button>
+        </div>
+        <div class="home-hscroll" id="home-sim-cards"></div>
+      </div>
+
+      <!-- ── 북마크 ── -->
       <div class="bookmark-section" id="bookmark-section" style="display:none">
         <h3>📌 나중에 볼 것들</h3>
         <div class="bookmark-list" id="bookmark-list"></div>
@@ -107,73 +136,24 @@
         </div>
       </div>
 
-      <!-- 단어 학습 섹션 -->
-      <div class="vocab-home-section">
-        <h3>📖 단어 학습</h3>
-        <p class="vocab-home-desc">가나 마스터 후 — 기초 어휘부터 실전 시뮬레이션까지 단계별 완성</p>
-        <div class="vocab-phase-row">
-          <div class="vocab-phase-heading">
-            <span class="vpc-phase-badge vpc-phase-3">3단계</span>
-            <span class="vpc-phase-title">기초 어휘 — 대명사 · 동사 · 형용사</span>
-          </div>
-          <div class="vocab-cat-grid" id="home-vocab-grid-3"></div>
+    </div><!-- /view-home -->
+
+    <!-- ========== かなマスター 뷰 ========== -->
+    <div id="view-kana" class="view">
+
+      <!-- かな 레벨 선택 패널 (nav에서 직접 진입 시) -->
+      <div id="kana-select-panel">
+        <div class="ksc-header">
+          <h3>かなマスター</h3>
+          <span class="ksc-sub">Kana Master — 히라가나 · 가타카나</span>
         </div>
-        <div class="vocab-phase-row">
-          <div class="vocab-phase-heading">
-            <span class="vpc-phase-badge vpc-phase-4">4단계</span>
-            <span class="vpc-phase-title">숫자 · 날짜 · 시간</span>
-          </div>
-          <div class="vocab-cat-grid" id="home-vocab-grid-4"></div>
-        </div>
-        <div class="vocab-phase-row">
-          <div class="vocab-phase-heading">
-            <span class="vpc-phase-badge vpc-phase-5">5단계</span>
-            <span class="vpc-phase-title">기본 표현 — 인사 · 긴급</span>
-          </div>
-          <div class="vocab-cat-grid" id="home-vocab-grid-5"></div>
-        </div>
-        <div class="vocab-phase-row">
-          <div class="vocab-phase-heading">
-            <span class="vpc-phase-badge vpc-phase-6">6단계</span>
-            <span class="vpc-phase-title">음식 · 식당 · 카페</span>
-          </div>
-          <div class="vocab-cat-grid" id="home-vocab-grid-6"></div>
-        </div>
-        <div class="vocab-phase-row">
-          <div class="vocab-phase-heading">
-            <span class="vpc-phase-badge vpc-phase-7">7단계</span>
-            <span class="vpc-phase-title">이동 · 교통 · 길 찾기</span>
-          </div>
-          <div class="vocab-cat-grid" id="home-vocab-grid-7"></div>
-        </div>
-        <div class="vocab-phase-row">
-          <div class="vocab-phase-heading">
-            <span class="vpc-phase-badge vpc-phase-8">8단계</span>
-            <span class="vpc-phase-title">숙박 · 호텔 · 스몰토크</span>
-          </div>
-          <div class="vocab-cat-grid" id="home-vocab-grid-8"></div>
-        </div>
-        <div class="vocab-phase-row">
-          <div class="vocab-phase-heading">
-            <span class="vpc-phase-badge vpc-phase-9">9단계</span>
-            <span class="vpc-phase-title">실전 시뮬레이션 I — 식당 · 쇼핑 · 교통</span>
-          </div>
-          <div class="vocab-cat-grid" id="home-vocab-grid-9"></div>
-        </div>
-        <div class="vocab-phase-row">
-          <div class="vocab-phase-heading">
-            <span class="vpc-phase-badge vpc-phase-10">10단계</span>
-            <span class="vpc-phase-title">실전 시뮬레이션 II — 호텔 · 전화 · 편의점</span>
-          </div>
-          <div class="vocab-cat-grid" id="home-vocab-grid-10"></div>
+        <div class="levels-grid" id="kana-select-grid"></div>
+        <div class="vocab-section-review" style="margin-top:12px">
+          <button class="vocab-review-btn" id="kana-review-btn">🔄 復習 — 틀린 가나 복습</button>
         </div>
       </div>
-    </div>
 
-    <!-- ========== 학습 뷰 ========== -->
-    <div id="view-learn" class="view">
       <div class="learn-header">
-        <button class="back-btn" onclick="App.showView('home')">← 돌아가기</button>
         <div class="learn-title-block">
           <h3 id="learn-level-name">Level 1</h3>
           <span id="learn-level-title">히라가나 기본 ①</span>
@@ -185,38 +165,44 @@
 
       <!-- 플래시카드 -->
       <div class="flashcard-area" id="flashcard-area" style="display:none">
+        <!-- 진도 바 -->
         <div class="progress-bar-thin">
           <div class="progress-thin-fill" id="fc-progress-fill"></div>
         </div>
 
-        <!-- 글자 네비게이션 스트립 -->
+        <!-- 자동 넘기기 인디케이터 -->
+        <div class="fc-auto-bar" id="fc-auto-bar" style="display:none">
+          <span class="fc-auto-icon">▶▶</span>
+          <span class="fc-auto-text">자동 읽고 넘기기</span>
+          <span class="fc-auto-countdown" id="fc-auto-countdown"></span>
+          <button class="fc-auto-cancel" id="fc-auto-cancel">✕ 취소</button>
+        </div>
+
+        <!-- 글자 네비게이션 스트립 (상단) -->
         <div class="fc-nav-strip" id="fc-nav-strip"></div>
 
-        <div class="flashcard-container" id="flashcard" onclick="App.flipCard()">
-          <div class="flashcard-inner" id="fc-inner">
-            <div class="flashcard-front">
-              <div class="fc-kana vfc-audio-word" id="fc-kana" title="🔊 발음 듣기" onclick="event.stopPropagation(); App.playAudio(this.textContent)">あ</div>
-              <div class="fc-hint">글자 클릭 🔊 · 카드 클릭 뒤집기 ↓</div>
-            </div>
-            <div class="flashcard-back">
-              <div class="fc-kana-small vfc-audio-word" id="fc-kana-back" title="🔊 발음 듣기" onclick="event.stopPropagation(); App.playAudio(this.textContent)">あ</div>
-              <div class="fc-pronunciations">
-                <span class="fc-kor" id="fc-korean">아</span>
-                <span class="fc-sep">·</span>
-                <span class="fc-eng" id="fc-english">ah</span>
+        <!-- 플래시카드 (드래그로 이동) -->
+        <div class="fc-wrap">
+          <div class="flashcard-container" id="flashcard">
+            <div class="flashcard-inner" id="fc-inner">
+              <div class="flashcard-front">
+                <div class="fc-kana" id="fc-kana">あ</div>
+                <div class="fc-hint">← 드래그 → 이동 · 탭 뒤집기</div>
               </div>
-              <div class="fc-examples" id="fc-examples"></div>
-              <div class="fc-sentences" id="fc-sentences"></div>
+              <div class="flashcard-back">
+                <div class="fc-kana-small" id="fc-kana-back">あ</div>
+                <div class="fc-pronunciations">
+                  <span class="fc-kor" id="fc-korean">아</span>
+                  <span class="fc-sep">·</span>
+                  <span class="fc-eng" id="fc-english">ah</span>
+                </div>
+                <div class="fc-examples" id="fc-examples"></div>
+                <div class="fc-sentences" id="fc-sentences"></div>
+              </div>
             </div>
           </div>
         </div>
 
-        <div class="fc-nav">
-          <button class="fc-nav-btn" id="fc-prev">◀ 이전</button>
-          <button class="fc-bookmark-btn" id="fc-bookmark">📌 나중에</button>
-          <button class="fc-next-main" id="fc-next">다음 →</button>
-        </div>
-        <div class="fc-key-hint">← → 키보드 이동 · Space 뒤집기</div>
       </div>
 
       <!-- 일람 보기 -->
@@ -232,9 +218,11 @@
             <button class="bc-btn bc-secondary" id="bc-flashcard-btn">🃏 하나씩 맞추기</button>
             <button class="bc-btn bc-primary" id="bc-slideshow-btn">▶ 슬라이드쇼</button>
             <select id="bc-interval-select" title="슬라이드쇼 간격">
+              <option value="1">1초</option>
               <option value="2">2초</option>
               <option value="3" selected>3초</option>
               <option value="5">5초</option>
+              <option value="10">10초</option>
             </select>
           </div>
         </div>
@@ -271,7 +259,7 @@
     </div>
 
     <!-- ========== 퀴즈 뷰 ========== -->
-    <div id="view-quiz" class="view">
+    <div id="view-quiz" class="view" style="display:none!important">
       <div class="quiz-header">
         <button class="back-btn" id="quiz-back-btn" onclick="App.backToQuizSetup()">← 퀴즈 설정</button>
         <h3>퀴즈</h3>
@@ -330,6 +318,14 @@
           </div>
         </div>
 
+        <!-- 제한 시간 타이머 바 -->
+        <div class="quiz-timer-row" id="quiz-timer-row" style="display:none">
+          <div class="quiz-timer-bar">
+            <div class="quiz-timer-fill" id="quiz-timer-fill"></div>
+          </div>
+          <span class="quiz-timer-text" id="quiz-timer-text">5</span>
+        </div>
+
         <div class="quiz-question-box" id="quiz-question-box">
           <!-- 문제 유형에 따라 동적 생성 -->
         </div>
@@ -360,16 +356,12 @@
           <button class="qr-btn-retry" id="qr-retry">🔄 같은 설정으로 다시 풀기</button>
           <button class="qr-btn-home" onclick="App.backToQuizSetup()">⚙️ 다른 설정으로 풀기</button>
         </div>
-        <div style="text-align:center;margin-top:10px">
-          <button class="back-btn" onclick="App.showView('home')">🏠 홈으로</button>
-        </div>
       </div>
     </div>
 
     <!-- ========== 필기 뷰 ========== -->
     <div id="view-write" class="view">
       <div class="write-header">
-        <button class="back-btn" onclick="App.showView('home')">← 돌아가기</button>
         <h3>🖊️ 필기 연습</h3>
       </div>
 
@@ -407,6 +399,12 @@
             </div>
           </div>
 
+          <!-- 시험 모드 타이머 바 -->
+          <div id="exam-timer-bar" style="display:none">
+            <div id="exam-timer-fill"></div>
+            <span id="exam-timer-text">30</span>
+          </div>
+
           <div class="canvas-controls">
             <button class="cc-btn cc-overlay" id="overlay-btn" title="글자 보기/숨기기">👁 글자 표시</button>
             <button class="cc-btn cc-clear" id="clear-btn">🗑 지우기</button>
@@ -434,7 +432,6 @@
     <!-- ========== 진도 뷰 ========== -->
     <div id="view-progress" class="view">
       <div class="progress-header">
-        <button class="back-btn" onclick="App.showView('home')">← 돌아가기</button>
         <h3>📊 학습 진도</h3>
       </div>
 
@@ -479,71 +476,34 @@
       <!-- PANEL 1: 카테고리 선택 -->
       <div id="vocab-setup">
         <div class="vocab-setup-header">
-          <button class="back-btn" onclick="App.showView('home')">← 홈으로</button>
-          <h3>📖 단어 학습</h3>
+          <h3 id="vocab-section-title">語彙マスター</h3>
         </div>
-        <div class="vocab-phase-section">
-          <div class="vocab-phase-heading">
-            <span class="vpc-phase-badge vpc-phase-3">3단계</span>
-            <span class="vpc-phase-title">기초 어휘 — 대명사 · 동사 · 형용사</span>
+
+        <!-- ── 語彙マスター 섹션 (W레벨 단어) ── -->
+        <div id="vocab-word-section" class="vocab-type-section" style="display:none">
+          <div id="vocab-word-levels-main"></div>
+          <div class="vocab-section-review">
+            <button class="vocab-review-btn" onclick="App.startReview()">🔄 復習 — 틀린 단어 복습</button>
           </div>
-          <div class="vocab-cat-grid" id="vocab-cat-grid-3"></div>
         </div>
-        <div class="vocab-phase-section">
-          <div class="vocab-phase-heading">
-            <span class="vpc-phase-badge vpc-phase-4">4단계</span>
-            <span class="vpc-phase-title">숫자 · 날짜 · 시간</span>
+
+        <!-- ── 会話マスター 섹션 (S레벨 문장) ── -->
+        <div id="vocab-sent-section" class="vocab-type-section" style="display:none">
+          <div id="vocab-sentence-levels-main"></div>
+          <div class="vocab-section-review">
+            <button class="vocab-review-btn" onclick="App.startReview()">🔄 復習 — 틀린 문장 복습</button>
           </div>
-          <div class="vocab-cat-grid" id="vocab-cat-grid-4"></div>
         </div>
-        <div class="vocab-phase-section">
-          <div class="vocab-phase-heading">
-            <span class="vpc-phase-badge vpc-phase-5">5단계</span>
-            <span class="vpc-phase-title">기본 표현 — 인사 · 긴급</span>
-          </div>
-          <div class="vocab-cat-grid" id="vocab-cat-grid-5"></div>
-        </div>
-        <div class="vocab-phase-section">
-          <div class="vocab-phase-heading">
-            <span class="vpc-phase-badge vpc-phase-6">6단계</span>
-            <span class="vpc-phase-title">음식 · 식당 · 카페</span>
-          </div>
-          <div class="vocab-cat-grid" id="vocab-cat-grid-6"></div>
-        </div>
-        <div class="vocab-phase-section">
-          <div class="vocab-phase-heading">
-            <span class="vpc-phase-badge vpc-phase-7">7단계</span>
-            <span class="vpc-phase-title">이동 · 교통 · 길 찾기</span>
-          </div>
-          <div class="vocab-cat-grid" id="vocab-cat-grid-7"></div>
-        </div>
-        <div class="vocab-phase-section">
-          <div class="vocab-phase-heading">
-            <span class="vpc-phase-badge vpc-phase-8">8단계</span>
-            <span class="vpc-phase-title">숙박 · 호텔 · 스몰토크</span>
-          </div>
-          <div class="vocab-cat-grid" id="vocab-cat-grid-8"></div>
-        </div>
-        <div class="vocab-phase-section">
-          <div class="vocab-phase-heading">
-            <span class="vpc-phase-badge vpc-phase-9">9단계</span>
-            <span class="vpc-phase-title">실전 시뮬레이션 I — 식당 · 쇼핑 · 교통</span>
-          </div>
-          <div class="vocab-cat-grid" id="vocab-cat-grid-9"></div>
-        </div>
-        <div class="vocab-phase-section">
-          <div class="vocab-phase-heading">
-            <span class="vpc-phase-badge vpc-phase-10">10단계</span>
-            <span class="vpc-phase-title">실전 시뮬레이션 II — 호텔 · 전화 · 편의점</span>
-          </div>
-          <div class="vocab-cat-grid" id="vocab-cat-grid-10"></div>
+
+        <!-- ── 実戦ロールプレイ 섹션 (sim) ── -->
+        <div id="vocab-sim-section" class="vocab-type-section" style="display:none">
+          <div id="vocab-sim-levels-main"></div>
         </div>
       </div>
 
       <!-- PANEL 2: 플래시카드 + 퀴즈 + 일람 -->
       <div id="vocab-flash-panel" style="display:none">
         <div class="learn-header">
-          <button class="back-btn" id="vocab-flash-back">← 카테고리</button>
           <div class="learn-title-block">
             <h3 id="vocab-cat-name">숫자 기본</h3>
             <span id="vocab-cat-subtitle">1~10, 百·千·万</span>
@@ -555,39 +515,38 @@
 
         <!-- 단어 플래시카드 -->
         <div class="flashcard-area" id="vocab-flashcard-area" style="display:none">
+          <!-- 진도 바 -->
           <div class="progress-bar-thin">
             <div class="progress-thin-fill" id="vfc-progress-fill"></div>
           </div>
 
-          <!-- 단어 네비게이션 스트립 -->
+          <!-- 단어 네비게이션 스트립 (상단) -->
           <div class="fc-nav-strip" id="vfc-nav-strip"></div>
 
-          <div class="flashcard-container" id="vocab-flashcard" onclick="App.vocabFlipCard()">
-            <div class="flashcard-inner" id="vfc-inner">
-              <div class="flashcard-front">
-                <div class="fc-kana vfc-audio-word" id="vfc-japanese" title="🔊 발음 듣기" onclick="event.stopPropagation(); App.playAudio(this.dataset.audio||this.textContent)">いち</div>
-                <div class="vfc-kanji" id="vfc-kanji"></div>
-                <div class="fc-hint">단어 클릭 🔊 · 카드 클릭 뒤집기 ↓</div>
-              </div>
-              <div class="flashcard-back">
-                <div class="fc-kana-small vfc-audio-word" id="vfc-japanese-back" title="🔊 발음 듣기" onclick="event.stopPropagation(); App.playAudio(this.dataset.audio||this.textContent)">いち</div>
-                <div class="vfc-kanji-back" id="vfc-kanji-back"></div>
-                <div class="fc-pronunciations">
-                  <span class="fc-kor" id="vfc-korean">일 (1)</span>
+          <!-- 단어 플래시카드 (드래그로 이동) -->
+          <div class="fc-wrap">
+            <div class="flashcard-container" id="vocab-flashcard">
+              <div class="flashcard-inner" id="vfc-inner">
+                <div class="flashcard-front">
+                  <div class="fc-kana" id="vfc-japanese">いち</div>
+                  <div class="vfc-kanji" id="vfc-kanji"></div>
+                  <div class="fc-hint">← 드래그 → 이동 · 탭 뒤집기</div>
                 </div>
-                <div class="vfc-tip" id="vfc-tip" style="display:none"></div>
-                <div class="vfc-example" id="vfc-example" style="display:none"></div>
-                <div class="fc-examples" id="vfc-compounds"></div>
-                <div class="fc-sentences" id="vfc-sentences"></div>
+                <div class="flashcard-back">
+                  <div class="fc-kana-small" id="vfc-japanese-back">いち</div>
+                  <div class="vfc-kanji-back" id="vfc-kanji-back"></div>
+                  <div class="fc-pronunciations">
+                    <span class="fc-kor" id="vfc-korean">일 (1)</span>
+                  </div>
+                  <div class="vfc-tip" id="vfc-tip" style="display:none"></div>
+                  <div class="vfc-example" id="vfc-example" style="display:none"></div>
+                  <div class="fc-examples" id="vfc-compounds"></div>
+                  <div class="fc-sentences" id="vfc-sentences"></div>
+                </div>
               </div>
             </div>
           </div>
-          <div class="fc-nav">
-            <button class="fc-nav-btn" id="vfc-prev">◀ 이전</button>
-            <button class="fc-bookmark-btn" id="vfc-bookmark">📌 나중에</button>
-            <button class="fc-next-main" id="vfc-next">다음 →</button>
-          </div>
-          <div class="fc-key-hint">← → 이동 · Space/↓ 뒤집기+발음 · ↑ 앞면으로</div>
+
         </div>
 
         <!-- 단어 일람 보기 -->
@@ -600,6 +559,16 @@
           </div>
           <div class="vocab-browse-grid" id="vocab-browse-grid"></div>
         </div>
+        <!-- 롤플레이 대화 영역 -->
+        <div id="vocab-dialogue-area" style="display:none">
+          <div class="sim-dialogue-area" id="sim-dialogue-bubbles"></div>
+          <div class="dlg-controls">
+            <button class="dlg-play-btn dlg-list-btn" id="dlg-back-btn" style="display:none">☰ 목록</button>
+            <button class="dlg-play-btn" id="dlg-play-btn">🔊 전체 재생</button>
+            <button class="dlg-play-btn dlg-next-btn" id="dlg-next-btn" style="display:none">다른 롤플레이 이동 ▶</button>
+          </div>
+        </div>
+
         <div id="vocab-quiz-area" style="display:none">
           <div class="quiz-progress-row">
             <div class="qpr-text" id="vq-progress-text">1 / 10</div>
@@ -643,50 +612,138 @@
         <button class="modal-close" id="settings-close">✕</button>
       </div>
       <div class="modal-body">
+        <!-- 상단 스탯 -->
+        <div class="settings-stats">
+          <div class="ss-stat">
+            <span class="ss-val" id="settings-level">Lv.1</span>
+            <span class="ss-lbl">Level</span>
+          </div>
+          <div class="ss-stat">
+            <span class="ss-val" id="settings-xp">0 XP</span>
+            <span class="ss-lbl">XP</span>
+          </div>
+          <div class="ss-stat">
+            <span class="ss-val" id="settings-streak">0🔥</span>
+            <span class="ss-lbl">Streak</span>
+          </div>
+        </div>
         <div class="setting-section-title">🔊 음성 설정</div>
+
+        <!-- VOICEVOX 토글 -->
         <div class="setting-row">
-          <label>👩 여자 음성:</label>
-          <select id="pref-voice-female">
-            <option value="none">사용 안함</option>
-          </select>
+          <label>VOICEVOX 사용:</label>
+          <div style="display:flex;align-items:center;gap:8px">
+            <label class="toggle">
+              <input type="checkbox" id="pref-use-voicevox">
+              <span class="toggle-slider"></span>
+            </label>
+            <span id="voicevox-status" style="font-size:11px;color:#718096">비활성</span>
+          </div>
         </div>
-        <div class="setting-row">
-          <label>👨 남자 음성:</label>
-          <select id="pref-voice-male">
-            <option value="none">사용 안함</option>
-          </select>
+        <div class="setting-note" style="margin:-4px 0 8px;font-size:11px;color:#718096;padding-left:8px">
+          VOICEVOX(로컬 설치)가 실행 중일 때 사용 가능. 미사용 시 Web TTS 사용.
+          <button class="vv-help-toggle" id="vv-help-toggle" onclick="document.getElementById('vv-setup-guide').style.display=document.getElementById('vv-setup-guide').style.display==='none'?'block':'none'">📖 설치 방법 보기</button>
         </div>
-        <div class="setting-row">
-          <label>🎭 캐릭터 목소리:</label>
-          <select id="pref-voice-char">
-            <option value="none">없음</option>
-            <option value="anime_girl">🎌 애니 소녀</option>
-            <option value="child">🧒 어린이</option>
-            <option value="hero">🦸 용사</option>
-            <option value="wizard">🧙 마법사</option>
-            <option value="robot">🤖 로봇</option>
-            <option value="grandma">👵 할머니</option>
-            <option value="villain">😈 악당</option>
-            <option value="ghost">👻 유령</option>
-            <option value="narrator">📺 내레이터</option>
-          </select>
-        </div>
-        <div class="setting-row">
-          <label>자동 발음:</label>
-          <label class="toggle">
-            <input type="checkbox" id="pref-autoplay">
-            <span class="toggle-slider"></span>
-          </label>
-        </div>
-        <div class="setting-row">
-          <label>퀴즈 자동 다음:</label>
-          <label class="toggle">
-            <input type="checkbox" id="pref-autonext">
-            <span class="toggle-slider"></span>
-          </label>
+        <div id="vv-setup-guide" style="display:none;background:#f7f8fa;border:1px solid #e2e8f0;border-radius:8px;padding:12px;margin-bottom:10px;font-size:12px;line-height:1.7">
+          <b>① VOICEVOX 다운로드 · 설치</b><br>
+          <a href="https://voicevox.hiroshiba.jp/" target="_blank" style="color:#4361ee">https://voicevox.hiroshiba.jp/</a> → 무료 다운로드 → 설치<br><br>
+          <b>② VOICEVOX 실행</b><br>
+          앱을 실행하면 자동으로 <code>localhost:50021</code> 서버 시작<br><br>
+          <b>③ CORS 허용 (중요)</b><br>
+          VOICEVOX 메뉴 → <b>エンジン → HTTPサーバーを起動</b> 확인<br>
+          또는 바로가기 속성에 아래 옵션 추가:<br>
+          <code style="display:block;background:#e2e8f0;padding:4px 6px;border-radius:4px;margin:4px 0;word-break:break-all">VOICEVOX.exe --host 0.0.0.0 --allow-origin "*"</code>
+          <b>④ 연결 확인</b><br>
+          브라우저에서 <a href="http://localhost:50021/speakers" target="_blank" style="color:#4361ee">http://localhost:50021/speakers</a> 접속 → JSON 표시되면 정상<br><br>
+          <b>⑤ 이 설정에서 VOICEVOX 사용 토글 ON</b> → 화자 목록 자동 로드
         </div>
 
-        <div class="setting-section-title">👁 플래시카드 표시 설정 <span class="setting-note">(기본: 비노출)</span></div>
+        <!-- VOICEVOX 화자 설정 -->
+        <div id="voicevox-speaker-rows" style="display:none">
+          <div class="setting-row" style="align-items:flex-start;gap:8px">
+            <label style="padding-top:6px">🎤 첫번째 화자:</label>
+            <div class="vv-speaker-picker">
+              <img id="vv-portrait-1" class="vv-speaker-icon" src="" alt="" style="display:none">
+              <select id="pref-voicevox-speaker1">
+                <option value="1">로딩 중...</option>
+              </select>
+            </div>
+          </div>
+          <div class="setting-row" style="align-items:flex-start;gap:8px">
+            <label style="padding-top:6px">🎤 두번째 화자:</label>
+            <div class="vv-speaker-picker">
+              <img id="vv-portrait-2" class="vv-speaker-icon" src="" alt="" style="display:none">
+              <select id="pref-voicevox-speaker2">
+                <option value="none">사용 안함</option>
+              </select>
+            </div>
+          </div>
+          <div class="setting-row">
+            <button class="test-voice-btn" id="test-voicevox-btn">🔊 VOICEVOX 테스트</button>
+          </div>
+        </div>
+
+        <!-- Web TTS 음성 설정 -->
+        <div id="webtts-settings">
+          <div class="setting-row">
+            <label>🎤 첫번째 음성:</label>
+            <select id="pref-voice-female">
+              <option value="none">사용 안함</option>
+            </select>
+          </div>
+          <div class="setting-row">
+            <label>🎤 두번째 음성:</label>
+            <select id="pref-voice-male">
+              <option value="none">사용 안함</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- autoplay/autonext 항상 true 고정 — hidden inputs으로 유지 -->
+        <input type="checkbox" id="pref-autoplay"  checked style="display:none">
+        <input type="checkbox" id="pref-autonext"  checked style="display:none">
+
+        <!-- 롤플레이 이름 설정 -->
+        <div class="setting-section-title">🎭 롤플레이 이름 설정</div>
+        <div class="setting-desc" style="font-size:12px;color:#718096;margin-bottom:8px;">대화 스크립트에서 {F}/{M} 자리에 표시될 이름을 설정하세요.</div>
+        <div class="setting-row">
+          <label>👩 여자 이름:</label>
+          <input type="text" id="pref-female-name" value="주영" maxlength="10" style="width:120px;padding:5px 8px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;">
+        </div>
+        <div class="setting-row">
+          <label>👨 남자 이름:</label>
+          <input type="text" id="pref-male-name" value="승현" maxlength="10" style="width:120px;padding:5px 8px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;">
+        </div>
+
+        <div class="setting-section-title">⏱ 퀴즈 설정</div>
+        <div class="setting-row">
+          <label>퀴즈 제한 시간:</label>
+          <select id="pref-quiz-countdown">
+            <option value="3">3초</option>
+            <option value="5">5초 (기본)</option>
+            <option value="7">7초</option>
+            <option value="10">10초</option>
+            <option value="0">제한 없음</option>
+          </select>
+        </div>
+
+        <!-- 배경음 설정 -->
+        <div class="setting-section-title">🎵 배경음 설정 <span class="setting-note">(sounds/ 폴더 MP3 랜덤 재생)</span></div>
+        <div class="setting-row">
+          <label>대화 배경음:</label>
+          <label class="toggle"><input type="checkbox" id="pref-ambient-dialogue"><span class="toggle-slider"></span></label>
+        </div>
+        <div class="setting-row">
+          <label>퀴즈 배경음:</label>
+          <label class="toggle"><input type="checkbox" id="pref-ambient-quiz"><span class="toggle-slider"></span></label>
+        </div>
+        <div class="setting-row">
+          <label>배경음 볼륨:</label>
+          <input type="range" id="pref-ambient-volume" min="0" max="40" step="1" style="flex:1;max-width:160px">
+          <span id="pref-ambient-volume-label" style="font-size:12px;color:#64748b;min-width:32px;text-align:right"></span>
+        </div>
+
+        <div class="setting-section-title">👁 플래시카드 표시 설정 <span class="setting-note">(기본: 노출)</span></div>
         <div class="setting-row">
           <label>단어 예시 표시:</label>
           <label class="toggle">
@@ -700,6 +757,22 @@
             <input type="checkbox" id="pref-show-sent-ex">
             <span class="toggle-slider"></span>
           </label>
+        </div>
+        <div class="setting-row">
+          <label>자동 읽고 넘기기:</label>
+          <label class="toggle">
+            <input type="checkbox" id="pref-auto-advance">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="setting-row" id="pref-auto-advance-delay-row" style="display:none">
+          <label>넘기기 대기 시간:</label>
+          <select id="pref-auto-advance-delay">
+            <option value="2">2초</option>
+            <option value="3" selected>3초</option>
+            <option value="5">5초</option>
+            <option value="7">7초</option>
+          </select>
         </div>
       </div>
     </div>
@@ -744,15 +817,39 @@
         <!-- 레벨 관리 -->
         <div class="admin-section">
           <div class="admin-section-title">🔓 레벨 관리</div>
+
+          <div class="admin-sub-title">📖 かなマスター</div>
           <div class="admin-row">
             <button class="adm-btn adm-unlock" id="adm-unlock-all">모든 레벨 해금</button>
-            <button class="adm-btn adm-complete" id="adm-complete-all">전체 레벨 완료처리</button>
+            <button class="adm-btn adm-complete" id="adm-complete-all">전체 완료처리</button>
           </div>
-          <div class="admin-row" style="margin-top:8px">
+          <div class="admin-row">
             <select id="adm-level-select">
               <option value="">── 레벨 선택 ──</option>
             </select>
-            <button class="adm-btn adm-complete" id="adm-level-complete">선택 레벨 완료처리</button>
+            <button class="adm-btn adm-complete" id="adm-level-complete">선택 완료</button>
+          </div>
+
+          <div class="admin-sub-title" style="margin-top:6px">📚 語彙マスター</div>
+          <div class="admin-row">
+            <button class="adm-btn adm-complete" id="adm-vocab-complete-all">전체 완료처리</button>
+          </div>
+          <div class="admin-row">
+            <select id="adm-vocab-select">
+              <option value="">── 카테고리 선택 ──</option>
+            </select>
+            <button class="adm-btn adm-complete" id="adm-vocab-complete">선택 완료</button>
+          </div>
+
+          <div class="admin-sub-title" style="margin-top:6px">💬 会話マスター</div>
+          <div class="admin-row">
+            <button class="adm-btn adm-complete" id="adm-conv-complete-all">전체 완료처리</button>
+          </div>
+          <div class="admin-row">
+            <select id="adm-conv-select">
+              <option value="">── 카테고리 선택 ──</option>
+            </select>
+            <button class="adm-btn adm-complete" id="adm-conv-complete">선택 완료</button>
           </div>
         </div>
 
@@ -770,9 +867,21 @@
   </div>
 
   <script src="js/kana-data.js"></script>
+  <script src="js/data/vocab-items-w1w4.js"></script>
+  <script src="js/data/vocab-items-w5w8.js"></script>
+  <script src="js/data/vocab-items-s1s5.js"></script>
+  <script src="js/data/vocab-items-s6sim.js"></script>
+  <script src="js/data/vocab-dialogue.js"></script>
+  <script src="js/data/vocab-categories.js"></script>
   <script src="js/vocab-data.js"></script>
   <script src="js/examples-data.js"></script>
   <script src="js/vocab-examples-data.js"></script>
   <script src="js/app.js"></script>
+
+  <!-- 플로팅 오디오 중지 버튼 (전체 듣기 재생 중에만 표시) -->
+  <button id="stop-audio-fab" title="재생 중지" onclick="App.stopAllAudio()" style="display:none">
+    <span class="fab-icon">⏹</span>
+    <span class="fab-label">중지</span>
+  </button>
 </body>
 </html>
