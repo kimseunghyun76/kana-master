@@ -3,6 +3,56 @@
 //  학습 / 퀴즈 / 필기 / 진도 전체 관리
 // ============================================================
 
+// ─── 단어 데이터 ───
+// app.html 에서 로드된 전역 변수들 결합
+const VOCAB_ITEMS = [
+  ...(typeof VOCAB_ITEMS_W1W4 !== 'undefined' ? VOCAB_ITEMS_W1W4 : []),
+  ...(typeof VOCAB_ITEMS_W5W8 !== 'undefined' ? VOCAB_ITEMS_W5W8 : []),
+  ...(typeof VOCAB_ITEMS_S1S5 !== 'undefined' ? VOCAB_ITEMS_S1S5 : []),
+  ...(typeof VOCAB_ITEMS_S6SIM !== 'undefined' ? VOCAB_ITEMS_S6SIM : []),
+  ...(typeof VOCAB_ITEMS_DIALOGUE !== 'undefined' ? VOCAB_ITEMS_DIALOGUE : [])
+];
+
+const VOCAB_MAP = {};
+VOCAB_ITEMS.forEach(item => { VOCAB_MAP[item.id] = item; });
+
+function getVocabCategoryItems(categoryId) {
+  if (typeof VOCAB_CATEGORIES === 'undefined') return [];
+  const cat = VOCAB_CATEGORIES.find(c => c.id === categoryId);
+  if (!cat) return [];
+  return cat.items.map(id => VOCAB_MAP[id]).filter(Boolean);
+}
+
+function getVocabWrongOptions(correctId, categoryId, count = 3) {
+  if (typeof VOCAB_CATEGORIES === 'undefined') return [];
+  const sameCategory = VOCAB_CATEGORIES.find(c => c.id === categoryId);
+  const samePhase = VOCAB_CATEGORIES.filter(c => {
+    const cat = VOCAB_CATEGORIES.find(x => x.id === categoryId);
+    return cat && c.phase === cat.phase && c.id !== categoryId;
+  });
+  let pool = [];
+  if (sameCategory) {
+    pool = sameCategory.items.filter(id => id !== correctId).map(id => VOCAB_MAP[id]).filter(Boolean);
+  }
+  if (pool.length < count) {
+    samePhase.forEach(cat => {
+      cat.items.forEach(id => {
+        if (id !== correctId && !pool.find(p => p.id === id)) {
+          pool.push(VOCAB_MAP[id]);
+        }
+      });
+    });
+  }
+  if (pool.length < count) {
+    VOCAB_ITEMS.forEach(item => {
+      if (item.id !== correctId && !pool.find(p => p.id === item.id)) {
+        pool.push(item);
+      }
+    });
+  }
+  return pool.sort(() => Math.random() - 0.5).slice(0, count);
+}
+
 const App = (() => {
   // ─── 상태 ───
   let state = {
@@ -15,6 +65,7 @@ const App = (() => {
     learnIndex: 0,
     learnFlipped: false,
     learnSpeakerTurn: 1,   // 플래시카드 번갈아 발음 (1 or 2)
+    vocabSpeakerTurn: 1,   // vocab 플래시카드 번갈아 발음 (1 or 2)
     // 퀴즈
     quizLevelId: 1,
     quizType: 'kanaToReading',
@@ -27,6 +78,7 @@ const App = (() => {
     quizWrongList: [],
     quizAnswered: false,
     quizCountdownTimer: null,
+    quizStreak: 0,
     // 필기
     writeType: 'hiragana',
     writeChars: [],
@@ -41,9 +93,10 @@ const App = (() => {
     prefs: {
       lang: 'korean', autoplay: true, autonext: true,
       voiceFemale: 'none', voiceMale: 'none',
-      femaleName: '주영', maleName: '승현',
+      femaleName: 'ジュヨン', maleName: 'スンヒョン',
       showWordEx: true, showSentEx: true, showReading: true,
       quizCountdown: 5,
+      quizAutoAdvance: true,
       useVoicevox: false, voicevoxSpeaker1: 1, voicevoxSpeaker2: 'none'
     },
     // 음성 교대 카운터
@@ -101,6 +154,21 @@ const App = (() => {
       setupKeyboardNav();
       renderBookmarkSection();
       setupBookmarkButtons();
+      // 데스크탑: 초기 로드 시 화자 배지 표시 (Web TTS에도 적용)
+      if (window.innerWidth > 640) {
+        // Web TTS 음성 로드 완료 후 배지 렌더링 (voices 비동기 로드 대기)
+        const _showBadgeOnInit = () => updateActiveSpeakerBadge();
+        if (window.speechSynthesis) {
+          if (window.speechSynthesis.getVoices().length > 0) {
+            setTimeout(_showBadgeOnInit, 300);
+          } else {
+            window.speechSynthesis.onvoiceschanged = () => { setTimeout(_showBadgeOnInit, 100); };
+            setTimeout(_showBadgeOnInit, 800); // 폴백: 800ms 후 강제 표시
+          }
+        } else {
+          setTimeout(_showBadgeOnInit, 300);
+        }
+      }
       // VOICEVOX가 켜진 채 저장된 경우 앱 시작 시 자동 연결 + 화자 복원
       if (state.prefs.useVoicevox) {
         checkVoicevox().then(ok => {
@@ -158,12 +226,19 @@ const App = (() => {
       autonext:         savedPrefs.autonext    !== undefined ? savedPrefs.autonext    : true,
       voiceFemale:      savedPrefs.voiceFemale !== undefined ? savedPrefs.voiceFemale : 'none',
       voiceMale:        savedPrefs.voiceMale   !== undefined ? savedPrefs.voiceMale   : 'none',
-      femaleName:       savedPrefs.femaleName  || '주영',
-      maleName:         savedPrefs.maleName    || '승현',
+      femaleName:       savedPrefs.femaleName  || 'ジュヨン',
+      maleName:         savedPrefs.maleName    || 'スンヒョン',
       showWordEx:       savedPrefs.showWordEx  !== undefined ? savedPrefs.showWordEx  : true,
       showSentEx:       savedPrefs.showSentEx  !== undefined ? savedPrefs.showSentEx  : true,
       showReading:      savedPrefs.showReading !== undefined ? savedPrefs.showReading : true,
       quizCountdown:    savedPrefs.quizCountdown !== undefined ? parseInt(savedPrefs.quizCountdown) : 5,
+      quizAutoAdvance:  savedPrefs.quizAutoAdvance !== undefined ? savedPrefs.quizAutoAdvance : true,
+      quizCheer:        savedPrefs.quizCheer !== undefined ? savedPrefs.quizCheer : true,
+      quizCheers:       savedPrefs.quizCheers || null,
+      quizLevel:        savedPrefs.quizLevel || 'current',
+      quizType:         savedPrefs.quizType  || 'kanaToReading',
+      quizCount:        savedPrefs.quizCount || '10',
+      quizLang:         savedPrefs.quizLang  || 'korean',
       useVoicevox:      savedPrefs.useVoicevox  || false,
       voicevoxSpeaker1: savedPrefs.voicevoxSpeaker1 !== undefined ? savedPrefs.voicevoxSpeaker1 : 1,
       voicevoxSpeaker2: savedPrefs.voicevoxSpeaker2 !== undefined ? savedPrefs.voicevoxSpeaker2 : 'none',
@@ -313,8 +388,19 @@ const App = (() => {
   }
 
   function showView(viewName) {
-    // 뷰 전환 시 배경음 항상 정지
+    // 뷰 전환 시 배경음·오디오·타이머 정지
     stopAmbient(1.2);
+    stopAllAudio();
+    clearVocabAutoAdvance();
+    clearFcAutoAdvance();
+    state.fcReadSession = (state.fcReadSession || 0) + 1;
+    state.vocabReadSession = (state.vocabReadSession || 0) + 1;
+    if (ss.timer) { clearTimeout(ss.timer); ss.timer = null; ss.paused = true; }
+    if (state.quizCountdownTimer) { clearInterval(state.quizCountdownTimer); state.quizCountdownTimer = null; }
+    if (_qiSpeechTimer) { clearInterval(_qiSpeechTimer); _qiSpeechTimer = null; }
+    if (typeof _qiCountdownTimer !== 'undefined' && _qiCountdownTimer) { clearInterval(_qiCountdownTimer); _qiCountdownTimer = null; }
+    if (typeof _vqSpeechTimer !== 'undefined' && _vqSpeechTimer) { clearInterval(_vqSpeechTimer); _vqSpeechTimer = null; }
+    if (typeof _vqCountdownTimer !== 'undefined' && _vqCountdownTimer) { clearInterval(_vqCountdownTimer); _vqCountdownTimer = null; }
 
     // vocab/convo/roleplay 는 모두 view-vocab 을 공유하되 섹션만 다름
     const vocabSectionMap = { vocab: 'word', convo: 'sentence', roleplay: 'sim' };
@@ -337,6 +423,7 @@ const App = (() => {
     // 뷰별 초기화
     if (actualViewName === 'home')     renderLevels();
     if (actualViewName === 'kana')     { setupKanaSelectView(); }
+    if (actualViewName === 'quiz')     setupQuizView();
     if (actualViewName === 'write')    setupWriteView();
     if (actualViewName === 'progress') renderProgress();
     if (isVocabSection) {
@@ -487,8 +574,14 @@ const App = (() => {
       }
     });
     _renderKanaHomeSection();
-    _renderVocabHomeSection('home-vocab-cards', 'word', 'vocab', 'wlevel', 'W', null);
-    _renderVocabHomeSection('home-convo-cards', 'sentence', 'convo', 'slevel', 'S', null);
+    _renderVocabHomeSection('home-vocab-cards', 'word', 'vocab', 'wlevel', 'W', {
+      1:'인사·응답', 2:'숫자·날짜', 3:'날짜·시각', 4:'대명사·지시어',
+      5:'기본 동사', 6:'형용사', 7:'장소·음식', 8:'신체·건강'
+    });
+    _renderVocabHomeSection('home-convo-cards', 'sentence', 'convo', 'slevel', 'S', {
+      1:'인사·기초 회화', 2:'자기소개·질문', 3:'쇼핑·식당',
+      4:'교통·이동', 5:'여행·호텔', 6:'일상·긴급'
+    });
     _renderVocabHomeSection('home-sim-cards', 'sim', 'roleplay', 'simlevel', null, {
       1:'교통편', 2:'식사편', 3:'숙박편', 4:'쇼핑편', 5:'관광·문화', 6:'부부 여행편'
     });
@@ -645,6 +738,41 @@ const App = (() => {
     }, 100);
   }
 
+  function startVocabReview() {
+    // 틀린 단어·문장 플래시카드 복습
+    const weakItems = VOCAB_ITEMS.filter(item => {
+      const p = state.vocabProgress[item.id];
+      return p && p.incorrect > p.correct;
+    });
+    if (weakItems.length === 0) {
+      showToast('복습할 틀린 단어가 없어요! 퀴즈를 먼저 풀어보세요.');
+      return;
+    }
+    state.vocabItems = weakItems;
+    state.vocabIndex = 0;
+    state.vocabFlipped = false;
+    state.vocabMode = 'flash';
+    state.vocabCurrentCategoryId = null;
+    const sectionViewMap = { word: 'vocab', sentence: 'convo', sim: 'roleplay' };
+    const view = sectionViewMap[state.vocabSection] || 'vocab';
+    showView(view);
+    document.getElementById('vocab-setup').style.display = 'none';
+    document.getElementById('vocab-flash-panel').style.display = 'block';
+    const learnHdr = document.querySelector('#vocab-flash-panel .learn-header');
+    if (learnHdr) learnHdr.style.display = '';
+    document.getElementById('vocab-cat-name').textContent = '🔄 복습';
+    document.getElementById('vocab-cat-subtitle').textContent = `틀린 단어 ${weakItems.length}개`;
+    document.getElementById('vocab-flashcard-area').style.display = 'block';
+    document.getElementById('vocab-quiz-area').style.display = 'none';
+    const browseArea = document.getElementById('vocab-browse-area');
+    if (browseArea) browseArea.style.display = 'none';
+    renderNavStrip('vfc-nav-strip', state.vocabItems, 0, (idx) => {
+      state.vocabIndex = idx; showVocabFlashcard();
+    });
+    showVocabFlashcard();
+    setupVocabFlashcardControls();
+  }
+
   // ─── 최근 활동 추적 ───
   function trackActivity(type, id) {
     state.recentActivity = state.recentActivity.filter(a => !(a.type === type && a.id === id));
@@ -670,9 +798,9 @@ const App = (() => {
     }
     state.learnIndex = 0;
 
-    // view-kana 로 이동하면서 레벨 선택 패널 숨기고 플래시카드 활성화
-    document.getElementById('kana-select-panel') && (document.getElementById('kana-select-panel').style.display = 'none');
+    // view-kana 로 이동 후 레벨 선택 패널 숨김 (showView가 setupKanaSelectView를 호출해 패널을 다시 표시하므로 반드시 showView 이후에 숨겨야 함)
     showView('kana');
+    document.getElementById('kana-select-panel') && (document.getElementById('kana-select-panel').style.display = 'none');
     document.getElementById('learn-level-name').textContent = level.name;
     document.getElementById('learn-level-title').textContent = level.title;
 
@@ -718,12 +846,16 @@ const App = (() => {
     document.getElementById('fc-korean').textContent = char.korean;
     document.getElementById('fc-english').textContent = char.english;
 
-    // 예시 단어 — 셔플 후 전부 표시 (한 줄 가로 나열)
+    // 예시 단어 — 셔플 후 전부 표시 (세로 목록)
     const exDiv = document.getElementById('fc-examples');
     exDiv.innerHTML = '';
     const exReadQueue = []; // 자동 읽기 큐
     if (char.examples && char.examples.length) {
-      const shuffledEx = [...char.examples].sort(() => Math.random() - 0.5);
+      const title = document.createElement('div');
+      title.className = 'fc-section-title';
+      title.textContent = '관련 단어';
+      exDiv.appendChild(title);
+      const shuffledEx = [...char.examples].sort(() => Math.random() - 0.5).slice(0, 3);
       shuffledEx.forEach(ex => {
         const el = document.createElement('div');
         el.className = 'fc-ex-item';
@@ -746,11 +878,15 @@ const App = (() => {
     const exDB = (typeof EXAMPLES_DB !== 'undefined') ? EXAMPLES_DB : {};
     const sentData = exDB[char.kana];
     if (sentData && sentData.sentences && sentData.sentences.length) {
+      const title = document.createElement('div');
+      title.className = 'fc-section-title';
+      title.textContent = '예시 문장';
+      sentDiv.appendChild(title);
       const shuffledSents = [...sentData.sentences].sort(() => Math.random() - 0.5);
       shuffledSents.slice(0, 2).forEach(s => {
         const el = document.createElement('div');
         el.className = 'fc-sent-item';
-        el.innerHTML = `<span class="fc-sent-jp">${s.japanese}</span><span class="fc-sent-dot">·</span><span class="fc-sent-ko">${s.meaning}</span>`;
+        el.innerHTML = `<span class="fc-sent-jp">${s.japanese}</span><span class="fc-sent-ko">${s.meaning}</span>`;
         el.addEventListener('click', (e) => {
           e.stopPropagation();
           state.fcReadSession = (state.fcReadSession || 0) + 1;
@@ -764,6 +900,25 @@ const App = (() => {
     // 자동 읽기 큐 저장 (카드 뒤집을 때 사용)
     state.fcExReadQueue = exReadQueue;
 
+    // 다음 카드 peek 업데이트
+    const peekEl = document.getElementById('fc-next-peek');
+    const peekChar = document.getElementById('fc-peek-char');
+    if (peekEl && peekChar) {
+      if (idx < chars.length - 1) {
+        peekChar.textContent = '';
+        peekEl.style.display = '';
+        peekEl.classList.remove('fc-peek-ready');
+      } else {
+        peekEl.style.display = 'none';
+      }
+    }
+
+    // 이전 카드 peek 업데이트
+    const prevPeekEl2 = document.getElementById('fc-prev-peek');
+    if (prevPeekEl2) {
+      prevPeekEl2.style.display = idx > 0 ? '' : 'none';
+    }
+
     // nav strip 북마크 상태 업데이트
     const isBookmarked = state.bookmarks.some(b => b.type === 'kana' && b.kana === char.kana);
     const nsBtn = document.querySelector(`#fc-nav-strip .fc-ns-btn[data-kana="${char.kana}"]`);
@@ -776,54 +931,48 @@ const App = (() => {
     const inner = document.getElementById('fc-inner');
     inner.classList.remove('flipped');
 
-    // 앞장 로드 시 발음 — 화자 2 설정 시 번갈아 재생
-    if (hasSpeakerConfigured(2)) {
-      const slot = state.learnSpeakerTurn || 1;
-      state.learnSpeakerTurn = slot === 1 ? 2 : 1;  // 다음 카드용 토글
-      setTimeout(() => playAudioSlot(char.kana, slot), 350);
-    } else {
-      setTimeout(() => playAudio(char.kana), 350);
-    }
+    // 앞면에서는 발음하지 않음 — 뒤집을 때 발음 (음성 엉킴 방지)
 
     // 네비 스트립 활성 업데이트
     updateNavStripActive('fc-nav-strip', idx);
-
 
     // 진도 기록
     markCharSeen(char.kana);
   }
 
   function flipCard() {
-    state.learnFlipped = !state.learnFlipped;
-    document.getElementById('fc-inner').classList.toggle('flipped', state.learnFlipped);
+    if (state.learnFlipped) return; // 이미 뒤집힘 — 다시 앞면으로 돌아가지 않음
+    state.learnFlipped = true;
+    document.getElementById('fc-inner').classList.add('flipped');
 
-    if (state.learnFlipped) {
-      // 뒤집기: 뒷면을 봤으므로 "마스터" 기록 + 네비 스트립 즉시 갱신
-      const char = state.learnChars[state.learnIndex];
-      markCharFlipped(char.kana);
-      updateNavStripActive('fc-nav-strip', state.learnIndex);
+    // 뒷면을 봤으므로 "마스터" 기록 + 네비 스트립 즉시 갱신
+    const char = state.learnChars[state.learnIndex];
+    markCharFlipped(char.kana);
+    updateNavStripActive('fc-nav-strip', state.learnIndex);
 
-      // 순차 읽기 세션 번호 증가 (이전 세션 무효화)
-      state.fcReadSession = (state.fcReadSession || 0) + 1;
-      const session = state.fcReadSession;
+    // 순차 읽기 세션 번호 증가 (이전 세션 무효화)
+    state.fcReadSession = (state.fcReadSession || 0) + 1;
+    const session = state.fcReadSession;
 
-      // 가나 발음 완전히 끝난 후 → 예시 순차 읽기 (또는 자동 넘김)
-      (async () => {
+    // 가나 발음 완전히 끝난 후 → 예시 순차 읽기 (또는 자동 넘김)
+    // 뒤집을 때 듀얼 스피커 번갈아 재생
+    (async () => {
+      if (hasSpeakerConfigured(2)) {
+        const slot = state.learnSpeakerTurn || 1;
+        state.learnSpeakerTurn = slot === 1 ? 2 : 1;
+        await playAudioSlot(char.kana, slot);
+      } else {
         await playAudio(char.kana);
-        if (session !== state.fcReadSession) return;
-        if (state.prefs.showWordEx || state.prefs.showSentEx) {
-          await new Promise(r => setTimeout(r, 400));
-          if (session === state.fcReadSession) startFcExRead(session);
-        } else if (state.prefs.autoAdvance) {
-          // 예시 없어도 자동 넘김
-          startFcAutoAdvance(session);
-        }
-      })();
-    } else {
-      // 앞면 복귀: 읽기 세션 무효화 + 하이라이트 제거
-      state.fcReadSession = (state.fcReadSession || 0) + 1;
-      stopFcExRead();
-    }
+      }
+      if (session !== state.fcReadSession) return;
+      if (state.prefs.showWordEx || state.prefs.showSentEx) {
+        await new Promise(r => setTimeout(r, 400));
+        if (session === state.fcReadSession) startFcExRead(session);
+      } else if (state.prefs.autoAdvance) {
+        // 예시 없어도 자동 넘김
+        startFcAutoAdvance(session);
+      }
+    })();
   }
 
   // 플래시카드 예시 순차 읽기 (session 번호로 중복 방지)
@@ -858,6 +1007,16 @@ const App = (() => {
     }
     // 읽기 완료 → 하이라이트 제거
     queue.forEach(q => q.el.classList.remove('fc-reading'));
+
+    if (session !== state.fcReadSession) return;
+
+    // 다음 카드 있으면 peek 알림 애니메이션
+    const peekEl = document.getElementById('fc-next-peek');
+    if (peekEl && peekEl.style.display !== 'none') {
+      peekEl.classList.remove('fc-peek-ready');
+      void peekEl.offsetWidth; // reflow for re-trigger
+      peekEl.classList.add('fc-peek-ready');
+    }
 
     // 자동 넘기기 설정 시 카운트다운 후 다음 카드
     if (state.prefs.autoAdvance && session === state.fcReadSession) {
@@ -969,26 +1128,56 @@ const App = (() => {
 
   function setupFlashcardControls() {
     const card = document.getElementById('flashcard');
-    attachSwipe(
-      card,
-      () => { clearFcAutoAdvance(); if (state.learnIndex > 0) { state.learnIndex--; showFlashcard(); } },
-      () => {
-        clearFcAutoAdvance();
-        const char = state.learnChars[state.learnIndex];
-        recordResult(char.kana, true);
-        if (state.learnIndex < state.learnChars.length - 1) {
-          state.learnIndex++; showFlashcard();
-        } else {
-          showLearnCompletePrompt(state.learnLevelId);
-        }
-      },
-      () => { clearFcAutoAdvance(); flipCard(); }
-    );
+    if (!card._swipeBound) {
+      card._swipeBound = true;
+      attachSwipe(
+        card,
+        () => { clearFcAutoAdvance(); if (state.learnIndex > 0) { state.learnIndex--; showFlashcard(); } },
+        () => {
+          clearFcAutoAdvance();
+          const char = state.learnChars[state.learnIndex];
+          recordResult(char.kana, true);
+          if (state.learnIndex < state.learnChars.length - 1) {
+            state.learnIndex++; showFlashcard();
+          } else {
+            showLearnCompletePrompt(state.learnLevelId);
+          }
+        },
+        () => { clearFcAutoAdvance(); flipCard(); }
+      );
+    }
     const cancelBtn = document.getElementById('fc-auto-cancel');
-    if (cancelBtn) cancelBtn.addEventListener('click', () => {
+    if (cancelBtn) cancelBtn.onclick = () => {
       clearFcAutoAdvance();
       state.fcReadSession = (state.fcReadSession || 0) + 1;
-    });
+    };
+
+    // 다음 카드 peek 클릭 → 다음 카드로 이동
+    const peekEl = document.getElementById('fc-next-peek');
+    if (peekEl && !peekEl._peekBound) {
+      peekEl._peekBound = true;
+      peekEl.addEventListener('click', () => {
+        clearFcAutoAdvance();
+        const char = state.learnChars[state.learnIndex];
+        if (char) recordResult(char.kana, true);
+        if (state.learnIndex < state.learnChars.length - 1) {
+          state.learnIndex++; showFlashcard();
+        }
+      });
+    }
+
+    // 이전 카드 peek 클릭 → 이전 카드로 이동
+    const prevPeekEl = document.getElementById('fc-prev-peek');
+    if (prevPeekEl && !prevPeekEl._prevPeekBound) {
+      prevPeekEl._prevPeekBound = true;
+      prevPeekEl.addEventListener('click', () => {
+        clearFcAutoAdvance();
+        if (state.learnIndex > 0) {
+          state.learnIndex--;
+          showFlashcard();
+        }
+      });
+    }
   }
 
   // ─── 네비게이션 스트립 / vocab 페이지형 패널 ───
@@ -1094,7 +1283,7 @@ const App = (() => {
 
       tile.innerHTML =
         `<span class="vnp-num">${globalIdx + 1}</span>` +
-        `<span class="vnp-jp">${item.kanji ? formatWithFurigana(item.kanji, jp) : jp}</span>` +
+        `<span class="vnp-jp">${item.kanji ? formatKanjiWithHint(item.kanji, jp) : jp}</span>` +
         `<span class="vnp-kr">${kr}</span>`;
 
       tile.addEventListener('click', (e) => { e.stopPropagation(); clickCb(globalIdx); });
@@ -1185,19 +1374,22 @@ const App = (() => {
         return;
       }
 
-      // 단어 플래시카드
-      if (state.currentView === 'vocab' && state.vocabMode === 'flash') {
+      // 단어 플래시카드 (vocab/convo/roleplay 공통)
+      if (['vocab', 'convo', 'roleplay'].includes(state.currentView) && state.vocabMode === 'flash') {
         if (e.key === 'ArrowLeft') {
           e.preventDefault();
+          clearVocabAutoAdvance();
           if (state.vocabIndex > 0) { state.vocabIndex--; showVocabFlashcard(); }
         } else if (e.key === 'ArrowRight') {
           e.preventDefault();
+          clearVocabAutoAdvance();
           const _vi = state.vocabItems[state.vocabIndex];
           recordVocabResult(_vi.id, true);
           if (state.vocabIndex < state.vocabItems.length - 1) { state.vocabIndex++; showVocabFlashcard(); }
-          else { showToast('완료! 🎉'); setTimeout(() => { state.vocabMode = 'quiz'; document.getElementById('vocab-flashcard-area').style.display = 'none'; document.getElementById('vocab-quiz-area').style.display = 'block'; startVocabQuiz(); }, 900); }
+          else { showToast('완료! 🎉'); setTimeout(() => { state.vocabMode = 'quiz'; document.getElementById('vocab-flashcard-area').style.display = 'none'; document.getElementById('vocab-quiz-area').style.display = 'block'; showVocabQuizIntro(); }, 900); }
         } else if (e.key === ' ') {
           e.preventDefault();
+          clearVocabAutoAdvance();
           vocabFlipCard();
         } else if (e.key === 'ArrowDown') {
           e.preventDefault();
@@ -1294,7 +1486,7 @@ const App = (() => {
           ? VOCAB_CATEGORIES.find(c => c.id === bm.catId) : null;
         const typeLabel = cat && cat.type === 'sentence' ? '문장'
           : cat && cat.type === 'sim' ? '실전' : '단어';
-        const displayJp = bm.kanji ? formatWithFurigana(bm.kanji, bm.japanese) : bm.japanese;
+        const displayJp = bm.kanji ? formatKanjiWithHint(bm.kanji, bm.japanese) : bm.japanese;
         item.innerHTML = `
           <span class="bm-kana" style="font-size:13px">${displayJp}</span>
           <span class="bm-type">${typeLabel}</span>
@@ -1507,9 +1699,11 @@ const App = (() => {
     hideVoiceBadgeNow();
     hideSpeakingIndicator();
 
-    // 버튼 복원
+    // 버튼 복원 (kana 일람 + vocab 일람)
     const btn = document.getElementById('bc-readall-btn');
     if (btn) { btn.textContent = '🔊 전체 듣기'; btn.classList.remove('bc-active'); }
+    const vbtn = document.getElementById('vbc-readall-btn');
+    if (vbtn) { vbtn.textContent = '🔊 전체 듣기'; vbtn.classList.remove('bc-active'); }
 
     // 플로팅 중지 버튼 숨김
     const fab = document.getElementById('stop-audio-fab');
@@ -1643,51 +1837,219 @@ const App = (() => {
   }
 
   // ─── 퀴즈 ───
-  function setupQuizView() {
-    populateQuizLevelSelect();
-    document.getElementById('start-quiz-btn').onclick = startQuiz;
-
-    // 퀴즈 결과 재시도
-    const retryBtn = document.getElementById('qr-retry');
-    if (retryBtn) retryBtn.onclick = startQuiz;
-
-    // 초기화: setup 표시
-    document.getElementById('quiz-setup').style.display = 'block';
-    document.getElementById('quiz-game').style.display = 'none';
-    document.getElementById('quiz-result').style.display = 'none';
-
-    // 설정 화면에서는 back btn 숨김 (하단 네비로 이동)
-    const qbb = document.getElementById('quiz-back-btn');
-    if (qbb) qbb.style.display = 'none';
+  function openSettingsToQuizTab() {
+    const modal = document.getElementById('settings-modal');
+    if (!modal) return;
+    modal.style.display = 'flex';
+    loadPrefsUI();
+    document.querySelectorAll('.stab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.stab-content').forEach(c => c.classList.remove('active'));
+    const qt = document.querySelector('.stab[data-tab="quiz"]');
+    const qc = document.getElementById('stab-quiz');
+    if (qt) qt.classList.add('active');
+    if (qc) qc.classList.add('active');
   }
 
-  function backToQuizSetup() {
-    stopAmbient(1.2); // 퀴즈 중 뒤로가기 시 배경음 정지
-    document.getElementById('quiz-setup').style.display = 'block';
+  function setupQuizView() {
+    const retryBtn = document.getElementById('qr-retry');
+    if (retryBtn) retryBtn.onclick = showQuizIntro;
+    const settingsBtn = document.getElementById('qr-settings-btn');
+    if (settingsBtn) settingsBtn.onclick = openSettingsToQuizTab;
+    document.getElementById('quiz-header').style.display = 'none';
     document.getElementById('quiz-game').style.display = 'none';
     document.getElementById('quiz-result').style.display = 'none';
-    populateQuizLevelSelect();
-    // 설정 화면에서는 back btn 숨김 (하단 네비로 이동)
-    const qbb = document.getElementById('quiz-back-btn');
-    if (qbb) qbb.style.display = 'none';
+    showQuizIntro();
+  }
+
+  // 퀴즈 인트로 화면 표시
+  const _QI_SPEECHES = [
+    'よし！一緒に頑張ろう！',
+    '今日も練習しましょう！',
+    '始めましょう！楽しいよ！',
+    '自信を持って！できるよ！',
+    '上手になれるよ！やろう！',
+    '諦めないで！一歩一歩！',
+  ];
+  let _qiSpeechTimer = null;
+  let _qiCountdownTimer = null;
+
+  function _doQiStart() {
+    if (_qiCountdownTimer) { clearInterval(_qiCountdownTimer); _qiCountdownTimer = null; }
+    const cdEl = document.getElementById('qi-cdnum');
+    if (cdEl) cdEl.style.display = 'none';
+    document.getElementById('quiz-intro').style.display = 'none';
+    document.getElementById('quiz-header').style.display = 'flex';
+    startQuiz();
+  }
+
+  function _startQiCountdown() {
+    if (_qiCountdownTimer) { clearInterval(_qiCountdownTimer); _qiCountdownTimer = null; }
+    let n = 5;
+    const cdEl = document.getElementById('qi-cdnum');
+    const labelEl = document.getElementById('qi-start-label');
+    if (cdEl) { cdEl.textContent = n; cdEl.style.display = 'inline-flex'; }
+    if (labelEl) labelEl.textContent = '🎯 퀴즈 시작!';
+    _qiCountdownTimer = setInterval(() => {
+      n--;
+      if (cdEl) cdEl.textContent = n > 0 ? n : '!';
+      if (n <= 0) {
+        clearInterval(_qiCountdownTimer);
+        _qiCountdownTimer = null;
+        _doQiStart();
+      }
+    }, 1000);
+  }
+
+  function _setupQiExtras(ambBtnId, ambLabelId, voiceBtnId, settingsBtnId, refreshChipsFn) {
+    // 배경음 토글
+    const ambBtn = document.getElementById(ambBtnId);
+    const ambLbl = document.getElementById(ambLabelId);
+    function _syncAmbBtn() {
+      const on = state.prefs.ambientQuiz && state.prefs.ambientQuiz !== 'none';
+      if (ambLbl) ambLbl.textContent = on ? '켜짐' : '꺼짐';
+      if (ambBtn) { if (on) ambBtn.classList.add('qi-amb-on'); else ambBtn.classList.remove('qi-amb-on'); }
+    }
+    _syncAmbBtn();
+    if (ambBtn) ambBtn.onclick = () => {
+      const on = state.prefs.ambientQuiz && state.prefs.ambientQuiz !== 'none';
+      if (on) {
+        state.prefs.ambientQuiz = 'none'; saveToStorage();
+        stopAmbient(0.5);
+      } else {
+        state.prefs.ambientQuiz = 'on'; saveToStorage();
+        startAmbient('on', 'quiz');
+      }
+      _syncAmbBtn();
+    };
+
+    // 화자 버튼 → 설정 모달 음성 섹션
+    const voiceBtn = document.getElementById(voiceBtnId);
+    if (voiceBtn) voiceBtn.onclick = () => {
+      const modal = document.getElementById('settings-modal');
+      if (!modal) return;
+      modal.style.display = 'flex';
+      loadPrefsUI();
+      setTimeout(() => {
+        const sec = document.getElementById('webtts-settings') || document.getElementById('voicevox-speaker-rows');
+        if (sec) sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 120);
+    };
+
+    // 퀴즈 설정 버튼
+    const setBtn = document.getElementById(settingsBtnId);
+    if (setBtn) setBtn.onclick = () => {
+      openSettingsToQuizTab();
+      if (refreshChipsFn) {
+        const obs = new MutationObserver(() => {
+          const modal = document.getElementById('settings-modal');
+          if (modal && modal.style.display === 'none') { refreshChipsFn(); obs.disconnect(); }
+        });
+        const modal = document.getElementById('settings-modal');
+        if (modal) obs.observe(modal, { attributes: true, attributeFilter: ['style'] });
+      }
+    };
+  }
+
+  function showQuizIntro() {
+    document.getElementById('quiz-intro').style.display = 'flex';
+    document.getElementById('quiz-header').style.display = 'none';
+    document.getElementById('quiz-game').style.display = 'none';
+    document.getElementById('quiz-result').style.display = 'none';
+
+    // 설정 칩 빌드
+    _buildQiSettings();
+
+    // 자동넘기기 토글 동기화
+    const aaCb = document.getElementById('qi-autonext-cb');
+    if (aaCb) {
+      aaCb.checked = state.prefs.quizAutoAdvance !== false;
+      aaCb.onchange = () => { state.prefs.quizAutoAdvance = aaCb.checked; saveToStorage(); };
+    }
+
+    // 퀵 컨트롤 (배경음 / 화자 / 설정)
+    _setupQiExtras('qi-amb-btn', 'qi-amb-label', 'qi-voice-btn', 'qi-settings-btn2', _buildQiSettings);
+
+    // 시작 버튼
+    const startBtn = document.getElementById('qi-start-btn');
+    if (startBtn) startBtn.onclick = _doQiStart;
+
+    // 카운트다운 리셋 (이전 것 취소)
+    if (_qiCountdownTimer) { clearInterval(_qiCountdownTimer); _qiCountdownTimer = null; }
+    const cdEl = document.getElementById('qi-cdnum');
+    if (cdEl) cdEl.style.display = 'none';
+
+    // 떠다니는 가나 글자 생성
+    _spawnQiKanaFloats();
+
+    // 마스코트 대사 순환
+    if (_qiSpeechTimer) clearInterval(_qiSpeechTimer);
+    let _speechIdx = 0;
+    const speechEl = document.getElementById('qi-speech-text');
+    if (speechEl) {
+      speechEl.textContent = _QI_SPEECHES[_speechIdx];
+      _qiSpeechTimer = setInterval(() => {
+        _speechIdx = (_speechIdx + 1) % _QI_SPEECHES.length;
+        if (speechEl) speechEl.textContent = _QI_SPEECHES[_speechIdx];
+      }, 3500);
+    }
+
+    // 인트로 배경음 시작 (크게)
+    startAmbient(state.prefs.ambientQuiz || 'none', 'quiz');
+
+    // 성우 인사 → 인사 후 5초 카운트다운 자동 시작
+    setTimeout(() => {
+      speakCheer('start');
+      setTimeout(_startQiCountdown, 600);
+    }, 900);
+  }
+
+  function _buildQiSettings() {
+    const el = document.getElementById('qi-settings-summary');
+    if (!el) return;
+    const qtype  = state.prefs.quizType  || 'kanaToReading';
+    const qcount = state.prefs.quizCount || '10';
+    const qtimer = state.prefs.quizCountdown !== undefined ? state.prefs.quizCountdown : 5;
+    const qlevel = state.prefs.quizLevel || 'current';
+    const typeMap = { kanaToReading: '가나→읽기', readingToKana: '읽기→가나', listen: '듣기' };
+    const levelLabel = qlevel === 'all' ? '전체 레벨'
+      : qlevel === 'current' ? '현재 레벨'
+      : ((LEVELS.find(l => l.id === parseInt(qlevel)) || {}).name || qlevel);
+    el.innerHTML = `
+      <div class="qi-chip"><span class="qi-chip-icon">📝</span>${typeMap[qtype] || qtype}</div>
+      <div class="qi-chip"><span class="qi-chip-icon">🔢</span>${qcount === 'all' ? '전체' : qcount + '문제'}</div>
+      <div class="qi-chip"><span class="qi-chip-icon">⏱</span>${qtimer > 0 ? qtimer + '초' : '제한없음'}</div>
+      <div class="qi-chip"><span class="qi-chip-icon">🎯</span>${levelLabel}</div>
+    `;
+  }
+
+  function _spawnQiKanaFloats() {
+    const bg = document.getElementById('qi-bg-anim');
+    if (!bg) return;
+    bg.querySelectorAll('.qi-kana-float').forEach(e => e.remove());
+    const kanas = 'あいうえおかきくけこさしすせそたちつてとなにぬねのはひふへほまみむめもやゆよらりるれろわをん'.split('');
+    for (let i = 0; i < 18; i++) {
+      const el = document.createElement('div');
+      el.className = 'qi-kana-float';
+      el.textContent = kanas[Math.floor(Math.random() * kanas.length)];
+      el.style.left  = Math.random() * 100 + '%';
+      el.style.fontSize = (18 + Math.random() * 20) + 'px';
+      el.style.animationDuration = (12 + Math.random() * 16) + 's';
+      el.style.animationDelay   = (-Math.random() * 20) + 's';
+      bg.appendChild(el);
+    }
   }
 
   function populateQuizLevelSelect() {
     const sel = document.getElementById('quiz-level-select');
     if (!sel) return;
+    const saved = state.prefs.quizLevel || sel.value || 'current';
     sel.innerHTML = '';
-    // 전체 옵션
     const allOpt = document.createElement('option');
-    allOpt.value = 'all';
-    allOpt.textContent = '전체 (해금된 레벨)';
+    allOpt.value = 'all'; allOpt.textContent = '전체 (해금된 레벨)';
     sel.appendChild(allOpt);
-    // 현재 레벨 옵션
     const curOpt = document.createElement('option');
-    curOpt.value = 'current';
-    curOpt.textContent = '현재 레벨만';
-    curOpt.selected = true;
+    curOpt.value = 'current'; curOpt.textContent = '현재 레벨만';
     sel.appendChild(curOpt);
-    // 개별 레벨
     LEVELS.forEach(level => {
       if (state.unlockedLevels.includes(level.id)) {
         const opt = document.createElement('option');
@@ -1696,22 +2058,41 @@ const App = (() => {
         sel.appendChild(opt);
       }
     });
+    // 저장된 값 복원
+    sel.value = saved;
+    if (!sel.value) sel.value = 'current';
+    // 변경 시 즉시 prefs 반영
+    sel.onchange = () => { state.prefs.quizLevel = sel.value; saveToStorage(); };
   }
 
   function startQuizForLevel(levelId) {
-    showView('quiz');
-    setTimeout(() => {
+    // 해당 레벨로 prefs 업데이트 후 퀴즈 시작
+    if (levelId) {
+      state.prefs.quizLevel = String(levelId);
+      // settings modal 내 select도 동기화
       const sel = document.getElementById('quiz-level-select');
-      if (sel) sel.value = levelId;
-      startQuiz();
-    }, 100);
+      if (sel) {
+        if (!sel.querySelector(`option[value="${levelId}"]`)) {
+          const level = LEVELS.find(l => l.id === parseInt(levelId));
+          if (level) {
+            const opt = document.createElement('option');
+            opt.value = level.id;
+            opt.textContent = `${level.name}: ${level.title}`;
+            sel.appendChild(opt);
+          }
+        }
+        sel.value = levelId;
+      }
+    }
+    showView('quiz');
+    setTimeout(() => showQuizIntro(), 150);
   }
 
   function startQuiz() {
-    const levelSel = document.getElementById('quiz-level-select').value;
-    const qtype = document.querySelector('input[name="qtype"]:checked').value;
-    const qcount = document.querySelector('input[name="qcount"]:checked').value;
-    const qlang = document.querySelector('input[name="qlang"]:checked').value;
+    const levelSel = state.prefs.quizLevel || 'current';
+    const qtype    = state.prefs.quizType  || 'kanaToReading';
+    const qcount   = state.prefs.quizCount || '10';
+    const qlang    = state.prefs.quizLang  || 'korean';
 
     state.quizType = qtype;
     state.quizLang = qlang;
@@ -1745,7 +2126,16 @@ const App = (() => {
   }
 
   function startQuizWithChars(chars, qtype, qlang, countSel) {
-    if (chars.length === 0) { showToast('퀴즈할 글자가 없습니다.'); return; }
+    if (chars.length === 0) {
+      // 글자가 없으면 해금된 전체 레벨 또는 전체 KANA_MAP으로 폴백
+      const unlocked = [];
+      (state.unlockedLevels || [1]).forEach(id => {
+        const lv = LEVELS.find(l => l.id === id);
+        if (lv) unlocked.push(...lv.chars);
+      });
+      chars = (unlocked.length > 0 ? unlocked : Object.keys(KANA_MAP)).filter(k => KANA_MAP[k]);
+      if (chars.length === 0) { showToast('퀴즈할 글자가 없습니다.'); return; }
+    }
 
     // 셔플
     const shuffled = [...chars].sort(() => Math.random() - 0.5);
@@ -1757,21 +2147,30 @@ const App = (() => {
     state.quizWrong = 0;
     state.quizWrongList = [];
     state.quizAnswered = false;
+    state.quizStreak = 0;
+    state.quizMaxStreak = 0;
+    state.quizCheerCount = 0; // 응원 발화 빈도 제어
     if (state.quizCountdownTimer) { clearInterval(state.quizCountdownTimer); state.quizCountdownTimer = null; }
+    if (state.quizAmbFadeTimer) { clearTimeout(state.quizAmbFadeTimer); state.quizAmbFadeTimer = null; }
 
-    // 퀴즈 배경음 시작
-    startAmbient(state.prefs.ambientQuiz || 'none', 'quiz');
+    // 인트로에서 이미 시작한 배경음을 5초 후 잔잔하게 줄이기
+    // (배경음이 없는 경우 no-op)
+    state.quizAmbFadeTimer = setTimeout(() => {
+      if (_ambAudio) _ambFadeTo(_ambAudio, _ambTargetVol() * 0.35, 2500);
+    }, 5000);
 
-    document.getElementById('quiz-setup').style.display = 'none';
     document.getElementById('quiz-game').style.display = 'block';
     document.getElementById('quiz-result').style.display = 'none';
 
     document.getElementById('qsm-correct').textContent = '✓ 0';
     document.getElementById('qsm-wrong').textContent = '✗ 0';
 
-    // 게임 중에는 back 버튼이 퀴즈 설정으로
-    const qbb2 = document.getElementById('quiz-back-btn');
-    if (qbb2) { qbb2.textContent = '← 퀴즈 설정'; qbb2.style.display = ''; qbb2.onclick = backToQuizSetup; }
+    // 퀴즈 중 자동넘기기 토글 동기화
+    const aaCb2 = document.getElementById('qsm-aa-cb');
+    if (aaCb2) {
+      aaCb2.checked = state.prefs.quizAutoAdvance !== false;
+      aaCb2.onchange = () => { state.prefs.quizAutoAdvance = aaCb2.checked; saveToStorage(); };
+    }
 
     showQuizQuestion();
   }
@@ -1836,10 +2235,11 @@ const App = (() => {
     } else if (q.qtype === 'listen') {
       qInner = `
         <div style="text-align:center; width:100%">
-          <button class="qb-listen-btn" onclick="App.playAudio('${q.displayKana || q.kana}')">🔊 발음 듣기</button>
-          <div class="qb-label" style="margin-top:12px">들은 발음에 해당하는 글자는?</div>
+          <div class="qb-listen-once">🔊</div>
+          <div class="qb-label" style="margin-top:10px">들은 발음에 해당하는 글자는?</div>
+          <div class="qb-label" style="font-size:11px;margin-top:4px;opacity:0.6">발음은 한 번만 재생됩니다</div>
         </div>`;
-      setTimeout(() => playAudio(q.displayKana || q.kana), 300);
+      setTimeout(() => playAudio(q.displayKana || q.kana), 400);
     }
     qbox.innerHTML = qInner;
 
@@ -1944,13 +2344,24 @@ const App = (() => {
     // 결과 기록
     recordResult(q.kana, isCorrect);
 
+    let cheerType = 'correct';
     if (isCorrect) {
       state.quizCorrect++;
       document.getElementById('qsm-correct').textContent = '✓ ' + state.quizCorrect;
+      state.quizStreak = (state.quizStreak || 0) + 1;
+      if (state.quizStreak > (state.quizMaxStreak || 0)) state.quizMaxStreak = state.quizStreak;
+      const streak = state.quizStreak;
+      cheerType = streak >= 8 ? 'streak8' : streak >= 5 ? 'streak5' : streak >= 3 ? 'streak3' : 'correct';
     } else {
       state.quizWrong++;
       state.quizWrongList.push(q.kana);
       document.getElementById('qsm-wrong').textContent = '✗ ' + state.quizWrong;
+      state.quizStreak = 0;
+    }
+
+    // 시간초과 시 일본어로 말하기
+    if (isTimeout) {
+      _speakTimeoutJa();
     }
 
     // 피드백 표시
@@ -1965,41 +2376,59 @@ const App = (() => {
 
     qfExamples.innerHTML = '';
 
+    const autoAdv = state.prefs.quizAutoAdvance !== false;
+
+    // 응원 발화 빈도 결정: 스트릭 이벤트는 항상, 일반 정답은 3번에 1번
+    state.quizCheerCount = (state.quizCheerCount || 0) + 1;
+    const isMilestoneCheer = (cheerType !== 'correct'); // streak3/5/8
+    const shouldVoiceCheer = isMilestoneCheer || (state.quizCheerCount % 3 === 0);
+
     if (isCorrect) {
       qfResult.textContent = '✓ 정답!';
       qfResult.className = 'qf-result correct';
       qfCorrect.textContent = '';
       playCorrectSound();
-      // 정답 단어 발음
-      setTimeout(() => playAudio(q.displayKana || q.kana), 300);
 
-      // ── 1초 후 자동으로 다음 문제 ──
-      let count = 1;
-      qfCountdown.textContent = count;
-      qfCountdown.style.display = 'block';
-      qfCountdownLabel.textContent = '초 후 자동으로 다음 문제';
-      qfCountdownLabel.style.display = 'block';
-      nextBtn.textContent = '지금 다음 문제 →';
+      state.quizSeqId = (state.quizSeqId || 0) + 1;
+      const seqId = state.quizSeqId;
+      qfCountdown.style.display = 'none';
+      qfCountdownLabel.style.display = 'none';
 
-      state.quizCountdownTimer = setInterval(() => {
-        count--;
-        if (count <= 0) {
-          clearInterval(state.quizCountdownTimer);
-          state.quizCountdownTimer = null;
+      if (autoAdv) {
+        nextBtn.textContent = '건너뛰기 →';
+        ;(async () => {
+          await new Promise(r => setTimeout(r, 300));
+          if (state.quizSeqId !== seqId) return;
+          if (shouldVoiceCheer) {
+            await speakCheer(cheerType);
+          } else {
+            // 배너만 표시, 발화 없이 짧게 대기
+            const text = _pickCheer(cheerType);
+            if (text) _showCheerBanner(text, '');
+            await new Promise(r => setTimeout(r, 400));
+          }
+          if (state.quizSeqId !== seqId) return;
           nextQuizQuestion();
+        })();
+        nextBtn.onclick = () => {
+          state.quizSeqId = (state.quizSeqId || 0) + 1;
+          if (window.speechSynthesis) window.speechSynthesis.cancel();
+          nextQuizQuestion();
+        };
+      } else {
+        if (shouldVoiceCheer) {
+          setTimeout(() => speakCheer(cheerType), 200);
         } else {
-          qfCountdown.textContent = count;
+          const text = _pickCheer(cheerType);
+          if (text) _showCheerBanner(text, '');
         }
-      }, 1000);
-
-      // 버튼으로 즉시 이동 (타이머 취소)
-      nextBtn.onclick = () => {
-        if (state.quizCountdownTimer) {
-          clearInterval(state.quizCountdownTimer);
-          state.quizCountdownTimer = null;
-        }
-        nextQuizQuestion();
-      };
+        nextBtn.textContent = '다음 문제 →';
+        nextBtn.onclick = () => {
+          state.quizSeqId = (state.quizSeqId || 0) + 1;
+          if (window.speechSynthesis) window.speechSynthesis.cancel();
+          nextQuizQuestion();
+        };
+      }
 
     } else {
       qfResult.textContent = isTimeout ? '⏰ 시간 초과!' : '✗ 틀렸어요';
@@ -2007,10 +2436,12 @@ const App = (() => {
       qfCorrect.textContent = `정답: ${q.kana} = ${getReadingText(q.info)}`;
       qfCountdown.style.display = 'none';
       qfCountdownLabel.style.display = 'none';
-      nextBtn.textContent = '다음 문제 →';
-      playWrongSound();
+      if (!isTimeout) {
+        playWrongSound();
+        setTimeout(() => speakCheer('wrong'), 150);
+      }
 
-      // 오답일 때만 피드백에 예시 표시
+      // 오답 예시
       const examples = q.info.examples || [];
       if (examples.length) {
         examples.slice(0, 2).forEach(e => {
@@ -2024,15 +2455,13 @@ const App = (() => {
         });
       }
 
-      // 자동 다음 설정 시 오답도 5초 후 자동 이동
-      if (state.prefs.autonext) {
+      if (autoAdv) {
         let count = 5;
         qfCountdown.textContent = count;
         qfCountdown.style.display = 'block';
         qfCountdownLabel.textContent = '초 후 자동으로 다음 문제';
         qfCountdownLabel.style.display = 'block';
         nextBtn.textContent = '지금 다음 문제 →';
-
         state.quizCountdownTimer = setInterval(() => {
           count--;
           if (count <= 0) {
@@ -2043,15 +2472,12 @@ const App = (() => {
             qfCountdown.textContent = count;
           }
         }, 1000);
-
         nextBtn.onclick = () => {
-          if (state.quizCountdownTimer) {
-            clearInterval(state.quizCountdownTimer);
-            state.quizCountdownTimer = null;
-          }
+          if (state.quizCountdownTimer) { clearInterval(state.quizCountdownTimer); state.quizCountdownTimer = null; }
           nextQuizQuestion();
         };
       } else {
+        nextBtn.textContent = '다음 문제 →';
         nextBtn.onclick = nextQuizQuestion;
       }
     }
@@ -2067,11 +2493,33 @@ const App = (() => {
   }
 
   function showQuizResult() {
-    stopAmbient(2.5); // 퀴즈 결과 시 배경음 페이드아웃
-    const correct = state.quizCorrect;
-    const total = state.quizQuestions.length;
-    const pct = Math.round((correct / total) * 100);
-    const xpGained = calculateXP(correct, total);
+    if (state.quizAmbFadeTimer) { clearTimeout(state.quizAmbFadeTimer); state.quizAmbFadeTimer = null; }
+    stopQuizAmbientLoud(); // 결과 시 크게 키웠다가 서서히 페이드아웃
+    const correct   = state.quizCorrect;
+    const total     = state.quizQuestions.length;
+    const wrong     = total - correct;
+    const pct       = total > 0 ? Math.round((correct / total) * 100) : 0;
+    const maxStreak = state.quizMaxStreak || 0;
+    const xpGained  = calculateXP(correct, total);
+
+    // 등급
+    let grade = 'D', gradeColor = '#ef4444';
+    if (pct >= 100) { grade = 'S'; gradeColor = '#f59e0b'; }
+    else if (pct >= 90) { grade = 'A'; gradeColor = '#10b981'; }
+    else if (pct >= 70) { grade = 'B'; gradeColor = '#3b82f6'; }
+    else if (pct >= 50) { grade = 'C'; gradeColor = '#8b5cf6'; }
+
+    // 별점
+    const stars = pct >= 80 ? 3 : pct >= 50 ? 2 : pct > 0 ? 1 : 0;
+
+    // 타이틀
+    let title = '다시 도전해요! 💪';
+    if (pct >= 100) title = '완벽해요! 🎉';
+    else if (pct >= 90) title = '거의 완벽! 🌟';
+    else if (pct >= 70) title = '잘했어요! 👍';
+    else if (pct >= 50) title = '좋아요! 😊';
+
+    const resultCheer = pct >= 100 ? 'perfect' : pct >= 70 ? 'good' : pct >= 50 ? 'pass' : 'poor';
 
     state.totalXP += xpGained;
     updateStreak();
@@ -2079,34 +2527,112 @@ const App = (() => {
     saveToStorage();
     updateHeader();
 
-    document.getElementById('quiz-game').style.display = 'none';
+    document.getElementById('quiz-game').style.display   = 'none';
+    document.getElementById('quiz-header').style.display = 'none';
     document.getElementById('quiz-result').style.display = 'block';
 
-    let icon = '😢', title = '다시 도전해요!';
-    if (pct >= 90) { icon = '🏆'; title = '완벽해요!'; }
-    else if (pct >= 70) { icon = '🎉'; title = '잘했어요!'; }
-    else if (pct >= 50) { icon = '👍'; title = '좋아요!'; }
+    // 등급 배지
+    const gradeEl = document.getElementById('qr-grade-badge');
+    if (gradeEl) { gradeEl.textContent = grade; gradeEl.style.background = gradeColor; gradeEl.style.boxShadow = `0 6px 24px ${gradeColor}88`; }
 
-    document.getElementById('qr-icon').textContent = icon;
+    // 타이틀
     document.getElementById('qr-title').textContent = title;
-    document.getElementById('qr-score').textContent = `${correct} / ${total}`;
-    document.getElementById('qr-pct').textContent = pct + '%';
-    document.getElementById('qr-xp').textContent = `+${xpGained} XP 획득!`;
 
-    // 틀린 문제
+    // 별점 애니메이션
+    const starsEl = document.getElementById('qr-stars');
+    if (starsEl) {
+      starsEl.querySelectorAll('.qr-star').forEach((star, i) => {
+        star.classList.remove('filled', 'pop');
+        if (i < stars) {
+          setTimeout(() => { star.classList.add('filled', 'pop'); }, 500 + i * 220);
+        }
+      });
+    }
+
+    // 원형 진행바
+    const ringFill = document.getElementById('qr-ring-fill');
+    if (ringFill) {
+      const circ = 2 * Math.PI * 52;
+      const colorMap = { S: '#f59e0b', A: '#10b981', B: '#3b82f6', C: '#8b5cf6', D: '#ef4444' };
+      ringFill.style.stroke = colorMap[grade] || '#10b981';
+      ringFill.style.strokeDasharray  = circ;
+      ringFill.style.strokeDashoffset = circ;
+      setTimeout(() => {
+        ringFill.style.transition = 'stroke-dashoffset 1.2s ease-out';
+        ringFill.style.strokeDashoffset = circ * (1 - pct / 100);
+      }, 150);
+    }
+
+    // 퍼센트 카운터 애니메이션
+    const pctEl = document.getElementById('qr-pct');
+    if (pctEl) {
+      let disp = 0;
+      const iv = setInterval(() => {
+        disp = Math.min(disp + Math.ceil(pct / 40), pct);
+        pctEl.textContent = disp + '%';
+        if (disp >= pct) clearInterval(iv);
+      }, 30);
+    }
+    document.getElementById('qr-score').textContent = `${correct} / ${total}`;
+
+    // 통계
+    document.getElementById('qr-stat-correct').textContent = correct;
+    document.getElementById('qr-stat-wrong').textContent   = wrong;
+    document.getElementById('qr-stat-maxstreak').textContent = maxStreak;
+
+    // XP 바 애니메이션
+    document.getElementById('qr-xp').textContent = '+' + xpGained + ' XP';
+    const xpBar = document.getElementById('qr-xp-bar-fill');
+    if (xpBar) {
+      xpBar.style.width = '0%';
+      setTimeout(() => { xpBar.style.width = Math.min(100, (xpGained / 200) * 100) + '%'; }, 700);
+    }
+
+    // 틀린 글자
     const wrongDiv = document.getElementById('qr-wrong-list');
     if (state.quizWrongList.length > 0) {
       const chars = [...new Set(state.quizWrongList)];
       wrongDiv.innerHTML = `
-        <div class="qr-wrong-title">틀린 글자 (${chars.length}개)</div>
+        <div class="qr-wrong-hdr">복습이 필요해요 (${chars.length}개)</div>
         <div class="qr-wrong-chars">
           ${chars.map(k => {
             const info = KANA_MAP[k];
-            return `<div class="qr-wrong-char" title="${info ? info.korean : ''}">${k}</div>`;
+            return `<div class="qr-wrong-char" onclick="App.playAudio('${k}')">
+              <div class="qr-wc-kana">${k}</div>
+              <div class="qr-wc-reading">${info ? info.korean : ''}</div>
+            </div>`;
           }).join('')}
         </div>`;
+      wrongDiv.style.display = 'block';
     } else {
       wrongDiv.innerHTML = '';
+      wrongDiv.style.display = 'none';
+    }
+
+    // 결과 confetti (고득점)
+    if (pct >= 70) _triggerQrConfetti(pct);
+
+    setTimeout(() => speakCheer(resultCheer), 800);
+  }
+
+  function _triggerQrConfetti(pct) {
+    const el = document.getElementById('qr-confetti');
+    if (!el) return;
+    el.innerHTML = '';
+    const colors = ['#f59e0b','#10b981','#3b82f6','#e63946','#8b5cf6','#fbbf24','#34d399'];
+    const count  = pct >= 90 ? 60 : 35;
+    for (let i = 0; i < count; i++) {
+      const p = document.createElement('div');
+      p.className = 'qr-confetti-piece';
+      p.style.left = Math.random() * 100 + '%';
+      p.style.top  = '-10px';
+      p.style.background = colors[Math.floor(Math.random() * colors.length)];
+      p.style.width  = (6 + Math.random() * 8) + 'px';
+      p.style.height = (6 + Math.random() * 8) + 'px';
+      p.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+      p.style.animationDuration  = (2.5 + Math.random() * 2) + 's';
+      p.style.animationDelay     = (Math.random() * 1.2) + 's';
+      el.appendChild(p);
     }
   }
 
@@ -2608,6 +3134,17 @@ const App = (() => {
     const modal = document.getElementById('settings-modal');
     const closeBtn = document.getElementById('settings-close');
 
+    // 탭 전환
+    document.querySelectorAll('.stab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.stab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.stab-content').forEach(c => c.classList.remove('active'));
+        tab.classList.add('active');
+        const target = document.getElementById('stab-' + tab.dataset.tab);
+        if (target) target.classList.add('active');
+      });
+    });
+
     btn.onclick = () => {
       modal.style.display = 'flex';
       loadPrefsUI();
@@ -2616,6 +3153,22 @@ const App = (() => {
     modal.addEventListener('click', (e) => {
       if (e.target === modal) { modal.style.display = 'none'; savePrefs(); }
     });
+  }
+
+  function saveCheerMessages() {
+    const cheerTypes = ['start','correct','wrong','streak3','streak5','streak8','perfect','good','pass','poor'];
+    const saved = {};
+    let hasCustom = false;
+    cheerTypes.forEach(type => {
+      const ta = document.getElementById('cheer-' + type);
+      if (!ta) return;
+      const lines = ta.value.split('\n').map(l => l.trim()).filter(Boolean);
+      const defaults = QUIZ_CHEERS[type];
+      // 기본값과 다를 때만 저장
+      const isDefault = JSON.stringify(lines) === JSON.stringify(defaults);
+      if (!isDefault && lines.length > 0) { saved[type] = lines; hasCustom = true; }
+    });
+    state.prefs.quizCheers = hasCustom ? saved : null;
   }
 
   function applyVisibilityPrefs() {
@@ -2628,11 +3181,62 @@ const App = (() => {
     state.prefs.autoplay = true;
     state.prefs.autonext = true;
 
+    // 퀴즈 설정 로드
+    populateQuizLevelSelect();
+    const qtypeEl = document.querySelector(`input[name="qtype"][value="${state.prefs.quizType || 'kanaToReading'}"]`);
+    if (qtypeEl) qtypeEl.checked = true;
+    const qcountEl = document.querySelector(`input[name="qcount"][value="${state.prefs.quizCount || '10'}"]`);
+    if (qcountEl) qcountEl.checked = true;
+    const qlangEl = document.querySelector(`input[name="qlang"][value="${state.prefs.quizLang || 'korean'}"]`);
+    if (qlangEl) qlangEl.checked = true;
+    const qlvSel = document.getElementById('quiz-level-select');
+    if (qlvSel && state.prefs.quizLevel) qlvSel.value = state.prefs.quizLevel;
+
+    // radio 변경 시 즉시 prefs 저장
+    document.querySelectorAll('input[name="qtype"]').forEach(r => {
+      r.onchange = () => { state.prefs.quizType = r.value; saveToStorage(); };
+    });
+    document.querySelectorAll('input[name="qcount"]').forEach(r => {
+      r.onchange = () => { state.prefs.quizCount = r.value; saveToStorage(); };
+    });
+    document.querySelectorAll('input[name="qlang"]').forEach(r => {
+      r.onchange = () => { state.prefs.quizLang = r.value; saveToStorage(); };
+    });
+
+    // 퀴즈 응원
+    const cheerEl = document.getElementById('pref-quiz-cheer');
+    if (cheerEl) {
+      cheerEl.checked = state.prefs.quizCheer !== false;
+      cheerEl.onchange = () => { state.prefs.quizCheer = cheerEl.checked; saveToStorage(); };
+    }
+
+    // 응원 메시지 에디터
+    const cheerTypes = ['start','correct','wrong','streak3','streak5','streak8','perfect','good','pass','poor'];
+    const cc = state.prefs.quizCheers || {};
+    cheerTypes.forEach(type => {
+      const ta = document.getElementById('cheer-' + type);
+      if (!ta) return;
+      const msgs = (cc[type] && cc[type].length > 0) ? cc[type] : QUIZ_CHEERS[type];
+      ta.value = msgs.join('\n');
+      ta.oninput = () => saveCheerMessages();
+    });
+    document.querySelectorAll('.cheer-reset').forEach(btn => {
+      btn.onclick = () => {
+        const type = btn.dataset.type;
+        const ta = document.getElementById('cheer-' + type);
+        if (ta) {
+          ta.value = QUIZ_CHEERS[type].join('\n');
+          // 해당 타입 커스텀 삭제
+          if (state.prefs.quizCheers) { delete state.prefs.quizCheers[type]; saveToStorage(); }
+        }
+      };
+    });
+
     // 롤플레이 이름 설정
     const fnEl = document.getElementById('pref-female-name');
     const mnEl = document.getElementById('pref-male-name');
-    if (fnEl) fnEl.value = state.prefs.femaleName || '주영';
-    if (mnEl) mnEl.value = state.prefs.maleName   || '승현';
+    if (fnEl) fnEl.value = state.prefs.femaleName || 'ジュヨン';
+    if (mnEl) mnEl.value = state.prefs.maleName   || 'スンヒョン';
 
     // 퀴즈 제한 시간
     const qcdEl = document.getElementById('pref-quiz-countdown');
@@ -2833,6 +3437,18 @@ const App = (() => {
     state.prefs.showSentEx      = document.getElementById('pref-show-sent-ex').checked;
     const qcdEl = document.getElementById('pref-quiz-countdown');
     if (qcdEl) state.prefs.quizCountdown = parseInt(qcdEl.value) || 0;
+    // 퀴즈 설정 저장
+    const qtypeChecked = document.querySelector('input[name="qtype"]:checked');
+    if (qtypeChecked) state.prefs.quizType = qtypeChecked.value;
+    const qcountChecked = document.querySelector('input[name="qcount"]:checked');
+    if (qcountChecked) state.prefs.quizCount = qcountChecked.value;
+    const qlangChecked = document.querySelector('input[name="qlang"]:checked');
+    if (qlangChecked) state.prefs.quizLang = qlangChecked.value;
+    const qlvSel = document.getElementById('quiz-level-select');
+    if (qlvSel) state.prefs.quizLevel = qlvSel.value;
+    const cheerEl = document.getElementById('pref-quiz-cheer');
+    if (cheerEl) state.prefs.quizCheer = cheerEl.checked;
+    saveCheerMessages();
     const useVvEl = document.getElementById('pref-use-voicevox');
     if (useVvEl) state.prefs.useVoicevox = useVvEl.checked;
     const vvS1 = document.getElementById('pref-voicevox-speaker1');
@@ -2858,6 +3474,8 @@ const App = (() => {
     saveToStorage();
     updateHqSpeakerLabel();
     updateHqAmbientLabel();
+    // 이름 변경 즉시 배지에 반영
+    updateActiveSpeakerBadge();
   }
 
   // ─── XP / 레벨 업 ───
@@ -3124,12 +3742,16 @@ const App = (() => {
   function buildSlotItemHtml(slot) {
     const info = buildSlotAvatarHtml(slot);
     if (!info) return '';
+    // 데스크탑에서는 설정된 롤플레이 이름(ジュヨン/スンヒョン)을 표시
+    const roleName = slot === 1
+      ? (state.prefs.femaleName || 'ジュヨン')
+      : (state.prefs.maleName   || 'スンヒョン');
     return `
       <div class="vvb-item" data-slot="${slot}">
         ${info.avatarHtml}
         <div class="vvb-info">
           <span class="vvb-num">화자 ${slot}</span>
-          <span class="vvb-name">${info.name}</span>
+          <span class="vvb-name">${roleName}</span>
         </div>
         ${barsHtml()}
       </div>`;
@@ -3149,11 +3771,17 @@ const App = (() => {
       return;
     }
 
+    const isDesktop = window.innerWidth > 640;
     badge.innerHTML =
       `<div class="vvb-title">🎤 화자</div>` +
       slot1Html + slot2Html +
-      `<div class="vvb-hint">${_ttsPaused ? '▶ 클릭하여 재개' : '⏸ 클릭하여 일시정지'}</div>`;
-    // display 는 showVoiceBadge() / scheduleHideVoiceBadge() 가 제어 — 여기서는 강제 표시하지 않음
+      (isDesktop ? '' : `<div class="vvb-hint">${_ttsPaused ? '▶ 클릭하여 재개' : '⏸ 클릭하여 일시정지'}</div>`);
+    // 데스크탑: 화자 배지를 항상 표시
+    if (isDesktop) {
+      badge.style.display = 'flex';
+      syncSidebarVisibility();
+    }
+    // 모바일: display 는 showVoiceBadge() / scheduleHideVoiceBadge() 가 제어
 
     // 클릭 → TTS 일시정지 / 재개
     // ※ Chrome은 speechSynthesis.pause()가 동작하지 않는 버그 존재
@@ -3294,6 +3922,89 @@ const App = (() => {
 
   const NATURAL_VOICES = ['kyoko', 'otoya', 'o-ren', 'haruka', 'ayumi', 'nanami', 'ichiro', 'google 日本語'];
   const TEST_PHRASE = 'こんにちは！私の声はこんな感じです。よろしくお願いします！';
+
+  // ─── 퀴즈 응원 문구 (화자가 1/3 볼륨으로 읽어줌) ───
+  const QUIZ_CHEERS = {
+    start:   ['さあ、始めましょう！頑張ってね！', 'よーし！全力でいこう！', 'じゃあスタート！きっとできる！', 'クイズ開始！ファイト！'],
+    correct: ['正解！すごい！', 'その通り！よくできました！', 'ピンポン！完璧！', 'いいね！さすがだね！', '正解！素晴らしい！'],
+    wrong:   ['残念！次は頑張ろう！', '惜しい！もう少し！', 'ドンマイ！次はできる！', '大丈夫、次はきっとできるよ！', '気にしないで、続けよう！'],
+    streak3: ['三連続正解！調子いいね！', '止まらないね！この調子！', '三連続！すごい！'],
+    streak5: ['五連続！すごすぎる！', '完璧なコンボ！止まらない！', '五連続正解！素晴らしい！'],
+    streak8: ['えっ！信じられない！天才だ！', '伝説！もう誰も止められない！', 'すごすぎ！天才認定！'],
+    perfect: ['満点！本当に素晴らしい！天才かも！', '完璧！これ以上ないよ！最高！', '百点満点！本当にすごい！'],
+    good:    ['よくできました！この調子で頑張ろう！', 'すごく良かった！続けよう！', '上手だね！もっと練習しよう！'],
+    pass:    ['まあまあかな。もっと練習しましょう！', '次はもっとできるよ！諦めないで！', 'だんだん上手になってるよ！'],
+    poor:    ['難しかったね。一緒に頑張ろう！', '大丈夫、練習すれば絶対できる！', '諦めないで！また挑戦しよう！'],
+  };
+
+  function _pickCheer(type) {
+    const custom = state.prefs.quizCheers && state.prefs.quizCheers[type];
+    const arr = (custom && custom.length > 0) ? custom : QUIZ_CHEERS[type];
+    if (!arr || !arr.length) return '';
+    return arr[Math.floor(Math.random() * arr.length)];
+  }
+
+  let _cheerBannerTimer = null;
+  function _showCheerBanner(text, type) {
+    if (_cheerBannerTimer) { clearTimeout(_cheerBannerTimer); }
+    document.querySelectorAll('.quiz-cheer-banner').forEach(el => el.remove());
+    const banner = document.createElement('div');
+    const cls = type && ['streak3','streak5','streak8'].includes(type) ? ' ' + type
+              : type === 'result' ? ' result' : '';
+    banner.className = 'quiz-cheer-banner' + cls;
+    banner.textContent = text;
+    document.body.appendChild(banner);
+    _cheerBannerTimer = setTimeout(() => {
+      banner.style.animation = 'cheerOut 0.3s ease forwards';
+      setTimeout(() => banner.remove(), 300);
+    }, 2200);
+  }
+
+  async function speakCheer(type) {
+    if (!state.prefs.quizCheer) return;
+    const text = _pickCheer(type);
+    if (!text) return;
+    const bannerType = type.startsWith('streak') ? type : (type === 'perfect' || type === 'good' || type === 'pass' || type === 'poor' ? 'result' : '');
+    _showCheerBanner(text, bannerType);
+
+    // VOICEVOX 모드: 별도 Audio 객체, volume = 0.33, 완료까지 대기
+    if (state.prefs.useVoicevox && voicevoxAvailable) {
+      const sid = state.prefs.voicevoxSpeaker1;
+      if (sid !== 'none' && sid !== undefined && sid !== null) {
+        try {
+          const qResp = await fetch(`${VOICEVOX_URL}/audio_query?text=${encodeURIComponent(text)}&speaker=${sid}`, { method: 'POST' });
+          if (qResp.ok) {
+            const query = await qResp.json();
+            const sResp = await fetch(`${VOICEVOX_URL}/synthesis?speaker=${sid}`, {
+              method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(query)
+            });
+            if (sResp.ok) {
+              const blob = await sResp.blob();
+              const url = URL.createObjectURL(blob);
+              const audio = new Audio(url);
+              audio.volume = 0.33;
+              await new Promise(r => { audio.onended = () => { URL.revokeObjectURL(url); r(); }; audio.onerror = () => { URL.revokeObjectURL(url); r(); }; audio.play().catch(r); });
+              return;
+            }
+          }
+        } catch(e) {}
+      }
+    }
+
+    // Web TTS: speaker 1, volume 0.33, 완료까지 대기
+    if (!window.speechSynthesis) return;
+    window.speechSynthesis.cancel();
+    const fIdx = state.prefs.voiceFemale;
+    const voice1 = (fIdx !== 'none' && fIdx !== undefined && fIdx !== null) ? allJaVoices[parseInt(fIdx)] : (allJaVoices[0] || null);
+    const cv1 = CHARACTER_VOICES.find(c => c.id === (state.prefs.charVoice1 || 'none')) || CHARACTER_VOICES[0];
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.lang = 'ja-JP';
+    utter.volume = 0.33;
+    if (voice1) utter.voice = voice1;
+    utter.pitch = cv1.pitch;
+    utter.rate = cv1.rate;
+    await new Promise(r => { utter.onend = r; utter.onerror = r; window.speechSynthesis.speak(utter); });
+  }
 
   // 캐릭터 목소리 프리셋 (pitch + rate 조합으로 개성 표현)
   const CHARACTER_VOICES = [
@@ -3570,6 +4281,8 @@ const App = (() => {
 
   // ── 화자 배지 지연 숨김 (TTS 발화 종료 시 호출, 문장 간격 커버용 1.5s 디바운스) ─
   function scheduleHideVoiceBadge(delay = 1500) {
+    // 데스크탑에서는 화자 배지를 항상 표시 — 숨김 스케줄링 불필요
+    if (window.innerWidth > 640) return;
     clearTimeout(_hideVoiceBadgeTimer);
     _hideVoiceBadgeTimer = setTimeout(() => {
       _hideVoiceBadgeTimer = null;
@@ -3732,6 +4445,71 @@ const App = (() => {
     }, 50);
   }
 
+  // ── 퀴즈 결과 시 배경음: 크게 올렸다가 5초 유지 후 5초 페이드아웃 ──
+  function stopQuizAmbientLoud() {
+    if (!_ambAudio) return;
+    const audio = _ambAudio;
+    _ambAudio  = null;
+    _ambDucked = false;
+    hideAmbientBadge();
+    if (_ambFadeId) { clearInterval(_ambFadeId); _ambFadeId = null; }
+
+    const introVol  = Math.min(0.65, (state.prefs.ambientVolume ?? 0.18) * 2.5);
+    const startVol  = audio.volume;
+    const rampSteps = Math.max(1, Math.round(1000 / 50));
+    const deltaUp   = (introVol - startVol) / rampSteps;
+    let n = 0;
+    // Phase 1: 볼륨 올리기 (1초)
+    const tid1 = setInterval(() => {
+      n++;
+      audio.volume = Math.max(0, Math.min(1, startVol + deltaUp * n));
+      if (n >= rampSteps) {
+        clearInterval(tid1);
+        // Phase 2: 5초 유지
+        setTimeout(() => {
+          // Phase 3: 5초 페이드아웃
+          const outSteps = Math.max(1, Math.round(5000 / 50));
+          const deltaOut = audio.volume / outSteps;
+          let m = 0;
+          const tid3 = setInterval(() => {
+            m++;
+            audio.volume = Math.max(0, audio.volume - deltaOut);
+            if (m >= outSteps) { clearInterval(tid3); audio.volume = 0; audio.pause(); }
+          }, 50);
+        }, 5000);
+      }
+    }, 50);
+  }
+
+  // ── 시간 초과 시 일본어로 TTS ──
+  function _speakTimeoutJa() {
+    const text = '時間切れです';
+    if (state.prefs.useVoicevox && voicevoxAvailable) {
+      const sid = state.prefs.voicevoxSpeaker1;
+      if (sid !== 'none' && sid !== undefined && sid !== null) {
+        fetch(`${VOICEVOX_URL}/audio_query?text=${encodeURIComponent(text)}&speaker=${sid}`, { method: 'POST' })
+          .then(r => r.ok ? r.json() : null)
+          .then(query => query ? fetch(`${VOICEVOX_URL}/synthesis?speaker=${sid}`, {
+            method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(query)
+          }) : null)
+          .then(r => r && r.ok ? r.blob() : null)
+          .then(blob => { if (blob) { const a = new Audio(URL.createObjectURL(blob)); a.volume = 0.55; a.play().catch(()=>{}); } })
+          .catch(() => {});
+        return;
+      }
+    }
+    if (!window.speechSynthesis) return;
+    window.speechSynthesis.cancel();
+    const fIdx = state.prefs.voiceFemale;
+    const voice = (fIdx !== 'none' && fIdx !== undefined && fIdx !== null)
+      ? allJaVoices[parseInt(fIdx)]
+      : (allJaVoices[0] || null);
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.lang = 'ja-JP'; utter.volume = 0.6; utter.rate = 0.9;
+    if (voice) utter.voice = voice;
+    window.speechSynthesis.speak(utter);
+  }
+
   // playAudio: 모든 발음이 완전히 끝날 때까지 대기하는 Promise 반환
   async function playAudio(kana) {
     if (!kana) return;
@@ -3815,7 +4593,18 @@ const App = (() => {
 
     // VOICEVOX 모드
     if (state.prefs.useVoicevox && voicevoxAvailable) {
-      const sid = slot === 1 ? state.prefs.voicevoxSpeaker1 : state.prefs.voicevoxSpeaker2;
+      let sid;
+      if (slot === 1) {
+        sid = state.prefs.voicevoxSpeaker1;
+      } else if (slot === 2) {
+        sid = state.prefs.voicevoxSpeaker2;
+      } else {
+        // 슬롯3 (C 화자): speaker1/2와 다른 화자 자동 선택
+        const s1 = state.prefs.voicevoxSpeaker1;
+        const s2 = state.prefs.voicevoxSpeaker2;
+        const other = voicevoxSpeakers.find(sp => sp.id != s1 && sp.id != s2);
+        sid = other ? other.id : s1;
+      }
       // 슬롯2 미설정 시 슬롯1로 폴백
       const useSid = (sid === 'none' || sid === undefined || sid === null)
                      ? state.prefs.voicevoxSpeaker1 : sid;
@@ -3832,29 +4621,33 @@ const App = (() => {
     if (!window.speechSynthesis) return;
     window.speechSynthesis.cancel();
 
-    const vIdx   = slot === 1 ? state.prefs.voiceFemale : state.prefs.voiceMale;
-    const charId = slot === 1 ? (state.prefs.charVoice1 || 'none') : (state.prefs.charVoice2 || 'none');
+    const vIdx   = slot === 1 ? state.prefs.voiceFemale : slot === 2 ? state.prefs.voiceMale : state.prefs.voiceFemale;
+    const charId = slot === 1 ? (state.prefs.charVoice1 || 'none') : slot === 2 ? (state.prefs.charVoice2 || 'none') : (state.prefs.charVoice2 || 'none');
     const cv     = CHARACTER_VOICES.find(c => c.id === charId) || CHARACTER_VOICES[0];
 
     // 슬롯2 미설정이면 슬롯1 설정으로 폴백
-    const useVIdx   = (slot === 2 && (vIdx === 'none' || vIdx === undefined) && charId === 'none')
+    const useVIdx   = (slot >= 2 && (vIdx === 'none' || vIdx === undefined) && charId === 'none')
                       ? state.prefs.voiceFemale : vIdx;
     const useCv     = (slot === 2 && charId === 'none')
                       ? (CHARACTER_VOICES.find(c => c.id === (state.prefs.charVoice1||'none')) || CHARACTER_VOICES[0])
                       : cv;
 
-    const voice = (useVIdx !== 'none' && useVIdx !== undefined)
-                  ? allJaVoices[parseInt(useVIdx)] : (allJaVoices[0] || null);
+    // 슬롯3(C)는 다른 목소리로 구분: 두번째 ja 음성 or 피치 1.25
+    const voice = slot === 3
+      ? (allJaVoices[1] || allJaVoices[0] || null)
+      : (useVIdx !== 'none' && useVIdx !== undefined)
+        ? allJaVoices[parseInt(useVIdx)] : (allJaVoices[0] || null);
 
-    const avatarInfo = buildSlotAvatarHtml(slot);
-    const label = avatarInfo?.name || (slot === 1 ? 'A' : 'B');
+    const avatarInfo = slot < 3 ? buildSlotAvatarHtml(slot) : null;
+    const label = avatarInfo?.name || (slot === 1 ? 'A' : slot === 2 ? 'B' : '주변인');
 
     await new Promise((resolve) => {
       const utter = new SpeechSynthesisUtterance(text);
       utter.lang  = 'ja-JP';
       if (voice) utter.voice = voice;
-      utter.pitch = useCv.pitch || 1.0;
-      utter.rate  = useCv.rate  || 0.8;
+      // 슬롯3(C): 피치를 살짝 높여 A/B와 구분
+      utter.pitch = slot === 3 ? 1.25 : (useCv.pitch || 1.0);
+      utter.rate  = slot === 3 ? 0.82 : (useCv.rate  || 0.8);
       utter.onstart = () => showSpeakingIndicatorWeb(label, slot);
       utter.onend   = () => { hideSpeakingIndicator(); unduckAmbient(); resolve(); };
       utter.onerror = () => { hideSpeakingIndicator(); unduckAmbient(); resolve(); };
@@ -3963,6 +4756,10 @@ const App = (() => {
   function setupVocabView() {
     const section = state.vocabSection || 'word';
 
+    // 모드 리셋 (nav 탭으로 이동 시에도 상태 정리)
+    state.vocabMode = null;
+    state.vocabReadSession = (state.vocabReadSession || 0) + 1; // 진행 중인 ex-read 루프 중단
+
     // 패널 상태 초기화
     document.getElementById('vocab-setup').style.display = 'block';
     document.getElementById('vocab-flash-panel').style.display = 'none';
@@ -3972,6 +4769,12 @@ const App = (() => {
     if (dialogueArea) dialogueArea.style.display = 'none';
     const vfb = document.getElementById('vocab-flash-back');
     if (vfb) vfb.onclick = vocabBackToSetup;
+
+    // 진도 변경 반영을 위해 카테고리 목록 항상 리셋 (빠른 재렌더)
+    ['vocab-word-levels-main', 'vocab-sentence-levels-main', 'vocab-sim-levels-main'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.innerHTML = '';
+    });
 
     // 헤더 제목 + 섹션 표시 전환
     const titleMap = { word: '語彙マスター', sentence: '会話マスター', sim: '実戦ロールプレイ' };
@@ -3988,6 +4791,9 @@ const App = (() => {
   }
 
   function renderVocabSection(section) {
+    const WORD_LABELS = {1:'인사·응답',2:'숫자·날짜',3:'날짜·시각',4:'대명사·지시어',5:'기본 동사',6:'형용사',7:'장소·음식',8:'신체·건강'};
+    const SENT_LABELS = {1:'인사·기초 회화',2:'자기소개·질문',3:'쇼핑·식당',4:'교통·이동',5:'여행·호텔',6:'일상·긴급'};
+
     if (section === 'word') {
       const container = document.getElementById('vocab-word-levels-main');
       if (!container || container.children.length > 0) return; // 이미 렌더됨
@@ -3996,7 +4802,7 @@ const App = (() => {
       const levels = [...new Set(cats.map(c => c.wlevel))].sort((a, b) => a - b);
       levels.forEach(lv => {
         const lvCats = cats.filter(c => c.wlevel === lv);
-        container.appendChild(buildLevelRow(lv, 'W', lvCats));
+        container.appendChild(buildLevelRow(lv, WORD_LABELS[lv] || `W${lv}`, lvCats));
       });
     } else if (section === 'sentence') {
       const container = document.getElementById('vocab-sentence-levels-main');
@@ -4006,7 +4812,7 @@ const App = (() => {
       const levels = [...new Set(cats.map(c => c.slevel).filter(Boolean))].sort((a, b) => a - b);
       levels.forEach(lv => {
         const lvCats = cats.filter(c => c.slevel === lv);
-        container.appendChild(buildLevelRow(lv, 'S', lvCats));
+        container.appendChild(buildLevelRow(lv, SENT_LABELS[lv] || `S${lv}`, lvCats));
       });
     } else if (section === 'sim') {
       const container = document.getElementById('vocab-sim-levels-main');
@@ -4056,7 +4862,9 @@ const App = (() => {
           <button class="vcc-btn vcc-btn-dialogue" data-cid="${cat.id}">🎭 대화 시작</button>
         </div>`;
       card.querySelector('.vcc-btn-dialogue').addEventListener('click', (e) => {
-        e.stopPropagation(); showView('vocab');
+        e.stopPropagation(); 
+        const v = cat.type === 'sim' ? 'roleplay' : (cat.type === 'sentence' ? 'convo' : 'vocab');
+        showView(v);
         setTimeout(() => startVocabCategory(cat.id, 'dialogue'), 100);
       });
     } else {
@@ -4072,15 +4880,21 @@ const App = (() => {
           <button class="vcc-btn vcc-btn-quiz" data-cid="${cat.id}">✏️ 퀴즈</button>
         </div>`;
       card.querySelector('.vcc-btn-flash').addEventListener('click', (e) => {
-        e.stopPropagation(); showView('vocab');
+        e.stopPropagation();
+        const v = cat.type === 'sim' ? 'roleplay' : (cat.type === 'sentence' ? 'convo' : 'vocab');
+        showView(v);
         setTimeout(() => startVocabCategory(cat.id, 'flash'), 100);
       });
       card.querySelector('.vcc-btn-browse').addEventListener('click', (e) => {
-        e.stopPropagation(); showView('vocab');
+        e.stopPropagation(); 
+        const v = cat.type === 'sim' ? 'roleplay' : (cat.type === 'sentence' ? 'convo' : 'vocab');
+        showView(v);
         setTimeout(() => startVocabCategory(cat.id, 'browse'), 100);
       });
       card.querySelector('.vcc-btn-quiz').addEventListener('click', (e) => {
-        e.stopPropagation(); showView('vocab');
+        e.stopPropagation(); 
+        const v = cat.type === 'sim' ? 'roleplay' : (cat.type === 'sentence' ? 'convo' : 'vocab');
+        showView(v);
         setTimeout(() => startVocabCategory(cat.id, 'quiz'), 100);
       });
     }
@@ -4109,6 +4923,7 @@ const App = (() => {
 
   function renderHomeVocabCards() {
     // ── 단어 학습 (W1~W8) ──
+    const _wLabels = {1:'인사·응답',2:'숫자·날짜',3:'날짜·시각',4:'대명사·지시어',5:'기본 동사',6:'형용사',7:'장소·음식',8:'신체·건강'};
     const wordContainer = document.getElementById('vocab-word-levels');
     if (wordContainer) {
       wordContainer.innerHTML = '';
@@ -4116,11 +4931,12 @@ const App = (() => {
       const wLevels = [...new Set(wordCats.map(c => c.wlevel))].sort((a,b)=>a-b);
       wLevels.forEach(lv => {
         const cats = wordCats.filter(c => c.wlevel === lv);
-        wordContainer.appendChild(buildLevelRow(lv, 'W', cats));
+        wordContainer.appendChild(buildLevelRow(lv, _wLabels[lv] || `W${lv}`, cats));
       });
     }
 
     // ── 문장 학습 (S1~S6) ──
+    const _sLabels = {1:'인사·기초 회화',2:'자기소개·질문',3:'쇼핑·식당',4:'교통·이동',5:'여행·호텔',6:'일상·긴급'};
     const sentContainer = document.getElementById('vocab-sentence-levels');
     if (sentContainer) {
       sentContainer.innerHTML = '';
@@ -4128,7 +4944,7 @@ const App = (() => {
       const sLevels = [...new Set(sentCats.map(c => c.slevel).filter(Boolean))].sort((a,b)=>a-b);
       sLevels.forEach(lv => {
         const cats = sentCats.filter(c => c.slevel === lv);
-        sentContainer.appendChild(buildLevelRow(lv, 'S', cats));
+        sentContainer.appendChild(buildLevelRow(lv, _sLabels[lv] || `S${lv}`, cats));
       });
     }
 
@@ -4255,7 +5071,7 @@ const App = (() => {
     } else if (targetMode === 'quiz') {
       state.vocabMode = 'quiz';
       document.getElementById('vocab-quiz-area').style.display = 'block';
-      startVocabQuiz();
+      showVocabQuizIntro();
     } else if (targetMode === 'browse') {
       state.vocabMode = 'browse';
       if (browseArea) browseArea.style.display = 'block';
@@ -4274,7 +5090,7 @@ const App = (() => {
   }
 
   // ─── 롤플레이 인트로 화면 (음악 10초 + 장소 설명) ───
-  async function playDialogueIntro(cat, items, container) {
+  async function playDialogueIntro(cat, items, container, duration = 10000) {
     return new Promise(resolve => {
       if (state.audioStopped) { resolve(); return; }
 
@@ -4299,23 +5115,24 @@ const App = (() => {
         </div>`;
       container.appendChild(intro);
 
-      // 진행바 10초 애니 (약간 딜레이 후 시작)
+      // 진행바 애니 (duration에 맞춰)
       const progressEl = intro.querySelector('.dlg-intro-progress');
       setTimeout(() => {
-        progressEl.style.transition = 'width 10s linear';
+        progressEl.style.transition = `width ${duration / 1000}s linear`;
         progressEl.style.width = '100%';
       }, 80);
 
       const doResolve = () => {
         if (intro._resolved) return;
         intro._resolved = true;
-        // 인트로 화면 완전 제거 (컴팩트 헤더 불필요)
-        intro.remove();
+        // 인트로를 컴팩트 헤더로 전환 (제거하지 않고 유지)
+        intro.classList.add('dlg-intro-compact');
+        intro.style.pointerEvents = 'none';
         resolve();
       };
 
-      // 10초 후 자동 진행
-      const tid = setTimeout(doResolve, 10000);
+      // duration 후 자동 진행
+      const tid = setTimeout(doResolve, duration);
 
       // 클릭하면 즉시 진행
       intro.addEventListener('click', () => { clearTimeout(tid); doResolve(); });
@@ -4446,7 +5263,7 @@ const App = (() => {
       if (!item) return;
       const row = document.createElement('div');
       row.className = `dlg-preview-row dlg-preview-${item.speaker || 'N'}`;
-      const spkrIcon = item.speaker === 'N' ? '🎬' : item.speaker === 'B' ? '💭' : '💬';
+      const spkrIcon = item.speaker === 'N' ? '🎬' : item.speaker === 'C' ? '🧑' : item.speaker === 'B' ? '💭' : '💬';
       const jpText = resolveNames(item.japanese || item.jp || '');
       const krText = resolveNames(item.korean  || item.kr  || '');
       row.innerHTML = `<span class="dlg-preview-spkr">${spkrIcon}</span><span class="dlg-preview-jp">${jpText}</span>`;
@@ -4676,7 +5493,7 @@ const App = (() => {
         continue;
       }
 
-      // A / B 말풍선 생성 (초기엔 숨김)
+      // A / B / C 말풍선 생성 (초기엔 숨김)
       const wrapper = document.createElement('div');
       wrapper.className = `dlg-row dlg-row-${speaker}`;
       wrapper.style.opacity = '0';
@@ -4684,12 +5501,14 @@ const App = (() => {
       const badge = document.createElement('div');
       badge.className = `dlg-badge dlg-badge-${speaker}`;
 
-      // 배지에 아바타 이미지 포함
-      const avatarInfo = buildSlotAvatarHtml(speaker === 'A' ? 1 : 2);
+      // 배지에 아바타 이미지 포함 (C는 아바타 없이 텍스트만)
+      const dlgSlot = speaker === 'A' ? 1 : speaker === 'B' ? 2 : 3;
+      const avatarInfo = dlgSlot < 3 ? buildSlotAvatarHtml(dlgSlot) : null;
+      const speakerLabel = speaker === 'A' ? '나' : speaker === 'B' ? '상대방' : '주변인';
       if (avatarInfo) {
-        badge.innerHTML = `${avatarInfo.avatarHtml}<span class="dlg-badge-name">${speaker === 'A' ? '나' : '상대방'}</span>`;
+        badge.innerHTML = `${avatarInfo.avatarHtml}<span class="dlg-badge-name">${speakerLabel}</span>`;
       } else {
-        badge.textContent = speaker === 'A' ? '나 (A)' : '상대방 (B)';
+        badge.innerHTML = `<span class="dlg-badge-name">${speaker === 'A' ? '나 (A)' : speaker === 'B' ? '상대방 (B)' : '🧑 주변인'}</span>`;
       }
 
       const bubble = document.createElement('div');
@@ -4698,7 +5517,7 @@ const App = (() => {
       const jpResolved = resolveNames(item.japanese);
       const krResolved = resolveNames(item.korean);
       if (jpResolved) {
-        const slot = speaker === 'A' ? 1 : 2;
+        const slot = dlgSlot;
         const jpRow = document.createElement('div');
         jpRow.className = 'dlg-jp-row';
         const jpEl = document.createElement('div');
@@ -4714,10 +5533,12 @@ const App = (() => {
         jpRow.appendChild(replayBtn);
         bubble.appendChild(jpRow);
       }
-      if (item.romaji) {
+      // english 번역 우선, 없으면 romaji 표시
+      const subText = item.english || item.romaji;
+      if (subText) {
         const roEl = document.createElement('div');
-        roEl.className = 'dlg-romaji';
-        roEl.textContent = resolveNames(item.romaji);
+        roEl.className = item.english ? 'dlg-english' : 'dlg-romaji';
+        roEl.textContent = resolveNames(subText);
         bubble.appendChild(roEl);
       }
       if (krResolved) {
@@ -4748,8 +5569,7 @@ const App = (() => {
       // 발화 중 하이라이트
       bubble.classList.add('dlg-speaking');
       if (item.japanese && !state.audioStopped) {
-        const slot = speaker === 'A' ? 1 : 2;
-        await playAudioSlot(resolveNames(item.japanese), slot);
+        await playAudioSlot(resolveNames(item.japanese), dlgSlot);
       }
       bubble.classList.remove('dlg-speaking');
       bubble.classList.add('dlg-done');
@@ -4807,8 +5627,13 @@ const App = (() => {
             state.audioStopped = false;
             const newItems = v.items.map(id => VOCAB_MAP[id]).filter(Boolean);
             startAmbient(state.prefs.ambientDialogue || 'none');
-            setTimeout(() => enterDialogueMode(), 400);
-            playDialogueSequence(newItems, container, cat);
+            // 5초 인트로 화면 후 대화 시작
+            const variantCat = Object.assign({}, cat, { name: v.scene || cat.name });
+            playDialogueIntro(variantCat, newItems, container, 5000).then(() => {
+              if (state.audioStopped) return;
+              enterDialogueMode();
+              playDialogueSequence(newItems, container, cat);
+            });
           };
           endPanel.appendChild(btn);
         });
@@ -4821,16 +5646,15 @@ const App = (() => {
     }
   }
 
-  function renderVocabBrowse() {
+  function renderVocabBrowseGrid(items) {
     const browseGrid = document.getElementById('vocab-browse-grid');
     if (!browseGrid) return;
     browseGrid.innerHTML = '';
-    const items = state.vocabItems;
     items.forEach(item => {
       const el = document.createElement('div');
       el.className = 'vb-item';
       el.innerHTML = `
-        <div class="vb-jp">${item.kanji ? formatWithFurigana(item.kanji, item.japanese) : (item.japanese || item)}</div>
+        <div class="vb-jp">${item.kanji ? formatKanjiWithHint(item.kanji, item.japanese) : (item.japanese || item)}</div>
         <div class="vb-korean">${item.korean || ''}</div>
         <div class="vb-audio">🔊 듣기</div>`;
       el.addEventListener('click', () => {
@@ -4839,16 +5663,75 @@ const App = (() => {
       });
       browseGrid.appendChild(el);
     });
+  }
 
-    // 버튼 연결
+  function renderVocabBrowse() {
+    state.vocabBrowseRandom = false;
+    renderVocabBrowseGrid(state.vocabItems);
+
+    // 정렬 버튼 (초기 상태 리셋)
+    const orderBtn = document.getElementById('vbc-order-btn');
+    const randomBtn = document.getElementById('vbc-random-btn');
+    if (orderBtn) orderBtn.classList.add('bc-active');
+    if (randomBtn) randomBtn.classList.remove('bc-active');
+    if (orderBtn) orderBtn.onclick = () => {
+      state.vocabBrowseRandom = false;
+      orderBtn.classList.add('bc-active');
+      if (randomBtn) randomBtn.classList.remove('bc-active');
+      renderVocabBrowseGrid(state.vocabItems);
+    };
+    if (randomBtn) randomBtn.onclick = () => {
+      state.vocabBrowseRandom = true;
+      randomBtn.classList.add('bc-active');
+      if (orderBtn) orderBtn.classList.remove('bc-active');
+      renderVocabBrowseGrid([...state.vocabItems].sort(() => Math.random() - 0.5));
+    };
+
+    // 전체 듣기 버튼
+    const readallBtn = document.getElementById('vbc-readall-btn');
+    if (readallBtn) readallBtn.onclick = () => {
+      if (state.isReadingAll) {
+        stopAllAudio();
+      } else {
+        const items = state.vocabBrowseRandom
+          ? [...state.vocabItems].sort(() => Math.random() - 0.5)
+          : state.vocabItems;
+        startVocabReadAll(items);
+      }
+    };
+
+    // 플래시카드/퀴즈 버튼
     const flashBtn = document.getElementById('vbc-flash-btn');
     if (flashBtn) flashBtn.onclick = () => {
+      stopAllAudio();
       startVocabCategory(state.vocabCurrentCategoryId, 'flash');
     };
     const quizBtn = document.getElementById('vbc-quiz-btn');
     if (quizBtn) quizBtn.onclick = () => {
+      stopAllAudio();
       startVocabCategory(state.vocabCurrentCategoryId, 'quiz');
     };
+  }
+
+  function startVocabReadAll(items) {
+    stopAllAudio();
+    state.isReadingAll = true;
+    const btn = document.getElementById('vbc-readall-btn');
+    if (btn) { btn.textContent = '⏹ 중지'; btn.classList.add('bc-active'); }
+    const fab = document.getElementById('stop-audio-fab');
+    if (fab) fab.style.display = 'flex';
+    let i = 0;
+    function next() {
+      if (!state.isReadingAll || i >= items.length) {
+        if (i >= items.length) showToast('전체 듣기 완료! ✓');
+        stopAllAudio();
+        return;
+      }
+      playAudio(items[i].japanese || items[i]);
+      i++;
+      ss.readAllTimer = setTimeout(next, 1400);
+    }
+    next();
   }
 
   function getVocabCategoryProgress(catId) {
@@ -4867,30 +5750,38 @@ const App = (() => {
 
   // ─── 단어 플래시카드 ───
 
-  // 텍스트가 카드 너비를 벗어나지 않도록 폰트 크기 자동 조정
+  // 텍스트가 한 줄에 맞도록 폰트 크기 자동 조정 (절대 두 줄로 나오지 않음)
   function fitVocabText(el, defaultSize) {
-    // 측정 중 CSS transition 비활성화 (transition이 켜진 상태에서 scrollWidth를 읽으면 이전 값 반환)
+    // 측정 중 CSS transition 비활성화
     el.style.transition = 'none';
+    // 항상 한 줄 유지
     el.style.whiteSpace = 'nowrap';
-    el.style.fontSize = defaultSize + 'px';
+    el.style.wordBreak = 'normal';
+    el.style.overflowX = 'hidden';
     el.style.lineHeight = '1';
-    el.style.textAlign = '';
-    el.style.padding = '';
-    el.style.wordBreak = '';
+    el.style.textAlign = 'center';
+    el.style.padding = '0 8px';
+
     const container = document.getElementById('vocab-flashcard');
-    const maxW = (container ? container.offsetWidth : 620) - 64;
-    let size = defaultSize;
-    while (el.scrollWidth > maxW && size > 16) {
-      size -= 4;
-      el.style.fontSize = size + 'px';
-    }
-    // 매우 긴 문장은 줄바꿈 허용
-    if (size <= 22) {
-      el.style.whiteSpace = 'normal';
-      el.style.lineHeight = '1.4';
-      el.style.textAlign = 'center';
-      el.style.padding = '0 16px';
-      el.style.wordBreak = 'keep-all';
+    const maxW = (container ? container.offsetWidth : 620) - 48;
+
+    // 이진 탐색으로 최대 폰트 크기 결정 (최소 12px, 최대 defaultSize)
+    let lo = 12, hi = defaultSize, best = lo;
+    el.style.fontSize = hi + 'px';
+    if (el.scrollWidth <= maxW) {
+      best = hi;
+    } else {
+      while (lo <= hi) {
+        const mid = Math.floor((lo + hi) / 2);
+        el.style.fontSize = mid + 'px';
+        if (el.scrollWidth <= maxW) {
+          best = mid;
+          lo = mid + 1;
+        } else {
+          hi = mid - 1;
+        }
+      }
+      el.style.fontSize = best + 'px';
     }
     // 측정 완료 후 transition 복원
     requestAnimationFrame(() => { el.style.transition = ''; });
@@ -4919,47 +5810,54 @@ const App = (() => {
       .slice(0, count);
   }
 
-  // ─── 한자 인라인 후리가나: 漢字(よみ) 포맷 ───
+  // ─── 한자 인라인 후리가나: Ruby HTML 포맷 ───
   // kanji="喫煙所はどこですか", japanese="きつえんじょはどこですか"
-  // → "喫煙所(きつえんじょ)はどこですか"
+  // → "<ruby>喫煙所<rt>きつえんじょ</rt></ruby>はどこですか"
   function formatWithFurigana(kanji, japanese) {
-    if (!kanji || !japanese) return kanji || japanese || '';
-    if (kanji === japanese) return kanji; // 이미 가나뿐
+    if (!kanji || kanji === japanese) return kanji || japanese || '';
+    // 한자 문자별로 매핑 시도
+    // 한자(kanji)와 읽기(japanese)를 분리해서 각 한자에 ruby 부착
+    // 한자가 아닌 문자(히라가나/가타가나/기호)는 그대로 출력
+    const kanjiChars = kanji.split('');
+    const isKanjiChar = c => /[\u4e00-\u9faf\u3400-\u4dbf]/.test(c);
 
-    function isKanjiChar(ch) {
-      const c = ch.charCodeAt(0);
-      return (c >= 0x4E00 && c <= 0x9FFF) ||
-             (c >= 0x3400 && c <= 0x4DBF) ||
-             (c >= 0xF900 && c <= 0xFAFF);
+    // 한자 개수 세기
+    const kanjiCount = kanjiChars.filter(isKanjiChar).length;
+
+    if (kanjiCount === 0) return kanji;
+    if (kanjiCount === 1) {
+      // 한자 1개: 전체에 루비
+      return `<ruby>${kanji}<rt>${japanese}</rt></ruby>`;
     }
 
+    // 한자 여러 개: 순서대로 japanese를 균등 분배
+    // 비-한자 문자는 ruby 없이 출력, 한자에만 ruby 부착
+    // japanese에서 히라가나 부분을 순서대로 나눠 각 한자에 배분
+
+    // 방법: kanji 문자 배열을 순회하며
+    // 비-한자는 그대로, 한자 n번째에는 japanese에서 n번째 부분을 배분
+    // 단순 균등 분배 (한자 수로 나누기)
+    const hiraganaOnly = japanese.replace(/[^\u3040-\u309f\u30a0-\u30ff]/g, '');
+    const perKanji = Math.ceil(hiraganaOnly.length / kanjiCount);
+
+    let hIdx = 0;
     let result = '';
-    let ki = 0, ji = 0;
-
-    while (ki < kanji.length) {
-      if (isKanjiChar(kanji[ki])) {
-        // 연속 한자 블록 수집
-        let block = '';
-        while (ki < kanji.length && isKanjiChar(kanji[ki])) block += kanji[ki++];
-
-        // 다음 비한자 앵커 문자 찾기
-        const anchor = ki < kanji.length ? kanji[ki] : null;
-        let readingEnd;
-        if (anchor !== null) {
-          const pos = japanese.indexOf(anchor, ji);
-          readingEnd = pos !== -1 ? pos : japanese.length;
-        } else {
-          readingEnd = japanese.length;
-        }
-        const reading = japanese.slice(ji, readingEnd);
-        ji = readingEnd;
-        result += reading ? `${block}(${reading})` : block;
+    for (const ch of kanjiChars) {
+      if (isKanjiChar(ch)) {
+        const reading = hiraganaOnly.slice(hIdx, hIdx + perKanji) || '';
+        hIdx += perKanji;
+        result += `<ruby>${ch}<rt>${reading}</rt></ruby>`;
       } else {
-        result += kanji[ki++];
-        if (ji < japanese.length) ji++;
+        result += ch;
       }
     }
     return result;
+  }
+
+  // 한자 + 히라가나를 괄호 표기로 반환 (플래시카드 외 영역용)
+  function formatKanjiWithHint(kanji, japanese) {
+    if (!kanji || kanji === japanese) return kanji || japanese || '';
+    return `${kanji}（${japanese}）`;
   }
 
   // 현재 카테고리가 문장형인지 확인
@@ -4986,19 +5884,19 @@ const App = (() => {
     // ── 앞면 ──
     const jpEl = document.getElementById('vfc-japanese');
     if (isSentence) {
-      // 문장: 한자 부분에만 인라인 후리가나 → 喫煙所(きつえんじょ)はどこですか
-      jpEl.textContent = item.kanji
+      // 문장: 한자 부분에만 인라인 후리가나 (ruby HTML)
+      jpEl.innerHTML = item.kanji
         ? formatWithFurigana(item.kanji, item.japanese)
         : item.japanese;
       jpEl.dataset.audio = item.japanese;
-      fitVocabText(jpEl, 24);
+      fitVocabText(jpEl, 120);
     } else {
-      // 단어: 앞면에 한자, 뒤에 후리가나 표시
-      jpEl.textContent = item.kanji
+      // 단어: 앞면에 한자+후리가나 (ruby HTML)
+      jpEl.innerHTML = item.kanji
         ? formatWithFurigana(item.kanji, item.japanese)
         : item.japanese;
       jpEl.dataset.audio = item.japanese;
-      fitVocabText(jpEl, 80);
+      fitVocabText(jpEl, 180);
     }
 
     // 단어형 별도 후리가나 줄 — 인라인 표기로 대체되므로 숨김
@@ -5007,11 +5905,11 @@ const App = (() => {
 
     // ── 뒷면 ──
     const jpBackEl = document.getElementById('vfc-japanese-back');
-    jpBackEl.textContent = item.kanji
+    jpBackEl.innerHTML = item.kanji
       ? formatWithFurigana(item.kanji, item.japanese)
       : item.japanese;
     jpBackEl.dataset.audio = item.japanese;
-    fitVocabText(jpBackEl, isSentence ? 20 : 56);
+    fitVocabText(jpBackEl, isSentence ? 100 : 160);
 
     const kanjiBEl = document.getElementById('vfc-kanji-back');
     kanjiBEl.textContent = ''; kanjiBEl.style.display = 'none';
@@ -5033,34 +5931,27 @@ const App = (() => {
     if (compoundsEl) {
       if (!isSentence && exData?.compounds?.length) {
         compoundsEl.style.display = '';
-        compoundsEl.innerHTML = '<div class="vfc-ex-title">📚 관련 단어</div>' +
-          exData.compounds.map(c =>
+        // 랜덤 3개 선택
+        const shuffled = exData.compounds.slice().sort(() => Math.random() - 0.5).slice(0, 3);
+        compoundsEl.innerHTML = '<div class="vfc-ex-title">관련 단어</div>' +
+          '<div class="vfc-ex-row">' +
+          shuffled.map(c =>
             `<div class="vfc-ex-item"><span class="vfc-ex-jp vfc-audio-word" onclick="event.stopPropagation();App.playWord(this.textContent)" title="🔊">${c.japanese}</span><span class="vfc-ex-kr">${c.meaning}</span></div>`
-          ).join('');
+          ).join('') +
+          '</div>';
       } else { compoundsEl.style.display = 'none'; compoundsEl.innerHTML = ''; }
     }
 
     if (sentencesEl) {
       if (isSentence) {
-        // 문장형: 사용된 단어 + 유사 예문 2개
-        const usedWords = extractUsedWords(item.japanese);
-        const similar   = getSimilarItems(item, 2);
+        // 문장형: 유사 표현 + 예시 문장 (사용된 단어 섹션 제거)
+        const similar = getSimilarItems(item, 2);
         let html = '';
-        if (usedWords.length) {
-          html += `<div class="vfc-used-words">
-            <div class="vfc-used-words-title">📝 사용된 단어</div>
-            ${usedWords.map(w =>
-              `<span class="vfc-word-chip" onclick="App.playAudio('${w.japanese}')" title="${w.korean}">
-                ${w.kanji ? formatWithFurigana(w.kanji, w.japanese) : w.japanese}
-              </span>`
-            ).join('')}
-          </div>`;
-        }
         if (similar.length) {
           html += `<div class="vfc-similar">
-            <div class="vfc-similar-title">💬 유사 표현</div>
+            <div class="vfc-similar-title">유사 표현</div>
             ${similar.map(s =>
-              `<div class="vfc-similar-item" onclick="App.playAudio('${s.japanese}')">
+              `<div class="vfc-similar-item" onclick="App.playWord('${s.japanese}')">
                 <span class="vfc-similar-jp" data-audio="${s.japanese}">${s.kanji ? formatWithFurigana(s.kanji, s.japanese) : s.japanese}</span>
                 <span class="vfc-similar-kr">${s.korean}</span>
               </div>`
@@ -5068,9 +5959,9 @@ const App = (() => {
           </div>`;
         }
         if (exData?.sentences?.length) {
-          html += '<div class="vfc-similar"><div class="vfc-similar-title">📖 예시 문장</div>' +
+          html += '<div class="vfc-similar"><div class="vfc-similar-title">예시 문장</div>' +
             exData.sentences.slice(0,2).map(s =>
-              `<div class="vfc-similar-item vfc-sent" onclick="App.playAudio('${s.japanese}')">
+              `<div class="vfc-similar-item vfc-sent" onclick="App.playWord('${s.japanese}')">
                 <span class="vfc-similar-jp" data-audio="${s.japanese}">${s.kanji ? formatWithFurigana(s.kanji, s.japanese) : s.japanese}</span>
                 <span class="vfc-similar-kr">${s.meaning}</span>
               </div>`
@@ -5080,11 +5971,30 @@ const App = (() => {
         sentencesEl.innerHTML = html;
       } else if (exData?.sentences?.length) {
         sentencesEl.style.display = '';
-        sentencesEl.innerHTML = '<div class="vfc-ex-title">💬 예시 문장</div>' +
+        sentencesEl.innerHTML = '<div class="vfc-ex-title">예시 문장</div>' +
           exData.sentences.map(s =>
             `<div class="vfc-ex-item vfc-sent"><span class="vfc-sent-jp vfc-audio-word" onclick="event.stopPropagation();App.playWord(this.textContent)" title="🔊">${s.japanese}</span><span class="vfc-ex-kr">${s.meaning}</span></div>`
           ).join('');
       } else { sentencesEl.style.display = 'none'; sentencesEl.innerHTML = ''; }
+    }
+
+    // 다음 카드 peek 업데이트
+    const vPeekEl = document.getElementById('vfc-next-peek');
+    const vPeekChar = document.getElementById('vfc-peek-char');
+    if (vPeekEl && vPeekChar) {
+      if (idx < items.length - 1) {
+        vPeekChar.textContent = '';
+        vPeekEl.style.display = '';
+        vPeekEl.classList.remove('fc-peek-ready');
+      } else {
+        vPeekEl.style.display = 'none';
+      }
+    }
+
+    // 이전 카드 peek 업데이트
+    const vPrevPeekEl2 = document.getElementById('vfc-prev-peek');
+    if (vPrevPeekEl2) {
+      vPrevPeekEl2.style.display = idx > 0 ? '' : 'none';
     }
 
     // 카드 리셋 + 읽기 세션 무효화
@@ -5093,13 +6003,9 @@ const App = (() => {
     stopVocabExRead();
     document.getElementById('vfc-inner').classList.remove('flipped');
 
-
-    // 자동 발음 (앞면 로드 시)
-    setTimeout(() => playAudio(item.japanese), 350);
+    // 앞면에서는 발음하지 않음 — 뒤집을 때 발음 (음성 엉킴 방지)
 
     updateNavStripActive('vfc-nav-strip', idx);
-
-    if (vNextArrow) vNextArrow.disabled = (idx >= items.length - 1);
 
     markVocabSeen(item.id);
   }
@@ -5107,12 +6013,21 @@ const App = (() => {
   // vocab 예시 순차 읽기 (세션 기반)
   async function startVocabExRead(session) {
     stopVocabExRead();
-    // 읽기 대상: vfc-sent-jp, vfc-ex-jp, vfc-similar-jp 요소들
+    // 읽기 대상: showWordEx → 관련 단어(.vfc-ex-jp), showSentEx → 예시 문장/유사 표현(.vfc-sent-jp, .vfc-similar-jp)
     const back = document.querySelector('#vfc-inner .flashcard-back');
     if (!back) return;
-    const targets = [...back.querySelectorAll('.vfc-sent-jp, .vfc-ex-jp, .vfc-similar-jp')]
+
+    const allTargets = [...back.querySelectorAll('.vfc-sent-jp, .vfc-ex-jp, .vfc-similar-jp')]
       .map(el => ({ el, text: el.dataset.audio || el.textContent.trim() }))
       .filter(t => t.text);
+
+    const targets = allTargets.filter(({ el }) => {
+      const inCompounds = !!el.closest('#vfc-compounds');
+      const inSentences = !!el.closest('#vfc-sentences');
+      if (inCompounds && !state.prefs.showWordEx) return false;
+      if (inSentences && !state.prefs.showSentEx) return false;
+      return true;
+    });
 
     for (const t of targets) {
       if (session !== state.vocabReadSession) return;
@@ -5124,76 +6039,323 @@ const App = (() => {
       await new Promise(r => setTimeout(r, 350));
     }
     if (back) back.querySelectorAll('.vfc-reading').forEach(e => e.classList.remove('vfc-reading'));
+
+    if (session !== state.vocabReadSession) return;
+
+    // 다음 카드 있으면 peek 알림 애니메이션
+    const vPeekEl = document.getElementById('vfc-next-peek');
+    if (vPeekEl && vPeekEl.style.display !== 'none') {
+      vPeekEl.classList.remove('fc-peek-ready');
+      void vPeekEl.offsetWidth;
+      vPeekEl.classList.add('fc-peek-ready');
+    }
+
+    // 자동 넘기기 설정 시 카운트다운 후 다음 카드
+    if (state.prefs.autoAdvance && session === state.vocabReadSession) {
+      startVocabAutoAdvance(session);
+    }
+  }
+
+  let _vfcAutoTimer = null;
+  let _vfcAutoCountTimer = null;
+
+  function startVocabAutoAdvance(session) {
+    clearVocabAutoAdvance();
+    const delay = (parseInt(state.prefs.autoAdvanceDelay) || 3);
+    const bar = document.getElementById('vfc-auto-bar');
+    const countEl = document.getElementById('vfc-auto-countdown');
+    if (bar) bar.style.display = 'flex';
+    let remaining = delay;
+    if (countEl) countEl.textContent = remaining + 's';
+    _vfcAutoCountTimer = setInterval(() => {
+      if (session !== state.vocabReadSession) { clearVocabAutoAdvance(); return; }
+      remaining--;
+      if (countEl) countEl.textContent = remaining + 's';
+    }, 1000);
+    _vfcAutoTimer = setTimeout(() => {
+      clearVocabAutoAdvance();
+      if (session !== state.vocabReadSession) return;
+      const items = state.vocabItems;
+      if (state.vocabIndex < items.length - 1) {
+        state.vocabIndex++;
+        showVocabFlashcard();
+        setTimeout(() => {
+          if (state.prefs.autoAdvance) vocabFlipCard();
+        }, 600);
+      }
+    }, delay * 1000);
+  }
+
+  function clearVocabAutoAdvance() {
+    clearTimeout(_vfcAutoTimer);
+    clearInterval(_vfcAutoCountTimer);
+    _vfcAutoTimer = null; _vfcAutoCountTimer = null;
+    const bar = document.getElementById('vfc-auto-bar');
+    if (bar) bar.style.display = 'none';
   }
 
   function stopVocabExRead() {
     document.querySelectorAll('.vfc-reading').forEach(e => e.classList.remove('vfc-reading'));
+    clearVocabAutoAdvance();
   }
 
   function vocabFlipCard() {
-    state.vocabFlipped = !state.vocabFlipped;
-    document.getElementById('vfc-inner').classList.toggle('flipped', state.vocabFlipped);
+    if (state.vocabFlipped) return; // 이미 뒤집힘 — 다시 앞면으로 돌아가지 않음
+    state.vocabFlipped = true;
+    document.getElementById('vfc-inner').classList.add('flipped');
 
-    if (state.vocabFlipped) {
-      // 읽기 세션 증가 → 카드 넘기면 이전 읽기 중단
-      state.vocabReadSession = (state.vocabReadSession || 0) + 1;
-      const session = state.vocabReadSession;
-      const item = state.vocabItems[state.vocabIndex];
+    // 읽기 세션 증가 → 카드 넘기면 이전 읽기 중단
+    state.vocabReadSession = (state.vocabReadSession || 0) + 1;
+    const session = state.vocabReadSession;
+    const item = state.vocabItems[state.vocabIndex];
 
-      // 메인 단어/문장 → 완료 후 예시 순차 읽기
-      (async () => {
+    // 뒷면을 봤으므로 nav strip 즉시 갱신
+    updateNavStripActive('vfc-nav-strip', state.vocabIndex);
+
+    // 메인 단어/문장 → 완료 후 예시 순차 읽기 (또는 자동 넘김)
+    // 뒤집을 때 듀얼 스피커 번갈아 재생
+    (async () => {
+      if (hasSpeakerConfigured(2)) {
+        const slot = state.vocabSpeakerTurn || 1;
+        state.vocabSpeakerTurn = slot === 1 ? 2 : 1;
+        await playAudioSlot(item.japanese, slot);
+      } else {
         await playAudio(item.japanese);
-        if (session !== state.vocabReadSession) return;
-        await new Promise(r => setTimeout(r, 350));
-        if (session === state.vocabReadSession) startVocabExRead(session);
-      })();
-    } else {
-      // 앞면 복귀 → 읽기 중단
-      state.vocabReadSession = (state.vocabReadSession || 0) + 1;
-      stopVocabExRead();
-    }
+      }
+      if (session !== state.vocabReadSession) return;
+      await new Promise(r => setTimeout(r, 350));
+      if (session !== state.vocabReadSession) return;
+      if (state.prefs.showWordEx || state.prefs.showSentEx) {
+        startVocabExRead(session);
+      } else if (state.prefs.autoAdvance) {
+        startVocabAutoAdvance(session);
+      }
+    })();
   }
 
   function setupVocabFlashcardControls() {
     const vcard = document.getElementById('vocab-flashcard');
-    attachSwipe(
-      vcard,
-      () => { if (state.vocabIndex > 0) { state.vocabIndex--; showVocabFlashcard(); } },
-      () => {
+    if (!vcard._swipeBound) {
+      vcard._swipeBound = true;
+      attachSwipe(
+        vcard,
+        () => { clearVocabAutoAdvance(); if (state.vocabIndex > 0) { state.vocabIndex--; showVocabFlashcard(); } },
+        () => {
+          clearVocabAutoAdvance();
+          const item = state.vocabItems[state.vocabIndex];
+          recordVocabResult(item.id, true);
+          if (state.vocabIndex < state.vocabItems.length - 1) {
+            state.vocabIndex++; showVocabFlashcard();
+          } else {
+            showToast('플래시카드 완료! 🎉 퀴즈로 넘어갑니다...');
+            setTimeout(() => {
+              state.vocabMode = 'quiz';
+              document.getElementById('vocab-flashcard-area').style.display = 'none';
+              document.getElementById('vocab-quiz-area').style.display = 'block';
+              showVocabQuizIntro();
+            }, 900);
+          }
+        },
+        () => { clearVocabAutoAdvance(); vocabFlipCard(); }
+      );
+    }
+    const vCancelBtn = document.getElementById('vfc-auto-cancel');
+    if (vCancelBtn) vCancelBtn.onclick = () => {
+      clearVocabAutoAdvance();
+      state.vocabReadSession = (state.vocabReadSession || 0) + 1;
+    };
+
+    // 다음 카드 peek 클릭 → 다음 카드로 이동
+    const vPeekEl = document.getElementById('vfc-next-peek');
+    if (vPeekEl && !vPeekEl._peekBound) {
+      vPeekEl._peekBound = true;
+      vPeekEl.addEventListener('click', () => {
+        clearVocabAutoAdvance();
         const item = state.vocabItems[state.vocabIndex];
-        recordVocabResult(item.id, true);
+        if (item) recordVocabResult(item.id, true);
         if (state.vocabIndex < state.vocabItems.length - 1) {
           state.vocabIndex++; showVocabFlashcard();
-        } else {
-          showToast('플래시카드 완료! 🎉 퀴즈로 넘어갑니다...');
-          setTimeout(() => {
-            state.vocabMode = 'quiz';
-            document.getElementById('vocab-flashcard-area').style.display = 'none';
-            document.getElementById('vocab-quiz-area').style.display = 'block';
-            startVocabQuiz();
-          }, 900);
         }
-      },
-      () => vocabFlipCard()
-    );
+      });
+    }
+
+    // 이전 카드 peek 클릭 → 이전 카드로 이동
+    const vPrevPeekEl = document.getElementById('vfc-prev-peek');
+    if (vPrevPeekEl && !vPrevPeekEl._prevPeekBound) {
+      vPrevPeekEl._prevPeekBound = true;
+      vPrevPeekEl.addEventListener('click', () => {
+        clearVocabAutoAdvance();
+        if (state.vocabIndex > 0) {
+          state.vocabIndex--;
+          showVocabFlashcard();
+        }
+      });
+    }
   }
 
   // ─── 단어 퀴즈 ───
 
+  const _VQ_SPEECHES = [
+    'さあ、単語を覚えよう！',
+    '頑張れ！できるよ！',
+    '一緒に練習しよう！',
+    '諦めないで！',
+    '上手になれるよ！',
+  ];
+  let _vqSpeechTimer = null;
+  let _vqCountdownTimer = null;
+
+  function _doVqStart() {
+    if (_vqCountdownTimer) { clearInterval(_vqCountdownTimer); _vqCountdownTimer = null; }
+    const cdEl = document.getElementById('vq-cdnum');
+    if (cdEl) cdEl.style.display = 'none';
+    document.getElementById('vq-intro').style.display = 'none';
+    document.getElementById('vq-game').style.display = 'block';
+    startVocabQuiz();
+  }
+
+  function _startVqCountdown() {
+    if (_vqCountdownTimer) { clearInterval(_vqCountdownTimer); _vqCountdownTimer = null; }
+    let n = 5;
+    const cdEl = document.getElementById('vq-cdnum');
+    if (cdEl) { cdEl.textContent = n; cdEl.style.display = 'inline-flex'; }
+    _vqCountdownTimer = setInterval(() => {
+      n--;
+      if (cdEl) cdEl.textContent = n > 0 ? n : '!';
+      if (n <= 0) {
+        clearInterval(_vqCountdownTimer);
+        _vqCountdownTimer = null;
+        _doVqStart();
+      }
+    }, 1000);
+  }
+
+  function _buildVqSettings(cat) {
+    const summEl = document.getElementById('vq-settings-summary');
+    if (!summEl) return;
+    const count = state.vocabItems ? state.vocabItems.length : 0;
+    const section = state.vocabSection || 'word';
+    const sectionLabel = section === 'sentence' ? '문장 퀴즈' : section === 'sim' ? '롤플레이 퀴즈' : '단어 퀴즈';
+    const autoAdv = state.prefs.quizAutoAdvance !== false;
+    summEl.innerHTML = `
+      ${cat ? `<div class="qi-chip"><span class="qi-chip-icon">${cat.icon || '📚'}</span>${cat.name}</div>` : ''}
+      <div class="qi-chip"><span class="qi-chip-icon">🔢</span>${count}문제</div>
+      <div class="qi-chip"><span class="qi-chip-icon">⭐</span>${sectionLabel}</div>
+      <div class="qi-chip"><span class="qi-chip-icon">⚡</span>${autoAdv ? '자동넘기기' : '수동넘기기'}</div>
+    `;
+  }
+
+  function showVocabQuizIntro() {
+    const cat = (window.VOCAB_CATEGORIES || []).find(c => c.id === state.vocabCurrentCategoryId);
+    // 인트로 표시
+    document.getElementById('vq-intro').style.display = 'flex';
+    document.getElementById('vq-game').style.display = 'none';
+    document.getElementById('vocab-quiz-result').style.display = 'none';
+    document.getElementById('vocab-quiz-feedback').style.display = 'none';
+
+    // 설정 칩
+    _buildVqSettings(cat);
+
+    // 자동넘기기 토글
+    const aaCb = document.getElementById('vq-autonext-cb');
+    if (aaCb) {
+      aaCb.checked = state.prefs.quizAutoAdvance !== false;
+      aaCb.onchange = () => {
+        state.prefs.quizAutoAdvance = aaCb.checked;
+        saveToStorage();
+        _buildVqSettings(cat);
+      };
+    }
+
+    // 퀵 컨트롤 (배경음 / 화자 / 설정)
+    _setupQiExtras('vq-amb-btn', 'vq-amb-label', 'vq-voice-btn', 'vq-settings-btn', () => _buildVqSettings(cat));
+
+    // 시작 버튼
+    const startBtn = document.getElementById('vq-start-btn');
+    if (startBtn) startBtn.onclick = _doVqStart;
+
+    // 뒤로 가기 버튼
+    const backBtn = document.getElementById('vq-back-btn');
+    if (backBtn) backBtn.onclick = () => vocabBackToSetup();
+
+    // 카운트다운 리셋
+    if (_vqCountdownTimer) { clearInterval(_vqCountdownTimer); _vqCountdownTimer = null; }
+    const cdEl = document.getElementById('vq-cdnum');
+    if (cdEl) cdEl.style.display = 'none';
+
+    // 떠다니는 가나 글자
+    const bg2 = document.getElementById('vq-bg-anim');
+    if (bg2) {
+      bg2.querySelectorAll('.qi-kana-float').forEach(e => e.remove());
+      const kanas = 'あいうえおかきくけこさしすせそたちつてとなにぬねのはひふへほまみむめもやゆよ'.split('');
+      for (let i = 0; i < 14; i++) {
+        const el = document.createElement('div');
+        el.className = 'qi-kana-float';
+        el.textContent = kanas[Math.floor(Math.random() * kanas.length)];
+        el.style.left = Math.random() * 100 + '%';
+        el.style.fontSize = (18 + Math.random() * 18) + 'px';
+        el.style.animationDuration = (12 + Math.random() * 14) + 's';
+        el.style.animationDelay = (-Math.random() * 18) + 's';
+        bg2.appendChild(el);
+      }
+    }
+
+    // 마스코트 대사 순환
+    if (_vqSpeechTimer) clearInterval(_vqSpeechTimer);
+    let _sidx = 0;
+    const sp = document.getElementById('vq-speech-text');
+    if (sp) {
+      sp.textContent = _VQ_SPEECHES[_sidx];
+      _vqSpeechTimer = setInterval(() => {
+        _sidx = (_sidx + 1) % _VQ_SPEECHES.length;
+        if (sp) sp.textContent = _VQ_SPEECHES[_sidx];
+      }, 3500);
+    }
+
+    // 배경음 (크게)
+    startAmbient(state.prefs.ambientQuiz || 'none', 'quiz');
+
+    // 성우 인사 → 인사 후 5초 카운트다운 자동 시작
+    setTimeout(() => {
+      speakCheer('start');
+      setTimeout(_startVqCountdown, 600);
+    }, 900);
+  }
+
   function startVocabQuiz() {
-    startAmbient(state.prefs.ambientQuiz || 'none', 'quiz'); // 단어 퀴즈도 배경음
+    if (state.vqAmbFadeTimer) { clearTimeout(state.vqAmbFadeTimer); state.vqAmbFadeTimer = null; }
     const items = [...state.vocabItems].sort(() => Math.random() - 0.5);
     state.vocabQuizQuestions = items.map(item => buildVocabQuestion(item));
     state.vocabQuizCurrentIdx = 0;
     state.vocabQuizCorrect = 0;
+    state.vocabQuizStreak = 0;
+    state.vocabQuizMaxStreak = 0;
     state.vocabQuizAnswered = false;
+    state.vocabQuizCheerCount = 0;
 
     document.getElementById('vq-correct-count').textContent = '✓ 0';
     document.getElementById('vq-wrong-count').textContent = '✗ 0';
     document.getElementById('vocab-quiz-result').style.display = 'none';
     document.getElementById('vocab-quiz-feedback').style.display = 'none';
 
-    document.getElementById('vqr-retry').onclick = startVocabQuiz;
+    document.getElementById('vqr-retry').onclick = () => {
+      document.getElementById('vq-intro').style.display = 'none';
+      document.getElementById('vocab-quiz-result').style.display = 'none';
+      document.getElementById('vq-game').style.display = 'block';
+      startVocabQuiz();
+    };
+
+    // 진행 중 자동넘기기 토글 동기화
+    const aaCb2 = document.getElementById('vqsm-aa-cb');
+    if (aaCb2) {
+      aaCb2.checked = state.prefs.quizAutoAdvance !== false;
+      aaCb2.onchange = () => { state.prefs.quizAutoAdvance = aaCb2.checked; saveToStorage(); };
+    }
+
+    // 5초 후 배경음 잔잔하게 줄이기
+    state.vqAmbFadeTimer = setTimeout(() => {
+      if (_ambAudio) _ambFadeTo(_ambAudio, _ambTargetVol() * 0.35, 2500);
+    }, 5000);
 
     showVocabQuizQuestion();
   }
@@ -5257,32 +6419,76 @@ const App = (() => {
     // 결과 기록
     recordVocabResult(q.item.id, isCorrect);
 
-    if (isCorrect) {
-      state.vocabQuizCorrect++;
-      document.getElementById('vq-correct-count').textContent = '✓ ' + state.vocabQuizCorrect;
-      playCorrectSound();
-    } else {
-      const wrongCount = state.vocabQuizCurrentIdx + 1 - state.vocabQuizCorrect;
-      document.getElementById('vq-wrong-count').textContent = '✗ ' + wrongCount;
-      playWrongSound();
-    }
-
-    // 피드백
+    // 피드백 UI
     const fb = document.getElementById('vocab-quiz-feedback');
     fb.style.display = 'block';
     const resultEl = document.getElementById('vq-result-text');
     const ansEl = document.getElementById('vq-correct-ans');
     const tipEl = document.getElementById('vq-tip-text');
     const exEl = document.getElementById('vq-example-text');
+    const nextBtn = document.getElementById('vq-next-btn');
 
     if (isCorrect) {
+      state.vocabQuizCorrect++;
+      document.getElementById('vq-correct-count').textContent = '✓ ' + state.vocabQuizCorrect;
+      state.vocabQuizStreak = (state.vocabQuizStreak || 0) + 1;
+      if (state.vocabQuizStreak > (state.vocabQuizMaxStreak || 0)) state.vocabQuizMaxStreak = state.vocabQuizStreak;
+      const streak = state.vocabQuizStreak;
+      const cheerType = streak >= 8 ? 'streak8' : streak >= 5 ? 'streak5' : streak >= 3 ? 'streak3' : 'correct';
+      playCorrectSound();
+
+      state.vocabQuizCheerCount = (state.vocabQuizCheerCount || 0) + 1;
+      const isMilestone = cheerType !== 'correct';
+      const shouldVoice = isMilestone || (state.vocabQuizCheerCount % 3 === 0);
+
       resultEl.textContent = '✓ 정답!';
       resultEl.className = 'qf-result correct';
       ansEl.textContent = '';
+
+      const autoAdv = state.prefs.quizAutoAdvance !== false;
+      state.vocabQuizSeqId = (state.vocabQuizSeqId || 0) + 1;
+      const seqId = state.vocabQuizSeqId;
+
+      if (autoAdv) {
+        nextBtn.textContent = '건너뛰기 →';
+        ;(async () => {
+          await new Promise(r => setTimeout(r, 300));
+          if (state.vocabQuizSeqId !== seqId) return;
+          if (shouldVoice) {
+            await speakCheer(cheerType);
+          } else {
+            const text = _pickCheer(cheerType);
+            if (text) _showCheerBanner(text, '');
+            await new Promise(r => setTimeout(r, 400));
+          }
+          if (state.vocabQuizSeqId !== seqId) return;
+          nextVocabQuestion();
+        })();
+        nextBtn.onclick = () => {
+          state.vocabQuizSeqId = (state.vocabQuizSeqId || 0) + 1;
+          if (window.speechSynthesis) window.speechSynthesis.cancel();
+          nextVocabQuestion();
+        };
+      } else {
+        if (shouldVoice) setTimeout(() => speakCheer(cheerType), 200);
+        else { const text = _pickCheer(cheerType); if (text) _showCheerBanner(text, ''); }
+        nextBtn.textContent = '다음 문제 →';
+        nextBtn.onclick = () => { state.vocabQuizSeqId = (state.vocabQuizSeqId || 0) + 1; if (window.speechSynthesis) window.speechSynthesis.cancel(); nextVocabQuestion(); };
+      }
+
     } else {
+      const wrongCount = state.vocabQuizCurrentIdx + 1 - state.vocabQuizCorrect;
+      document.getElementById('vq-wrong-count').textContent = '✗ ' + wrongCount;
+      state.vocabQuizStreak = 0;
+      setTimeout(() => speakCheer('wrong'), 150);
+      playWrongSound();
+
       resultEl.textContent = '✗ 틀렸어요';
       resultEl.className = 'qf-result wrong';
-      ansEl.textContent = `정답: ${q.item.kanji ? formatWithFurigana(q.item.kanji, q.item.japanese) : q.item.japanese} = ${q.item.korean}`;
+      ansEl.innerHTML = `정답: ${q.item.kanji ? formatKanjiWithHint(q.item.kanji, q.item.japanese) : q.item.japanese} = ${q.item.korean}`;
+
+      nextBtn.textContent = '다음 문제 →';
+      nextBtn.onclick = nextVocabQuestion;
     }
 
     if (q.item.tip) { tipEl.textContent = '💡 ' + q.item.tip; tipEl.style.display = 'block'; }
@@ -5290,8 +6496,6 @@ const App = (() => {
 
     if (q.item.example) { exEl.textContent = '📝 ' + q.item.example; exEl.style.display = 'block'; }
     else exEl.style.display = 'none';
-
-    document.getElementById('vq-next-btn').onclick = nextVocabQuestion;
   }
 
   function nextVocabQuestion() {
@@ -5304,17 +6508,108 @@ const App = (() => {
   }
 
   function showVocabQuizResult() {
-    stopAmbient(2.5);
-    const correct = state.vocabQuizCorrect;
-    const total = state.vocabQuizQuestions.length;
-    const pct = Math.round((correct / total) * 100);
+    if (state.vqAmbFadeTimer) { clearTimeout(state.vqAmbFadeTimer); state.vqAmbFadeTimer = null; }
+    if (_vqSpeechTimer) { clearInterval(_vqSpeechTimer); _vqSpeechTimer = null; }
+    stopQuizAmbientLoud();
+
+    const correct    = state.vocabQuizCorrect;
+    const total      = state.vocabQuizQuestions.length;
+    const wrong      = total - correct;
+    const pct        = total > 0 ? Math.round((correct / total) * 100) : 0;
+    const maxStreak  = state.vocabQuizMaxStreak || 0;
+    const xpGained   = Math.round(correct * 8 + (pct >= 100 ? 40 : pct >= 90 ? 20 : pct >= 70 ? 10 : 0));
+
+    let grade = 'D', gradeColor = '#ef4444';
+    if (pct >= 100) { grade = 'S'; gradeColor = '#f59e0b'; }
+    else if (pct >= 90) { grade = 'A'; gradeColor = '#10b981'; }
+    else if (pct >= 70) { grade = 'B'; gradeColor = '#3b82f6'; }
+    else if (pct >= 50) { grade = 'C'; gradeColor = '#8b5cf6'; }
+
+    const stars = pct >= 80 ? 3 : pct >= 50 ? 2 : pct > 0 ? 1 : 0;
+    let title = '다시 도전해요! 💪';
+    if (pct >= 100) title = '완벽해요! 🎉';
+    else if (pct >= 90) title = '거의 완벽! 🌟';
+    else if (pct >= 70) title = '잘했어요! 👍';
+    else if (pct >= 50) title = '좋아요! 😊';
+
+    const resultCheer = pct >= 100 ? 'perfect' : pct >= 70 ? 'good' : pct >= 50 ? 'pass' : 'poor';
 
     document.getElementById('vocab-quiz-feedback').style.display = 'none';
+    document.getElementById('vq-game').style.display = 'none';
     document.getElementById('vocab-quiz-result').style.display = 'block';
-    document.getElementById('vqr-score').textContent = `${correct} / ${total}`;
-    document.getElementById('vqr-pct').textContent = pct + '%';
 
+    const gradeEl = document.getElementById('vqr-grade-badge');
+    if (gradeEl) { gradeEl.textContent = grade; gradeEl.style.background = gradeColor; gradeEl.style.boxShadow = `0 6px 24px ${gradeColor}88`; }
+    document.getElementById('vqr-title').textContent = title;
+
+    // 별점
+    const starsEl = document.getElementById('vqr-stars');
+    if (starsEl) {
+      starsEl.querySelectorAll('.qr-star').forEach((star, i) => {
+        star.classList.remove('filled', 'pop');
+        if (i < stars) setTimeout(() => { star.classList.add('filled', 'pop'); }, 500 + i * 220);
+      });
+    }
+
+    // 원형 링
+    const ringFill = document.getElementById('vqr-ring-fill');
+    if (ringFill) {
+      const colorMap = { S: '#f59e0b', A: '#10b981', B: '#3b82f6', C: '#8b5cf6', D: '#ef4444' };
+      const circ = 2 * Math.PI * 52;
+      ringFill.style.stroke = colorMap[grade] || '#10b981';
+      ringFill.style.strokeDasharray  = circ;
+      ringFill.style.strokeDashoffset = circ;
+      setTimeout(() => {
+        ringFill.style.transition = 'stroke-dashoffset 1.2s ease-out';
+        ringFill.style.strokeDashoffset = circ * (1 - pct / 100);
+      }, 150);
+    }
+
+    // 퍼센트 카운터
+    const pctEl = document.getElementById('vqr-pct');
+    if (pctEl) {
+      let disp = 0;
+      const iv = setInterval(() => {
+        disp = Math.min(disp + Math.ceil(pct / 40), pct);
+        pctEl.textContent = disp + '%';
+        if (disp >= pct) clearInterval(iv);
+      }, 30);
+    }
+    document.getElementById('vqr-score').textContent = `${correct} / ${total}`;
+
+    document.getElementById('vqr-stat-correct').textContent  = correct;
+    document.getElementById('vqr-stat-wrong').textContent    = wrong;
+    document.getElementById('vqr-stat-maxstreak').textContent = maxStreak;
+
+    document.getElementById('vqr-xp').textContent = '+' + xpGained + ' XP';
+    const xpBar = document.getElementById('vqr-xp-bar-fill');
+    if (xpBar) { xpBar.style.width = '0%'; setTimeout(() => { xpBar.style.width = Math.min(100, (xpGained / 150) * 100) + '%'; }, 700); }
+
+    if (pct >= 70) _triggerQrConfetti2(pct);
+
+    setTimeout(() => speakCheer(resultCheer), 800);
     saveToStorage();
+  }
+
+  function _triggerQrConfetti2(pct) {
+    const el = document.getElementById('vqr-confetti');
+    if (!el) return;
+    el.innerHTML = '';
+    const colors = ['#f59e0b','#10b981','#3b82f6','#e63946','#8b5cf6','#fbbf24'];
+    const count = pct >= 90 ? 55 : 30;
+    for (let i = 0; i < count; i++) {
+      const p = document.createElement('div');
+      p.className = 'qr-confetti-piece';
+      p.style.left = Math.random() * 100 + '%';
+      p.style.top  = '-10px';
+      p.style.background = colors[Math.floor(Math.random() * colors.length)];
+      p.style.width = (6 + Math.random() * 8) + 'px';
+      p.style.height = (6 + Math.random() * 8) + 'px';
+      p.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+      p.style.animationDuration = (2.5 + Math.random() * 2) + 's';
+      p.style.animationDelay    = (Math.random() * 1.2) + 's';
+      el.appendChild(p);
+    }
   }
 
   // ─── 단어 진도 기록 ───
@@ -5365,7 +6660,12 @@ const App = (() => {
 
   function vocabBackToSetup() {
     state.vocabMode = null;
-    state.audioStopped = true;
+    stopAllAudio();
+    clearVocabAutoAdvance();
+    state.vocabReadSession = (state.vocabReadSession || 0) + 1;
+    if (_vqSpeechTimer) { clearInterval(_vqSpeechTimer); _vqSpeechTimer = null; }
+    if (_vqCountdownTimer) { clearInterval(_vqCountdownTimer); _vqCountdownTimer = null; }
+    if (state.vqAmbFadeTimer) { clearTimeout(state.vqAmbFadeTimer); state.vqAmbFadeTimer = null; }
     stopAmbient(1.5);
     // 카테고리 패널 리셋
     document.getElementById('vocab-setup').style.display = 'block';
@@ -5374,6 +6674,11 @@ const App = (() => {
     if (browseArea) browseArea.style.display = 'none';
     const dialogueArea = document.getElementById('vocab-dialogue-area');
     if (dialogueArea) dialogueArea.style.display = 'none';
+    // 진도 변경 반영을 위해 카테고리 목록 리셋 (재렌더 트리거)
+    ['vocab-word-levels-main', 'vocab-sentence-levels-main', 'vocab-sim-levels-main'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.innerHTML = '';
+    });
     // 현재 섹션에 맞는 마스터 뷰로 복귀
     const sectionViewMap = { word: 'vocab', sentence: 'convo', sim: 'roleplay' };
     const returnView = sectionViewMap[state.vocabSection] || 'vocab';
@@ -5640,6 +6945,7 @@ const App = (() => {
       state.unlockedLevels = [1];
       state.currentLevel = 1;
       state.bookmarks = [];
+      state.recentActivity = [];
       renderBookmarkSection();
       applyAndRefresh();
       closeAdminPanel();
@@ -5651,8 +6957,8 @@ const App = (() => {
   // 스크립트 내 {F}/{M} 플레이스홀더를 설정된 이름으로 교체
   function resolveNames(text) {
     if (!text) return text;
-    const f = state.prefs.femaleName || '주영';
-    const m = state.prefs.maleName   || '승현';
+    const f = state.prefs.femaleName || 'ジュヨン';
+    const m = state.prefs.maleName   || 'スンヒョン';
     return text.replace(/\{F\}/g, f).replace(/\{M\}/g, m);
   }
 
@@ -5716,9 +7022,9 @@ const App = (() => {
     playAudio,
     playWord,
     startReview,
+    startVocabReview,
     startLearn,
     startQuizForLevel,
-    backToQuizSetup,
     startAllBrowse,
     toggleWriteExam,
     writeExamCheck,

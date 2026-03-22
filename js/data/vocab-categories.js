@@ -422,7 +422,12 @@ const VOCAB_CATEGORIES = [
     title:'롤플레이: 버스',
     subtitle:'목적지 확인 → 1일권 → 정리권 → 하차',
     desc:'버스 탑승부터 하차까지 — 기사·승무원과의 완전한 대화 시나리오',
-    items:['bus_n1','bus_1','bus_2','bus_3','bus_4','bus_5','bus_6','bus_7','bus_8','bus_9','bus_10']
+    items:['bus_n1','bus_1','bus_2','bus_3','bus_4','bus_5','bus_6','bus_7','bus_8','bus_9','bus_10'],
+    variants:[
+      { scene:'버스 탑승·하차', items:['bus_n1','bus_1','bus_2','bus_3','bus_4','bus_5','bus_6','bus_7','bus_8','bus_9','bus_10'] },
+      { scene:'버스 기사에게 경로 확인 (3인)', items:['bus2_n','bus2_a1','bus2_c1','bus2_b1','bus2_a2','bus2_c2','bus2_b2','bus2_a3','bus2_c3','bus2_a4'] },
+      { scene:'야간버스 예약 (3인)', items:['bus3_n','bus3_a1','bus3_c1','bus3_b1','bus3_c2','bus3_a2','bus3_c3','bus3_b2','bus3_a3','bus3_c4'] },
+    ]
   },
   {
     id:'sim_taxi_dlg', phase:9, type:'sim', simlevel:1, dialogue:true,
@@ -458,7 +463,11 @@ const VOCAB_CATEGORIES = [
     title:'롤플레이: 이자카야',
     subtitle:'입장 → 자리 → 맥주·야키토리 주문',
     desc:'일본 이자카야에서의 저녁 식사 — 금연석, 안주, 계산까지',
-    items:['iz_n1','iz_1','iz_2','iz_3','iz_4','iz_5','iz_6','iz_7','iz_8','iz_9','iz_10','iz_11','iz_12']
+    items:['iz_n1','iz_1','iz_2','iz_3','iz_4','iz_5','iz_6','iz_7','iz_8','iz_9','iz_10','iz_11','iz_12'],
+    variants:[
+      { scene:'기본 이자카야', items:['iz_n1','iz_1','iz_2','iz_3','iz_4','iz_5','iz_6','iz_7','iz_8','iz_9','iz_10','iz_11','iz_12'] },
+      { scene:'추천 요청 + 단품 주문 (3인)', items:['iza2_n','iza2_a1','iza2_c1','iza2_b1','iza2_a2','iza2_c2','iza2_b2','iza2_c3','iza2_a3','iza2_b3'] },
+    ]
   },
   {
     id:'sim_cafe_dlg', phase:9, type:'sim', simlevel:2, dialogue:true,
@@ -484,6 +493,7 @@ const VOCAB_CATEGORIES = [
       { scene:'도시락·ATM', items:['kd_n1','kd_1','kd_2','kd_3','kd_4','kd_5','kd_6','kd_7','kd_8','kd_9','kd_10'] },
       { scene:'복사기·핫스낵', items:['kd2_n1','kd2_1','kd2_2','kd2_3','kd2_4','kd2_5','kd2_6','kd2_7','kd2_8','kd2_9','kd2_10'] },
       { scene:'공과금·우산', items:['kd3_n1','kd3_1','kd3_2','kd3_3','kd3_4','kd3_5','kd3_6','kd3_7','kd3_8','kd3_9','kd3_10'] },
+      { scene:'택배 발송 서비스 (3인)', items:['kb2_n','kb2_a1','kb2_c1','kb2_b1','kb2_a2','kb2_c2','kb2_b2','kb2_a3','kb2_c3','kb2_a4','kb2_c4'] },
     ]
   },
   {
@@ -492,7 +502,11 @@ const VOCAB_CATEGORIES = [
     title:'롤플레이: 조식 뷔페에서',
     subtitle:'방 번호 확인 → 커피·미소시루 → 알레르기',
     desc:'호텔 조식 뷔페 — 자리 안내부터 메뉴 확인까지 아침 식사 완전 시나리오',
-    items:['bfr_n1','bfr_1','bfr_2','bfr_3','bfr_4','bfr_5','bfr_6','bfr_7','bfr_8','bfr_9','bfr_10']
+    items:['bfr_n1','bfr_1','bfr_2','bfr_3','bfr_4','bfr_5','bfr_6','bfr_7','bfr_8','bfr_9','bfr_10'],
+    variants:[
+      { scene:'기본 조식 뷔페', items:['bfr_n1','bfr_1','bfr_2','bfr_3','bfr_4','bfr_5','bfr_6','bfr_7','bfr_8','bfr_9','bfr_10'] },
+      { scene:'카페 커스텀 주문 + 알레르기 (3인)', items:['cafe2_n','cafe2_a1','cafe2_c1','cafe2_b1','cafe2_c2','cafe2_b2','cafe2_c3','cafe2_a2','cafe2_c4','cafe2_b3'] },
+    ]
   },
 
   // ── 3. 숙박편 (simlevel:3) ────────────────────────────────
@@ -507,6 +521,7 @@ const VOCAB_CATEGORIES = [
       { scene:'기본 체크인', items:['hd_n1','hd_1','hd_2','hd_3','hd_4','hd_5','hd_6','hd_7','hd_8','hd_9','hd_10','hd_11','hd_12'] },
       { scene:'방 문제 해결', items:['hd2_n1','hd2_1','hd2_2','hd2_3','hd2_4','hd2_5','hd2_6','hd2_7','hd2_8','hd2_9','hd2_10','hd2_11'] },
       { scene:'맛집 정보 요청', items:['hd3_n1','hd3_1','hd3_2','hd3_3','hd3_4','hd3_5','hd3_6','hd3_7','hd3_8','hd3_9','hd3_10','hd3_11'] },
+      { scene:'얼리 체크인 + 시설 문의 (3인)', items:['ht2_n','ht2_a1','ht2_c1','ht2_b1','ht2_a2','ht2_c2','ht2_b2','ht2_a3','ht2_c3','ht2_b3'] },
     ]
   },
   {
@@ -515,7 +530,11 @@ const VOCAB_CATEGORIES = [
     title:'롤플레이: 호텔 체크인 심화',
     subtitle:'예약 확인 → 금연방 → 조식 → 짐 보관 → Wi-Fi',
     desc:'호텔 프런트 체크인 — 이름 확인부터 방 열쇠 받기까지 완전한 흐름',
-    items:['cin_n1','cin_1','cin_2','cin_3','cin_4','cin_5','cin_6','cin_7','cin_8','cin_9','cin_10','cin_11']
+    items:['cin_n1','cin_1','cin_2','cin_3','cin_4','cin_5','cin_6','cin_7','cin_8','cin_9','cin_10','cin_11'],
+    variants:[
+      { scene:'기본 체크인 심화', items:['cin_n1','cin_1','cin_2','cin_3','cin_4','cin_5','cin_6','cin_7','cin_8','cin_9','cin_10','cin_11'] },
+      { scene:'얼리 체크인 + 베개 교체 (3인)', items:['ci2_n','ci2_a1','ci2_c1','ci2_b1','ci2_a2','ci2_c2','ci2_b2','ci2_a3','ci2_c3','ci2_a4'] },
+    ]
   },
   {
     id:'sim_checkout', phase:10, type:'sim', simlevel:3, dialogue:true,
@@ -523,7 +542,11 @@ const VOCAB_CATEGORIES = [
     title:'롤플레이: 호텔 체크아웃',
     subtitle:'정산 → 짐 보관 → 택시 호출 → 작별',
     desc:'체크아웃 전체 절차 — 정산·짐 맡기기·택시 요청까지',
-    items:['cout_n1','cout_1','cout_2','cout_3','cout_4','cout_5','cout_6','cout_7','cout_8','cout_9','cout_10']
+    items:['cout_n1','cout_1','cout_2','cout_3','cout_4','cout_5','cout_6','cout_7','cout_8','cout_9','cout_10'],
+    variants:[
+      { scene:'기본 체크아웃', items:['cout_n1','cout_1','cout_2','cout_3','cout_4','cout_5','cout_6','cout_7','cout_8','cout_9','cout_10'] },
+      { scene:'레이트 체크아웃 + 짐 배송 (3인)', items:['cout2_n','cout2_a1','cout2_c1','cout2_b1','cout2_a2','cout2_c2','cout2_b2','cout2_c3','cout2_a3','cout2_c4'] },
+    ]
   },
   {
     id:'sim_roomservice', phase:10, type:'sim', simlevel:3, dialogue:true,
@@ -531,7 +554,11 @@ const VOCAB_CATEGORIES = [
     title:'롤플레이: 룸서비스',
     subtitle:'전화 주문 → 수건 요청 → 에어컨 고장 → 조식 문의',
     desc:'호텔 방에서 전화로 룸서비스 요청 — 다양한 요청 시나리오',
-    items:['rs_n1','rs_1','rs_2','rs_3','rs_4','rs_5','rs_6','rs_7','rs_8','rs_9','rs_10']
+    items:['rs_n1','rs_1','rs_2','rs_3','rs_4','rs_5','rs_6','rs_7','rs_8','rs_9','rs_10'],
+    variants:[
+      { scene:'기본 룸서비스', items:['rs_n1','rs_1','rs_2','rs_3','rs_4','rs_5','rs_6','rs_7','rs_8','rs_9','rs_10'] },
+      { scene:'야간 룸서비스 추가 주문 (3인)', items:['rs2_n','rs2_a1','rs2_c1','rs2_b1','rs2_a2','rs2_c2','rs2_b2','rs2_a3','rs2_c3','rs2_a4'] },
+    ]
   },
   {
     id:'sim_phone', phase:10, type:'sim', simlevel:3, dialogue:true,
@@ -539,7 +566,11 @@ const VOCAB_CATEGORIES = [
     title:'롤플레이: 전화 예약',
     subtitle:'인원 확인 → 날짜 조율 → 이름·번호 → 취소 정책',
     desc:'전화로 식당·숙소 예약 — 예약부터 취소 정책 확인까지',
-    items:['ph_n1','ph_1','ph_2','ph_3','ph_4','ph_5','ph_6','ph_7','ph_8','ph_9','ph_10','ph_11']
+    items:['ph_n1','ph_1','ph_2','ph_3','ph_4','ph_5','ph_6','ph_7','ph_8','ph_9','ph_10','ph_11'],
+    variants:[
+      { scene:'식당·숙소 예약', items:['ph_n1','ph_1','ph_2','ph_3','ph_4','ph_5','ph_6','ph_7','ph_8','ph_9','ph_10','ph_11'] },
+      { scene:'온천 료칸 예약 (3인)', items:['ph2_n','ph2_a1','ph2_c1','ph2_b1','ph2_a2','ph2_c2','ph2_b2','ph2_a3','ph2_c3','ph2_a4','ph2_c4'] },
+    ]
   },
   {
     id:'sim_onsen', phase:10, type:'sim', simlevel:3, dialogue:true,
@@ -547,7 +578,11 @@ const VOCAB_CATEGORIES = [
     title:'롤플레이: 온천에서',
     subtitle:'사용법 문의 → 샴푸·수건 → 노천탕 안내',
     desc:'료칸 대욕장 — 탈의실부터 노천탕까지, 온천 예절과 이용법 완전 시나리오',
-    items:['ons_n1','ons_1','ons_2','ons_3','ons_4','ons_5','ons_6','ons_7','ons_8','ons_9','ons_10']
+    items:['ons_n1','ons_1','ons_2','ons_3','ons_4','ons_5','ons_6','ons_7','ons_8','ons_9','ons_10'],
+    variants:[
+      { scene:'기본 온천 이용', items:['ons_n1','ons_1','ons_2','ons_3','ons_4','ons_5','ons_6','ons_7','ons_8','ons_9','ons_10'] },
+      { scene:'온천 규칙 + 수건 빌리기 (3인)', items:['ons2_n','ons2_a1','ons2_c1','ons2_b1','ons2_a2','ons2_c2','ons2_b2','ons2_a3','ons2_c3','ons2_b3'] },
+    ]
   },
 
   // ── 4. 쇼핑편 (simlevel:4) ────────────────────────────────
@@ -557,7 +592,11 @@ const VOCAB_CATEGORIES = [
     title:'롤플레이: 편집샵·옷가게에서',
     subtitle:'신상 탐색 → 시착 → 사이즈 → 면세·카드',
     desc:'일본 패션 편집샵에서의 쇼핑 — 시착부터 면세 결제까지',
-    items:['sel_n1','sel_1','sel_2','sel_3','sel_4','sel_5','sel_6','sel_7','sel_8','sel_9','sel_10']
+    items:['sel_n1','sel_1','sel_2','sel_3','sel_4','sel_5','sel_6','sel_7','sel_8','sel_9','sel_10'],
+    variants:[
+      { scene:'기본 편집샵', items:['sel_n1','sel_1','sel_2','sel_3','sel_4','sel_5','sel_6','sel_7','sel_8','sel_9','sel_10'] },
+      { scene:'한정 컬러 + 회원 가입 (3인)', items:['sel2_n','sel2_a1','sel2_c1','sel2_b1','sel2_a2','sel2_c2','sel2_b2','sel2_a3','sel2_c3','sel2_b3','sel2_a4'] },
+    ]
   },
   {
     id:'sim_donki', phase:10, type:'sim', simlevel:4, dialogue:true,
@@ -565,7 +604,11 @@ const VOCAB_CATEGORIES = [
     title:'롤플레이: 돈키호테에서',
     subtitle:'화장품 위치 → 면세 → 과자 코너 → 앱 포인트',
     desc:'돈키호테에서 화장품·과자·면세까지 — 쇼핑 완전 정복',
-    items:['dnq_n1','dnq_1','dnq_2','dnq_3','dnq_4','dnq_5','dnq_6','dnq_7','dnq_8','dnq_9','dnq_10']
+    items:['dnq_n1','dnq_1','dnq_2','dnq_3','dnq_4','dnq_5','dnq_6','dnq_7','dnq_8','dnq_9','dnq_10'],
+    variants:[
+      { scene:'기본 돈키호테', items:['dnq_n1','dnq_1','dnq_2','dnq_3','dnq_4','dnq_5','dnq_6','dnq_7','dnq_8','dnq_9','dnq_10'] },
+      { scene:'직원 도움 + 할인 쿠폰 (3인)', items:['dnq2_n','dnq2_a1','dnq2_c1','dnq2_b1','dnq2_a2','dnq2_c2','dnq2_b2','dnq2_a3','dnq2_c3','dnq2_b3'] },
+    ]
   },
   {
     id:'sim_department', phase:10, type:'sim', simlevel:4, dialogue:true,
@@ -573,7 +616,11 @@ const VOCAB_CATEGORIES = [
     title:'롤플레이: 백화점에서',
     subtitle:'선물 구입 → 포장 → 면세 → 식품관',
     desc:'일본 백화점에서 선물 쇼핑 — 포장·면세·식품관 완전 시나리오',
-    items:['dep_n1','dep_1','dep_2','dep_3','dep_4','dep_5','dep_6','dep_7','dep_8','dep_9','dep_10']
+    items:['dep_n1','dep_1','dep_2','dep_3','dep_4','dep_5','dep_6','dep_7','dep_8','dep_9','dep_10'],
+    variants:[
+      { scene:'기본 백화점', items:['dep_n1','dep_1','dep_2','dep_3','dep_4','dep_5','dep_6','dep_7','dep_8','dep_9','dep_10'] },
+      { scene:'선물 + 해외 배송 (3인)', items:['dep2_n','dep2_a1','dep2_c1','dep2_b1','dep2_a2','dep2_c2','dep2_b2','dep2_a3','dep2_c3','dep2_b3','dep2_a4','dep2_c4'] },
+    ]
   },
   {
     id:'sim_shopping_dlg', phase:10, type:'sim', simlevel:4, dialogue:true,
@@ -625,7 +672,11 @@ const VOCAB_CATEGORIES = [
     title:'롤플레이: 야구장에서',
     subtitle:'티켓 구입 → 응원 용품 → 맥주·가라아게 → 응원',
     desc:'일본 프로야구 관전 — 입장부터 응원까지 완전한 야구장 시나리오',
-    items:['bsb_n1','bsb_1','bsb_2','bsb_3','bsb_4','bsb_5','bsb_6','bsb_7','bsb_8','bsb_9','bsb_10']
+    items:['bsb_n1','bsb_1','bsb_2','bsb_3','bsb_4','bsb_5','bsb_6','bsb_7','bsb_8','bsb_9','bsb_10'],
+    variants:[
+      { scene:'기본 야구장', items:['bsb_n1','bsb_1','bsb_2','bsb_3','bsb_4','bsb_5','bsb_6','bsb_7','bsb_8','bsb_9','bsb_10'] },
+      { scene:'매점 직원과 대화 (3인)', items:['bsb2_n','bsb2_a1','bsb2_c1','bsb2_b1','bsb2_a2','bsb2_c2','bsb2_b2','bsb2_a3','bsb2_c3','bsb2_a4','bsb2_b3'] },
+    ]
   },
   {
     id:'sim_pointing', phase:10, type:'sim', simlevel:5, dialogue:true,
@@ -758,6 +809,112 @@ const VOCAB_CATEGORIES = [
       { scene:'사진 리뷰 배틀', items:['cp6v2_n','cp6v2_b1','cp6v2_a1','cp6v2_b2','cp6v2_a2','cp6v2_b3','cp6v2_a3','cp6v2_b4','cp6v2_a4','cp6v2_b5'] },
       { scene:'외국인한테 투샷 부탁', items:['cp6v3_n','cp6v3_b1','cp6v3_a1','cp6v3_b2','cp6v3_a2','cp6v3_b3','cp6v3_a3','cp6v3_b4','cp6v3_a4','cp6v3_a5'] },
       { scene:'SNS 릴스 촬영 고난', items:['cp6v4_n','cp6v4_b1','cp6v4_a1','cp6v4_b2','cp6v4_a2','cp6v4_b3','cp6v4_a3','cp6v4_b4','cp6v4_a4','cp6v4_b5'] },
+    ]
+  },
+
+  // ══════════════════════════════════════════════════════════
+  //  승현 & 주영 시리즈 (sh1~sh9)
+  // ══════════════════════════════════════════════════════════
+  {
+    id:'sim_sh_airport', phase:11, type:'sim', simlevel:6, dialogue:true,
+    name:'대한항공 공항 체크인', icon:'✈️',
+    title:'롤플레이: 대한항공 공항 체크인',
+    subtitle:'非常口席 → 体重告白 → スーツケース超過',
+    desc:'승현의 비상구 좌석 요청과 체중 고백, 수하물 초과까지 — 체크인부터 사건 사고',
+    items:['sh1_n','sh1_c1','sh1_a1','sh1_c2','sh1_a2','sh1_b1','sh1_c3','sh1_a3','sh1_c4','sh1_b2','sh1_a4','sh1_c5','sh1_b3','sh1_a5','sh1_b4'],
+    variants:[
+      { scene:'비상구 좌석 + 수하물 초과', items:['sh1_n','sh1_c1','sh1_a1','sh1_c2','sh1_a2','sh1_b1','sh1_c3','sh1_a3','sh1_c4','sh1_b2','sh1_a4','sh1_c5','sh1_b3','sh1_a5','sh1_b4'] },
+      { scene:'나리타 수하물 찾기 대소동', items:['sh1v2_n','sh1v2_a1','sh1v2_b1','sh1v2_a2','sh1v2_c1','sh1v2_a3','sh1v2_c2','sh1v2_b2','sh1v2_a4'] },
+    ]
+  },
+  {
+    id:'sim_sh_sushiro', phase:11, type:'sim', simlevel:6, dialogue:true,
+    name:'스시로 회전초밥 20접시 도전', icon:'🍣',
+    title:'롤플레이: 스시로 회전초밥 20접시 도전',
+    subtitle:'20皿宣言 → アサヒ注文 → コスパ格差',
+    desc:'승현의 20접시 선언과 아사히 맥주, 주영의 3접시 — 부부의 회전초밥 가성비 격차',
+    items:['sh2_n','sh2_a1','sh2_b1','sh2_c1','sh2_a2','sh2_c2','sh2_a3','sh2_b2','sh2_a4','sh2_b3','sh2_a5','sh2_b4','sh2_a6','sh2_b5'],
+    variants:[
+      { scene:'20접시 도전 + 아사히', items:['sh2_n','sh2_a1','sh2_b1','sh2_c1','sh2_a2','sh2_c2','sh2_a3','sh2_b2','sh2_a4','sh2_b3','sh2_a5','sh2_b4','sh2_a6','sh2_b5'] },
+      { scene:'터치패널 특별 주문 (성게알)', items:['sh2v2_n','sh2v2_a1','sh2v2_b1','sh2v2_a2','sh2v2_b2','sh2v2_a3','sh2v2_b3','sh2v2_a4'] },
+    ]
+  },
+  {
+    id:'sim_sh_uniqlo', phase:11, type:'sim', simlevel:6, dialogue:true,
+    name:'긴자 유니클로 3XL 탐색', icon:'👕',
+    title:'롤플레이: 긴자 유니클로 3XL 탐색',
+    subtitle:'3XL探し → ちょっとキツい → ウエスト100',
+    desc:'3XL 플리스를 찾아 긴자 유니클로를 헤매는 승현, 입어보면 "좀 빡빡한" 의례적 결말',
+    items:['sh3_n','sh3_b1','sh3_a1','sh3_c1','sh3_a2','sh3_c2','sh3_a3','sh3_b2','sh3_a4','sh3_b3','sh3_a5','sh3_b4','sh3_a6'],
+    variants:[
+      { scene:'3XL 플리스 + 허리 100 청바지', items:['sh3_n','sh3_b1','sh3_a1','sh3_c1','sh3_a2','sh3_c2','sh3_a3','sh3_b2','sh3_a4','sh3_b3','sh3_a5','sh3_b4','sh3_a6'] },
+      { scene:'30cm 신발 = ABC마트 작전', items:['sh3v2_n','sh3v2_a1','sh3v2_b1','sh3v2_a2','sh3v2_b2','sh3v2_a3'] },
+    ]
+  },
+  {
+    id:'sim_sh_iqos', phase:11, type:'sim', simlevel:6, dialogue:true,
+    name:'패밀리마트 아이코스 구매', icon:'🚬',
+    title:'롤플레이: 패밀리마트 아이코스 구매',
+    subtitle:'HEETS購入 → 年齢確認 → 指定喫煙所',
+    desc:'아이코스 스틱 사러 편의점에 들른 승현 — 50대가 연령 확인하는 웃긴 상황과 흡연 구역 탐색',
+    items:['sh4_n','sh4_a1','sh4_b1','sh4_a2','sh4_c1','sh4_a3','sh4_b2','sh4_c2','sh4_a4','sh4_b3','sh4_a5','sh4_b4','sh4_a6'],
+    variants:[
+      { scene:'HEETS 구매 + 흡연 구역 찾기', items:['sh4_n','sh4_a1','sh4_b1','sh4_a2','sh4_c1','sh4_a3','sh4_b2','sh4_c2','sh4_a4','sh4_b3','sh4_a5','sh4_b4','sh4_a6'] },
+    ]
+  },
+  {
+    id:'sim_sh_izakaya', phase:11, type:'sim', simlevel:6, dialogue:true,
+    name:'시부야 이자카야 (사쿠라와 함께)', icon:'🍶',
+    title:'롤플레이: 시부야 이자카야',
+    subtitle:'芋焼酎 vs ソジュ → LG狂の正体 → 横浜スタジアム作戦',
+    desc:'주영의 일본인 친구 사쿠라와 셋이서 — 고구마 소주, LG 광팬의 정체, 다음 야구 약속',
+    items:['sh5_n','sh5_c1','sh5_b1','sh5_a1','sh5_c2','sh5_a2','sh5_c3','sh5_a3','sh5_b2','sh5_c4','sh5_a4','sh5_b3','sh5_c5','sh5_b4','sh5_a5'],
+    variants:[
+      { scene:'이자카야 3인 대화', items:['sh5_n','sh5_c1','sh5_b1','sh5_a1','sh5_c2','sh5_a2','sh5_c3','sh5_a3','sh5_b2','sh5_c4','sh5_a4','sh5_b3','sh5_c5','sh5_b4','sh5_a5'] },
+    ]
+  },
+  {
+    id:'sim_sh_outlet', phase:11, type:'sim', simlevel:6, dialogue:true,
+    name:'고템바 프리미엄 아울렛', icon:'🏔️',
+    title:'롤플레이: 고템바 프리미엄 아울렛',
+    subtitle:'富士山ビュー → ノースフェイス3XL → またキツい',
+    desc:'후지산 뷰 아울렛에서 노스페이스 3XL을 찾았지만 결국 "좀 빡빡한" — 변하지 않는 진리',
+    items:['sh6_n','sh6_b1','sh6_a1','sh6_b2','sh6_a2','sh6_b3','sh6_c1','sh6_a3','sh6_b4','sh6_a4','sh6_b5','sh6_a5'],
+    variants:[
+      { scene:'후지산 뷰 + 노스페이스 3XL', items:['sh6_n','sh6_b1','sh6_a1','sh6_b2','sh6_a2','sh6_b3','sh6_c1','sh6_a3','sh6_b4','sh6_a4','sh6_b5','sh6_a5'] },
+    ]
+  },
+  {
+    id:'sim_sh_baseball', phase:11, type:'sim', simlevel:6, dialogue:true,
+    name:'도쿄돔 야구 관람', icon:'⚾',
+    title:'롤플레이: 도쿄돔 야구 관람',
+    subtitle:'LG狂がジャイアンツ応援 → アサヒ品切れ → バスケで埋め合わせ',
+    desc:'LG 광팬인 주영이 도쿄돔에서 자이언츠를 응援하는 황당함, 아사히 품절 사태',
+    items:['sh7_n','sh7_b1','sh7_a1','sh7_b2','sh7_a2','sh7_b3','sh7_a3','sh7_c1','sh7_a4','sh7_b4','sh7_a5','sh7_b5'],
+    variants:[
+      { scene:'도쿄돔 야구 + 아사히 품절', items:['sh7_n','sh7_b1','sh7_a1','sh7_b2','sh7_a2','sh7_b3','sh7_a3','sh7_c1','sh7_a4','sh7_b4','sh7_a5','sh7_b5'] },
+    ]
+  },
+  {
+    id:'sim_sh_bowling', phase:11, type:'sim', simlevel:6, dialogue:true,
+    name:'이케부쿠로 볼링 (30cm 신발 없음)', icon:'🎳',
+    title:'롤플레이: 이케부쿠로 볼링',
+    subtitle:'30cm靴なし → 無理やり28cm → 力でストライク',
+    desc:'볼링장에 30cm 신발이 없어 28cm를 억지로 신고 스트라이크를 낸 승현 — 힘 vs 컨트롤',
+    items:['sh8_n','sh8_a1','sh8_b1','sh8_c1','sh8_a2','sh8_c2','sh8_b2','sh8_a3','sh8_b3','sh8_a4','sh8_b4','sh8_a5','sh8_b5'],
+    variants:[
+      { scene:'30cm 없음 + 억지 스트라이크', items:['sh8_n','sh8_a1','sh8_b1','sh8_c1','sh8_a2','sh8_c2','sh8_b2','sh8_a3','sh8_b3','sh8_a4','sh8_b4','sh8_a5','sh8_b5'] },
+    ]
+  },
+  {
+    id:'sim_sh_dutyfree', phase:11, type:'sim', simlevel:6, dialogue:true,
+    name:'하네다 면세점 마지막 쇼핑', icon:'🥃',
+    title:'롤플레이: 하네다 면세점 마지막 쇼핑',
+    subtitle:'山崎品切れ → 白州NV → 抹茶キットカット100個',
+    desc:'야마자키 품절 → 하쿠슈 NV 2병 + 말차 킷캣 100개 — 귀국 전 승현식 쇼핑 마무리',
+    items:['sh9_n','sh9_b1','sh9_a1','sh9_b2','sh9_a2','sh9_c1','sh9_a3','sh9_c2','sh9_b3','sh9_a4','sh9_b4','sh9_a5','sh9_b5','sh9_a6','sh9_b6','sh9_a7'],
+    variants:[
+      { scene:'야마자키 품절 + 하쿠슈 구매', items:['sh9_n','sh9_b1','sh9_a1','sh9_b2','sh9_a2','sh9_c1','sh9_a3','sh9_c2','sh9_b3','sh9_a4','sh9_b4','sh9_a5','sh9_b5','sh9_a6','sh9_b6','sh9_a7'] },
     ]
   },
 ];

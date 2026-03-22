@@ -182,24 +182,30 @@
         <div class="fc-nav-strip" id="fc-nav-strip"></div>
 
         <!-- 플래시카드 (드래그로 이동) -->
-        <div class="fc-wrap">
-          <div class="flashcard-container" id="flashcard">
-            <div class="flashcard-inner" id="fc-inner">
-              <div class="flashcard-front">
-                <div class="fc-kana" id="fc-kana">あ</div>
-                <div class="fc-hint">← 드래그 → 이동 · 탭 뒤집기</div>
-              </div>
-              <div class="flashcard-back">
-                <div class="fc-kana-small" id="fc-kana-back">あ</div>
-                <div class="fc-pronunciations">
-                  <span class="fc-kor" id="fc-korean">아</span>
-                  <span class="fc-sep">·</span>
-                  <span class="fc-eng" id="fc-english">ah</span>
+        <div class="fc-card-row">
+          <div class="fc-prev-peek" id="fc-prev-peek" style="display:none"></div>
+          <div class="fc-wrap">
+            <div class="flashcard-container" id="flashcard">
+              <div class="flashcard-inner" id="fc-inner">
+                <div class="flashcard-front">
+                  <div class="fc-kana" id="fc-kana">あ</div>
+                  <div class="fc-hint">← 드래그 → 이동 · 탭 뒤집기</div>
                 </div>
-                <div class="fc-examples" id="fc-examples"></div>
-                <div class="fc-sentences" id="fc-sentences"></div>
+                <div class="flashcard-back">
+                  <div class="fc-kana-small" id="fc-kana-back">あ</div>
+                  <div class="fc-pronunciations">
+                    <span class="fc-kor" id="fc-korean">아</span>
+                    <span class="fc-sep">·</span>
+                    <span class="fc-eng" id="fc-english">ah</span>
+                  </div>
+                  <div class="fc-examples" id="fc-examples"></div>
+                  <div class="fc-sentences" id="fc-sentences"></div>
+                </div>
               </div>
             </div>
+          </div>
+          <div class="fc-next-peek" id="fc-next-peek" style="display:none">
+            <span id="fc-peek-char"></span>
           </div>
         </div>
 
@@ -259,57 +265,65 @@
     </div>
 
     <!-- ========== 퀴즈 뷰 ========== -->
-    <div id="view-quiz" class="view" style="display:none!important">
-      <div class="quiz-header">
-        <button class="back-btn" id="quiz-back-btn" onclick="App.backToQuizSetup()">← 퀴즈 설정</button>
+    <div id="view-quiz" class="view">
+
+      <!-- ── 퀴즈 인트로 ── -->
+      <div id="quiz-intro" class="quiz-intro">
+        <div class="qi-bg-anim" id="qi-bg-anim"></div>
+        <div class="qi-content">
+          <!-- 마스코트 -->
+          <div class="qi-mascot">
+            <div class="qi-mascot-char">👩‍🏫</div>
+            <div class="qi-mascot-bubble" id="qi-mascot-bubble">
+              <span id="qi-speech-text">よし！一緒に頑張ろう！</span>
+            </div>
+          </div>
+          <!-- 타이틀 -->
+          <div class="qi-title">
+            <span class="qi-title-main">かな クイズ</span>
+            <span class="qi-title-sub">가나 퀴즈</span>
+          </div>
+          <!-- 현재 설정 칩 -->
+          <div class="qi-settings-summary" id="qi-settings-summary"></div>
+          <!-- 자동 넘기기 토글 -->
+          <div class="qi-auto-row">
+            <span class="qi-auto-label">⚡ 정답 시 자동 넘기기</span>
+            <label class="qi-toggle">
+              <input type="checkbox" id="qi-autonext-cb">
+              <span class="qi-toggle-slider"></span>
+            </label>
+          </div>
+          <!-- 퀵 컨트롤 -->
+          <div class="qi-extras-row">
+            <button class="qi-extra-btn" id="qi-amb-btn">🎵 <span id="qi-amb-label">배경음</span></button>
+            <button class="qi-extra-btn" id="qi-voice-btn">🎤 화자</button>
+            <button class="qi-extra-btn" id="qi-settings-btn2">⚙️ 설정</button>
+          </div>
+          <!-- 시작 버튼 -->
+          <button class="qi-start-btn" id="qi-start-btn">
+            <span class="qi-start-ripple"></span>
+            <span id="qi-start-label">🎯 퀴즈 시작!</span>
+            <span class="qi-cdnum" id="qi-cdnum"></span>
+          </button>
+          <button class="qi-config-btn" id="qi-config-btn" style="display:none"></button>
+        </div>
+      </div>
+
+      <!-- ── 퀴즈 진행 헤더 ── -->
+      <div class="quiz-header" id="quiz-header" style="display:none">
+        <div style="width:60px"></div>
         <h3>퀴즈</h3>
         <div class="quiz-stats-mini">
           <span class="qsm qsm-correct" id="qsm-correct">✓ 0</span>
           <span class="qsm qsm-wrong" id="qsm-wrong">✗ 0</span>
+          <label class="qsm-aa-toggle" title="자동 넘기기 켜기/끄기">
+            <input type="checkbox" id="qsm-aa-cb">
+            <span class="qsm-aa-icon">⚡</span>
+          </label>
         </div>
       </div>
 
-      <!-- 퀴즈 설정 -->
-      <div class="quiz-setup" id="quiz-setup">
-        <h3>📝 퀴즈 설정</h3>
-        <div class="setup-row">
-          <label>레벨 선택:</label>
-          <select id="quiz-level-select"></select>
-        </div>
-        <div class="setup-row">
-          <label>문제 유형:</label>
-          <div class="radio-group">
-            <label class="radio-label">
-              <input type="radio" name="qtype" value="kanaToReading" checked> 글자→발음
-            </label>
-            <label class="radio-label">
-              <input type="radio" name="qtype" value="readingToKana"> 발음→글자
-            </label>
-            <label class="radio-label">
-              <input type="radio" name="qtype" value="listen"> 듣기→글자
-            </label>
-          </div>
-        </div>
-        <div class="setup-row">
-          <label>문제 수:</label>
-          <div class="radio-group">
-            <label class="radio-label"><input type="radio" name="qcount" value="10" checked> 10문제</label>
-            <label class="radio-label"><input type="radio" name="qcount" value="20"> 20문제</label>
-            <label class="radio-label"><input type="radio" name="qcount" value="all"> 전체</label>
-          </div>
-        </div>
-        <div class="setup-row">
-          <label>발음 표기:</label>
-          <div class="radio-group">
-            <label class="radio-label"><input type="radio" name="qlang" value="korean" checked> 한국어</label>
-            <label class="radio-label"><input type="radio" name="qlang" value="romaji"> 로마자</label>
-            <label class="radio-label"><input type="radio" name="qlang" value="both"> 둘 다</label>
-          </div>
-        </div>
-        <button class="start-quiz-btn" id="start-quiz-btn">퀴즈 시작 →</button>
-      </div>
-
-      <!-- 퀴즈 진행 -->
+      <!-- ── 퀴즈 진행 ── -->
       <div class="quiz-game" id="quiz-game" style="display:none">
         <div class="quiz-progress-row">
           <div class="qpr-text" id="qpr-text">1 / 10</div>
@@ -326,13 +340,9 @@
           <span class="quiz-timer-text" id="quiz-timer-text">5</span>
         </div>
 
-        <div class="quiz-question-box" id="quiz-question-box">
-          <!-- 문제 유형에 따라 동적 생성 -->
-        </div>
+        <div class="quiz-question-box" id="quiz-question-box"></div>
 
-        <div class="quiz-choices" id="quiz-choices">
-          <!-- 선택지 4개 동적 생성 -->
-        </div>
+        <div class="quiz-choices" id="quiz-choices"></div>
 
         <div class="quiz-feedback" id="quiz-feedback" style="display:none">
           <div class="qf-result" id="qf-result"></div>
@@ -344,17 +354,54 @@
         </div>
       </div>
 
-      <!-- 퀴즈 결과 -->
+      <!-- ── 퀴즈 결과 (게임 스타일) ── -->
       <div class="quiz-result" id="quiz-result" style="display:none">
-        <div class="qr-icon" id="qr-icon">🎉</div>
-        <h2 id="qr-title">퀴즈 완료!</h2>
-        <div class="qr-score" id="qr-score">0 / 0</div>
-        <div class="qr-pct" id="qr-pct">0%</div>
-        <div class="qr-xp" id="qr-xp">+0 XP 획득!</div>
-        <div class="qr-wrong-list" id="qr-wrong-list"></div>
-        <div class="qr-btns">
-          <button class="qr-btn-retry" id="qr-retry">🔄 같은 설정으로 다시 풀기</button>
-          <button class="qr-btn-home" onclick="App.backToQuizSetup()">⚙️ 다른 설정으로 풀기</button>
+        <div class="qr-confetti" id="qr-confetti"></div>
+        <div class="qr-wrap">
+          <div class="qr-grade-badge" id="qr-grade-badge">A</div>
+          <div class="qr-stars" id="qr-stars">
+            <span class="qr-star" data-n="1">★</span>
+            <span class="qr-star" data-n="2">★</span>
+            <span class="qr-star" data-n="3">★</span>
+          </div>
+          <div class="qr-title" id="qr-title">잘했어요!</div>
+          <div class="qr-ring-wrap">
+            <svg class="qr-ring-svg" viewBox="0 0 120 120">
+              <circle class="qr-ring-bg"   cx="60" cy="60" r="52"/>
+              <circle class="qr-ring-fill" id="qr-ring-fill" cx="60" cy="60" r="52"
+                      stroke-dasharray="326.7" stroke-dashoffset="326.7"/>
+            </svg>
+            <div class="qr-ring-inner">
+              <div class="qr-pct"   id="qr-pct">0%</div>
+              <div class="qr-score" id="qr-score">0 / 0</div>
+            </div>
+          </div>
+          <div class="qr-stats-row">
+            <div class="qr-stat qr-stat-ok">
+              <div class="qr-stat-num" id="qr-stat-correct">0</div>
+              <div class="qr-stat-lbl">정답</div>
+            </div>
+            <div class="qr-stat qr-stat-ng">
+              <div class="qr-stat-num" id="qr-stat-wrong">0</div>
+              <div class="qr-stat-lbl">오답</div>
+            </div>
+            <div class="qr-stat qr-stat-streak">
+              <div class="qr-stat-num" id="qr-stat-maxstreak">0</div>
+              <div class="qr-stat-lbl">최고 연속</div>
+            </div>
+          </div>
+          <div class="qr-xp-block">
+            <div class="qr-xp-label">획득 XP</div>
+            <div class="qr-xp-bar-bg">
+              <div class="qr-xp-bar-fill" id="qr-xp-bar-fill"></div>
+            </div>
+            <div class="qr-xp-num" id="qr-xp">+0 XP</div>
+          </div>
+          <div class="qr-wrong-section" id="qr-wrong-list"></div>
+          <div class="qr-btns">
+            <button class="qr-btn-retry" id="qr-retry">🔄 다시 도전</button>
+            <button class="qr-btn-settings" id="qr-settings-btn">⚙️ 설정</button>
+          </div>
         </div>
       </div>
     </div>
@@ -483,7 +530,7 @@
         <div id="vocab-word-section" class="vocab-type-section" style="display:none">
           <div id="vocab-word-levels-main"></div>
           <div class="vocab-section-review">
-            <button class="vocab-review-btn" onclick="App.startReview()">🔄 復習 — 틀린 단어 복습</button>
+            <button class="vocab-review-btn" onclick="App.startVocabReview()">🔄 復習 — 틀린 단어 복습</button>
           </div>
         </div>
 
@@ -491,7 +538,7 @@
         <div id="vocab-sent-section" class="vocab-type-section" style="display:none">
           <div id="vocab-sentence-levels-main"></div>
           <div class="vocab-section-review">
-            <button class="vocab-review-btn" onclick="App.startReview()">🔄 復習 — 틀린 문장 복습</button>
+            <button class="vocab-review-btn" onclick="App.startVocabReview()">🔄 復習 — 틀린 문장 복습</button>
           </div>
         </div>
 
@@ -504,6 +551,7 @@
       <!-- PANEL 2: 플래시카드 + 퀴즈 + 일람 -->
       <div id="vocab-flash-panel" style="display:none">
         <div class="learn-header">
+          <button class="back-btn" id="vocab-flash-back">← 목록</button>
           <div class="learn-title-block">
             <h3 id="vocab-cat-name">숫자 기본</h3>
             <span id="vocab-cat-subtitle">1~10, 百·千·万</span>
@@ -520,30 +568,44 @@
             <div class="progress-thin-fill" id="vfc-progress-fill"></div>
           </div>
 
+          <!-- 자동 넘기기 인디케이터 -->
+          <div class="fc-auto-bar" id="vfc-auto-bar" style="display:none">
+            <span class="fc-auto-icon">▶▶</span>
+            <span class="fc-auto-text">자동 읽고 넘기기</span>
+            <span class="fc-auto-countdown" id="vfc-auto-countdown"></span>
+            <button class="fc-auto-cancel" id="vfc-auto-cancel">✕ 취소</button>
+          </div>
+
           <!-- 단어 네비게이션 스트립 (상단) -->
           <div class="fc-nav-strip" id="vfc-nav-strip"></div>
 
           <!-- 단어 플래시카드 (드래그로 이동) -->
-          <div class="fc-wrap">
-            <div class="flashcard-container" id="vocab-flashcard">
-              <div class="flashcard-inner" id="vfc-inner">
-                <div class="flashcard-front">
-                  <div class="fc-kana" id="vfc-japanese">いち</div>
-                  <div class="vfc-kanji" id="vfc-kanji"></div>
-                  <div class="fc-hint">← 드래그 → 이동 · 탭 뒤집기</div>
-                </div>
-                <div class="flashcard-back">
-                  <div class="fc-kana-small" id="vfc-japanese-back">いち</div>
-                  <div class="vfc-kanji-back" id="vfc-kanji-back"></div>
-                  <div class="fc-pronunciations">
-                    <span class="fc-kor" id="vfc-korean">일 (1)</span>
+          <div class="fc-card-row">
+            <div class="fc-prev-peek" id="vfc-prev-peek" style="display:none"></div>
+            <div class="fc-wrap">
+              <div class="flashcard-container" id="vocab-flashcard">
+                <div class="flashcard-inner" id="vfc-inner">
+                  <div class="flashcard-front">
+                    <div class="fc-kana" id="vfc-japanese">いち</div>
+                    <div class="vfc-kanji" id="vfc-kanji"></div>
+                    <div class="fc-hint">← 드래그 → 이동 · 탭 뒤집기</div>
                   </div>
-                  <div class="vfc-tip" id="vfc-tip" style="display:none"></div>
-                  <div class="vfc-example" id="vfc-example" style="display:none"></div>
-                  <div class="fc-examples" id="vfc-compounds"></div>
-                  <div class="fc-sentences" id="vfc-sentences"></div>
+                  <div class="flashcard-back">
+                    <div class="fc-kana-small" id="vfc-japanese-back">いち</div>
+                    <div class="vfc-kanji-back" id="vfc-kanji-back"></div>
+                    <div class="fc-pronunciations">
+                      <span class="fc-kor" id="vfc-korean">일 (1)</span>
+                    </div>
+                    <div class="vfc-tip" id="vfc-tip" style="display:none"></div>
+                    <div class="vfc-example" id="vfc-example" style="display:none"></div>
+                    <div class="fc-examples" id="vfc-compounds"></div>
+                    <div class="fc-sentences" id="vfc-sentences"></div>
+                  </div>
                 </div>
               </div>
+            </div>
+            <div class="fc-next-peek" id="vfc-next-peek" style="display:none">
+              <span id="vfc-peek-char"></span>
             </div>
           </div>
 
@@ -553,6 +615,11 @@
         <div id="vocab-browse-area" style="display:none">
           <div class="browse-controls">
             <div class="bc-left">
+              <button class="bc-btn bc-active" id="vbc-order-btn">📋 순서대로</button>
+              <button class="bc-btn" id="vbc-random-btn">🔀 랜덤</button>
+            </div>
+            <div class="bc-right">
+              <button class="bc-btn" id="vbc-readall-btn">🔊 전체 듣기</button>
               <button class="bc-btn bc-secondary" id="vbc-flash-btn">🃏 플래시카드로</button>
               <button class="bc-btn bc-secondary" id="vbc-quiz-btn">✏️ 퀴즈로</button>
             </div>
@@ -570,31 +637,117 @@
         </div>
 
         <div id="vocab-quiz-area" style="display:none">
-          <div class="quiz-progress-row">
-            <div class="qpr-text" id="vq-progress-text">1 / 10</div>
-            <div class="qpr-bar-bg"><div class="qpr-bar-fill" id="vq-progress-fill"></div></div>
-            <div class="qsm-scores">
-              <span class="qsm-correct" id="vq-correct-count">✓ 0</span>
-              <span class="qsm-wrong" id="vq-wrong-count">✗ 0</span>
+
+          <!-- ── 단어 퀴즈 인트로 ── -->
+          <div id="vq-intro" class="vq-intro" style="display:none">
+            <div class="qi-bg-anim" id="vq-bg-anim"></div>
+            <div class="qi-content">
+              <div class="qi-mascot">
+                <div class="qi-mascot-char">📚</div>
+                <div class="qi-mascot-bubble" id="vq-mascot-bubble">
+                  <span id="vq-speech-text">さあ、単語を覚えよう！</span>
+                </div>
+              </div>
+              <div class="qi-title">
+                <span class="qi-title-main">単語 クイズ</span>
+                <span class="qi-title-sub">단어 퀴즈</span>
+              </div>
+              <div class="qi-settings-summary" id="vq-settings-summary"></div>
+              <div class="qi-auto-row">
+                <span class="qi-auto-label">⚡ 정답 시 자동 넘기기</span>
+                <label class="qi-toggle">
+                  <input type="checkbox" id="vq-autonext-cb">
+                  <span class="qi-toggle-slider"></span>
+                </label>
+              </div>
+              <!-- 퀵 컨트롤 -->
+              <div class="qi-extras-row">
+                <button class="qi-extra-btn" id="vq-amb-btn">🎵 <span id="vq-amb-label">배경음</span></button>
+                <button class="qi-extra-btn" id="vq-voice-btn">🎤 화자</button>
+                <button class="qi-extra-btn" id="vq-settings-btn">⚙️ 설정</button>
+              </div>
+              <!-- 시작 버튼 -->
+              <button class="qi-start-btn" id="vq-start-btn">
+                <span class="qi-start-ripple"></span>
+                <span id="vq-start-label">🎯 퀴즈 시작!</span>
+                <span class="qi-cdnum" id="vq-cdnum"></span>
+              </button>
+              <button class="qi-config-btn" id="vq-back-btn">← 카테고리로</button>
             </div>
           </div>
-          <div class="quiz-question-box" id="vocab-question-box"></div>
-          <div class="quiz-choices" id="vocab-quiz-choices"></div>
-          <div class="quiz-feedback" id="vocab-quiz-feedback" style="display:none">
-            <div class="qf-result" id="vq-result-text"></div>
-            <div class="qf-correct" id="vq-correct-ans"></div>
-            <div class="vqf-tip" id="vq-tip-text" style="display:none"></div>
-            <div class="vqf-example" id="vq-example-text" style="display:none"></div>
-            <button class="qf-next-btn" id="vq-next-btn">다음 문제 →</button>
+
+          <!-- ── 단어 퀴즈 진행 ── -->
+          <div id="vq-game" style="display:none">
+            <div class="quiz-progress-row">
+              <div class="qpr-text" id="vq-progress-text">1 / 10</div>
+              <div class="qpr-bar-bg"><div class="qpr-bar-fill" id="vq-progress-fill"></div></div>
+              <div class="qsm-scores">
+                <span class="qsm-correct" id="vq-correct-count">✓ 0</span>
+                <span class="qsm-wrong" id="vq-wrong-count">✗ 0</span>
+                <label class="qsm-aa-toggle" title="자동 넘기기 켜기/끄기">
+                  <input type="checkbox" id="vqsm-aa-cb">
+                  <span class="qsm-aa-icon">⚡</span>
+                </label>
+              </div>
+            </div>
+            <div class="quiz-question-box" id="vocab-question-box"></div>
+            <div class="quiz-choices" id="vocab-quiz-choices"></div>
+            <div class="quiz-feedback" id="vocab-quiz-feedback" style="display:none">
+              <div class="qf-result" id="vq-result-text"></div>
+              <div class="qf-correct" id="vq-correct-ans"></div>
+              <div class="vqf-tip" id="vq-tip-text" style="display:none"></div>
+              <div class="vqf-example" id="vq-example-text" style="display:none"></div>
+              <button class="qf-next-btn" id="vq-next-btn">다음 문제 →</button>
+            </div>
           </div>
-          <div class="quiz-result" id="vocab-quiz-result" style="display:none">
-            <div class="qr-icon">🎉</div>
-            <h2>퀴즈 완료!</h2>
-            <div class="qr-score" id="vqr-score">0 / 0</div>
-            <div class="qr-pct" id="vqr-pct">0%</div>
-            <div class="qr-btns">
-              <button class="qr-btn qr-btn-retry" id="vqr-retry">🔄 다시 풀기</button>
-              <button class="qr-btn qr-btn-back" onclick="App.vocabBackToSetup()">← 카테고리로</button>
+
+          <!-- ── 단어 퀴즈 결과 (게임 스타일) ── -->
+          <div id="vocab-quiz-result" class="vq-result-screen" style="display:none">
+            <div class="qr-confetti" id="vqr-confetti"></div>
+            <div class="qr-wrap">
+              <div class="qr-grade-badge" id="vqr-grade-badge">A</div>
+              <div class="qr-stars" id="vqr-stars">
+                <span class="qr-star" data-n="1">★</span>
+                <span class="qr-star" data-n="2">★</span>
+                <span class="qr-star" data-n="3">★</span>
+              </div>
+              <div class="qr-title" id="vqr-title">잘했어요!</div>
+              <div class="qr-ring-wrap">
+                <svg class="qr-ring-svg" viewBox="0 0 120 120">
+                  <circle class="qr-ring-bg"   cx="60" cy="60" r="52"/>
+                  <circle class="qr-ring-fill" id="vqr-ring-fill" cx="60" cy="60" r="52"
+                          stroke-dasharray="326.7" stroke-dashoffset="326.7"/>
+                </svg>
+                <div class="qr-ring-inner">
+                  <div class="qr-pct"   id="vqr-pct">0%</div>
+                  <div class="qr-score" id="vqr-score">0 / 0</div>
+                </div>
+              </div>
+              <div class="qr-stats-row">
+                <div class="qr-stat qr-stat-ok">
+                  <div class="qr-stat-num" id="vqr-stat-correct">0</div>
+                  <div class="qr-stat-lbl">정답</div>
+                </div>
+                <div class="qr-stat qr-stat-ng">
+                  <div class="qr-stat-num" id="vqr-stat-wrong">0</div>
+                  <div class="qr-stat-lbl">오답</div>
+                </div>
+                <div class="qr-stat qr-stat-streak">
+                  <div class="qr-stat-num" id="vqr-stat-maxstreak">0</div>
+                  <div class="qr-stat-lbl">최고 연속</div>
+                </div>
+              </div>
+              <div class="qr-xp-block">
+                <div class="qr-xp-label">획득 XP</div>
+                <div class="qr-xp-bar-bg">
+                  <div class="qr-xp-bar-fill" id="vqr-xp-bar-fill"></div>
+                </div>
+                <div class="qr-xp-num" id="vqr-xp">+0 XP</div>
+              </div>
+              <div class="qr-btns">
+                <button class="qr-btn-retry" id="vqr-retry">🔄 다시 도전</button>
+                <button class="qr-btn-settings" onclick="App.vocabBackToSetup()">← 카테고리</button>
+              </div>
             </div>
           </div>
         </div>
@@ -611,168 +764,282 @@
         <h3>⚙️ 설정</h3>
         <button class="modal-close" id="settings-close">✕</button>
       </div>
+      <!-- 상단 스탯 (탭 외부 고정) -->
+      <div class="settings-stats">
+        <div class="ss-stat">
+          <span class="ss-val" id="settings-level">Lv.1</span>
+          <span class="ss-lbl">Level</span>
+        </div>
+        <div class="ss-stat">
+          <span class="ss-val" id="settings-xp">0 XP</span>
+          <span class="ss-lbl">XP</span>
+        </div>
+        <div class="ss-stat">
+          <span class="ss-val" id="settings-streak">0🔥</span>
+          <span class="ss-lbl">Streak</span>
+        </div>
+      </div>
+      <!-- 탭 네비게이션 -->
+      <div class="settings-tabs">
+        <button class="stab active" data-tab="voice">🔊 음성</button>
+        <button class="stab" data-tab="quiz">📝 퀴즈</button>
+        <button class="stab" data-tab="env">🌿 환경</button>
+      </div>
       <div class="modal-body">
-        <!-- 상단 스탯 -->
-        <div class="settings-stats">
-          <div class="ss-stat">
-            <span class="ss-val" id="settings-level">Lv.1</span>
-            <span class="ss-lbl">Level</span>
+        <!-- autoplay/autonext 항상 true 고정 — hidden inputs으로 유지 -->
+        <input type="checkbox" id="pref-autoplay" checked style="display:none">
+        <input type="checkbox" id="pref-autonext" checked style="display:none">
+
+        <!-- ══ 탭: 음성 ══ -->
+        <div class="stab-content active" id="stab-voice">
+          <div class="setting-section-title">🔊 음성 엔진</div>
+          <!-- VOICEVOX 토글 -->
+          <div class="setting-row">
+            <label>VOICEVOX 사용:</label>
+            <div style="display:flex;align-items:center;gap:8px">
+              <label class="toggle">
+                <input type="checkbox" id="pref-use-voicevox">
+                <span class="toggle-slider"></span>
+              </label>
+              <span id="voicevox-status" style="font-size:11px;color:#718096">비활성</span>
+            </div>
           </div>
-          <div class="ss-stat">
-            <span class="ss-val" id="settings-xp">0 XP</span>
-            <span class="ss-lbl">XP</span>
+          <div class="setting-note" style="margin:-4px 0 8px;font-size:11px;color:#718096;padding-left:8px">
+            VOICEVOX(로컬 설치)가 실행 중일 때 사용 가능. 미사용 시 Web TTS 사용.
+            <button class="vv-help-toggle" id="vv-help-toggle" onclick="document.getElementById('vv-setup-guide').style.display=document.getElementById('vv-setup-guide').style.display==='none'?'block':'none'">📖 설치 방법 보기</button>
           </div>
-          <div class="ss-stat">
-            <span class="ss-val" id="settings-streak">0🔥</span>
-            <span class="ss-lbl">Streak</span>
+          <div id="vv-setup-guide" style="display:none;background:#f7f8fa;border:1px solid #e2e8f0;border-radius:8px;padding:12px;margin-bottom:10px;font-size:12px;line-height:1.7">
+            <b>① VOICEVOX 다운로드 · 설치</b><br>
+            <a href="https://voicevox.hiroshiba.jp/" target="_blank" style="color:#4361ee">https://voicevox.hiroshiba.jp/</a> → 무료 다운로드 → 설치<br><br>
+            <b>② VOICEVOX 실행</b><br>
+            앱을 실행하면 자동으로 <code>localhost:50021</code> 서버 시작<br><br>
+            <b>③ CORS 허용 (중요)</b><br>
+            VOICEVOX 메뉴 → <b>エンジン → HTTPサーバーを起動</b> 확인<br>
+            또는 바로가기 속성에 아래 옵션 추가:<br>
+            <code style="display:block;background:#e2e8f0;padding:4px 6px;border-radius:4px;margin:4px 0;word-break:break-all">VOICEVOX.exe --host 0.0.0.0 --allow-origin "*"</code>
+            <b>④ 연결 확인</b><br>
+            브라우저에서 <a href="http://localhost:50021/speakers" target="_blank" style="color:#4361ee">http://localhost:50021/speakers</a> 접속 → JSON 표시되면 정상<br><br>
+            <b>⑤ 이 설정에서 VOICEVOX 사용 토글 ON</b> → 화자 목록 자동 로드
+          </div>
+          <!-- VOICEVOX 화자 설정 -->
+          <div id="voicevox-speaker-rows" style="display:none">
+            <div class="setting-row" style="align-items:flex-start;gap:8px">
+              <label style="padding-top:6px">🎤 첫번째 화자:</label>
+              <div class="vv-speaker-picker">
+                <img id="vv-portrait-1" class="vv-speaker-icon" src="" alt="" style="display:none">
+                <select id="pref-voicevox-speaker1"><option value="1">로딩 중...</option></select>
+              </div>
+            </div>
+            <div class="setting-row" style="align-items:flex-start;gap:8px">
+              <label style="padding-top:6px">🎤 두번째 화자:</label>
+              <div class="vv-speaker-picker">
+                <img id="vv-portrait-2" class="vv-speaker-icon" src="" alt="" style="display:none">
+                <select id="pref-voicevox-speaker2"><option value="none">사용 안함</option></select>
+              </div>
+            </div>
+            <div class="setting-row">
+              <button class="test-voice-btn" id="test-voicevox-btn">🔊 VOICEVOX 테스트</button>
+            </div>
+          </div>
+          <!-- Web TTS 음성 설정 -->
+          <div id="webtts-settings">
+            <div class="setting-row">
+              <label>🎤 첫번째 음성:</label>
+              <select id="pref-voice-female"><option value="none">사용 안함</option></select>
+            </div>
+            <div class="setting-row">
+              <label>🎤 두번째 음성:</label>
+              <select id="pref-voice-male"><option value="none">사용 안함</option></select>
+            </div>
+          </div>
+          <!-- 롤플레이 이름 설정 -->
+          <div class="setting-section-title">🎭 롤플레이 이름 설정</div>
+          <div class="setting-desc" style="font-size:12px;color:#718096;margin-bottom:8px;">대화 스크립트에서 {F}/{M} 자리에 표시될 이름을 설정하세요.</div>
+          <div class="setting-row">
+            <label>👩 여자 이름:</label>
+            <input type="text" id="pref-female-name" value="ジュヨン" maxlength="10" style="width:120px;padding:5px 8px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;">
+          </div>
+          <div class="setting-row">
+            <label>👨 남자 이름:</label>
+            <input type="text" id="pref-male-name" value="スンヒョン" maxlength="10" style="width:120px;padding:5px 8px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;">
           </div>
         </div>
-        <div class="setting-section-title">🔊 음성 설정</div>
 
-        <!-- VOICEVOX 토글 -->
-        <div class="setting-row">
-          <label>VOICEVOX 사용:</label>
-          <div style="display:flex;align-items:center;gap:8px">
+        <!-- ══ 탭: 퀴즈 ══ -->
+        <div class="stab-content" id="stab-quiz">
+          <div class="setting-section-title">📝 퀴즈 설정</div>
+          <div class="setting-row">
+            <label>레벨 선택:</label>
+            <select id="quiz-level-select" style="flex:1;max-width:200px"></select>
+          </div>
+          <div class="setup-row">
+            <label>문제 유형:</label>
+            <div class="radio-group">
+              <label class="radio-label"><input type="radio" name="qtype" value="kanaToReading" checked> 글자→발음</label>
+              <label class="radio-label"><input type="radio" name="qtype" value="readingToKana"> 발음→글자</label>
+              <label class="radio-label"><input type="radio" name="qtype" value="listen"> 듣기→글자</label>
+            </div>
+          </div>
+          <div class="setup-row">
+            <label>문제 수:</label>
+            <div class="radio-group">
+              <label class="radio-label"><input type="radio" name="qcount" value="10" checked> 10문제</label>
+              <label class="radio-label"><input type="radio" name="qcount" value="20"> 20문제</label>
+              <label class="radio-label"><input type="radio" name="qcount" value="all"> 전체</label>
+            </div>
+          </div>
+          <div class="setup-row">
+            <label>발음 표기:</label>
+            <div class="radio-group">
+              <label class="radio-label"><input type="radio" name="qlang" value="korean" checked> 한국어</label>
+              <label class="radio-label"><input type="radio" name="qlang" value="romaji"> 로마자</label>
+              <label class="radio-label"><input type="radio" name="qlang" value="both"> 둘 다</label>
+            </div>
+          </div>
+          <div class="setting-section-title">⏱ 제한 시간</div>
+          <div class="setting-row">
+            <label>퀴즈 제한 시간:</label>
+            <select id="pref-quiz-countdown">
+              <option value="3">3초</option>
+              <option value="5">5초 (기본)</option>
+              <option value="7">7초</option>
+              <option value="10">10초</option>
+              <option value="0">제한 없음</option>
+            </select>
+          </div>
+          <div class="setting-section-title">💬 화자 응원 메시지</div>
+          <div class="setting-row">
+            <label>응원 메시지 사용:</label>
             <label class="toggle">
-              <input type="checkbox" id="pref-use-voicevox">
+              <input type="checkbox" id="pref-quiz-cheer" checked>
               <span class="toggle-slider"></span>
             </label>
-            <span id="voicevox-status" style="font-size:11px;color:#718096">비활성</span>
           </div>
-        </div>
-        <div class="setting-note" style="margin:-4px 0 8px;font-size:11px;color:#718096;padding-left:8px">
-          VOICEVOX(로컬 설치)가 실행 중일 때 사용 가능. 미사용 시 Web TTS 사용.
-          <button class="vv-help-toggle" id="vv-help-toggle" onclick="document.getElementById('vv-setup-guide').style.display=document.getElementById('vv-setup-guide').style.display==='none'?'block':'none'">📖 설치 방법 보기</button>
-        </div>
-        <div id="vv-setup-guide" style="display:none;background:#f7f8fa;border:1px solid #e2e8f0;border-radius:8px;padding:12px;margin-bottom:10px;font-size:12px;line-height:1.7">
-          <b>① VOICEVOX 다운로드 · 설치</b><br>
-          <a href="https://voicevox.hiroshiba.jp/" target="_blank" style="color:#4361ee">https://voicevox.hiroshiba.jp/</a> → 무료 다운로드 → 설치<br><br>
-          <b>② VOICEVOX 실행</b><br>
-          앱을 실행하면 자동으로 <code>localhost:50021</code> 서버 시작<br><br>
-          <b>③ CORS 허용 (중요)</b><br>
-          VOICEVOX 메뉴 → <b>エンジン → HTTPサーバーを起動</b> 확인<br>
-          또는 바로가기 속성에 아래 옵션 추가:<br>
-          <code style="display:block;background:#e2e8f0;padding:4px 6px;border-radius:4px;margin:4px 0;word-break:break-all">VOICEVOX.exe --host 0.0.0.0 --allow-origin "*"</code>
-          <b>④ 연결 확인</b><br>
-          브라우저에서 <a href="http://localhost:50021/speakers" target="_blank" style="color:#4361ee">http://localhost:50021/speakers</a> 접속 → JSON 표시되면 정상<br><br>
-          <b>⑤ 이 설정에서 VOICEVOX 사용 토글 ON</b> → 화자 목록 자동 로드
-        </div>
-
-        <!-- VOICEVOX 화자 설정 -->
-        <div id="voicevox-speaker-rows" style="display:none">
-          <div class="setting-row" style="align-items:flex-start;gap:8px">
-            <label style="padding-top:6px">🎤 첫번째 화자:</label>
-            <div class="vv-speaker-picker">
-              <img id="vv-portrait-1" class="vv-speaker-icon" src="" alt="" style="display:none">
-              <select id="pref-voicevox-speaker1">
-                <option value="1">로딩 중...</option>
-              </select>
+          <div class="setting-note" style="font-size:11px;color:#718096;padding:2px 0 6px 0;">
+            화자가 1/3 볼륨으로 읽어줍니다. 각 상황별 메시지를 한 줄씩 입력하세요. (랜덤 선택)
+          </div>
+          <!-- 응원 메시지 에디터 -->
+          <div id="cheer-editor">
+            <div class="cheer-row">
+              <div class="cheer-label"><span class="cheer-badge cheer-start">시작</span> 퀴즈 시작할 때</div>
+              <div class="cheer-input-wrap">
+                <textarea class="cheer-ta" id="cheer-start" rows="2" placeholder="한 줄에 하나씩 입력"></textarea>
+                <button class="cheer-reset" data-type="start">초기화</button>
+              </div>
+            </div>
+            <div class="cheer-row">
+              <div class="cheer-label"><span class="cheer-badge cheer-correct">정답</span> 정답 맞췄을 때</div>
+              <div class="cheer-input-wrap">
+                <textarea class="cheer-ta" id="cheer-correct" rows="2" placeholder="한 줄에 하나씩 입력"></textarea>
+                <button class="cheer-reset" data-type="correct">초기화</button>
+              </div>
+            </div>
+            <div class="cheer-row">
+              <div class="cheer-label"><span class="cheer-badge cheer-wrong">오답</span> 틀렸을 때</div>
+              <div class="cheer-input-wrap">
+                <textarea class="cheer-ta" id="cheer-wrong" rows="2" placeholder="한 줄에 하나씩 입력"></textarea>
+                <button class="cheer-reset" data-type="wrong">초기화</button>
+              </div>
+            </div>
+            <div class="cheer-row">
+              <div class="cheer-label"><span class="cheer-badge cheer-streak3">3연속</span> 3문제 연속 정답</div>
+              <div class="cheer-input-wrap">
+                <textarea class="cheer-ta" id="cheer-streak3" rows="2" placeholder="한 줄에 하나씩 입력"></textarea>
+                <button class="cheer-reset" data-type="streak3">초기화</button>
+              </div>
+            </div>
+            <div class="cheer-row">
+              <div class="cheer-label"><span class="cheer-badge cheer-streak5">5연속</span> 5문제 연속 정답</div>
+              <div class="cheer-input-wrap">
+                <textarea class="cheer-ta" id="cheer-streak5" rows="2" placeholder="한 줄에 하나씩 입력"></textarea>
+                <button class="cheer-reset" data-type="streak5">초기화</button>
+              </div>
+            </div>
+            <div class="cheer-row">
+              <div class="cheer-label"><span class="cheer-badge cheer-streak8">8연속</span> 8문제 이상 연속</div>
+              <div class="cheer-input-wrap">
+                <textarea class="cheer-ta" id="cheer-streak8" rows="2" placeholder="한 줄에 하나씩 입력"></textarea>
+                <button class="cheer-reset" data-type="streak8">초기화</button>
+              </div>
+            </div>
+            <div class="cheer-row">
+              <div class="cheer-label"><span class="cheer-badge cheer-result">결과</span> 만점 (100%)</div>
+              <div class="cheer-input-wrap">
+                <textarea class="cheer-ta" id="cheer-perfect" rows="2" placeholder="한 줄에 하나씩 입력"></textarea>
+                <button class="cheer-reset" data-type="perfect">초기화</button>
+              </div>
+            </div>
+            <div class="cheer-row">
+              <div class="cheer-label"><span class="cheer-badge cheer-result">결과</span> 우수 (70%↑)</div>
+              <div class="cheer-input-wrap">
+                <textarea class="cheer-ta" id="cheer-good" rows="2" placeholder="한 줄에 하나씩 입력"></textarea>
+                <button class="cheer-reset" data-type="good">초기화</button>
+              </div>
+            </div>
+            <div class="cheer-row">
+              <div class="cheer-label"><span class="cheer-badge cheer-result">결과</span> 보통 (50%↑)</div>
+              <div class="cheer-input-wrap">
+                <textarea class="cheer-ta" id="cheer-pass" rows="2" placeholder="한 줄에 하나씩 입력"></textarea>
+                <button class="cheer-reset" data-type="pass">초기화</button>
+              </div>
+            </div>
+            <div class="cheer-row">
+              <div class="cheer-label"><span class="cheer-badge cheer-wrong">결과</span> 재도전 (50%↓)</div>
+              <div class="cheer-input-wrap">
+                <textarea class="cheer-ta" id="cheer-poor" rows="2" placeholder="한 줄에 하나씩 입력"></textarea>
+                <button class="cheer-reset" data-type="poor">초기화</button>
+              </div>
             </div>
           </div>
-          <div class="setting-row" style="align-items:flex-start;gap:8px">
-            <label style="padding-top:6px">🎤 두번째 화자:</label>
-            <div class="vv-speaker-picker">
-              <img id="vv-portrait-2" class="vv-speaker-icon" src="" alt="" style="display:none">
-              <select id="pref-voicevox-speaker2">
-                <option value="none">사용 안함</option>
-              </select>
-            </div>
-          </div>
-          <div class="setting-row">
-            <button class="test-voice-btn" id="test-voicevox-btn">🔊 VOICEVOX 테스트</button>
-          </div>
         </div>
 
-        <!-- Web TTS 음성 설정 -->
-        <div id="webtts-settings">
+        <!-- ══ 탭: 환경 ══ -->
+        <div class="stab-content" id="stab-env">
+          <div class="setting-section-title">🎵 배경음 설정 <span class="setting-note">(sounds/ 폴더 MP3 랜덤 재생)</span></div>
           <div class="setting-row">
-            <label>🎤 첫번째 음성:</label>
-            <select id="pref-voice-female">
-              <option value="none">사용 안함</option>
+            <label>대화 배경음:</label>
+            <label class="toggle"><input type="checkbox" id="pref-ambient-dialogue"><span class="toggle-slider"></span></label>
+          </div>
+          <div class="setting-row">
+            <label>퀴즈 배경음:</label>
+            <label class="toggle"><input type="checkbox" id="pref-ambient-quiz"><span class="toggle-slider"></span></label>
+          </div>
+          <div class="setting-row">
+            <label>배경음 볼륨:</label>
+            <input type="range" id="pref-ambient-volume" min="0" max="40" step="1" style="flex:1;max-width:160px">
+            <span id="pref-ambient-volume-label" style="font-size:12px;color:#64748b;min-width:32px;text-align:right"></span>
+          </div>
+          <div class="setting-section-title">👁 플래시카드 표시 설정 <span class="setting-note">(기본: 노출)</span></div>
+          <div class="setting-row">
+            <label>단어 예시 표시:</label>
+            <label class="toggle">
+              <input type="checkbox" id="pref-show-word-ex">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="setting-row">
+            <label>문장 예시 표시:</label>
+            <label class="toggle">
+              <input type="checkbox" id="pref-show-sent-ex">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="setting-row">
+            <label>자동 읽고 넘기기:</label>
+            <label class="toggle">
+              <input type="checkbox" id="pref-auto-advance">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="setting-row" id="pref-auto-advance-delay-row" style="display:none">
+            <label>넘기기 대기 시간:</label>
+            <select id="pref-auto-advance-delay">
+              <option value="2">2초</option>
+              <option value="3" selected>3초</option>
+              <option value="5">5초</option>
+              <option value="7">7초</option>
             </select>
           </div>
-          <div class="setting-row">
-            <label>🎤 두번째 음성:</label>
-            <select id="pref-voice-male">
-              <option value="none">사용 안함</option>
-            </select>
-          </div>
-        </div>
-
-        <!-- autoplay/autonext 항상 true 고정 — hidden inputs으로 유지 -->
-        <input type="checkbox" id="pref-autoplay"  checked style="display:none">
-        <input type="checkbox" id="pref-autonext"  checked style="display:none">
-
-        <!-- 롤플레이 이름 설정 -->
-        <div class="setting-section-title">🎭 롤플레이 이름 설정</div>
-        <div class="setting-desc" style="font-size:12px;color:#718096;margin-bottom:8px;">대화 스크립트에서 {F}/{M} 자리에 표시될 이름을 설정하세요.</div>
-        <div class="setting-row">
-          <label>👩 여자 이름:</label>
-          <input type="text" id="pref-female-name" value="주영" maxlength="10" style="width:120px;padding:5px 8px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;">
-        </div>
-        <div class="setting-row">
-          <label>👨 남자 이름:</label>
-          <input type="text" id="pref-male-name" value="승현" maxlength="10" style="width:120px;padding:5px 8px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;">
-        </div>
-
-        <div class="setting-section-title">⏱ 퀴즈 설정</div>
-        <div class="setting-row">
-          <label>퀴즈 제한 시간:</label>
-          <select id="pref-quiz-countdown">
-            <option value="3">3초</option>
-            <option value="5">5초 (기본)</option>
-            <option value="7">7초</option>
-            <option value="10">10초</option>
-            <option value="0">제한 없음</option>
-          </select>
-        </div>
-
-        <!-- 배경음 설정 -->
-        <div class="setting-section-title">🎵 배경음 설정 <span class="setting-note">(sounds/ 폴더 MP3 랜덤 재생)</span></div>
-        <div class="setting-row">
-          <label>대화 배경음:</label>
-          <label class="toggle"><input type="checkbox" id="pref-ambient-dialogue"><span class="toggle-slider"></span></label>
-        </div>
-        <div class="setting-row">
-          <label>퀴즈 배경음:</label>
-          <label class="toggle"><input type="checkbox" id="pref-ambient-quiz"><span class="toggle-slider"></span></label>
-        </div>
-        <div class="setting-row">
-          <label>배경음 볼륨:</label>
-          <input type="range" id="pref-ambient-volume" min="0" max="40" step="1" style="flex:1;max-width:160px">
-          <span id="pref-ambient-volume-label" style="font-size:12px;color:#64748b;min-width:32px;text-align:right"></span>
-        </div>
-
-        <div class="setting-section-title">👁 플래시카드 표시 설정 <span class="setting-note">(기본: 노출)</span></div>
-        <div class="setting-row">
-          <label>단어 예시 표시:</label>
-          <label class="toggle">
-            <input type="checkbox" id="pref-show-word-ex">
-            <span class="toggle-slider"></span>
-          </label>
-        </div>
-        <div class="setting-row">
-          <label>문장 예시 표시:</label>
-          <label class="toggle">
-            <input type="checkbox" id="pref-show-sent-ex">
-            <span class="toggle-slider"></span>
-          </label>
-        </div>
-        <div class="setting-row">
-          <label>자동 읽고 넘기기:</label>
-          <label class="toggle">
-            <input type="checkbox" id="pref-auto-advance">
-            <span class="toggle-slider"></span>
-          </label>
-        </div>
-        <div class="setting-row" id="pref-auto-advance-delay-row" style="display:none">
-          <label>넘기기 대기 시간:</label>
-          <select id="pref-auto-advance-delay">
-            <option value="2">2초</option>
-            <option value="3" selected>3초</option>
-            <option value="5">5초</option>
-            <option value="7">7초</option>
-          </select>
         </div>
       </div>
     </div>
@@ -873,7 +1140,6 @@
   <script src="js/data/vocab-items-s6sim.js"></script>
   <script src="js/data/vocab-dialogue.js"></script>
   <script src="js/data/vocab-categories.js"></script>
-  <script src="js/vocab-data.js"></script>
   <script src="js/examples-data.js"></script>
   <script src="js/vocab-examples-data.js"></script>
   <script src="js/app.js"></script>
