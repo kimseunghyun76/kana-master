@@ -7483,76 +7483,124 @@ const App = (() => {
   }
 
   function generateLectureSlides(cat) {
+    // 1. LECTURE_DATA에 미리 작성된 스크립트가 있으면 사용 (풍부한 콘텐츠)
+    const dataKey = cat.wlevel ? `wlevel_${cat.wlevel}` : cat.slevel ? `slevel_${cat.slevel}` : null;
+    const prewritten = (typeof LECTURE_DATA !== 'undefined' && dataKey) ? LECTURE_DATA[dataKey] : null;
+
+    // 카테고리의 실제 vocab items
     const items = typeof VOCAB_ITEMS !== 'undefined'
-      ? VOCAB_ITEMS.filter(v => cat.items.includes(v.id)).slice(0, 8)
+      ? VOCAB_ITEMS.filter(v => cat.items.includes(v.id)).slice(0, 7)
       : [];
+
     const slides = [];
 
-    // 오프닝 슬라이드
-    slides.push({
-      type: 'title',
-      main: cat.name, reading: '', meaning: cat.subtitle || '',
-      example: null,
-      captionJp: `みなさん、こんにちは！今日は「${cat.name}」を一緒に勉強しましょう！`,
-      captionKo: `여러분 안녕하세요! 오늘은 「${cat.name}」를 함께 공부해 봅시다!`,
-      label: '인트로', duration: 4000,
-      audio: null,
-    });
+    // ─ 오프닝 슬라이드 (미리 작성된 것 or 자동 생성) ─
+    if (prewritten && prewritten.length > 0) {
+      // 미리 작성된 훅 슬라이드 추가
+      const hookSlides = prewritten.filter(s => s.type === 'hook' || s.type === 'story' || s.type === 'culture');
+      hookSlides.forEach(s => slides.push({ ...s }));
+    } else {
+      // 자동 생성 인트로
+      slides.push({
+        type: 'title', label: '인트로', duration: 4000, audio: null,
+        main: `${cat.icon || '📚'} ${cat.name}`,
+        sub: cat.subtitle || '',
+        reading: '',
+        captionJp: `みなさん、こんにちは！今日は「${cat.name}」を楽(たの)しく勉強(べんきょう)しましょう！この単元(たんげん)には${items.length}つの重要(じゅうよう)な表現(ひょうげん)があります。準備(じゅんび)はいいですか？`,
+        captionKo: `여러분 안녕하세요! 오늘은 「${cat.name}」를 재미있게 공부해봐요! 이 단원에는 ${items.length}개의 중요 표현이 있어요. 준비됐나요?`
+      });
+    }
 
-    // 단어/문장 슬라이드
+    // ─ 단어 슬라이드: 미리 작성된 메모 + 자동 생성 혼합 ─
+    const WORD_NOTES = {
+      // 인사 관련
+      'ありがとう':   { note: '「有難い」= 있기 어렵다! 이런 친절은 세상에 드물다는 뜻이에요 💝', emoji: '💝' },
+      'すみません':   { note: '「済みません」= 아직 해결이 안 됐어요. 폐를 끼쳐 아직 해소가 안 됐다는 깊은 사과예요!', emoji: '🙇' },
+      'おはよう':     { note: '「お早い」= 일찍 일어났군요! 칭찬이 인사말이 됐어요 ☀️', emoji: '☀️' },
+      'こんにちは':   { note: '「今日は」의 생략! 원래 "오늘은 어떠세요?" 라는 안부 인사였어요 🌸', emoji: '🌸' },
+      'よろしく':     { note: '영어로 번역 불가능! "잘 부탁해요"+"앞으로도 잘"+"기대해요" 모두 포함 🤝', emoji: '🤝' },
+      // 숫자
+      'いち':         { note: '一(いち) — 한자 一의 모양 그대로! 획이 1개라 기억하기 쉬워요 ①', emoji: '①' },
+      'に':           { note: '二(に) — 두 줄! 그냥 보면 바로 보여요 ✌️', emoji: '✌️' },
+      'さん':         { note: '三(さん) — 세 줄! 순서대로 기억하면 OK 3️⃣', emoji: '3️⃣' },
+      'し':           { note: '四(し) = 死(し)와 발음 같아서 불길! 그래서 よん이라고도 읽어요 😱', emoji: '😱' },
+      'ご':           { note: '五(ご) — 손가락 5개! 양손 반씩 펼치면 고(ご) 5️⃣', emoji: '5️⃣' },
+      'ろく':         { note: '六(ろく) — Rock(록)처럼 발음! 락앤롤로 기억해요 🎸', emoji: '🎸' },
+      'なな':         { note: '七(なな/しち) — 세븐일레븐을 나나로 기억! 일본에서도 セブンイレブン은 인기 7️⃣', emoji: '7️⃣' },
+      'はち':         { note: '八(はち) — 한자 八은 아래로 넓어지는 모양 → 복을 부른다 🎋', emoji: '🎋' },
+      'く':           { note: '九(く) = 苦(く)와 발음 같아 불길! 그래서 きゅう로도 읽어요 😅', emoji: '😅' },
+      // 동사 관련
+      '食べる':       { note: '먹는 행위의 대표! "食"(식)=먹다, 2그룹 동사라 食べます로 활용돼요 🍽️', emoji: '🍽️' },
+      '飲む':         { note: '1그룹 동사! 飲みます, 飲んで, 飲んだ… 물 마시듯 자연스럽게 익혀요 🥤', emoji: '🥤' },
+      '行く':         { note: '1그룹 동사! 行きます, 行って(이거 불규칙!)… 行って만 특별히 외워요 ✈️', emoji: '✈️' },
+      '来る':         { note: '3그룹 불규칙! 来ます(きます), 来て(きて)… 読み方が変ですが覚えてください 🏃', emoji: '🏃' },
+      'する':         { note: '3그룹 최강 동사! 名詞+する로 뭐든 동사가 돼요! 勉強する、料理する… 최강 패턴 💪', emoji: '💪' },
+    };
+
     items.forEach((item, i) => {
       const jp = item.japanese || '';
-      // 한자 읽기 추출
+      // 읽기 추출
       const readings = [];
       const rx = /[（(]([ぁ-ん・ー]+)[）)]/g;
       let m;
       while ((m = rx.exec(jp)) !== null) readings.push(m[1]);
       const reading = readings.join('・');
-      // 예문 (sentences 필드 또는 관련 문장 검색)
-      const exSent = item.sentences && item.sentences.length
-        ? item.sentences[0]
-        : null;
+
+      // 단어에 맞는 노트 찾기
+      const cleanWord = jp.replace(/[（(][^）)]*[）)]/g, '').replace(/[〜～]/g, '');
+      const wordNote = WORD_NOTES[cleanWord] || WORD_NOTES[jp] || null;
+
+      const captionKo = wordNote
+        ? `${i + 1}번째! 「${jp}」는 「${item.korean}」. ${wordNote.note}`
+        : `${i + 1}번째! 「${jp}」= 「${item.korean}」. ${item.english ? `(${item.english})` : ''} 꼭 외워두세요!`;
+
+      const captionJp = `${i + 1}番目(ばんめ)は「${jp}」— 「${item.korean}」という意味(いみ)です！${item.english ? `英語(えいご)では「${item.english}」。` : ''}ゆっくり発音(はつおん)してみましょう！`;
 
       slides.push({
-        type: 'word',
-        main: jp, reading,
-        meaning: item.korean || '',
-        example: exSent ? { jp: exSent.japanese || exSent.jp || '', ko: exSent.meaning || exSent.ko || '' } : null,
-        captionJp: `${i + 1}番目の言葉は「${jp}」です。「${item.korean || ''}」という意味です。`,
-        captionKo: `${i + 1}번째 단어는 「${jp}」입니다. 뜻은 「${item.korean || ''}」입니다.`,
-        label: cat.type === 'sentence' ? '문장' : '단어',
-        duration: 5000,
+        type: 'word', label: cat.type === 'sentence' ? '문장' : '단어',
+        duration: wordNote ? 6000 : 5000,
         audio: jp,
+        main: jp, sub: item.korean, reading,
+        captionJp, captionKo,
+        example: item.sentences && item.sentences.length
+          ? { jp: item.sentences[0].japanese || item.sentences[0].jp || '', ko: item.sentences[0].meaning || item.sentences[0].ko || '' }
+          : null,
       });
 
-      // 예문 슬라이드 (있을 경우)
-      if (exSent && (exSent.japanese || exSent.jp)) {
-        const exJp = exSent.japanese || exSent.jp || '';
-        const exKo = exSent.meaning || exSent.ko || '';
-        slides.push({
-          type: 'example',
-          main: exJp, reading: '', meaning: exKo,
-          example: null,
-          captionJp: `例えば、このように使います：「${exJp}」`,
-          captionKo: `예를 들어 이렇게 사용합니다: 「${exKo}」`,
-          label: '예문', duration: 5000,
-          audio: exJp,
-        });
+      // 3~4번째 단어마다 미리 작성된 문화/팁 슬라이드 삽입
+      if (prewritten && i === 2) {
+        const midSlides = prewritten.filter(s => s.type === 'mnemonic' || s.type === 'funfact');
+        midSlides.slice(0, 1).forEach(s => slides.push({ ...s }));
       }
     });
 
-    // 정리 슬라이드
-    const keyWords = items.slice(0, 5).map(i => i.japanese).join('、');
-    slides.push({
-      type: 'summary',
-      main: '✅ 정리', reading: '',
-      meaning: keyWords,
-      example: null,
-      captionJp: `今日は${items.length}つの言葉を勉強しました。よくできました！次回もよろしくお願いします！`,
-      captionKo: `오늘은 ${items.length}개의 단어를 공부했습니다. 잘 하셨어요! 다음에 또 만나요!`,
-      label: '정리', duration: 5000,
-      audio: null,
-    });
+    // ─ 미리 작성된 추가 슬라이드 (문화노트, 퀴즈모멘트 등) ─
+    if (prewritten) {
+      const extraSlides = prewritten.filter(s => s.type === 'practice' || s.type === 'funfact' || s.type === 'culture');
+      extraSlides.slice(0, 2).forEach(s => {
+        // 이미 중간에 넣은 것 제외
+        if (!slides.some(existing => existing.captionJp === s.captionJp)) {
+          slides.push({ ...s });
+        }
+      });
+    }
+
+    // ─ 마무리 슬라이드 ─
+    const prewrittenSummary = prewritten ? prewritten.find(s => s.type === 'summary') : null;
+    if (prewrittenSummary) {
+      slides.push({ ...prewrittenSummary });
+    } else {
+      const keyWords = items.slice(0, 5).map(i => i.japanese).join('、');
+      slides.push({
+        type: 'summary', label: '정리', duration: 5000, audio: null,
+        main: '✅ 수고하셨어요!',
+        sub: keyWords,
+        reading: '',
+        captionJp: `今日は${items.length}つの重要(じゅうよう)表現(ひょうげん)を学(まな)びました！よくできました！次(つぎ)は「学習(がくしゅう)」「一覧(いちらん)」「クイズ」で復習(ふくしゅう)してみてください！`,
+        captionKo: `오늘 ${items.length}개의 중요 표현을 배웠어요! 잘 하셨어요! 다음엔 "자율학습", "일람", "퀴즈"로 복습해 보세요!`,
+        example: null,
+      });
+    }
 
     return slides;
   }
@@ -7579,7 +7627,10 @@ const App = (() => {
     const exBox = document.getElementById('lb-example-box');
     const exJpEl = document.getElementById('lb-ex-jp');
     const exKoEl = document.getElementById('lb-ex-ko');
-    if (typeEl) typeEl.textContent = slide.label || '';
+    if (typeEl) {
+      typeEl.textContent = slide.label || '';
+      typeEl.className = `lb-type-label type-${slide.type || 'word'}`;
+    }
     if (mainEl) mainEl.textContent = slide.main || '';
     if (readEl) readEl.textContent = slide.reading || '';
     if (meaningEl) meaningEl.textContent = slide.meaning || '';
