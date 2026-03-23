@@ -3336,11 +3336,17 @@ rt {
   letter-spacing: .5px;
 }
 .dlg-actor-name {
-  font-size: 12px;
-  color: #475569;
-  font-weight: 600;
+  font-size: 13px;
+  color: #1e293b;
+  font-weight: 700;
+}
+.dlg-actor-voice {
+  font-size: 10px;
+  color: #94a3b8;
+  margin-top: 1px;
 }
 .dlg-actor-A .dlg-actor-role { color: #3b82f6; }
+.dlg-actor-B .dlg-actor-role { color: #ec4899; }
 .dlg-actor-vs {
   font-size: 18px;
   font-weight: 800;

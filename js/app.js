@@ -3711,8 +3711,8 @@ const App = (() => {
         : `<div class="vvb-avatar-emoji">🎤</div>`;
       return { avatarHtml, name };
     } else {
-      // Web TTS 모드: 음성 인덱스 + 캐릭터 프리셋
-      const vIdx   = slot === 1 ? state.prefs.voiceFemale : state.prefs.voiceMale;
+      // Web TTS 모드: slot1=남자(voiceMale), slot2=여자(voiceFemale)
+      const vIdx   = slot === 1 ? state.prefs.voiceMale : state.prefs.voiceFemale;
       const charId = slot === 1 ? (state.prefs.charVoice1 || 'none') : (state.prefs.charVoice2 || 'none');
       const cv     = CHARACTER_VOICES.find(c => c.id === charId) || CHARACTER_VOICES[0];
       const voice  = (vIdx !== 'none' && vIdx !== undefined && vIdx !== null)
@@ -3751,10 +3751,10 @@ const App = (() => {
   function buildSlotItemHtml(slot) {
     const info = buildSlotAvatarHtml(slot);
     if (!info) return '';
-    // 데스크탑에서는 설정된 롤플레이 이름(ジュヨン/スンヒョン)을 표시
+    // slot1=남자(maleName), slot2=여자(femaleName)
     const roleName = slot === 1
-      ? (state.prefs.femaleName || 'ジュヨン')
-      : (state.prefs.maleName   || 'スンヒョン');
+      ? (state.prefs.maleName   || 'スンヒョン')
+      : (state.prefs.femaleName || 'ジュヨン');
     return `
       <div class="vvb-item" data-slot="${slot}">
         ${info.avatarHtml}
@@ -4632,7 +4632,8 @@ const App = (() => {
     if (!window.speechSynthesis) return;
     window.speechSynthesis.cancel();
 
-    const vIdx   = slot === 1 ? state.prefs.voiceFemale : slot === 2 ? state.prefs.voiceMale : state.prefs.voiceFemale;
+    // slot1=남자(voiceMale), slot2=여자(voiceFemale), slot3=직원(voiceFemale)
+    const vIdx   = slot === 1 ? state.prefs.voiceMale : slot === 2 ? state.prefs.voiceFemale : state.prefs.voiceFemale;
     const charId = slot === 1 ? (state.prefs.charVoice1 || 'none') : slot === 2 ? (state.prefs.charVoice2 || 'none') : (state.prefs.charVoice2 || 'none');
     const cv     = CHARACTER_VOICES.find(c => c.id === charId) || CHARACTER_VOICES[0];
 
@@ -4672,7 +4673,8 @@ const App = (() => {
       const sid = slot === 1 ? state.prefs.voicevoxSpeaker1 : state.prefs.voicevoxSpeaker2;
       return sid !== 'none' && sid !== undefined && sid !== null;
     }
-    const vIdx   = slot === 1 ? state.prefs.voiceFemale : state.prefs.voiceMale;
+    // slot1=남자(voiceMale), slot2=여자(voiceFemale)
+    const vIdx   = slot === 1 ? state.prefs.voiceMale : state.prefs.voiceFemale;
     const charId = slot === 1 ? (state.prefs.charVoice1 || 'none') : (state.prefs.charVoice2 || 'none');
     if (slot === 1) return true; // 슬롯1은 항상 브라우저 기본 TTS라도 사용 가능
     return (vIdx !== 'none' && vIdx !== undefined) || charId !== 'none';
@@ -5188,15 +5190,17 @@ const App = (() => {
       <div class="dlg-splash-desc">${cat.desc || cat.subtitle || ''}</div>
       <div class="dlg-splash-actors">
         <div class="dlg-actor dlg-actor-A">
-          <div class="dlg-actor-avatar">${slot1Info ? slot1Info.avatarHtml : '<div class="vvb-avatar-emoji">🔊</div>'}</div>
-          <div class="dlg-actor-role">나 (A)</div>
-          <div class="dlg-actor-name">${slot1Info ? slot1Info.name : '기본 TTS'}</div>
+          <div class="dlg-actor-avatar">${slot1Info ? slot1Info.avatarHtml : '<div class="vvb-avatar-emoji">👨</div>'}</div>
+          <div class="dlg-actor-role">👨 남자</div>
+          <div class="dlg-actor-name">${state.prefs.maleName || 'スンヒョン'}</div>
+          <div class="dlg-actor-voice">${slot1Info ? slot1Info.name : '기본 TTS'}</div>
         </div>
-        <div class="dlg-actor-vs">VS</div>
+        <div class="dlg-actor-vs">↔</div>
         <div class="dlg-actor dlg-actor-B">
-          <div class="dlg-actor-avatar">${slot2Info ? slot2Info.avatarHtml : '<div class="vvb-avatar-emoji">🎙️</div>'}</div>
-          <div class="dlg-actor-role">상대방 (B)</div>
-          <div class="dlg-actor-name">${slot2Info ? slot2Info.name : (hasSlot1 ? '(A와 동일)' : '기본 TTS')}</div>
+          <div class="dlg-actor-avatar">${slot2Info ? slot2Info.avatarHtml : '<div class="vvb-avatar-emoji">👩</div>'}</div>
+          <div class="dlg-actor-role">👩 여자</div>
+          <div class="dlg-actor-name">${state.prefs.femaleName || 'ジュヨン'}</div>
+          <div class="dlg-actor-voice">${slot2Info ? slot2Info.name : (hasSlot1 ? '(A와 동일)' : '기본 TTS')}</div>
         </div>
       </div>`;
 
@@ -5515,7 +5519,12 @@ const App = (() => {
       // 배지에 아바타 이미지 포함 (C는 아바타 없이 텍스트만)
       const dlgSlot = speaker === 'A' ? 1 : speaker === 'B' ? 2 : 3;
       const avatarInfo = dlgSlot < 3 ? buildSlotAvatarHtml(dlgSlot) : null;
-      const speakerLabel = speaker === 'A' ? '나' : speaker === 'B' ? '상대방' : '주변인';
+      // A=남자(maleName), B=여자(femaleName), C=직원
+      const speakerLabel = speaker === 'A'
+        ? (state.prefs.maleName   || 'スンヒョン')
+        : speaker === 'B'
+        ? (state.prefs.femaleName || 'ジュヨン')
+        : '직원';
       if (avatarInfo) {
         badge.innerHTML = `${avatarInfo.avatarHtml}<span class="dlg-badge-name">${speakerLabel}</span>`;
       } else {

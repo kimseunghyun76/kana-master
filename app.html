@@ -843,25 +843,26 @@
           </div>
           <!-- Web TTS 음성 설정 -->
           <div id="webtts-settings">
+            <div class="setting-desc" style="font-size:12px;color:#718096;margin-bottom:8px;">💡 화자 A=👨남자, 화자 B=👩여자 (고정)</div>
             <div class="setting-row">
-              <label>🎤 첫번째 음성:</label>
+              <label>👨 남자 목소리 (A):</label>
               <select id="pref-voice-female"><option value="none">사용 안함</option></select>
             </div>
             <div class="setting-row">
-              <label>🎤 두번째 음성:</label>
+              <label>👩 여자 목소리 (B):</label>
               <select id="pref-voice-male"><option value="none">사용 안함</option></select>
             </div>
           </div>
           <!-- 롤플레이 이름 설정 -->
-          <div class="setting-section-title">🎭 롤플레이 이름 설정</div>
-          <div class="setting-desc" style="font-size:12px;color:#718096;margin-bottom:8px;">대화 스크립트에서 {F}/{M} 자리에 표시될 이름을 설정하세요.</div>
+          <div class="setting-section-title">🎭 캐릭터 이름 설정</div>
+          <div class="setting-desc" style="font-size:12px;color:#718096;margin-bottom:8px;">스크립트 {M}=남자, {F}=여자 자리에 표시될 이름</div>
           <div class="setting-row">
-            <label>👩 여자 이름:</label>
-            <input type="text" id="pref-female-name" value="ジュヨン" maxlength="10" style="width:120px;padding:5px 8px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;">
+            <label>👨 남자 이름 ({M}):</label>
+            <input type="text" id="pref-male-name" value="スンヒョン" maxlength="10" style="width:120px;padding:5px 8px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;">
           </div>
           <div class="setting-row">
-            <label>👨 남자 이름:</label>
-            <input type="text" id="pref-male-name" value="スンヒョン" maxlength="10" style="width:120px;padding:5px 8px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;">
+            <label>👩 여자 이름 ({F}):</label>
+            <input type="text" id="pref-female-name" value="ジュヨン" maxlength="10" style="width:120px;padding:5px 8px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;">
           </div>
         </div>
 
