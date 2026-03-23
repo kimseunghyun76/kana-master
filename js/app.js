@@ -457,6 +457,82 @@ const App = (() => {
     }
   }
 
+  // ── 히어로 패널 롤링 (문장 ↔ 한자 5초) ──
+  let _heroRollTimer = null;
+  let _heroPanelIdx = 0;
+
+  function initHeroRolling() {
+    setupHeroKanji();
+    if (_heroRollTimer) clearInterval(_heroRollTimer);
+    _heroRollTimer = setInterval(() => {
+      _heroPanelIdx = (_heroPanelIdx + 1) % 2;
+      _switchHeroPanel(_heroPanelIdx);
+    }, 5000);
+    // dot 클릭으로 수동 전환
+    document.querySelectorAll('.hero-dot').forEach(dot => {
+      if (!dot._dotBound) {
+        dot._dotBound = true;
+        dot.addEventListener('click', () => {
+          _heroPanelIdx = parseInt(dot.dataset.idx);
+          _switchHeroPanel(_heroPanelIdx);
+          // 클릭 시 타이머 리셋
+          if (_heroRollTimer) clearInterval(_heroRollTimer);
+          _heroRollTimer = setInterval(() => {
+            _heroPanelIdx = (_heroPanelIdx + 1) % 2;
+            _switchHeroPanel(_heroPanelIdx);
+          }, 5000);
+        });
+      }
+    });
+  }
+
+  function _switchHeroPanel(idx) {
+    for (let i = 0; i < 2; i++) {
+      const panel = document.getElementById(`hero-panel-${i}`);
+      if (!panel) continue;
+      if (i === idx) panel.classList.remove('hero-panel-hidden');
+      else panel.classList.add('hero-panel-hidden');
+    }
+    document.querySelectorAll('.hero-dot').forEach((d, i) => {
+      d.classList.toggle('hero-dot-active', i === idx);
+    });
+  }
+
+  function setupHeroKanji() {
+    if (typeof VOCAB_ITEMS === 'undefined') return;
+    const kanjiItems = VOCAB_ITEMS.filter(item =>
+      item.japanese && /[\u4e00-\u9fff]/.test(item.japanese) && item.korean && item.type !== 'sim'
+    );
+    if (!kanjiItems.length) return;
+    const dayIdx = Math.floor(Date.now() / 86400000) % kanjiItems.length;
+    const item = kanjiItems[dayIdx];
+    const jp = item.japanese || '';
+    // 한자만 추출
+    const kanjiChars = jp.replace(/[（(][^）)]*[）)]/g, '').match(/[\u4e00-\u9fff]/g) || [];
+    const mainKanji = kanjiChars.slice(0, 2).join('') || jp.slice(0, 2);
+    // 읽기 추출 from ()
+    const readings = [];
+    const rx = /[（(]([ぁ-ん・ぁ-んー]+)[）)]/g;
+    let m;
+    while ((m = rx.exec(jp)) !== null) readings.push(m[1]);
+    const reading = readings.join('・') || '';
+    const charEl = document.getElementById('hero-kanji-char');
+    const readEl = document.getElementById('hero-kanji-reading');
+    const meaningEl = document.getElementById('hero-kanji-meaning');
+    const engEl = document.getElementById('hero-kanji-english');
+    const exEl = document.getElementById('hero-kanji-ex');
+    if (charEl) charEl.textContent = mainKanji;
+    if (readEl) readEl.textContent = reading || jp;
+    if (meaningEl) meaningEl.textContent = item.korean || '';
+    if (engEl) engEl.textContent = item.english || '';
+    if (exEl) exEl.textContent = jp;
+    const audioBtn = document.getElementById('hero-kanji-audio-btn');
+    if (audioBtn && !audioBtn._bound) {
+      audioBtn._bound = true;
+      audioBtn.onclick = () => playAudio(jp.replace(/[（）()]/g, ''));
+    }
+  }
+
   // ─── 전체 가나 레벨 그리드 렌더 (かな뷰 선택 패널용) ───
   function buildLevelCard(level) {
     const isUnlocked = state.unlockedLevels.includes(level.id);
@@ -594,7 +670,7 @@ const App = (() => {
     _renderVocabHomeSection('home-sim-cards', 'sim', 'roleplay', 'simlevel', null, {
       1:'교통편', 2:'식사편', 3:'숙박편', 4:'쇼핑편', 5:'관광·문화', 6:'부부 여행편'
     });
-    renderDailyKanji();
+    initHeroRolling();
     renderDailyQA();
   }
 
@@ -650,81 +726,77 @@ const App = (() => {
     const container = document.getElementById('home-qa-cards');
     if (!container) return;
     container.innerHTML = '';
-    if (typeof VOCAB_ITEMS === 'undefined') return;
-    // 질문형 문장 (？로 끝나는 것) + 회화 문장 아이템
-    const qItems = VOCAB_ITEMS.filter(item =>
-      item.japanese && item.korean && (item.type === 'sentence' || item.type === 'word') &&
-      (item.japanese.endsWith('？') || item.japanese.endsWith('?') || item.japanese.endsWith('か。') || item.japanese.endsWith('か？'))
-    );
-    const aItems = VOCAB_ITEMS.filter(item =>
-      item.japanese && item.korean && item.type === 'sentence' &&
-      !item.japanese.endsWith('？') && !item.japanese.endsWith('?')
-    );
-    if (qItems.length < 3) {
-      // 질문이 적으면 회화 문장 일반 아이템으로 대체
-      const dayBase = Math.floor(Date.now() / 86400000);
-      const sentItems = VOCAB_ITEMS.filter(v => v.type === 'sentence' && v.japanese && v.korean);
-      for (let i = 0; i < Math.min(5, sentItems.length); i++) {
-        const item = sentItems[(dayBase + i) % sentItems.length];
-        const card = _buildQACard(item.japanese, null, item.korean, null);
-        if (card) container.appendChild(card);
-      }
-      return;
-    }
-    // 날짜 기반으로 Q&A 쌍 선택
     const dayBase = Math.floor(Date.now() / 86400000);
-    for (let i = 0; i < Math.min(5, qItems.length); i++) {
-      const q = qItems[(dayBase + i) % qItems.length];
-      const a = aItems.length ? aItems[(dayBase + i) % aItems.length] : null;
-      const card = _buildQACard(q.japanese, a ? a.japanese : null, q.korean, a ? a.korean : null);
-      if (card) container.appendChild(card);
-    }
-  }
 
-  function _buildQACard(qJp, aJp, qKo, aKo) {
-    const card = document.createElement('div');
-    card.className = 'qa-card';
-    card.innerHTML = `
-      <div class="qa-q"><span class="qa-q-label">Q</span>${qJp}</div>
-      ${aJp ? `<div class="qa-a"><span class="qa-a-label">A</span>${aJp}</div>` : ''}
-      <div class="qa-ko">${qKo}${aKo ? ' → ' + aKo : ''}</div>
-    `;
-    card.addEventListener('click', () => playAudio(qJp));
-    return card;
+    // Q&A 쌍 데이터: DAILY_SENTENCES + VOCAB_ITEMS sentence 활용
+    const qaPairs = [
+      { q: 'すみません、トイレはどこですか？', a: 'あちらにあります。', qKo: '저기요, 화장실이 어디인가요?', aKo: '저쪽에 있습니다.' },
+      { q: 'これはいくらですか？', a: '500円です。', qKo: '이거 얼마예요?', aKo: '500엔입니다.' },
+      { q: 'メニューをください。', a: 'はい、どうぞ。', qKo: '메뉴판 주세요.', aKo: '네, 여기요.' },
+      { q: '写真を撮ってもいいですか？', a: 'もちろんです！', qKo: '사진 찍어도 되나요?', aKo: '물론이죠!' },
+      { q: '英語は話せますか？', a: '少し話せます。', qKo: '영어를 할 수 있나요?', aKo: '조금 할 수 있어요.' },
+      { q: '近くにコンビニはありますか？', a: '駅の前にあります。', qKo: '근처에 편의점 있나요?', aKo: '역 앞에 있어요.' },
+      { q: 'お名前は何ですか？', a: '〇〇と申します。', qKo: '이름이 뭐예요?', aKo: '〇〇라고 합니다.' },
+      { q: '何がおすすめですか？', a: 'ラーメンが人気です。', qKo: '뭐가 추천인가요?', aKo: '라멘이 인기예요.' },
+      { q: 'チェックインをお願いします。', a: 'パスポートをお見せください。', qKo: '체크인 부탁드립니다.', aKo: '여권을 보여주세요.' },
+      { q: 'もう一度言ってください。', a: 'ゆっくり話します。', qKo: '다시 한 번 말해 주세요.', aKo: '천천히 말할게요.' },
+    ];
+
+    // 날짜 기반으로 4개 선택
+    for (let i = 0; i < 4; i++) {
+      const pair = qaPairs[(dayBase + i) % qaPairs.length];
+      const card = document.createElement('div');
+      card.className = 'qa-card';
+      card.innerHTML = `
+        <div class="qa-q"><span class="qa-q-label">Q</span>${pair.q}</div>
+        <div class="qa-a"><span class="qa-a-label">A</span>${pair.a}</div>
+        <div class="qa-ko">${pair.qKo}<br><span style="color:#3b82f6">${pair.aKo}</span></div>
+      `;
+      card.addEventListener('click', () => playAudio(pair.q));
+      container.appendChild(card);
+    }
   }
 
   function _renderKanaHomeSection() {
     const kanaEl = document.getElementById('home-kana-cards');
     if (!kanaEl || kanaEl.children.length > 0 || typeof LEVELS === 'undefined') return;
+    // 히라가나 / 가타카나 두 그룹
     const kanaGroups = [
-      { icon: 'あ', name: 'ひらがな', ids: [1, 2, 3] },
-      { icon: 'ア', name: 'カタカナ', ids: [4, 5, 6] },
-      { icon: '🔄', name: '종합 복습', ids: [7, 8] },
-      { icon: '✨', name: '특수·확장', ids: [9, 10, 11] },
+      { icon: 'あ', name: '히라가나', ids: [1, 2, 3, 4, 5], type: 'kana' },
+      { icon: 'ア', name: '가타카나', ids: [6, 7, 8, 9, 10, 11], type: 'kana' },
     ];
-    const recGroupIdx = Math.floor(Math.random() * kanaGroups.length);
-    kanaGroups.forEach((group, gIdx) => {
-      const levels = group.ids.map(id => LEVELS.find(l => l.id === id)).filter(Boolean);
-      const firstUnlocked = levels.find(l => state.unlockedLevels.includes(l.id)) || levels[0];
-      const isAnyUnlocked = levels.some(l => state.unlockedLevels.includes(l.id));
-      const allChars = levels.flatMap(l => (l.chars || []).filter(c => !c.includes('_')));
-      const totalChars = allChars.length;
-      const masteredChars = allChars.filter(c => isCharMastered(c)).length;
-      const totalProg = totalChars > 0 ? Math.round((masteredChars / totalChars) * 100) : 0;
-      kanaEl.appendChild(buildGroupCard({
-        icon: group.icon,
-        name: group.name,
-        items: levels.map(l => l.title),
-        totalProg,
-        totalItems: `${totalChars}자`,
-        badgeType: 'kana',
-        recommend: gIdx === recGroupIdx,
-        startFn: () => startLearn(firstUnlocked.id, 'flash'),
-        viewFn: () => showView('kana'),
-        locked: !isAnyUnlocked,
-        lockedMsg: `🔒 ${levels[0].unlockXP} XP 필요`,
-      }));
-    });
+    // 미완료된 첫 번째 그룹 추천
+    let recGroup = kanaGroups[0];
+    for (const g of kanaGroups) {
+      const lvs = g.ids.map(id => LEVELS.find(l => l.id === id)).filter(Boolean);
+      const allChars = lvs.flatMap(l => (l.chars || []).filter(c => !c.includes('_')));
+      const mastered = allChars.filter(c => isCharMastered(c)).length;
+      if (mastered < allChars.length) { recGroup = g; break; }
+    }
+    const g = recGroup;
+    const levels = g.ids.map(id => LEVELS.find(l => l.id === id)).filter(Boolean);
+    const firstUnlocked = levels.find(l => state.unlockedLevels.includes(l.id)) || levels[0];
+    const isAnyUnlocked = levels.some(l => state.unlockedLevels.includes(l.id));
+    const allChars = levels.flatMap(l => (l.chars || []).filter(c => !c.includes('_')));
+    const totalChars = allChars.length;
+    const masteredChars = allChars.filter(c => isCharMastered(c)).length;
+    const totalProg = totalChars > 0 ? Math.round((masteredChars / totalChars) * 100) : 0;
+    kanaEl.appendChild(buildBannerCard({
+      icon: g.icon,
+      name: g.name,
+      items: levels.map(l => l.title),
+      totalProg,
+      totalItems: `${totalChars}자`,
+      badgeType: 'kana',
+      type: 'kana',
+      recommend: true,
+      lectureFn: null,
+      startFn: () => startLearn(firstUnlocked.id, 'flash'),
+      browseFn: () => startLearn(firstUnlocked.id, 'browse'),
+      quizFn: () => startQuizForLevel(firstUnlocked.id),
+      locked: !isAnyUnlocked,
+      lockedMsg: `🔒 ${levels[0] ? levels[0].unlockXP : 0} XP 필요`,
+    }));
   }
 
   function _renderVocabHomeSection(elId, type, viewName, levelKey, levelPrefix, groupLabels) {
@@ -733,58 +805,91 @@ const App = (() => {
     if (typeof VOCAB_CATEGORIES === 'undefined') return;
     const cats = VOCAB_CATEGORIES.filter(c => c.type === type);
     const levels = [...new Set(cats.map(c => c[levelKey]))].sort((a, b) => a - b);
-    const recLvIdx = Math.floor(Math.random() * levels.length);
-    levels.forEach((lv, lvIdx) => {
+    if (!levels.length) return;
+    // 진행 중인(미완료) 첫 레벨 추천
+    let recLv = levels[0];
+    for (const lv of levels) {
       const lvCats = cats.filter(c => c[levelKey] === lv);
-      const groupName = groupLabels ? (groupLabels[lv] || `Sim ${lv}`) : `${levelPrefix}${lv}`;
-      const totalItems = lvCats.reduce((sum, c) => sum + c.items.length, 0);
       const progSum = lvCats.reduce((sum, c) => sum + getVocabCategoryProgress(c.id), 0);
-      const totalProg = Math.round(progSum / lvCats.length);
-      const firstCat = lvCats[0];
-      const isDialogue = firstCat && firstCat.dialogue;
-      const startFn = isDialogue
-        ? () => { showView(viewName); setTimeout(() => startVocabCategory(firstCat.id, 'dialogue'), 100); }
-        : () => { showView(viewName); setTimeout(() => startVocabCategory(firstCat.id, 'flash'), 100); };
-      el.appendChild(buildGroupCard({
-        icon: lvCats[0].icon || (type === 'sim' ? '🎭' : type === 'sentence' ? '💬' : '📝'),
-        name: groupName,
-        items: lvCats.map(c => c.name),
-        totalProg,
-        totalItems: `${totalItems}개`,
-        badgeType: type,
-        recommend: lvIdx === recLvIdx,
-        startFn,
-        viewFn: () => showView(viewName),
-      }));
-    });
+      if (Math.round(progSum / lvCats.length) < 100) { recLv = lv; break; }
+    }
+    const lv = recLv;
+    const lvCats = cats.filter(c => c[levelKey] === lv);
+    const groupName = groupLabels ? (groupLabels[lv] || `Sim ${lv}`) : `${levelPrefix}${lv}`;
+    const totalItems = lvCats.reduce((sum, c) => sum + c.items.length, 0);
+    const progSum = lvCats.reduce((sum, c) => sum + getVocabCategoryProgress(c.id), 0);
+    const totalProg = Math.round(progSum / lvCats.length);
+    const firstCat = lvCats[0];
+    const isDialogue = firstCat && firstCat.dialogue;
+    const hasLecture = (type === 'word' || type === 'sentence');
+    const navSection = type === 'sentence' ? 'sentence' : type;
+    const setSection = () => { state.vocabSection = navSection; };
+    const startFn = isDialogue
+      ? () => { setSection(); showView(viewName); setTimeout(() => startVocabCategory(firstCat.id, 'dialogue'), 100); }
+      : () => { setSection(); showView(viewName); setTimeout(() => startVocabCategory(firstCat.id, 'flash'), 100); };
+    el.appendChild(buildBannerCard({
+      icon: firstCat ? (firstCat.icon || (type === 'sim' ? '🎭' : type === 'sentence' ? '💬' : '📝')) : '📝',
+      name: groupName,
+      items: lvCats.map(c => c.name),
+      totalProg,
+      totalItems: `${totalItems}개`,
+      badgeType: type,
+      type,
+      recommend: true,
+      lectureFn: hasLecture && firstCat ? () => { setSection(); showView(viewName); setTimeout(() => startLecture(firstCat.id), 150); } : null,
+      startFn,
+      browseFn: firstCat ? () => { setSection(); showView(viewName); setTimeout(() => startVocabCategory(firstCat.id, 'browse'), 100); } : startFn,
+      quizFn: firstCat ? () => { setSection(); showView(viewName); setTimeout(() => startVocabCategory(firstCat.id, 'quiz'), 100); } : startFn,
+    }));
   }
 
-  // ─── 홈 그룹 카드 빌더 ───
-  function buildGroupCard({ icon, name, items, totalProg, totalItems, badgeType, recommend, startFn, viewFn, locked, lockedMsg }) {
+  // ─── 홈 배너 카드 빌더 ───
+  function buildBannerCard({ icon, name, items, totalProg, totalItems, badgeType, type, recommend, lectureFn, startFn, browseFn, quizFn, locked, lockedMsg }) {
+    const promoMap = {
+      kana: '히라가나·가타카나 플래시카드로 완전 정복하세요! ✨',
+      word: '핵심 단어를 마스터하면 대화가 열립니다! 📚',
+      sentence: '자연스러운 회화 패턴을 익혀봅시다! 💬',
+      sim: '실전 상황에서 바로 써먹는 일본어! 🎯',
+    };
     const card = document.createElement('div');
-    card.className = 'hc hc-group' + (recommend ? ' hc-recommend' : '') + (locked ? ' hc-locked' : '');
+    card.className = 'hcb' + (recommend ? ' hcb-recommend' : '') + (locked ? ' hcb-locked' : '');
     card.innerHTML = `
-      ${recommend ? '<div class="hc-rec-badge">✨ 오늘의 추천</div>' : ''}
-      <div class="hc-badge hc-${badgeType}">${icon}</div>
-      <div class="hc-name">${name}</div>
-      <div class="hc-group-items">${items.map(i => `<span class="hc-tag">${i}</span>`).join('')}</div>
-      <div class="hc-prog-wrap">
-        <div class="hc-prog-bar"><div class="hc-prog-fill" style="width:${totalProg}%"></div></div>
-        <span class="hc-prog-text">${totalProg}% · ${totalItems}</span>
+      ${recommend ? '<div class="hcb-rec-badge">✨ 오늘의 추천</div>' : ''}
+      <div class="hcb-header">
+        <div class="hcb-icon-wrap hcb-${badgeType}">${icon}</div>
+        <div class="hcb-title-col">
+          <div class="hcb-name">${name}</div>
+          <div class="hcb-promo">${promoMap[type] || ''}</div>
+        </div>
+        <div class="hcb-prog-badge">${totalProg}%</div>
       </div>
-      ${locked ? `<div class="hc-locked-msg">${lockedMsg}</div>` : `
-      <div class="hc-actions">
-        <button class="hc-btn hc-btn-0">▶ 시작</button>
-        <button class="hc-btn hc-btn-1">🗂 모두보기</button>
+      <div class="hcb-tags">${items.slice(0, 5).map(i => `<span class="hcb-tag">${i}</span>`).join('')}</div>
+      <div class="hcb-prog-bar-wrap">
+        <div class="hcb-prog-bar"><div class="hcb-prog-fill" style="width:${totalProg}%"></div></div>
+        <span class="hcb-prog-txt">${totalItems}</span>
+      </div>
+      ${locked ? `<div class="hc-locked-msg">${lockedMsg || '잠김'}</div>` : `
+      <div class="hcb-btns">
+        ${lectureFn ? '<button class="hcb-btn hcb-btn-lec">🎬 강의</button>' : ''}
+        <button class="hcb-btn hcb-btn-study">📖 자율학습</button>
+        <button class="hcb-btn hcb-btn-browse">🗂 일람</button>
+        <button class="hcb-btn hcb-btn-quiz">✏️ 퀴즈</button>
       </div>`}
     `;
     if (!locked) {
-      card.querySelector('.hc-btn-0').addEventListener('click', (e) => { e.stopPropagation(); startFn(); });
-      card.querySelector('.hc-btn-1').addEventListener('click', (e) => { e.stopPropagation(); viewFn(); });
+      if (lectureFn) card.querySelector('.hcb-btn-lec').addEventListener('click', e => { e.stopPropagation(); lectureFn(); });
+      card.querySelector('.hcb-btn-study').addEventListener('click', e => { e.stopPropagation(); startFn(); });
+      card.querySelector('.hcb-btn-browse').addEventListener('click', e => { e.stopPropagation(); browseFn(); });
+      card.querySelector('.hcb-btn-quiz').addEventListener('click', e => { e.stopPropagation(); quizFn(); });
     } else {
-      card.addEventListener('click', () => showToast(lockedMsg));
+      card.addEventListener('click', () => showToast(lockedMsg || '잠긴 컨텐츠입니다.'));
     }
     return card;
+  }
+
+  // ─── 홈 그룹 카드 빌더 (레거시, 사용 안함) ───
+  function buildGroupCard({ icon, name, items, totalProg, totalItems, badgeType, recommend, startFn, viewFn, locked, lockedMsg }) {
+    return buildBannerCard({ icon, name, items, totalProg, totalItems, badgeType, type: badgeType, recommend, startFn, browseFn: viewFn, quizFn: viewFn, locked, lockedMsg });
   }
 
   // ─── 홈 공통 카드 빌더 ───
@@ -4989,6 +5094,7 @@ const App = (() => {
         setTimeout(() => startVocabCategory(cat.id, 'dialogue'), 100);
       });
     } else {
+      const hasLec = (cat.type === 'word' || cat.type === 'sentence');
       card.innerHTML = `
         <div class="vcc-icon">${cat.icon}</div>
         <div class="vcc-name">${cat.name}</div>
@@ -4996,10 +5102,19 @@ const App = (() => {
         <div class="vcc-prog-bar"><div class="vcc-prog-fill" style="width:${prog}%"></div></div>
         <div class="vcc-prog-text">${prog}% · ${cat.items.length}개</div>
         <div class="vcc-actions">
+          ${hasLec ? `<button class="vcc-btn vcc-btn-lecture" data-cid="${cat.id}">🎬 강의</button>` : ''}
           <button class="vcc-btn vcc-btn-flash" data-cid="${cat.id}">📚 학습</button>
           <button class="vcc-btn vcc-btn-browse" data-cid="${cat.id}">📖 일람</button>
           <button class="vcc-btn vcc-btn-quiz" data-cid="${cat.id}">✏️ 퀴즈</button>
         </div>`;
+      if (hasLec) {
+        card.querySelector('.vcc-btn-lecture').addEventListener('click', e => {
+          e.stopPropagation();
+          const v = cat.type === 'sentence' ? 'convo' : 'vocab';
+          showView(v);
+          setTimeout(() => startLecture(cat.id), 100);
+        });
+      }
       card.querySelector('.vcc-btn-flash').addEventListener('click', (e) => {
         e.stopPropagation();
         const v = cat.type === 'sim' ? 'roleplay' : (cat.type === 'sentence' ? 'convo' : 'vocab');
@@ -5007,13 +5122,13 @@ const App = (() => {
         setTimeout(() => startVocabCategory(cat.id, 'flash'), 100);
       });
       card.querySelector('.vcc-btn-browse').addEventListener('click', (e) => {
-        e.stopPropagation(); 
+        e.stopPropagation();
         const v = cat.type === 'sim' ? 'roleplay' : (cat.type === 'sentence' ? 'convo' : 'vocab');
         showView(v);
         setTimeout(() => startVocabCategory(cat.id, 'browse'), 100);
       });
       card.querySelector('.vcc-btn-quiz').addEventListener('click', (e) => {
-        e.stopPropagation(); 
+        e.stopPropagation();
         const v = cat.type === 'sim' ? 'roleplay' : (cat.type === 'sentence' ? 'convo' : 'vocab');
         showView(v);
         setTimeout(() => startVocabCategory(cat.id, 'quiz'), 100);
@@ -7169,6 +7284,277 @@ const App = (() => {
     stopFcExRead();
     stopVocabExRead();
     playAudio(text);
+  }
+
+  // ═══════════════════════════════════════════════════
+  //   강의 (Lecture) 기능 — YouTube 스타일 칠판 강의
+  // ═══════════════════════════════════════════════════
+
+  let _lectureSlides = [];
+  let _lectureSlideIdx = 0;
+  let _lecturePlaying = true;
+  let _lectureTimer = null;
+  let _lectureTimerFill = null;
+  let _lectureFillInterval = null;
+  let _lectureCatId = null;
+
+  function startLecture(catId) {
+    _lectureCatId = catId;
+    const cat = VOCAB_CATEGORIES.find(c => c.id === catId);
+    if (!cat) { showToast('강의 데이터를 찾을 수 없습니다.'); return; }
+    _lectureSlides = generateLectureSlides(cat);
+    _lectureSlideIdx = 0;
+    _lecturePlaying = true;
+
+    // 패널 표시
+    const panel = document.getElementById('lecture-panel');
+    if (!panel) return;
+    panel.style.display = 'flex';
+    panel.style.flexDirection = 'column';
+
+    const nameEl = document.getElementById('lecture-cat-name');
+    if (nameEl) nameEl.textContent = `${cat.icon || ''} ${cat.name}`;
+
+    // 이벤트 바인딩 (1회)
+    _bindLectureControls();
+    _showLectureSlide(0);
+  }
+
+  function generateLectureSlides(cat) {
+    const items = typeof VOCAB_ITEMS !== 'undefined'
+      ? VOCAB_ITEMS.filter(v => cat.items.includes(v.id)).slice(0, 8)
+      : [];
+    const slides = [];
+
+    // 오프닝 슬라이드
+    slides.push({
+      type: 'title',
+      main: cat.name, reading: '', meaning: cat.subtitle || '',
+      example: null,
+      captionJp: `みなさん、こんにちは！今日は「${cat.name}」を一緒に勉強しましょう！`,
+      captionKo: `여러분 안녕하세요! 오늘은 「${cat.name}」를 함께 공부해 봅시다!`,
+      label: '인트로', duration: 4000,
+      audio: null,
+    });
+
+    // 단어/문장 슬라이드
+    items.forEach((item, i) => {
+      const jp = item.japanese || '';
+      // 한자 읽기 추출
+      const readings = [];
+      const rx = /[（(]([ぁ-ん・ー]+)[）)]/g;
+      let m;
+      while ((m = rx.exec(jp)) !== null) readings.push(m[1]);
+      const reading = readings.join('・');
+      // 예문 (sentences 필드 또는 관련 문장 검색)
+      const exSent = item.sentences && item.sentences.length
+        ? item.sentences[0]
+        : null;
+
+      slides.push({
+        type: 'word',
+        main: jp, reading,
+        meaning: item.korean || '',
+        example: exSent ? { jp: exSent.japanese || exSent.jp || '', ko: exSent.meaning || exSent.ko || '' } : null,
+        captionJp: `${i + 1}番目の言葉は「${jp}」です。「${item.korean || ''}」という意味です。`,
+        captionKo: `${i + 1}번째 단어는 「${jp}」입니다. 뜻은 「${item.korean || ''}」입니다.`,
+        label: cat.type === 'sentence' ? '문장' : '단어',
+        duration: 5000,
+        audio: jp,
+      });
+
+      // 예문 슬라이드 (있을 경우)
+      if (exSent && (exSent.japanese || exSent.jp)) {
+        const exJp = exSent.japanese || exSent.jp || '';
+        const exKo = exSent.meaning || exSent.ko || '';
+        slides.push({
+          type: 'example',
+          main: exJp, reading: '', meaning: exKo,
+          example: null,
+          captionJp: `例えば、このように使います：「${exJp}」`,
+          captionKo: `예를 들어 이렇게 사용합니다: 「${exKo}」`,
+          label: '예문', duration: 5000,
+          audio: exJp,
+        });
+      }
+    });
+
+    // 정리 슬라이드
+    const keyWords = items.slice(0, 5).map(i => i.japanese).join('、');
+    slides.push({
+      type: 'summary',
+      main: '✅ 정리', reading: '',
+      meaning: keyWords,
+      example: null,
+      captionJp: `今日は${items.length}つの言葉を勉強しました。よくできました！次回もよろしくお願いします！`,
+      captionKo: `오늘은 ${items.length}개의 단어를 공부했습니다. 잘 하셨어요! 다음에 또 만나요!`,
+      label: '정리', duration: 5000,
+      audio: null,
+    });
+
+    return slides;
+  }
+
+  function _showLectureSlide(idx) {
+    if (!_lectureSlides.length) return;
+    idx = Math.max(0, Math.min(idx, _lectureSlides.length - 1));
+    _lectureSlideIdx = idx;
+    const slide = _lectureSlides[idx];
+
+    // 슬라이드 정보
+    const infoEl = document.getElementById('lecture-slide-info');
+    if (infoEl) infoEl.textContent = `${idx + 1} / ${_lectureSlides.length}`;
+
+    // 진행 바 (전체)
+    const progFill = document.getElementById('lec-progress-fill');
+    if (progFill) progFill.style.width = `${((idx + 1) / _lectureSlides.length) * 100}%`;
+
+    // 칠판 내용
+    const typeEl = document.getElementById('lb-type-label');
+    const mainEl = document.getElementById('lb-main-char');
+    const readEl = document.getElementById('lb-sub-reading');
+    const meaningEl = document.getElementById('lb-meaning');
+    const exBox = document.getElementById('lb-example-box');
+    const exJpEl = document.getElementById('lb-ex-jp');
+    const exKoEl = document.getElementById('lb-ex-ko');
+    if (typeEl) typeEl.textContent = slide.label || '';
+    if (mainEl) mainEl.textContent = slide.main || '';
+    if (readEl) readEl.textContent = slide.reading || '';
+    if (meaningEl) meaningEl.textContent = slide.meaning || '';
+    if (exBox) {
+      if (slide.example && (slide.example.jp || slide.example.ko)) {
+        exBox.style.display = 'block';
+        if (exJpEl) exJpEl.textContent = slide.example.jp || '';
+        if (exKoEl) exKoEl.textContent = slide.example.ko || '';
+      } else {
+        exBox.style.display = 'none';
+      }
+    }
+
+    // 캡션
+    const capJp = document.getElementById('lecture-caption-jp');
+    const capKo = document.getElementById('lecture-caption-ko');
+    if (capJp) capJp.textContent = slide.captionJp || '';
+    if (capKo) capKo.textContent = slide.captionKo || '';
+
+    // 오디오 (단어/문장 슬라이드에서 자동 재생)
+    if (slide.audio && _lecturePlaying) {
+      setTimeout(() => playAudio(slide.audio.replace(/[（）()]/g, '')), 500);
+    }
+
+    // 타이머 바 애니메이션
+    _startLectureTimerBar(slide.duration || 5000);
+    if (_lecturePlaying) _scheduleLectureNext(slide.duration || 5000);
+  }
+
+  function _startLectureTimerBar(duration) {
+    const fill = document.getElementById('lecture-timer-fill');
+    if (!fill) return;
+    if (_lectureFillInterval) clearInterval(_lectureFillInterval);
+    fill.style.transition = 'none';
+    fill.style.width = '0%';
+    let elapsed = 0;
+    const step = 100;
+    _lectureFillInterval = setInterval(() => {
+      elapsed += step;
+      fill.style.width = `${Math.min((elapsed / duration) * 100, 100)}%`;
+      if (elapsed >= duration) clearInterval(_lectureFillInterval);
+    }, step);
+  }
+
+  function _scheduleLectureNext(delay) {
+    if (_lectureTimer) clearTimeout(_lectureTimer);
+    _lectureTimer = setTimeout(() => {
+      if (!_lecturePlaying) return;
+      if (_lectureSlideIdx < _lectureSlides.length - 1) {
+        _showLectureSlide(_lectureSlideIdx + 1);
+      } else {
+        // 강의 완료
+        _lecturePlaying = false;
+        const capJp = document.getElementById('lecture-caption-jp');
+        const capKo = document.getElementById('lecture-caption-ko');
+        if (capJp) capJp.textContent = '강의가 끝났습니다！よくできました！';
+        if (capKo) capKo.textContent = '학습, 일람, 퀴즈로 복습해 보세요!';
+        const playBtn = document.getElementById('lec-play-btn');
+        if (playBtn) playBtn.textContent = '▶ 다시보기';
+      }
+    }, delay);
+  }
+
+  function _bindLectureControls() {
+    const backBtn = document.getElementById('lecture-back-btn');
+    const prevBtn = document.getElementById('lec-prev-btn');
+    const playBtn = document.getElementById('lec-play-btn');
+    const nextBtn = document.getElementById('lec-next-btn');
+    const audioBtn = document.getElementById('lec-audio-btn');
+
+    if (backBtn && !backBtn._lecBound) {
+      backBtn._lecBound = true;
+      backBtn.addEventListener('click', () => {
+        if (_lectureTimer) clearTimeout(_lectureTimer);
+        if (_lectureFillInterval) clearInterval(_lectureFillInterval);
+        _lecturePlaying = false;
+        const panel = document.getElementById('lecture-panel');
+        if (panel) panel.style.display = 'none';
+      });
+    }
+    if (prevBtn && !prevBtn._lecBound) {
+      prevBtn._lecBound = true;
+      prevBtn.addEventListener('click', () => {
+        if (_lectureTimer) clearTimeout(_lectureTimer);
+        _showLectureSlide(_lectureSlideIdx - 1);
+      });
+    }
+    if (nextBtn && !nextBtn._lecBound) {
+      nextBtn._lecBound = true;
+      nextBtn.addEventListener('click', () => {
+        if (_lectureTimer) clearTimeout(_lectureTimer);
+        _showLectureSlide(_lectureSlideIdx + 1);
+      });
+    }
+    if (playBtn && !playBtn._lecBound) {
+      playBtn._lecBound = true;
+      playBtn.addEventListener('click', () => {
+        _lecturePlaying = !_lecturePlaying;
+        playBtn.textContent = _lecturePlaying ? '⏸ 일시정지' : '▶ 재생';
+        if (_lecturePlaying) {
+          _showLectureSlide(_lectureSlideIdx); // 현재 슬라이드부터 재개
+        } else {
+          if (_lectureTimer) clearTimeout(_lectureTimer);
+          if (_lectureFillInterval) clearInterval(_lectureFillInterval);
+        }
+      });
+    }
+    if (audioBtn && !audioBtn._lecBound) {
+      audioBtn._lecBound = true;
+      audioBtn.addEventListener('click', () => {
+        const slide = _lectureSlides[_lectureSlideIdx];
+        if (slide && slide.audio) playAudio(slide.audio.replace(/[（）()]/g, ''));
+        else if (slide && slide.main) playAudio(slide.main.replace(/[（）()]/g, '').replace(/[✅]/g, ''));
+      });
+    }
+  }
+
+  // 강의 카드 버튼도 vocab cat 카드에 추가
+  function addLectureButtonToVocabCard(card, catId, catType) {
+    if (catType !== 'word' && catType !== 'sentence') return;
+    const actions = card.querySelector('.vcc-actions');
+    if (!actions) return;
+    const btn = document.createElement('button');
+    btn.className = 'vcc-btn vcc-btn-lecture';
+    btn.dataset.cid = catId;
+    btn.textContent = '🎬 강의';
+    btn.style.cssText = 'background:linear-gradient(135deg,#7c3aed,#6d28d9);color:white;';
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      const cat = VOCAB_CATEGORIES.find(c => c.id === catId);
+      if (cat) {
+        const v = cat.type === 'sentence' ? 'convo' : 'vocab';
+        showView(v);
+        setTimeout(() => startLecture(catId), 100);
+      }
+    });
+    actions.insertBefore(btn, actions.firstChild);
   }
 
   // ─── 공개 API ───

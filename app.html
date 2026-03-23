@@ -45,15 +45,39 @@
     <!-- ========== 홈 뷰 ========== -->
     <div id="view-home" class="view active">
 
-      <!-- ── 히어로: 오늘의 문장 ── -->
+      <!-- ── 히어로: 오늘의 문장 / 오늘의 한자 (5초 롤링) ── -->
       <div class="home-hero">
-        <div class="home-hero-inner">
+        <!-- 패널 전환 dot 인디케이터 -->
+        <div class="hero-roll-dots" id="hero-roll-dots">
+          <span class="hero-dot hero-dot-active" data-idx="0"></span>
+          <span class="hero-dot" data-idx="1"></span>
+        </div>
+
+        <!-- Panel 0: 오늘의 문장 -->
+        <div class="home-hero-inner hero-panel" id="hero-panel-0">
           <div class="home-hero-label">🌸 오늘의 문장</div>
           <div class="home-hero-sentence" id="hero-sentence">読み込み中…</div>
           <div class="home-hero-trans" id="hero-translation"></div>
           <div class="home-hero-footer">
             <button class="home-hero-audio" id="hero-audio-btn">🔊 발음 듣기</button>
             <button class="home-hero-refresh" id="hero-refresh-btn">🔄 다른 문장</button>
+          </div>
+        </div>
+
+        <!-- Panel 1: 오늘의 한자 (플래시카드 스타일) -->
+        <div class="home-hero-inner hero-panel hero-panel-hidden" id="hero-panel-1">
+          <div class="home-hero-label">🈶 오늘의 한자</div>
+          <div class="hero-kanji-display">
+            <div class="hero-kanji-char" id="hero-kanji-char">日</div>
+            <div class="hero-kanji-right">
+              <div class="hero-kanji-reading" id="hero-kanji-reading">にち・ひ</div>
+              <div class="hero-kanji-meaning" id="hero-kanji-meaning">날·해</div>
+              <div class="hero-kanji-english" id="hero-kanji-english">Day / Sun</div>
+              <div class="hero-kanji-ex" id="hero-kanji-ex">日本語(にほんご) — 일본어</div>
+            </div>
+          </div>
+          <div class="home-hero-footer">
+            <button class="home-hero-audio" id="hero-kanji-audio-btn">🔊 발음 듣기</button>
           </div>
         </div>
       </div>
@@ -64,20 +88,6 @@
           <span class="home-section-title">⏱ 이어서 학습하기</span>
         </div>
         <div class="home-hscroll" id="home-recent-list"></div>
-      </div>
-
-      <!-- ── 오늘의 한자 ── -->
-      <div class="home-section home-daily-section" id="home-kanji-section">
-        <div class="home-section-header">
-          <div class="home-section-left">
-            <span class="home-section-badge badge-kanji">🈶</span>
-            <div>
-              <span class="home-section-title">오늘의 한자</span>
-              <span class="home-section-sub">매일 새로운 한자 완전 정복</span>
-            </div>
-          </div>
-        </div>
-        <div id="home-kanji-card" class="home-daily-card-wrap"></div>
       </div>
 
       <!-- ── 오늘의 Q&A ── -->
@@ -786,6 +796,60 @@
       </div>
 
     </div><!-- /view-vocab -->
+
+    <!-- ========== 강의 패널 (YouTube 스타일) ========== -->
+    <div id="lecture-panel" class="view" style="display:none">
+      <div class="lecture-header">
+        <button class="back-btn" id="lecture-back-btn">← 나가기</button>
+        <div class="lecture-header-center">
+          <span id="lecture-cat-name" class="lecture-cat-name">인사·응답</span>
+          <span id="lecture-slide-info" class="lecture-slide-info">1 / 8</span>
+        </div>
+        <div class="lecture-header-right">
+          <button class="lecture-spd-btn" id="lecture-spd-btn" title="재생 속도">1×</button>
+        </div>
+      </div>
+
+      <!-- 칠판 영역 -->
+      <div class="lecture-board" id="lecture-board">
+        <div class="lb-decoration">
+          <div class="lb-chalk-line"></div>
+          <div class="lb-chalk-line lb-chalk-line-2"></div>
+        </div>
+        <div class="lb-content">
+          <div class="lb-type-label" id="lb-type-label">단어</div>
+          <div class="lb-main-char" id="lb-main-char">こんにちは</div>
+          <div class="lb-sub-reading" id="lb-sub-reading"></div>
+          <div class="lb-meaning" id="lb-meaning">안녕하세요</div>
+          <div class="lb-example-box" id="lb-example-box" style="display:none">
+            <div class="lb-ex-jp" id="lb-ex-jp"></div>
+            <div class="lb-ex-ko" id="lb-ex-ko"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 자동진행 타이머 바 -->
+      <div class="lecture-timer-bar">
+        <div class="lecture-timer-fill" id="lecture-timer-fill"></div>
+      </div>
+
+      <!-- 캡션 (자막 스타일) -->
+      <div class="lecture-caption" id="lecture-caption">
+        <div class="lecture-caption-jp" id="lecture-caption-jp">강의를 시작합니다…</div>
+        <div class="lecture-caption-ko" id="lecture-caption-ko"></div>
+      </div>
+
+      <!-- 컨트롤 바 -->
+      <div class="lecture-controls">
+        <button class="lec-ctrl-btn" id="lec-prev-btn">⏮</button>
+        <button class="lec-ctrl-btn lec-play-btn" id="lec-play-btn">⏸</button>
+        <button class="lec-ctrl-btn" id="lec-next-btn">⏭</button>
+        <button class="lec-ctrl-btn" id="lec-audio-btn">🔊</button>
+        <div class="lec-progress-wrap">
+          <div class="lec-progress-fill" id="lec-progress-fill"></div>
+        </div>
+      </div>
+    </div>
 
   </main>
 
