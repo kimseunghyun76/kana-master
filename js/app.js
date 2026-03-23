@@ -457,79 +457,145 @@ const App = (() => {
     }
   }
 
-  // ── 히어로 패널 롤링 (문장 ↔ 한자 5초) ──
+  // ── 히어로 슬라이더 (문장 ↔ 한자 10초 자동 슬라이딩) ──
   let _heroRollTimer = null;
   let _heroPanelIdx = 0;
+  let _heroPlaying = true;
+  let _heroDragStartX = 0;
+  let _heroDragging = false;
+  let _heroKanjiOffset = 0; // 다른 한자 버튼용 오프셋
 
   function initHeroRolling() {
-    setupHeroKanji();
-    if (_heroRollTimer) clearInterval(_heroRollTimer);
-    _heroRollTimer = setInterval(() => {
-      _heroPanelIdx = (_heroPanelIdx + 1) % 2;
-      _switchHeroPanel(_heroPanelIdx);
-    }, 5000);
-    // dot 클릭으로 수동 전환
+    setupHeroKanji(0);
+    _setupHeroDrag();
+    _startHeroAutoRoll();
+
+    // dot 클릭
     document.querySelectorAll('.hero-dot').forEach(dot => {
       if (!dot._dotBound) {
         dot._dotBound = true;
         dot.addEventListener('click', () => {
           _heroPanelIdx = parseInt(dot.dataset.idx);
           _switchHeroPanel(_heroPanelIdx);
-          // 클릭 시 타이머 리셋
-          if (_heroRollTimer) clearInterval(_heroRollTimer);
-          _heroRollTimer = setInterval(() => {
-            _heroPanelIdx = (_heroPanelIdx + 1) % 2;
-            _switchHeroPanel(_heroPanelIdx);
-          }, 5000);
+          _restartHeroTimer();
         });
       }
     });
+
+    // play/pause 버튼
+    const playBtn = document.getElementById('hero-ctrl-play');
+    if (playBtn && !playBtn._heroBound) {
+      playBtn._heroBound = true;
+      playBtn.addEventListener('click', () => {
+        _heroPlaying = !_heroPlaying;
+        playBtn.textContent = _heroPlaying ? '⏸' : '▶';
+        playBtn.title = _heroPlaying ? '자동 전환 중지' : '자동 전환 시작';
+        if (_heroPlaying) _startHeroAutoRoll();
+        else if (_heroRollTimer) { clearInterval(_heroRollTimer); _heroRollTimer = null; }
+      });
+    }
+
+    // 한자 리프레시 버튼
+    const kanjiRefresh = document.getElementById('hero-kanji-refresh-btn');
+    if (kanjiRefresh && !kanjiRefresh._heroBound) {
+      kanjiRefresh._heroBound = true;
+      kanjiRefresh.addEventListener('click', (e) => {
+        e.stopPropagation();
+        kanjiRefresh.classList.add('spinning');
+        setTimeout(() => kanjiRefresh.classList.remove('spinning'), 500);
+        _heroKanjiOffset++;
+        setupHeroKanji(_heroKanjiOffset);
+      });
+    }
+  }
+
+  function _startHeroAutoRoll() {
+    if (_heroRollTimer) clearInterval(_heroRollTimer);
+    _heroRollTimer = setInterval(() => {
+      if (!_heroPlaying) return;
+      _heroPanelIdx = (_heroPanelIdx + 1) % 2;
+      _switchHeroPanel(_heroPanelIdx);
+    }, 10000);
+  }
+
+  function _restartHeroTimer() {
+    if (_heroPlaying) _startHeroAutoRoll();
   }
 
   function _switchHeroPanel(idx) {
-    for (let i = 0; i < 2; i++) {
-      const panel = document.getElementById(`hero-panel-${i}`);
-      if (!panel) continue;
-      if (i === idx) panel.classList.remove('hero-panel-hidden');
-      else panel.classList.add('hero-panel-hidden');
-    }
+    const track = document.getElementById('hero-track');
+    if (track) track.style.transform = `translateX(-${idx * 100}%)`;
     document.querySelectorAll('.hero-dot').forEach((d, i) => {
       d.classList.toggle('hero-dot-active', i === idx);
     });
+    const counter = document.getElementById('hero-ctrl-counter');
+    if (counter) counter.textContent = `${idx + 1} / 2`;
   }
 
-  function setupHeroKanji() {
+  function _setupHeroDrag() {
+    const track = document.getElementById('hero-track');
+    if (!track || track._dragBound) return;
+    track._dragBound = true;
+    let startX = 0, startY = 0, isDrag = false;
+
+    const onStart = (x, y) => { startX = x; startY = y; isDrag = true; };
+    const onEnd = (x) => {
+      if (!isDrag) return;
+      isDrag = false;
+      const diff = x - startX;
+      if (Math.abs(diff) > 40) {
+        if (diff < 0 && _heroPanelIdx < 1) _heroPanelIdx++;
+        else if (diff > 0 && _heroPanelIdx > 0) _heroPanelIdx--;
+        _switchHeroPanel(_heroPanelIdx);
+        _restartHeroTimer();
+      }
+    };
+
+    // Touch
+    track.addEventListener('touchstart', e => onStart(e.touches[0].clientX, e.touches[0].clientY), { passive: true });
+    track.addEventListener('touchend', e => onEnd(e.changedTouches[0].clientX));
+    // Mouse
+    track.addEventListener('mousedown', e => { onStart(e.clientX, e.clientY); });
+    track.addEventListener('mouseup', e => onEnd(e.clientX));
+    track.addEventListener('mouseleave', () => { isDrag = false; });
+  }
+
+  function setupHeroKanji(offset) {
     if (typeof VOCAB_ITEMS === 'undefined') return;
     const kanjiItems = VOCAB_ITEMS.filter(item =>
       item.japanese && /[\u4e00-\u9fff]/.test(item.japanese) && item.korean && item.type !== 'sim'
     );
     if (!kanjiItems.length) return;
-    const dayIdx = Math.floor(Date.now() / 86400000) % kanjiItems.length;
-    const item = kanjiItems[dayIdx];
+    const baseIdx = Math.floor(Date.now() / 86400000);
+    const item = kanjiItems[(baseIdx + (offset || 0)) % kanjiItems.length];
     const jp = item.japanese || '';
-    // 한자만 추출
-    const kanjiChars = jp.replace(/[（(][^）)]*[）)]/g, '').match(/[\u4e00-\u9fff]/g) || [];
-    const mainKanji = kanjiChars.slice(0, 2).join('') || jp.slice(0, 2);
-    // 읽기 추출 from ()
+
+    // 한자 문자 추출 (읽기 괄호 제거 후)
+    const cleanJp = jp.replace(/[（(][^）)]*[）)]/g, '');
+    const kanjiChars = cleanJp.match(/[\u4e00-\u9fff]/g) || [];
+    const mainKanji = kanjiChars.slice(0, 2).join('') || cleanJp.slice(0, 1);
+
+    // 읽기 추출 — 모든 () 안 히라가나
     const readings = [];
-    const rx = /[（(]([ぁ-ん・ぁ-んー]+)[）)]/g;
+    const rx = /[（(]([ぁ-ん・ーぁ-ん]+)[）)]/g;
     let m;
     while ((m = rx.exec(jp)) !== null) readings.push(m[1]);
-    const reading = readings.join('・') || '';
-    const charEl = document.getElementById('hero-kanji-char');
-    const readEl = document.getElementById('hero-kanji-reading');
+    const furigana = readings.join('・') || '';
+
+    const charEl   = document.getElementById('hero-kanji-char');
+    const furiEl   = document.getElementById('hero-kanji-furigana');
     const meaningEl = document.getElementById('hero-kanji-meaning');
-    const engEl = document.getElementById('hero-kanji-english');
-    const exEl = document.getElementById('hero-kanji-ex');
-    if (charEl) charEl.textContent = mainKanji;
-    if (readEl) readEl.textContent = reading || jp;
+    const engEl    = document.getElementById('hero-kanji-english');
+    const exEl     = document.getElementById('hero-kanji-ex');
+    if (charEl)    charEl.textContent    = mainKanji;
+    if (furiEl)    furiEl.textContent    = furigana || jp;
     if (meaningEl) meaningEl.textContent = item.korean || '';
-    if (engEl) engEl.textContent = item.english || '';
-    if (exEl) exEl.textContent = jp;
+    if (engEl)     engEl.textContent     = item.english || '';
+    if (exEl)      exEl.textContent      = jp;
+
     const audioBtn = document.getElementById('hero-kanji-audio-btn');
-    if (audioBtn && !audioBtn._bound) {
-      audioBtn._bound = true;
-      audioBtn.onclick = () => playAudio(jp.replace(/[（）()]/g, ''));
+    if (audioBtn) {
+      audioBtn.onclick = () => playAudio(cleanJp);
     }
   }
 
@@ -721,40 +787,136 @@ const App = (() => {
     wrap.appendChild(card);
   }
 
-  // ─── 오늘의 Q&A 렌더링 ───
+  // ─── 오늘의 Q&A — 카카오톡 스타일 채팅 ───
+  const QA_PAIRS = [
+    { q: 'すみません、トイレはどこですか？', a: 'あちらにございます。',     qKo: '저기요, 화장실이 어디인가요?', aKo: '저쪽에 있습니다.' },
+    { q: 'これはいくらですか？',            a: '500円(えん)です。',         qKo: '이거 얼마예요?',              aKo: '500엔입니다.' },
+    { q: 'メニューをください。',            a: 'はい、どうぞ。',            qKo: '메뉴판 주세요.',              aKo: '네, 여기요.' },
+    { q: '写真(しゃしん)を撮(と)ってもいいですか？', a: 'もちろんです！',   qKo: '사진 찍어도 되나요?',        aKo: '물론이죠!' },
+    { q: '英語(えいご)は話(はな)せますか？', a: '少(すこ)し話(はな)せます。', qKo: '영어를 할 수 있나요?',    aKo: '조금 할 수 있어요.' },
+    { q: '近(ちか)くにコンビニはありますか？', a: '駅(えき)の前(まえ)にあります。', qKo: '근처에 편의점 있나요?', aKo: '역 앞에 있어요.' },
+    { q: 'お名前(なまえ)は何(なん)ですか？', a: '田中(たなか)と申(もう)します。', qKo: '이름이 뭐예요?',      aKo: '타나카라고 합니다.' },
+    { q: '何(なに)がおすすめですか？',      a: 'ラーメンが人気(にんき)です。',  qKo: '뭐가 추천인가요?',       aKo: '라멘이 인기예요.' },
+    { q: 'チェックインをお願(ねが)いします。', a: 'パスポートをお見(み)せください。', qKo: '체크인 부탁드립니다.', aKo: '여권을 보여주세요.' },
+    { q: 'もう一度(いちど)言(い)ってください。', a: 'ゆっくり話(はな)します。', qKo: '다시 한 번 말해 주세요.', aKo: '천천히 말할게요.' },
+  ];
+  let _qaCurrentIdx = 0;
+  let _qaNextTimer = null;
+
   function renderDailyQA() {
-    const container = document.getElementById('home-qa-cards');
-    if (!container) return;
-    container.innerHTML = '';
+    const wrap = document.getElementById('qa-chat-wrap');
+    if (!wrap) return;
     const dayBase = Math.floor(Date.now() / 86400000);
+    _qaCurrentIdx = dayBase % QA_PAIRS.length;
+    _renderQADots();
+    _showQAConversation(_qaCurrentIdx);
+  }
 
-    // Q&A 쌍 데이터: DAILY_SENTENCES + VOCAB_ITEMS sentence 활용
-    const qaPairs = [
-      { q: 'すみません、トイレはどこですか？', a: 'あちらにあります。', qKo: '저기요, 화장실이 어디인가요?', aKo: '저쪽에 있습니다.' },
-      { q: 'これはいくらですか？', a: '500円です。', qKo: '이거 얼마예요?', aKo: '500엔입니다.' },
-      { q: 'メニューをください。', a: 'はい、どうぞ。', qKo: '메뉴판 주세요.', aKo: '네, 여기요.' },
-      { q: '写真を撮ってもいいですか？', a: 'もちろんです！', qKo: '사진 찍어도 되나요?', aKo: '물론이죠!' },
-      { q: '英語は話せますか？', a: '少し話せます。', qKo: '영어를 할 수 있나요?', aKo: '조금 할 수 있어요.' },
-      { q: '近くにコンビニはありますか？', a: '駅の前にあります。', qKo: '근처에 편의점 있나요?', aKo: '역 앞에 있어요.' },
-      { q: 'お名前は何ですか？', a: '〇〇と申します。', qKo: '이름이 뭐예요?', aKo: '〇〇라고 합니다.' },
-      { q: '何がおすすめですか？', a: 'ラーメンが人気です。', qKo: '뭐가 추천인가요?', aKo: '라멘이 인기예요.' },
-      { q: 'チェックインをお願いします。', a: 'パスポートをお見せください。', qKo: '체크인 부탁드립니다.', aKo: '여권을 보여주세요.' },
-      { q: 'もう一度言ってください。', a: 'ゆっくり話します。', qKo: '다시 한 번 말해 주세요.', aKo: '천천히 말할게요.' },
-    ];
-
-    // 날짜 기반으로 4개 선택
-    for (let i = 0; i < 4; i++) {
-      const pair = qaPairs[(dayBase + i) % qaPairs.length];
-      const card = document.createElement('div');
-      card.className = 'qa-card';
-      card.innerHTML = `
-        <div class="qa-q"><span class="qa-q-label">Q</span>${pair.q}</div>
-        <div class="qa-a"><span class="qa-a-label">A</span>${pair.a}</div>
-        <div class="qa-ko">${pair.qKo}<br><span style="color:#3b82f6">${pair.aKo}</span></div>
-      `;
-      card.addEventListener('click', () => playAudio(pair.q));
-      container.appendChild(card);
+  function _renderQADots() {
+    const dotsEl = document.getElementById('qa-chat-dots');
+    if (!dotsEl) return;
+    dotsEl.innerHTML = '';
+    const visibleCount = Math.min(QA_PAIRS.length, 6);
+    for (let i = 0; i < visibleCount; i++) {
+      const d = document.createElement('span');
+      d.className = 'qa-chat-dot' + (i === (_qaCurrentIdx % visibleCount) ? ' active' : '');
+      d.addEventListener('click', () => {
+        if (_qaNextTimer) clearTimeout(_qaNextTimer);
+        _qaCurrentIdx = i;
+        _showQAConversation(_qaCurrentIdx);
+        _renderQADots();
+      });
+      dotsEl.appendChild(d);
     }
+  }
+
+  function _showQAConversation(idx) {
+    const msgs = document.getElementById('qa-chat-messages');
+    const countdown = document.getElementById('qa-chat-countdown');
+    if (!msgs) return;
+    if (_qaNextTimer) clearTimeout(_qaNextTimer);
+    msgs.innerHTML = '';
+    if (countdown) { countdown.style.display = 'none'; countdown.textContent = ''; }
+
+    const pair = QA_PAIRS[idx % QA_PAIRS.length];
+
+    // Step 1: 타이핑 인디케이터 (Q)
+    const typingRow = document.createElement('div');
+    typingRow.className = 'qa-bubble-row row-q';
+    typingRow.innerHTML = `
+      <div class="qa-avatar qa-avatar-q">🧑</div>
+      <div class="qa-typing-bubble">
+        <div class="qa-typing-dot"></div>
+        <div class="qa-typing-dot"></div>
+        <div class="qa-typing-dot"></div>
+      </div>`;
+    msgs.appendChild(typingRow);
+
+    // Step 2: Q 버블 표시
+    setTimeout(() => {
+      msgs.removeChild(typingRow);
+      const qRow = document.createElement('div');
+      qRow.className = 'qa-bubble-row row-q';
+      qRow.innerHTML = `
+        <div class="qa-avatar qa-avatar-q">🧑</div>
+        <div class="qa-bubble-content">
+          <div class="qa-bubble-name">질문</div>
+          <div class="qa-bubble qa-bubble-q-style">${pair.q}</div>
+          <div class="qa-bubble-ko">${pair.qKo}</div>
+        </div>`;
+      msgs.appendChild(qRow);
+      qRow.addEventListener('click', () => playAudio(pair.q.replace(/[（）()]/g, '')));
+
+      // Step 3: 타이핑 인디케이터 (A)
+      setTimeout(() => {
+        const typingRow2 = document.createElement('div');
+        typingRow2.className = 'qa-bubble-row row-a';
+        typingRow2.innerHTML = `
+          <div class="qa-avatar qa-avatar-a">の</div>
+          <div class="qa-typing-bubble">
+            <div class="qa-typing-dot"></div>
+            <div class="qa-typing-dot"></div>
+            <div class="qa-typing-dot"></div>
+          </div>`;
+        msgs.appendChild(typingRow2);
+        msgs.scrollTop = msgs.scrollHeight;
+
+        // Step 4: A 버블 표시
+        setTimeout(() => {
+          msgs.removeChild(typingRow2);
+          const aRow = document.createElement('div');
+          aRow.className = 'qa-bubble-row row-a';
+          aRow.innerHTML = `
+            <div class="qa-avatar qa-avatar-a">の</div>
+            <div class="qa-bubble-content">
+              <div class="qa-bubble-name">답변</div>
+              <div class="qa-bubble qa-bubble-a-style">${pair.a}</div>
+              <div class="qa-bubble-ko">${pair.aKo}</div>
+            </div>`;
+          msgs.appendChild(aRow);
+          aRow.addEventListener('click', () => playAudio(pair.a.replace(/[（）()]/g, '')));
+          msgs.scrollTop = msgs.scrollHeight;
+
+          // Step 5: 5초 카운트다운 → 다음 대화
+          let remaining = 5;
+          if (countdown) {
+            countdown.style.display = 'block';
+            countdown.textContent = `다음 대화까지 ${remaining}초…`;
+          }
+          const countInterval = setInterval(() => {
+            remaining--;
+            if (countdown) countdown.textContent = remaining > 0 ? `다음 대화까지 ${remaining}초…` : '';
+            if (remaining <= 0) clearInterval(countInterval);
+          }, 1000);
+
+          _qaNextTimer = setTimeout(() => {
+            _qaCurrentIdx = (_qaCurrentIdx + 1) % QA_PAIRS.length;
+            _showQAConversation(_qaCurrentIdx);
+            _renderQADots();
+          }, 5000);
+        }, 900);
+      }, 800);
+    }, 700);
   }
 
   function _renderKanaHomeSection() {
