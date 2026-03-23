@@ -578,7 +578,7 @@ const App = (() => {
       }
     });
     // 홈 재방문 시 진도 반영 위해 항상 초기화 후 재렌더
-    ['home-kana-cards','home-vocab-cards','home-convo-cards','home-sim-cards'].forEach(id => {
+    ['home-kana-cards','home-vocab-cards','home-convo-cards','home-sim-cards','home-qa-cards'].forEach(id => {
       const el = document.getElementById(id);
       if (el) el.innerHTML = '';
     });
@@ -594,6 +594,103 @@ const App = (() => {
     _renderVocabHomeSection('home-sim-cards', 'sim', 'roleplay', 'simlevel', null, {
       1:'교통편', 2:'식사편', 3:'숙박편', 4:'쇼핑편', 5:'관광·문화', 6:'부부 여행편'
     });
+    renderDailyKanji();
+    renderDailyQA();
+  }
+
+  // ─── 오늘의 한자 렌더링 ───
+  function renderDailyKanji() {
+    const wrap = document.getElementById('home-kanji-card');
+    if (!wrap) return;
+    wrap.innerHTML = '';
+    if (typeof VOCAB_ITEMS === 'undefined') return;
+    // 한자가 포함된 어휘 아이템 필터 (japanese에 한자 포함)
+    const kanjiItems = VOCAB_ITEMS.filter(item =>
+      item.japanese && /[\u4e00-\u9fff]/.test(item.japanese) && item.korean && item.type !== 'sim'
+    );
+    if (!kanjiItems.length) return;
+    // 날짜 기반으로 오늘의 한자 선택
+    const dayIdx = Math.floor(Date.now() / 86400000) % kanjiItems.length;
+    const item = kanjiItems[dayIdx];
+    const jp = item.japanese || '';
+    const ko = item.korean || '';
+    const eng = item.english || '';
+    // 예시 문장 찾기
+    const exSentences = (typeof VOCAB_ITEMS !== 'undefined')
+      ? VOCAB_ITEMS.filter(v => v.type === 'sentence' && v.japanese && v.japanese.includes(jp.replace(/[（）()]/g, '').split('')[0]))
+          .slice(0, 1)
+      : [];
+
+    const card = document.createElement('div');
+    card.className = 'home-kanji-card';
+    card.innerHTML = `
+      <div class="hkc-char">${jp.replace(/（[^）]*）/g, '').replace(/\([^)]*\)/g, '')}</div>
+      <div class="hkc-info">
+        <div class="hkc-reading">${jp}</div>
+        <div class="hkc-meaning">${ko}</div>
+        ${eng ? `<div class="hkc-english">${eng}</div>` : ''}
+        ${exSentences.length ? `<div class="hkc-example">${exSentences[0].japanese}<br><span style="color:#718096">${exSentences[0].korean||''}</span></div>` : ''}
+      </div>
+      <button class="hkc-audio-btn" title="발음 듣기">🔊</button>
+    `;
+    card.querySelector('.hkc-audio-btn').addEventListener('click', (e) => {
+      e.stopPropagation();
+      playAudio(jp.replace(/[（）()]/g, ''));
+    });
+    card.addEventListener('click', () => {
+      // 어휘 마스터(단어)로 이동
+      state.vocabSection = 'word';
+      showView('vocab');
+    });
+    wrap.appendChild(card);
+  }
+
+  // ─── 오늘의 Q&A 렌더링 ───
+  function renderDailyQA() {
+    const container = document.getElementById('home-qa-cards');
+    if (!container) return;
+    container.innerHTML = '';
+    if (typeof VOCAB_ITEMS === 'undefined') return;
+    // 질문형 문장 (？로 끝나는 것) + 회화 문장 아이템
+    const qItems = VOCAB_ITEMS.filter(item =>
+      item.japanese && item.korean && (item.type === 'sentence' || item.type === 'word') &&
+      (item.japanese.endsWith('？') || item.japanese.endsWith('?') || item.japanese.endsWith('か。') || item.japanese.endsWith('か？'))
+    );
+    const aItems = VOCAB_ITEMS.filter(item =>
+      item.japanese && item.korean && item.type === 'sentence' &&
+      !item.japanese.endsWith('？') && !item.japanese.endsWith('?')
+    );
+    if (qItems.length < 3) {
+      // 질문이 적으면 회화 문장 일반 아이템으로 대체
+      const dayBase = Math.floor(Date.now() / 86400000);
+      const sentItems = VOCAB_ITEMS.filter(v => v.type === 'sentence' && v.japanese && v.korean);
+      for (let i = 0; i < Math.min(5, sentItems.length); i++) {
+        const item = sentItems[(dayBase + i) % sentItems.length];
+        const card = _buildQACard(item.japanese, null, item.korean, null);
+        if (card) container.appendChild(card);
+      }
+      return;
+    }
+    // 날짜 기반으로 Q&A 쌍 선택
+    const dayBase = Math.floor(Date.now() / 86400000);
+    for (let i = 0; i < Math.min(5, qItems.length); i++) {
+      const q = qItems[(dayBase + i) % qItems.length];
+      const a = aItems.length ? aItems[(dayBase + i) % aItems.length] : null;
+      const card = _buildQACard(q.japanese, a ? a.japanese : null, q.korean, a ? a.korean : null);
+      if (card) container.appendChild(card);
+    }
+  }
+
+  function _buildQACard(qJp, aJp, qKo, aKo) {
+    const card = document.createElement('div');
+    card.className = 'qa-card';
+    card.innerHTML = `
+      <div class="qa-q"><span class="qa-q-label">Q</span>${qJp}</div>
+      ${aJp ? `<div class="qa-a"><span class="qa-a-label">A</span>${aJp}</div>` : ''}
+      <div class="qa-ko">${qKo}${aKo ? ' → ' + aKo : ''}</div>
+    `;
+    card.addEventListener('click', () => playAudio(qJp));
+    return card;
   }
 
   function _renderKanaHomeSection() {
@@ -1189,7 +1286,7 @@ const App = (() => {
     }
   }
 
-  // ─── 네비게이션 스트립 / vocab 페이지형 패널 ───
+  // ─── 네비게이션 스트립 (가나·어휘 모두 가로 드래그 방식) ───
   function renderNavStrip(stripId, chars, activeIdx, clickCb) {
     const strip = document.getElementById(stripId);
     if (!strip) return;
@@ -1199,15 +1296,38 @@ const App = (() => {
     const isVocab = chars.length > 0 && !chars[0].kana && chars[0].japanese;
 
     if (isVocab) {
-      // 문장형 여부: 평균 일본어 텍스트 길이 > 8 이면 문장
-      const avgLen = chars.reduce((s, c) => s + (c.japanese || '').length, 0) / (chars.length || 1);
-      const isSentence = avgLen > 8 || isCurrentVocabSentenceType();
-      const perPage = isSentence ? 4 : 6;
-      // 상태 저장
-      state.vocabNavMeta = { chars, clickCb, perPage, isSentence };
-      // 활성 아이템이 속한 페이지로 이동
-      state.vocabNavPage = Math.floor(activeIdx / perPage);
-      _renderVocabNavPanel(strip, activeIdx);
+      // 가로 드래그 스크롤 방식으로 변경 (페이징 제거)
+      strip.className = 'fc-nav-strip vocab-nav-inline';
+      // 메타 저장 (updateNavStripActive 에서 사용)
+      state.vocabNavMeta = { chars, clickCb };
+      chars.forEach((item, i) => {
+        const isActive = i === activeIdx;
+        const isBookmarked = state.bookmarks.some(b =>
+          (b.type === 'vocab' && b.vocabId === item.id)
+        );
+        const jp = item.japanese || '?';
+        const jpShort = jp.length > 12 ? jp.slice(0, 12) + '…' : jp;
+        const tile = document.createElement('button');
+        tile.className = 'fc-ns-btn vnp-inline-tile' +
+          (isActive ? ' ns-active' : '') +
+          (isBookmarked ? ' vnp-bookmarked' : '');
+        tile.dataset.vocabIdx = i;
+        tile.title = `${jp} — ${item.korean || ''}`;
+        tile.innerHTML =
+          `<span class="vnp-num">${i + 1}</span>` +
+          `<span class="vnp-jp-inline">${jpShort}</span>`;
+        tile.addEventListener('click', (e) => { e.stopPropagation(); clickCb(i); });
+        tile.addEventListener('dblclick', (e) => {
+          e.stopPropagation();
+          const isB = state.bookmarks.some(b => b.type === 'vocab' && b.vocabId === item.id);
+          if (isB) { removeBookmark('vocab', item.id); tile.classList.remove('vnp-bookmarked'); showToast('📌 나중에 목록에서 제거했습니다.'); }
+          else { addVocabBookmark(item); tile.classList.add('vnp-bookmarked'); }
+        });
+        strip.appendChild(tile);
+      });
+      // 활성 타일로 스크롤
+      const activeBtn = strip.querySelector('.ns-active');
+      if (activeBtn) requestAnimationFrame(() => activeBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' }));
       return;
     }
 
@@ -1333,24 +1453,12 @@ const App = (() => {
   }
 
   function updateNavStripActive(stripId, activeIdx) {
-    // vocab 패널이면 페이지 포함 전체 재렌더링
-    if (state.vocabNavMeta && stripId === 'vfc-nav-strip') {
-      const strip = document.getElementById(stripId);
-      if (!strip) return;
-      const perPage = state.vocabNavMeta.perPage || 6;
-      // 활성 아이템이 다른 페이지면 해당 페이지로 이동
-      const targetPage = Math.floor(activeIdx / perPage);
-      if (targetPage !== state.vocabNavPage) state.vocabNavPage = targetPage;
-      _renderVocabNavPanel(strip, activeIdx);
-      return;
-    }
-    // 가나 스트립
     const strip = document.getElementById(stripId);
     if (!strip) return;
     const btns = strip.querySelectorAll('.fc-ns-btn');
     btns.forEach((btn, i) => {
       btn.classList.toggle('ns-active', i === activeIdx);
-      // 마스터 상태도 즉시 반영 (뒤집기 직후 녹색 전환)
+      // 가나: 마스터 상태 즉시 반영
       if (btn.dataset.kana) {
         btn.classList.toggle('ns-mastered', isCharMastered(btn.dataset.kana));
       }
@@ -4790,7 +4898,7 @@ const App = (() => {
     });
 
     // 헤더 제목 + 섹션 표시 전환
-    const titleMap = { word: '語彙マスター', sentence: '会話マスター', sim: '実戦ロールプレイ' };
+    const titleMap = { word: '어휘 마스터', sentence: '회화 마스터', sim: '실전 롤플레이' };
     const titleEl = document.getElementById('vocab-section-title');
     if (titleEl) titleEl.textContent = titleMap[section] || '語彙マスター';
 
@@ -5780,10 +5888,10 @@ const App = (() => {
     el.style.overflowX = 'hidden';
     el.style.lineHeight = '1';
     el.style.textAlign = 'center';
-    el.style.padding = '0 8px';
+    el.style.padding = '0 28px';
 
     const container = document.getElementById('vocab-flashcard');
-    const maxW = (container ? container.offsetWidth : 620) - 48;
+    const maxW = (container ? container.offsetWidth : 620) - 80;
 
     // 이진 탐색으로 최대 폰트 크기 결정 (최소 12px, 최대 defaultSize)
     let lo = 12, hi = defaultSize, best = lo;

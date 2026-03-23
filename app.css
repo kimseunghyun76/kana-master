@@ -115,7 +115,7 @@ html, body {
   transition: all 0.15s;
 }
 .nav-jp {
-  font-size: 13px; font-weight: 600; line-height: 1.2;
+  font-size: 12px; font-weight: 600; line-height: 1.2;
 }
 .nav-en {
   font-size: 9px; font-weight: 400; opacity: 0.65; letter-spacing: 0.2px; line-height: 1;
@@ -214,6 +214,8 @@ html, body {
 .badge-vocab    { background: #e0f2fe; }
 .badge-convo    { background: #dcfce7; }
 .badge-sim      { background: #fde8e8; }
+.badge-kanji    { background: #f3e8ff; }
+.badge-qa       { background: #fff7ed; }
 
 .home-section-title {
   font-size: 16px; font-weight: 800; color: var(--text);
@@ -228,6 +230,83 @@ html, body {
   padding: 4px 0; transition: opacity 0.15s;
 }
 .home-section-more:hover { opacity: 0.7; }
+
+/* ── 섹션 홍보 문구 ── */
+.home-section-promo {
+  font-size: 12px; color: #5a6a7e;
+  background: linear-gradient(135deg, #f8faff, #f0f4ff);
+  border-left: 3px solid var(--blue);
+  border-radius: 0 8px 8px 0;
+  padding: 7px 12px;
+  margin-bottom: 12px;
+  line-height: 1.5;
+}
+
+/* ── 오늘의 한자 카드 ── */
+.home-daily-card-wrap { padding-bottom: 4px; }
+.home-kanji-card {
+  background: white; border: 1.5px solid var(--border);
+  border-radius: 16px; padding: 16px 20px;
+  display: flex; align-items: center; gap: 18px;
+  box-shadow: var(--shadow);
+  cursor: pointer; transition: box-shadow 0.15s;
+}
+.home-kanji-card:hover { box-shadow: var(--shadow-md); }
+.hkc-char {
+  font-size: 52px; line-height: 1;
+  color: #7c3aed; font-weight: 900;
+  min-width: 60px; text-align: center;
+}
+.hkc-info { flex: 1; }
+.hkc-reading {
+  font-size: 13px; color: #7c3aed; font-weight: 700; margin-bottom: 2px;
+}
+.hkc-meaning {
+  font-size: 15px; font-weight: 800; color: var(--text); margin-bottom: 4px;
+}
+.hkc-english {
+  font-size: 11px; color: var(--gray);
+}
+.hkc-example {
+  font-size: 12px; color: var(--text-light); margin-top: 6px;
+  border-top: 1px solid var(--border); padding-top: 6px; line-height: 1.5;
+}
+.hkc-audio-btn {
+  background: #f3e8ff; border: 1.5px solid #c4b5fd;
+  border-radius: 10px; padding: 8px 10px;
+  cursor: pointer; font-size: 16px; flex-shrink: 0;
+  transition: background 0.15s;
+}
+.hkc-audio-btn:hover { background: #ede9fe; }
+
+/* ── 오늘의 Q&A 카드 ── */
+.qa-card {
+  flex-shrink: 0; width: 240px;
+  background: white; border: 1.5px solid var(--border);
+  border-radius: 14px; padding: 14px 16px;
+  box-shadow: var(--shadow); cursor: pointer;
+  transition: box-shadow 0.15s;
+}
+.qa-card:hover { box-shadow: var(--shadow-md); }
+.qa-q {
+  font-size: 13px; font-weight: 700; color: var(--text);
+  margin-bottom: 6px; line-height: 1.4;
+}
+.qa-q-label {
+  font-size: 10px; font-weight: 700; color: #f59e0b;
+  background: #fef3c7; padding: 1px 6px; border-radius: 4px; margin-right: 5px;
+}
+.qa-a {
+  font-size: 12px; color: #3b82f6; font-weight: 600; line-height: 1.4;
+}
+.qa-a-label {
+  font-size: 10px; font-weight: 700; color: #3b82f6;
+  background: #eff6ff; padding: 1px 6px; border-radius: 4px; margin-right: 5px;
+}
+.qa-ko {
+  font-size: 10px; color: var(--gray); margin-top: 6px;
+  border-top: 1px solid var(--border); padding-top: 5px;
+}
 
 /* ── 가로 스크롤 컨테이너 (데스크탑: 줄바꿈 허용) ── */
 .home-hscroll {
@@ -567,9 +646,9 @@ html, body {
 .flashcard-container {
   perspective: 1000px;
   cursor: pointer;
-  margin: 0 auto 12px;
+  margin: 0 auto 8px;
   max-width: 680px;
-  height: clamp(400px, 72vh, 600px);
+  height: clamp(320px, 60vh, 500px);
   overflow: hidden;
 }
 .flashcard-inner {
@@ -2424,6 +2503,47 @@ rt {
 .vocab-nav-panel.vnp-sentence .vnp-grid { grid-template-columns: repeat(2, 1fr); }
 .vocab-nav-panel.vnp-sentence .vnp-jp { font-size: 11.5px; }
 
+/* ── vocab 인라인 가로 드래그 nav strip ── */
+.vocab-nav-inline {
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  overflow-x: auto !important;
+  overflow-y: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+  -webkit-overflow-scrolling: touch;
+  gap: 5px;
+  padding: 4px 0 8px;
+  margin-bottom: 6px;
+}
+.vocab-nav-inline::-webkit-scrollbar { height: 3px; }
+.vocab-nav-inline::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
+.vnp-inline-tile {
+  flex-shrink: 0 !important;
+  width: auto !important;
+  min-width: 52px;
+  max-width: 110px;
+  height: auto !important;
+  min-height: 44px;
+  padding: 5px 8px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center;
+  gap: 2px;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.vnp-jp-inline {
+  font-size: 11.5px; font-weight: 700;
+  color: var(--text); line-height: 1.3;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  max-width: 100%;
+}
+.vnp-inline-tile.ns-active .vnp-jp-inline { color: white; }
+.vnp-inline-tile.vnp-bookmarked { border-color: #f0c040 !important; }
+
 /* ─── 단어/문장/실전 트랙 헤더 ─── */
 .vocab-track-header {
   display: flex; align-items: center; gap: 14px;
@@ -3765,11 +3885,11 @@ rt {
   .app-nav { top: 50px; }
   .nav-btn { padding: 10px 2px 9px; flex: 1; min-width: 0; }
   .nav-jp  {
-    font-size: 10px; line-height: 1.2;
+    font-size: 9px; line-height: 1.2;
     white-space: nowrap; overflow: hidden;
     text-overflow: ellipsis; max-width: 100%; display: block;
   }
-  .nav-en  { font-size: 8px; opacity: 0.6; }
+  .nav-en  { display: none; }
 
   /* ── 메인 콘텐츠 ── */
   .app-main { padding: 12px 10px 16px !important; }

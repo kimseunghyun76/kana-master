@@ -30,13 +30,13 @@
 
   <!-- ===== 네비게이션 ===== -->
   <nav class="app-nav">
-    <button class="nav-btn active" data-view="home"><span class="nav-jp">ホーム</span><span class="nav-en">Home</span></button>
-    <button class="nav-btn" data-view="kana"><span class="nav-jp">かなマスター</span><span class="nav-en">Kana</span></button>
-    <button class="nav-btn" data-view="vocab"><span class="nav-jp">語彙マスター</span><span class="nav-en">Vocab</span></button>
-    <button class="nav-btn" data-view="convo"><span class="nav-jp">会話マスター</span><span class="nav-en">Convo</span></button>
-    <button class="nav-btn" data-view="roleplay"><span class="nav-jp">実戦ロールプレイ</span><span class="nav-en">Play</span></button>
-    <button class="nav-btn" data-view="write"><span class="nav-jp">筆記</span><span class="nav-en">Write</span></button>
-    <button class="nav-btn" data-view="progress"><span class="nav-jp">進捗</span><span class="nav-en">Progress</span></button>
+    <button class="nav-btn active" data-view="home"><span class="nav-jp">홈</span></button>
+    <button class="nav-btn" data-view="kana"><span class="nav-jp">가나 마스터</span></button>
+    <button class="nav-btn" data-view="vocab"><span class="nav-jp">어휘 마스터</span></button>
+    <button class="nav-btn" data-view="convo"><span class="nav-jp">회화 마스터</span></button>
+    <button class="nav-btn" data-view="roleplay"><span class="nav-jp">실전 롤플레이</span></button>
+    <button class="nav-btn" data-view="write"><span class="nav-jp">필기</span></button>
+    <button class="nav-btn" data-view="progress"><span class="nav-jp">진행</span></button>
   </nav>
 
   <!-- ===== 메인 컨텐츠 ===== -->
@@ -66,18 +66,47 @@
         <div class="home-hscroll" id="home-recent-list"></div>
       </div>
 
-      <!-- ── かなマスター ── -->
+      <!-- ── 오늘의 한자 ── -->
+      <div class="home-section home-daily-section" id="home-kanji-section">
+        <div class="home-section-header">
+          <div class="home-section-left">
+            <span class="home-section-badge badge-kanji">🈶</span>
+            <div>
+              <span class="home-section-title">오늘의 한자</span>
+              <span class="home-section-sub">매일 새로운 한자 완전 정복</span>
+            </div>
+          </div>
+        </div>
+        <div id="home-kanji-card" class="home-daily-card-wrap"></div>
+      </div>
+
+      <!-- ── 오늘의 Q&A ── -->
+      <div class="home-section home-daily-section" id="home-qa-section">
+        <div class="home-section-header">
+          <div class="home-section-left">
+            <span class="home-section-badge badge-qa">💡</span>
+            <div>
+              <span class="home-section-title">오늘의 Q&amp;A</span>
+              <span class="home-section-sub">자주 쓰는 질문·답변 패턴</span>
+            </div>
+          </div>
+        </div>
+        <div class="home-hscroll" id="home-qa-cards"></div>
+      </div>
+
+      <!-- ── 가나 마스터 ── -->
       <div class="home-section">
         <div class="home-section-header">
           <div class="home-section-left">
             <span class="home-section-badge badge-kana">✍️</span>
             <div>
-              <span class="home-section-title">かなマスター</span>
-              <span class="home-section-sub">ひらがな · カタカナ</span>
+              <span class="home-section-title">가나 마스터</span>
+              <span class="home-section-sub">히라가나 · 가타카나</span>
             </div>
           </div>
           <button class="home-section-more" data-view="kana">전체보기 ›</button>
         </div>
+        <div class="home-section-promo">일본어의 첫걸음! 히라가나·가타카나를 마스터하면 모든 일본어가 보입니다 ✨ 플래시카드·퀴즈·필기로 완전 정복!</div>
         <div class="home-hscroll" id="home-kana-cards"></div>
       </div>
 
@@ -93,6 +122,7 @@
           </div>
           <button class="home-section-more" data-view="vocab">전체보기 ›</button>
         </div>
+        <div class="home-section-promo">하루 10단어, 1000시간의 지름길 📚 인사부터 한자까지 — 단어를 알면 대화가 열립니다!</div>
         <div class="home-hscroll" id="home-vocab-cards"></div>
       </div>
 
@@ -108,6 +138,7 @@
           </div>
           <button class="home-section-more" data-view="convo">전체보기 ›</button>
         </div>
+        <div class="home-section-promo">원어민처럼 자연스럽게 💬 실생활 필수 패턴을 문장 단위로 익혀 진짜 대화를 시작하세요!</div>
         <div class="home-hscroll" id="home-convo-cards"></div>
       </div>
 
@@ -118,11 +149,12 @@
             <span class="home-section-badge badge-sim">🎯</span>
             <div>
               <span class="home-section-title">실전 롤플레이</span>
-              <span class="home-section-sub">시나리오 기반 · 4단계</span>
+              <span class="home-section-sub">시나리오 기반 · 6단계</span>
             </div>
           </div>
           <button class="home-section-more" data-view="roleplay">전체보기 ›</button>
         </div>
+        <div class="home-section-promo">공항·식당·호텔… 실제 일본에서 바로 쓰는 생생 회화 🎯 남편·아내 롤플레이로 현장감 200%!</div>
         <div class="home-hscroll" id="home-sim-cards"></div>
       </div>
 
@@ -138,18 +170,18 @@
 
     </div><!-- /view-home -->
 
-    <!-- ========== かなマスター 뷰 ========== -->
+    <!-- ========== 가나 마스터 뷰 ========== -->
     <div id="view-kana" class="view">
 
-      <!-- かな 레벨 선택 패널 (nav에서 직접 진입 시) -->
+      <!-- 가나 레벨 선택 패널 (nav에서 직접 진입 시) -->
       <div id="kana-select-panel">
         <div class="ksc-header">
-          <h3>かなマスター</h3>
-          <span class="ksc-sub">Kana Master — 히라가나 · 가타카나</span>
+          <h3>가나 마스터</h3>
+          <span class="ksc-sub">히라가나 · 가타카나 완전 정복</span>
         </div>
         <div class="levels-grid" id="kana-select-grid"></div>
         <div class="vocab-section-review" style="margin-top:12px">
-          <button class="vocab-review-btn" id="kana-review-btn">🔄 復習 — 틀린 가나 복습</button>
+          <button class="vocab-review-btn" id="kana-review-btn">🔄 복습 — 틀린 가나 복습</button>
         </div>
       </div>
 
@@ -523,26 +555,26 @@
       <!-- PANEL 1: 카테고리 선택 -->
       <div id="vocab-setup">
         <div class="vocab-setup-header">
-          <h3 id="vocab-section-title">語彙マスター</h3>
+          <h3 id="vocab-section-title">어휘 마스터</h3>
         </div>
 
-        <!-- ── 語彙マスター 섹션 (W레벨 단어) ── -->
+        <!-- ── 어휘 마스터 섹션 (W레벨 단어) ── -->
         <div id="vocab-word-section" class="vocab-type-section" style="display:none">
           <div id="vocab-word-levels-main"></div>
           <div class="vocab-section-review">
-            <button class="vocab-review-btn" onclick="App.startVocabReview()">🔄 復習 — 틀린 단어 복습</button>
+            <button class="vocab-review-btn" onclick="App.startVocabReview()">🔄 복습 — 틀린 단어 복습</button>
           </div>
         </div>
 
-        <!-- ── 会話マスター 섹션 (S레벨 문장) ── -->
+        <!-- ── 회화 마스터 섹션 (S레벨 문장) ── -->
         <div id="vocab-sent-section" class="vocab-type-section" style="display:none">
           <div id="vocab-sentence-levels-main"></div>
           <div class="vocab-section-review">
-            <button class="vocab-review-btn" onclick="App.startVocabReview()">🔄 復習 — 틀린 문장 복습</button>
+            <button class="vocab-review-btn" onclick="App.startVocabReview()">🔄 복습 — 틀린 문장 복습</button>
           </div>
         </div>
 
-        <!-- ── 実戦ロールプレイ 섹션 (sim) ── -->
+        <!-- ── 실전 롤플레이 섹션 (sim) ── -->
         <div id="vocab-sim-section" class="vocab-type-section" style="display:none">
           <div id="vocab-sim-levels-main"></div>
         </div>
@@ -1086,7 +1118,7 @@
         <div class="admin-section">
           <div class="admin-section-title">🔓 레벨 관리</div>
 
-          <div class="admin-sub-title">📖 かなマスター</div>
+          <div class="admin-sub-title">📖 가나 마스터</div>
           <div class="admin-row">
             <button class="adm-btn adm-unlock" id="adm-unlock-all">모든 레벨 해금</button>
             <button class="adm-btn adm-complete" id="adm-complete-all">전체 완료처리</button>
@@ -1098,7 +1130,7 @@
             <button class="adm-btn adm-complete" id="adm-level-complete">선택 완료</button>
           </div>
 
-          <div class="admin-sub-title" style="margin-top:6px">📚 語彙マスター</div>
+          <div class="admin-sub-title" style="margin-top:6px">📚 어휘 마스터</div>
           <div class="admin-row">
             <button class="adm-btn adm-complete" id="adm-vocab-complete-all">전체 완료처리</button>
           </div>
@@ -1109,7 +1141,7 @@
             <button class="adm-btn adm-complete" id="adm-vocab-complete">선택 완료</button>
           </div>
 
-          <div class="admin-sub-title" style="margin-top:6px">💬 会話マスター</div>
+          <div class="admin-sub-title" style="margin-top:6px">💬 회화 마스터</div>
           <div class="admin-row">
             <button class="adm-btn adm-complete" id="adm-conv-complete-all">전체 완료처리</button>
           </div>
