@@ -348,8 +348,8 @@ const App = (() => {
         const isPlaying = ambBadge && ambBadge.style.display !== 'none' && !ambBadge.classList.contains('stopping');
         if (isPlaying) {
           stopAmbient(0.8);
-        } else if (state.prefs.ambientDialogue) {
-          startAmbient('dialogue');
+        } else if (state.prefs.ambientDialogue && state.prefs.ambientDialogue !== 'none') {
+          startAmbient('on', 'dialogue');
         } else {
           document.getElementById('settings-modal').style.display = 'flex';
           setTimeout(() => {
@@ -388,8 +388,12 @@ const App = (() => {
   }
 
   function showView(viewName) {
-    // 뷰 전환 시 배경음·오디오·타이머 정지
-    stopAmbient(1.2);
+    // 뷰 전환 시 배경음·오디오·타이머 정지 (정지 배지 표시 않고 숨김)
+    stopAmbient(1.2, false);
+    // 완료 프롬프트 정리
+    ['learn-complete-prompt','vocab-complete-prompt'].forEach(id => {
+      const el = document.getElementById(id); if (el) el.remove();
+    });
     stopAllAudio();
     clearVocabAutoAdvance();
     clearFcAutoAdvance();
@@ -572,6 +576,11 @@ const App = (() => {
         btn._bound = true;
         btn.addEventListener('click', () => showView(btn.dataset.view));
       }
+    });
+    // 홈 재방문 시 진도 반영 위해 항상 초기화 후 재렌더
+    ['home-kana-cards','home-vocab-cards','home-convo-cards','home-sim-cards'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.innerHTML = '';
     });
     _renderKanaHomeSection();
     _renderVocabHomeSection('home-vocab-cards', 'word', 'vocab', 'wlevel', 'W', {
@@ -1356,8 +1365,8 @@ const App = (() => {
       // 입력 필드에서는 무시
       if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
 
-      // 가나 플래시카드
-      if (state.currentView === 'learn' && state.learnMode === 'flash') {
+      // 가나 플래시카드 (startLearn은 showView('kana')를 호출하므로 currentView는 'kana')
+      if (state.currentView === 'kana' && state.learnMode === 'flash') {
         if (e.key === 'ArrowLeft') {
           e.preventDefault();
           if (state.learnIndex > 0) { state.learnIndex--; showFlashcard(); }
@@ -1386,7 +1395,7 @@ const App = (() => {
           const _vi = state.vocabItems[state.vocabIndex];
           recordVocabResult(_vi.id, true);
           if (state.vocabIndex < state.vocabItems.length - 1) { state.vocabIndex++; showVocabFlashcard(); }
-          else { showToast('완료! 🎉'); setTimeout(() => { state.vocabMode = 'quiz'; document.getElementById('vocab-flashcard-area').style.display = 'none'; document.getElementById('vocab-quiz-area').style.display = 'block'; showVocabQuizIntro(); }, 900); }
+          else { showVocabCompletePrompt(); }
         } else if (e.key === ' ') {
           e.preventDefault();
           clearVocabAutoAdvance();
@@ -4236,12 +4245,14 @@ const App = (() => {
   }
 
   // ── stopAmbient: fadeTime(초) 동안 페이드아웃 후 정지 ─────────
-  function stopAmbient(fadeTime = 2.0) {
+  // showStopped=true 이면 정지 배지 표시(대화 완료시), false 이면 그냥 숨김(뷰 이동 시)
+  function stopAmbient(fadeTime = 2.0, showStopped = true) {
     if (!_ambAudio) return;
     const audio = _ambAudio;
     _ambAudio  = null;   // 즉시 null → 다음 startAmbient가 새 오디오 시작 가능
     _ambDucked = false;
-    showAmbientBadgeStopped(_ambCurrentMode);
+    if (showStopped) showAmbientBadgeStopped(_ambCurrentMode);
+    else hideAmbientBadge();
 
     // ★ _ambFadeTo는 _ambAudio가 null이면 즉시 멈추므로, 페이드아웃은 로컬 인터벌로 처리
     if (_ambFadeId) { clearInterval(_ambFadeId); _ambFadeId = null; }
@@ -5125,9 +5136,9 @@ const App = (() => {
       const doResolve = () => {
         if (intro._resolved) return;
         intro._resolved = true;
-        // 인트로를 컴팩트 헤더로 전환 (제거하지 않고 유지)
-        intro.classList.add('dlg-intro-compact');
-        intro.style.pointerEvents = 'none';
+        // 인트로 out 애니메이션 후 완전 제거
+        intro.classList.add('dlg-intro-out');
+        setTimeout(() => { intro.remove(); }, 600);
         resolve();
       };
 
@@ -5401,7 +5412,7 @@ const App = (() => {
         ctrlListBtn.textContent = '☰ 목록';
         ctrlListBtn.onclick = () => {
           state.audioStopped = true;
-          stopAmbient(1.5);
+          stopAmbient(1.5, false);
           if (nextBtn) { clearInterval(nextBtn._timer); nextBtn.style.display = 'none'; }
           ctrlListBtn.style.display = 'none';
           showView('roleplay');
@@ -6147,13 +6158,7 @@ const App = (() => {
           if (state.vocabIndex < state.vocabItems.length - 1) {
             state.vocabIndex++; showVocabFlashcard();
           } else {
-            showToast('플래시카드 완료! 🎉 퀴즈로 넘어갑니다...');
-            setTimeout(() => {
-              state.vocabMode = 'quiz';
-              document.getElementById('vocab-flashcard-area').style.display = 'none';
-              document.getElementById('vocab-quiz-area').style.display = 'block';
-              showVocabQuizIntro();
-            }, 900);
+            showVocabCompletePrompt();
           }
         },
         () => { clearVocabAutoAdvance(); vocabFlipCard(); }
@@ -6666,7 +6671,7 @@ const App = (() => {
     if (_vqSpeechTimer) { clearInterval(_vqSpeechTimer); _vqSpeechTimer = null; }
     if (_vqCountdownTimer) { clearInterval(_vqCountdownTimer); _vqCountdownTimer = null; }
     if (state.vqAmbFadeTimer) { clearTimeout(state.vqAmbFadeTimer); state.vqAmbFadeTimer = null; }
-    stopAmbient(1.5);
+    stopAmbient(1.5, false);
     // 카테고리 패널 리셋
     document.getElementById('vocab-setup').style.display = 'block';
     document.getElementById('vocab-flash-panel').style.display = 'none';
@@ -6995,6 +7000,41 @@ const App = (() => {
     prompt.addEventListener('click', (e) => {
       if (e.target === prompt) prompt.remove();
     });
+  }
+
+  // ─── vocab 플래시카드 완료 확인 팝업 ───
+  function showVocabCompletePrompt() {
+    const existing = document.getElementById('vocab-complete-prompt');
+    if (existing) existing.remove();
+
+    // dialogue 카테고리는 퀴즈 없음 → 그냥 완료 토스트만
+    if (state.vocabMode !== 'flash') return;
+
+    const prompt = document.createElement('div');
+    prompt.id = 'vocab-complete-prompt';
+    prompt.className = 'lc-prompt-overlay';
+    prompt.innerHTML = `
+      <div class="lc-prompt-box">
+        <div class="lc-prompt-icon">🎉</div>
+        <div class="lc-prompt-title">학습 완료!</div>
+        <div class="lc-prompt-desc">퀴즈로 실력을 확인할까요?</div>
+        <div class="lc-prompt-btns">
+          <button class="lc-prompt-btn lc-prompt-yes">✏️ 퀴즈 시작</button>
+          <button class="lc-prompt-btn lc-prompt-no">나중에</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(prompt);
+
+    prompt.querySelector('.lc-prompt-yes').addEventListener('click', () => {
+      prompt.remove();
+      state.vocabMode = 'quiz';
+      document.getElementById('vocab-flashcard-area').style.display = 'none';
+      document.getElementById('vocab-quiz-area').style.display = 'block';
+      showVocabQuizIntro();
+    });
+    prompt.querySelector('.lc-prompt-no').addEventListener('click', () => { prompt.remove(); });
+    prompt.addEventListener('click', (e) => { if (e.target === prompt) prompt.remove(); });
   }
 
   // ─── 토스트 알림 ───
