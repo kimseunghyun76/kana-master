@@ -18,6 +18,10 @@
       </div>
     </div>
     <div class="header-right">
+      <!-- 화자 슬롯 (JS가 동적으로 채움) -->
+      <div id="vv-active-badge" class="hdr-voice-area" style="display:none"></div>
+      <!-- 배경음 배지 -->
+      <div id="ambient-music-badge" class="hdr-amb-badge" style="display:none" title="배경음 재생 중 · 클릭하여 정지"></div>
       <button class="settings-btn" id="settings-btn" title="Settings">⚙</button>
     </div>
   </header>
@@ -821,13 +825,7 @@
     </div>
     </div><!-- /view-lecture -->
 
-  <!-- ===== 하단 화자/배경음 바 ===== -->
-  <div class="bottom-voice-bar" id="bottom-voice-bar">
-    <div id="vv-active-badge" class="bvb-badge" style="display:none"></div>
-    <button class="bvb-btn" id="hdr-speaker-btn" title="화자 설정">🎤 화자</button>
-    <div id="ambient-music-badge" class="bvb-badge" style="display:none" title="클릭하여 정지"></div>
-    <button class="bvb-btn" id="hdr-ambient-btn" title="배경음 설정">🎵 배경음</button>
-  </div>
+  <!-- 하단바 제거됨 → 화자/배경음은 상단 헤더로 이동 -->
 
   </main>
 

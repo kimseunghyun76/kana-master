@@ -135,7 +135,7 @@ html, body {
 .nav-btn.nav-action:hover { color: var(--blue, #4361ee); background: var(--blue-light, #ebf4ff); }
 
 /* ─── 메인 ─── */
-.app-main { max-width: 900px; margin: 0 auto; padding: 20px 16px 60px; overflow-x: hidden; }
+.app-main { max-width: 900px; margin: 0 auto; padding: 20px 16px 24px; overflow-x: hidden; }
 .view { display: none; animation: fadeIn 0.2s ease; }
 .view.active { display: block; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
@@ -3103,23 +3103,23 @@ rt {
 .vv-speaker-icon:hover { transform: scale(1.12); }
 
 /* ─── 화자 배지 (하단 바 안에 inline 배치) ─── */
+/* #vv-active-badge → 헤더 화자 슬롯 컨테이너 (hdr-voice-area로 동작) */
 #vv-active-badge {
-  display: none;            /* JS → flex */
+  display: none;   /* JS → flex */
   flex-direction: row;
   align-items: center;
-  gap: 5px;
-  background: rgba(235, 244, 255, 0.95);
-  border: 1.5px solid #c3dafe;
-  border-radius: 8px;
-  padding: 2px 8px 2px 5px;
-  cursor: pointer;
-  transition: box-shadow .15s, background .15s;
-  max-width: 380px;
+  gap: 6px;
+  background: none;
+  border: none;
+  border-radius: 0;
+  padding: 0;
+  cursor: default;
+  max-width: none;
   overflow: visible;
 }
 #vv-active-badge:hover {
-  background: rgba(219, 234, 254, 1);
-  box-shadow: 0 2px 8px rgba(67,97,238,.2);
+  background: none;
+  box-shadow: none;
 }
 .vvb-title {
   font-size: 9px; font-weight: 700; letter-spacing: .5px;
@@ -4089,26 +4089,57 @@ rt {
 @keyframes lec-btn-appear { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
 @media (max-width:480px) { .lecture-board { min-height: 140px; } }
 
-/* ─── 하단 화자/배경음 고정 바 ─── */
-.bottom-voice-bar {
-  position: fixed; bottom: 0; left: 0; right: 0; z-index: 90;
-  height: 48px;
-  display: flex; align-items: center; gap: 8px;
-  padding: 0 16px;
-  background: rgba(255,255,255,0.97);
-  border-top: 1px solid var(--border);
-  backdrop-filter: blur(8px);
-  box-shadow: 0 -2px 12px rgba(0,0,0,0.08);
+/* ─── 헤더 화자 슬롯 영역 ─── */
+.hdr-voice-area {
+  display: flex; align-items: center; gap: 6px;
 }
-.bvb-btn {
-  padding: 6px 14px; font-size: 12px; font-weight: 700;
-  border: 1.5px solid var(--border); border-radius: 20px;
-  background: white; cursor: pointer; font-family: inherit;
-  color: var(--text); transition: all 0.15s;
-  white-space: nowrap;
+.hdr-slot {
+  display: flex; align-items: center; gap: 4px;
+  background: #f8fafc; border: 1.5px solid #e2e8f0;
+  border-radius: 20px; padding: 3px 8px 3px 4px;
+  font-size: 12px;
 }
-.bvb-btn:hover { background: var(--blue-light); border-color: var(--blue); color: var(--blue); }
-.bvb-badge { font-size: 11px; }
+.hdr-slot-avatar {
+  width: 26px; height: 26px;
+  border-radius: 50%; border: none; background: #e8f0fe;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; font-size: 13px; padding: 0;
+  transition: background 0.15s, transform 0.15s;
+  overflow: hidden; flex-shrink: 0;
+}
+.hdr-slot-avatar:hover { background: #c7d2fe; transform: scale(1.1); }
+.hdr-slot-avatar .vvb-avatar-emoji { font-size: 14px; }
+.hdr-slot-avatar .vvb-avatar-img { width: 26px; height: 26px; object-fit: cover; border-radius: 50%; }
+.hdr-slot-avatar .vvb-avatar-letter {
+  width: 26px; height: 26px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; color: white;
+}
+.hdr-slot-name {
+  font-size: 11px; font-weight: 600; color: #334155;
+  white-space: nowrap; max-width: 70px;
+  overflow: hidden; text-overflow: ellipsis;
+}
+.hdr-slot-tts {
+  width: 20px; height: 20px; border-radius: 50%;
+  border: 1.5px solid #cbd5e1; background: white;
+  font-size: 9px; cursor: pointer; display: flex;
+  align-items: center; justify-content: center;
+  padding: 0; transition: all 0.15s; flex-shrink: 0;
+  color: #64748b;
+}
+.hdr-slot-tts:hover { background: #e0f2fe; border-color: #38bdf8; color: #0ea5e9; }
+.hdr-slot-tts.tts-paused { background: #fef3c7; border-color: #fbbf24; color: #d97706; }
+
+/* ─── 헤더 배경음 배지 (compact) ─── */
+.hdr-amb-badge {
+  display: flex; align-items: center; gap: 4px;
+  background: rgba(240,253,244,0.95); border: 1.5px solid #86efac;
+  border-radius: 20px; padding: 3px 8px; cursor: pointer;
+  font-size: 11px; transition: box-shadow .15s;
+  animation: amb-badge-pop .2s ease;
+}
+.hdr-amb-badge:hover { box-shadow: 0 2px 8px rgba(16,185,129,.22); }
 
 /* ─── 플래시카드 뒤로가기 버튼 (learn-header 내) ─── */
 .fc-back-btn { padding: 6px 12px; font-size: 12px; font-weight: 700; border: 1.5px solid var(--border); border-radius: 20px; background: white; cursor: pointer; font-family: inherit; white-space: nowrap; flex-shrink: 0; }
@@ -4599,11 +4630,17 @@ rt {
 @media (max-width: 640px) {
 
   /* ── 헤더 ── */
-  .app-header    { padding: 7px 12px; }
-  .header-logo   { width: 34px; height: 34px; font-size: 18px; border-radius: 8px; }
-  .header-left   { gap: 8px; }
-  .header-left h1 { display: none; }   /* 모바일: 타이틀 숨김 */
-  .header-sub    { display: none; }
+  .app-header    { padding: 6px 10px; }
+  .header-logo   { width: 30px; height: 30px; font-size: 16px; border-radius: 7px; }
+  .header-left   { gap: 6px; }
+  .header-left h1 { font-size: 12px; }  /* 모바일: JP 타이틀 표시 (영어만 숨김) */
+  .header-sub    { display: none; }     /* 영어 부제목 숨김 */
+  /* 화자 슬롯: 모바일에서 이름 숨김 */
+  .hdr-slot-name { display: none; }
+  .hdr-slot { padding: 2px 6px 2px 3px; gap: 3px; }
+  .hdr-slot-avatar { width: 22px; height: 22px; font-size: 11px; }
+  .hdr-slot-tts { width: 18px; height: 18px; font-size: 8px; }
+  .hdr-amb-badge { padding: 2px 6px; }
   .header-right  { gap: 6px; }
   .settings-btn  { padding: 5px 9px; font-size: 14px; }
 

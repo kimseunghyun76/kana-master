@@ -185,20 +185,17 @@ const App = (() => {
       setupKeyboardNav();
       renderBookmarkSection();
       setupBookmarkButtons();
-      // 데스크탑: 초기 로드 시 화자 배지 표시 (Web TTS에도 적용)
-      if (window.innerWidth > 640) {
-        // Web TTS 음성 로드 완료 후 배지 렌더링 (voices 비동기 로드 대기)
-        const _showBadgeOnInit = () => updateActiveSpeakerBadge();
-        if (window.speechSynthesis) {
-          if (window.speechSynthesis.getVoices().length > 0) {
-            setTimeout(_showBadgeOnInit, 300);
-          } else {
-            window.speechSynthesis.onvoiceschanged = () => { setTimeout(_showBadgeOnInit, 100); };
-            setTimeout(_showBadgeOnInit, 800); // 폴백: 800ms 후 강제 표시
-          }
-        } else {
+      // 헤더 화자 슬롯 초기 렌더 (모바일·데스크탑 모두)
+      const _showBadgeOnInit = () => updateActiveSpeakerBadge();
+      if (window.speechSynthesis) {
+        if (window.speechSynthesis.getVoices().length > 0) {
           setTimeout(_showBadgeOnInit, 300);
+        } else {
+          window.speechSynthesis.onvoiceschanged = () => { setTimeout(_showBadgeOnInit, 100); };
+          setTimeout(_showBadgeOnInit, 800);
         }
+      } else {
+        setTimeout(_showBadgeOnInit, 300);
       }
       // VOICEVOX가 켜진 채 저장된 경우 앱 시작 시 자동 연결 + 화자 복원
       if (state.prefs.useVoicevox) {
@@ -4548,7 +4545,7 @@ const App = (() => {
     }
   }
 
-  // 배지 항목 HTML 생성
+  // 헤더 화자 슬롯 HTML 생성
   function buildSlotItemHtml(slot) {
     const info = buildSlotAvatarHtml(slot);
     if (!info) return '';
@@ -4556,14 +4553,13 @@ const App = (() => {
     const roleName = slot === 1
       ? (state.prefs.maleName   || 'スンヒョン')
       : (state.prefs.femaleName || 'ジュヨン');
+    const genderEmoji = slot === 1 ? '👨' : '👩';
+    const avatarDisplay = info.avatarHtml || `<span>${genderEmoji}</span>`;
     return `
-      <div class="vvb-item" data-slot="${slot}">
-        ${info.avatarHtml}
-        <div class="vvb-info">
-          <span class="vvb-num">화자 ${slot}</span>
-          <span class="vvb-name">${roleName}</span>
-        </div>
-        ${barsHtml()}
+      <div class="hdr-slot" data-slot="${slot}">
+        <button class="hdr-slot-avatar" data-slot="${slot}" title="화자 변경 → 설정">${avatarDisplay}</button>
+        <span class="hdr-slot-name">${roleName}</span>
+        <button class="hdr-slot-tts" data-slot="${slot}" title="음성 일시정지/재개">⏸</button>
       </div>`;
   }
 
@@ -4577,49 +4573,59 @@ const App = (() => {
     // 표시할 슬롯이 하나도 없으면 숨김
     if (!slot1Html && !slot2Html) {
       badge.style.display = 'none';
-      syncSidebarVisibility();
       return;
     }
 
-    const isDesktop = window.innerWidth > 640;
-    badge.innerHTML =
-      `<div class="vvb-title">🎤 화자</div>` +
-      slot1Html + slot2Html +
-      (isDesktop ? '' : `<div class="vvb-hint">${_ttsPaused ? '▶ 클릭하여 재개' : '⏸ 클릭하여 일시정지'}</div>`);
-    // 데스크탑: 화자 배지를 항상 표시
-    if (isDesktop) {
-      badge.style.display = 'flex';
-      syncSidebarVisibility();
-    }
-    // 모바일: display 는 showVoiceBadge() / scheduleHideVoiceBadge() 가 제어
+    badge.innerHTML = slot1Html + slot2Html;
+    badge.style.display = 'flex';
 
-    // 클릭 → TTS 일시정지 / 재개
-    // ※ Chrome은 speechSynthesis.pause()가 동작하지 않는 버그 존재
-    //   → cancel()로 현재 발화 중단 후 플래그로 루프를 대기시킴
-    badge.onclick = () => {
-      if (_ttsPaused) {
-        // ── 재개 ──
-        if (state.prefs.useVoicevox && state.currentVvAudio) {
-          state.currentVvAudio.play().catch(() => {});
+    // ─ 아바타 버튼 → 설정 모달 열기 (음성 탭) ─
+    badge.querySelectorAll('.hdr-slot-avatar').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.getElementById('settings-modal').style.display = 'flex';
+        // 음성 탭으로 이동
+        setTimeout(() => {
+          const voiceTab = document.querySelector('.stab[data-tab="voice"]');
+          if (voiceTab) voiceTab.click();
+          const voiceSection = document.getElementById('webtts-settings') || document.getElementById('voicevox-speaker-rows');
+          if (voiceSection) voiceSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 80);
+      });
+    });
+
+    // ─ TTS 버튼 → 일시정지 / 재개 ─
+    badge.querySelectorAll('.hdr-slot-tts').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (_ttsPaused) {
+          // 재개
+          if (state.prefs.useVoicevox && state.currentVvAudio) {
+            state.currentVvAudio.play().catch(() => {});
+          }
+          _ttsPaused = false;
+          _syncTtsButtons();
+        } else {
+          // 일시정지
+          if (state.prefs.useVoicevox && state.currentVvAudio) {
+            state.currentVvAudio.pause();
+          } else if (window.speechSynthesis) {
+            window.speechSynthesis.cancel();
+          }
+          _ttsPaused = true;
+          _syncTtsButtons();
         }
-        _ttsPaused = false;
-        const hint = badge.querySelector('.vvb-hint');
-        if (hint) hint.textContent = '⏸ 클릭하여 일시정지';
-      } else {
-        // ── 일시정지 ──
-        if (state.prefs.useVoicevox && state.currentVvAudio) {
-          // VOICEVOX: HTML Audio pause()는 신뢰성 있음
-          state.currentVvAudio.pause();
-        } else if (window.speechSynthesis) {
-          // Web TTS: pause() 버그 우회 → cancel()로 중단 후 루프 대기
-          window.speechSynthesis.cancel();
-        }
-        _ttsPaused = true;
-        const hint = badge.querySelector('.vvb-hint');
-        if (hint) hint.textContent = '▶ 클릭하여 재개';
-      }
-    };
-    // syncSidebarVisibility() 는 showVoiceBadge/scheduleHideVoiceBadge 에서 호출
+      });
+    });
+
+    _syncTtsButtons();
+  }
+
+  // TTS 버튼 ⏸/▶ 상태 동기화
+  function _syncTtsButtons() {
+    document.querySelectorAll('.hdr-slot-tts').forEach(btn => {
+      btn.textContent = _ttsPaused ? '▶' : '⏸';
+      btn.title = _ttsPaused ? '음성 재개' : '음성 일시정지';
+      btn.classList.toggle('tts-paused', _ttsPaused);
+    });
   }
 
   // ─── 대화 스플래시 화자 카드 실시간 갱신 ───
@@ -5080,44 +5086,29 @@ const App = (() => {
   }
 
   // ── 화자 배지 표시 (TTS 발화 시작 시 호출) ───────────────────
+  // 헤더에 항상 표시이므로 TTS 버튼 상태만 업데이트
   function showVoiceBadge() {
     clearTimeout(_hideVoiceBadgeTimer);
     _hideVoiceBadgeTimer = null;
-    updateActiveSpeakerBadge();          // 최신 화자 정보로 콘텐츠 갱신
-    const badge = document.getElementById('vv-active-badge');
-    if (badge && badge.style.display === 'none') {
-      badge.style.display = 'flex';
-      syncSidebarVisibility();
-    }
+    updateActiveSpeakerBadge();
+    _syncTtsButtons();
   }
 
-  // ── 화자 배지 지연 숨김 (TTS 발화 종료 시 호출, 문장 간격 커버용 1.5s 디바운스) ─
+  // ── 화자 배지 지연 숨김 → 헤더 상시 표시이므로 버튼 상태만 갱신 ─
   function scheduleHideVoiceBadge(delay = 1500) {
-    // 데스크탑에서는 화자 배지를 항상 표시 — 숨김 스케줄링 불필요
-    if (window.innerWidth > 640) return;
     clearTimeout(_hideVoiceBadgeTimer);
     _hideVoiceBadgeTimer = setTimeout(() => {
       _hideVoiceBadgeTimer = null;
-      if (!_ttsPaused) {
-        const badge = document.getElementById('vv-active-badge');
-        if (badge) {
-          badge.style.display = 'none';
-          syncSidebarVisibility();
-        }
-      }
+      _syncTtsButtons();
     }, delay);
   }
 
-  // ── 화자 배지 즉시 숨김 (명시적 중지 시 호출) ────────────────
+  // ── 화자 배지 즉시 숨김 (명시적 중지) ────────────────
   function hideVoiceBadgeNow() {
     clearTimeout(_hideVoiceBadgeTimer);
     _hideVoiceBadgeTimer = null;
     _ttsPaused = false;
-    const badge = document.getElementById('vv-active-badge');
-    if (badge) {
-      badge.style.display = 'none';
-      syncSidebarVisibility();
-    }
+    _syncTtsButtons();
   }
 
   // ── 배경음악 재생 배지 표시/숨기기 ───────────────────────────
@@ -5125,32 +5116,21 @@ const App = (() => {
     const badge = document.getElementById('ambient-music-badge');
     if (!badge) return;
     const isQuiz = mode === 'quiz';
-    const label  = isQuiz ? '퀴즈 배경음' : '대화 배경음';
     const color  = isQuiz ? '#6366f1' : '#10b981';
     const icon   = isQuiz ? '🎮' : '🎵';
-    // 트랙 이름에서 간단한 표시 이름 추출 (확장자·숫자 제거)
-    const trackDisplay = file
-      ? file.replace(/\.[^.]+$/, '').replace(/-\d+$/, '').replace(/[-_]/g, ' ').slice(0, 18)
-      : '음악 재생 중';
+    // 헤더 compact 버전: 이모지 + 파형 바
     badge.innerHTML = `
-      <div class="amb-badge-title">🎶 배경음악</div>
-      <div class="amb-badge-body">
-        <div class="amb-badge-icon" style="background:linear-gradient(135deg,${isQuiz?'#ede9fe,#ddd6fe':'#d1fae5,#a7f3d0'});border-color:${color}">${icon}</div>
-        <div class="amb-badge-info">
-          <div class="amb-badge-label">${label}</div>
-          <div class="amb-badge-sub" style="color:${color}">▶ 재생 중</div>
-        </div>
-        <div class="amb-badge-waves">
-          <div class="amb-wave-bar w1" style="background:${color}"></div>
-          <div class="amb-wave-bar w2" style="background:${color}"></div>
-          <div class="amb-wave-bar w3" style="background:${color}"></div>
-          <div class="amb-wave-bar w4" style="background:${color}"></div>
-          <div class="amb-wave-bar w5" style="background:${color}"></div>
-        </div>
-      </div>
-      <div class="amb-badge-stop">⏹ 클릭하여 정지</div>`;
+      <span style="font-size:13px">${icon}</span>
+      <div class="amb-badge-waves" style="height:14px">
+        <div class="amb-wave-bar w1" style="background:${color}"></div>
+        <div class="amb-wave-bar w2" style="background:${color}"></div>
+        <div class="amb-wave-bar w3" style="background:${color}"></div>
+        <div class="amb-wave-bar w4" style="background:${color}"></div>
+      </div>`;
     badge.classList.remove('stopping');
     badge.style.display = 'flex';
+    badge.style.borderColor = color + '88';
+    badge.style.background = isQuiz ? 'rgba(237,233,254,.95)' : 'rgba(240,253,244,.95)';
     // 클릭 → 정지
     badge.onclick = () => stopAmbient(1.2);
     syncSidebarVisibility();
@@ -5175,21 +5155,12 @@ const App = (() => {
   function showAmbientBadgeStopped(mode) {
     const badge = document.getElementById('ambient-music-badge');
     if (!badge) return;
-    const isQuiz = mode === 'quiz';
-    const label  = isQuiz ? '퀴즈 배경음' : '대화 배경음';
-    const icon   = isQuiz ? '🎮' : '🎵';
+    const icon = mode === 'quiz' ? '🎮' : '🎵';
     badge.classList.remove('stopping');
-    badge.innerHTML = `
-      <div class="amb-badge-title">🎶 배경음악</div>
-      <div class="amb-badge-body">
-        <div class="amb-badge-icon" style="background:linear-gradient(135deg,#f1f5f9,#e2e8f0);border-color:#cbd5e1">${icon}</div>
-        <div class="amb-badge-info">
-          <div class="amb-badge-label">${label}</div>
-          <div class="amb-badge-sub" style="color:#94a3b8">⏹ 정지됨</div>
-        </div>
-        <div class="amb-badge-restart">▶ 재시작</div>
-      </div>`;
+    badge.innerHTML = `<span style="font-size:13px;opacity:.5">${icon}</span><span style="font-size:10px;color:#94a3b8">▶</span>`;
     badge.style.display = 'flex';
+    badge.style.borderColor = '#cbd5e1';
+    badge.style.background = 'rgba(248,250,252,.95)';
     badge.onclick = () => startAmbient('on', mode || 'dialogue');
     syncSidebarVisibility();
   }
