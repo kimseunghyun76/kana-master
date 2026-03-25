@@ -18,10 +18,6 @@
       </div>
     </div>
     <div class="header-right">
-      <div id="vv-active-badge" style="display:none"></div>
-      <button class="hdr-icon-btn" id="hdr-speaker-btn" title="화자 설정">🎤</button>
-      <div id="ambient-music-badge" style="display:none" title="클릭하여 정지"></div>
-      <button class="hdr-icon-btn" id="hdr-ambient-btn" title="배경음 설정">🎵</button>
       <button class="settings-btn" id="settings-btn" title="Settings">⚙</button>
     </div>
   </header>
@@ -45,86 +41,24 @@
     <!-- ========== 홈 뷰 ========== -->
     <div id="view-home" class="view active">
 
-      <!-- ── 히어로: 오늘의 문장 / 오늘의 한자 (슬라이딩 롤링) ── -->
+      <!-- ── 히어로: 오늘의 한자 + 예시 문장 통합 카드 ── -->
       <div class="home-hero">
-        <!-- 상단 컨트롤 바 -->
-        <div class="hero-ctrl-bar">
-          <span class="hero-ctrl-counter" id="hero-ctrl-counter">1 / 2</span>
-          <div class="hero-ctrl-right">
-            <div class="hero-roll-dots" id="hero-roll-dots">
-              <span class="hero-dot hero-dot-active" data-idx="0"></span>
-              <span class="hero-dot" data-idx="1"></span>
-            </div>
-            <button class="hero-ctrl-play" id="hero-ctrl-play" title="자동 전환 중지">⏸</button>
+        <button class="hero-corner-refresh" id="hero-kanji-refresh-btn" title="다음 한자">🔄</button>
+        <div class="home-hero-inner">
+          <!-- 한자 -->
+          <div class="hero-kanji-display">
+            <div class="hero-kanji-char" id="hero-kanji-char">日</div>
+            <div class="hero-kanji-furigana" id="hero-kanji-furigana">にち・ひ</div>
+            <div class="hero-kanji-meaning" id="hero-kanji-meaning">날·해</div>
           </div>
+          <!-- 구분선 -->
+          <div class="hero-divider"></div>
+          <!-- 예시 문장 -->
+          <div class="home-hero-sentence" id="hero-sentence">読み込み中…</div>
+          <div class="home-hero-trans" id="hero-translation"></div>
         </div>
-
-        <!-- 슬라이딩 트랙 -->
-        <div class="hero-track-wrap">
-          <div class="hero-track" id="hero-track">
-
-            <!-- Panel 0: 오늘의 문장 -->
-            <div class="home-hero-inner hero-panel" id="hero-panel-0">
-              <div class="home-hero-label">🌸 오늘의 문장</div>
-              <div class="home-hero-sentence" id="hero-sentence">読み込み中…</div>
-              <div class="home-hero-trans" id="hero-translation"></div>
-              <div class="home-hero-footer">
-                <button class="home-hero-audio" id="hero-audio-btn">🔊 발음 듣기</button>
-                <button class="home-hero-refresh" id="hero-refresh-btn">🔄 다른 문장</button>
-              </div>
-            </div>
-
-            <!-- Panel 1: 오늘의 한자 (플래시카드 스타일) -->
-            <div class="home-hero-inner hero-panel" id="hero-panel-1">
-              <div class="home-hero-label">🈶 오늘의 한자</div>
-              <div class="hero-kanji-display">
-                <div class="hero-kanji-left">
-                  <div class="hero-kanji-char" id="hero-kanji-char">日</div>
-                  <div class="hero-kanji-furigana" id="hero-kanji-furigana">にち・ひ</div>
-                </div>
-                <div class="hero-kanji-right">
-                  <div class="hero-kanji-meaning" id="hero-kanji-meaning">날·해</div>
-                  <div class="hero-kanji-english" id="hero-kanji-english">Day / Sun</div>
-                  <div class="hero-kanji-ex" id="hero-kanji-ex">日本語(にほんご) — 일본어</div>
-                </div>
-              </div>
-              <div class="home-hero-footer">
-                <button class="home-hero-audio" id="hero-kanji-audio-btn">🔊 발음 듣기</button>
-                <button class="home-hero-refresh" id="hero-kanji-refresh-btn">🔄 다른 한자</button>
-              </div>
-            </div>
-
-          </div><!-- /hero-track -->
-        </div><!-- /hero-track-wrap -->
       </div>
 
-      <!-- ── 이어서 학습하기 ── -->
-      <div class="home-section" id="home-recent" style="display:none">
-        <div class="home-section-header">
-          <span class="home-section-title">⏱ 이어서 학습하기</span>
-        </div>
-        <div class="home-hscroll" id="home-recent-list"></div>
-      </div>
-
-      <!-- ── 오늘의 Q&A ── -->
-      <div class="home-section home-daily-section" id="home-qa-section">
-        <div class="home-section-header">
-          <div class="home-section-left">
-            <span class="home-section-badge badge-qa">💡</span>
-            <div>
-              <span class="home-section-title">오늘의 Q&amp;A</span>
-              <span class="home-section-sub">자주 쓰는 질문·답변 패턴</span>
-            </div>
-          </div>
-        </div>
-        <div class="qa-chat-wrap" id="qa-chat-wrap">
-          <div class="qa-chat-messages" id="qa-chat-messages"></div>
-          <div class="qa-chat-footer">
-            <div class="qa-chat-dots" id="qa-chat-dots"></div>
-            <div class="qa-chat-countdown" id="qa-chat-countdown" style="display:none"></div>
-          </div>
-        </div>
-      </div>
 
       <!-- ── 가나 마스터 ── -->
       <div class="home-section">
@@ -136,10 +70,9 @@
               <span class="home-section-sub">히라가나 · 가타카나</span>
             </div>
           </div>
-          <button class="home-section-more" data-view="kana">전체보기 ›</button>
+          <button class="home-section-lec-btn" data-view="kana">🎬 전체 강의 보기</button>
         </div>
-        <div class="home-section-promo">일본어의 첫걸음! 히라가나·가타카나를 마스터하면 모든 일본어가 보입니다 ✨ 플래시카드·퀴즈·필기로 완전 정복!</div>
-        <div class="home-hscroll" id="home-kana-cards"></div>
+        <div class="home-cat-list" id="home-kana-list"></div>
       </div>
 
       <!-- ── 어휘 마스터 ── -->
@@ -152,10 +85,9 @@
               <span class="home-section-sub">기초 단어 · 한자 읽기 · 8단계</span>
             </div>
           </div>
-          <button class="home-section-more" data-view="vocab">전체보기 ›</button>
+          <button class="home-section-lec-btn" data-view="vocab">🎬 전체 강의 보기</button>
         </div>
-        <div class="home-section-promo">하루 10단어, 1000시간의 지름길 📚 인사부터 한자까지 — 단어를 알면 대화가 열립니다!</div>
-        <div class="home-hscroll" id="home-vocab-cards"></div>
+        <div class="home-cat-list" id="home-vocab-list"></div>
       </div>
 
       <!-- ── 회화 마스터 ── -->
@@ -168,10 +100,9 @@
               <span class="home-section-sub">인사 → 여행 · 6단계</span>
             </div>
           </div>
-          <button class="home-section-more" data-view="convo">전체보기 ›</button>
+          <button class="home-section-lec-btn" data-view="convo">🎬 전체 강의 보기</button>
         </div>
-        <div class="home-section-promo">원어민처럼 자연스럽게 💬 실생활 필수 패턴을 문장 단위로 익혀 진짜 대화를 시작하세요!</div>
-        <div class="home-hscroll" id="home-convo-cards"></div>
+        <div class="home-cat-list" id="home-convo-list"></div>
       </div>
 
       <!-- ── 실전 롤플레이 ── -->
@@ -184,10 +115,9 @@
               <span class="home-section-sub">시나리오 기반 · 6단계</span>
             </div>
           </div>
-          <button class="home-section-more" data-view="roleplay">전체보기 ›</button>
+          <button class="home-section-lec-btn" data-view="roleplay">🎬 전체 강의 보기</button>
         </div>
-        <div class="home-section-promo">공항·식당·호텔… 실제 일본에서 바로 쓰는 생생 회화 🎯 남편·아내 롤플레이로 현장감 200%!</div>
-        <div class="home-hscroll" id="home-sim-cards"></div>
+        <div class="home-cat-list" id="home-sim-list"></div>
       </div>
 
       <!-- ── 북마크 ── -->
@@ -200,10 +130,21 @@
         </div>
       </div>
 
+      <!-- ── 이어서 학습하기 ── -->
+      <div class="home-section" id="home-recent" style="display:none">
+        <div class="home-section-header">
+          <span class="home-section-title">⏱ 이어서 학습하기</span>
+        </div>
+        <div class="home-hscroll" id="home-recent-list"></div>
+      </div>
+
     </div><!-- /view-home -->
 
     <!-- ========== 가나 마스터 뷰 ========== -->
     <div id="view-kana" class="view">
+
+      <!-- 오늘의 가타카나 미니 카드 -->
+      <div class="daily-mini-wrap section-top-daily" id="kana-daily-katakana"></div>
 
       <!-- 가나 레벨 선택 패널 (nav에서 직접 진입 시) -->
       <div id="kana-select-panel">
@@ -218,6 +159,7 @@
       </div>
 
       <div class="learn-header">
+        <button class="fc-back-btn" id="fc-back-btn">← 나가기</button>
         <div class="learn-title-block">
           <h3 id="learn-level-name">Level 1</h3>
           <span id="learn-level-title">히라가나 기본 ①</span>
@@ -247,13 +189,12 @@
 
         <!-- 플래시카드 (드래그로 이동) -->
         <div class="fc-card-row">
-          <div class="fc-prev-peek" id="fc-prev-peek" style="display:none"></div>
           <div class="fc-wrap">
             <div class="flashcard-container" id="flashcard">
               <div class="flashcard-inner" id="fc-inner">
                 <div class="flashcard-front">
                   <div class="fc-kana" id="fc-kana">あ</div>
-                  <div class="fc-hint">← 드래그 → 이동 · 탭 뒤집기</div>
+                  <div class="fc-hint">↕ 드래그로 이동 · 탭 뒤집기</div>
                 </div>
                 <div class="flashcard-back">
                   <div class="fc-kana-small" id="fc-kana-back">あ</div>
@@ -262,14 +203,12 @@
                     <span class="fc-sep">·</span>
                     <span class="fc-eng" id="fc-english">ah</span>
                   </div>
+                  <div class="fc-tip" id="fc-tip" style="display:none"></div>
                   <div class="fc-examples" id="fc-examples"></div>
                   <div class="fc-sentences" id="fc-sentences"></div>
                 </div>
               </div>
             </div>
-          </div>
-          <div class="fc-next-peek" id="fc-next-peek" style="display:none">
-            <span id="fc-peek-char"></span>
           </div>
         </div>
 
@@ -586,6 +525,9 @@
 
       <!-- PANEL 1: 카테고리 선택 -->
       <div id="vocab-setup">
+        <!-- 오늘의 어휘/회화 미니 카드 -->
+        <div class="daily-mini-wrap section-top-daily" id="vocab-daily-item"></div>
+        <div class="daily-mini-wrap section-top-daily" id="convo-daily-convo"></div>
         <div class="vocab-setup-header">
           <h3 id="vocab-section-title">어휘 마스터</h3>
         </div>
@@ -608,6 +550,7 @@
 
         <!-- ── 실전 롤플레이 섹션 (sim) ── -->
         <div id="vocab-sim-section" class="vocab-type-section" style="display:none">
+          <div class="daily-mini-wrap section-top-daily" id="sim-daily-item"></div>
           <div id="vocab-sim-levels-main"></div>
         </div>
       </div>
@@ -645,14 +588,13 @@
 
           <!-- 단어 플래시카드 (드래그로 이동) -->
           <div class="fc-card-row">
-            <div class="fc-prev-peek" id="vfc-prev-peek" style="display:none"></div>
             <div class="fc-wrap">
               <div class="flashcard-container" id="vocab-flashcard">
                 <div class="flashcard-inner" id="vfc-inner">
                   <div class="flashcard-front">
                     <div class="fc-kana" id="vfc-japanese">いち</div>
                     <div class="vfc-kanji" id="vfc-kanji"></div>
-                    <div class="fc-hint">← 드래그 → 이동 · 탭 뒤집기</div>
+                    <div class="fc-hint">↕ 드래그로 이동 · 탭 뒤집기</div>
                   </div>
                   <div class="flashcard-back">
                     <div class="fc-kana-small" id="vfc-japanese-back">いち</div>
@@ -667,9 +609,6 @@
                   </div>
                 </div>
               </div>
-            </div>
-            <div class="fc-next-peek" id="vfc-next-peek" style="display:none">
-              <span id="vfc-peek-char"></span>
             </div>
           </div>
 
@@ -819,8 +758,9 @@
 
     </div><!-- /view-vocab -->
 
-    <!-- ========== 강의 패널 (YouTube 스타일) ========== -->
-    <div id="lecture-panel" class="view" style="display:none">
+    <!-- ========== 강의 뷰 (독립 전체 화면) ========== -->
+    <div id="view-lecture" class="view" style="display:none">
+    <div id="lecture-panel">
       <div class="lecture-header">
         <button class="back-btn" id="lecture-back-btn">← 나가기</button>
         <div class="lecture-header-center">
@@ -828,7 +768,10 @@
           <span id="lecture-slide-info" class="lecture-slide-info">1 / 8</span>
         </div>
         <div class="lecture-header-right">
-          <button class="lecture-spd-btn" id="lecture-spd-btn" title="재생 속도">1×</button>
+          <div class="lec-sub-toggle">
+            <button class="lec-sub-btn" data-sub="jp">JP</button>
+            <button class="lec-sub-btn active" data-sub="ko">KO</button>
+          </div>
         </div>
       </div>
 
@@ -843,11 +786,15 @@
           <div class="lb-main-char" id="lb-main-char">こんにちは</div>
           <div class="lb-sub-reading" id="lb-sub-reading"></div>
           <div class="lb-meaning" id="lb-meaning">안녕하세요</div>
+          <div class="lb-english" id="lb-english"></div>
+          <div class="lb-tip" id="lb-tip"></div>
           <div class="lb-example-box" id="lb-example-box" style="display:none">
             <div class="lb-ex-jp" id="lb-ex-jp"></div>
             <div class="lb-ex-ko" id="lb-ex-ko"></div>
           </div>
         </div>
+        <!-- 다음 장으로 버튼 (우측 하단 오버레이) -->
+        <button class="lec-next-guide-btn" id="lec-next-guide-btn" style="display:none">다음 장으로 →</button>
       </div>
 
       <!-- 자동진행 타이머 바 -->
@@ -872,6 +819,15 @@
         </div>
       </div>
     </div>
+    </div><!-- /view-lecture -->
+
+  <!-- ===== 하단 화자/배경음 바 ===== -->
+  <div class="bottom-voice-bar" id="bottom-voice-bar">
+    <div id="vv-active-badge" class="bvb-badge" style="display:none"></div>
+    <button class="bvb-btn" id="hdr-speaker-btn" title="화자 설정">🎤 화자</button>
+    <div id="ambient-music-badge" class="bvb-badge" style="display:none" title="클릭하여 정지"></div>
+    <button class="bvb-btn" id="hdr-ambient-btn" title="배경음 설정">🎵 배경음</button>
+  </div>
 
   </main>
 
@@ -942,14 +898,14 @@
           <!-- VOICEVOX 화자 설정 -->
           <div id="voicevox-speaker-rows" style="display:none">
             <div class="setting-row" style="align-items:flex-start;gap:8px">
-              <label style="padding-top:6px">🎤 첫번째 화자:</label>
+              <label style="padding-top:6px">🎤 남자 역할 화자:</label>
               <div class="vv-speaker-picker">
                 <img id="vv-portrait-1" class="vv-speaker-icon" src="" alt="" style="display:none">
                 <select id="pref-voicevox-speaker1"><option value="1">로딩 중...</option></select>
               </div>
             </div>
             <div class="setting-row" style="align-items:flex-start;gap:8px">
-              <label style="padding-top:6px">🎤 두번째 화자:</label>
+              <label style="padding-top:6px">🎤 여자 역할 화자:</label>
               <div class="vv-speaker-picker">
                 <img id="vv-portrait-2" class="vv-speaker-icon" src="" alt="" style="display:none">
                 <select id="pref-voicevox-speaker2"><option value="none">사용 안함</option></select>
@@ -1128,36 +1084,11 @@
             <input type="range" id="pref-ambient-volume" min="0" max="40" step="1" style="flex:1;max-width:160px">
             <span id="pref-ambient-volume-label" style="font-size:12px;color:#64748b;min-width:32px;text-align:right"></span>
           </div>
-          <div class="setting-section-title">👁 플래시카드 표시 설정 <span class="setting-note">(기본: 노출)</span></div>
+          <div class="setting-section-title">&#x1F0CF; 플래시카드 설정</div>
           <div class="setting-row">
-            <label>단어 예시 표시:</label>
-            <label class="toggle">
-              <input type="checkbox" id="pref-show-word-ex">
-              <span class="toggle-slider"></span>
-            </label>
-          </div>
-          <div class="setting-row">
-            <label>문장 예시 표시:</label>
-            <label class="toggle">
-              <input type="checkbox" id="pref-show-sent-ex">
-              <span class="toggle-slider"></span>
-            </label>
-          </div>
-          <div class="setting-row">
-            <label>자동 읽고 넘기기:</label>
-            <label class="toggle">
-              <input type="checkbox" id="pref-auto-advance">
-              <span class="toggle-slider"></span>
-            </label>
-          </div>
-          <div class="setting-row" id="pref-auto-advance-delay-row" style="display:none">
-            <label>넘기기 대기 시간:</label>
-            <select id="pref-auto-advance-delay">
-              <option value="2">2초</option>
-              <option value="3" selected>3초</option>
-              <option value="5">5초</option>
-              <option value="7">7초</option>
-            </select>
+            <label>뒤집기 기능:</label>
+            <label class="toggle"><input type="checkbox" id="pref-flip-card"><span class="toggle-slider"></span></label>
+            <span class="setting-note">비활성화 시 즉시 뒷면 표시</span>
           </div>
         </div>
       </div>
