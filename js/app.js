@@ -757,15 +757,18 @@ const App = (() => {
       const firstUnlocked = levels.find(l => state.unlockedLevels.includes(l.id)) || levels[0];
 
       const card = document.createElement('div');
-      card.className = 'home-kana-cat-card';
+      card.className = 'home-kana-cat-card' + (g.icon === 'ア' ? ' katakana-card' : '');
       card.innerHTML = `
-        <div class="hkcc-icon">${g.icon}</div>
-        <div class="hkcc-info">
-          <div class="hkcc-name">${g.name}</div>
-          <div class="hkcc-sub">${g.sub}</div>
-          <div class="hkcc-prog-bar"><div class="hkcc-prog-fill" style="width:${prog}%"></div></div>
-          <div class="hkcc-prog-text">${allChars.length}자 · ${prog}%</div>
+        <div class="hkcc-header">
+          <div class="hkcc-icon-wrap">${g.icon}</div>
+          <div class="hkcc-title-col">
+            <div class="hkcc-name">${g.name}</div>
+            <div class="hkcc-sub">${g.sub}</div>
+          </div>
+          <div class="hkcc-prog-badge">${prog}%</div>
         </div>
+        <div class="hkcc-prog-bar"><div class="hkcc-prog-fill" style="width:${prog}%"></div></div>
+        <div class="hkcc-prog-text">${allChars.length}자 · ${prog}%</div>
         <div class="hkcc-actions">
           <div class="hkcc-btn-row">
             <button class="hkcc-btn hkcc-btn-flash">▶ 학습</button>
@@ -1418,14 +1421,14 @@ const App = (() => {
       sim: '실전 상황에서 바로 써먹는 일본어! 🎯',
     };
     const card = document.createElement('div');
-    card.className = 'hcb' + (recommend ? ' hcb-recommend' : '') + (locked ? ' hcb-locked' : '');
+    card.className = `hcb hcb-${badgeType}-accent${recommend ? ' hcb-recommend' : ''}${locked ? ' hcb-locked' : ''}`;
     card.innerHTML = `
       ${recommend ? '<div class="hcb-rec-badge">✨ 오늘의 추천</div>' : ''}
       <div class="hcb-header">
         <div class="hcb-icon-wrap hcb-${badgeType}">${icon}</div>
         <div class="hcb-title-col">
           <div class="hcb-name">${name}</div>
-          <div class="hcb-promo">${promoMap[type] || ''}</div>
+          <div class="hcb-promo">${promoMap[type] || ''} · ${totalItems}</div>
         </div>
         <div class="hcb-prog-badge">${totalProg}%</div>
       </div>
