@@ -6,6 +6,7 @@
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>の</text></svg>">
   <title>かな学習 - Kana Master</title>
   <link rel="stylesheet" href="app.css">
+  <link rel="stylesheet" href="yomu-styles.css">
 </head>
 <body>
   <!-- ===== 헤더 ===== -->
@@ -13,31 +14,67 @@
     <div class="header-left">
       <div class="header-logo">デ</div>
       <div>
-        <h1>デニスの日本語マスター</h1>
-        <span class="header-sub">Denis's Japanese Master</span>
+        <h1 id="app-main-title">데니스의 일본어 마스터</h1>
+        <span class="header-sub" id="app-main-subtitle">Denis's Japanese Master</span>
       </div>
     </div>
     <div class="header-right">
+      <!-- 스트릭 배지 -->
+      <div class="streak-badge" id="hdr-streak-badge" title="연속 학습일">
+        <span class="streak-fire">🔥</span>
+        <span class="streak-num" id="hdr-streak-num">0</span>
+        <span style="font-size:10px">일</span>
+      </div>
+      <!-- 계급 배지 -->
+      <div class="rank-badge" id="hdr-rank-badge" title="현재 계급">
+        <span class="rank-icon" id="hdr-rank-icon">🌱</span>
+        <span class="rank-name" id="hdr-rank-name">견습생</span>
+      </div>
       <!-- 화자 슬롯 (JS가 동적으로 채움) -->
       <div id="vv-active-badge" class="hdr-voice-area" style="display:none"></div>
-      <!-- 배경음 배지 -->
-      <div id="ambient-music-badge" class="hdr-amb-badge" style="display:none" title="배경음 재생 중 · 클릭하여 정지"></div>
+      <!-- 배경음 배지 (항상 표시) -->
+      <div id="ambient-music-badge" class="hdr-amb-badge" title="배경음 · 클릭하여 재생/정지"><span style="font-size:13px">🎵</span><span style="font-size:10px;color:var(--gray)">배경음</span></div>
       <button class="settings-btn" id="settings-btn" title="Settings">⚙</button>
     </div>
   </header>
   <!-- 발화 중 캐릭터 인디케이터 (현재 미사용) -->
   <div id="speaking-indicator" class="speaking-indicator"></div>
 
-  <!-- ===== 네비게이션 ===== -->
-  <nav class="app-nav">
-    <button class="nav-btn active" data-view="home"><span class="nav-jp">홈</span></button>
-    <button class="nav-btn" data-view="kana"><span class="nav-jp">가나 마스터</span></button>
-    <button class="nav-btn" data-view="vocab"><span class="nav-jp">어휘 마스터</span></button>
-    <button class="nav-btn" data-view="convo"><span class="nav-jp">회화 마스터</span></button>
-    <button class="nav-btn" data-view="roleplay"><span class="nav-jp">실전 롤플레이</span></button>
-    <button class="nav-btn" data-view="write"><span class="nav-jp">필기</span></button>
-    <button class="nav-btn" data-view="progress"><span class="nav-jp">진행</span></button>
+  <!-- ===== 하단 4-탭 네비게이션 ===== -->
+  <nav class="app-nav-bottom" id="app-nav-bottom">
+    <button class="nav-tab active" data-view="home"><span class="nav-tab-icon">📚</span><span class="nav-tab-label" data-tab-key="home">학습</span></button>
+    <button class="nav-tab" data-view="practice"><span class="nav-tab-icon">✏️</span><span class="nav-tab-label" data-tab-key="practice">연습</span></button>
+    <button class="nav-tab" data-view="yomu"><span class="nav-tab-icon">📖</span><span class="nav-tab-label" data-tab-key="yomu">읽기</span></button>
+    <button class="nav-tab" data-view="mypage"><span class="nav-tab-icon">👤</span><span class="nav-tab-label" data-tab-key="mypage">마이</span></button>
   </nav>
+  <!-- 기존 탭 호환 (숨김) -->
+  <nav class="app-nav" style="display:none">
+    <button class="nav-btn active" data-view="home"></button>
+    <button class="nav-btn" data-view="kana"></button>
+    <button class="nav-btn" data-view="vocab"></button>
+    <button class="nav-btn" data-view="convo"></button>
+    <button class="nav-btn" data-view="roleplay"></button>
+    <button class="nav-btn" data-view="write"></button>
+    <button class="nav-btn" data-view="progress"></button>
+    <button class="nav-btn" data-view="yomu"></button>
+  </nav>
+
+  <!-- ===== 온보딩 오버레이 (첫 방문) ===== -->
+  <div id="onboarding-overlay" class="onboarding-overlay" style="display:none">
+    <div class="onboarding-card">
+      <div class="onboarding-hero">🇯🇵</div>
+      <h2 class="onboarding-title">환영합니다!</h2>
+      <p class="onboarding-subtitle">데니스의 일본어 마스터에 오신 걸 환영해요</p>
+      <div class="onboarding-steps">
+        <div class="onboarding-step"><span class="ob-num">1</span><span>📚 <b>학습</b> 탭에서 가나·어휘·회화를 학습</span></div>
+        <div class="onboarding-step"><span class="ob-num">2</span><span>✏️ <b>연습</b> 탭에서 퀴즈·필기·SRS 복습</span></div>
+        <div class="onboarding-step"><span class="ob-num">3</span><span>📖 <b>읽기</b> 탭에서 간판·일기 읽기 연습</span></div>
+        <div class="onboarding-step"><span class="ob-num">4</span><span>👤 <b>마이</b> 탭에서 계급·배지·아이템 확인</span></div>
+      </div>
+      <p class="onboarding-tip">매일 학습하면 🔥스트릭이 올라가고<br>랜덤 아이템을 수집할 수 있어요!</p>
+      <button class="onboarding-start-btn" id="onboarding-start-btn">시작하기 →</button>
+    </div>
+  </div>
 
   <!-- ===== 메인 컨텐츠 ===== -->
   <main class="app-main">
@@ -48,18 +85,24 @@
       <!-- ── 히어로: 오늘의 한자 + 예시 문장 통합 카드 ── -->
       <div class="home-hero">
         <button class="hero-corner-refresh" id="hero-kanji-refresh-btn" title="다음 한자">🔄</button>
+        <div class="hero-today-label">
+          <span class="hero-today-badge">📌 오늘의 한자</span>
+        </div>
         <div class="home-hero-inner">
           <!-- 한자 -->
           <div class="hero-kanji-display">
             <div class="hero-kanji-char" id="hero-kanji-char">日</div>
             <div class="hero-kanji-furigana" id="hero-kanji-furigana">にち・ひ</div>
             <div class="hero-kanji-meaning" id="hero-kanji-meaning">날·해</div>
+            <div class="hero-kanji-english" id="hero-kanji-english">Sun / Day</div>
           </div>
           <!-- 구분선 -->
           <div class="hero-divider"></div>
+          <div class="hero-example-label">📖 이 한자가 쓰인 예시</div>
           <!-- 예시 문장 -->
-          <div class="home-hero-sentence" id="hero-sentence">読み込み中…</div>
+          <div class="home-hero-sentence" id="hero-sentence">불러오는 중…</div>
           <div class="home-hero-trans" id="hero-translation"></div>
+          <!-- 💡 팁 블록 제거 (예시와 중복 방지) -->
         </div>
       </div>
 
@@ -144,25 +187,123 @@
 
     </div><!-- /view-home -->
 
+    <!-- ========== 연습 허브 뷰 (練習) ========== -->
+    <div id="view-practice" class="view">
+      <h2 style="font-size:18px;font-weight:800;margin-bottom:16px" id="practice-mode-title">✏️ 연습 모드</h2>
+
+      <!-- SRS 복습 카드 -->
+      <div class="practice-hub-card" id="srs-review-card" style="grid-column:1/-1;display:flex;flex-direction:row;gap:14px;padding:16px;cursor:pointer;margin-bottom:16px">
+        <div style="font-size:36px">🔄</div>
+        <div style="flex:1">
+          <div style="font-size:15px;font-weight:700">오늘의 복습</div>
+          <div style="font-size:12px;color:var(--gray);margin-top:2px">간격반복(SRS) 기반 복습 카드</div>
+          <div style="font-size:20px;font-weight:800;color:var(--red);margin-top:4px" id="srs-count-display">0장</div>
+        </div>
+      </div>
+
+      <div class="practice-hub-grid">
+        <div class="practice-hub-card" id="phc-kana-quiz">
+          <span class="phc-icon">🎯</span>
+          <span class="phc-title">가나 퀴즈</span>
+          <span class="phc-desc">글자 ↔ 발음 테스트</span>
+        </div>
+        <div class="practice-hub-card" id="phc-vocab-quiz">
+          <span class="phc-icon">📝</span>
+          <span class="phc-title">어휘 퀴즈</span>
+          <span class="phc-desc">단어 의미 테스트</span>
+        </div>
+        <div class="practice-hub-card" id="phc-write">
+          <span class="phc-icon">✍️</span>
+          <span class="phc-title">필기 연습</span>
+          <span class="phc-desc">손으로 직접 써보기</span>
+        </div>
+        <div class="practice-hub-card" id="phc-bookmark">
+          <span class="phc-icon">📌</span>
+          <span class="phc-title">북마크 복습</span>
+          <span class="phc-desc">저장한 항목 복습</span>
+          <span class="phc-badge" id="bookmark-count-badge" style="display:none">0</span>
+        </div>
+      </div>
+
+      <!-- 데일리 미션 -->
+      <div class="mission-section" id="practice-missions">
+        <div class="mission-section-title">📋 오늘의 미션</div>
+        <div id="daily-missions-list"></div>
+      </div>
+    </div><!-- /view-practice -->
+
+    <!-- ========== 마이페이지 뷰 (マイ) ========== -->
+    <div id="view-mypage" class="view">
+      <!-- 계급 카드 -->
+      <div class="rank-card" id="mypage-rank-card">
+        <div class="rank-card-top">
+          <span class="rank-card-icon" id="my-rank-icon">🌱</span>
+          <div class="rank-card-info">
+            <div class="rank-card-name" id="my-rank-name">견습생</div>
+            <div class="rank-card-tier" id="my-rank-tier">BRONZE</div>
+            <div class="rank-card-xp" id="my-rank-xp">0 / 100 XP</div>
+          </div>
+        </div>
+        <div class="rank-progress-bar"><div class="rank-progress-fill" id="my-rank-fill" style="width:0"></div></div>
+        <div class="rank-next-info"><span id="my-rank-current-label">견습생</span><span id="my-rank-next-label">→ 입문생</span></div>
+      </div>
+
+      <!-- 스트릭 -->
+      <div class="streak-card" id="mypage-streak-card">
+        <div class="streak-card-fire">🔥</div>
+        <div class="streak-card-info">
+          <div class="streak-card-days" id="my-streak-days">0</div>
+          <div class="streak-card-label">일 연속 학습 중!</div>
+        </div>
+      </div>
+
+      <!-- 통계 요약 -->
+      <div class="mypage-stats-row">
+        <div class="mypage-stat"><span class="mypage-stat-val" id="my-total-xp">0</span><span class="mypage-stat-label">총 XP</span></div>
+        <div class="mypage-stat"><span class="mypage-stat-val" id="my-kana-count">0</span><span class="mypage-stat-label">가나 학습</span></div>
+        <div class="mypage-stat"><span class="mypage-stat-val" id="my-vocab-count">0</span><span class="mypage-stat-label">어휘 학습</span></div>
+      </div>
+
+      <!-- 데일리 미션 -->
+      <div class="mypage-section">
+        <div class="mypage-section-title">📋 오늘의 미션</div>
+        <div id="mypage-missions-list"></div>
+      </div>
+
+      <!-- 아이템 컬렉션 -->
+      <div class="mypage-section">
+        <div class="mypage-section-title">🎒 아이템 컬렉션 <span style="font-size:12px;color:var(--gray);font-weight:400" id="my-item-count">(0/30)</span></div>
+        <div class="item-grid" id="my-item-grid"></div>
+      </div>
+
+      <!-- 배지 선반 -->
+      <div class="mypage-section">
+        <div class="mypage-section-title">🏅 성취 배지 <span style="font-size:12px;color:var(--gray);font-weight:400" id="my-badge-count">(0/24)</span></div>
+        <div class="badge-shelf" id="my-badge-shelf"></div>
+      </div>
+
+      <!-- 상세 진행률 링크 -->
+      <div class="mypage-section">
+        <button class="mypage-settings-btn" id="mypage-progress-btn">📊 상세 진행률 보기</button>
+        <button class="mypage-settings-btn" id="mypage-settings-btn" style="margin-top:8px">⚙️ 설정</button>
+      </div>
+    </div><!-- /view-mypage -->
+
     <!-- ========== 가나 마스터 뷰 ========== -->
     <div id="view-kana" class="view">
 
-      <!-- 오늘의 가타카나 미니 카드 -->
+      <!-- 오늘의 숙제 배너 (상단) -->
       <div class="daily-mini-wrap section-top-daily" id="kana-daily-katakana"></div>
 
       <!-- 가나 레벨 선택 패널 (nav에서 직접 진입 시) -->
       <div id="kana-select-panel">
-        <div class="ksc-header">
-          <h3>가나 마스터</h3>
-          <span class="ksc-sub">히라가나 · 가타카나 완전 정복</span>
-        </div>
         <div class="levels-grid" id="kana-select-grid"></div>
         <div class="vocab-section-review" style="margin-top:12px">
           <button class="vocab-review-btn" id="kana-review-btn">🔄 복습 — 틀린 가나 복습</button>
         </div>
       </div>
 
-      <div class="learn-header">
+      <div class="learn-header" id="learn-header" style="display:none">
         <button class="fc-back-btn" id="fc-back-btn">← 나가기</button>
         <div class="learn-title-block">
           <h3 id="learn-level-name">Level 1</h3>
@@ -198,7 +339,7 @@
               <div class="flashcard-inner" id="fc-inner">
                 <div class="flashcard-front">
                   <div class="fc-kana" id="fc-kana">あ</div>
-                  <div class="fc-hint">↕ 드래그로 이동 · 탭 뒤집기</div>
+                  <div class="fc-hint" id="fc-hint">↕ 드래그로 이동 · 탭 뒤집기</div>
                 </div>
                 <div class="flashcard-back">
                   <div class="fc-kana-small" id="fc-kana-back">あ</div>
@@ -210,6 +351,12 @@
                   <div class="fc-tip" id="fc-tip" style="display:none"></div>
                   <div class="fc-examples" id="fc-examples"></div>
                   <div class="fc-sentences" id="fc-sentences"></div>
+                  <!-- 자가평가 버튼 (전체화면 모드에서만 표시) -->
+                  <div class="fc-assess-row" id="fc-assess-row">
+                    <button class="fc-assess-btn fca-hard" id="fca-hard">❌<span>어려워</span></button>
+                    <button class="fc-assess-btn fca-ok"   id="fca-ok">😌<span>알겠어</span></button>
+                    <button class="fc-assess-btn fca-good" id="fca-good">✅<span>외웠어!</span></button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -228,7 +375,6 @@
           </div>
           <div class="bc-right">
             <button class="bc-btn" id="bc-readall-btn">🔊 전체 듣기</button>
-            <button class="bc-btn bc-secondary" id="bc-flashcard-btn">🃏 하나씩 맞추기</button>
             <button class="bc-btn bc-primary" id="bc-slideshow-btn">▶ 슬라이드쇼</button>
             <select id="bc-interval-select" title="슬라이드쇼 간격">
               <option value="1">1초</option>
@@ -282,13 +428,13 @@
           <div class="qi-mascot">
             <div class="qi-mascot-char">👩‍🏫</div>
             <div class="qi-mascot-bubble" id="qi-mascot-bubble">
-              <span id="qi-speech-text">よし！一緒に頑張ろう！</span>
+              <span id="qi-speech-text">자, 같이 해보자!</span>
             </div>
           </div>
           <!-- 타이틀 -->
           <div class="qi-title">
-            <span class="qi-title-main">かな クイズ</span>
-            <span class="qi-title-sub">가나 퀴즈</span>
+            <span class="qi-title-main" id="qi-title-main">가나 퀴즈</span>
+            <span class="qi-title-sub" id="qi-title-sub"></span>
           </div>
           <!-- 현재 설정 칩 -->
           <div class="qi-settings-summary" id="qi-settings-summary"></div>
@@ -489,38 +635,54 @@
         <h3>📊 학습 진도</h3>
       </div>
 
-      <div class="progress-overview">
-        <div class="po-card">
-          <div class="poc-val" id="po-total">0</div>
-          <div class="poc-label">총 학습한 글자</div>
+      <!-- 탭 네비게이션 -->
+      <div class="prog-tabs">
+        <button class="prog-tab active" data-tab="kana" data-prog-key="kana">가나</button>
+        <button class="prog-tab" data-tab="vocab" data-prog-key="vocab">어휘</button>
+        <button class="prog-tab" data-tab="stats" data-prog-key="stats">통계</button>
+      </div>
+
+      <!-- 탭: 가나 진도 -->
+      <div class="prog-tab-content" id="prog-tab-kana">
+        <div class="progress-levels" id="progress-levels">
+          <!-- 레벨별 진도 -->
         </div>
-        <div class="po-card">
-          <div class="poc-val" id="po-mastered">0</div>
-          <div class="poc-label">마스터한 글자</div>
-        </div>
-        <div class="po-card">
-          <div class="poc-val" id="po-accuracy">0%</div>
-          <div class="poc-label">정확도</div>
-        </div>
-        <div class="po-card">
-          <div class="poc-val" id="po-xp">0</div>
-          <div class="poc-label">총 XP</div>
+        <div class="weak-chars-section">
+          <h4>⚠️ 약점 글자</h4>
+          <div class="weak-chars-grid" id="weak-chars-grid">
+            <p class="no-weak">아직 데이터가 없습니다. 퀴즈를 먼저 풀어보세요!</p>
+          </div>
         </div>
       </div>
 
-      <div class="progress-levels" id="progress-levels">
-        <!-- 레벨별 진도 -->
+      <!-- 탭: 어휘 진도 -->
+      <div class="prog-tab-content" id="prog-tab-vocab" style="display:none">
+        <div id="vocab-progress-list"></div>
       </div>
 
-      <div class="weak-chars-section">
-        <h3>⚠️ 약점 글자</h3>
-        <div class="weak-chars-grid" id="weak-chars-grid">
-          <p class="no-weak">아직 데이터가 없습니다. 퀴즈를 먼저 풀어보세요!</p>
+      <!-- 탭: 통계 -->
+      <div class="prog-tab-content" id="prog-tab-stats" style="display:none">
+        <div class="progress-overview">
+          <div class="po-card">
+            <div class="poc-val" id="po-total">0</div>
+            <div class="poc-label">총 학습 글자</div>
+          </div>
+          <div class="po-card">
+            <div class="poc-val" id="po-mastered">0</div>
+            <div class="poc-label">마스터</div>
+          </div>
+          <div class="po-card">
+            <div class="poc-val" id="po-accuracy">0%</div>
+            <div class="poc-label">정확도</div>
+          </div>
+          <div class="po-card">
+            <div class="poc-val" id="po-xp">0</div>
+            <div class="poc-label">총 XP</div>
+          </div>
         </div>
-      </div>
-
-      <div class="reset-section">
-        <button class="reset-btn" id="reset-btn">⚠️ 진도 초기화</button>
+        <div class="reset-section">
+          <button class="reset-btn" id="reset-btn">⚠️ 진도 초기화</button>
+        </div>
       </div>
     </div>
 
@@ -529,15 +691,11 @@
 
       <!-- PANEL 1: 카테고리 선택 -->
       <div id="vocab-setup">
-        <!-- 오늘의 어휘/회화 미니 카드 -->
-        <div class="daily-mini-wrap section-top-daily" id="vocab-daily-item"></div>
-        <div class="daily-mini-wrap section-top-daily" id="convo-daily-convo"></div>
-        <div class="vocab-setup-header">
-          <h3 id="vocab-section-title">어휘 마스터</h3>
-        </div>
 
         <!-- ── 어휘 마스터 섹션 (W레벨 단어) ── -->
         <div id="vocab-word-section" class="vocab-type-section" style="display:none">
+          <!-- 오늘의 숙제 배너 (상단) -->
+          <div class="daily-mini-wrap section-top-daily" id="vocab-daily-item"></div>
           <div id="vocab-word-levels-main"></div>
           <div class="vocab-section-review">
             <button class="vocab-review-btn" onclick="App.startVocabReview()">🔄 복습 — 틀린 단어 복습</button>
@@ -546,6 +704,8 @@
 
         <!-- ── 회화 마스터 섹션 (S레벨 문장) ── -->
         <div id="vocab-sent-section" class="vocab-type-section" style="display:none">
+          <!-- 오늘의 숙제 배너 (상단) -->
+          <div class="daily-mini-wrap section-top-daily" id="convo-daily-convo"></div>
           <div id="vocab-sentence-levels-main"></div>
           <div class="vocab-section-review">
             <button class="vocab-review-btn" onclick="App.startVocabReview()">🔄 복습 — 틀린 문장 복습</button>
@@ -627,8 +787,37 @@
             </div>
             <div class="bc-right">
               <button class="bc-btn" id="vbc-readall-btn">🔊 전체 듣기</button>
-              <button class="bc-btn bc-secondary" id="vbc-flash-btn">🃏 플래시카드로</button>
-              <button class="bc-btn bc-secondary" id="vbc-quiz-btn">✏️ 퀴즈로</button>
+              <button class="bc-btn bc-primary" id="vbc-slideshow-btn">▶ 슬라이드쇼</button>
+              <select id="vbc-interval-select" title="슬라이드쇼 간격">
+                <option value="5">5초</option>
+                <option value="10" selected>10초</option>
+                <option value="20">20초</option>
+                <option value="30">30초</option>
+              </select>
+            </div>
+          </div>
+          <!-- 슬라이드쇼 패널 -->
+          <div class="slideshow-panel" id="vbc-slideshow-panel" style="display:none">
+            <div class="ss-header">
+              <span class="ss-count-text" id="vbc-ss-count">1 / 10</span>
+              <div class="ss-countdown-bar">
+                <div class="ss-countdown-fill" id="vbc-ss-countdown-fill"></div>
+              </div>
+            </div>
+            <div class="ss-card">
+              <div class="ss-kana" id="vbc-ss-main">단어</div>
+              <div class="ss-hint-text" id="vbc-ss-hint">읽어보세요 ↑</div>
+              <div class="ss-reveal" id="vbc-ss-reveal">
+                <div class="ss-readings">
+                  <span class="ss-kor" id="vbc-ss-korean">뜻</span>
+                </div>
+              </div>
+            </div>
+            <div class="ss-controls">
+              <button class="ss-ctrl-btn" id="vbc-ss-prev">◀ 이전</button>
+              <button class="ss-ctrl-btn ss-ctrl-main" id="vbc-ss-play">⏸ 일시정지</button>
+              <button class="ss-ctrl-btn ss-ctrl-stop" id="vbc-ss-stop">⏹ 종료</button>
+              <button class="ss-ctrl-btn" id="vbc-ss-next">다음 ▶</button>
             </div>
           </div>
           <div class="vocab-browse-grid" id="vocab-browse-grid"></div>
@@ -652,12 +841,12 @@
               <div class="qi-mascot">
                 <div class="qi-mascot-char">📚</div>
                 <div class="qi-mascot-bubble" id="vq-mascot-bubble">
-                  <span id="vq-speech-text">さあ、単語を覚えよう！</span>
+                  <span id="vq-speech-text">자, 단어를 외워보자!</span>
                 </div>
               </div>
               <div class="qi-title">
-                <span class="qi-title-main">単語 クイズ</span>
-                <span class="qi-title-sub">단어 퀴즈</span>
+                <span class="qi-title-main" id="vq-title-main">단어 퀴즈</span>
+                <span class="qi-title-sub" id="vq-title-sub"></span>
               </div>
               <div class="qi-settings-summary" id="vq-settings-summary"></div>
               <div class="qi-auto-row">
@@ -815,15 +1004,160 @@
       <!-- 컨트롤 바 -->
       <div class="lecture-controls">
         <button class="lec-ctrl-btn" id="lec-prev-btn">⏮</button>
-        <button class="lec-ctrl-btn lec-play-btn" id="lec-play-btn">⏸</button>
+        <button class="lec-ctrl-btn lec-play-btn" id="lec-play-btn">⏸ 자동</button>
         <button class="lec-ctrl-btn" id="lec-next-btn">⏭</button>
         <button class="lec-ctrl-btn" id="lec-audio-btn">🔊</button>
         <div class="lec-progress-wrap">
           <div class="lec-progress-fill" id="lec-progress-fill"></div>
         </div>
       </div>
+
+      <!-- 강의 완료 패널 -->
+      <div id="lec-completion" class="lec-completion" style="display:none">
+        <div class="lec-comp-inner">
+          <div class="lec-comp-icon">🎉</div>
+          <div class="lec-comp-title">강의 완료!</div>
+          <div class="lec-comp-sub" id="lec-comp-sub">수고하셨습니다</div>
+          <div class="lec-comp-btns">
+            <button class="lec-comp-btn lec-comp-btn-main" id="lec-comp-dialogue">🎭 実戦対話(실전)</button>
+            <button class="lec-comp-btn lec-comp-btn-next" id="lec-comp-next">📖 다음 강의 →</button>
+            <button class="lec-comp-btn lec-comp-btn-back" id="lec-comp-back">← 홈으로</button>
+          </div>
+        </div>
+      </div>
     </div>
     </div><!-- /view-lecture -->
+
+  <!-- 하단바 제거됨 → 화자/배경음은 상단 헤더로 이동 -->
+
+    <!-- ========== 読む (읽기) 뷰 ========== -->
+    <div id="view-yomu" class="view">
+
+      <!-- ── 홈: 두 기능 선택 ── -->
+      <div id="yomu-home">
+        <div class="section-hero">
+          <div class="section-hero-inner">
+            <div class="hero-icon-wrap">📖</div>
+            <div>
+              <div class="section-hero-title">読む — 읽기 연습</div>
+              <div class="section-hero-sub">간판·표지판 읽기 / 남의 일기 읽기</div>
+            </div>
+          </div>
+        </div>
+        <div class="yomu-mode-grid">
+          <button class="yomu-mode-card" id="yomu-btn-sign">
+            <div class="yomu-mode-icon">🪧</div>
+            <div class="yomu-mode-title">간판 읽기</div>
+            <div class="yomu-mode-subtitle">看板リーディング</div>
+            <div class="yomu-mode-desc">역·음식점·쇼핑·주의 표지판을 읽고 뜻을 맞춰보자!</div>
+            <div class="yomu-mode-tags"><span class="yomu-tag">🚉 역·전철</span><span class="yomu-tag">🍜 식당</span><span class="yomu-tag">⚠️ 경고</span></div>
+          </button>
+          <button class="yomu-mode-card" id="yomu-btn-diary">
+            <div class="yomu-mode-icon">📔</div>
+            <div class="yomu-mode-title">일기 읽기</div>
+            <div class="yomu-mode-subtitle">日記シアター</div>
+            <div class="yomu-mode-desc">일본인의 하루 일기를 읽어보자. SNS 쇼츠처럼 슬라이딩!</div>
+            <div class="yomu-mode-tags"><span class="yomu-tag">🌸 OL 사쿠라</span><span class="yomu-tag">🎀 대학생 유이카</span><span class="yomu-tag">👨 아빠 타카시</span></div>
+          </button>
+        </div>
+      </div>
+
+      <!-- ── 간판 읽기 패널 ── -->
+      <div id="yomu-sign-panel" style="display:none">
+        <!-- 헤더 -->
+        <div class="yomu-panel-header">
+          <button class="yomu-back-btn" id="sign-back-btn">← 뒤로</button>
+          <div class="yomu-panel-title">🪧 간판 읽기</div>
+          <div id="sign-progress-label" class="yomu-progress-label">1 / 30</div>
+        </div>
+        <!-- 카테고리 탭 -->
+        <div class="sign-cat-tabs" id="sign-cat-tabs"></div>
+        <!-- 간판 카드 -->
+        <div class="sign-card-wrap" id="sign-card-wrap">
+          <div class="sign-scene-label" id="sign-scene-label"></div>
+          <div class="sign-render" id="sign-render"></div>
+        </div>
+        <!-- 정보 패널 (숨겨짐 → 탭하면 표시) -->
+        <div class="sign-info-panel" id="sign-info-panel" style="display:none">
+          <div class="sign-translation" id="sign-translation"></div>
+          <div class="sign-vocab-list" id="sign-vocab-list"></div>
+          <div class="sign-tip-box" id="sign-tip-box"></div>
+        </div>
+        <!-- 퀴즈 패널 -->
+        <div class="sign-quiz-panel" id="sign-quiz-panel" style="display:none">
+          <div class="sign-quiz-question" id="sign-quiz-question"></div>
+          <div class="sign-quiz-choices" id="sign-quiz-choices"></div>
+          <div class="sign-quiz-result" id="sign-quiz-result" style="display:none"></div>
+        </div>
+        <!-- 컨트롤 -->
+        <div class="sign-controls">
+          <button class="sign-ctrl-btn" id="sign-btn-reveal">👁 뜻 보기</button>
+          <button class="sign-ctrl-btn sign-ctrl-btn--quiz" id="sign-btn-quiz">❓ 퀴즈</button>
+          <button class="sign-ctrl-btn sign-ctrl-btn--next" id="sign-btn-next">다음 →</button>
+        </div>
+      </div>
+
+      <!-- ── 일기 읽기 패널 ── -->
+      <div id="yomu-diary-panel" style="display:none">
+        <!-- 헤더 -->
+        <div class="yomu-panel-header">
+          <button class="yomu-back-btn" id="diary-back-btn">← 뒤로</button>
+          <div class="yomu-panel-title">📔 일기 읽기</div>
+          <div id="diary-progress-label" class="yomu-progress-label">1 / 12</div>
+        </div>
+        <!-- 저자 필터 탭 -->
+        <div class="diary-author-tabs" id="diary-author-tabs"></div>
+        <!-- 일기 카드 -->
+        <div class="diary-card" id="diary-card">
+          <!-- 헤더 -->
+          <div class="diary-card-header">
+            <div class="diary-author-info">
+              <span class="diary-avatar" id="diary-avatar"></span>
+              <div>
+                <div class="diary-author-name" id="diary-author-name"></div>
+                <div class="diary-author-meta" id="diary-author-meta"></div>
+              </div>
+            </div>
+            <div class="diary-date-mood">
+              <div class="diary-date" id="diary-date"></div>
+              <div class="diary-mood" id="diary-mood"></div>
+            </div>
+          </div>
+          <!-- 제목 -->
+          <div class="diary-title" id="diary-title"></div>
+          <!-- 태그 -->
+          <div class="diary-tags" id="diary-tags"></div>
+          <!-- 본문 -->
+          <div class="diary-content" id="diary-content"></div>
+          <!-- 리액션 -->
+          <div class="diary-reactions" id="diary-reactions"></div>
+          <!-- 댓글 -->
+          <div class="diary-comments" id="diary-comments"></div>
+        </div>
+        <!-- 컨트롤 -->
+        <div class="diary-controls">
+          <button class="diary-ctrl-btn" id="diary-btn-ruby" title="후리가나 토글">あ 후리가나</button>
+          <button class="diary-ctrl-btn" id="diary-btn-trans" title="번역 토글">🇰🇷 번역</button>
+          <button class="diary-ctrl-btn" id="diary-btn-vocab" title="단어 목록">📝 단어</button>
+          <button class="diary-ctrl-btn diary-ctrl-btn--tts" id="diary-btn-tts" title="읽어주기">🔊 읽기</button>
+        </div>
+        <!-- 내비 -->
+        <div class="diary-nav-row">
+          <button class="diary-nav-btn" id="diary-btn-prev">← 이전</button>
+          <div class="diary-dots" id="diary-dots"></div>
+          <button class="diary-nav-btn diary-nav-btn--next" id="diary-btn-next">다음 →</button>
+        </div>
+        <!-- 단어 사이드패널 -->
+        <div class="diary-vocab-panel" id="diary-vocab-panel" style="display:none">
+          <div class="diary-vocab-panel-header">
+            <span>📝 핵심 단어</span>
+            <button id="diary-vocab-close">✕</button>
+          </div>
+          <div class="diary-vocab-items" id="diary-vocab-items"></div>
+        </div>
+      </div>
+
+    </div><!-- /view-yomu -->
 
   <!-- 하단바 제거됨 → 화자/배경음은 상단 헤더로 이동 -->
 
@@ -1188,9 +1522,16 @@
   <script src="js/data/vocab-items-s6sim.js"></script>
   <script src="js/data/vocab-dialogue.js"></script>
   <script src="js/data/vocab-categories.js"></script>
+  <script src="js/kana-data-extra.js"></script>
+  <script src="js/kana-data-grammar.js"></script>
+  <script src="js/kana-data-drama.js"></script>
+  <script src="js/kana-data-travel2.js"></script>
+  <script src="js/kana-data-signs.js"></script>
+  <script src="js/kana-data-diary.js"></script>
   <script src="js/examples-data.js"></script>
   <script src="js/vocab-examples-data.js"></script>
   <script src="js/data/lecture-data.js"></script>
+  <script src="js/gamification.js"></script>
   <script src="js/app.js"></script>
 
   <!-- 플로팅 오디오 중지 버튼 (전체 듣기 재생 중에만 표시) -->

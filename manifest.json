@@ -4,6 +4,7 @@
   "version": "1.0.0",
   "description": "히라가나·가타가나 완전 학습앱 - 탁음, 반탁음, 요음 포함 | Hiragana & Katakana with quizzes, writing practice & audio",
   "permissions": ["storage"],
+  "host_permissions": ["http://localhost/*"],
   "action": {
     "default_popup": "popup.html",
     "default_icon": {

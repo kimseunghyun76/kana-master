@@ -67,21 +67,37 @@ const App = (() => {
                .replace(/([a-zA-Z0-9])\s+([\u3000-\u9fff\uff00-\uffef（）「」『』【】、。！？・])/g, '$1$2');
   }
 
-  // 강의 화자 교대 (1=남자, 2=여자)
-  let _lectureSpeakerTurn = 1;
+  // 강의 화자: 슬롯1/슬롯2 번갈아 사용 (남녀 교대)
+  let _lectureSpeakerSlot = 1;
 
+  // 강의 전용 화자 슬롯 (슬롯1↔슬롯2 교대)
   function _speakLecCaption(text, onEnd) {
     if (!text) { if (onEnd) setTimeout(onEnd, 500); return; }
     const clean = text.replace(/（[^）]*）|\([^)]*\)/g, '').replace(/[（）()]/g, '').trim();
     if (!clean) { if (onEnd) setTimeout(onEnd, 500); return; }
     window.speechSynthesis && window.speechSynthesis.cancel();
-
-    // 슬롯 교대: 홀수 슬라이드=화자1(남자), 짝수=화자2(여자)
-    const slot = _lectureSpeakerTurn;
-    _lectureSpeakerTurn = slot === 1 ? 2 : 1;
-
+    const slot = _lectureSpeakerSlot;
+    _lectureSpeakerSlot = _lectureSpeakerSlot === 1 ? 2 : 1; // 다음 호출 시 교대
+    _setLecNavEnabled(false);
     playAudioSlot(clean, slot).then(() => {
+      _setLecNavEnabled(true);
       if (onEnd) onEnd();
+    }).catch(() => {
+      _setLecNavEnabled(true);
+      if (onEnd) onEnd();
+    });
+  }
+
+  // 강의 내비 버튼 활성/비활성 헬퍼
+  function _setLecNavEnabled(enabled) {
+    const ids = ['lec-prev-btn', 'lec-next-btn', 'lec-play-btn', 'lec-audio-btn', 'lec-next-guide-btn'];
+    ids.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.disabled = !enabled;
+        el.style.opacity = enabled ? '' : '0.35';
+        el.style.pointerEvents = enabled ? '' : 'none';
+      }
     });
   }
 
@@ -166,7 +182,15 @@ const App = (() => {
     // 북마크
     bookmarks: [],
     // 최근 활동 (홈 "이어서 학습하기")
-    recentActivity: []  // [{ type: 'kana'|'vocab', id, ts }]
+    recentActivity: [],  // [{ type: 'kana'|'vocab', id, ts }]
+    // 게이미피케이션
+    totalXP: 0,
+    streak: 0,
+    lastStudied: null,       // 'YYYY-MM-DD'
+    collectedItems: [],      // ['c01','u03',...]
+    earnedBadges: [],        // ['b_first_step',...]
+    dailyMissions: null,     // { date, missions: [...] }
+    dailyMissionProgress: {} // { kana_learn: 3, quiz_play: 1, ... }
   };
 
   // ─── 초기화 ───
@@ -175,7 +199,9 @@ const App = (() => {
     syncSidebarVisibility(); // 초기 로드 시 하단 바 숨김 (TTS·배경음 모두 꺼진 상태)
     loadFromStorage(() => {
       applyVisibilityPrefs();   // ← 저장된 표시 설정 즉시 적용
+      hideAmbientBadge(); // 배경음 버튼 항상 표시 (idle 상태)
       updateHeader();
+      _initGamification();
       renderLevels();
       setupNavigation();
       setupSettings();
@@ -197,6 +223,8 @@ const App = (() => {
       } else {
         setTimeout(_showBadgeOnInit, 300);
       }
+      // 온보딩 (첫 방문 시)
+      _showOnboardingIfNew();
       // VOICEVOX가 켜진 채 저장된 경우 앱 시작 시 자동 연결 + 화자 복원
       if (state.prefs.useVoicevox) {
         checkVoicevox().then(ok => {
@@ -270,12 +298,22 @@ const App = (() => {
       useVoicevox:      savedPrefs.useVoicevox  || false,
       voicevoxSpeaker1: savedPrefs.voicevoxSpeaker1 !== undefined ? savedPrefs.voicevoxSpeaker1 : 1,
       voicevoxSpeaker2: savedPrefs.voicevoxSpeaker2 !== undefined ? savedPrefs.voicevoxSpeaker2 : 'none',
-      ambientDialogue:  savedPrefs.ambientDialogue || 'none',
-      ambientQuiz:      savedPrefs.ambientQuiz     || 'none',
+      ambientDialogue:  savedPrefs.ambientDialogue !== undefined ? savedPrefs.ambientDialogue : 'on',
+      ambientQuiz:      savedPrefs.ambientQuiz !== undefined ? savedPrefs.ambientQuiz : 'on',
       ambientVolume:    savedPrefs.ambientVolume   !== undefined ? savedPrefs.ambientVolume : 0.18,
     };
     state.vocabProgress = data.vocabProgress || {};
     state.recentActivity = data.recentActivity || [];
+    // 게이미피케이션 데이터 로드
+    state.collectedItems = data.collectedItems || [];
+    state.earnedBadges = data.earnedBadges || [];
+    state.dailyMissions = data.dailyMissions || null;
+    state.dailyMissionProgress = data.dailyMissionProgress || {};
+    state.totalQuizzes = data.totalQuizzes || 0;
+    state.hadPerfectQuiz = data.hadPerfectQuiz || false;
+    state.signsRead = data.signsRead || 0;
+    state.diariesRead = data.diariesRead || 0;
+    state.quizStreak = data.quizStreak || 0;
     // 구버전 북마크 마이그레이션 (type 필드 없는 경우 자동 보정)
     state.bookmarks = (data.bookmarks || []).map(b => {
       if (!b.type) {
@@ -305,7 +343,17 @@ const App = (() => {
       prefs: state.prefs,
       vocabProgress: state.vocabProgress,
       bookmarks: state.bookmarks,
-      recentActivity: state.recentActivity
+      recentActivity: state.recentActivity,
+      // 게이미피케이션
+      collectedItems: state.collectedItems,
+      earnedBadges: state.earnedBadges,
+      dailyMissions: state.dailyMissions,
+      dailyMissionProgress: state.dailyMissionProgress,
+      totalQuizzes: state.totalQuizzes,
+      hadPerfectQuiz: state.hadPerfectQuiz,
+      signsRead: state.signsRead,
+      diariesRead: state.diariesRead,
+      quizStreak: state.quizStreak
     };
     if (typeof chrome !== 'undefined' && chrome.storage) {
       chrome.storage.local.set({ kanaProgress: data });
@@ -403,9 +451,21 @@ const App = (() => {
         showView(view);
       });
     });
+    // 하단 4-탭 바인딩
+    document.querySelectorAll('.nav-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        const view = tab.dataset.view;
+        showView(view);
+      });
+    });
   }
 
   function showView(viewName) {
+    // 화면 전환 시 TTS 즉시 취소
+    window.speechSynthesis && window.speechSynthesis.cancel();
+    if (state.currentVvAudio) { try { state.currentVvAudio.pause(); state.currentVvAudio.src = ''; } catch(e){} state.currentVvAudio = null; }
+    // 전체화면 모드 해제
+    document.body.classList.remove('fc-fullscreen');
     // 뷰 전환 시 배경음·오디오·타이머 정지 (정지 배지 표시 않고 숨김)
     stopAmbient(1.2, false);
     // 완료 프롬프트 정리
@@ -429,9 +489,11 @@ const App = (() => {
       document.querySelectorAll('.view').forEach(v => { v.classList.remove('active'); v.style.display = ''; });
       const lv = document.getElementById('view-lecture');
       if (lv) { lv.classList.add('active'); lv.style.display = 'flex'; }
+      document.body.classList.add('lecture-active');
       state.currentView = 'lecture';
       return;
     }
+    document.body.classList.remove('lecture-active');
     // vocab/convo/roleplay 는 모두 view-vocab 을 공유하되 섹션만 다름
     const vocabSectionMap = { vocab: 'word', convo: 'sentence', roleplay: 'sim' };
     const isVocabSection = viewName in vocabSectionMap;
@@ -445,6 +507,15 @@ const App = (() => {
       b.classList.toggle('active', b.dataset.view === navViewName);
     });
 
+    // 하단 4-탭 active 처리
+    const tabMap = { home: 'home', kana: 'home', vocab: 'home', convo: 'home', roleplay: 'home',
+                     practice: 'practice', quiz: 'practice', write: 'practice',
+                     yomu: 'yomu', mypage: 'mypage', progress: 'mypage' };
+    const activeTab = tabMap[navViewName] || 'home';
+    document.querySelectorAll('.nav-tab').forEach(t => {
+      t.classList.toggle('active', t.dataset.view === activeTab);
+    });
+
     // view 전환 — lecture inline style도 반드시 초기화
     document.querySelectorAll('.view').forEach(v => { v.classList.remove('active'); v.style.display = ''; });
     const target = document.getElementById('view-' + actualViewName);
@@ -456,6 +527,9 @@ const App = (() => {
     if (actualViewName === 'quiz')     setupQuizView();
     if (actualViewName === 'write')    setupWriteView();
     if (actualViewName === 'progress') renderProgress();
+    if (actualViewName === 'yomu')     setupYomuView();
+    if (actualViewName === 'practice') _initPracticeHub();
+    if (actualViewName === 'mypage')   _renderMypage();
     if (isVocabSection) {
       state.vocabSection = vocabSectionMap[viewName];
       setupVocabView();
@@ -499,98 +573,117 @@ const App = (() => {
 
   function setupHeroKanji(offset) {
     if (typeof VOCAB_ITEMS === 'undefined') return;
-    // kanji 필드에 실제 한자가 있는 단어형 항목만 사용 (문장형 제외)
-    const kanjiItems = VOCAB_ITEMS.filter(item =>
-      item.kanji &&
-      /[\u4e00-\u9fff]/.test(item.kanji) &&
-      item.korean &&
-      !item.speaker &&
-      stripFurigana(item.kanji).replace(/[〜～\s]/g, '').length <= 6
-    );
+
+    // ── 한자 후보: kanji 필드에 실제 한자가 있고, 〜 접두사 없고, 단어형(speaker 없음)
+    //   우선순위: 단독 한자(1자) > 2자 > 3자  (복합어 4자 이상 제외)
+    const kanjiItems = VOCAB_ITEMS.filter(item => {
+      if (!item.kanji || !item.korean || item.speaker) return false;
+      const stripped = stripFurigana(item.kanji).replace(/[〜～\s]/g, '');
+      if (!/[\u4e00-\u9fff]/.test(stripped)) return false;  // 한자 없음
+      if (/〜/.test(item.kanji) || (item.japanese || '').startsWith('〜')) return false; // 패턴형 제외
+      return stripped.length >= 1 && stripped.length <= 3;  // 1~3자만
+    });
+
     if (!kanjiItems.length) return;
+
+    // 단독 한자(1자) 항목을 앞으로, 나머지는 뒤로 정렬
+    const sorted = [...kanjiItems].sort((a, b) => {
+      const la = stripFurigana(a.kanji).replace(/[〜～\s]/g, '').length;
+      const lb = stripFurigana(b.kanji).replace(/[〜～\s]/g, '').length;
+      return la - lb;
+    });
+
     const baseIdx = Math.floor(Date.now() / 86400000);
-    const item = kanjiItems[(baseIdx + (offset || 0)) % kanjiItems.length];
+    const item = sorted[(baseIdx + (offset || 0)) % sorted.length];
 
-    // 한자 / 읽기 / 뜻
+    // ── 핵심 정보 추출
     const mainKanji = stripFurigana(item.kanji || '');
-    const reading   = (item.japanese || '').trim();
+    const reading   = (item.japanese || '').replace(/〜/g, '').trim();
     const meaning   = (item.korean || '').trim();
+    const english   = (item.english || '').trim();
+    const itemTip   = (item.tip || '').trim();
 
+    // ── DOM 업데이트: 한자 / 읽기 / 뜻 / 영문
     const charEl    = document.getElementById('hero-kanji-char');
     const furiEl    = document.getElementById('hero-kanji-furigana');
     const meaningEl = document.getElementById('hero-kanji-meaning');
+    const englishEl = document.getElementById('hero-kanji-english');
     if (charEl)    charEl.textContent = mainKanji;
     if (furiEl)    furiEl.textContent = reading;
     if (meaningEl) meaningEl.textContent = meaning;
+    if (englishEl) englishEl.textContent = english ? english : '';
+    // 💡 팁 블록은 제거 (중복 표시 방지)
 
-    // 예시: mainKanji가 반드시 포함된 항목 검색
-    const sentEl = document.getElementById('hero-sentence');
+    // ── 예시 문장 검색 (mainKanji 정확 포함 필수)
+    const sentEl  = document.getElementById('hero-sentence');
     const transEl = document.getElementById('hero-translation');
     let exJp = '', exKo = '';
 
-    if (typeof VOCAB_ITEMS !== 'undefined') {
-      // ── 1순위: mainKanji 전체 문자열이 포함된 다른 항목 (문장형 우선)
-      const fullMatches = VOCAB_ITEMS.filter(v =>
-        v.id !== item.id &&
-        !v.speaker &&
-        v.korean &&
-        !(v.japanese || '').includes('〜') &&
-        ( stripFurigana(v.kanji || '').includes(mainKanji) ||
-          (v.japanese || '').includes(mainKanji) )
+    // 1순위: item 자체의 example 필드 (〜 없는 것)
+    if (item.example && !/〜/.test(item.example) && item.example.length > mainKanji.length) {
+      exJp = item.example;
+      exKo = '';
+    }
+
+    // 2순위: VOCAB_ITEMS 중 mainKanji 전체 문자열이 포함된 항목
+    //        - 단어/문장 모두 허용, 단 mainKanji 자체 항목 제외
+    //        - 문장형(길이가 더 긴 것) 우선
+    if (!exJp) {
+      const exactMatches = VOCAB_ITEMS.filter(v => {
+        if (v.id === item.id || v.speaker || !v.korean) return false;
+        if ((v.japanese || '').includes('〜') || (v.kanji || '').includes('〜')) return false;
+        const vKanji = stripFurigana(v.kanji || '');
+        const vJp    = v.japanese || '';
+        // mainKanji가 정확히 포함되어야 함 (부분 자 아닌 전체 문자열)
+        return vKanji.includes(mainKanji) || vJp.includes(mainKanji);
+      });
+
+      // 길이 내림차순 (더 풍부한 문장 우선), 최소 mainKanji보다 길어야 의미 있음
+      exactMatches.sort((a, b) => {
+        const la = stripFurigana(a.kanji || a.japanese || '').length;
+        const lb = stripFurigana(b.kanji || b.japanese || '').length;
+        return lb - la;
+      });
+
+      const filtered = exactMatches.filter(v =>
+        stripFurigana(v.kanji || v.japanese || '').length > mainKanji.length
       );
-      // 긴 문장일수록 풍부한 예시 → 길이 내림차순 정렬
-      fullMatches.sort((a, b) =>
-        stripFurigana(b.kanji || b.japanese || '').length -
-        stripFurigana(a.kanji || a.japanese || '').length
-      );
-      if (fullMatches.length) {
-        const ex = fullMatches[0];
-        exJp = stripFurigana(ex.kanji || ex.japanese || '');
+
+      if (filtered.length) {
+        const ex = filtered[0];
+        exJp = stripFurigana(ex.kanji || '') || (ex.japanese || '');
         exKo = ex.korean || '';
       }
-
-      // ── 2순위: mainKanji의 한자 글자 중 하나라도 포함 (단어→문장 순)
-      if (!exJp) {
-        const kanjiChars = [...mainKanji].filter(c => /[\u4e00-\u9fff]/.test(c));
-        const partMatches = VOCAB_ITEMS.filter(v =>
-          v.id !== item.id && !v.speaker && v.korean &&
-          !(v.japanese || '').includes('〜') &&
-          v.japanese && v.japanese.length > 3 &&
-          kanjiChars.some(ch =>
-            stripFurigana(v.kanji || '').includes(ch) ||
-            (v.japanese || '').includes(ch)
-          )
-        );
-        partMatches.sort((a, b) =>
-          stripFurigana(b.kanji || b.japanese || '').length -
-          stripFurigana(a.kanji || a.japanese || '').length
-        );
-        if (partMatches.length) {
-          const ex = partMatches[0];
-          exJp = stripFurigana(ex.kanji || ex.japanese || '');
-          exKo = ex.korean || '';
-        }
-      }
-
-      // ── 3순위: 항목 자체의 example 또는 tip 활용
-      if (!exJp && (item.example || item.tip)) {
-        exJp = item.example || item.tip || '';
-        exKo = '';
-      }
     }
 
-    // 매치 없으면 DAILY_SENTENCES 폴백 (항상 새로운 문장 표시)
-    if (!exJp && typeof DAILY_SENTENCES !== 'undefined' && DAILY_SENTENCES.length) {
-      const dayBase = Math.floor(Date.now() / 86400000);
-      const s = DAILY_SENTENCES[(dayBase + (offset || 0)) % DAILY_SENTENCES.length];
-      exJp = s.jp || ''; exKo = s.kr || '';
+    // 3순위: item의 tip을 예시 문장으로 활용 (일본어 포함 시)
+    if (!exJp && itemTip && /[\u3040-\u9fff]/.test(itemTip)) {
+      exJp = itemTip;
+      exKo = '';
     }
-    if (sentEl)  { sentEl.textContent = cleanJaText(exJp);  sentEl.onclick = exJp ? () => playAudio(exJp) : null; }
+
+    // ── 예시 렌더: mainKanji를 노란색으로 강조 (innerHTML)
+    if (sentEl) {
+      if (exJp) {
+        const cleanedJp = cleanJaText(exJp);
+        const escaped = mainKanji.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const highlighted = cleanedJp.replace(
+          new RegExp(escaped, 'g'),
+          `<span class="hero-ex-kanji-hl">${mainKanji}</span>`
+        );
+        sentEl.innerHTML = highlighted;
+        sentEl.onclick = () => playAudio(cleanedJp);
+        sentEl.style.cursor = 'pointer';
+      } else {
+        sentEl.textContent = '예시를 찾는 중…';
+        sentEl.onclick = null;
+      }
+    }
     if (transEl) transEl.textContent = exKo;
 
-    // 발음 듣기 버튼 → 한자 발음
+    // ── 발음 듣기 버튼 → 한자 읽기
     const audioBtn = document.getElementById('hero-audio-btn');
-    if (audioBtn) audioBtn.onclick = () => playAudio(mainKanji);
+    if (audioBtn) audioBtn.onclick = () => playAudio(reading || mainKanji);
   }
 
   // ─── 전체 가나 레벨 그리드 렌더 (かな뷰 선택 패널용) ───
@@ -627,9 +720,9 @@ const App = (() => {
       <div class="lc-prog-text">${isSpecial ? '전체 가나 랜덤 복습' : `${prog}% 완료 · ${level.chars.length}자`}</div>
       ${isUnlocked ? `
         <div class="lc-actions">
-          <button class="lc-btn lc-btn-learn">📚 학습</button>
-          <button class="lc-btn lc-btn-browse">📖 일람</button>
-          <button class="lc-btn lc-btn-quiz">✏️ 퀴즈</button>
+          <button class="lc-btn lc-btn-learn">学習(학습)</button>
+          <button class="lc-btn lc-btn-browse">一覧(일람)</button>
+          <button class="lc-btn lc-btn-quiz">クイズ(퀴즈)</button>
         </div>` : ''}
     `;
     if (isUnlocked) {
@@ -680,8 +773,8 @@ const App = (() => {
           name: level.name, sub: level.title,
           prog: getLevelProgress(level), progText: `${level.chars.length}자`,
           btns: [
-            { label: '▶ 학습', fn: () => startLearn(level.id, 'flash') },
-            { label: '✏️ 퀴즈', fn: () => startQuizForLevel(level.id) },
+            { label: '学習(학습)', fn: () => startLearn(level.id, 'flash') },
+            { label: 'クイズ(퀴즈)', fn: () => startQuizForLevel(level.id) },
           ]
         }));
       } else {
@@ -694,10 +787,10 @@ const App = (() => {
           name: `${cat.icon || ''} ${cat.name}`, sub: cat.subtitle || '',
           prog: getVocabCategoryProgress(cat.id), progText: `${cat.items.length}개`,
           btns: cat.dialogue
-            ? [{ label: '🎭 대화', fn: () => { showView(viewName); setTimeout(() => startVocabCategory(cat.id, 'dialogue'), 100); } }]
+            ? [{ label: '会話(대화)', fn: () => { showView(viewName); setTimeout(() => startVocabCategory(cat.id, 'dialogue'), 100); } }]
             : [
-                { label: '▶ 학습', fn: () => { showView(viewName); setTimeout(() => startVocabCategory(cat.id, 'flash'), 100); } },
-                { label: '✏️ 퀴즈', fn: () => { showView(viewName); setTimeout(() => startVocabCategory(cat.id, 'quiz'), 100); } },
+                { label: '学習(학습)', fn: () => { showView(viewName); setTimeout(() => startVocabCategory(cat.id, 'flash'), 100); } },
+                { label: 'クイズ(퀴즈)', fn: () => { showView(viewName); setTimeout(() => startVocabCategory(cat.id, 'quiz'), 100); } },
               ]
         }));
       }
@@ -723,21 +816,31 @@ const App = (() => {
     _renderHomeVocabList('home-convo-list', 'sentence');
     _renderHomeVocabList('home-sim-list', 'sim');
     initHeroRolling();
-    // 마우스 드래그 가로 스크롤
-    document.querySelectorAll('.home-cat-list').forEach(el => {
-      if (el._dragBound) return;
-      el._dragBound = true;
-      let isDown = false, startX = 0, scrollLeft = 0;
-      el.addEventListener('mousedown', e => {
-        isDown = true; el.classList.add('dragging');
-        startX = e.pageX - el.offsetLeft; scrollLeft = el.scrollLeft;
+    // 마우스 드래그 가로 스크롤 (PC — document 레벨로 부드럽게)
+    (function initHomeDragScroll() {
+      let dragEl = null, startX = 0, startScrollLeft = 0;
+      document.querySelectorAll('.home-cat-list').forEach(el => {
+        if (el._dragBound) return;
+        el._dragBound = true;
+        el.addEventListener('mousedown', e => {
+          if (e.button !== 0) return;   // 좌클릭만
+          dragEl = el;
+          startX = e.clientX;
+          startScrollLeft = el.scrollLeft;
+          el.classList.add('dragging');
+          e.preventDefault();           // 텍스트 선택 방지
+        });
       });
-      ['mouseleave','mouseup'].forEach(ev => el.addEventListener(ev, () => { isDown = false; el.classList.remove('dragging'); }));
-      el.addEventListener('mousemove', e => {
-        if (!isDown) return; e.preventDefault();
-        el.scrollLeft = scrollLeft - (e.pageX - el.offsetLeft - startX) * 1.5;
+      // document 레벨: 마우스를 빠르게 움직여도 끊기지 않음
+      document.addEventListener('mousemove', e => {
+        if (!dragEl) return;
+        e.preventDefault();
+        dragEl.scrollLeft = startScrollLeft - (e.clientX - startX);
+      }, { passive: false });
+      document.addEventListener('mouseup', () => {
+        if (dragEl) { dragEl.classList.remove('dragging'); dragEl = null; }
       });
-    });
+    })();
   }
 
   function _renderHomeKanaList() {
@@ -748,6 +851,7 @@ const App = (() => {
     const groups = [
       { icon:'あ', name:'히라가나', sub:'あ행~ん · 기본+탁음+요음', ids:[1,2,3], view:'kana' },
       { icon:'ア', name:'가타카나', sub:'ア행~ン · 기본+탁음+요음', ids:[4,5,6], view:'kana' },
+      { icon:'📚', name:'종합 · 특수', sub:'통합 복습 · 외래어 · 특수박자', ids:[7,8,9,10,11,12], view:'kana' },
     ];
     groups.forEach(g => {
       const levels = g.ids.map(id => LEVELS.find(l => l.id === id)).filter(Boolean);
@@ -771,11 +875,9 @@ const App = (() => {
         <div class="hkcc-prog-text">${allChars.length}자 · ${prog}%</div>
         <div class="hkcc-actions">
           <div class="hkcc-btn-row">
-            <button class="hkcc-btn hkcc-btn-flash">▶ 학습</button>
-          </div>
-          <div class="hkcc-btn-row">
-            <button class="hkcc-btn hkcc-btn-browse">📖 일람</button>
-            <button class="hkcc-btn hkcc-btn-quiz">✏️ 퀴즈</button>
+            <button class="hkcc-btn hkcc-btn-flash">学習(학습)</button>
+            <button class="hkcc-btn hkcc-btn-browse">一覧(일람)</button>
+            <button class="hkcc-btn hkcc-btn-quiz">クイズ(퀴즈)</button>
           </div>
         </div>`;
       card.querySelector('.hkcc-btn-flash').addEventListener('click', e => {
@@ -844,6 +946,10 @@ const App = (() => {
       e.stopPropagation();
       playAudio(jp.replace(/[（）()]/g, ''));
     });
+    card.querySelector('.hkc-char').addEventListener('click', (e) => {
+      e.stopPropagation();
+      playAudio(jp.replace(/[（）()]/g, ''));
+    });
     card.addEventListener('click', () => {
       // 어휘 마스터(단어)로 이동
       state.vocabSection = 'word';
@@ -858,38 +964,64 @@ const App = (() => {
     if (!wrap) return;
     wrap.innerHTML = '';
     if (typeof KANA_MAP === 'undefined') return;
-    const katakanaChars = Object.entries(KANA_MAP)
-      .filter(([k, v]) => v.type === 'katakana')
+    // 모든 가나 (조사 _p 제외)
+    const allChars = Object.entries(KANA_MAP)
+      .filter(([k, v]) => v.romaji && !k.includes('_p'))
       .map(([k, v]) => ({ kana: k, ...v }));
-    if (!katakanaChars.length) return;
-    const dayIdx = Math.floor(Date.now() / 86400000);
-    const item = katakanaChars[(dayIdx + (offset || 0)) % katakanaChars.length];
+    if (!allChars.length) return;
+
+    // 랜덤 시드로 5개 선택 (같은 offset이면 같은 결과)
+    const seed = Math.floor(Date.now() / 86400000) + ((offset || 0) * 97);
+    const picked = [];
+    const used = new Set();
+    for (let i = 0; i < 5; i++) {
+      let idx = Math.abs((seed * 31 + i * 73) % allChars.length);
+      while (used.has(idx)) idx = (idx + 1) % allChars.length;
+      used.add(idx);
+      picked.push(allChars[idx]);
+    }
+    const focus = picked[0]; // 팁 표시 기준 (첫 번째)
 
     const card = document.createElement('div');
     card.className = 'section-hero section-hero-kana';
     card.innerHTML = `
-      <button class="hero-corner-refresh" id="kana-hero-refresh-btn" title="다음">🔄</button>
-      <div class="section-hero-inner">
-        <div class="sh-char">${item.kana}</div>
-        <div class="sh-info">
-          <div class="sh-romaji">${item.romaji || ''} · ${item.korean || ''}</div>
-          ${item.examples && item.examples.length ? `<div class="sh-example">${cleanJaText(item.examples[0].word)} — ${item.examples[0].meaning}</div>` : ''}
+      <div class="sh-header-bar">
+        <span class="sh-header-title">✍️ かなマスター</span>
+        <button class="sh-header-refresh" id="kana-hero-refresh-btn" title="랜덤 새로 보기">🔄</button>
+      </div>
+      <div class="section-hero-inner dkk-inner">
+        <div class="dkk-chars-row">
+          ${picked.map((c, i) =>
+            `<div class="dkk-char-item${i === 0 ? ' dkk-active' : ''}" data-idx="${i}">
+              <div class="dkk-char">${c.kana}</div>
+              <div class="dkk-romaji">${c.romaji}</div>
+              <div class="dkk-ko">${c.korean}</div>
+            </div>`
+          ).join('')}
         </div>
       </div>`;
-    card.addEventListener('click', (e) => {
-      if (e.target.classList.contains('hero-corner-refresh')) return;
-      playAudio(item.kana);
+
+    // 각 가나 클릭 → 오디오
+    card.querySelectorAll('.dkk-char-item').forEach((el, i) => {
+      el.addEventListener('click', (e) => {
+        e.stopPropagation();
+        playAudio(picked[i].kana);
+        card.querySelectorAll('.dkk-char-item').forEach(x => x.classList.remove('dkk-active'));
+        el.classList.add('dkk-active');
+      });
     });
+
     const refreshBtn = card.querySelector('#kana-hero-refresh-btn');
     if (refreshBtn) {
       refreshBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         refreshBtn.classList.add('spinning');
         setTimeout(() => refreshBtn.classList.remove('spinning'), 500);
-        _kanaHeroOffset++;
+        _kanaHeroOffset = Math.floor(Math.random() * 9973); // 완전 랜덤
         renderDailyKatakana(_kanaHeroOffset);
       });
     }
+    wrap.style.display = ''; // 배너 복원 (숨겨져 있었을 경우 대비)
     wrap.appendChild(card);
   }
 
@@ -898,12 +1030,13 @@ const App = (() => {
   function renderDailySimItem(offset) {
     const wrap = document.getElementById('sim-daily-item');
     if (!wrap) return;
+    wrap.style.display = ''; // startVocabCategory가 숨긴 경우 복원
     wrap.innerHTML = '';
     if (typeof VOCAB_CATEGORIES === 'undefined') return;
     const simCats = VOCAB_CATEGORIES.filter(c => c.type === 'sim');
     if (!simCats.length) return;
-    const dayIdx = Math.floor(Date.now() / 86400000);
-    const cat = simCats[(dayIdx + (offset || 0)) % simCats.length];
+    const seed = Math.floor(Date.now() / 86400000) + ((offset || 0) * 97);
+    const cat = simCats[Math.abs(seed * 23 % simCats.length)];
     const items = typeof VOCAB_ITEMS !== 'undefined'
       ? VOCAB_ITEMS.filter(v => cat.items && cat.items.includes(v.id)).slice(0, 1)
       : [];
@@ -913,17 +1046,21 @@ const App = (() => {
     const card = document.createElement('div');
     card.className = 'section-hero section-hero-sim';
     card.innerHTML = `
-      <button class="hero-corner-refresh" id="sim-hero-refresh-btn" title="다음">🔄</button>
+      <div class="sh-header-bar">
+        <span class="sh-header-title">🎯 実戦ロールプレイ</span>
+        <button class="sh-header-refresh" id="sim-hero-refresh-btn" title="랜덤 새로 보기">🔄</button>
+      </div>
       <div class="section-hero-inner">
         <div class="sh-icon">${cat.icon || '🎭'}</div>
         <div class="sh-info">
           <div class="sh-cat-name">${cat.name}</div>
-          <div class="sh-char-sm">${(item.japanese||'').replace(/（[^）]*）/g,'')}</div>
+          <div class="sh-char-sm">${cleanJaText((item.japanese||'').replace(/（[^）]*）/g,''))}</div>
           <div class="sh-meaning">${item.korean || ''}</div>
+          ${item.tip ? `<div class="sh-tip-text">💡 ${item.tip}</div>` : ''}
         </div>
       </div>`;
     card.addEventListener('click', (e) => {
-      if (e.target.classList.contains('hero-corner-refresh')) return;
+      if (e.target.closest('.sh-footer-bar')) return;
       startVocabCategory(cat.id, 'dialogue');
     });
     const refreshBtn = card.querySelector('#sim-hero-refresh-btn');
@@ -932,7 +1069,7 @@ const App = (() => {
         e.stopPropagation();
         refreshBtn.classList.add('spinning');
         setTimeout(() => refreshBtn.classList.remove('spinning'), 500);
-        _simHeroOffset++;
+        _simHeroOffset = Math.floor(Math.random() * 9973);
         renderDailySimItem(_simHeroOffset);
       });
     }
@@ -942,29 +1079,40 @@ const App = (() => {
   function renderDailyVocabItem(offset) {
     const wrap = document.getElementById('vocab-daily-item');
     if (!wrap) return;
+    wrap.style.display = ''; // startVocabCategory가 숨긴 경우 복원
     wrap.innerHTML = '';
     if (typeof VOCAB_ITEMS === 'undefined') return;
-    const wordItems = VOCAB_ITEMS.filter(v => v.japanese && v.korean && !v.speaker);
+    const wordItems = VOCAB_ITEMS.filter(v =>
+      v.japanese && v.korean && !v.speaker &&
+      !(v.japanese||'').startsWith('〜') && !(v.kanji||'').startsWith('〜')
+    );
     if (!wordItems.length) return;
-    const dayIdx = Math.floor(Date.now() / 86400000);
-    const item = wordItems[(dayIdx + (offset || 0)) % wordItems.length];
+    const seed = Math.floor(Date.now() / 86400000) + ((offset || 0) * 97);
+    const item = wordItems[Math.abs((seed * 31) % wordItems.length)];
     const displayJp = item.kanji || item.japanese || '';
     const reading = item.kanji ? item.japanese : '';
 
     const card = document.createElement('div');
     card.className = 'section-hero section-hero-vocab';
     card.innerHTML = `
-      <button class="hero-corner-refresh" id="vocab-hero-refresh-btn" title="다음">🔄</button>
+      <div class="sh-header-bar">
+        <span class="sh-header-title">📝 語彙マスター</span>
+        <button class="sh-header-refresh" id="vocab-hero-refresh-btn" title="랜덤 새로 보기">🔄</button>
+      </div>
       <div class="section-hero-inner section-hero-inner-v">
         <div class="sh-char">${cleanJaText(stripFurigana(displayJp))}</div>
-        ${reading ? `<div class="sh-reading-text">${reading}</div>` : ''}
-        <div class="sh-translations">
-          <span class="sh-ko-text">${item.korean || ''}</span>
-          ${item.english ? `<span class="sh-en-text">${item.english}</span>` : ''}
+        <div class="sh-info">
+          ${reading ? `<div class="sh-reading-text">${reading}</div>` : ''}
+          <div class="sh-translations">
+            <span class="sh-ko-text">${item.korean || ''}</span>
+            ${item.english ? `<span class="sh-en-text">${item.english}</span>` : ''}
+          </div>
+          ${item.tip ? `<div class="sh-tip-text">💡 ${item.tip}</div>` : ''}
+          ${item.example && !/〜/.test(item.example) ? `<div class="sh-example">예) ${cleanJaText(item.example)}</div>` : ''}
         </div>
       </div>`;
     card.addEventListener('click', (e) => {
-      if (e.target.classList.contains('hero-corner-refresh')) return;
+      if (e.target.closest('.sh-footer-bar')) return;
       const text = reading || displayJp;
       playAudio(text.replace(/[（）()]/g, ''));
     });
@@ -974,7 +1122,7 @@ const App = (() => {
         e.stopPropagation();
         refreshBtn.classList.add('spinning');
         setTimeout(() => refreshBtn.classList.remove('spinning'), 500);
-        _vocabHeroOffset++;
+        _vocabHeroOffset = Math.floor(Math.random() * 9973);
         renderDailyVocabItem(_vocabHeroOffset);
       });
     }
@@ -989,32 +1137,29 @@ const App = (() => {
   function renderDailyConvo(offset) {
     const wrap = document.getElementById('convo-daily-convo');
     if (!wrap) return;
+    wrap.style.display = ''; // startVocabCategory가 숨긴 경우 복원
     wrap.innerHTML = '';
     if (typeof QA_PAIRS === 'undefined' || !QA_PAIRS.length) return;
-    const dayIdx = Math.floor(Date.now() / 86400000);
-    _dailyConvoIdx = (dayIdx + (offset || 0)) % QA_PAIRS.length;
+    const seed = Math.floor(Date.now() / 86400000) + ((offset || 0) * 97);
+    _dailyConvoIdx = Math.abs((seed * 17) % QA_PAIRS.length);
     _dailyConvoStarted = false;
 
     const qa = QA_PAIRS[_dailyConvoIdx];
     const card = document.createElement('div');
     card.className = 'section-hero section-hero-convo';
     card.innerHTML = `
-      <button class="hero-corner-refresh" id="convo-hero-refresh-btn" title="다음">🔄</button>
-      <div class="section-hero-inner">
-        <div class="sh-char-sm">${cleanJaText(qa.questionJp || qa.q || '')}</div>
-        <div class="sh-info">
-          <div class="sh-meaning">${qa.questionKo || qa.questionMeaning || ''}</div>
-          <div class="sh-example dcc-messages" id="dcc-messages"></div>
-          <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">
-            <button class="dcc-hero-btn" id="dcc-btn-start">💬 대화하기</button>
-            <button class="dcc-hero-btn" id="dcc-btn-listen">🔊 듣기</button>
-            <button class="dcc-hero-btn" id="dcc-btn-next">🔀 다음</button>
-          </div>
-        </div>
+      <div class="sh-header-bar">
+        <span class="sh-header-title">💬 会話マスター</span>
+        <button class="dcc-hero-btn sh-header-btn" id="dcc-btn-start">▶ 対話(대화)</button>
+        <button class="sh-header-refresh" id="convo-hero-refresh-btn" title="랜덤 새로 보기">🔄</button>
+      </div>
+      <div class="section-hero-inner section-hero-inner-convo">
+        <div class="dcc-messages" id="dcc-messages"></div>
       </div>`;
     wrap.appendChild(card);
-
     _renderDailyConvoReady();
+    // 자동 시작: 렌더 후 즉시 대화 애니메이션 시작
+    setTimeout(() => _showDailyConvo(_dailyConvoIdx), 400);
 
     const refreshBtn = card.querySelector('#convo-hero-refresh-btn');
     if (refreshBtn) {
@@ -1022,26 +1167,13 @@ const App = (() => {
         e.stopPropagation();
         refreshBtn.classList.add('spinning');
         setTimeout(() => refreshBtn.classList.remove('spinning'), 500);
-        _convoHeroOffset++;
+        _convoHeroOffset = Math.floor(Math.random() * 9973);
         renderDailyConvo(_convoHeroOffset);
       });
     }
-
-    const startBtn  = card.querySelector('#dcc-btn-start');
-    const listenBtn = card.querySelector('#dcc-btn-listen');
-    const nextBtn   = card.querySelector('#dcc-btn-next');
-    if (startBtn) startBtn.addEventListener('click', () => _showDailyConvo(_dailyConvoIdx));
-    if (listenBtn) listenBtn.addEventListener('click', () => playAudio(qa.questionJp || qa.q || ''));
-    if (nextBtn) nextBtn.addEventListener('click', () => {
-      if (_dailyConvoTimer) clearTimeout(_dailyConvoTimer);
-      let next;
-      do { next = Math.floor(Math.random() * QA_PAIRS.length); }
-      while (next === _dailyConvoIdx && QA_PAIRS.length > 1);
-      _dailyConvoIdx = next;
-      _dailyConvoStarted = false;
-      _renderDailyConvoReady();
-      const sb = document.getElementById('dcc-btn-start');
-      if (sb) sb.textContent = '💬 대화하기';
+    const startBtn = card.querySelector('#dcc-btn-start');
+    if (startBtn) startBtn.addEventListener('click', () => {
+      _showDailyConvo(_dailyConvoIdx);
     });
   }
 
@@ -1050,15 +1182,27 @@ const App = (() => {
     if (!msgs) return;
     msgs.innerHTML = '';
     const pair = QA_PAIRS[_dailyConvoIdx % QA_PAIRS.length];
-    const row = document.createElement('div');
-    row.className = 'qa-bubble-row row-q';
-    row.style.opacity = '0.6';
-    row.innerHTML = `
+    // 블러 없이 Q&A 전체 표시 (번역 말풍선 내부)
+    const qRow = document.createElement('div');
+    qRow.className = 'qa-bubble-row row-q';
+    qRow.innerHTML = `
       <div class="qa-avatar qa-avatar-q"><div class="qa-face">👨</div></div>
-      <div class="qa-bubble-content">
-        <div class="qa-bubble qa-bubble-q-style" style="filter:blur(2px)">${pair.q}</div>
+      <div class="qa-bubble qa-bubble-q-style">
+        ${cleanJaText(pair.q)}
+        ${pair.qKo ? `<div class="qa-bubble-ko-inner">${pair.qKo}</div>` : ''}
       </div>`;
-    msgs.appendChild(row);
+    qRow.querySelector('.qa-bubble').addEventListener('click', () => playAudioSlot(pair.q.replace(/[（）()〜]/g, ''), 1));
+    msgs.appendChild(qRow);
+    const aRow = document.createElement('div');
+    aRow.className = 'qa-bubble-row row-a';
+    aRow.innerHTML = `
+      <div class="qa-avatar qa-avatar-a"><div class="qa-face">👩</div></div>
+      <div class="qa-bubble qa-bubble-a-style">
+        ${cleanJaText(pair.a)}
+        ${pair.aKo ? `<div class="qa-bubble-ko-inner">${pair.aKo}</div>` : ''}
+      </div>`;
+    aRow.querySelector('.qa-bubble').addEventListener('click', () => playAudioSlot(pair.a.replace(/[（）()〜]/g, ''), 2));
+    msgs.appendChild(aRow);
   }
 
   function _showDailyConvo(idx) {
@@ -1071,7 +1215,7 @@ const App = (() => {
     // Q 타이핑
     const t1 = document.createElement('div');
     t1.className = 'qa-bubble-row row-q';
-    t1.innerHTML = `<div class="qa-avatar qa-avatar-q"><div class="qa-face">👨</div></div><div class="qa-typing-bubble"><div class="qa-typing-dot"></div><div class="qa-typing-dot"></div><div class="qa-typing-dot"></div></div>`;
+    t1.innerHTML = `<div class="qa-avatar qa-avatar-q qa-speaking"><div class="qa-face">👨</div></div><div class="qa-typing-bubble"><div class="qa-typing-dot"></div><div class="qa-typing-dot"></div><div class="qa-typing-dot"></div></div>`;
     msgs.appendChild(t1);
 
     _dailyConvoTimer = setTimeout(() => {
@@ -1080,33 +1224,41 @@ const App = (() => {
       qRow.className = 'qa-bubble-row row-q';
       qRow.innerHTML = `
         <div class="qa-avatar qa-avatar-q"><div class="qa-face">👨</div></div>
-        <div class="qa-bubble-content">
-          <div class="qa-bubble qa-bubble-q-style">${pair.q}</div>
-          <div class="qa-bubble-ko">${pair.qKo}</div>
+        <div class="qa-bubble qa-bubble-q-style">
+          ${cleanJaText(pair.q)}
+          ${pair.qKo ? `<div class="qa-bubble-ko-inner">${pair.qKo}</div>` : ''}
         </div>`;
       msgs.appendChild(qRow);
-
-      _dailyConvoTimer = setTimeout(() => {
-        const t2 = document.createElement('div');
-        t2.className = 'qa-bubble-row row-a';
-        t2.innerHTML = `<div class="qa-avatar qa-avatar-a"><div class="qa-face">👩</div></div><div class="qa-typing-bubble"><div class="qa-typing-dot"></div><div class="qa-typing-dot"></div><div class="qa-typing-dot"></div></div>`;
-        msgs.appendChild(t2);
-
+      // Q 버블 클릭 → TTS
+      qRow.querySelector('.qa-bubble').addEventListener('click', () => playAudioSlot(pair.q.replace(/[（）()〜]/g, ''), 1));
+      // Q TTS 자동 재생 (화자 슬롯 1)
+      playAudioSlot(pair.q.replace(/[（）()〜]/g, ''), 1).then(() => {
         _dailyConvoTimer = setTimeout(() => {
-          msgs.removeChild(t2);
-          const aRow = document.createElement('div');
-          aRow.className = 'qa-bubble-row row-a';
-          aRow.innerHTML = `
-            <div class="qa-avatar qa-avatar-a"><div class="qa-face">👩</div></div>
-            <div class="qa-bubble-content">
-              <div class="qa-bubble qa-bubble-a-style">${pair.a}</div>
-              <div class="qa-bubble-ko">${pair.aKo}</div>
-            </div>`;
-          msgs.appendChild(aRow);
-          const sb = document.getElementById('dcc-btn-start');
-          if (sb) sb.textContent = '🔁 다시 보기';
-        }, 1500);
-      }, 1200);
+          const t2 = document.createElement('div');
+          t2.className = 'qa-bubble-row row-a';
+          t2.innerHTML = `<div class="qa-avatar qa-avatar-a qa-speaking"><div class="qa-face">👩</div></div><div class="qa-typing-bubble"><div class="qa-typing-dot"></div><div class="qa-typing-dot"></div><div class="qa-typing-dot"></div></div>`;
+          msgs.appendChild(t2);
+
+          _dailyConvoTimer = setTimeout(() => {
+            msgs.removeChild(t2);
+            const aRow = document.createElement('div');
+            aRow.className = 'qa-bubble-row row-a';
+            aRow.innerHTML = `
+              <div class="qa-avatar qa-avatar-a"><div class="qa-face">👩</div></div>
+              <div class="qa-bubble qa-bubble-a-style">
+                ${cleanJaText(pair.a)}
+                ${pair.aKo ? `<div class="qa-bubble-ko-inner">${pair.aKo}</div>` : ''}
+              </div>`;
+            msgs.appendChild(aRow);
+            // A 버블 클릭 → TTS
+            aRow.querySelector('.qa-bubble').addEventListener('click', () => playAudioSlot(pair.a.replace(/[（）()〜]/g, ''), 2));
+            // A TTS 자동 재생 (화자 슬롯 2)
+            playAudioSlot(pair.a.replace(/[（）()〜]/g, ''), 2);
+            const sb = document.getElementById('dcc-btn-start');
+            if (sb) sb.textContent = '🔁 もう一度';
+          }, 1500);
+        }, 1200);
+      });
     }, 1000);
   }
 
@@ -1224,13 +1376,12 @@ const App = (() => {
     const pair = QA_PAIRS[_qaCurrentIdx % QA_PAIRS.length];
     // Q 미리보기 (흐릿하게)
     const preview = document.createElement('div');
-    preview.className = 'qa-preview-row';
+    preview.className = 'qa-preview-row qa-bubble-row row-q';
     preview.innerHTML = `
       <div class="qa-avatar qa-avatar-q"><div class="qa-face">👨</div></div>
-      <div class="qa-bubble-content">
-        <div class="qa-bubble-name">질문</div>
-        <div class="qa-bubble qa-bubble-q-style qa-bubble-blur">${pair.q}</div>
-        <div class="qa-bubble-ko qa-blur-text">${pair.qKo}</div>
+      <div class="qa-bubble qa-bubble-q-style qa-bubble-blur">
+        ${pair.q}
+        ${pair.qKo ? `<div class="qa-bubble-ko-inner qa-blur-text">${pair.qKo}</div>` : ''}
       </div>`;
     msgs.appendChild(preview);
     // 시작 버튼 강조
@@ -1283,10 +1434,9 @@ const App = (() => {
       qRow.className = 'qa-bubble-row row-q';
       qRow.innerHTML = `
         <div class="qa-avatar qa-avatar-q"><div class="qa-face">👨</div></div>
-        <div class="qa-bubble-content">
-          <div class="qa-bubble-name">질문</div>
-          <div class="qa-bubble qa-bubble-q-style">${pair.q}</div>
-          <div class="qa-bubble-ko">${pair.qKo}</div>
+        <div class="qa-bubble qa-bubble-q-style">
+          ${pair.q}
+          ${pair.qKo ? `<div class="qa-bubble-ko-inner">${pair.qKo}</div>` : ''}
         </div>`;
       msgs.appendChild(qRow);
       qRow.addEventListener('click', () => playAudio(pair.q.replace(/[（）()〜]/g, '')));
@@ -1310,10 +1460,9 @@ const App = (() => {
           aRow.className = 'qa-bubble-row row-a';
           aRow.innerHTML = `
             <div class="qa-avatar qa-avatar-a"><div class="qa-face">👩</div></div>
-            <div class="qa-bubble-content">
-              <div class="qa-bubble-name">답변</div>
-              <div class="qa-bubble qa-bubble-a-style">${pair.a}</div>
-              <div class="qa-bubble-ko">${pair.aKo}</div>
+            <div class="qa-bubble qa-bubble-a-style">
+              ${pair.a}
+              ${pair.aKo ? `<div class="qa-bubble-ko-inner">${pair.aKo}</div>` : ''}
             </div>`;
           msgs.appendChild(aRow);
           aRow.addEventListener('click', () => playAudio(pair.a.replace(/[（）()〜]/g, '')));
@@ -1439,10 +1588,10 @@ const App = (() => {
       </div>
       ${locked ? `<div class="hc-locked-msg">${lockedMsg || '잠김'}</div>` : `
       <div class="hcb-btns">
-        ${lectureFn ? '<button class="hcb-btn hcb-btn-lec">🎬 강의</button>' : ''}
-        <button class="hcb-btn hcb-btn-study">📖 자율학습</button>
-        <button class="hcb-btn hcb-btn-browse">🗂 일람</button>
-        <button class="hcb-btn hcb-btn-quiz">✏️ 퀴즈</button>
+        ${lectureFn ? '<button class="hcb-btn hcb-btn-lec">講義(강의)</button>' : ''}
+        <button class="hcb-btn hcb-btn-study">学習(학습)</button>
+        <button class="hcb-btn hcb-btn-browse">一覧(일람)</button>
+        <button class="hcb-btn hcb-btn-quiz">クイズ(퀴즈)</button>
       </div>`}
     `;
     if (!locked) {
@@ -1581,6 +1730,9 @@ const App = (() => {
     // view-kana 로 이동 후 레벨 선택 패널 숨김 (showView가 setupKanaSelectView를 호출해 패널을 다시 표시하므로 반드시 showView 이후에 숨겨야 함)
     showView('kana');
     document.getElementById('kana-select-panel') && (document.getElementById('kana-select-panel').style.display = 'none');
+    // 학습 헤더 표시 (메인 선택 화면에서는 숨김)
+    const lhdr = document.getElementById('learn-header');
+    if (lhdr) lhdr.style.display = '';
     // 데일리 배너 숨기기
     const dailyKana = document.getElementById('kana-daily-katakana');
     if (dailyKana) dailyKana.style.display = 'none';
@@ -1599,6 +1751,11 @@ const App = (() => {
         document.getElementById('flashcard-area').style.display = 'none';
         document.getElementById('browse-area').style.display = 'none';
         document.getElementById('kana-select-panel') && (document.getElementById('kana-select-panel').style.display = '');
+        // 전체화면 모드 해제
+        document.body.classList.remove('fc-fullscreen');
+        // 학습 헤더 숨기기 (메인 선택 화면으로 복귀)
+        const lhdr2 = document.getElementById('learn-header');
+        if (lhdr2) lhdr2.style.display = 'none';
         // 데일리 배너 복원
         const dailyKana = document.getElementById('kana-daily-katakana');
         if (dailyKana) dailyKana.style.display = '';
@@ -1608,23 +1765,24 @@ const App = (() => {
     const targetMode = mode || 'flash';
     if (targetMode === 'browse') {
       state.learnMode = 'browse';
+      document.body.classList.remove('fc-fullscreen');
       document.getElementById('browse-area').style.display = 'block';
       renderBrowse();
     } else {
       state.learnMode = 'flash';
       state.learnFlipped = false;
       document.getElementById('flashcard-area').style.display = 'block';
+      // 전체화면 모드 활성화
+      document.body.classList.add('fc-fullscreen');
+      // fc-hint 힌트 텍스트 업데이트
+      const hintEl = document.getElementById('fc-hint');
+      if (hintEl) hintEl.textContent = '탭하여 발음 확인 →';
       renderNavStrip('fc-nav-strip', state.learnChars, state.learnIndex, (idx) => {
         state.learnIndex = idx;
         showFlashcard();
       });
       showFlashcard();
       setupFlashcardControls();
-      // 모바일: 플래시카드 영역으로 스크롤
-      setTimeout(() => {
-        const fa = document.getElementById('flashcard-area');
-        if (fa) fa.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }, 150);
     }
   }
 
@@ -1699,7 +1857,8 @@ const App = (() => {
     const inner = document.getElementById('fc-inner');
     inner.classList.toggle('flipped', !flipEnabled);
 
-    // 앞면에서는 발음하지 않음 — 뒤집을 때 발음 (음성 엉킴 방지)
+    // 가나 자동 읽기 (항상)
+    setTimeout(() => playAudio(char.kana), 300);
 
     // 네비 스트립 활성 업데이트
     updateNavStripActive('fc-nav-strip', idx);
@@ -1712,6 +1871,12 @@ const App = (() => {
     if (state.learnFlipped) return; // 이미 뒤집힘 — 다시 앞면으로 돌아가지 않음
     state.learnFlipped = true;
     document.getElementById('fc-inner').classList.add('flipped');
+
+    // 전체화면 모드: 뒤집으면 자가평가 버튼이 보이도록 뒷면 스크롤 초기화
+    if (document.body.classList.contains('fc-fullscreen')) {
+      const back = document.querySelector('.flashcard-back');
+      if (back) back.scrollTop = 0;
+    }
 
     // 뒷면을 봤으므로 "마스터" 기록 + 네비 스트립 즉시 갱신
     const char = state.learnChars[state.learnIndex];
@@ -1953,6 +2118,36 @@ const App = (() => {
       state.fcReadSession = (state.fcReadSession || 0) + 1;
     };
 
+    // ── 자가평가 버튼 (전체화면 모드) ──
+    function _fcAssessNext(rating) {
+      clearFcAutoAdvance();
+      state.fcReadSession = (state.fcReadSession || 0) + 1;
+      const char = state.learnChars[state.learnIndex];
+      if (!char) return;
+      _onFlashcardRate(rating);
+      // rating: 'hard' | 'ok' | 'good'
+      if (rating === 'good') {
+        recordResult(char.kana, true);
+        const nsBtn = document.querySelector(`#fc-nav-strip .fc-ns-btn[data-kana="${char.kana}"]`);
+        if (nsBtn) nsBtn.classList.add('ns-completed');
+      } else if (rating === 'hard') {
+        recordResult(char.kana, false);
+      } else {
+        markCharSeen(char.kana);
+      }
+      if (state.learnIndex < state.learnChars.length - 1) {
+        state.learnIndex++;
+        showFlashcard();
+      } else {
+        showLearnCompletePrompt(state.learnLevelId);
+      }
+    }
+    const hardBtn = document.getElementById('fca-hard');
+    const okBtn   = document.getElementById('fca-ok');
+    const goodBtn = document.getElementById('fca-good');
+    if (hardBtn && !hardBtn._bound) { hardBtn._bound = true; hardBtn.addEventListener('click', (e) => { e.stopPropagation(); _fcAssessNext('hard'); }); }
+    if (okBtn   && !okBtn._bound)   { okBtn._bound   = true; okBtn.addEventListener  ('click', (e) => { e.stopPropagation(); _fcAssessNext('ok');   }); }
+    if (goodBtn && !goodBtn._bound) { goodBtn._bound = true; goodBtn.addEventListener('click', (e) => { e.stopPropagation(); _fcAssessNext('good'); }); }
   }
 
   // ─── 네비게이션 스트립 (가나·어휘 모두 가로 드래그 방식) ───
@@ -1975,7 +2170,8 @@ const App = (() => {
           (b.type === 'vocab' && b.vocabId === item.id)
         );
         const jp = item.japanese || '?';
-        const jpShort = jp.length > 12 ? jp.slice(0, 12) + '…' : jp;
+        // 카드 한 장이 화면 너비를 벗어날 만큼 길 때만 말줄임 (28자 기준)
+        const jpShort = jp.length > 28 ? jp.slice(0, 28) + '…' : jp;
         const tile = document.createElement('button');
         tile.className = 'fc-ns-btn vnp-inline-tile' +
           (isActive ? ' ns-active' : '') +
@@ -2418,45 +2614,38 @@ const App = (() => {
       startSlideshow(chars);
     };
 
-    // 하나씩 맞추기 (플래시카드로 전환)
-    const flashcardBtn = document.getElementById('bc-flashcard-btn');
-    flashcardBtn.onclick = () => {
-      const chars = state.browseRandom
-        ? [...state.learnChars].sort(() => Math.random() - 0.5)
-        : [...state.learnChars];
-      state.learnChars = chars;
-      state.learnIndex = 0;
-      state.learnMode = 'flash';
-      state.learnFlipped = false;
-      document.getElementById('browse-area').style.display = 'none';
-      document.getElementById('flashcard-area').style.display = 'block';
-      renderNavStrip('fc-nav-strip', state.learnChars, 0, (idx) => {
-        state.learnIndex = idx; showFlashcard();
-      });
-      showFlashcard();
-      setupFlashcardControls();
-    };
   }
 
   function renderBrowseGrid(chars) {
     // 슬라이드쇼 종료 시 그리드로 복귀
     document.getElementById('slideshow-panel').style.display = 'none';
-    document.getElementById('browse-grid').style.display = 'grid';
+    document.getElementById('browse-grid').style.display = '';
 
     const grid = document.getElementById('browse-grid');
     grid.innerHTML = '';
     chars.forEach((char) => {
+      const mastered = isCharMastered(char.kana);
+      const seen     = !!(state.progress[char.kana] && state.progress[char.kana].seen);
+      const example  = char.examples && char.examples.length > 0 ? char.examples[0] : null;
+      const statusIcon = mastered ? '✅' : seen ? '🔵' : '⬜';
+
       const el = document.createElement('div');
-      el.className = 'browse-item';
-      el.innerHTML = `
-        <span class="bi-kana">${char.kana}</span>
-        <div class="bi-korean">${char.korean}</div>
-        <div class="bi-audio">🔊</div>
-      `;
-      el.addEventListener('click', () => { playAudio(char.kana); markCharSeen(char.kana); });
-      el.querySelector('.bi-audio').addEventListener('click', (e) => {
-        e.stopPropagation(); playAudio(char.kana);
+      el.className = 'browse-item' + (mastered ? ' bi-mastered' : seen ? ' bi-seen' : '');
+      el.innerHTML =
+        `<div class="bi-kana">${char.kana}</div>` +
+        `<div class="bi-info">` +
+          `<span class="bi-romaji">${char.english || ''}</span>` +
+          `<span class="bi-korean">${char.korean || ''}</span>` +
+          (example ? `<span class="bi-example">${stripFurigana(example.word)} · ${example.meaning}</span>` : '') +
+        `</div>` +
+        `<span class="bi-status" title="${mastered ? '마스터' : seen ? '학습중' : '미학습'}">${statusIcon}</span>` +
+        `<button class="bi-play-btn" title="발음 듣기">🔊</button>`;
+
+      el.querySelector('.bi-play-btn').addEventListener('click', (e) => {
+        e.stopPropagation();
+        playAudio(char.kana);
       });
+      el.addEventListener('click', () => { playAudio(char.kana); markCharSeen(char.kana); });
       grid.appendChild(el);
     });
   }
@@ -2509,18 +2698,25 @@ const App = (() => {
     const fab = document.getElementById('stop-audio-fab');
     if (fab) fab.style.display = 'flex';
 
+    // 화자 2명이면 번갈아 읽기, 1명이면 순서대로
+    const hasDualSpeaker = hasSpeakerConfigured(2);
+
     let i = 0;
     function next() {
       if (!state.isReadingAll || i >= chars.length) {
-        if (i >= chars.length) showToast('전체 듣기 완료! ✓');
+        if (i >= chars.length) showToast('번갈아 듣기 완료! ✓');
         stopAllAudio();
         return;
       }
-      playAudio(chars[i].kana);
-      i++;
-      ss.readAllTimer = setTimeout(next, 1400);
+      const slot = hasDualSpeaker ? (i % 2 === 0 ? 1 : 2) : 1;
+      playAudioSlot(chars[i].kana, slot).then(() => {
+        i++;
+        if (state.isReadingAll) ss.readAllTimer = setTimeout(next, 400);
+      });
     }
-    showToast(`🔊 전체 ${chars.length}자 듣기 시작 — 버튼을 다시 누르면 중지`);
+    showToast(hasDualSpeaker
+      ? `🎤 번갈아 듣기 (${chars.length}자) — 버튼을 다시 누르면 중지`
+      : `🔊 전체 ${chars.length}자 듣기 시작 — 버튼을 다시 누르면 중지`);
     next();
   }
 
@@ -2619,7 +2815,7 @@ const App = (() => {
     clearTimeout(ss.timer);
     ss.paused = true;
     document.getElementById('slideshow-panel').style.display = 'none';
-    document.getElementById('browse-grid').style.display = 'grid';
+    document.getElementById('browse-grid').style.display = '';
   }
 
   // ─── 퀴즈 ───
@@ -3151,6 +3347,7 @@ const App = (() => {
     // 결과 기록
     recordResult(q.kana, isCorrect);
 
+    if (isCorrect) _onQuizCorrect(); else _onQuizWrong();
     let cheerType = 'correct';
     if (isCorrect) {
       state.quizCorrect++;
@@ -3313,7 +3510,8 @@ const App = (() => {
 
     const resultCheer = pct >= 100 ? 'perfect' : pct >= 70 ? 'good' : pct >= 50 ? 'pass' : 'poor';
 
-    state.totalXP += xpGained;
+    // 기존 XP 대신 게이미피케이션 시스템 사용
+    _onQuizComplete(correct, total);
     updateStreak();
     checkLevelUnlock();
     saveToStorage();
@@ -3748,6 +3946,7 @@ const App = (() => {
   function writeExamResult(ok) {
     if (ok) state.writeExamScore.ok++;
     else state.writeExamScore.fail++;
+    _onWritePractice();
 
     if (state.writeIndex < state.writeChars.length - 1) {
       state.writeIndex++;
@@ -3839,6 +4038,21 @@ const App = (() => {
 
   // ─── 진도 ───
   function renderProgress() {
+    // ── 탭 전환 로직 (최초 1회 바인딩) ──
+    const progTabBar = document.querySelector('.prog-tabs');
+    if (progTabBar && !progTabBar._tabsBound) {
+      progTabBar._tabsBound = true;
+      progTabBar.querySelectorAll('.prog-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+          progTabBar.querySelectorAll('.prog-tab').forEach(t => t.classList.remove('active'));
+          document.querySelectorAll('.prog-tab-content').forEach(c => { c.style.display = 'none'; });
+          tab.classList.add('active');
+          const target = document.getElementById('prog-tab-' + tab.dataset.tab);
+          if (target) target.style.display = 'block';
+        });
+      });
+    }
+
     // 개요
     const allChars = Object.keys(KANA_MAP);
     const seen = allChars.filter(k => state.progress[k] && state.progress[k].seen > 0);
@@ -4240,8 +4454,10 @@ const App = (() => {
     if (mnEl && mnEl.value.trim()) state.prefs.maleName   = mnEl.value.trim();
     state.prefs.autoplay        = true;  // 항상 활성화
     state.prefs.autonext        = true;  // 항상 활성화
-    state.prefs.showWordEx      = document.getElementById('pref-show-word-ex').checked;
-    state.prefs.showSentEx      = document.getElementById('pref-show-sent-ex').checked;
+    const swExEl = document.getElementById('pref-show-word-ex');
+    const ssExEl = document.getElementById('pref-show-sent-ex');
+    if (swExEl) state.prefs.showWordEx = swExEl.checked;
+    if (ssExEl) state.prefs.showSentEx = ssExEl.checked;
     const qcdEl = document.getElementById('pref-quiz-countdown');
     if (qcdEl) state.prefs.quizCountdown = parseInt(qcdEl.value) || 0;
     // 퀴즈 설정 저장
@@ -4310,6 +4526,771 @@ const App = (() => {
         setTimeout(() => showToast(`🎉 Level ${level.id} 해금! ${level.title}`), 500);
       }
     });
+  }
+
+  // ════════════════════════════════════════════════════════════
+  // ─── 読む (읽기) — 간판 읽기 + 일기 읽기 ───
+  // ════════════════════════════════════════════════════════════
+
+  // 読む 뷰 상태
+  const yomu = {
+    mode: 'home',          // 'home' | 'sign' | 'diary'
+    // 간판
+    signCat: 'all',
+    signIndex: 0,
+    signFiltered: [],
+    signQuizMode: false,
+    signRevealed: false,
+    // 일기
+    diaryAuthor: 'all',
+    diaryIndex: 0,
+    diaryFiltered: [],
+    diaryShowRuby: false,
+    diaryShowTrans: false,
+    diaryVocabOpen: false,
+  };
+
+  function setupYomuView() {
+    const home = document.getElementById('yomu-home');
+    const signPanel = document.getElementById('yomu-sign-panel');
+    const diaryPanel = document.getElementById('yomu-diary-panel');
+    if (!home) return;
+
+    // 현재 모드에 따라 패널 표시
+    _yomuShowPanel(yomu.mode);
+
+    // 홈 버튼
+    const btnSign = document.getElementById('yomu-btn-sign');
+    const btnDiary = document.getElementById('yomu-btn-diary');
+    if (btnSign && !btnSign._yb) {
+      btnSign._yb = true;
+      btnSign.addEventListener('click', () => { yomu.mode = 'sign'; _yomuShowPanel('sign'); _initSignPanel(); });
+    }
+    if (btnDiary && !btnDiary._yb) {
+      btnDiary._yb = true;
+      btnDiary.addEventListener('click', () => { yomu.mode = 'diary'; _yomuShowPanel('diary'); _initDiaryPanel(); });
+    }
+
+    // 뒤로가기 버튼
+    const signBack = document.getElementById('sign-back-btn');
+    const diaryBack = document.getElementById('diary-back-btn');
+    if (signBack && !signBack._yb) {
+      signBack._yb = true;
+      signBack.addEventListener('click', () => { yomu.mode = 'home'; _yomuShowPanel('home'); });
+    }
+    if (diaryBack && !diaryBack._yb) {
+      diaryBack._yb = true;
+      diaryBack.addEventListener('click', () => {
+        window.speechSynthesis && window.speechSynthesis.cancel();
+        yomu.mode = 'home'; _yomuShowPanel('home');
+      });
+    }
+
+    // 간판이나 일기가 열려있으면 즉시 초기화
+    if (yomu.mode === 'sign') _initSignPanel();
+    if (yomu.mode === 'diary') _initDiaryPanel();
+  }
+
+  function _yomuShowPanel(mode) {
+    const panels = { home: 'yomu-home', sign: 'yomu-sign-panel', diary: 'yomu-diary-panel' };
+    Object.entries(panels).forEach(([k, id]) => {
+      const el = document.getElementById(id);
+      if (el) el.style.display = (k === mode) ? '' : 'none';
+    });
+  }
+
+  // ─── 간판 읽기 ─────────────────────────────────────────
+
+  function _initSignPanel() {
+    const signs = (typeof SIGN_ITEMS !== 'undefined') ? SIGN_ITEMS : _getFallbackSigns();
+    const cats  = (typeof SIGN_CATEGORIES !== 'undefined') ? SIGN_CATEGORIES : _getFallbackSignCats();
+
+    // 카테고리 탭 렌더
+    const tabsEl = document.getElementById('sign-cat-tabs');
+    if (tabsEl && !tabsEl._inited) {
+      tabsEl._inited = true;
+      tabsEl.innerHTML = '';
+      const allBtn = _makeEl('button', 'sign-cat-tab active', '전체');
+      allBtn.dataset.cat = 'all';
+      allBtn.addEventListener('click', () => _signSelectCat('all', tabsEl, signs));
+      tabsEl.appendChild(allBtn);
+      cats.forEach(c => {
+        const btn = _makeEl('button', 'sign-cat-tab', `${c.icon} ${c.name}`);
+        btn.dataset.cat = c.id;
+        btn.addEventListener('click', () => _signSelectCat(c.id, tabsEl, signs));
+        tabsEl.appendChild(btn);
+      });
+    }
+
+    // 컨트롤 버튼 바인딩
+    const btnReveal = document.getElementById('sign-btn-reveal');
+    const btnQuiz   = document.getElementById('sign-btn-quiz');
+    const btnNext   = document.getElementById('sign-btn-next');
+    if (btnReveal && !btnReveal._yb) {
+      btnReveal._yb = true;
+      btnReveal.addEventListener('click', _signReveal);
+    }
+    if (btnQuiz && !btnQuiz._yb) {
+      btnQuiz._yb = true;
+      btnQuiz.addEventListener('click', _signStartQuiz);
+    }
+    if (btnNext && !btnNext._yb) {
+      btnNext._yb = true;
+      btnNext.addEventListener('click', _signNext);
+    }
+
+    _signSelectCat(yomu.signCat, tabsEl, signs);
+  }
+
+  function _signSelectCat(cat, tabsEl, signs) {
+    yomu.signCat = cat;
+    yomu.signIndex = 0;
+    yomu.signFiltered = (cat === 'all') ? signs : signs.filter(s => s.category === cat);
+    // 탭 활성
+    if (tabsEl) tabsEl.querySelectorAll('.sign-cat-tab').forEach(b => {
+      b.classList.toggle('active', b.dataset.cat === cat);
+    });
+    _renderSign();
+  }
+
+  function _renderSign() {
+    const items = yomu.signFiltered;
+    if (!items || items.length === 0) return;
+    const item = items[yomu.signIndex];
+    yomu.signRevealed = false;
+    yomu.signQuizMode = false;
+
+    // 진행 레이블
+    const progLabel = document.getElementById('sign-progress-label');
+    if (progLabel) progLabel.textContent = `${yomu.signIndex + 1} / ${items.length}`;
+
+    // 장면 레이블
+    const sceneEl = document.getElementById('sign-scene-label');
+    if (sceneEl) sceneEl.textContent = item.scene || '';
+
+    // 간판 렌더링
+    const renderEl = document.getElementById('sign-render');
+    if (renderEl) {
+      renderEl.className = 'sign-render ' + (item.sign_style || 'station_blue');
+      renderEl.innerHTML = _buildSignHTML(item);
+    }
+
+    // 정보·퀴즈 패널 숨기기
+    _signHidePanels();
+
+    // 뜻보기 버튼 리셋
+    const btnReveal = document.getElementById('sign-btn-reveal');
+    if (btnReveal) { btnReveal.textContent = '👁 뜻 보기'; btnReveal.disabled = false; }
+    const btnQuiz = document.getElementById('sign-btn-quiz');
+    if (btnQuiz) btnQuiz.textContent = '❓ 퀴즈';
+  }
+
+  function _buildSignHTML(item) {
+    let html = '';
+    // 알림판은 헤더 별도 처리
+    if (item.sign_style === 'notice_white' && item.header) {
+      html += `<div class="sign-head">${item.header}</div>`;
+    }
+    html += '<div class="sign-body">';
+    (item.lines || []).forEach((line, i) => {
+      const sizeClass = line.size || 'md';
+      const mutedClass = line.muted ? ' muted' : '';
+      if (i > 0 && line.divider) html += '<hr class="sign-divider">';
+      html += `<div class="sign-line ${sizeClass}${mutedClass}">`;
+      if (line.ruby && !yomu.signRevealed) {
+        // 기본 상태: 텍스트만 (루비 없음)
+        html += _escHtml(line.text);
+      } else if (line.ruby && yomu.signRevealed) {
+        // 뜻 보기 후: 루비 표시
+        html += _injectRuby(line.text, line.ruby);
+      } else {
+        html += _escHtml(line.text);
+      }
+      html += '</div>';
+    });
+    html += '</div>';
+    return html;
+  }
+
+  function _signReveal() {
+    yomu.signRevealed = true;
+    yomu.signQuizMode = false;
+    _onSignRead();
+    const items = yomu.signFiltered;
+    const item = items[yomu.signIndex];
+
+    // 간판에 루비 추가
+    const renderEl = document.getElementById('sign-render');
+    if (renderEl) renderEl.innerHTML = _buildSignHTML(item);
+
+    // 정보 패널 표시
+    const infoPanel = document.getElementById('sign-info-panel');
+    const quizPanel = document.getElementById('sign-quiz-panel');
+    if (quizPanel) quizPanel.style.display = 'none';
+    if (infoPanel) {
+      infoPanel.style.display = '';
+      // 번역
+      const transEl = document.getElementById('sign-translation');
+      if (transEl) transEl.textContent = '🇰🇷 ' + (item.translation || '');
+      // 어휘
+      const vocabEl = document.getElementById('sign-vocab-list');
+      if (vocabEl) {
+        vocabEl.innerHTML = (item.vocab || []).map(v =>
+          `<div class="sign-vocab-item">
+            <span class="sv-word">${_escHtml(v.word)}</span>
+            <span class="sv-reading"> (${_escHtml(v.reading)})</span>
+            <span class="sv-meaning"> — ${_escHtml(v.meaning)}</span>
+          </div>`
+        ).join('');
+      }
+      // 팁
+      const tipEl = document.getElementById('sign-tip-box');
+      if (tipEl) tipEl.textContent = item.tip || '';
+    }
+    const btnReveal = document.getElementById('sign-btn-reveal');
+    if (btnReveal) { btnReveal.textContent = '✅ 뜻 확인'; btnReveal.disabled = true; }
+  }
+
+  function _signStartQuiz() {
+    const items = yomu.signFiltered;
+    const item = items[yomu.signIndex];
+    if (!item || !item.quiz) return;
+
+    yomu.signQuizMode = true;
+    // 간판 블러 처리
+    const renderEl = document.getElementById('sign-render');
+    if (renderEl) renderEl.classList.add('blurred');
+
+    const infoPanel = document.getElementById('sign-info-panel');
+    if (infoPanel) infoPanel.style.display = 'none';
+
+    const quizPanel = document.getElementById('sign-quiz-panel');
+    const quizQ = document.getElementById('sign-quiz-question');
+    const quizC = document.getElementById('sign-quiz-choices');
+    const quizR = document.getElementById('sign-quiz-result');
+    if (!quizPanel) return;
+
+    quizPanel.style.display = '';
+    if (quizR) quizR.style.display = 'none';
+    if (quizQ) quizQ.textContent = item.quiz.question;
+    if (quizC) {
+      quizC.innerHTML = '';
+      item.quiz.choices.forEach((ch, i) => {
+        const btn = _makeEl('button', 'sign-quiz-choice', ch);
+        btn.addEventListener('click', () => {
+          // 모든 선택지 비활성
+          quizC.querySelectorAll('.sign-quiz-choice').forEach(b => b.style.pointerEvents = 'none');
+          const isCorrect = i === item.quiz.answer;
+          btn.classList.add(isCorrect ? 'correct' : 'wrong');
+          if (!isCorrect) {
+            quizC.querySelectorAll('.sign-quiz-choice')[item.quiz.answer].classList.add('correct');
+          }
+          // 결과 표시
+          if (quizR) {
+            quizR.style.display = '';
+            quizR.className = 'sign-quiz-result ' + (isCorrect ? 'correct' : 'wrong');
+            quizR.textContent = isCorrect ? '🎉 정답! 잘 읽었어요!' : '❌ 틀렸어요. 간판을 다시 확인해보세요!';
+          }
+          // 블러 해제
+          if (renderEl) renderEl.classList.remove('blurred');
+        });
+        quizC.appendChild(btn);
+      });
+    }
+    const btnQuiz = document.getElementById('sign-btn-quiz');
+    if (btnQuiz) btnQuiz.textContent = '퀴즈 중…';
+  }
+
+  function _signNext() {
+    const items = yomu.signFiltered;
+    if (!items.length) return;
+    yomu.signIndex = (yomu.signIndex + 1) % items.length;
+    const renderEl = document.getElementById('sign-render');
+    if (renderEl) renderEl.classList.remove('blurred');
+    _renderSign();
+  }
+
+  function _signHidePanels() {
+    ['sign-info-panel','sign-quiz-panel'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.style.display = 'none';
+    });
+    const renderEl = document.getElementById('sign-render');
+    if (renderEl) renderEl.classList.remove('blurred');
+  }
+
+  // ─── 일기 읽기 ─────────────────────────────────────────
+
+  function _initDiaryPanel() {
+    const entries = (typeof DIARY_ENTRIES !== 'undefined') ? DIARY_ENTRIES : _getFallbackDiaries();
+    const authors = (typeof DIARY_AUTHORS !== 'undefined') ? DIARY_AUTHORS : _getFallbackDiaryAuthors();
+
+    // 저자 탭 렌더
+    const tabsEl = document.getElementById('diary-author-tabs');
+    if (tabsEl && !tabsEl._inited) {
+      tabsEl._inited = true;
+      tabsEl.innerHTML = '';
+      const allBtn = _makeEl('button', 'diary-author-tab active', '📚 전체');
+      allBtn.dataset.author = 'all';
+      allBtn.addEventListener('click', () => _diarySelectAuthor('all', tabsEl, entries));
+      tabsEl.appendChild(allBtn);
+      authors.forEach(a => {
+        const btn = _makeEl('button', 'diary-author-tab', `${a.avatar} ${a.name}`);
+        btn.dataset.author = a.id;
+        btn.addEventListener('click', () => _diarySelectAuthor(a.id, tabsEl, entries));
+        tabsEl.appendChild(btn);
+      });
+    }
+
+    // 컨트롤 버튼 바인딩
+    const btnRuby  = document.getElementById('diary-btn-ruby');
+    const btnTrans = document.getElementById('diary-btn-trans');
+    const btnVocab = document.getElementById('diary-btn-vocab');
+    const btnTts   = document.getElementById('diary-btn-tts');
+    const btnPrev  = document.getElementById('diary-btn-prev');
+    const btnNext  = document.getElementById('diary-btn-next');
+    const vocabClose = document.getElementById('diary-vocab-close');
+
+    if (btnRuby && !btnRuby._yb) {
+      btnRuby._yb = true;
+      btnRuby.addEventListener('click', () => {
+        yomu.diaryShowRuby = !yomu.diaryShowRuby;
+        btnRuby.classList.toggle('active', yomu.diaryShowRuby);
+        _diaryUpdateRuby();
+      });
+    }
+    if (btnTrans && !btnTrans._yb) {
+      btnTrans._yb = true;
+      btnTrans.addEventListener('click', () => {
+        yomu.diaryShowTrans = !yomu.diaryShowTrans;
+        btnTrans.classList.toggle('active', yomu.diaryShowTrans);
+        _diaryUpdateTrans();
+      });
+    }
+    if (btnVocab && !btnVocab._yb) {
+      btnVocab._yb = true;
+      btnVocab.addEventListener('click', () => _diaryToggleVocab());
+    }
+    if (btnTts && !btnTts._yb) {
+      btnTts._yb = true;
+      btnTts.addEventListener('click', () => _diaryReadAloud());
+    }
+    if (btnPrev && !btnPrev._yb) {
+      btnPrev._yb = true;
+      btnPrev.addEventListener('click', () => {
+        if (yomu.diaryIndex > 0) { yomu.diaryIndex--; _renderDiary(); }
+      });
+    }
+    if (btnNext && !btnNext._yb) {
+      btnNext._yb = true;
+      btnNext.addEventListener('click', () => {
+        if (yomu.diaryIndex < yomu.diaryFiltered.length - 1) { yomu.diaryIndex++; _renderDiary(); _onDiaryRead(); }
+      });
+    }
+    if (vocabClose && !vocabClose._yb) {
+      vocabClose._yb = true;
+      vocabClose.addEventListener('click', () => {
+        yomu.diaryVocabOpen = false;
+        const vp = document.getElementById('diary-vocab-panel');
+        if (vp) vp.style.display = 'none';
+      });
+    }
+
+    _diarySelectAuthor(yomu.diaryAuthor, tabsEl, entries);
+  }
+
+  function _diarySelectAuthor(author, tabsEl, entries) {
+    yomu.diaryAuthor = author;
+    yomu.diaryIndex = 0;
+    yomu.diaryFiltered = (author === 'all') ? entries : entries.filter(e => e.author_id === author);
+    if (tabsEl) tabsEl.querySelectorAll('.diary-author-tab').forEach(b => {
+      b.classList.toggle('active', b.dataset.author === author);
+    });
+    _renderDiary();
+  }
+
+  function _renderDiary() {
+    const items = yomu.diaryFiltered;
+    if (!items || items.length === 0) {
+      const card = document.getElementById('diary-card');
+      if (card) card.innerHTML = '<div style="padding:40px;text-align:center;color:#999">일기 데이터를 불러오는 중...</div>';
+      return;
+    }
+    const entry = items[yomu.diaryIndex];
+    const authors = (typeof DIARY_AUTHORS !== 'undefined') ? DIARY_AUTHORS : _getFallbackDiaryAuthors();
+    const author = authors.find(a => a.id === entry.author_id) || {};
+
+    // 진행 레이블
+    const progLabel = document.getElementById('diary-progress-label');
+    if (progLabel) progLabel.textContent = `${yomu.diaryIndex + 1} / ${items.length}`;
+
+    // 저자 정보
+    const setTxt = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val || ''; };
+    setTxt('diary-avatar', author.avatar || '📝');
+    setTxt('diary-author-name', author.name || '');
+    setTxt('diary-author-meta', `${author.age || ''}歳 · ${author.occupation || ''} · ${author.location || ''}`);
+    setTxt('diary-date', entry.date_text || '');
+    setTxt('diary-mood', entry.mood ? entry.mood.emoji : '');
+    setTxt('diary-title', entry.title || '');
+
+    // 태그
+    const tagsEl = document.getElementById('diary-tags');
+    if (tagsEl) {
+      tagsEl.innerHTML = (entry.tags || []).map(t => `<span class="diary-tag">${_escHtml(t)}</span>`).join('');
+    }
+
+    // 본문
+    const contentEl = document.getElementById('diary-content');
+    if (contentEl) {
+      contentEl.innerHTML = (entry.content || []).map((para, pi) => {
+        const textHtml = _buildDiaryParaHtml(para);
+        const gramNote = para.grammar_note ? `<div class="diary-grammar-note">📌 ${_escHtml(para.grammar_note)}</div>` : '';
+        const trans = para.translation ? `<div class="diary-para-trans${yomu.diaryShowTrans ? ' visible' : ''}" data-pi="${pi}">${_escHtml(para.translation)}</div>` : '';
+        return `<div class="diary-para" data-pi="${pi}">${textHtml}${gramNote}</div>${trans}`;
+      }).join('');
+      // 루비 상태 반영
+      _diaryUpdateRuby();
+    }
+
+    // 리액션
+    const reactEl = document.getElementById('diary-reactions');
+    if (reactEl) {
+      reactEl.innerHTML = (entry.reactions || []).map(r =>
+        `<button class="diary-reaction">${r.emoji} <span class="dr-count">${r.count}</span></button>`
+      ).join('');
+      reactEl.querySelectorAll('.diary-reaction').forEach(btn => {
+        btn.addEventListener('click', function() {
+          const cnt = this.querySelector('.dr-count');
+          if (cnt) cnt.textContent = parseInt(cnt.textContent) + 1;
+          this.classList.toggle('reacted');
+        });
+      });
+    }
+
+    // 댓글
+    const commentsEl = document.getElementById('diary-comments');
+    if (commentsEl && entry.comments && entry.comments.length) {
+      commentsEl.style.display = '';
+      commentsEl.innerHTML = '<div class="diary-comment-title">💬 댓글</div>' +
+        entry.comments.map(c => `
+          <div class="diary-comment">
+            <span class="diary-comment-user">${_escHtml(c.user)}</span>
+            <div class="diary-comment-body">
+              <div class="diary-comment-text">${_escHtml(c.text)}</div>
+              ${c.translation ? `<div class="diary-comment-trans${yomu.diaryShowTrans ? ' visible' : ''}">${_escHtml(c.translation)}</div>` : ''}
+            </div>
+          </div>`).join('');
+    } else if (commentsEl) {
+      commentsEl.style.display = 'none';
+    }
+
+    // 내비 버튼 상태
+    const btnPrev = document.getElementById('diary-btn-prev');
+    const btnNext = document.getElementById('diary-btn-next');
+    if (btnPrev) btnPrev.disabled = yomu.diaryIndex === 0;
+    if (btnNext) btnNext.disabled = yomu.diaryIndex === items.length - 1;
+
+    // 점 내비
+    const dotsEl = document.getElementById('diary-dots');
+    if (dotsEl) {
+      const total = Math.min(items.length, 12);
+      dotsEl.innerHTML = Array.from({length: total}, (_, i) =>
+        `<div class="diary-dot${i === yomu.diaryIndex ? ' active' : ''}" data-i="${i}"></div>`
+      ).join('');
+      dotsEl.querySelectorAll('.diary-dot').forEach(dot => {
+        dot.addEventListener('click', () => {
+          yomu.diaryIndex = parseInt(dot.dataset.i);
+          _renderDiary();
+        });
+      });
+    }
+
+    // 단어 패널 닫기
+    const vp = document.getElementById('diary-vocab-panel');
+    if (vp) { vp.style.display = 'none'; yomu.diaryVocabOpen = false; }
+  }
+
+  function _buildDiaryParaHtml(para) {
+    if (!para.furigana || Object.keys(para.furigana).length === 0) {
+      return _escHtml(para.text);
+    }
+    // 후리가나 삽입
+    let text = para.text;
+    // 키워드/후리가나 처리
+    const sortedKeys = Object.keys(para.furigana).sort((a, b) => b.length - a.length);
+    // 세그먼트 분리
+    let result = '';
+    let i = 0;
+    while (i < text.length) {
+      let matched = false;
+      for (const key of sortedKeys) {
+        if (text.startsWith(key, i)) {
+          const reading = para.furigana[key];
+          const hiddenClass = yomu.diaryShowRuby ? '' : ' class="hidden"';
+          result += `<ruby${hiddenClass ? '' : ''}>${_escHtml(key)}<rt${hiddenClass ? ' style="display:none"' : ''}>${_escHtml(reading)}</rt></ruby>`;
+          i += key.length;
+          matched = true;
+          break;
+        }
+      }
+      if (!matched) {
+        result += _escHtml(text[i]);
+        i++;
+      }
+    }
+    return result;
+  }
+
+  function _diaryUpdateRuby() {
+    document.querySelectorAll('#diary-content ruby rt').forEach(rt => {
+      rt.style.display = yomu.diaryShowRuby ? '' : 'none';
+    });
+  }
+
+  function _diaryUpdateTrans() {
+    document.querySelectorAll('.diary-para-trans, .diary-comment-trans').forEach(el => {
+      el.classList.toggle('visible', yomu.diaryShowTrans);
+    });
+  }
+
+  function _diaryToggleVocab() {
+    const items = yomu.diaryFiltered;
+    if (!items || !items.length) return;
+    const entry = items[yomu.diaryIndex];
+    yomu.diaryVocabOpen = !yomu.diaryVocabOpen;
+
+    const vp = document.getElementById('diary-vocab-panel');
+    if (!vp) return;
+
+    if (!yomu.diaryVocabOpen) {
+      vp.style.display = 'none';
+      return;
+    }
+    // 단어 수집
+    const allVocab = [];
+    (entry.content || []).forEach(para => {
+      (para.key_vocab || []).forEach(kv => {
+        // kv 형식: "word(reading)" 또는 {word, reading, meaning}
+        if (typeof kv === 'string') {
+          const m = kv.match(/^(.+?)\((.+?)\)$/);
+          if (m) allVocab.push({ word: m[1], reading: m[2], meaning: '' });
+          else allVocab.push({ word: kv, reading: '', meaning: '' });
+        } else {
+          allVocab.push(kv);
+        }
+      });
+    });
+    // 후리가나에서도 수집
+    (entry.content || []).forEach(para => {
+      Object.entries(para.furigana || {}).forEach(([word, reading]) => {
+        if (!allVocab.find(v => v.word === word)) allVocab.push({ word, reading, meaning: '' });
+      });
+    });
+
+    const itemsEl = document.getElementById('diary-vocab-items');
+    if (itemsEl) {
+      itemsEl.innerHTML = allVocab.length === 0
+        ? '<div style="color:#999;text-align:center;padding:20px">단어 데이터가 없어요</div>'
+        : allVocab.map(v => `
+          <div class="diary-vocab-entry">
+            <div>
+              <div class="dve-word">${_escHtml(v.word)}</div>
+              <div class="dve-reading">${_escHtml(v.reading)}</div>
+            </div>
+            <div class="dve-meaning">${_escHtml(v.meaning || '(사전 참고)')}</div>
+          </div>`).join('');
+    }
+    vp.style.display = '';
+  }
+
+  function _diaryReadAloud() {
+    const items = yomu.diaryFiltered;
+    if (!items || !items.length) return;
+    const entry = items[yomu.diaryIndex];
+    const text = (entry.content || []).map(p => p.text).join('　');
+    const btnTts = document.getElementById('diary-btn-tts');
+
+    if (window.speechSynthesis && window.speechSynthesis.speaking) {
+      window.speechSynthesis.cancel();
+      if (btnTts) btnTts.classList.remove('active');
+      return;
+    }
+    if (!window.speechSynthesis || !text) return;
+    if (btnTts) btnTts.classList.add('active');
+    const utt = new SpeechSynthesisUtterance(text);
+    utt.lang = 'ja-JP'; utt.rate = 0.9;
+    const voices = window.speechSynthesis.getVoices();
+    const jaVoice = voices.find(v => v.lang.startsWith('ja'));
+    if (jaVoice) utt.voice = jaVoice;
+    utt.onend = () => { if (btnTts) btnTts.classList.remove('active'); };
+    utt.onerror = () => { if (btnTts) btnTts.classList.remove('active'); };
+    window.speechSynthesis.speak(utt);
+  }
+
+  // ─── 폴백 데이터 (데이터 파일 없을 때) ─────────────────
+
+  function _getFallbackSignCats() {
+    return [
+      { id:'station', name:'역·전철', icon:'🚉' },
+      { id:'restaurant', name:'식당·카페', icon:'🍜' },
+      { id:'shopping', name:'쇼핑', icon:'🛍️' },
+      { id:'warning', name:'주의·경고', icon:'⚠️' },
+      { id:'tourist', name:'관광', icon:'🗺️' },
+      { id:'public', name:'공공시설', icon:'🏥' },
+    ];
+  }
+
+  function _getFallbackSigns() {
+    return [
+      {
+        id:'sign_demo1', category:'station', difficulty:'N5',
+        scene:'新宿駅 南改札', sign_style:'station_blue',
+        lines:[
+          { text:'← 南口', ruby:'みなみぐち', size:'xl' },
+          { text:'→ 北口', ruby:'きたぐち', size:'xl' },
+          { text:'South Exit / North Exit', size:'sm', muted:true },
+        ],
+        translation:'← 남쪽 출구 / → 북쪽 출구',
+        vocab:[
+          { word:'南口', reading:'みなみぐち', meaning:'남쪽 출구' },
+          { word:'北口', reading:'きたぐち', meaning:'북쪽 출구' },
+        ],
+        tip:'口(くち/ぐち)는 출구·입구. 방위(東西南北)만 알면 역 사인이 쉽게 읽힌다!',
+        quiz:{ question:'이 표지판의 내용은?', choices:['남쪽 출구 ← / 북쪽 출구 →','북쪽 출구 ← / 남쪽 출구 →','남쪽 입구 ← / 북쪽 입구 →','동쪽 출구 ← / 서쪽 출구 →'], answer:0 }
+      },
+      {
+        id:'sign_demo2', category:'restaurant', difficulty:'N5',
+        scene:'渋谷 라멘집', sign_style:'restaurant_red',
+        lines:[
+          { text:'営業中', ruby:'えいぎょうちゅう', size:'xl' },
+          { text:'11:00 〜 23:00', size:'md' },
+        ],
+        translation:'영업 중 / 11시 ~ 23시',
+        vocab:[
+          { word:'営業中', reading:'えいぎょうちゅう', meaning:'영업 중' },
+        ],
+        tip:'準備中(じゅんびちゅう)는 "준비 중"이에요. 영업 중인지 확인할 때 꼭 쓰이는 표현!',
+        quiz:{ question:'이 가게의 영업 상태는?', choices:['영업 중','준비 중','휴일','폐업'], answer:0 }
+      },
+      {
+        id:'sign_demo3', category:'warning', difficulty:'N5',
+        scene:'공원 / 건물', sign_style:'warning_yellow',
+        lines:[
+          { text:'⚠️ 立入禁止', ruby:'たちいりきんし', size:'xl' },
+          { text:'No Entry', size:'sm', muted:true },
+        ],
+        translation:'⚠️ 출입 금지',
+        vocab:[
+          { word:'立入禁止', reading:'たちいりきんし', meaning:'출입 금지' },
+          { word:'禁止', reading:'きんし', meaning:'금지' },
+        ],
+        tip:'禁止(きんし)= 금지. 〜禁止 패턴을 알면 다양한 경고 표지를 읽을 수 있어요!',
+        quiz:{ question:'이 표지판의 의미는?', choices:['출입 금지','주차 금지','촬영 금지','흡연 금지'], answer:0 }
+      },
+    ];
+  }
+
+  function _getFallbackDiaryAuthors() {
+    return [
+      { id:'sakura', name:'さくら', age:24, occupation:'OL（会社員）', location:'東京', avatar:'🌸', bio:'도쿄 직장인. 맛집과 연애를 좋아함.' },
+      { id:'yuika', name:'ゆいか', age:20, occupation:'大学生', location:'東京', avatar:'🎀', bio:'도쿄 대학생. 아이돌과 카페 투어!' },
+    ];
+  }
+
+  function _getFallbackDiaries() {
+    return [
+      {
+        id:'diary_demo1', author_id:'sakura',
+        date_text:'3月25日（火）', title:'最悪な月曜日だった…', title_ko:'최악의 월요일이었어…',
+        mood:{ emoji:'😤', label:'むかむか', level:-2 },
+        difficulty:'N4', tags:['仕事','電車','遅刻'],
+        content:[
+          {
+            id:'p1',
+            text:'今日は朝から電車が遅延して、会社に遅刻してしまった。',
+            furigana:{ '遅延':'ちえん', '会社':'かいしゃ', '遅刻':'ちこく' },
+            translation:'오늘은 아침부터 전철이 지연돼서 회사에 지각해버렸어.',
+            grammar_note:'〜てしまった: 의도치 않게 ~해버렸다 (후회의 뉘앙스)',
+            key_vocab:['遅延(ちえん)','遅刻(ちこく)']
+          },
+          {
+            id:'p2',
+            text:'上司にめちゃくちゃ怒られた。もう最悪すぎる…',
+            furigana:{ '上司':'じょうし', '怒':'おこ' },
+            translation:'상사에게 엄청 혼났어. 진짜 최악이야…',
+            grammar_note:'〜られた: 수동형 (~되다, ~당하다)',
+            key_vocab:['上司(じょうし)']
+          },
+          {
+            id:'p3',
+            text:'でも、ランチに行った新しいカフェがすごく美味しかった。少し元気が出た！',
+            furigana:{ '新':'あたら', '美味':'おい', '元気':'げんき' },
+            translation:'하지만 점심에 간 새 카페가 엄청 맛있었어. 조금 기운이 났어!',
+            grammar_note:'でも: 그래도, 하지만 (역접)',
+            key_vocab:['元気(げんき)']
+          },
+        ],
+        reactions:[{ emoji:'😭', count:234 },{ emoji:'💪', count:89 },{ emoji:'🤣', count:156 }],
+        comments:[
+          { user:'はなこ', text:'わかるー！電車あるあるだよね笑', translation:'공감돼~! 전철 공감이야기지 ㅋㅋ' },
+          { user:'たかし', text:'元気出して！', translation:'힘내!' },
+        ]
+      },
+      {
+        id:'diary_demo2', author_id:'yuika',
+        date_text:'4月1日（火）', title:'推しのライブ最高すぎた！！！', title_ko:'최애 라이브 너무 최고였어!!!',
+        mood:{ emoji:'🤩', label:'テンション爆上がり', level:3 },
+        difficulty:'N5', tags:['ライブ','推し','幸せ'],
+        content:[
+          {
+            id:'p1',
+            text:'今日、ずっと行きたかったライブにやっと行けた！',
+            furigana:{ '今日':'きょう' },
+            translation:'오늘 계속 가고 싶었던 라이브에 드디어 갔어!',
+            grammar_note:'やっと: 드디어, 겨우 (긴 시간 끝에)',
+            key_vocab:['やっと']
+          },
+          {
+            id:'p2',
+            text:'推しがめちゃかわで、ぴえんだった。最高すぎてエモい…',
+            furigana:{},
+            translation:'최애가 엄청 귀여워서 눈물 날 것 같았어. 너무 최고라 감성터짐…',
+            grammar_note:'推し(おし): 최애 (가장 좋아하는 아이돌/캐릭터)',
+            key_vocab:['推し(おし)','ぴえん','エモい']
+          },
+        ],
+        reactions:[{ emoji:'🤩', count:489 },{ emoji:'🎵', count:312 },{ emoji:'💜', count:267 }],
+        comments:[
+          { user:'りか', text:'いいな！あたしも行きたかった！', translation:'좋겠다! 나도 가고 싶었어!' },
+        ]
+      },
+    ];
+  }
+
+  // ─── 유틸리티 ─────────────────────────────────────────
+
+  function _makeEl(tag, className, text) {
+    const el = document.createElement(tag);
+    if (className) el.className = className;
+    if (text !== undefined) el.textContent = text;
+    return el;
+  }
+
+  function _escHtml(str) {
+    if (!str) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  function _injectRuby(text, ruby) {
+    // ruby가 string이면 전체 텍스트에 루비 적용
+    if (typeof ruby === 'string') {
+      return `<ruby>${_escHtml(text)}<rt>${_escHtml(ruby)}</rt></ruby>`;
+    }
+    return _escHtml(text);
   }
 
   // ─── 진도 기록 ───
@@ -4560,7 +5541,15 @@ const App = (() => {
     const avatarDisplay = info.avatarHtml || `<span>${genderEmoji}</span>`;
     return `
       <div class="hdr-slot" data-slot="${slot}">
-        <button class="hdr-slot-avatar" data-slot="${slot}" title="화자 변경 → 설정">${avatarDisplay}</button>
+        <div class="hdr-slot-avatar-wrap">
+          <button class="hdr-slot-avatar" data-slot="${slot}" title="화자 변경 → 설정">${avatarDisplay}</button>
+          <div class="hdr-slot-waves">
+            <div class="hsw-bar b1"></div>
+            <div class="hsw-bar b2"></div>
+            <div class="hsw-bar b3"></div>
+            <div class="hsw-bar b4"></div>
+          </div>
+        </div>
         <span class="hdr-slot-name">${roleName}</span>
         <button class="hdr-slot-tts" data-slot="${slot}" title="음성 일시정지/재개">⏸</button>
       </div>`;
@@ -5131,6 +6120,7 @@ const App = (() => {
         <div class="amb-wave-bar w4" style="background:${color}"></div>
       </div>`;
     badge.classList.remove('stopping');
+    badge.classList.add('playing');
     badge.style.display = 'flex';
     badge.style.borderColor = color + '88';
     badge.style.background = isQuiz ? 'rgba(237,233,254,.95)' : 'rgba(240,253,244,.95)';
@@ -5143,15 +6133,14 @@ const App = (() => {
   function hideAmbientBadge() {
     const badge = document.getElementById('ambient-music-badge');
     if (!badge) return;
-    badge.classList.add('stopping');
-    setTimeout(() => {
-      if (badge.classList.contains('stopping')) {
-        badge.style.display = 'none';
-        badge.classList.remove('stopping');
-        syncSidebarVisibility();
-        updateHqAmbientLabel();
-      }
-    }, 600);
+    badge.classList.remove('stopping', 'playing');
+    badge.innerHTML = `<span style="font-size:13px">🎵</span><span style="font-size:10px;color:var(--gray)">배경음</span>`;
+    badge.style.display = 'flex'; // 항상 표시 유지
+    badge.style.borderColor = '';
+    badge.style.background = '';
+    badge.onclick = () => startAmbient('on', 'dialogue');
+    syncSidebarVisibility();
+    updateHqAmbientLabel();
   }
 
   // ── 배경음 정지 상태 배지 (클릭 시 재시작 가능) ────────────
@@ -5160,12 +6149,13 @@ const App = (() => {
     if (!badge) return;
     const icon = mode === 'quiz' ? '🎮' : '🎵';
     badge.classList.remove('stopping');
-    badge.innerHTML = `<span style="font-size:13px;opacity:.5">${icon}</span><span style="font-size:10px;color:#94a3b8">▶</span>`;
+    badge.innerHTML = `<span style="font-size:13px">🎵</span><span style="font-size:10px;color:var(--gray)">배경음</span>`;
     badge.style.display = 'flex';
-    badge.style.borderColor = '#cbd5e1';
-    badge.style.background = 'rgba(248,250,252,.95)';
+    badge.style.borderColor = 'var(--border)';
+    badge.style.background = 'var(--gray-light)';
     badge.onclick = () => startAmbient('on', mode || 'dialogue');
     syncSidebarVisibility();
+    updateHqAmbientLabel();
   }
 
   // ── duckAmbient: TTS 발화 시 배경음 낮추기 ───────────────────
@@ -5460,8 +6450,8 @@ const App = (() => {
   function highlightBadgeSlot(slot) {
     const badge = document.getElementById('vv-active-badge');
     if (!badge) return;
-    // 모든 슬롯 초기화
-    badge.querySelectorAll('.vvb-item').forEach(el => {
+    // 모든 슬롯 초기화 (.vvb-item + .hdr-slot 모두)
+    badge.querySelectorAll('.vvb-item, .hdr-slot').forEach(el => {
       el.classList.remove('speaking', 'speaking-2');
     });
     // 해당 슬롯만 강조
@@ -5472,7 +6462,7 @@ const App = (() => {
   function clearBadgeSlot() {
     const badge = document.getElementById('vv-active-badge');
     if (!badge) return;
-    badge.querySelectorAll('.vvb-item').forEach(el => {
+    badge.querySelectorAll('.vvb-item, .hdr-slot').forEach(el => {
       el.classList.remove('speaking', 'speaking-2');
     });
   }
@@ -5533,6 +6523,9 @@ const App = (() => {
     const ba = document.getElementById('browse-area');
     if (fa) fa.style.display = 'none';
     if (ba) ba.style.display = 'none';
+    // 학습 헤더 숨기기 (선택 화면에서는 불필요)
+    const lhdr3 = document.getElementById('learn-header');
+    if (lhdr3) lhdr3.style.display = 'none';
     panel.style.display = 'block';
     // 풀카드 그리드 렌더 (이미 렌더됐으면 스킵)
     const grid = document.getElementById('kana-select-grid');
@@ -5720,7 +6713,7 @@ const App = (() => {
   function buildVocabCatCard(cat) {
     const prog = getVocabCategoryProgress(cat.id);
     const card = document.createElement('div');
-    card.className = 'vocab-cat-card' + (cat.type === 'sim' ? ' sim-card' : '');
+    card.className = 'vocab-cat-card type-' + (cat.type || 'word') + (cat.type === 'sim' ? ' sim-card' : '');
 
     // 롤플레이(dialogue:true) 카테고리는 별도 버튼
     if (cat.dialogue) {
@@ -5732,18 +6725,36 @@ const App = (() => {
         <div class="vcc-prog-bar"><div class="vcc-prog-fill" style="width:${prog}%"></div></div>
         <div class="vcc-prog-text">${cat.items.length}개 대사</div>
         <div class="vcc-actions">
-          <button class="vcc-btn vcc-btn-lecture" data-cid="${cat.id}">🎬 강의</button>
-          <button class="vcc-btn vcc-btn-dialogue" data-cid="${cat.id}">🎭 대화 시작</button>
+          <div class="vcc-btn-row">
+            <button class="vcc-btn vcc-btn-lecture" data-cid="${cat.id}">講義(강의)</button>
+            <button class="vcc-btn vcc-btn-dialogue" data-cid="${cat.id}">会話(대화)</button>
+          </div>
+          <div class="vcc-btn-row">
+            <button class="vcc-btn vcc-btn-browse" data-cid="${cat.id}">一覧(일람)</button>
+            <button class="vcc-btn vcc-btn-quiz" data-cid="${cat.id}">クイズ(퀴즈)</button>
+          </div>
         </div>`;
       card.querySelector('.vcc-btn-lecture').addEventListener('click', (e) => {
         e.stopPropagation();
         startLecture(cat.id);
       });
       card.querySelector('.vcc-btn-dialogue').addEventListener('click', (e) => {
-        e.stopPropagation(); 
+        e.stopPropagation();
         const v = cat.type === 'sim' ? 'roleplay' : (cat.type === 'sentence' ? 'convo' : 'vocab');
         showView(v);
         setTimeout(() => startVocabCategory(cat.id, 'dialogue'), 100);
+      });
+      card.querySelector('.vcc-btn-browse').addEventListener('click', (e) => {
+        e.stopPropagation();
+        const v = cat.type === 'sim' ? 'roleplay' : (cat.type === 'sentence' ? 'convo' : 'vocab');
+        showView(v);
+        setTimeout(() => startVocabCategory(cat.id, 'browse'), 100);
+      });
+      card.querySelector('.vcc-btn-quiz').addEventListener('click', (e) => {
+        e.stopPropagation();
+        const v = cat.type === 'sim' ? 'roleplay' : (cat.type === 'sentence' ? 'convo' : 'vocab');
+        showView(v);
+        setTimeout(() => startVocabCategory(cat.id, 'quiz'), 100);
       });
     } else {
       const hasLec = true; // 모든 카테고리에 강의 버튼
@@ -5755,12 +6766,12 @@ const App = (() => {
         <div class="vcc-prog-text">${prog}% · ${cat.items.length}개</div>
         <div class="vcc-actions">
           <div class="vcc-btn-row">
-            ${hasLec ? `<button class="vcc-btn vcc-btn-lecture" data-cid="${cat.id}">🎬 강의</button>` : ''}
-            <button class="vcc-btn vcc-btn-flash" data-cid="${cat.id}">📚 학습</button>
+            ${hasLec ? `<button class="vcc-btn vcc-btn-lecture" data-cid="${cat.id}">講義(강의)</button>` : ''}
+            <button class="vcc-btn vcc-btn-flash" data-cid="${cat.id}">学習(학습)</button>
           </div>
           <div class="vcc-btn-row">
-            <button class="vcc-btn vcc-btn-quiz" data-cid="${cat.id}">✏️ 퀴즈</button>
-            <button class="vcc-btn vcc-btn-browse" data-cid="${cat.id}">📖 일람</button>
+            <button class="vcc-btn vcc-btn-quiz" data-cid="${cat.id}">クイズ(퀴즈)</button>
+            <button class="vcc-btn vcc-btn-browse" data-cid="${cat.id}">一覧(일람)</button>
           </div>
         </div>`;
       if (hasLec) {
@@ -5790,6 +6801,11 @@ const App = (() => {
         setTimeout(() => startVocabCategory(cat.id, 'quiz'), 100);
       });
     }
+    // 카드 자체 클릭: 버튼이 아니면 이름 읽기만 (네비게이션 없음)
+    card.addEventListener('click', (e) => {
+      if (e.target.closest('.vcc-btn')) return;
+      playAudio(cat.name);
+    });
     return card;
   }
 
@@ -5977,6 +6993,7 @@ const App = (() => {
       state.vocabMode = 'flash';
       state.vocabIndex = 0;
       state.vocabFlipped = false;
+      document.body.classList.add('fc-fullscreen');
       document.getElementById('vocab-flashcard-area').style.display = 'block';
       renderNavStrip('vfc-nav-strip', state.vocabItems, 0, (idx) => {
         state.vocabIndex = idx; showVocabFlashcard();
@@ -6559,8 +7576,7 @@ const App = (() => {
       el.className = 'vb-item';
       el.innerHTML = `
         <div class="vb-jp">${item.kanji ? formatKanjiWithHint(item.kanji, item.japanese) : (item.japanese || item)}</div>
-        <div class="vb-korean">${item.korean || ''}</div>
-        <div class="vb-audio">🔊 듣기</div>`;
+        <div class="vb-korean">${item.korean || ''}</div>`;
       el.addEventListener('click', () => {
         playAudio(item.japanese || item);
         markVocabSeen(item.id);
@@ -6605,16 +7621,129 @@ const App = (() => {
     };
 
     // 플래시카드/퀴즈 버튼
-    const flashBtn = document.getElementById('vbc-flash-btn');
-    if (flashBtn) flashBtn.onclick = () => {
-      stopAllAudio();
-      startVocabCategory(state.vocabCurrentCategoryId, 'flash');
+    // 슬라이드쇼 버튼
+    const slideshowBtn = document.getElementById('vbc-slideshow-btn');
+    if (slideshowBtn) slideshowBtn.onclick = () => {
+      const items = state.vocabBrowseRandom
+        ? [...state.vocabItems].sort(() => Math.random() - 0.5)
+        : state.vocabItems;
+      startVocabSlideshow(items);
     };
-    const quizBtn = document.getElementById('vbc-quiz-btn');
-    if (quizBtn) quizBtn.onclick = () => {
-      stopAllAudio();
-      startVocabCategory(state.vocabCurrentCategoryId, 'quiz');
+  }
+
+  function startVocabSlideshow(items) {
+    if (!items || !items.length) return;
+    stopAllAudio();
+    const panel = document.getElementById('vbc-slideshow-panel');
+    const grid  = document.getElementById('vocab-browse-grid');
+    if (!panel) return;
+    panel.style.display = 'block';
+    if (grid) grid.style.display = 'none';
+
+    let idx = 0;
+    let paused = false;
+    let stopped = false;
+    let timer = null;
+    const intervalSel = document.getElementById('vbc-interval-select');
+    const getMs = () => ((intervalSel ? parseInt(intervalSel.value) : 3) * 1000);
+
+    const countEl  = document.getElementById('vbc-ss-count');
+    const mainEl   = document.getElementById('vbc-ss-main');
+    const hintEl   = document.getElementById('vbc-ss-hint');
+    const revealEl = document.getElementById('vbc-ss-reveal');
+    const korEl    = document.getElementById('vbc-ss-korean');
+    const fillEl   = document.getElementById('vbc-ss-countdown-fill');
+    const playBtn  = document.getElementById('vbc-ss-play');
+    const stopBtn  = document.getElementById('vbc-ss-stop');
+    const prevBtn  = document.getElementById('vbc-ss-prev');
+    const nextBtn  = document.getElementById('vbc-ss-next');
+
+    function _fitSsFont(el) {
+      if (!el) return;
+      el.style.fontSize = '';
+      const parent = el.parentElement;
+      if (!parent) return;
+      const maxW = parent.offsetWidth - 40;
+      let fs = 72;
+      el.style.fontSize = fs + 'px';
+      while (el.scrollWidth > maxW && fs > 18) {
+        fs -= 2;
+        el.style.fontSize = fs + 'px';
+      }
+    }
+
+    function showSlide() {
+      if (stopped) return;
+      const item = items[idx];
+      if (!item) return;
+      if (countEl)  countEl.textContent = `${idx + 1} / ${items.length}`;
+      const display = item.kanji
+        ? (item.kanji + '(' + item.japanese + ')')
+        : (item.japanese || '');
+      if (mainEl) {
+        mainEl.textContent = display;
+        requestAnimationFrame(() => _fitSsFont(mainEl));
+      }
+      if (hintEl)   hintEl.textContent = '읽어보세요 ↑';
+      if (revealEl) { revealEl.style.opacity = '0'; revealEl.style.transition = 'none'; }
+      if (korEl)    korEl.textContent = item.korean || '';
+      playAudio(item.japanese || '');
+      if (fillEl) {
+        fillEl.style.transition = 'none';
+        fillEl.style.width = '100%';
+        requestAnimationFrame(() => {
+          fillEl.style.transition = `width ${getMs()}ms linear`;
+          fillEl.style.width = '0%';
+        });
+      }
+      setTimeout(() => {
+        if (hintEl)   hintEl.textContent = '';
+        if (revealEl) { revealEl.style.transition = 'opacity 0.3s'; revealEl.style.opacity = '1'; }
+      }, getMs() / 2);
+    }
+
+    function scheduleNext() {
+      clearTimeout(timer);
+      if (paused || stopped) return;
+      timer = setTimeout(() => {
+        if (stopped) return;
+        idx = (idx + 1) % items.length;
+        showSlide();
+        scheduleNext();
+      }, getMs());
+    }
+
+    function stop() {
+      stopped = true;
+      paused = true;
+      clearTimeout(timer);
+      // TTS 취소
+      try { window.speechSynthesis && window.speechSynthesis.cancel(); } catch(e) {}
+      if (state.currentVvAudio) {
+        try { state.currentVvAudio.pause(); state.currentVvAudio.src = ''; } catch(e) {}
+        state.currentVvAudio = null;
+      }
+      panel.style.display = 'none';
+      if (grid) { grid.style.display = 'grid'; }
+    }
+
+    if (playBtn) playBtn.onclick = () => {
+      paused = !paused;
+      playBtn.textContent = paused ? '▶ 재개' : '⏸ 일시정지';
+      if (!paused) { showSlide(); scheduleNext(); } else clearTimeout(timer);
     };
+    if (stopBtn) stopBtn.onclick = stop;
+    if (prevBtn) prevBtn.onclick = () => {
+      clearTimeout(timer); idx = (idx - 1 + items.length) % items.length;
+      showSlide(); if (!paused) scheduleNext();
+    };
+    if (nextBtn) nextBtn.onclick = () => {
+      clearTimeout(timer); idx = (idx + 1) % items.length;
+      showSlide(); if (!paused) scheduleNext();
+    };
+
+    showSlide();
+    scheduleNext();
   }
 
   function startVocabReadAll(items) {
@@ -6624,16 +7753,20 @@ const App = (() => {
     if (btn) { btn.textContent = '⏹ 중지'; btn.classList.add('bc-active'); }
     const fab = document.getElementById('stop-audio-fab');
     if (fab) fab.style.display = 'flex';
+
+    const hasDual = hasSpeakerConfigured(2);
     let i = 0;
     function next() {
       if (!state.isReadingAll || i >= items.length) {
-        if (i >= items.length) showToast('전체 듣기 완료! ✓');
+        if (i >= items.length) showToast(hasDual ? '번갈아 듣기 완료! ✓' : '전체 듣기 완료! ✓');
         stopAllAudio();
         return;
       }
-      playAudio(items[i].japanese || items[i]);
-      i++;
-      ss.readAllTimer = setTimeout(next, 1400);
+      const slot = hasDual ? (i % 2 === 0 ? 1 : 2) : 1;
+      playAudioSlot(items[i].japanese || items[i], slot).then(() => {
+        i++;
+        if (state.isReadingAll) ss.readAllTimer = setTimeout(next, 400);
+      });
     }
     next();
   }
@@ -6714,48 +7847,20 @@ const App = (() => {
       .slice(0, count);
   }
 
-  // ─── 한자 인라인 후리가나: Ruby HTML 포맷 ───
-  // kanji="喫煙所はどこですか", japanese="きつえんじょはどこですか"
-  // → "<ruby>喫煙所<rt>きつえんじょ</rt></ruby>はどこですか"
+  // ─── 한자 + 읽기: 괄호 포맷 ───
+  // kanji="喫煙所", japanese="きつえんじょ"  → "喫煙所(きつえんじょ)"
+  // kanji="喫煙所はどこ", japanese="きつえんじょはどこ" → "喫煙所(きつえんじょ)はどこ"
   function formatWithFurigana(kanji, japanese) {
     if (!kanji || kanji === japanese) return kanji || japanese || '';
-    // 한자 문자별로 매핑 시도
-    // 한자(kanji)와 읽기(japanese)를 분리해서 각 한자에 ruby 부착
-    // 한자가 아닌 문자(히라가나/가타가나/기호)는 그대로 출력
-    const kanjiChars = kanji.split('');
     const isKanjiChar = c => /[\u4e00-\u9faf\u3400-\u4dbf]/.test(c);
-
-    // 한자 개수 세기
-    const kanjiCount = kanjiChars.filter(isKanjiChar).length;
-
+    const kanjiCount = [...kanji].filter(isKanjiChar).length;
     if (kanjiCount === 0) return kanji;
-    if (kanjiCount === 1) {
-      // 한자 1개: 전체에 루비
-      return `<ruby>${kanji}<rt>${japanese}</rt></ruby>`;
-    }
-
-    // 한자 여러 개: 순서대로 japanese를 균등 분배
-    // 비-한자 문자는 ruby 없이 출력, 한자에만 ruby 부착
-    // japanese에서 히라가나 부분을 순서대로 나눠 각 한자에 배분
-
-    // 방법: kanji 문자 배열을 순회하며
-    // 비-한자는 그대로, 한자 n번째에는 japanese에서 n번째 부분을 배분
-    // 단순 균등 분배 (한자 수로 나누기)
-    const hiraganaOnly = japanese.replace(/[^\u3040-\u309f\u30a0-\u30ff]/g, '');
-    const perKanji = Math.ceil(hiraganaOnly.length / kanjiCount);
-
-    let hIdx = 0;
-    let result = '';
-    for (const ch of kanjiChars) {
-      if (isKanjiChar(ch)) {
-        const reading = hiraganaOnly.slice(hIdx, hIdx + perKanji) || '';
-        hIdx += perKanji;
-        result += `<ruby>${ch}<rt>${reading}</rt></ruby>`;
-      } else {
-        result += ch;
-      }
-    }
-    return result;
+    // japanese에서 읽기(히라가나/가타가나)만 추출
+    const reading = japanese.replace(/[^\u3040-\u309f\u30a0-\u30ff]/g, '');
+    // kanji 문자열의 첫 번째 한자 블록 뒤에 괄호로 읽기 삽입, 나머지는 그대로
+    // 예: "喫煙所はどこ" → "喫煙所(きつえんじょ)はどこ"
+    const replaced = kanji.replace(/[\u4e00-\u9faf\u3400-\u4dbf]+/, match => `${match}(${reading})`);
+    return replaced;
   }
 
   // 한자 + 히라가나를 괄호 표기로 반환 (플래시카드 외 영역용)
@@ -6788,14 +7893,14 @@ const App = (() => {
     // ── 앞면 ──
     const jpEl = document.getElementById('vfc-japanese');
     if (isSentence) {
-      // 문장: 한자 부분에만 인라인 후리가나 (ruby HTML)
+      // 문장: 한자(읽기) 괄호 포맷
       jpEl.innerHTML = item.kanji
         ? formatWithFurigana(item.kanji, item.japanese)
         : item.japanese;
       jpEl.dataset.audio = item.japanese;
       fitVocabText(jpEl, 120);
     } else {
-      // 단어: 앞면에 한자+후리가나 (ruby HTML)
+      // 단어: 앞면에 한자(읽기) 괄호 포맷
       jpEl.innerHTML = item.kanji
         ? formatWithFurigana(item.kanji, item.japanese)
         : item.japanese;
@@ -6833,9 +7938,9 @@ const App = (() => {
     const sentencesEl = document.getElementById('vfc-sentences');
 
     if (compoundsEl) {
+      let compoundsRendered = false;
       if (!isSentence && exData?.compounds?.length) {
         compoundsEl.style.display = '';
-        // 랜덤 3개 선택
         const shuffled = exData.compounds.slice().sort(() => Math.random() - 0.5).slice(0, 3);
         compoundsEl.innerHTML = '<div class="vfc-ex-title">관련 단어</div>' +
           '<div class="vfc-ex-row">' +
@@ -6843,7 +7948,34 @@ const App = (() => {
             `<div class="vfc-ex-item"><span class="vfc-ex-jp vfc-audio-word" onclick="event.stopPropagation();App.playWord(this.textContent)" title="🔊">${c.japanese}</span><span class="vfc-ex-kr">${c.meaning}</span></div>`
           ).join('') +
           '</div>';
-      } else { compoundsEl.style.display = 'none'; compoundsEl.innerHTML = ''; }
+        compoundsRendered = true;
+      }
+      // VOCAB_EXAMPLES_DB 없을 때: 한자가 있으면 VOCAB_ITEMS에서 같은 한자를 포함한 다른 항목을 찾아 표시
+      if (!compoundsRendered && !isSentence && item.kanji) {
+        const mainK = stripFurigana(item.kanji);
+        const kanjiChars = [...mainK].filter(c => /[\u4e00-\u9fff]/.test(c));
+        if (kanjiChars.length) {
+          const related = VOCAB_ITEMS.filter(v =>
+            v.id !== item.id && v.korean && !v.speaker &&
+            !(v.japanese || '').includes('〜') &&
+            kanjiChars.some(ch => stripFurigana(v.kanji || '').includes(ch))
+          ).slice(0, 4);
+          if (related.length) {
+            compoundsEl.style.display = '';
+            compoundsEl.innerHTML = '<div class="vfc-ex-title">이 한자가 쓰인 단어</div>' +
+              '<div class="vfc-ex-row">' +
+              related.map(v =>
+                `<div class="vfc-ex-item">` +
+                `<span class="vfc-ex-jp vfc-audio-word" onclick="event.stopPropagation();App.playWord('${v.japanese}')" title="🔊">${stripFurigana(v.kanji || '')||v.japanese}</span>` +
+                `<span class="vfc-ex-kr">${v.korean}</span>` +
+                `</div>`
+              ).join('') +
+              '</div>';
+          } else { compoundsEl.style.display = 'none'; compoundsEl.innerHTML = ''; }
+        } else { compoundsEl.style.display = 'none'; compoundsEl.innerHTML = ''; }
+      } else if (!compoundsRendered) {
+        compoundsEl.style.display = 'none'; compoundsEl.innerHTML = '';
+      }
     }
 
     if (sentencesEl) {
@@ -6882,13 +8014,15 @@ const App = (() => {
       } else { sentencesEl.style.display = 'none'; sentencesEl.innerHTML = ''; }
     }
 
-    // 카드 리셋 + 읽기 세션 무효화
-    state.vocabFlipped = false;
+    // 카드 리셋 + 읽기 세션 무효화 (flipCard 설정에 따라 초기 면 결정)
+    const flipEnabled = state.prefs.flipCard === true;
+    state.vocabFlipped = !flipEnabled;
     state.vocabReadSession = (state.vocabReadSession || 0) + 1;
     stopVocabExRead();
-    document.getElementById('vfc-inner').classList.remove('flipped');
+    document.getElementById('vfc-inner').classList.toggle('flipped', !flipEnabled);
 
-    // 앞면에서는 발음하지 않음 — 뒤집을 때 발음 (음성 엉킴 방지)
+    // 앞/뒷면 모두: 일본어 텍스트 자동 읽기
+    setTimeout(() => playAudio(item.japanese || ''), 300);
 
     updateNavStripActive('vfc-nav-strip', idx);
 
@@ -6979,6 +8113,7 @@ const App = (() => {
   function vocabFlipCard() {
     if (state.vocabFlipped) return; // 이미 뒤집힘 — 다시 앞면으로 돌아가지 않음
     state.vocabFlipped = true;
+    _onVocabLearn();
     document.getElementById('vfc-inner').classList.add('flipped');
 
     // 읽기 세션 증가 → 카드 넘기면 이전 읽기 중단
@@ -7474,37 +8609,54 @@ const App = (() => {
   }
 
   function renderVocabProgress() {
-    const container = document.getElementById('progress-levels');
+    const container = document.getElementById('vocab-progress-list');
     if (!container) return;
+    container.innerHTML = '';
 
-    const section = document.createElement('div');
-    section.style.marginTop = '24px';
-    section.innerHTML = '<h3 style="margin-bottom:12px">📖 단어 학습 진도 (4·5단계)</h3>';
-
+    // 타입별 그룹핑
+    const groups = { word: [], sentence: [], sim: [] };
     VOCAB_CATEGORIES.forEach(cat => {
-      const prog = getVocabCategoryProgress(cat.id);
-      const seenCount = cat.items.filter(id => state.vocabProgress[id] && state.vocabProgress[id].seen > 0).length;
-
-      const el = document.createElement('div');
-      el.className = 'pl-level';
-      el.innerHTML = `
-        <div class="pll-header">
-          <div>
-            <div class="pll-title">${cat.icon} ${cat.name}</div>
-            <div class="pll-sub">${cat.subtitle} · ${cat.items.length}개 단어</div>
-          </div>
-          <div class="pll-pct">${prog}%</div>
-        </div>
-        <div class="pll-bar-bg"><div class="pll-bar-fill" style="width:${prog}%"></div></div>
-        <div style="font-size:11px;color:#718096;margin-top:4px">${seenCount} / ${cat.items.length}개 학습</div>`;
-      section.appendChild(el);
+      const g = cat.type || 'word';
+      if (groups[g]) groups[g].push(cat);
+      else groups.word.push(cat);
     });
 
-    container.appendChild(section);
+    const groupInfo = [
+      { key: 'word',     label: '📚 어휘 마스터' },
+      { key: 'sentence', label: '💬 회화 마스터' },
+      { key: 'sim',      label: '🎭 실전 롤플레이' },
+    ];
+
+    groupInfo.forEach(({ key, label }) => {
+      const cats = groups[key];
+      if (!cats || !cats.length) return;
+      const sec = document.createElement('div');
+      sec.className = 'vp-section';
+      sec.innerHTML = `<h4 class="vp-section-title">${label}</h4>`;
+      cats.forEach(cat => {
+        const prog = getVocabCategoryProgress(cat.id);
+        const seenCount = cat.items.filter(id => state.vocabProgress[id] && state.vocabProgress[id].seen > 0).length;
+        const el = document.createElement('div');
+        el.className = 'pl-level';
+        el.innerHTML = `
+          <div class="pll-header">
+            <div>
+              <div class="pll-title">${cat.icon} ${cat.name}</div>
+              <div class="pll-sub">${cat.subtitle || ''} · ${cat.items.length}개</div>
+            </div>
+            <div class="pll-pct">${prog}%</div>
+          </div>
+          <div class="pll-bar-bg"><div class="pll-bar-fill" style="width:${prog}%"></div></div>
+          <div style="font-size:11px;color:#718096;margin-top:4px">${seenCount} / ${cat.items.length}개 학습</div>`;
+        sec.appendChild(el);
+      });
+      container.appendChild(sec);
+    });
   }
 
   function vocabBackToSetup() {
     state.vocabMode = null;
+    document.body.classList.remove('fc-fullscreen');
     stopAllAudio();
     clearVocabAutoAdvance();
     state.vocabReadSession = (state.vocabReadSession || 0) + 1;
@@ -7516,7 +8668,13 @@ const App = (() => {
     document.getElementById('vocab-setup').style.display = 'block';
     document.getElementById('vocab-flash-panel').style.display = 'none';
     const browseArea = document.getElementById('vocab-browse-area');
-    if (browseArea) browseArea.style.display = 'none';
+    if (browseArea) {
+      browseArea.style.display = 'none';
+      const ssPanel = document.getElementById('vbc-slideshow-panel');
+      if (ssPanel) ssPanel.style.display = 'none';
+      const grid = document.getElementById('vocab-browse-grid');
+      if (grid) grid.style.display = 'grid';
+    }
     const dialogueArea = document.getElementById('vocab-dialogue-area');
     if (dialogueArea) dialogueArea.style.display = 'none';
     // 데일리 배너 복원
@@ -7914,9 +9072,12 @@ const App = (() => {
   let _lecturePrevView = 'home';
 
   function startLecture(catId) {
-    _lecturePrevView = state.currentView || 'home';
+    // 이미 강의 중이면 prevView 를 덮어쓰지 않음 (다음 강의 이어듣기 시 나가기 동작 보장)
+    if (state.currentView !== 'lecture') {
+      _lecturePrevView = state.currentView || 'home';
+    }
     _lectureCatId = catId;
-    _lectureSpeakerTurn = 1; // 화자 교대 초기화
+    _lectureSpeakerSlot = 1; // 새 강의 시작 시 슬롯 초기화
     const cat = VOCAB_CATEGORIES.find(c => c.id === catId);
     if (!cat) { showToast('강의 데이터를 찾을 수 없습니다.'); return; }
     _lectureSlides = generateLectureSlides(cat);
@@ -7925,6 +9086,17 @@ const App = (() => {
 
     // 독립 뷰로 전환 (showView 내부에서 stopAmbient 호출됨)
     showView('lecture');
+
+    // 강의 뷰의 실제 top 위치를 측정해 정확한 높이 설정 (헤더+네비 높이 합산 오차 방지)
+    requestAnimationFrame(() => {
+      const lv = document.getElementById('view-lecture');
+      if (!lv) return;
+      const top = Math.round(lv.getBoundingClientRect().top);
+      if (top > 0) {
+        lv.style.height = `calc(100dvh - ${top}px)`;
+        lv.style.maxHeight = `calc(100dvh - ${top}px)`;
+      }
+    });
 
     const nameEl = document.getElementById('lecture-cat-name');
     if (nameEl) nameEl.textContent = `${cat.icon || ''} ${cat.name}`;
@@ -7948,13 +9120,15 @@ const App = (() => {
 
     // play 버튼 초기 상태
     const pb = document.getElementById('lec-play-btn');
-    if (pb) pb.textContent = '⏸';
+    if (pb) pb.textContent = '⏸ 자동';
     // 타이머바 초기화
     const fill = document.getElementById('lecture-timer-fill');
     if (fill) { fill.style.transition='none'; fill.style.width='0%'; }
 
     // 이벤트 바인딩 (1회)
     _bindLectureControls();
+    const compPanel = document.getElementById('lec-completion');
+    if (compPanel) compPanel.style.display = 'none';
     _showLectureSlide(0);
   }
 
@@ -7969,7 +9143,8 @@ const App = (() => {
       sub: '이 상황에서 꼭 필요한 표현들',
       reading: '',
       captionJp: `今日(きょう)は「${catName}」の場面(ばめん)を練習(れんしゅう)します！実際(じっさい)の会話(かいわ)でよく使(つか)われる表現(ひょうげん)を一(ひと)つひとつ丁寧(ていねい)に見(み)ていきましょう。`,
-      captionKo: `오늘은 「${catName}」 상황을 연습해요! 실제 대화에서 자주 사용되는 표현들을 하나씩 꼼꼼히 살펴봐요.`
+      captionKo: `오늘은 「${catName}」 상황을 연습해요! ${cat.desc || ''} 실제 대화에서 자주 사용되는 표현들을 하나씩 꼼꼼히 살펴봐요.`,
+      subtitleList: cat.subtitle ? `📋 ${cat.subtitle}` : '',
     });
     // Culture
     slides.push({
@@ -8034,13 +9209,16 @@ const App = (() => {
       hookSlides.forEach(s => slides.push({ ...s }));
     } else {
       // 자동 생성 인트로
+      const keyItemsList = items.slice(0, 5).map(i => i.japanese || '').filter(Boolean).join(' · ');
       slides.push({
         type: 'title', label: '인트로', duration: 4000, audio: null,
         main: `${cat.icon || '📚'} ${cat.name}`,
         sub: cat.subtitle || '',
-        reading: '',
+        reading: cat.desc || '',
+        meaning: `이 단원에서 배울 것: ${keyItemsList}`,
+        subtitleList: cat.subtitle ? `📋 ${cat.subtitle}` : '',
         captionJp: `みなさん、こんにちは！今日は「${cat.name}」を楽(たの)しく勉強(べんきょう)しましょう！この単元(たんげん)には${items.length}つの重要(じゅうよう)な表現(ひょうげん)があります。準備(じゅんび)はいいですか？`,
-        captionKo: `여러분 안녕하세요! 오늘은 「${cat.name}」를 재미있게 공부해봐요! 이 단원에는 ${items.length}개의 중요 표현이 있어요. 준비됐나요?`
+        captionKo: `여러분 안녕하세요! 오늘은 「${cat.name}」를 재미있게 공부해봐요! ${cat.desc ? cat.desc + ' ' : ''}이 단원에는 ${items.length}개의 중요 표현이 있어요. 준비됐나요?`
       });
     }
 
@@ -8191,12 +9369,30 @@ const App = (() => {
     const tipEl = document.getElementById('lb-tip');
     if (engEl) engEl.textContent = slide.english ? `[${slide.english}]` : '';
     if (tipEl) tipEl.textContent = slide.tip || '';
+    // 인트로 슬라이드에서 학습할 항목 목록 표시
+    let subtitleEl = document.getElementById('lb-subtitle-list');
+    if (!subtitleEl) {
+      subtitleEl = document.createElement('div');
+      subtitleEl.id = 'lb-subtitle-list';
+      subtitleEl.className = 'lb-subtitle-list';
+      const lb = document.querySelector('.lb-content');
+      if (lb) lb.appendChild(subtitleEl);
+    }
+    subtitleEl.textContent = slide.subtitleList || '';
+    subtitleEl.style.display = slide.subtitleList ? '' : 'none';
+    // 칠판 내용 교체 시 애니메이션 재트리거
+    [mainEl, readEl, meaningEl].forEach(el => {
+      if (!el) return;
+      el.style.animation = 'none';
+      el.offsetHeight; // reflow
+      el.style.animation = '';
+    });
     // 다음장 버튼 숨김
     const ngBtn = document.getElementById('lec-next-guide-btn');
     if (ngBtn) ngBtn.style.display = 'none';
     // 재생 버튼 상태
     const playBtn2 = document.getElementById('lec-play-btn');
-    if (playBtn2 && _lecturePlaying) playBtn2.textContent = '⏸';
+    if (playBtn2 && _lecturePlaying) playBtn2.textContent = '⏸ 자동';
     // captionJp TTS 읽기 → 끝나면 자동 다음 장 (영상처럼 연속 재생)
     _speakLecCaption(slide.captionJp || slide.captionKo || '', () => {
       if (!_lecturePlaying) {
@@ -8205,16 +9401,73 @@ const App = (() => {
         return;
       }
       if (_lectureSlideIdx < _lectureSlides.length - 1) {
-        // 1.2초 후 자동 다음 장
-        _startLectureTimerBar(1200);
-        _scheduleLectureNext(1200);
+        // TTS 완료 후 1.5초 대기 → 자동 다음 장
+        const nextDelay = 1500;
+        _startLectureTimerBar(nextDelay);
+        _scheduleLectureNext(nextDelay);
       } else {
-        // 마지막 슬라이드 → 완료
+        // 마지막 슬라이드 → 완료 패널 표시
         _lecturePlaying = false;
-        if (playBtn2) playBtn2.textContent = '▶';
-        if (ngBtn) { ngBtn.style.display = ''; ngBtn.textContent = '강의 완료 ✅'; }
+        if (playBtn2) playBtn2.textContent = '▶ 자동';
+        _showLectureCompletion();
       }
     });
+  }
+
+  function _showLectureCompletion() {
+    const panel = document.getElementById('lec-completion');
+    if (!panel) return;
+    // 다음 강의 찾기 (같은 타입, 다음 wlevel/slevel/simlevel)
+    const cat = typeof VOCAB_CATEGORIES !== 'undefined' ? VOCAB_CATEGORIES.find(c => c.id === _lectureCatId) : null;
+    const catType = cat ? cat.type : 'word';
+    let nextCat = null;
+    if (cat && typeof VOCAB_CATEGORIES !== 'undefined') {
+      const sameLevelCats = VOCAB_CATEGORIES.filter(c => c.type === catType);
+      const curIdx = sameLevelCats.findIndex(c => c.id === cat.id);
+      if (curIdx >= 0 && curIdx + 1 < sameLevelCats.length) {
+        nextCat = sameLevelCats[curIdx + 1];
+      }
+    }
+    const subEl = document.getElementById('lec-comp-sub');
+    if (subEl) subEl.textContent = cat ? `「${cat.name}」 ${cat.items ? cat.items.length : ''}개 표현 완료! 다음엔 학습·퀴즈로 복습해봐요.` : '수고하셨습니다!';
+    // 다음 강의 버튼
+    const nextBtn = document.getElementById('lec-comp-next');
+    if (nextBtn) {
+      if (nextCat) {
+        nextBtn.textContent = `📖 다음 강의: ${nextCat.icon || ''} ${nextCat.name}`;
+        nextBtn.style.display = '';
+        nextBtn.onclick = () => { panel.style.display = 'none'; startLecture(nextCat.id); };
+      } else {
+        nextBtn.style.display = 'none';
+      }
+    }
+    // 실전 대화 버튼
+    const dlgBtn = document.getElementById('lec-comp-dialogue');
+    if (dlgBtn) {
+      const hasDlg = cat && cat.dialogue;
+      dlgBtn.style.display = hasDlg ? '' : 'none';
+      if (hasDlg) {
+        dlgBtn.onclick = () => {
+          panel.style.display = 'none';
+          _lecturePlaying = false;
+          stopAmbient(1.5, false);
+          const v = cat.type === 'sim' ? 'roleplay' : cat.type === 'sentence' ? 'convo' : 'vocab';
+          showView(v);
+          setTimeout(() => startVocabCategory(cat.id, 'dialogue'), 100);
+        };
+      }
+    }
+    // 홈으로 버튼
+    const backBtn2 = document.getElementById('lec-comp-back');
+    if (backBtn2) {
+      backBtn2.onclick = () => {
+        panel.style.display = 'none';
+        _lecturePlaying = false;
+        stopAmbient(1.5, false);
+        showView(_lecturePrevView || 'home');
+      };
+    }
+    panel.style.display = 'flex';
   }
 
   function _startLectureTimerBar(duration) {
@@ -8286,9 +9539,10 @@ const App = (() => {
         if (_lectureTimer) clearTimeout(_lectureTimer);
         if (_lectureFillInterval) clearInterval(_lectureFillInterval);
         window.speechSynthesis && window.speechSynthesis.cancel();
+        if (state.currentVvAudio) { state.currentVvAudio.pause && state.currentVvAudio.pause(); state.currentVvAudio = null; }
         const ng=document.getElementById('lec-next-guide-btn'); if(ng) ng.style.display='none';
         _lecturePlaying = true;
-        const pb=document.getElementById('lec-play-btn'); if(pb) pb.textContent='⏸';
+        const pb=document.getElementById('lec-play-btn'); if(pb) pb.textContent='⏸ 자동';
         _showLectureSlide(_lectureSlideIdx - 1);
       });
     }
@@ -8298,9 +9552,10 @@ const App = (() => {
         if (_lectureTimer) clearTimeout(_lectureTimer);
         if (_lectureFillInterval) clearInterval(_lectureFillInterval);
         window.speechSynthesis && window.speechSynthesis.cancel();
+        if (state.currentVvAudio) { state.currentVvAudio.pause && state.currentVvAudio.pause(); state.currentVvAudio = null; }
         const ng=document.getElementById('lec-next-guide-btn'); if(ng) ng.style.display='none';
         _lecturePlaying = true;
-        const pb=document.getElementById('lec-play-btn'); if(pb) pb.textContent='⏸';
+        const pb=document.getElementById('lec-play-btn'); if(pb) pb.textContent='⏸ 자동';
         _showLectureSlide(_lectureSlideIdx + 1);
       });
     }
@@ -8314,7 +9569,7 @@ const App = (() => {
           window.speechSynthesis && window.speechSynthesis.cancel();
           state.currentVvAudio && state.currentVvAudio.pause && state.currentVvAudio.pause();
           _lecturePlaying = false;
-          playBtn.textContent = '▶';
+          playBtn.textContent = '▶ 재생';
           // 일시정지 중 다음장 버튼 표시
           const ng = document.getElementById('lec-next-guide-btn');
           if (ng) { ng.style.display = ''; ng.textContent = _lectureSlideIdx >= _lectureSlides.length - 1 ? '강의 완료 ✅' : '▶ 다음 장으로'; }
@@ -8324,7 +9579,7 @@ const App = (() => {
         } else {
           // 재생 재개: 현재 슬라이드부터 다시
           _lecturePlaying = true;
-          playBtn.textContent = '⏸';
+          playBtn.textContent = '⏸ 자동';
           const ng = document.getElementById('lec-next-guide-btn');
           if (ng) ng.style.display = 'none';
           _showLectureSlide(_lectureSlideIdx);
@@ -8340,7 +9595,7 @@ const App = (() => {
         if (_lectureSlideIdx < _lectureSlides.length - 1) {
           _lecturePlaying = true; // 다음 장 클릭 시 자동재생 재개
           const pb = document.getElementById('lec-play-btn');
-          if (pb) pb.textContent = '⏸';
+          if (pb) pb.textContent = '⏸ 자동';
           _showLectureSlide(_lectureSlideIdx + 1);
         } else {
           _lecturePlaying = false;
@@ -8352,8 +9607,13 @@ const App = (() => {
       audioBtn._lecBound = true;
       audioBtn.addEventListener('click', () => {
         const slide = _lectureSlides[_lectureSlideIdx];
-        if (slide && slide.audio) playAudio(slide.audio.replace(/[（）()]/g, ''));
-        else if (slide && slide.main) playAudio(slide.main.replace(/[（）()]/g, '').replace(/[✅]/g, ''));
+        if (!slide) return;
+        // 현재 TTS 중지 후 재생
+        window.speechSynthesis && window.speechSynthesis.cancel();
+        if (state.currentVvAudio) { state.currentVvAudio.pause && state.currentVvAudio.pause(); state.currentVvAudio = null; }
+        const audioText = slide.audio || slide.main || slide.captionJp || '';
+        const clean = audioText.replace(/[（）()✅🎯🎭🔥💡📖🛎️☎️🧳🎉]/g, '').replace(/[^\u3000-\u9fff\u30a0-\u30ff\u3040-\u309f\uff00-\uffefa-zA-Z0-9\s、。！？]/g, '').trim();
+        if (clean) _speakLecCaption(clean, null);
       });
     }
   }
@@ -8380,6 +9640,562 @@ const App = (() => {
     actions.insertBefore(btn, actions.firstChild);
   }
 
+  // ════════════════════════════════════════════════════════
+  //  온보딩
+  // ════════════════════════════════════════════════════════
+  function _showOnboardingIfNew() {
+    // XP가 0이고 진행 상황이 없으면 첫 방문
+    if ((state.totalXP || 0) > 0 || Object.keys(state.progress || {}).length > 0) return;
+    const overlay = document.getElementById('onboarding-overlay');
+    if (!overlay) return;
+    overlay.style.display = 'flex';
+    const btn = document.getElementById('onboarding-start-btn');
+    if (btn) {
+      btn.addEventListener('click', () => {
+        overlay.style.opacity = '0';
+        overlay.style.transition = 'opacity 0.3s';
+        setTimeout(() => overlay.remove(), 350);
+      });
+    }
+  }
+
+  // ════════════════════════════════════════════════════════
+  //  GAMIFICATION INTEGRATION - 계급·아이템·배지·미션·스트릭
+  // ════════════════════════════════════════════════════════
+
+  function _todayStr() {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  }
+
+  /** 게이미피케이션 초기화 — 스트릭/미션 계산, 헤더 갱신 */
+  function _initGamification() {
+    // 스트릭 계산
+    if (typeof calculateStreak === 'function') {
+      state.streak = calculateStreak(state.lastStudied, state.streak);
+    }
+    // 오늘 미션 확인/생성
+    const today = _todayStr();
+    if (!state.dailyMissions || state.dailyMissions.date !== today) {
+      if (typeof generateDailyMissions === 'function') {
+        state.dailyMissions = { date: today, missions: generateDailyMissions(today) };
+        state.dailyMissionProgress = {};
+      }
+    }
+    _updateHeaderGamification();
+  }
+
+  /** 헤더 계급·스트릭 갱신 */
+  function _updateHeaderGamification() {
+    if (typeof getRank !== 'function') return;
+    const rank = getRank(state.totalXP || 0);
+    const el = (id) => document.getElementById(id);
+    if (el('hdr-rank-icon'))  el('hdr-rank-icon').textContent = rank.icon;
+    if (el('hdr-rank-name'))  el('hdr-rank-name').textContent = _uiRankName(rank);
+    if (el('hdr-streak-num')) el('hdr-streak-num').textContent = state.streak || 0;
+    // UI 레벨 적응형 라벨 갱신
+    _updateUILabels();
+  }
+
+  // ═══════════════════════════════════════════════════════
+  //  레벨 적응형 UI 텍스트 시스템
+  //  초급(XP<600): 한국어 UI
+  //  중급(XP 600~1999): 한국어 + 일본어 병기
+  //  상급(XP 2000+): 일본어 (학습 목적)
+  // ═══════════════════════════════════════════════════════
+
+  function _uiTier() {
+    const xp = state.totalXP || 0;
+    if (xp < 600) return 'beginner';
+    if (xp < 2000) return 'intermediate';
+    return 'advanced';
+  }
+
+  /** 한국어 / 일본어 병기 / 일본어 — 레벨에 맞는 텍스트 반환 */
+  function _uiText(ko, jp) {
+    const tier = _uiTier();
+    if (tier === 'beginner') return ko;
+    if (tier === 'intermediate') return `${ko}(${jp})`;
+    return jp;
+  }
+
+  /** 계급명: 초급 한국어, 중급 병기, 상급 일본어 */
+  function _uiRankName(rank) {
+    const tier = _uiTier();
+    if (tier === 'beginner') return rank.nameKo;
+    if (tier === 'intermediate') return `${rank.nameKo}(${rank.name})`;
+    return rank.name;
+  }
+
+  /** 아이템명: 초급 한국어, 중급 병기, 상급 일본어 */
+  function _uiItemName(item) {
+    const tier = _uiTier();
+    if (tier === 'beginner') return item.nameKo;
+    if (tier === 'intermediate') return `${item.nameKo}(${item.name})`;
+    return item.name;
+  }
+
+  /** 배지명: 초급 한국어 name, 중급 병기, 상급 일본어 nameJp */
+  function _uiBadgeName(badge) {
+    const tier = _uiTier();
+    if (tier === 'beginner') return badge.name;
+    if (tier === 'intermediate') return `${badge.name}(${badge.nameJp})`;
+    return badge.nameJp;
+  }
+
+  // 탭/제목 라벨 정의 (ko, jp)
+  const _UI_LABELS = {
+    // 하단 탭
+    home:     ['학습', '学ぶ'],
+    practice: ['연습', '練習'],
+    yomu:     ['읽기', '読む'],
+    mypage:   ['마이', 'マイ'],
+    // 제목
+    mainTitle:    ['데니스의 일본어 마스터', 'デニスの日本語マスター'],
+    practiceMode: ['✏️ 연습 모드', '✏️ 練習モード'],
+    // 진도 탭
+    progKana:  ['가나', 'かな'],
+    progVocab: ['어휘', '語彙'],
+    progStats: ['통계', '統計'],
+    // 섹션 히어로 헤더
+    kanaMaster:  ['가나 마스터', 'かなマスター'],
+    vocabMaster: ['어휘 마스터', '語彙マスター'],
+    convoMaster: ['회화 마스터', '会話マスター'],
+    simRoleplay: ['실전 롤플레이', '実戦ロールプレイ'],
+    // 퀴즈 타이틀
+    kanaQuiz: ['가나 퀴즈', 'かな クイズ'],
+    vocabQuiz: ['단어 퀴즈', '単語 クイズ'],
+    // 기타 버튼
+    repeatBtn: ['🔁 다시 듣기', '🔁 もう一度'],
+    dialogue: ['대화', '対話'],
+  };
+
+  /** 모든 UI 라벨을 현재 레벨에 맞게 갱신 */
+  function _updateUILabels() {
+    const tier = _uiTier();
+
+    // ── 하단 탭 ──
+    document.querySelectorAll('.nav-tab-label[data-tab-key]').forEach(el => {
+      const key = el.dataset.tabKey;
+      const pair = _UI_LABELS[key];
+      if (pair) el.textContent = _uiText(pair[0], pair[1]);
+    });
+
+    // ── 메인 타이틀 ──
+    const mainTitle = document.getElementById('app-main-title');
+    if (mainTitle) {
+      const p = _UI_LABELS.mainTitle;
+      mainTitle.textContent = tier === 'beginner' ? p[0] : tier === 'intermediate' ? p[0] : p[1];
+      const sub = document.getElementById('app-main-subtitle');
+      if (sub) sub.textContent = tier === 'advanced' ? p[0] : "Denis's Japanese Master";
+    }
+
+    // ── 연습 모드 제목 ──
+    const pmTitle = document.getElementById('practice-mode-title');
+    if (pmTitle) pmTitle.textContent = _uiText('✏️ 연습 모드', '✏️ 練習モード');
+
+    // ── 진도 탭 ──
+    document.querySelectorAll('.prog-tab[data-prog-key]').forEach(el => {
+      const map = { kana: 'progKana', vocab: 'progVocab', stats: 'progStats' };
+      const pair = _UI_LABELS[map[el.dataset.progKey]];
+      if (pair) el.textContent = _uiText(pair[0], pair[1]);
+    });
+
+    // ── 퀴즈 타이틀 ──
+    const qiMain = document.getElementById('qi-title-main');
+    const qiSub = document.getElementById('qi-title-sub');
+    if (qiMain) {
+      const p = _UI_LABELS.kanaQuiz;
+      if (tier === 'beginner') { qiMain.textContent = p[0]; if (qiSub) qiSub.textContent = ''; }
+      else if (tier === 'intermediate') { qiMain.textContent = p[1]; if (qiSub) qiSub.textContent = p[0]; }
+      else { qiMain.textContent = p[1]; if (qiSub) qiSub.textContent = ''; }
+    }
+    const vqMain = document.getElementById('vq-title-main');
+    const vqSub = document.getElementById('vq-title-sub');
+    if (vqMain) {
+      const p = _UI_LABELS.vocabQuiz;
+      if (tier === 'beginner') { vqMain.textContent = p[0]; if (vqSub) vqSub.textContent = ''; }
+      else if (tier === 'intermediate') { vqMain.textContent = p[1]; if (vqSub) vqSub.textContent = p[0]; }
+      else { vqMain.textContent = p[1]; if (vqSub) vqSub.textContent = ''; }
+    }
+  }
+
+  /** XP 부여 — 계급업 체크, 아이템 드롭 체크, 미션 진행, 배지 체크 */
+  function _awardXP(amount, action) {
+    if (!amount || amount <= 0) return;
+    const prevXP = state.totalXP || 0;
+    state.totalXP = prevXP + amount;
+
+    // 계급업 체크
+    if (typeof getRank === 'function') {
+      const prevRank = getRank(prevXP);
+      const newRank  = getRank(state.totalXP);
+      if (newRank.id > prevRank.id) {
+        _showRankUpModal(newRank);
+        _tryDropItem('rank_up');
+      }
+    }
+
+    // 스트릭 갱신
+    const today = _todayStr();
+    if (state.lastStudied !== today) {
+      if (state.lastStudied) {
+        const last = new Date(state.lastStudied);
+        const now = new Date(today);
+        last.setHours(0,0,0,0); now.setHours(0,0,0,0);
+        const diff = Math.floor((now - last) / 86400000);
+        if (diff === 1) state.streak = (state.streak || 0) + 1;
+        else if (diff > 1) state.streak = 1;
+      } else {
+        state.streak = 1;
+      }
+      state.lastStudied = today;
+    }
+
+    // 미션 진행: any_xp
+    _advanceMission('any_xp', amount);
+
+    // 아이템 드롭 시도
+    if (action) _tryDropItem(action);
+
+    // 배지 체크
+    _checkAllBadges();
+
+    _updateHeaderGamification();
+    saveToStorage();
+  }
+
+  /** 미션 진행 */
+  function _advanceMission(type, delta) {
+    if (!state.dailyMissions || !state.dailyMissions.missions) return;
+    state.dailyMissions.missions.forEach(m => {
+      if (m.completed) return;
+      if (m.type === type) {
+        m.current = (m.current || 0) + (delta || 1);
+        if (m.current >= m.target) {
+          m.completed = true;
+          _awardXP(m.reward, 'daily_mission');
+          _showBadgeToast('📋', '미션 완료!', m.text + ' (+' + m.reward + 'XP)');
+        }
+      }
+    });
+  }
+
+  /** 아이템 드롭 시도 */
+  function _tryDropItem(action) {
+    if (typeof shouldDropItem !== 'function' || typeof rollRandomItem !== 'function') return;
+    if (!shouldDropItem(action)) return;
+    const item = rollRandomItem();
+    if (!state.collectedItems) state.collectedItems = [];
+    const isNew = !state.collectedItems.includes(item.id);
+    if (isNew) state.collectedItems.push(item.id);
+    _showItemDropModal(item, isNew);
+  }
+
+  /** 아이템 드롭 모달 표시 */
+  function _showItemDropModal(item, isNew) {
+    const rc = typeof RARITY_CONFIG !== 'undefined' ? RARITY_CONFIG[item.rarity] : null;
+    const rarityLabel = rc ? rc.label : item.rarity;
+    const rarityColor = rc ? rc.color : '#999';
+    const overlay = document.createElement('div');
+    overlay.className = 'item-drop-overlay';
+    overlay.innerHTML = `
+      <div class="item-drop-card rarity-${item.rarity}">
+        <div class="item-drop-icon">${item.icon}</div>
+        <div class="item-drop-label" style="color:${rarityColor}">${isNew ? '✨ NEW! ' : ''}${rarityLabel}</div>
+        <div class="item-drop-name">${item.name}</div>
+        <div style="font-size:12px;color:var(--gray);margin-bottom:2px">${item.nameKo}</div>
+        <div class="item-drop-desc">${item.desc}</div>
+        <button class="item-drop-btn">받기</button>
+      </div>`;
+    document.body.appendChild(overlay);
+    overlay.querySelector('.item-drop-btn').addEventListener('click', () => overlay.remove());
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
+  }
+
+  /** 랭크업 모달 */
+  function _showRankUpModal(rank) {
+    const overlay = document.createElement('div');
+    overlay.className = 'rankup-overlay';
+    overlay.innerHTML = `
+      <div class="rankup-card">
+        <div class="rankup-label">RANK UP!</div>
+        <div class="rankup-icon">${rank.icon}</div>
+        <div class="rankup-name">${rank.name}</div>
+        <div class="rankup-nameKo">${rank.nameKo}</div>
+        <button class="rankup-btn">확인</button>
+      </div>`;
+    document.body.appendChild(overlay);
+    overlay.querySelector('.rankup-btn').addEventListener('click', () => overlay.remove());
+    setTimeout(() => { if (overlay.parentNode) overlay.remove(); }, 6000);
+  }
+
+  /** 배지 토스트 */
+  function _showBadgeToast(icon, title, desc) {
+    const toast = document.createElement('div');
+    toast.className = 'badge-toast';
+    toast.innerHTML = `
+      <span class="badge-toast-icon">${icon}</span>
+      <div class="badge-toast-info">
+        <div class="badge-toast-title">${title}</div>
+        <div class="badge-toast-desc">${desc}</div>
+      </div>`;
+    document.body.appendChild(toast);
+    setTimeout(() => { toast.style.opacity = '0'; toast.style.transition = 'opacity 0.4s'; }, 2800);
+    setTimeout(() => toast.remove(), 3300);
+  }
+
+  /** 배지 전체 검사 */
+  function _checkAllBadges() {
+    if (typeof BADGES === 'undefined') return;
+    if (!state.earnedBadges) state.earnedBadges = [];
+    const s = state;
+    const kanaCount = Object.keys(s.progress || {}).length;
+    const vocabCount = Object.keys(s.vocabProgress || {}).length;
+    const checks = {
+      b_first_step:    kanaCount >= 1,
+      b_hira_10:       kanaCount >= 10,
+      b_hira_46:       kanaCount >= 46,
+      b_kata_46:       kanaCount >= 92,
+      b_kana_all:      kanaCount >= 200,
+      b_quiz_first:    (s.totalQuizzes || 0) >= 1,
+      b_quiz_perfect:  !!s.hadPerfectQuiz,
+      b_quiz_50:       (s.totalQuizzes || 0) >= 50,
+      b_quiz_streak5:  (s.quizStreak || 0) >= 5,
+      b_streak_3:      (s.streak || 0) >= 3,
+      b_streak_7:      (s.streak || 0) >= 7,
+      b_streak_30:     (s.streak || 0) >= 30,
+      b_streak_100:    (s.streak || 0) >= 100,
+      b_collect_5:     (s.collectedItems || []).length >= 5,
+      b_collect_15:    (s.collectedItems || []).length >= 15,
+      b_collect_all:   (s.collectedItems || []).length >= (typeof RARE_ITEMS !== 'undefined' ? RARE_ITEMS.length : 99),
+      b_collect_mythic: (s.collectedItems || []).some(id => typeof RARE_ITEMS !== 'undefined' && RARE_ITEMS.find(i => i.id === id && i.rarity === 'mythic')),
+      b_rank_silver:   typeof getRankLevel === 'function' && getRankLevel(s.totalXP || 0) >= 4,
+      b_rank_gold:     typeof getRankLevel === 'function' && getRankLevel(s.totalXP || 0) >= 6,
+      b_rank_master:   typeof getRankLevel === 'function' && getRankLevel(s.totalXP || 0) >= 12,
+      b_vocab_50:      vocabCount >= 50,
+      b_vocab_200:     vocabCount >= 200,
+      b_read_sign:     (s.signsRead || 0) >= 10,
+      b_read_diary:    (s.diariesRead || 0) >= 5,
+    };
+    for (const [id, earned] of Object.entries(checks)) {
+      if (earned && !s.earnedBadges.includes(id)) {
+        s.earnedBadges.push(id);
+        const badge = BADGES.find(b => b.id === id);
+        if (badge) _showBadgeToast(badge.icon, badge.name, badge.desc);
+      }
+    }
+  }
+
+  /** 마이페이지 렌더 */
+  function _renderMypage() {
+    if (typeof getRank !== 'function') return;
+    const xp = state.totalXP || 0;
+    const rank = getRank(xp);
+    const next = typeof getNextRank === 'function' ? getNextRank(xp) : null;
+    const progress = typeof getRankProgress === 'function' ? getRankProgress(xp) : 0;
+    const el = (id) => document.getElementById(id);
+
+    // 계급 카드
+    if (el('my-rank-icon'))   el('my-rank-icon').textContent = rank.icon;
+    if (el('my-rank-name'))   el('my-rank-name').textContent = rank.name;
+    if (el('my-rank-tier'))   el('my-rank-tier').textContent = (rank.tier || 'bronze').toUpperCase();
+    if (el('my-rank-xp'))    el('my-rank-xp').textContent = xp + ' / ' + (next ? next.minXP : rank.minXP) + ' XP';
+    if (el('my-rank-fill'))  el('my-rank-fill').style.width = Math.round(progress * 100) + '%';
+    if (el('my-rank-current-label')) el('my-rank-current-label').textContent = rank.name;
+    if (el('my-rank-next-label'))    el('my-rank-next-label').textContent = next ? ('\u2192 ' + next.name) : 'MAX';
+
+    // 스트릭
+    if (el('my-streak-days')) el('my-streak-days').textContent = state.streak || 0;
+
+    // 통계
+    if (el('my-total-xp'))    el('my-total-xp').textContent = xp;
+    if (el('my-kana-count'))  el('my-kana-count').textContent = Object.keys(state.progress || {}).length;
+    if (el('my-vocab-count')) el('my-vocab-count').textContent = Object.keys(state.vocabProgress || {}).length;
+
+    // 미션
+    _renderMissions('mypage-missions-list');
+
+    // 아이템 그리드
+    _renderItems();
+
+    // 배지 선반
+    _renderBadges();
+
+    // 버튼 바인딩
+    const progBtn = el('mypage-progress-btn');
+    if (progBtn && !progBtn._bound) { progBtn._bound = true; progBtn.addEventListener('click', () => showView('progress')); }
+    const setBtn = el('mypage-settings-btn');
+    if (setBtn && !setBtn._bound) { setBtn._bound = true; setBtn.addEventListener('click', () => { const s = document.getElementById('settings-overlay'); if (s) s.style.display = 'flex'; }); }
+  }
+
+  /** 미션 렌더 */
+  function _renderMissions(containerId) {
+    const container = document.getElementById(containerId);
+    if (!container || !state.dailyMissions) return;
+    const missions = state.dailyMissions.missions || [];
+    container.innerHTML = missions.map(m => {
+      const pct = Math.min(100, Math.round(((m.current || 0) / m.target) * 100));
+      return `<div class="mission-card${m.completed ? ' completed' : ''}">
+        <span class="mission-icon">${m.icon}</span>
+        <div class="mission-info">
+          <div class="mission-text">${m.text}</div>
+          <div class="mission-progress">${m.current || 0} / ${m.target}</div>
+          <div class="mission-progress-bar"><div class="mission-progress-fill" style="width:${pct}%"></div></div>
+        </div>
+        <span class="mission-reward">+${m.reward}XP</span>
+        <span class="mission-check">${m.completed ? '✅' : '⬜'}</span>
+      </div>`;
+    }).join('');
+  }
+
+  /** 아이템 컬렉션 렌더 */
+  function _renderItems() {
+    const grid = document.getElementById('my-item-grid');
+    if (!grid || typeof RARE_ITEMS === 'undefined') return;
+    const collected = state.collectedItems || [];
+    const countEl = document.getElementById('my-item-count');
+    if (countEl) countEl.textContent = `(${collected.length}/${RARE_ITEMS.length})`;
+    grid.innerHTML = RARE_ITEMS.map(item => {
+      const has = collected.includes(item.id);
+      return `<div class="item-cell ${has ? 'collected rarity-' + item.rarity : 'locked'}" title="${has ? item.nameKo + ' - ' + item.desc : '???'}">
+        <span class="item-icon">${item.icon}</span>
+        <span class="item-name">${has ? item.nameKo : '???'}</span>
+      </div>`;
+    }).join('');
+  }
+
+  /** 배지 선반 렌더 */
+  function _renderBadges() {
+    const shelf = document.getElementById('my-badge-shelf');
+    if (!shelf || typeof BADGES === 'undefined') return;
+    const earned = state.earnedBadges || [];
+    const countEl = document.getElementById('my-badge-count');
+    if (countEl) countEl.textContent = `(${earned.length}/${BADGES.length})`;
+    shelf.innerHTML = BADGES.map(b => {
+      const has = earned.includes(b.id);
+      return `<div class="badge-cell ${has ? 'earned' : 'locked'}" title="${has ? b.desc : '???'}">
+        <span class="badge-icon">${has ? b.icon : '🔒'}</span>
+        <span class="badge-label">${has ? b.name : '???'}</span>
+      </div>`;
+    }).join('');
+  }
+
+  /** 연습 허브 초기화 */
+  function _initPracticeHub() {
+    // SRS 복습 카드
+    if (typeof getSRSReviewItems === 'function') {
+      const items = getSRSReviewItems(state.progress || {});
+      const countEl = document.getElementById('srs-count-display');
+      if (countEl) countEl.textContent = items.length + '장';
+    }
+    // 북마크 카운트
+    const bmBadge = document.getElementById('bookmark-count-badge');
+    if (bmBadge) {
+      const cnt = (state.bookmarks || []).length;
+      bmBadge.textContent = cnt;
+      bmBadge.style.display = cnt > 0 ? '' : 'none';
+    }
+    // 카드 클릭 바인딩
+    const bind = (id, fn) => {
+      const el = document.getElementById(id);
+      if (el && !el._bound) { el._bound = true; el.addEventListener('click', fn); }
+    };
+    bind('phc-kana-quiz', () => showView('kana'));
+    bind('phc-vocab-quiz', () => showView('vocab'));
+    bind('phc-write', () => showView('write'));
+    bind('phc-bookmark', () => { showView('home'); setTimeout(() => { const s = document.getElementById('bookmark-section'); if (s) s.scrollIntoView({behavior:'smooth'}); }, 200); });
+    bind('srs-review-card', () => _startSRSReview());
+    // 미션 렌더
+    _renderMissions('daily-missions-list');
+  }
+
+  /** SRS 복습 시작 */
+  function _startSRSReview() {
+    if (typeof getSRSReviewItems !== 'function') return;
+    const items = getSRSReviewItems(state.progress || {});
+    if (items.length === 0) {
+      alert('오늘 복습할 항목이 없습니다!');
+      return;
+    }
+    // SRS 복습은 가나 플래시카드 모드 활용
+    showView('kana');
+    // 복습 대상 레벨 중 첫 번째로
+    if (items[0] && items[0].kana) {
+      const kana = items[0].kana;
+      // 해당 가나가 속한 레벨 찾기
+      if (typeof LEVELS !== 'undefined') {
+        for (const [lvl, chars] of Object.entries(LEVELS)) {
+          if (chars.includes(kana)) {
+            startLearn(parseInt(lvl), 'flash');
+            return;
+          }
+        }
+      }
+    }
+  }
+
+  // ─── 기존 학습 흐름에 XP 훅 삽입 ───
+  // (이 함수들은 기존 코드의 적절한 위치에서 호출됨)
+
+  /** 플래시카드 자가평가 시 호출 */
+  function _onFlashcardRate(rating) {
+    const xpMap = { good: 5, ok: 3, hard: 1 };
+    _awardXP(xpMap[rating] || 2, null);
+    _advanceMission('flashcard_flip', 1);
+    _advanceMission('kana_learn', 1);
+  }
+
+  /** 퀴즈 문제 정답 시 호출 */
+  function _onQuizCorrect() {
+    _awardXP(5, null);
+    _advanceMission('quiz_correct', 1);
+    state.quizStreak = (state.quizStreak || 0) + 1;
+  }
+
+  /** 퀴즈 오답 시 */
+  function _onQuizWrong() {
+    state.quizStreak = 0;
+  }
+
+  /** 퀴즈 완료 시 호출 */
+  function _onQuizComplete(score, total) {
+    state.totalQuizzes = (state.totalQuizzes || 0) + 1;
+    _advanceMission('quiz_play', 1);
+    if (score === total) {
+      state.hadPerfectQuiz = true;
+      _awardXP(20, 'quiz_perfect');
+    } else {
+      _awardXP(10, 'quiz_complete');
+    }
+  }
+
+  /** 어휘 학습 시 호출 */
+  function _onVocabLearn() {
+    _awardXP(3, null);
+    _advanceMission('vocab_learn', 1);
+  }
+
+  /** 필기 연습 시 호출 */
+  function _onWritePractice() {
+    _awardXP(3, null);
+    _advanceMission('write_practice', 1);
+  }
+
+  /** 간판 읽기 시 호출 */
+  function _onSignRead() {
+    state.signsRead = (state.signsRead || 0) + 1;
+    _awardXP(5, 'sign_read');
+    _advanceMission('sign_read', 1);
+  }
+
+  /** 일기 읽기 시 호출 */
+  function _onDiaryRead() {
+    state.diariesRead = (state.diariesRead || 0) + 1;
+    _awardXP(8, 'diary_read');
+    _advanceMission('diary_read', 1);
+  }
+
   // ─── 공개 API ───
   return {
     init,
@@ -8399,7 +10215,16 @@ const App = (() => {
     vocabBackToSetup,
     startVocabCategory,
     removeBookmark,
-    stopAllAudio
+    stopAllAudio,
+    // 게이미피케이션 훅
+    _onFlashcardRate,
+    _onQuizCorrect,
+    _onQuizWrong,
+    _onQuizComplete,
+    _onVocabLearn,
+    _onWritePractice,
+    _onSignRead,
+    _onDiaryRead
   };
 })();
 
