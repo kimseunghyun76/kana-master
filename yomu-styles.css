@@ -79,57 +79,100 @@
 }
 .sign-render {
   width: 100%; max-width: 520px;
-  border-radius: 10px; overflow: hidden;
-  box-shadow: 0 6px 24px rgba(0,0,0,0.18);
-  animation: signIn 0.35s ease;
+  border-radius: 12px; overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.05), 0 10px 25px rgba(0,0,0,0.15), inset 0 2px 4px rgba(255,255,255,0.3);
+  animation: signIn 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  position: relative;
+}
+/* 빛 반사 (Glare) 효과 추가 */
+.sign-render::after {
+  content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
+  background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0) 100%);
+  transform: skewX(-25deg); animation: signGlare 5s infinite; pointer-events: none;
+}
+@keyframes signGlare {
+  0% { left: -100%; } 15% { left: 200%; } 100% { left: 200%; }
 }
 @keyframes signIn {
-  from { opacity: 0; transform: scale(0.94); }
-  to   { opacity: 1; transform: scale(1); }
+  from { opacity: 0; transform: scale(0.92) translateY(10px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
 }
 
-/* 간판 스타일 프리셋 */
-.sign-render.station_blue { background: #1a3c6e; }
-.sign-render.station_blue .sign-line { color: white; }
-.sign-render.station_blue .sign-line.muted { color: rgba(255,255,255,0.55); }
+/* 간판 스타일 프리셋 업그레이드 (질감 추가) */
+.sign-render.station_blue {
+  background: #1a3c6e url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="4" height="4"><rect width="4" height="4" fill="%231a3c6e"/><path d="M0 0L4 4ZM4 0L0 4Z" stroke="%231e4580" stroke-width="1"/></svg>'); 
+  border: 2px solid #142a4f;
+}
+.sign-render.station_blue .sign-line { color: white; text-shadow: 0 1px 2px rgba(0,0,0,0.2); }
+.sign-render.station_blue .sign-line.muted { color: rgba(255,255,255,0.7); }
 
-.sign-render.station_green { background: #1a6e3c; }
-.sign-render.station_green .sign-line { color: white; }
-.sign-render.station_green .sign-line.muted { color: rgba(255,255,255,0.55); }
+.sign-render.station_green {
+  background: #1a6e3c url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="4" height="4"><rect width="4" height="4" fill="%231a6e3c"/><path d="M0 0L4 4ZM4 0L0 4Z" stroke="%23208549" stroke-width="1"/></svg>'); 
+  border: 2px solid #114a28;
+}
+.sign-render.station_green .sign-line { color: white; text-shadow: 0 1px 2px rgba(0,0,0,0.2); }
+.sign-render.station_green .sign-line.muted { color: rgba(255,255,255,0.7); }
 
-.sign-render.warning_yellow { background: #ffcc00; border: 6px solid #1a1a1a; }
-.sign-render.warning_yellow .sign-line { color: #1a1a1a; }
+.sign-render.warning_yellow { 
+  background: #ffcc00; 
+  border: 6px solid #1a1a1a; 
+  box-shadow: inset 0 0 10px rgba(0,0,0,0.1), 0 4px 6px rgba(0,0,0,0.05), 0 10px 25px rgba(0,0,0,0.15);
+}
+.sign-render.warning_yellow .sign-line { color: #1a1a1a; font-weight: 800; }
 
-.sign-render.warning_red { background: #d62828; }
-.sign-render.warning_red .sign-line { color: white; }
+.sign-render.warning_red { 
+  background: #d62828 url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="2" height="2"><rect width="2" height="2" fill="%23d62828"/><rect width="1" height="1" fill="%23e03131"/></svg>'); 
+  border: 4px solid #9e1a1a;
+}
+.sign-render.warning_red .sign-line { color: white; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
 
 .sign-render.restaurant_wood {
   background: linear-gradient(135deg, #5c2d0b 0%, #8b4513 50%, #5c2d0b 100%);
   border: 4px solid #3d1f0a;
+  box-shadow: inset 0 0 20px rgba(0,0,0,0.5), 0 4px 6px rgba(0,0,0,0.05), 0 10px 25px rgba(0,0,0,0.15);
 }
-.sign-render.restaurant_wood .sign-line { color: #ffd700; }
+.sign-render.restaurant_wood .sign-line { color: #ffd700; text-shadow: 0 2px 2px rgba(0,0,0,0.6); }
 .sign-render.restaurant_wood .sign-line.muted { color: rgba(255,215,0,0.6); }
 
-.sign-render.restaurant_red { background: #c1121f; }
-.sign-render.restaurant_red .sign-line { color: white; }
+.sign-render.restaurant_red { 
+  background: #c1121f; 
+  border: 2px solid #850c15;
+}
+.sign-render.restaurant_red .sign-line { color: white; text-shadow: 0 1px 2px rgba(0,0,0,0.3); }
 
-.sign-render.shop_white { background: white; border: 2px solid var(--border); }
-.sign-render.shop_white .sign-line { color: var(--text); }
-.sign-render.shop_white .sign-line.muted { color: var(--gray); }
+.sign-render.shop_white { 
+  background: #fafafa; 
+  border: 2px solid #ccc; 
+  box-shadow: inset 0 0 8px rgba(0,0,0,0.05), 0 4px 6px rgba(0,0,0,0.05), 0 10px 25px rgba(0,0,0,0.15);
+}
+.sign-render.shop_white .sign-line { color: #222; }
+.sign-render.shop_white .sign-line.muted { color: #666; }
 
-.sign-render.shop_sale { background: linear-gradient(135deg, #e63946, #c1121f); }
-.sign-render.shop_sale .sign-line { color: white; }
+.sign-render.shop_sale { 
+  background: linear-gradient(135deg, #e63946, #c1121f); 
+  border: 4px dashed white;
+}
+.sign-render.shop_sale .sign-line { color: white; text-shadow: 0 2px 4px rgba(0,0,0,0.2); }
 
-.sign-render.tourist_green { background: #2d6a4f; }
-.sign-render.tourist_green .sign-line { color: white; }
-.sign-render.tourist_green .sign-line.muted { color: rgba(255,255,255,0.6); }
+.sign-render.tourist_green { 
+  background: #2d6a4f; 
+  border: 2px solid #1b4332;
+}
+.sign-render.tourist_green .sign-line { color: white; text-shadow: 0 1px 2px rgba(0,0,0,0.2); }
+.sign-render.tourist_green .sign-line.muted { color: rgba(255,255,255,0.7); }
 
-.sign-render.public_blue { background: #1a4e8c; }
-.sign-render.public_blue .sign-line { color: white; }
+.sign-render.public_blue { 
+  background: #1a4e8c; 
+  border: 2px solid #103460;
+}
+.sign-render.public_blue .sign-line { color: white; text-shadow: 0 1px 2px rgba(0,0,0,0.2); }
 
-.sign-render.notice_white { background: white; border: 2px solid #ddd; }
+.sign-render.notice_white { 
+  background: white; 
+  border: 2px solid #ddd;
+}
 .sign-render.notice_white .sign-line { color: var(--text); }
-.sign-render.notice_white .sign-head { background: var(--red); color: white; font-size: 14px; font-weight: 700; padding: 10px 16px; }
+.sign-render.notice_white .sign-head { background: var(--red); color: white; font-size: 14px; font-weight: 700; padding: 10px 16px; border-bottom: 2px solid #b32a36; }
 
 /* 간판 내부 레이아웃 */
 .sign-body { padding: 20px 24px; display: flex; flex-direction: column; gap: 6px; }
@@ -144,8 +187,25 @@
 .sign-line.sm { font-size: clamp(12px, 2.5vw, 16px); }
 .sign-line.muted { opacity: 0.7; }
 
-/* 블러 (퀴즈 모드) */
-.sign-render.blurred .sign-line:not(.muted) { filter: blur(8px); user-select: none; }
+/* 블러 (퀴즈 모드) - 인터랙티브 디블러 */
+.sign-render.blurred .sign-line:not(.muted) { 
+  filter: blur(8px); 
+  user-select: none; 
+  cursor: pointer; 
+  transition: filter 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), transform 0.2s; 
+}
+/* 탭하면 블러 풀림 */
+.sign-render.blurred .sign-line:not(.muted).revealed { 
+  filter: blur(0px) !important; 
+  transform: scale(1.02);
+  z-index: 2;
+}
+.sign-line:not(.muted):hover {
+  filter: brightness(1.1);
+}
+.sign-render.blurred .sign-line:not(.muted):active { 
+  transform: scale(0.98); 
+}
 
 .sign-divider { border: none; border-top: 1.5px solid rgba(255,255,255,0.2); margin: 8px 0; }
 .sign-render.shop_white .sign-divider,

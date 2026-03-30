@@ -2025,11 +2025,19 @@ const App = (() => {
         if (e.cancelable) e.preventDefault();
         el.style.transform = `translateX(${dx * 0.4}px) rotate(${dx * 0.02}deg)`;
         moved = true;
+        // 드래그 방향에 따른 시각적 피드백 클래스 추가
+        const parent = el.closest('.flashcard-container');
+        if (parent) {
+          parent.classList.toggle('dragging-right', dx > 20);
+          parent.classList.toggle('dragging-left', dx < -20);
+        }
       }
     };
     const onEnd = (e) => {
       if (!dragging) return;
       dragging = false;
+      const parent = el.closest('.flashcard-container');
+      if (parent) parent.classList.remove('dragging-left', 'dragging-right');
       const ex = e.changedTouches ? e.changedTouches[0] : e;
       const dx = ex.clientX - startX;
       const dy = ex.clientY - startY;
@@ -4589,6 +4597,17 @@ const App = (() => {
     // 간판이나 일기가 열려있으면 즉시 초기화
     if (yomu.mode === 'sign') _initSignPanel();
     if (yomu.mode === 'diary') _initDiaryPanel();
+
+    // 간판 클릭 위임 (1번 이슈 해결: 개별 라인 클릭 시 블러 해제)
+    if (signPanel && !signPanel._clickBound) {
+      signPanel._clickBound = true;
+      signPanel.addEventListener('click', (e) => {
+        const line = e.target.closest('.sign-line');
+        if (line && !line.classList.contains('muted')) {
+          line.classList.toggle('revealed');
+        }
+      });
+    }
   }
 
   function _yomuShowPanel(mode) {
@@ -4696,12 +4715,15 @@ const App = (() => {
       const sizeClass = line.size || 'md';
       const mutedClass = line.muted ? ' muted' : '';
       if (i > 0 && line.divider) html += '<hr class="sign-divider">';
-      html += `<div class="sign-line ${sizeClass}${mutedClass}">`;
+      
+      // 사용자 인터랙션 추가: 퀴즈 모드일 때 클릭하면 블러 해제
+      const onClickAttr = line.muted ? '' : `onclick="this.classList.toggle('revealed')"`;
+      const titleAttr = line.muted ? '' : 'title="클릭해서 선명하게 보기"';
+
+      html += `<div class="sign-line ${sizeClass}${mutedClass}" ${onClickAttr} ${titleAttr}>`;
       if (line.ruby && !yomu.signRevealed) {
-        // 기본 상태: 텍스트만 (루비 없음)
         html += _escHtml(line.text);
       } else if (line.ruby && yomu.signRevealed) {
-        // 뜻 보기 후: 루비 표시
         html += _injectRuby(line.text, line.ruby);
       } else {
         html += _escHtml(line.text);
@@ -4719,9 +4741,12 @@ const App = (() => {
     const items = yomu.signFiltered;
     const item = items[yomu.signIndex];
 
-    // 간판에 루비 추가
+    // 간판에 루비 추가 및 블러 제거
     const renderEl = document.getElementById('sign-render');
-    if (renderEl) renderEl.innerHTML = _buildSignHTML(item);
+    if (renderEl) {
+      renderEl.classList.remove('blurred');
+      renderEl.innerHTML = _buildSignHTML(item);
+    }
 
     // 정보 패널 표시
     const infoPanel = document.getElementById('sign-info-panel');
@@ -4789,10 +4814,15 @@ const App = (() => {
           if (quizR) {
             quizR.style.display = '';
             quizR.className = 'sign-quiz-result ' + (isCorrect ? 'correct' : 'wrong');
-            quizR.textContent = isCorrect ? '🎉 정답! 잘 읽었어요!' : '❌ 틀렸어요. 간판을 다시 확인해보세요!';
+            quizR.innerHTML = isCorrect ? '🎉 <b>정답!</b> 완벽하게 읽으셨네요!' : '❌ <b>틀렸어요.</b> 간판의 글자를 탭해서 확인해보세요!';
+            
+            // 정답일 때만 전체 블러 해제, 틀렸을 때는 사용자가 직접 탭해서 확인하게 유도
+            if (isCorrect && renderEl) {
+                renderEl.classList.remove('blurred');
+                // 모든 라인에 revealed 추가
+                renderEl.querySelectorAll('.sign-line').forEach(l => l.classList.add('revealed'));
+            }
           }
-          // 블러 해제
-          if (renderEl) renderEl.classList.remove('blurred');
         });
         quizC.appendChild(btn);
       });
@@ -9329,6 +9359,20 @@ const App = (() => {
     // 진행 바 (전체)
     const progFill = document.getElementById('lec-progress-fill');
     if (progFill) progFill.style.width = `${((idx + 1) / _lectureSlides.length) * 100}%`;
+
+    // 스토리형 진행 바 (상단 개별 바)
+    const storyBars = document.getElementById('lecture-progress-story');
+    if (storyBars) {
+      if (storyBars.children.length !== _lectureSlides.length) {
+        storyBars.innerHTML = Array.from({length: _lectureSlides.length})
+          .map((_, i) => `<div class="lp-bar"><div class="lp-fill"></div></div>`).join('');
+      }
+      Array.from(storyBars.children).forEach((bar, i) => {
+        bar.className = 'lp-bar';
+        if (i < idx) bar.classList.add('active');
+        if (i === idx) bar.classList.add('current');
+      });
+    }
 
     // 칠판 슬라이드 애니메이션 리트리거
     const lbContent = document.querySelector('.lb-content');
