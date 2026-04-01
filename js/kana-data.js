@@ -169,7 +169,7 @@ const KANA_MAP = {
     examples:[{word:'たこ',meaning:'문어 (octopus)'},{word:'たまご',meaning:'계란 (egg)'},{word:'ともだち',meaning:'친구 (friend)'},{word:'たのしい',meaning:'즐겁다 (fun)'},{word:'たべもの',meaning:'음식 (food)'},{word:'たいへん',meaning:'힘들다 (tough/serious)'}]},
   'ち': { romaji:'chi', korean:'치', english:'chee',  type:'hiragana', tip:'물고기가 "치" 하고 헤엄치는 모양이에요 🐟',
     examples:[{word:'ちず',meaning:'지도 (map)'},{word:'ちから',meaning:'힘 (strength)'},{word:'ちかてつ',meaning:'지하철 (subway)'},{word:'ちいさい',meaning:'작다 (small)'},{word:'ちょっと',meaning:'잠깐 (a little/wait)'},{word:'ちかい',meaning:'가깝다 (near)'}]},
-  'つ': { romaji:'tsu', korean:'츠', english:'tsoo',  type:'hiragana', tip:'웃는 입 모양 :) → "츠" 하고 웃으며 🙂',
+  'つ': { romaji:'tsu', korean:'츠', english:'tsoo',  type:'hiragana', tip:'⚠️ 한국어에 없는 소리! "ㅊ+ㅡ"를 아주 짧게. "쓰"가 아니라 "츠" — 파도(tsunami)의 앞 소리를 생각해요 🌊',
     examples:[{word:'つき',meaning:'달 (moon)'},{word:'つくえ',meaning:'책상 (desk)'},{word:'つり',meaning:'낚시 (fishing)'},{word:'つめたい',meaning:'차갑다 (cold)'},{word:'つかれた',meaning:'피곤하다 (tired)'},{word:'つよい',meaning:'강하다 (strong)'}]},
   'て': { romaji:'te',  korean:'테', english:'teh',   type:'hiragana', tip:'알파벳 T처럼 생겼어요! T → て → "테" 🔤',
     examples:[{word:'てがみ',meaning:'편지 (letter)'},{word:'てんき',meaning:'날씨 (weather)'},{word:'てんぷら',meaning:'튀김 (tempura)'},{word:'てすと',meaning:'시험 (test)'},{word:'てぶくろ',meaning:'장갑 (gloves)'},{word:'てつだう',meaning:'돕다 (help)'}]},
@@ -193,7 +193,7 @@ const KANA_MAP = {
     examples:[{word:'はな',meaning:'꽃/코 (flower/nose)'},{word:'はる',meaning:'봄 (spring)'},{word:'はし',meaning:'젓가락/다리 (chopsticks/bridge)'},{word:'はやい',meaning:'빠르다 (fast)'},{word:'はたらく',meaning:'일하다 (to work)'},{word:'はじめて',meaning:'처음으로 (for the first time)'}]},
   'ひ': { romaji:'hi',  korean:'히', english:'hee',   type:'hiragana', tip:'"히히" 낄낄 웃는 소리 → "히" 🤭',
     examples:[{word:'ひかり',meaning:'빛 (light)'},{word:'ひと',meaning:'사람 (person)'},{word:'ひこうき',meaning:'비행기 (airplane)'},{word:'ひる',meaning:'낮 (noon)'},{word:'ひさしぶり',meaning:'오랜만이에요 (long time no see)'},{word:'ひどい',meaning:'심하다 (terrible)'}]},
-  'ふ': { romaji:'fu',  korean:'후', english:'foo',   type:'hiragana', tip:'입에서 바람을 "후~" 부는 모양이에요 💨',
+  'ふ': { romaji:'fu',  korean:'후', english:'foo',   type:'hiragana', tip:'⚠️ 영어 f도 한국어 후도 아니에요! 입술을 살짝 오므리고 바람을 불듯이 — "후"와 "f" 중간 소리 💨 (후지산 할 때 그 소리!)',
     examples:[{word:'ふじさん',meaning:'후지산 (Mt. Fuji)'},{word:'ふゆ',meaning:'겨울 (winter)'},{word:'ふね',meaning:'배 (ship)'},{word:'ふくろ',meaning:'봉지/가방 (bag)'},{word:'ふつう',meaning:'보통 (normal)'},{word:'ふとい',meaning:'굵다 (thick)'}]},
   'へ': { romaji:'he',  korean:'헤', english:'heh',   type:'hiragana', tip:'산봉우리 모양! 산을 넘어 "헤" 🏔️',
     examples:[{word:'へや',meaning:'방 (room)'},{word:'へいわ',meaning:'평화 (peace)'},{word:'へそ',meaning:'배꼽 (belly button)'},{word:'へた',meaning:'서툴다 (poor at)'},{word:'へん',meaning:'이상하다 (strange)'},{word:'へんじ',meaning:'답장 (reply)'}]},
@@ -221,9 +221,9 @@ const KANA_MAP = {
     examples:[{word:'よる',meaning:'밤 (night)'},{word:'よみかた',meaning:'읽는 법 (how to read)'},{word:'よてい',meaning:'예정 (schedule)'},{word:'よかった',meaning:'다행이다 (that\'s good/relief)'},{word:'ようこそ',meaning:'어서 오세요 (welcome)'},{word:'よっつ',meaning:'넷 (four)'}]},
 
   // ─── ら행 ───
-  'ら': { romaji:'ra',  korean:'라', english:'rah',   type:'hiragana', tip:'"라라라" 콧노래 → 구부러진 획이 멜로디 같아요 🎵',
+  'ら': { romaji:'ra',  korean:'라', english:'rah',   type:'hiragana', tip:'⚠️ 한국어 "라"와 달라요! 혀끝을 윗잇몸에 살짝 튕기듯 발음 (r+l 중간 소리). 절대 혀를 돌리지 마세요 👅',
     examples:[{word:'らいねん',meaning:'내년 (next year)'},{word:'らく',meaning:'편하다 (comfortable)'},{word:'らっぱ',meaning:'나팔 (trumpet)'},{word:'らいしゅう',meaning:'다음 주 (next week)'},{word:'らーめん',meaning:'라멘 (ramen)'},{word:'らくだ',meaning:'낙타 (camel)'}]},
-  'り': { romaji:'ri',  korean:'리', english:'ree',   type:'hiragana', tip:'두 줄이 나란히 내려가요 → "리" 리리 🌿',
+  'り': { romaji:'ri',  korean:'리', english:'ree',   type:'hiragana', tip:'⚠️ ら행 전체 주의! 혀끝을 윗잇몸에 가볍게 한 번 튕겨요. 한국어 "리"보다 짧고 가벼운 소리 💡',
     examples:[{word:'りんご',meaning:'사과 (apple)'},{word:'りょこう',meaning:'여행 (travel)'},{word:'りょうり',meaning:'요리 (cooking)'},{word:'りか',meaning:'이과 (science)'},{word:'りゆう',meaning:'이유 (reason)'},{word:'りっぱ',meaning:'훌륭하다 (splendid)'}]},
   'る': { romaji:'ru',  korean:'루', english:'roo',   type:'hiragana', tip:'루프(loop)처럼 동그라미 → "루" 반복 🔄',
     examples:[{word:'るすばん',meaning:'집 보기 (house-sitting)'},{word:'るいじ',meaning:'유사 (similar)'},{word:'るす',meaning:'부재중 (absent)'},{word:'るーる',meaning:'규칙 (rule)'},{word:'るいけい',meaning:'누계 (cumulative total)'}]},
@@ -235,9 +235,9 @@ const KANA_MAP = {
   // ─── わ·を·ん ───
   'わ': { romaji:'wa',  korean:'와', english:'wah',   type:'hiragana', tip:'알파벳 W처럼 두 곡선 → "와" 와우! 🎉',
     examples:[{word:'わたし',meaning:'나 (I/me)'},{word:'わに',meaning:'악어 (crocodile)'},{word:'わらう',meaning:'웃다 (laugh)'},{word:'わかい',meaning:'젊다 (young)'},{word:'わかる',meaning:'이해하다 (understand)'},{word:'わすれる',meaning:'잊다 (forget)'}]},
-  'を': { romaji:'wo',  korean:'오', english:'oh',    type:'hiragana', tip:'조사로만 쓰이는 특별한 글자 → 발음은 "오" → "오징어(お)"처럼 🦑',
+  'を': { romaji:'wo',  korean:'오', english:'oh',    type:'hiragana', tip:'📌 목적어 조사 "~을/를"에만 사용! 발음은 お(오)와 같아요. 문장에서 "~をください(~을 주세요)" 처럼 씁니다 🦑',
     examples:[{word:'〜を食べる',meaning:'~을 먹다 (to eat ~)'},{word:'〜を見る',meaning:'~을 보다 (to see ~)'},{word:'〜を聞く',meaning:'~을 듣다/묻다 (to listen/ask ~)'},{word:'〜を買う',meaning:'~을 사다 (to buy ~)'}]},
-  'ん': { romaji:'n',   korean:'음', english:'n/m',   type:'hiragana', tip:'코로 "응~" 하고 내뱉는 소리 → 단어 끝에 오는 특별한 "ん" 👃',
+  'ん': { romaji:'n',   korean:'음', english:'n/m',   type:'hiragana', tip:'📌 뒤에 오는 글자에 따라 소리가 바뀌어요! b/p/m 앞→"ん"="음", n/t/d 앞→"은", g/k 앞→"응". にほん→니홍(n) 마지막 n은 콧소리 👃',
     examples:[{word:'にほん',meaning:'일본 (Japan)'},{word:'てんき',meaning:'날씨 (weather)'},{word:'さんぽ',meaning:'산책 (walk)'},{word:'えんぴつ',meaning:'연필 (pencil)'},{word:'おんがく',meaning:'음악 (music)'},{word:'うんどう',meaning:'운동 (exercise)'}]},
 
   // ─────────────────── 히라가나 탁음 (濁音) ───────────────────
@@ -254,7 +254,7 @@ const KANA_MAP = {
 
   'ざ': { romaji:'za',  korean:'자', english:'zah',   type:'hiragana_dakuten', tip:'さ에 탁점(゛)→"자"! ざっし(잡지)의 "자" 📰',
     examples:[{word:'ざっし',meaning:'잡지 (magazine)'},{word:'ざいりょう',meaning:'재료 (ingredient)'},{word:'ざんねん',meaning:'아쉽다 (unfortunate)'}]},
-  'じ': { romaji:'ji',  korean:'지', english:'jee',   type:'hiragana_dakuten', tip:'し에 탁점(゛)→"지"! じかん(시간)의 "지" ⏰',
+  'じ': { romaji:'ji',  korean:'지', english:'jee',   type:'hiragana_dakuten', tip:'し에 탁점(゛)→"지"! ⚠️ 한국어 "지"보다 더 울림 있는 소리 (성대 울림). じかん(시간) ⏰',
     examples:[{word:'じかん',meaning:'시간 (time)'},{word:'じしん',meaning:'지진 (earthquake)'},{word:'じどうしゃ',meaning:'자동차 (car)'}]},
   'ず': { romaji:'zu',  korean:'즈', english:'zoo',   type:'hiragana_dakuten', tip:'す에 탁점(゛)→"즈"! ずっと(계속)처럼 이어지는 소리 🔁',
     examples:[{word:'ずっと',meaning:'계속 (all the time)'},{word:'ずかん',meaning:'도감 (illustrated book)'},{word:'ずつう',meaning:'두통 (headache)'}]},
@@ -265,7 +265,7 @@ const KANA_MAP = {
 
   'だ': { romaji:'da',  korean:'다', english:'dah',   type:'hiragana_dakuten', tip:'た에 탁점(゛)→"다"! だいじょうぶ(괜찮아요) 👍',
     examples:[{word:'だいがく',meaning:'대학교 (university)'},{word:'だいじょうぶ',meaning:'괜찮아요 (it\'s okay)'},{word:'だれ',meaning:'누구 (who)'}]},
-  'ぢ': { romaji:'ji',  korean:'지', english:'jee',   type:'hiragana_dakuten', tip:'ち에 탁점(゛)→"지"! じ와 같은 발음 — 복합어에서 등장 📝 はなぢ(코피)',
+  'ぢ': { romaji:'ji',  korean:'지', english:'jee',   type:'hiragana_dakuten', tip:'📌 じ와 발음이 같지만 다른 글자! 연탁(단어 연결 시 소리가 탁해지는 현상)에서 등장. 예: はな(코)+ち→はなぢ(코피) 👃',
     examples:[{word:'はなぢ',meaning:'코피 (nosebleed)'},{word:'ちぢむ',meaning:'줄어들다 (shrink)'}]},
   'づ': { romaji:'zu',  korean:'즈', english:'zoo',   type:'hiragana_dakuten', tip:'つ에 탁점(゛)→"즈"! ず와 같은 발음 — 연탁에 사용 📝 つづく(계속)',
     examples:[{word:'つづく',meaning:'계속되다 (continue)'},{word:'こづかい',meaning:'용돈 (pocket money)'}]},

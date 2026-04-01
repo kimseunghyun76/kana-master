@@ -277,6 +277,50 @@ function getSRSReviewItems(progress) {
 }
 
 /**
+ * 어휘 SRS 업데이트 (vocab id 기반) — SM-2 알고리즘
+ * rating: 'hard' | 'ok' | 'good'
+ */
+function updateVocabSRS(id, rating, vocabProgress) {
+  if (!vocabProgress[id]) vocabProgress[id] = { seen: 0, correct: 0, incorrect: 0 };
+  const p = vocabProgress[id];
+  const q = rating === 'good' ? 5 : rating === 'ok' ? 3 : 1;
+  let ef       = p.srsFactor   || 2.5;
+  let interval = p.srsInterval || 0;
+  let reps     = p.srsReps     || 0;
+  if (q < 3) {
+    reps = 0; interval = 1;
+  } else {
+    if      (reps === 0) interval = 1;
+    else if (reps === 1) interval = 6;
+    else                 interval = Math.round(interval * ef);
+    reps++;
+    ef = ef + (0.1 - (5 - q) * (0.08 + (5 - q) * 0.02));
+    ef = Math.max(1.3, ef);
+  }
+  p.srsFactor   = parseFloat(ef.toFixed(2));
+  p.srsInterval = interval;
+  p.srsReps     = reps;
+  p.lastReview  = new Date().toISOString();
+}
+
+/** 어휘 SRS 복습 대상 필터 */
+function getVocabSRSReviewItems(vocabProgress) {
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const todayMs = today.getTime();
+  const items = [];
+  for (const [id, data] of Object.entries(vocabProgress)) {
+    if (!data.lastReview) continue;
+    const next = new Date(data.lastReview);
+    next.setDate(next.getDate() + (data.srsInterval || 1));
+    next.setHours(0, 0, 0, 0);
+    if (next.getTime() <= todayMs) {
+      items.push({ id, ...data, daysOverdue: Math.floor((todayMs - next.getTime()) / 86400000) });
+    }
+  }
+  return items.sort((a, b) => b.daysOverdue - a.daysOverdue);
+}
+
+/**
  * SM-2 알고리즘으로 SRS 데이터 업데이트
  * rating: 'hard'(힘들어) | 'ok'(알겠어) | 'good'(쉬워)
  */

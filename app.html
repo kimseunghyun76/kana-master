@@ -7,6 +7,13 @@
   <title>かな学習 - Kana Master</title>
   <link rel="stylesheet" href="app.css">
   <link rel="stylesheet" href="yomu-styles.css">
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.webapp.json">
+  <meta name="theme-color" content="#4361ee">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Kana Master">
 </head>
 <body>
   <!-- ===== 헤더 ===== -->
@@ -41,11 +48,11 @@
   <div id="speaking-indicator" class="speaking-indicator"></div>
 
   <!-- ===== 하단 4-탭 네비게이션 ===== -->
-  <nav class="app-nav-bottom" id="app-nav-bottom">
-    <button class="nav-tab active" data-view="home"><span class="nav-tab-icon">📚</span><span class="nav-tab-label" data-tab-key="home">학습</span></button>
-    <button class="nav-tab" data-view="practice"><span class="nav-tab-icon">✏️</span><span class="nav-tab-label" data-tab-key="practice">연습</span></button>
-    <button class="nav-tab" data-view="yomu"><span class="nav-tab-icon">📖</span><span class="nav-tab-label" data-tab-key="yomu">읽기</span></button>
-    <button class="nav-tab" data-view="mypage"><span class="nav-tab-icon">👤</span><span class="nav-tab-label" data-tab-key="mypage">마이</span></button>
+  <nav class="app-nav-bottom" id="app-nav-bottom" role="navigation" aria-label="메인 네비게이션">
+    <button class="nav-tab active" data-view="home" aria-label="학습 홈" aria-current="page"><span class="nav-tab-icon" aria-hidden="true">📚</span><span class="nav-tab-label" data-tab-key="home">학습</span></button>
+    <button class="nav-tab" data-view="practice" aria-label="연습 모드"><span class="nav-tab-icon" aria-hidden="true">✏️</span><span class="nav-tab-label" data-tab-key="practice">연습</span></button>
+    <button class="nav-tab" data-view="yomu" aria-label="읽기 연습"><span class="nav-tab-icon" aria-hidden="true">📖</span><span class="nav-tab-label" data-tab-key="yomu">읽기</span></button>
+    <button class="nav-tab" data-view="mypage" aria-label="마이 페이지"><span class="nav-tab-icon" aria-hidden="true">👤</span><span class="nav-tab-label" data-tab-key="mypage">마이</span></button>
   </nav>
   <!-- 기존 탭 호환 (숨김) -->
   <nav class="app-nav" style="display:none">
@@ -317,7 +324,7 @@
       <!-- 플래시카드 -->
       <div class="flashcard-area" id="flashcard-area" style="display:none">
         <!-- 진도 바 -->
-        <div class="progress-bar-thin">
+        <div class="progress-bar-thin" role="progressbar" aria-label="학습 진도" aria-valuemin="0" aria-valuemax="100" id="fc-progress-bar">
           <div class="progress-thin-fill" id="fc-progress-fill"></div>
         </div>
 
@@ -364,10 +371,10 @@
                     <div class="fc-sentences" id="fc-sentences"></div>
                   </div>
                   <!-- 자가평가 버튼 -->
-                  <div class="fc-assess-row" id="fc-assess-row">
-                    <button class="fc-assess-btn fca-hard" id="fca-hard">❌<span>어려워</span></button>
-                    <button class="fc-assess-btn fca-ok"   id="fca-ok">😌<span>알겠어</span></button>
-                    <button class="fc-assess-btn fca-good" id="fca-good">✅<span>외웠어!</span></button>
+                  <div class="fc-assess-row" id="fc-assess-row" role="group" aria-label="자가평가">
+                    <button class="fc-assess-btn fca-hard" id="fca-hard" aria-label="어려워 — 다시 복습">❌<span>어려워</span></button>
+                    <button class="fc-assess-btn fca-ok"   id="fca-ok"   aria-label="알겠어 — 보통">😌<span>알겠어</span></button>
+                    <button class="fc-assess-btn fca-good" id="fca-good" aria-label="외웠어! — 완전 습득">✅<span>외웠어!</span></button>
                   </div>
                 </div>
               </div>
@@ -747,7 +754,7 @@
         <!-- 단어 플래시카드 -->
         <div class="flashcard-area" id="vocab-flashcard-area" style="display:none">
           <!-- 진도 바 -->
-          <div class="progress-bar-thin">
+          <div class="progress-bar-thin" role="progressbar" aria-label="단어 학습 진도" aria-valuemin="0" aria-valuemax="100">
             <div class="progress-thin-fill" id="vfc-progress-fill"></div>
           </div>
 
@@ -793,6 +800,12 @@
                     <div class="fcb-section" id="vfc-sentences-wrap" style="display:none">
                       <div class="fcb-section-label">💬 예시 문장</div>
                       <div class="fc-sentences" id="vfc-sentences"></div>
+                    </div>
+                    <!-- 섹션5: 자가평가 (SRS) -->
+                    <div class="fc-assess-row" id="vfc-assess-row" role="group" aria-label="자가평가">
+                      <button class="fc-assess-btn fca-hard" id="vfca-hard" aria-label="어려워 — 다시 복습">❌<span>어려워</span></button>
+                      <button class="fc-assess-btn fca-ok"   id="vfca-ok"   aria-label="알겠어 — 보통">😌<span>알겠어</span></button>
+                      <button class="fc-assess-btn fca-good" id="vfca-good" aria-label="외웠어! — 완전 습득">✅<span>외웠어!</span></button>
                     </div>
                   </div>
                 </div>
@@ -1308,6 +1321,64 @@
               <button id="auto-select-voice-btn" class="test-voice-btn" style="width:100%;justify-content:center">✨ 최적 음성 자동 설정</button>
             </div>
           </div>
+          <!-- Edge TTS 서버 (로컬 Python 서버) -->
+          <div class="setting-section-title" style="margin-top:16px">🖥️ Edge TTS 서버 <span style="font-size:11px;font-weight:400;color:#718096">(Nanami·Keita 고품질)</span></div>
+          <div class="setting-row">
+            <label>Edge TTS 사용:</label>
+            <div style="display:flex;align-items:center;gap:8px">
+              <label class="toggle">
+                <input type="checkbox" id="pref-use-edgetts">
+                <span class="toggle-slider"></span>
+              </label>
+              <span id="edgetts-status" style="font-size:11px;color:#718096">비활성</span>
+            </div>
+          </div>
+          <div class="setting-note" style="margin:-4px 0 8px;font-size:11px;color:#718096;padding-left:8px">
+            Python edge-tts 서버 실행 시 Nanami/Keita 신경망 음성 사용 가능.
+            <button class="vv-help-toggle" onclick="document.getElementById('edgetts-guide').style.display=document.getElementById('edgetts-guide').style.display==='none'?'block':'none'">📖 설치 방법 보기</button>
+          </div>
+          <div id="edgetts-guide" style="display:none;background:#f7f8fa;border:1px solid #e2e8f0;border-radius:8px;padding:12px;margin-bottom:10px;font-size:12px;line-height:1.7">
+            <b>① Python 설치 확인</b><br>
+            <code>python --version</code> (3.8 이상 필요)<br><br>
+            <b>② 라이브러리 설치</b><br>
+            <code style="display:block;background:#e2e8f0;padding:4px 6px;border-radius:4px;margin:4px 0">pip install edge-tts flask flask-cors</code>
+            <b>③ 서버 파일 실행</b><br>
+            <code style="display:block;background:#e2e8f0;padding:4px 6px;border-radius:4px;margin:4px 0">python edge_tts_server.py</code>
+            앱 폴더에 <code>edge_tts_server.py</code> 파일이 있습니다.<br><br>
+            <b>④ Edge TTS 사용 토글 ON</b> → 자동 연결<br>
+            <b>⑤ 우선 순위:</b> Edge TTS 서버 &gt; VOICEVOX &gt; Web TTS
+          </div>
+          <div id="edgetts-server-rows" style="display:none">
+            <div class="setting-row">
+              <label>🎤 화자 A (Slot 1):</label>
+              <select id="pref-edgetts-voice1" style="flex:1;max-width:200px">
+                <option value="ja-JP-NanamiNeural">Nanami (여성) 🏆</option>
+                <option value="ja-JP-AoiNeural">Aoi (여성) 🏆</option>
+                <option value="ja-JP-MayuNeural">Mayu (여성) 🏆</option>
+                <option value="ja-JP-ShioriNeural">Shiori (여성) 🏆</option>
+                <option value="ja-JP-KeitaNeural">Keita (남성) 🏆</option>
+                <option value="ja-JP-DaichiNeural">Daichi (남성) 🏆</option>
+                <option value="ja-JP-NaokiNeural">Naoki (남성) 🏆</option>
+              </select>
+            </div>
+            <div class="setting-row">
+              <label>🎤 화자 B (Slot 2):</label>
+              <select id="pref-edgetts-voice2" style="flex:1;max-width:200px">
+                <option value="none">사용 안함</option>
+                <option value="ja-JP-KeitaNeural">Keita (남성) 🏆</option>
+                <option value="ja-JP-DaichiNeural">Daichi (남성) 🏆</option>
+                <option value="ja-JP-NaokiNeural">Naoki (남성) 🏆</option>
+                <option value="ja-JP-NanamiNeural">Nanami (여성) 🏆</option>
+                <option value="ja-JP-AoiNeural">Aoi (여성) 🏆</option>
+                <option value="ja-JP-MayuNeural">Mayu (여성) 🏆</option>
+                <option value="ja-JP-ShioriNeural">Shiori (여성) 🏆</option>
+              </select>
+            </div>
+            <div class="setting-row">
+              <button class="test-voice-btn" id="test-edgetts-btn">🔊 Edge TTS 테스트</button>
+            </div>
+          </div>
+
           <!-- 롤플레이 이름 설정 -->
           <div class="setting-section-title">🎭 캐릭터 이름 설정</div>
           <div class="setting-desc" style="font-size:12px;color:#718096;margin-bottom:8px;">스크립트 {M}=남자, {F}=여자 자리에 표시될 이름</div>
@@ -1477,7 +1548,7 @@
   </div>
 
   <!-- ===== 알림 토스트 ===== -->
-  <div class="toast" id="toast"></div>
+  <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
 
   <!-- ===== 관리자 패널 ===== -->
   <div id="admin-overlay">
@@ -1581,7 +1652,18 @@
   <script src="js/vocab-examples-data.js"></script>
   <script src="js/data/lecture-data.js"></script>
   <script src="js/gamification.js"></script>
+  <script src="js/edge-tts-server.js"></script>
   <script src="js/app.js"></script>
+  <script>
+    // Service Worker 등록 (PWA 오프라인 지원)
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+          .then(reg => console.log('[PWA] SW 등록 완료:', reg.scope))
+          .catch(err => console.warn('[PWA] SW 등록 실패 (Chrome Extension 환경):', err));
+      });
+    }
+  </script>
 
   <!-- 플로팅 오디오 중지 버튼 (전체 듣기 재생 중에만 표시) -->
   <button id="stop-audio-fab" title="재생 중지" onclick="App.stopAllAudio()" style="display:none">
