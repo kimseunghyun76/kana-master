@@ -1391,43 +1391,68 @@ body {
 }
 .fc-kana { font-size: clamp(60px, 14vw, 200px); line-height: 1; color: var(--text); }
 .fc-hint { color: var(--gray); font-size: 13px; margin-top: 12px; }
-.fc-kana-small { font-size: clamp(64px, 24vw, 180px); line-height: 1; margin-bottom: 0; }
+/* ── 플래시카드 뒷면: 섹션 기반 레이아웃 ── */
+.flashcard-back { display: flex; flex-direction: column; }
+.fcb-main {
+  flex: 0 0 auto;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 12px 16px 8px;
+}
+.fc-kana-small { font-size: clamp(56px, 20vw, 160px); line-height: 1; margin-bottom: 4px; }
 .fc-romaji { font-size: clamp(20px, 5vw, 32px); font-weight: 700; color: var(--red); letter-spacing: 2px; }
-.fc-pronunciations { display: flex; align-items: center; gap: 8px; margin: 0; padding-bottom: 60px; }
-.fc-kor { font-size: clamp(16px, 4vw, 22px); font-weight: 700; color: var(--blue); }
-.fc-eng { font-size: clamp(14px, 3.5vw, 18px); color: var(--gray); }
+.fc-pronunciations { display: flex; align-items: center; gap: 8px; margin: 0; padding: 0; }
+.fc-kor { font-size: clamp(20px, 5vw, 28px); font-weight: 800; color: var(--blue); }
+.fc-eng { font-size: clamp(14px, 3.5vw, 20px); color: var(--gray); font-weight: 600; }
 .fc-eng::before { content: '['; }
 .fc-eng::after  { content: ']'; }
 .fc-sep { color: var(--border); }
-.fc-section-title {
-  font-size: 10px; font-weight: 800; color: #94a3b8;
-  letter-spacing: 0.6px; text-transform: uppercase;
-  margin-bottom: 7px; width: 100%;
+
+/* 팁 영역 */
+.fcb-tip-area {
+  font-size: 13px; color: #7c3aed; line-height: 1.5;
+  background: linear-gradient(135deg, #f5f3ff, #ede9fe);
+  border-left: 3px solid #8b5cf6;
+  padding: 8px 14px; margin: 4px 16px 0;
+  border-radius: 8px; word-break: keep-all;
 }
-.fc-examples {
-  display: flex; flex-direction: row; flex-wrap: wrap; gap: 6px;
-  padding: 10px 14px 8px;
-  margin-top: 4px;
+.fcb-example-tip {
+  color: #0369a1;
+  background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+  border-left-color: #0ea5e9;
+}
+
+/* 섹션 (관련 단어 / 예시 문장) */
+.fcb-section {
+  margin-top: 8px;
   border-top: 1px solid rgba(0,0,0,0.06);
+  padding: 0;
+}
+.fcb-section-label {
+  font-size: 11px; font-weight: 700; color: #64748b;
+  padding: 8px 16px 0; letter-spacing: 0.3px;
+}
+.fc-section-title { display: none; } /* 기존 제목 숨김 (fcb-section-label 로 대체) */
+.fc-examples {
+  display: flex; flex-direction: column; gap: 4px;
+  padding: 6px 14px 8px;
   width: 100%;
-  background: white;
-  border-radius: 0 0 12px 12px;
+  background: transparent;
 }
 .fc-ex-item {
-  font-size: 12px; color: var(--gray);
+  font-size: 13px; color: var(--gray);
   cursor: pointer;
-  display: flex; align-items: center; gap: 8px;
-  padding: 7px 12px; border-radius: 10px;
-  background: #fff;
-  border: 1.5px solid #e2e8f0;
-  box-shadow: 0 1px 4px rgba(0,0,0,.05);
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 12px; border-radius: 10px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
   transition: all 0.15s;
-  flex: 0 1 auto;
 }
 .fc-ex-item:hover { background: var(--red-light); border-color: var(--red); }
-.fc-ex-word    { font-size: 15px; font-weight: 700; color: var(--text); letter-spacing: .3px; white-space: nowrap; flex-shrink: 0; }
+.fc-ex-item:active { transform: scale(0.98); }
+.fc-ex-word    { font-size: 16px; font-weight: 700; color: var(--text); letter-spacing: .3px; white-space: nowrap; flex-shrink: 0; }
 .fc-ex-reading { color: var(--red); white-space: nowrap; flex-shrink: 0; }
-.fc-ex-meaning { color: var(--gray); white-space: nowrap; }
+.fc-ex-meaning { color: #64748b; font-size: 12px; }
 
 .fc-audio-row { text-align: center; margin-bottom: 16px; }
 .audio-btn {
@@ -5606,14 +5631,7 @@ rt {
 .qsm-wrong   { color: var(--red); }
 
 /* ─── 플래시카드 암기 팁 ─── */
-.fc-tip {
-  font-size: 12px; color: #7c3aed;
-  background: linear-gradient(135deg, #f3e8ff, #ede9fe);
-  border: 1px solid #c4b5fd; border-radius: 10px;
-  padding: 8px 12px; margin: 8px 16px 0;
-  text-align: left; line-height: 1.5;
-  word-break: keep-all;
-}
+/* .fc-tip — 기존 스타일 제거 (fcb-tip-area로 대체됨) */
 
 /* ─── 롤플레이 데일리 카드 ─── */
 .daily-sim-card {
@@ -5773,49 +5791,59 @@ body.fc-fullscreen .flashcard-back {
   overflow-y: auto !important;
   background: white !important;
 }
+/* ── 전체화면 플래시카드 뒷면 ── */
+body.fc-fullscreen .fcb-main {
+  padding: 16px 20px 6px !important;
+}
 body.fc-fullscreen .fc-kana-small {
   font-size: clamp(60px, 15vw, 130px) !important;
-  margin-bottom: 4px !important;
+  margin-bottom: 6px !important;
   line-height: 1 !important;
 }
 body.fc-fullscreen .fc-pronunciations {
-  padding-bottom: 0 !important;
-  flex-direction: column;
-  align-items: center;
+  flex-direction: column !important;
+  align-items: center !important;
   gap: 4px !important;
-  margin-bottom: 10px !important;
+  margin-bottom: 4px !important;
+  padding: 0 !important;
 }
 body.fc-fullscreen .fc-kor {
-  font-size: clamp(30px, 8vw, 56px) !important;
+  font-size: clamp(30px, 8vw, 52px) !important;
   font-weight: 800 !important;
   color: var(--blue) !important;
 }
 body.fc-fullscreen .fc-sep { display: none !important; }
 body.fc-fullscreen .fc-eng {
-  font-size: clamp(18px, 5vw, 34px) !important;
+  font-size: clamp(18px, 5vw, 30px) !important;
   font-weight: 700 !important;
   color: var(--red) !important;
   letter-spacing: 2px;
 }
 body.fc-fullscreen .fc-eng::before { content: '['; opacity: 0.6; }
 body.fc-fullscreen .fc-eng::after  { content: ']'; opacity: 0.6; }
-body.fc-fullscreen .fc-tip {
+body.fc-fullscreen .fcb-tip-area {
   font-size: 13px !important;
-  padding: 8px 14px !important;
-  background: #fffbf0 !important;
-  border-radius: 8px !important;
-  margin: 4px 12px 6px !important;
-  border-left: 3px solid var(--orange) !important;
-  text-align: left !important;
-  width: calc(100% - 24px) !important;
-  box-sizing: border-box;
+  margin: 6px 16px !important;
+}
+body.fc-fullscreen .fcb-section-label {
+  font-size: 12px !important;
+  padding: 10px 16px 2px !important;
+  color: #475569 !important;
 }
 body.fc-fullscreen .fc-examples {
-  flex-direction: column !important;
+  padding: 6px 16px 8px !important;
 }
 body.fc-fullscreen .fc-ex-item {
   font-size: 14px !important;
   padding: 10px 14px !important;
+  background: #f1f5f9 !important;
+  border-radius: 12px !important;
+}
+body.fc-fullscreen .fc-ex-word {
+  font-size: 17px !important;
+}
+body.fc-fullscreen .fc-ex-meaning {
+  font-size: 13px !important;
 }
 body.fc-fullscreen .fc-ex-word {
   font-size: 20px !important;

@@ -510,7 +510,7 @@ const App = (() => {
     // 하단 4-탭 active 처리
     const tabMap = { home: 'home', kana: 'home', vocab: 'home', convo: 'home', roleplay: 'home',
                      practice: 'practice', quiz: 'practice', write: 'practice',
-                     yomu: 'yomu', mypage: 'mypage', progress: 'mypage' };
+                     yomu: 'yomu', mypage: 'mypage', progress: 'mypage', lecture: 'home' };
     const activeTab = tabMap[navViewName] || 'home';
     document.querySelectorAll('.nav-tab').forEach(t => {
       t.classList.toggle('active', t.dataset.view === activeTab);
@@ -720,9 +720,9 @@ const App = (() => {
       <div class="lc-prog-text">${isSpecial ? '전체 가나 랜덤 복습' : `${prog}% 완료 · ${level.chars.length}자`}</div>
       ${isUnlocked ? `
         <div class="lc-actions">
-          <button class="lc-btn lc-btn-learn">学習(학습)</button>
-          <button class="lc-btn lc-btn-browse">一覧(일람)</button>
-          <button class="lc-btn lc-btn-quiz">クイズ(퀴즈)</button>
+          <button class="lc-btn lc-btn-learn">${_uiText('학습','学習')}</button>
+          <button class="lc-btn lc-btn-browse">${_uiText('일람','一覧')}</button>
+          <button class="lc-btn lc-btn-quiz">${_uiText('퀴즈','クイズ')}</button>
         </div>` : ''}
     `;
     if (isUnlocked) {
@@ -773,8 +773,8 @@ const App = (() => {
           name: level.name, sub: level.title,
           prog: getLevelProgress(level), progText: `${level.chars.length}자`,
           btns: [
-            { label: '学習(학습)', fn: () => startLearn(level.id, 'flash') },
-            { label: 'クイズ(퀴즈)', fn: () => startQuizForLevel(level.id) },
+            { label: _uiText('학습','学習'), fn: () => startLearn(level.id, 'flash') },
+            { label: _uiText('퀴즈','クイズ'), fn: () => startQuizForLevel(level.id) },
           ]
         }));
       } else {
@@ -787,10 +787,10 @@ const App = (() => {
           name: `${cat.icon || ''} ${cat.name}`, sub: cat.subtitle || '',
           prog: getVocabCategoryProgress(cat.id), progText: `${cat.items.length}개`,
           btns: cat.dialogue
-            ? [{ label: '会話(대화)', fn: () => { showView(viewName); setTimeout(() => startVocabCategory(cat.id, 'dialogue'), 100); } }]
+            ? [{ label: _uiText('대화','会話'), fn: () => { showView(viewName); setTimeout(() => startVocabCategory(cat.id, 'dialogue'), 100); } }]
             : [
-                { label: '学習(학습)', fn: () => { showView(viewName); setTimeout(() => startVocabCategory(cat.id, 'flash'), 100); } },
-                { label: 'クイズ(퀴즈)', fn: () => { showView(viewName); setTimeout(() => startVocabCategory(cat.id, 'quiz'), 100); } },
+                { label: _uiText('학습','学習'), fn: () => { showView(viewName); setTimeout(() => startVocabCategory(cat.id, 'flash'), 100); } },
+                { label: _uiText('퀴즈','クイズ'), fn: () => { showView(viewName); setTimeout(() => startVocabCategory(cat.id, 'quiz'), 100); } },
               ]
         }));
       }
@@ -875,9 +875,9 @@ const App = (() => {
         <div class="hkcc-prog-text">${allChars.length}자 · ${prog}%</div>
         <div class="hkcc-actions">
           <div class="hkcc-btn-row">
-            <button class="hkcc-btn hkcc-btn-flash">学習(학습)</button>
-            <button class="hkcc-btn hkcc-btn-browse">一覧(일람)</button>
-            <button class="hkcc-btn hkcc-btn-quiz">クイズ(퀴즈)</button>
+            <button class="hkcc-btn hkcc-btn-flash">${_uiText('학습','学習')}</button>
+            <button class="hkcc-btn hkcc-btn-browse">${_uiText('일람','一覧')}</button>
+            <button class="hkcc-btn hkcc-btn-quiz">${_uiText('퀴즈','クイズ')}</button>
           </div>
         </div>`;
       card.querySelector('.hkcc-btn-flash').addEventListener('click', e => {
@@ -986,7 +986,7 @@ const App = (() => {
     card.className = 'section-hero section-hero-kana';
     card.innerHTML = `
       <div class="sh-header-bar">
-        <span class="sh-header-title">✍️ かなマスター</span>
+        <span class="sh-header-title">✍️ ${_uiText('가나 마스터', 'かなマスター')}</span>
         <button class="sh-header-refresh" id="kana-hero-refresh-btn" title="랜덤 새로 보기">🔄</button>
       </div>
       <div class="section-hero-inner dkk-inner">
@@ -1047,7 +1047,7 @@ const App = (() => {
     card.className = 'section-hero section-hero-sim';
     card.innerHTML = `
       <div class="sh-header-bar">
-        <span class="sh-header-title">🎯 実戦ロールプレイ</span>
+        <span class="sh-header-title">🎯 ${_uiText('실전 롤플레이', '実戦ロールプレイ')}</span>
         <button class="sh-header-refresh" id="sim-hero-refresh-btn" title="랜덤 새로 보기">🔄</button>
       </div>
       <div class="section-hero-inner">
@@ -1096,7 +1096,7 @@ const App = (() => {
     card.className = 'section-hero section-hero-vocab';
     card.innerHTML = `
       <div class="sh-header-bar">
-        <span class="sh-header-title">📝 語彙マスター</span>
+        <span class="sh-header-title">📝 ${_uiText('어휘 마스터', '語彙マスター')}</span>
         <button class="sh-header-refresh" id="vocab-hero-refresh-btn" title="랜덤 새로 보기">🔄</button>
       </div>
       <div class="section-hero-inner section-hero-inner-v">
@@ -1149,8 +1149,8 @@ const App = (() => {
     card.className = 'section-hero section-hero-convo';
     card.innerHTML = `
       <div class="sh-header-bar">
-        <span class="sh-header-title">💬 会話マスター</span>
-        <button class="dcc-hero-btn sh-header-btn" id="dcc-btn-start">▶ 対話(대화)</button>
+        <span class="sh-header-title">💬 ${_uiText('회화 마스터', '会話マスター')}</span>
+        <button class="dcc-hero-btn sh-header-btn" id="dcc-btn-start">▶ ${_uiText('대화', '対話')}</button>
         <button class="sh-header-refresh" id="convo-hero-refresh-btn" title="랜덤 새로 보기">🔄</button>
       </div>
       <div class="section-hero-inner section-hero-inner-convo">
@@ -1255,7 +1255,7 @@ const App = (() => {
             // A TTS 자동 재생 (화자 슬롯 2)
             playAudioSlot(pair.a.replace(/[（）()〜]/g, ''), 2);
             const sb = document.getElementById('dcc-btn-start');
-            if (sb) sb.textContent = '🔁 もう一度';
+            if (sb) sb.textContent = _uiText('🔁 다시 듣기', '🔁 もう一度');
           }, 1500);
         }, 1200);
       });
@@ -1588,10 +1588,10 @@ const App = (() => {
       </div>
       ${locked ? `<div class="hc-locked-msg">${lockedMsg || '잠김'}</div>` : `
       <div class="hcb-btns">
-        ${lectureFn ? '<button class="hcb-btn hcb-btn-lec">講義(강의)</button>' : ''}
-        <button class="hcb-btn hcb-btn-study">学習(학습)</button>
-        <button class="hcb-btn hcb-btn-browse">一覧(일람)</button>
-        <button class="hcb-btn hcb-btn-quiz">クイズ(퀴즈)</button>
+        ${lectureFn ? `<button class="hcb-btn hcb-btn-lec">${_uiText('강의','講義')}</button>` : ''}
+        <button class="hcb-btn hcb-btn-study">${_uiText('학습','学習')}</button>
+        <button class="hcb-btn hcb-btn-browse">${_uiText('일람','一覧')}</button>
+        <button class="hcb-btn hcb-btn-quiz">${_uiText('퀴즈','クイズ')}</button>
       </div>`}
     `;
     if (!locked) {
@@ -1710,6 +1710,15 @@ const App = (() => {
     saveToStorage();
   }
 
+  // ─── 레벨별 가나 문자 배열 반환 ───
+  function _getLevelChars(levelId) {
+    const level = LEVELS.find(l => l.id === levelId);
+    if (!level || !level.chars) return [];
+    return level.chars
+      .filter(k => KANA_MAP[k])
+      .map(k => ({ kana: k, ...KANA_MAP[k] }));
+  }
+
   // ─── 학습 모드 ───
   function startLearn(levelId, mode) {
     trackActivity('kana', levelId);
@@ -1723,7 +1732,7 @@ const App = (() => {
         .map(k => ({ kana: k, ...KANA_MAP[k] }))
         .sort(() => Math.random() - 0.5);
     } else {
-      state.learnChars = getLevelChars(levelId);
+      state.learnChars = _getLevelChars(levelId);
     }
     state.learnIndex = 0;
 
@@ -1801,39 +1810,7 @@ const App = (() => {
     document.getElementById('fc-korean').textContent = char.korean;
     document.getElementById('fc-english').textContent = char.english;
 
-    // 예시 단어 — 셔플 후 전부 표시 (세로 목록)
-    const exDiv = document.getElementById('fc-examples');
-    exDiv.innerHTML = '';
-    const exReadQueue = []; // 자동 읽기 큐
-    if (char.examples && char.examples.length) {
-      const title = document.createElement('div');
-      title.className = 'fc-section-title';
-      title.textContent = '관련 단어';
-      exDiv.appendChild(title);
-      const shuffledEx = [...char.examples].sort(() => Math.random() - 0.5).slice(0, 3);
-      shuffledEx.forEach(ex => {
-        const el = document.createElement('div');
-        el.className = 'fc-ex-item';
-        el.innerHTML = `<span class="fc-ex-word">${stripFurigana(ex.word)}</span><span class="fc-ex-meaning">${ex.meaning}</span>`;
-        el.addEventListener('click', (e) => {
-          e.stopPropagation();
-          // 순차 읽기 중단 후 이 단어만 재생
-          state.fcReadSession = (state.fcReadSession || 0) + 1;
-          stopFcExRead();
-          playAudio(ex.word);
-        });
-        exDiv.appendChild(el);
-        exReadQueue.push({ el, text: ex.word });
-      });
-    }
-
-    // 가나 마스터: 예시 문장 제공 안 함 (관련 단어만)
-    const sentDiv = document.getElementById('fc-sentences');
-    if (sentDiv) sentDiv.innerHTML = '';
-    // 자동 읽기 큐 저장 (카드 뒤집을 때 사용)
-    state.fcExReadQueue = exReadQueue;
-
-    // 팁 표시
+    // ── 섹션2: 팁 ──
     const tipEl = document.getElementById('fc-tip');
     if (tipEl) {
       if (char.tip) {
@@ -1843,6 +1820,38 @@ const App = (() => {
         tipEl.style.display = 'none';
       }
     }
+
+    // ── 섹션3: 관련 단어 ──
+    const exDiv = document.getElementById('fc-examples');
+    const exWrap = document.getElementById('fc-examples-wrap');
+    exDiv.innerHTML = '';
+    const exReadQueue = [];
+    if (char.examples && char.examples.length) {
+      if (exWrap) exWrap.style.display = '';
+      const shuffledEx = [...char.examples].sort(() => Math.random() - 0.5).slice(0, 3);
+      shuffledEx.forEach(ex => {
+        const el = document.createElement('div');
+        el.className = 'fc-ex-item';
+        el.innerHTML = `<span class="fc-ex-word">${stripFurigana(ex.word)}</span><span class="fc-ex-meaning">${ex.meaning}</span>`;
+        el.addEventListener('click', (e) => {
+          e.stopPropagation();
+          state.fcReadSession = (state.fcReadSession || 0) + 1;
+          stopFcExRead();
+          playAudio(ex.word);
+        });
+        exDiv.appendChild(el);
+        exReadQueue.push({ el, text: ex.word });
+      });
+    } else {
+      if (exWrap) exWrap.style.display = 'none';
+    }
+
+    // 가나 마스터: 예시 문장 제공 안 함
+    const sentWrap = document.getElementById('fc-sentences-wrap');
+    const sentDiv = document.getElementById('fc-sentences');
+    if (sentDiv) sentDiv.innerHTML = '';
+    if (sentWrap) sentWrap.style.display = 'none';
+    state.fcExReadQueue = exReadQueue;
 
     // nav strip 북마크 상태 업데이트
     const isBookmarked = state.bookmarks.some(b => b.type === 'kana' && b.kana === char.kana);
@@ -2852,7 +2861,15 @@ const App = (() => {
   }
 
   // 퀴즈 인트로 화면 표시
-  const _QI_SPEECHES = [
+  const _QI_SPEECHES_KO = [
+    '자, 같이 해보자!',
+    '오늘도 연습하자!',
+    '시작해볼까! 재밌을 거야!',
+    '자신감을 가져! 할 수 있어!',
+    '잘 할 수 있어! 해보자!',
+    '포기하지 마! 한 걸음씩!',
+  ];
+  const _QI_SPEECHES_JP = [
     'よし！一緒に頑張ろう！',
     '今日も練習しましょう！',
     '始めましょう！楽しいよ！',
@@ -2860,6 +2877,7 @@ const App = (() => {
     '上手になれるよ！やろう！',
     '諦めないで！一歩一歩！',
   ];
+  function _getQiSpeeches() { return _uiTier() === 'beginner' ? _QI_SPEECHES_KO : _QI_SPEECHES_JP; }
   let _qiSpeechTimer = null;
   let _qiCountdownTimer = null;
 
@@ -2979,10 +2997,11 @@ const App = (() => {
     let _speechIdx = 0;
     const speechEl = document.getElementById('qi-speech-text');
     if (speechEl) {
-      speechEl.textContent = _QI_SPEECHES[_speechIdx];
+      const _qiArr = _getQiSpeeches();
+      speechEl.textContent = _qiArr[_speechIdx];
       _qiSpeechTimer = setInterval(() => {
-        _speechIdx = (_speechIdx + 1) % _QI_SPEECHES.length;
-        if (speechEl) speechEl.textContent = _QI_SPEECHES[_speechIdx];
+        _speechIdx = (_speechIdx + 1) % _qiArr.length;
+        if (speechEl) speechEl.textContent = _qiArr[_speechIdx];
       }, 3500);
     }
 
@@ -3980,7 +3999,7 @@ const App = (() => {
     const allChars = [];
     LEVELS.forEach(level => {
       if (state.unlockedLevels.includes(level.id)) {
-        getLevelChars(level.id).forEach(ch => {
+        _getLevelChars(level.id).forEach(ch => {
           if (!allChars.find(c => c.kana === ch.kana)) allChars.push(ch);
         });
       }
@@ -4059,6 +4078,13 @@ const App = (() => {
           if (target) target.style.display = 'block';
         });
       });
+    }
+    // 초기 탭 콘텐츠 표시 (첫 진입 시 활성 탭의 콘텐츠가 안 보이는 문제 수정)
+    const activeProgTab = document.querySelector('.prog-tab.active');
+    if (activeProgTab) {
+      document.querySelectorAll('.prog-tab-content').forEach(c => { c.style.display = 'none'; });
+      const activeContent = document.getElementById('prog-tab-' + activeProgTab.dataset.tab);
+      if (activeContent) activeContent.style.display = 'block';
     }
 
     // 개요
@@ -5762,7 +5788,19 @@ const App = (() => {
   const TEST_PHRASE = 'こんにちは！私の声はこんな感じです。よろしくお願いします！';
 
   // ─── 퀴즈 응원 문구 (화자가 1/3 볼륨으로 읽어줌) ───
-  const QUIZ_CHEERS = {
+  const QUIZ_CHEERS_KO = {
+    start:   ['자, 시작하자! 화이팅!', '좋아! 전력으로 가자!', '시작! 분명 할 수 있어!', '퀴즈 시작! 파이팅!'],
+    correct: ['정답! 대단해!', '맞았어! 잘했어!', '딩동댕! 완벽!', '좋아! 역시 잘하네!', '정답! 훌륭해!'],
+    wrong:   ['아쉬워! 다음엔 잘하자!', '아깝다! 조금만 더!', '괜찮아! 다음엔 할 수 있어!', '걱정 마, 다음엔 분명!', '신경 쓰지 마, 계속 가자!'],
+    streak3: ['3연속 정답! 잘하고 있어!', '멈출 수 없어! 이 기세로!', '3연속! 대단해!'],
+    streak5: ['5연속! 너무 잘해!', '완벽한 콤보! 멈출 수 없어!', '5연속 정답! 훌륭해!'],
+    streak8: ['헐! 믿을 수 없어! 천재야!', '전설이야! 아무도 못 막아!', '너무 잘해! 천재 인정!'],
+    perfect: ['만점! 정말 훌륭해! 천재인가!', '완벽! 이 이상은 없어! 최고!', '백점 만점! 정말 대단해!'],
+    good:    ['잘했어! 이 기세로 힘내자!', '정말 잘했어! 계속하자!', '실력 좋은데! 더 연습하자!'],
+    pass:    ['그럭저럭이네. 더 연습하자!', '다음엔 더 잘할 수 있어! 포기 마!', '점점 늘고 있어!'],
+    poor:    ['어려웠지? 같이 힘내자!', '괜찮아, 연습하면 분명 할 수 있어!', '포기하지 마! 다시 도전하자!'],
+  };
+  const QUIZ_CHEERS_JP = {
     start:   ['さあ、始めましょう！頑張ってね！', 'よーし！全力でいこう！', 'じゃあスタート！きっとできる！', 'クイズ開始！ファイト！'],
     correct: ['正解！すごい！', 'その通り！よくできました！', 'ピンポン！完璧！', 'いいね！さすがだね！', '正解！素晴らしい！'],
     wrong:   ['残念！次は頑張ろう！', '惜しい！もう少し！', 'ドンマイ！次はできる！', '大丈夫、次はきっとできるよ！', '気にしないで、続けよう！'],
@@ -5774,10 +5812,12 @@ const App = (() => {
     pass:    ['まあまあかな。もっと練習しましょう！', '次はもっとできるよ！諦めないで！', 'だんだん上手になってるよ！'],
     poor:    ['難しかったね。一緒に頑張ろう！', '大丈夫、練習すれば絶対できる！', '諦めないで！また挑戦しよう！'],
   };
+  function _getQuizCheers() { return _uiTier() === 'beginner' ? QUIZ_CHEERS_KO : QUIZ_CHEERS_JP; }
 
   function _pickCheer(type) {
     const custom = state.prefs.quizCheers && state.prefs.quizCheers[type];
-    const arr = (custom && custom.length > 0) ? custom : QUIZ_CHEERS[type];
+    const cheers = _getQuizCheers();
+    const arr = (custom && custom.length > 0) ? custom : cheers[type];
     if (!arr || !arr.length) return '';
     return arr[Math.floor(Math.random() * arr.length)];
   }
@@ -6590,7 +6630,7 @@ const App = (() => {
     // 헤더 제목 + 섹션 표시 전환
     const titleMap = { word: '어휘 마스터', sentence: '회화 마스터', sim: '실전 롤플레이' };
     const titleEl = document.getElementById('vocab-section-title');
-    if (titleEl) titleEl.textContent = titleMap[section] || '語彙マスター';
+    if (titleEl) titleEl.textContent = titleMap[section] || '어휘 마스터';
 
     ['word', 'sentence', 'sim'].forEach(sec => {
       const el = document.getElementById(`vocab-${sec === 'sentence' ? 'sent' : sec}-section`);
@@ -6756,12 +6796,12 @@ const App = (() => {
         <div class="vcc-prog-text">${cat.items.length}개 대사</div>
         <div class="vcc-actions">
           <div class="vcc-btn-row">
-            <button class="vcc-btn vcc-btn-lecture" data-cid="${cat.id}">講義(강의)</button>
-            <button class="vcc-btn vcc-btn-dialogue" data-cid="${cat.id}">会話(대화)</button>
+            <button class="vcc-btn vcc-btn-lecture" data-cid="${cat.id}">${_uiText('강의','講義')}</button>
+            <button class="vcc-btn vcc-btn-dialogue" data-cid="${cat.id}">${_uiText('대화','会話')}</button>
           </div>
           <div class="vcc-btn-row">
-            <button class="vcc-btn vcc-btn-browse" data-cid="${cat.id}">一覧(일람)</button>
-            <button class="vcc-btn vcc-btn-quiz" data-cid="${cat.id}">クイズ(퀴즈)</button>
+            <button class="vcc-btn vcc-btn-browse" data-cid="${cat.id}">${_uiText('일람','一覧')}</button>
+            <button class="vcc-btn vcc-btn-quiz" data-cid="${cat.id}">${_uiText('퀴즈','クイズ')}</button>
           </div>
         </div>`;
       card.querySelector('.vcc-btn-lecture').addEventListener('click', (e) => {
@@ -6796,12 +6836,12 @@ const App = (() => {
         <div class="vcc-prog-text">${prog}% · ${cat.items.length}개</div>
         <div class="vcc-actions">
           <div class="vcc-btn-row">
-            ${hasLec ? `<button class="vcc-btn vcc-btn-lecture" data-cid="${cat.id}">講義(강의)</button>` : ''}
-            <button class="vcc-btn vcc-btn-flash" data-cid="${cat.id}">学習(학습)</button>
+            ${hasLec ? `<button class="vcc-btn vcc-btn-lecture" data-cid="${cat.id}">${_uiText('강의','講義')}</button>` : ''}
+            <button class="vcc-btn vcc-btn-flash" data-cid="${cat.id}">${_uiText('학습','学習')}</button>
           </div>
           <div class="vcc-btn-row">
-            <button class="vcc-btn vcc-btn-quiz" data-cid="${cat.id}">クイズ(퀴즈)</button>
-            <button class="vcc-btn vcc-btn-browse" data-cid="${cat.id}">一覧(일람)</button>
+            <button class="vcc-btn vcc-btn-quiz" data-cid="${cat.id}">${_uiText('퀴즈','クイズ')}</button>
+            <button class="vcc-btn vcc-btn-browse" data-cid="${cat.id}">${_uiText('일람','一覧')}</button>
           </div>
         </div>`;
       if (hasLec) {
@@ -7965,7 +8005,9 @@ const App = (() => {
     // ── 관련 단어 / 예시 문장 (vocab-examples-data.js) ──
     const exData = typeof VOCAB_EXAMPLES_DB !== 'undefined' ? VOCAB_EXAMPLES_DB[item.id] : null;
     const compoundsEl = document.getElementById('vfc-compounds');
+    const compoundsWrap = document.getElementById('vfc-compounds-wrap');
     const sentencesEl = document.getElementById('vfc-sentences');
+    const sentencesWrap = document.getElementById('vfc-sentences-wrap');
 
     if (compoundsEl) {
       let compoundsRendered = false;
@@ -8006,6 +8048,8 @@ const App = (() => {
       } else if (!compoundsRendered) {
         compoundsEl.style.display = 'none'; compoundsEl.innerHTML = '';
       }
+      // wrap 가시성 동기화
+      if (compoundsWrap) compoundsWrap.style.display = compoundsEl.style.display;
     }
 
     if (sentencesEl) {
@@ -8042,6 +8086,8 @@ const App = (() => {
             `<div class="vfc-ex-item vfc-sent"><span class="vfc-sent-jp vfc-audio-word" onclick="event.stopPropagation();App.playWord(this.textContent)" title="🔊">${s.japanese}</span><span class="vfc-ex-kr">${s.meaning}</span></div>`
           ).join('');
       } else { sentencesEl.style.display = 'none'; sentencesEl.innerHTML = ''; }
+      // wrap 가시성 동기화
+      if (sentencesWrap) sentencesWrap.style.display = sentencesEl.style.display;
     }
 
     // 카드 리셋 + 읽기 세션 무효화 (flipCard 설정에 따라 초기 면 결정)
@@ -8205,13 +8251,21 @@ const App = (() => {
 
   // ─── 단어 퀴즈 ───
 
-  const _VQ_SPEECHES = [
+  const _VQ_SPEECHES_KO = [
+    '자, 단어를 외워보자!',
+    '힘내! 할 수 있어!',
+    '같이 연습하자!',
+    '포기하지 마!',
+    '잘 할 수 있어!',
+  ];
+  const _VQ_SPEECHES_JP = [
     'さあ、単語を覚えよう！',
     '頑張れ！できるよ！',
     '一緒に練習しよう！',
     '諦めないで！',
     '上手になれるよ！',
   ];
+  function _getVqSpeeches() { return _uiTier() === 'beginner' ? _VQ_SPEECHES_KO : _VQ_SPEECHES_JP; }
   let _vqSpeechTimer = null;
   let _vqCountdownTimer = null;
 
@@ -8315,10 +8369,11 @@ const App = (() => {
     let _sidx = 0;
     const sp = document.getElementById('vq-speech-text');
     if (sp) {
-      sp.textContent = _VQ_SPEECHES[_sidx];
+      const _vqArr = _getVqSpeeches();
+      sp.textContent = _vqArr[_sidx];
       _vqSpeechTimer = setInterval(() => {
-        _sidx = (_sidx + 1) % _VQ_SPEECHES.length;
-        if (sp) sp.textContent = _VQ_SPEECHES[_sidx];
+        _sidx = (_sidx + 1) % _vqArr.length;
+        if (sp) sp.textContent = _vqArr[_sidx];
       }, 3500);
     }
 
@@ -8928,11 +8983,11 @@ const App = (() => {
     // 語彙マスター 전체 완료처리
     document.getElementById('adm-vocab-complete-all').addEventListener('click', () => {
       if (typeof VOCAB_CATEGORIES === 'undefined') return;
-      if (!confirm('語彙マスター 전체 카테고리를 완료처리할까요?')) return;
+      if (!confirm('어휘 마스터 전체 카테고리를 완료처리할까요?')) return;
       let total = 0;
       VOCAB_CATEGORIES.filter(c => c.type === 'word').forEach(c => { total += completeVocabCategoryItems(c.id); });
       saveToStorage();
-      showToast(`✅ 語彙マスター ${total}단어 완료처리!`);
+      showToast(`✅ 어휘 마스터 ${total}단어 완료처리!`);
     });
 
     // 語彙マスター 선택 완료처리
@@ -8947,11 +9002,11 @@ const App = (() => {
     // 会話マスター 전체 완료처리
     document.getElementById('adm-conv-complete-all').addEventListener('click', () => {
       if (typeof VOCAB_CATEGORIES === 'undefined') return;
-      if (!confirm('会話マスター 전체 카테고리를 완료처리할까요?')) return;
+      if (!confirm('회화 마스터 전체 카테고리를 완료처리할까요?')) return;
       let total = 0;
       VOCAB_CATEGORIES.filter(c => c.type === 'sentence').forEach(c => { total += completeVocabCategoryItems(c.id); });
       saveToStorage();
-      showToast(`✅ 会話マスター ${total}문장 완료처리!`);
+      showToast(`✅ 회화 마스터 ${total}문장 완료처리!`);
     });
 
     // 会話マスター 선택 완료처리
@@ -9845,6 +9900,10 @@ const App = (() => {
       if (pair) el.textContent = _uiText(pair[0], pair[1]);
     });
 
+    // ── 읽기 뷰 제목 ──
+    const yomuTitle = document.getElementById('yomu-hero-title');
+    if (yomuTitle) yomuTitle.textContent = _uiText('읽기 연습', '読む — 읽기 연습');
+
     // ── 퀴즈 타이틀 ──
     const qiMain = document.getElementById('qi-title-main');
     const qiSub = document.getElementById('qi-title-sub');
@@ -9947,8 +10006,8 @@ const App = (() => {
       <div class="item-drop-card rarity-${item.rarity}">
         <div class="item-drop-icon">${item.icon}</div>
         <div class="item-drop-label" style="color:${rarityColor}">${isNew ? '✨ NEW! ' : ''}${rarityLabel}</div>
-        <div class="item-drop-name">${item.name}</div>
-        <div style="font-size:12px;color:var(--gray);margin-bottom:2px">${item.nameKo}</div>
+        <div class="item-drop-name">${_uiItemName(item)}</div>
+        <div style="font-size:12px;color:var(--gray);margin-bottom:2px">${_uiTier() !== 'beginner' ? item.nameKo : item.name}</div>
         <div class="item-drop-desc">${item.desc}</div>
         <button class="item-drop-btn">받기</button>
       </div>`;
@@ -9965,8 +10024,8 @@ const App = (() => {
       <div class="rankup-card">
         <div class="rankup-label">RANK UP!</div>
         <div class="rankup-icon">${rank.icon}</div>
-        <div class="rankup-name">${rank.name}</div>
-        <div class="rankup-nameKo">${rank.nameKo}</div>
+        <div class="rankup-name">${_uiRankName(rank)}</div>
+        <div class="rankup-nameKo">${_uiTier() !== 'beginner' ? rank.nameKo : ''}</div>
         <button class="rankup-btn">확인</button>
       </div>`;
     document.body.appendChild(overlay);
@@ -10026,7 +10085,7 @@ const App = (() => {
       if (earned && !s.earnedBadges.includes(id)) {
         s.earnedBadges.push(id);
         const badge = BADGES.find(b => b.id === id);
-        if (badge) _showBadgeToast(badge.icon, badge.name, badge.desc);
+        if (badge) _showBadgeToast(badge.icon, _uiBadgeName(badge), badge.desc);
       }
     }
   }
@@ -10042,12 +10101,12 @@ const App = (() => {
 
     // 계급 카드
     if (el('my-rank-icon'))   el('my-rank-icon').textContent = rank.icon;
-    if (el('my-rank-name'))   el('my-rank-name').textContent = rank.name;
+    if (el('my-rank-name'))   el('my-rank-name').textContent = _uiRankName(rank);
     if (el('my-rank-tier'))   el('my-rank-tier').textContent = (rank.tier || 'bronze').toUpperCase();
     if (el('my-rank-xp'))    el('my-rank-xp').textContent = xp + ' / ' + (next ? next.minXP : rank.minXP) + ' XP';
     if (el('my-rank-fill'))  el('my-rank-fill').style.width = Math.round(progress * 100) + '%';
-    if (el('my-rank-current-label')) el('my-rank-current-label').textContent = rank.name;
-    if (el('my-rank-next-label'))    el('my-rank-next-label').textContent = next ? ('\u2192 ' + next.name) : 'MAX';
+    if (el('my-rank-current-label')) el('my-rank-current-label').textContent = _uiRankName(rank);
+    if (el('my-rank-next-label'))    el('my-rank-next-label').textContent = next ? ('\u2192 ' + _uiRankName(next)) : 'MAX';
 
     // 스트릭
     if (el('my-streak-days')) el('my-streak-days').textContent = state.streak || 0;
@@ -10102,9 +10161,9 @@ const App = (() => {
     if (countEl) countEl.textContent = `(${collected.length}/${RARE_ITEMS.length})`;
     grid.innerHTML = RARE_ITEMS.map(item => {
       const has = collected.includes(item.id);
-      return `<div class="item-cell ${has ? 'collected rarity-' + item.rarity : 'locked'}" title="${has ? item.nameKo + ' - ' + item.desc : '???'}">
+      return `<div class="item-cell ${has ? 'collected rarity-' + item.rarity : 'locked'}" title="${has ? _uiItemName(item) + ' - ' + item.desc : '???'}">
         <span class="item-icon">${item.icon}</span>
-        <span class="item-name">${has ? item.nameKo : '???'}</span>
+        <span class="item-name">${has ? _uiItemName(item) : '???'}</span>
       </div>`;
     }).join('');
   }
@@ -10120,7 +10179,7 @@ const App = (() => {
       const has = earned.includes(b.id);
       return `<div class="badge-cell ${has ? 'earned' : 'locked'}" title="${has ? b.desc : '???'}">
         <span class="badge-icon">${has ? b.icon : '🔒'}</span>
-        <span class="badge-label">${has ? b.name : '???'}</span>
+        <span class="badge-label">${has ? _uiBadgeName(b) : '???'}</span>
       </div>`;
     }).join('');
   }

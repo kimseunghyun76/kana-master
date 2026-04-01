@@ -342,16 +342,28 @@
                   <div class="fc-hint" id="fc-hint">↕ 드래그로 이동 · 탭 뒤집기</div>
                 </div>
                 <div class="flashcard-back">
-                  <div class="fc-kana-small" id="fc-kana-back">あ</div>
-                  <div class="fc-pronunciations">
-                    <span class="fc-kor" id="fc-korean">아</span>
-                    <span class="fc-sep">·</span>
-                    <span class="fc-eng" id="fc-english">ah</span>
+                  <!-- 섹션1: 메인 — 글자 + 발음 (항상 크게) -->
+                  <div class="fcb-main">
+                    <div class="fc-kana-small" id="fc-kana-back">あ</div>
+                    <div class="fc-pronunciations">
+                      <span class="fc-kor" id="fc-korean">아</span>
+                      <span class="fc-sep">·</span>
+                      <span class="fc-eng" id="fc-english">ah</span>
+                    </div>
                   </div>
-                  <div class="fc-tip" id="fc-tip" style="display:none"></div>
-                  <div class="fc-examples" id="fc-examples"></div>
-                  <div class="fc-sentences" id="fc-sentences"></div>
-                  <!-- 자가평가 버튼 (전체화면 모드에서만 표시) -->
+                  <!-- 섹션2: 팁 (있을 때만) -->
+                  <div class="fcb-tip-area" id="fc-tip" style="display:none"></div>
+                  <!-- 섹션3: 관련 단어 -->
+                  <div class="fcb-section" id="fc-examples-wrap">
+                    <div class="fcb-section-label">📖 관련 단어</div>
+                    <div class="fc-examples" id="fc-examples"></div>
+                  </div>
+                  <!-- 섹션4: 예시 문장 (확장용) -->
+                  <div class="fcb-section" id="fc-sentences-wrap" style="display:none">
+                    <div class="fcb-section-label">💬 예시 문장</div>
+                    <div class="fc-sentences" id="fc-sentences"></div>
+                  </div>
+                  <!-- 자가평가 버튼 -->
                   <div class="fc-assess-row" id="fc-assess-row">
                     <button class="fc-assess-btn fca-hard" id="fca-hard">❌<span>어려워</span></button>
                     <button class="fc-assess-btn fca-ok"   id="fca-ok">😌<span>알겠어</span></button>
@@ -761,15 +773,27 @@
                     <div class="fc-hint">↕ 드래그로 이동 · 탭 뒤집기</div>
                   </div>
                   <div class="flashcard-back">
-                    <div class="fc-kana-small" id="vfc-japanese-back">いち</div>
-                    <div class="vfc-kanji-back" id="vfc-kanji-back"></div>
-                    <div class="fc-pronunciations">
-                      <span class="fc-kor" id="vfc-korean">일 (1)</span>
+                    <!-- 섹션1: 메인 — 일본어 + 뜻 -->
+                    <div class="fcb-main">
+                      <div class="fc-kana-small" id="vfc-japanese-back">いち</div>
+                      <div class="vfc-kanji-back" id="vfc-kanji-back"></div>
+                      <div class="fc-pronunciations">
+                        <span class="fc-kor" id="vfc-korean">일 (1)</span>
+                      </div>
                     </div>
-                    <div class="vfc-tip" id="vfc-tip" style="display:none"></div>
-                    <div class="vfc-example" id="vfc-example" style="display:none"></div>
-                    <div class="fc-examples" id="vfc-compounds"></div>
-                    <div class="fc-sentences" id="vfc-sentences"></div>
+                    <!-- 섹션2: 팁 + 예문 -->
+                    <div class="fcb-tip-area" id="vfc-tip" style="display:none"></div>
+                    <div class="fcb-tip-area fcb-example-tip" id="vfc-example" style="display:none"></div>
+                    <!-- 섹션3: 관련 단어 -->
+                    <div class="fcb-section" id="vfc-compounds-wrap">
+                      <div class="fcb-section-label">📖 관련 단어</div>
+                      <div class="fc-examples" id="vfc-compounds"></div>
+                    </div>
+                    <!-- 섹션4: 예시 문장 -->
+                    <div class="fcb-section" id="vfc-sentences-wrap" style="display:none">
+                      <div class="fcb-section-label">💬 예시 문장</div>
+                      <div class="fc-sentences" id="vfc-sentences"></div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -1044,7 +1068,7 @@
           <div class="section-hero-inner">
             <div class="hero-icon-wrap">📖</div>
             <div>
-              <div class="section-hero-title">読む — 읽기 연습</div>
+              <div class="section-hero-title" id="yomu-hero-title">읽기 연습</div>
               <div class="section-hero-sub">간판·표지판 읽기 / 남의 일기 읽기</div>
             </div>
           </div>
