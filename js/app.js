@@ -4475,6 +4475,16 @@ const App = (() => {
       flipCb.checked = state.prefs.flipCard === true;
       flipCb.onchange = () => { state.prefs.flipCard = flipCb.checked; saveToStorage(); };
     }
+
+    // 최적 음성 자동 설정 버튼
+    const autoVoiceBtn = document.getElementById('auto-select-voice-btn');
+    if (autoVoiceBtn) {
+      autoVoiceBtn.addEventListener('click', () => {
+        if (!voicesCached) { showToast('음성을 로드 중입니다. 잠시 후 다시 시도해주세요.'); return; }
+        const ok = _autoSelectBestVoices();
+        if (!ok) showToast('이 브라우저에서 일본어 음성을 찾을 수 없습니다.\nMicrosoft Edge 브라우저를 사용하면 Nanami/Keita 고품질 음성을 쓸 수 있습니다.', 4000);
+      });
+    }
   }
 
   function savePrefs() {
@@ -5784,7 +5794,8 @@ const App = (() => {
     s2.addEventListener('change', updateVvPortraitUI);
   }
 
-  const NATURAL_VOICES = ['kyoko', 'otoya', 'o-ren', 'haruka', 'ayumi', 'nanami', 'ichiro', 'google 日本語'];
+  const NATURAL_VOICES    = ['kyoko', 'otoya', 'o-ren', 'haruka', 'ayumi', 'nanami', 'keita', 'ichiro', 'google 日本語'];
+  const MICROSOFT_VOICES  = ['nanami', 'keita', 'haruka', 'ichiro'];  // Edge/Azure 고품질
   const TEST_PHRASE = 'こんにちは！私の声はこんな感じです。よろしくお願いします！';
 
   // ─── 퀴즈 응원 문구 (화자가 1/3 볼륨으로 읽어줌) ───
@@ -5908,9 +5919,43 @@ const App = (() => {
   }
 
   function getVoiceDisplayName(v) {
-    const natural = isNaturalVoice(v.name) ? ' ⭐' : '';
+    const name = v.name.toLowerCase();
+    const isMicrosoft = MICROSOFT_VOICES.some(n => name.includes(n));
+    const isNatural   = !isMicrosoft && isNaturalVoice(v.name);
+    const badge = isMicrosoft ? ' 🏆Edge' : isNatural ? ' ⭐' : '';
     const displayName = v.name.replace(/\s*\(.*?\)\s*/g, '').trim();
-    return `${displayName}${natural}`;
+    return `${displayName}${badge}`;
+  }
+
+  /** 최고 품질 일본어 음성 자동 선택 (Edge TTS 우선) */
+  function _autoSelectBestVoices() {
+    if (!allJaVoices.length) return false;
+    const PRIORITY = ['nanami', 'keita', 'haruka', 'ichiro', 'kyoko', 'otoya', 'google 日本語', 'ayumi'];
+
+    const ranked = allJaVoices.map((v, i) => {
+      const lc = v.name.toLowerCase();
+      const rank = PRIORITY.findIndex(p => lc.includes(p));
+      return { i, rank: rank === -1 ? PRIORITY.length : rank };
+    }).sort((a, b) => a.rank - b.rank);
+
+    const best  = ranked[0];
+    const best2 = ranked.find(r => r.i !== best.i && r.rank <= 4);  // 두 번째 고품질
+
+    if (!best) return false;
+
+    state.prefs.voiceFemale = String(best.i);
+    state.prefs.voiceMale   = best2 ? String(best2.i) : 'none';
+    restoreVoiceSelects();
+    updateActiveSpeakerBadge();
+    saveToStorage();
+
+    const v1name = allJaVoices[best.i]?.name || '';
+    const v2name = best2 ? allJaVoices[best2.i]?.name || '' : '';
+    const msg = v2name
+      ? `✅ 화자 A: ${v1name}\n화자 B: ${v2name}`
+      : `✅ 화자 A: ${v1name}\n화자 B: 사용 안함`;
+    showToast(msg, 3000);
+    return true;
   }
 
   function loadJapaneseVoices() {
@@ -5927,8 +5972,12 @@ const App = (() => {
     });
     voicesCached = true;
     populateVoiceSelects();
-    // 음성 로드 후 배지도 갱신 (Web TTS 화자명 표시)
     updateActiveSpeakerBadge();
+
+    // 처음 실행이고 음성이 설정 안 된 경우 자동 최적 선택
+    if (state.prefs.voiceFemale === 'none' && !state.prefs.useVoicevox) {
+      _autoSelectBestVoices();
+    }
   }
 
   function populateVoiceSelects() {
@@ -5954,6 +6003,15 @@ const App = (() => {
 
     // 저장된 설정 복원
     restoreVoiceSelects();
+
+    // Edge TTS 배너 표시 여부 결정
+    const hasMicrosoft = allJaVoices.some(v => MICROSOFT_VOICES.some(n => v.name.toLowerCase().includes(n)));
+    const edgeBanner   = document.getElementById('edge-tts-banner');
+    const edgeMissing  = document.getElementById('edge-tts-missing');
+    const autoRow      = document.getElementById('auto-voice-btn-row');
+    if (edgeBanner) edgeBanner.style.display  = hasMicrosoft ? '' : 'none';
+    if (edgeMissing) edgeMissing.style.display = hasMicrosoft ? 'none' : '';
+    if (autoRow)     autoRow.style.display     = hasMicrosoft ? 'none' : '';
   }
 
   function restoreVoiceSelects() {
@@ -10187,11 +10245,28 @@ const App = (() => {
   /** 연습 허브 초기화 */
   function _initPracticeHub() {
     // SRS 복습 카드
-    if (typeof getSRSReviewItems === 'function') {
+    const _refreshSrsCount = () => {
+      if (typeof getSRSReviewItems !== 'function') return;
       const items = getSRSReviewItems(state.progress || {});
       const countEl = document.getElementById('srs-count-display');
-      if (countEl) countEl.textContent = items.length + '장';
-    }
+      if (countEl) countEl.textContent = items.length > 0 ? items.length + '장' : '없음';
+      const card = document.getElementById('srs-review-card');
+      if (card) {
+        card.style.opacity = items.length > 0 ? '1' : '0.6';
+        const subEl = card.querySelector('.srs-sub-text');
+        if (subEl) {
+          if (items.length > 0) {
+            const overdue = items.filter(i => i.daysOverdue > 0).length;
+            subEl.textContent = overdue > 0
+              ? `${overdue}장 기한 초과 · SM-2 간격반복`
+              : 'SM-2 간격반복 알고리즘';
+          } else {
+            subEl.textContent = '오늘 복습 항목 없음';
+          }
+        }
+      }
+    };
+    _refreshSrsCount();
     // 북마크 카운트
     const bmBadge = document.getElementById('bookmark-count-badge');
     if (bmBadge) {
@@ -10218,24 +10293,31 @@ const App = (() => {
     if (typeof getSRSReviewItems !== 'function') return;
     const items = getSRSReviewItems(state.progress || {});
     if (items.length === 0) {
-      alert('오늘 복습할 항목이 없습니다!');
+      showToast('오늘 복습할 항목이 없습니다! 플래시카드를 먼저 학습해보세요. 🌱');
       return;
     }
-    // SRS 복습은 가나 플래시카드 모드 활용
+    const kanas = items.map(i => i.kana).filter(k => KANA_MAP[k]);
+    if (kanas.length === 0) { showToast('복습할 가나가 없습니다.'); return; }
+
     showView('kana');
-    // 복습 대상 레벨 중 첫 번째로
-    if (items[0] && items[0].kana) {
-      const kana = items[0].kana;
-      // 해당 가나가 속한 레벨 찾기
-      if (typeof LEVELS !== 'undefined') {
-        for (const [lvl, chars] of Object.entries(LEVELS)) {
-          if (chars.includes(kana)) {
-            startLearn(parseInt(lvl), 'flash');
-            return;
-          }
-        }
-      }
-    }
+    setTimeout(() => {
+      state.learnMode     = 'flash';
+      state.learnLevelId  = 0;  // SRS 특별 ID
+      state.learnChars    = kanas.map(k => ({ kana: k, ...KANA_MAP[k] }));
+      state.learnIndex    = 0;
+      state.learnFlipped  = false;
+
+      const levelSelectArea = document.getElementById('level-select-area');
+      const learnArea       = document.getElementById('learn-area');
+      if (levelSelectArea) levelSelectArea.style.display = 'none';
+      if (learnArea)       learnArea.style.display = 'block';
+
+      const titleEl = document.querySelector('#learn-area .learn-header-title') ||
+                      document.getElementById('learn-mode-title');
+      if (titleEl) titleEl.textContent = `🔄 SRS 복습 · ${kanas.length}자`;
+
+      showFlashcard();
+    }, 150);
   }
 
   // ─── 기존 학습 흐름에 XP 훅 삽입 ───
@@ -10247,6 +10329,11 @@ const App = (() => {
     _awardXP(xpMap[rating] || 2, null);
     _advanceMission('flashcard_flip', 1);
     _advanceMission('kana_learn', 1);
+    // SRS 업데이트
+    const char = state.learnChars[state.learnIndex];
+    if (char && char.kana && typeof updateSRS === 'function') {
+      updateSRS(char.kana, rating, state.progress);
+    }
   }
 
   /** 퀴즈 문제 정답 시 호출 */
@@ -10319,6 +10406,7 @@ const App = (() => {
     startVocabCategory,
     removeBookmark,
     stopAllAudio,
+    playTestVoice,
     // 게이미피케이션 훅
     _onFlashcardRate,
     _onQuizCorrect,

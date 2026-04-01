@@ -275,3 +275,36 @@ function getSRSReviewItems(progress) {
   items.sort((a, b) => b.daysOverdue - a.daysOverdue);
   return items;
 }
+
+/**
+ * SM-2 알고리즘으로 SRS 데이터 업데이트
+ * rating: 'hard'(힘들어) | 'ok'(알겠어) | 'good'(쉬워)
+ */
+function updateSRS(kana, rating, progress) {
+  if (!progress[kana]) progress[kana] = { seen: 0, correct: 0, incorrect: 0 };
+  const p = progress[kana];
+
+  // SM-2 quality: hard=1, ok=3, good=5
+  const q = rating === 'good' ? 5 : rating === 'ok' ? 3 : 1;
+  let ef       = p.srsFactor   || 2.5;
+  let interval = p.srsInterval || 0;
+  let reps     = p.srsReps     || 0;
+
+  if (q < 3) {
+    // 틀림: 처음부터 다시
+    reps     = 0;
+    interval = 1;
+  } else {
+    if      (reps === 0) interval = 1;
+    else if (reps === 1) interval = 6;
+    else                 interval = Math.round(interval * ef);
+    reps++;
+    ef = ef + (0.1 - (5 - q) * (0.08 + (5 - q) * 0.02));
+    ef = Math.max(1.3, ef);
+  }
+
+  p.srsFactor   = parseFloat(ef.toFixed(2));
+  p.srsInterval = interval;
+  p.srsReps     = reps;
+  p.lastReview  = new Date().toISOString();
+}

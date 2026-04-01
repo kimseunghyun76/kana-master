@@ -196,7 +196,7 @@
         <div style="font-size:36px">🔄</div>
         <div style="flex:1">
           <div style="font-size:15px;font-weight:700">오늘의 복습</div>
-          <div style="font-size:12px;color:var(--gray);margin-top:2px">간격반복(SRS) 기반 복습 카드</div>
+          <div class="srs-sub-text">SM-2 간격반복 알고리즘</div>
           <div style="font-size:20px;font-weight:800;color:var(--red);margin-top:4px" id="srs-count-display">0장</div>
         </div>
       </div>
@@ -1278,14 +1278,34 @@
           </div>
           <!-- Web TTS 음성 설정 -->
           <div id="webtts-settings">
-            <div class="setting-desc" style="font-size:12px;color:#718096;margin-bottom:8px;">💡 화자 A=👨남자, 화자 B=👩여자 (고정)</div>
-            <div class="setting-row">
-              <label>👨 남자 목소리 (A):</label>
-              <select id="pref-voice-female"><option value="none">사용 안함</option></select>
+            <div class="setting-desc" style="font-size:12px;color:#718096;margin-bottom:6px;">💡 🏆Edge = Microsoft Edge 고품질 · ⭐ = 고품질 · 화자 A/B 교대 재생</div>
+            <!-- Edge TTS 추천 배너 (자동 감지) -->
+            <div id="edge-tts-banner" style="display:none;background:linear-gradient(135deg,#e8f4f8,#dbeafe);border:1.5px solid #93c5fd;border-radius:10px;padding:10px 12px;margin-bottom:10px;font-size:12px">
+              <div style="font-weight:700;color:#1d4ed8;margin-bottom:3px">🏆 Microsoft Edge 고품질 음성 감지됨!</div>
+              <div style="color:#374151">Nanami(여성) · Keita(남성) 신경망 TTS를 사용할 수 있습니다.</div>
+              <button id="auto-select-voice-btn" style="margin-top:7px;padding:5px 12px;background:#2563eb;color:#fff;border:none;border-radius:7px;font-size:12px;font-weight:700;cursor:pointer">✨ 자동으로 최적 음성 설정</button>
+            </div>
+            <!-- Edge TTS 없을 때 안내 -->
+            <div id="edge-tts-missing" style="display:none;background:#fef9c3;border:1px solid #fde68a;border-radius:8px;padding:9px 11px;margin-bottom:10px;font-size:11.5px;color:#78350f">
+              💡 <b>더 좋은 음질</b>을 원한다면 <b>Microsoft Edge 브라우저</b>를 사용해보세요.<br>
+              Nanami/Keita 신경망 음성이 자동으로 제공됩니다.
             </div>
             <div class="setting-row">
-              <label>👩 여자 목소리 (B):</label>
-              <select id="pref-voice-male"><option value="none">사용 안함</option></select>
+              <label>🎤 화자 A 목소리:</label>
+              <div style="display:flex;gap:6px;align-items:center;flex:1">
+                <select id="pref-voice-female" style="flex:1"><option value="none">사용 안함</option></select>
+                <button class="test-voice-btn" onclick="App.playTestVoice(document.getElementById('pref-voice-female').value)" style="padding:4px 8px;font-size:11px">▶</button>
+              </div>
+            </div>
+            <div class="setting-row">
+              <label>🎤 화자 B 목소리:</label>
+              <div style="display:flex;gap:6px;align-items:center;flex:1">
+                <select id="pref-voice-male" style="flex:1"><option value="none">사용 안함</option></select>
+                <button class="test-voice-btn" onclick="App.playTestVoice(document.getElementById('pref-voice-male').value)" style="padding:4px 8px;font-size:11px">▶</button>
+              </div>
+            </div>
+            <div class="setting-row" id="auto-voice-btn-row" style="display:none">
+              <button id="auto-select-voice-btn" class="test-voice-btn" style="width:100%;justify-content:center">✨ 최적 음성 자동 설정</button>
             </div>
           </div>
           <!-- 롤플레이 이름 설정 -->

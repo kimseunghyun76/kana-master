@@ -6343,3 +6343,13 @@ body.fc-fullscreen .fc-assess-row {
   transition: transform 0.15s;
 }
 .onboarding-start-btn:active { transform: scale(0.97); }
+
+/* ── SRS 복습 카드 ── */
+#srs-review-card {
+  transition: opacity 0.3s;
+  background: linear-gradient(135deg, var(--white), #f0f4ff);
+  border: 1.5px solid #c7d7ff;
+}
+#srs-review-card:hover { background: linear-gradient(135deg, #eef2ff, #e0e8ff); }
+#srs-count-display { font-size: 20px; font-weight: 800; color: var(--red); margin-top: 4px; }
+.srs-sub-text { font-size: 11.5px; color: var(--gray); margin-top: 2px; }
