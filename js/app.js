@@ -6802,8 +6802,6 @@ const App = (() => {
     // 풀카드 그리드 렌더 (이미 렌더됐으면 스킵)
     const grid = document.getElementById('kana-select-grid');
     if (grid) renderFullLevelGrid(grid);
-    const reviewBtn = document.getElementById('kana-review-btn');
-    if (reviewBtn) reviewBtn.onclick = () => App.startReview();
   }
 
   function setupVocabView() {
