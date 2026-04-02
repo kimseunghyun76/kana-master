@@ -255,39 +255,19 @@ function calcSRSInterval(currentInterval, rating) {
 
 /** SRS 복습 대상 필터 — 오늘 복습이 필요한 항목 */
 function getSRSReviewItems(progress) {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const todayMs = today.getTime();
-  const items = [];
-
-  for (const [kana, data] of Object.entries(progress)) {
-    if (!data.lastReview) continue;
-    const interval = data.srsInterval || 1;
-    const nextReview = new Date(data.lastReview);
-    nextReview.setDate(nextReview.getDate() + interval);
-    nextReview.setHours(0, 0, 0, 0);
-    if (nextReview.getTime() <= todayMs) {
-      items.push({ kana, ...data, daysOverdue: Math.floor((todayMs - nextReview.getTime()) / (1000 * 60 * 60 * 24)) });
-    }
-  }
-
-  // 가장 오래된 것부터
-  items.sort((a, b) => b.daysOverdue - a.daysOverdue);
-  return items;
+  return _getSRSReviewBase(progress, 'kana');
 }
 
-/**
- * 어휘 SRS 업데이트 (vocab id 기반) — SM-2 알고리즘
- * rating: 'hard' | 'ok' | 'good'
- */
-function updateVocabSRS(id, rating, vocabProgress) {
-  if (!vocabProgress[id]) vocabProgress[id] = { seen: 0, correct: 0, incorrect: 0 };
-  const p = vocabProgress[id];
+// ── SM-2 공통 핵심 ─────────────────────────────────────────
+/** 진도 엔트리 객체를 직접 수정 — updateSRS / updateVocabSRS 공유 */
+function _applySM2(p, rating) {
   const q = rating === 'good' ? 5 : rating === 'ok' ? 3 : 1;
   let ef       = p.srsFactor   || 2.5;
   let interval = p.srsInterval || 0;
   let reps     = p.srsReps     || 0;
+
   if (q < 3) {
+    // 틀림: 처음부터 다시
     reps = 0; interval = 1;
   } else {
     if      (reps === 0) interval = 1;
@@ -297,27 +277,43 @@ function updateVocabSRS(id, rating, vocabProgress) {
     ef = ef + (0.1 - (5 - q) * (0.08 + (5 - q) * 0.02));
     ef = Math.max(1.3, ef);
   }
+
   p.srsFactor   = parseFloat(ef.toFixed(2));
   p.srsInterval = interval;
   p.srsReps     = reps;
   p.lastReview  = new Date().toISOString();
 }
 
-/** 어휘 SRS 복습 대상 필터 */
-function getVocabSRSReviewItems(vocabProgress) {
+/** SRS 복습 대상 공통 필터 — getSRSReviewItems / getVocabSRSReviewItems 공유 */
+function _getSRSReviewBase(store, keyName) {
   const today = new Date(); today.setHours(0, 0, 0, 0);
   const todayMs = today.getTime();
   const items = [];
-  for (const [id, data] of Object.entries(vocabProgress)) {
+  for (const [key, data] of Object.entries(store)) {
     if (!data.lastReview) continue;
     const next = new Date(data.lastReview);
     next.setDate(next.getDate() + (data.srsInterval || 1));
     next.setHours(0, 0, 0, 0);
     if (next.getTime() <= todayMs) {
-      items.push({ id, ...data, daysOverdue: Math.floor((todayMs - next.getTime()) / 86400000) });
+      items.push({ [keyName]: key, ...data, daysOverdue: Math.floor((todayMs - next.getTime()) / 86400000) });
     }
   }
   return items.sort((a, b) => b.daysOverdue - a.daysOverdue);
+}
+// ────────────────────────────────────────────────────────────
+
+/**
+ * 어휘 SRS 업데이트 (vocab id 기반) — SM-2 알고리즘
+ * rating: 'hard' | 'ok' | 'good'
+ */
+function updateVocabSRS(id, rating, vocabProgress) {
+  if (!vocabProgress[id]) vocabProgress[id] = { seen: 0, correct: 0, incorrect: 0 };
+  _applySM2(vocabProgress[id], rating);
+}
+
+/** 어휘 SRS 복습 대상 필터 */
+function getVocabSRSReviewItems(vocabProgress) {
+  return _getSRSReviewBase(vocabProgress, 'id');
 }
 
 /**
@@ -326,29 +322,5 @@ function getVocabSRSReviewItems(vocabProgress) {
  */
 function updateSRS(kana, rating, progress) {
   if (!progress[kana]) progress[kana] = { seen: 0, correct: 0, incorrect: 0 };
-  const p = progress[kana];
-
-  // SM-2 quality: hard=1, ok=3, good=5
-  const q = rating === 'good' ? 5 : rating === 'ok' ? 3 : 1;
-  let ef       = p.srsFactor   || 2.5;
-  let interval = p.srsInterval || 0;
-  let reps     = p.srsReps     || 0;
-
-  if (q < 3) {
-    // 틀림: 처음부터 다시
-    reps     = 0;
-    interval = 1;
-  } else {
-    if      (reps === 0) interval = 1;
-    else if (reps === 1) interval = 6;
-    else                 interval = Math.round(interval * ef);
-    reps++;
-    ef = ef + (0.1 - (5 - q) * (0.08 + (5 - q) * 0.02));
-    ef = Math.max(1.3, ef);
-  }
-
-  p.srsFactor   = parseFloat(ef.toFixed(2));
-  p.srsInterval = interval;
-  p.srsReps     = reps;
-  p.lastReview  = new Date().toISOString();
+  _applySM2(progress[kana], rating);
 }

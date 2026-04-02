@@ -1,12 +1,12 @@
 {
+  "_comment": "⚠️ Chrome Extension manifest — 웹서비스 전환 후 미사용. 보관용.",
   "manifest_version": 3,
   "name": "かな学習 - Kana Master",
   "version": "1.0.0",
-  "description": "히라가나·가타가나 완전 학습앱 - 탁음, 반탁음, 요음 포함 | Hiragana & Katakana with quizzes, writing practice & audio",
+  "description": "히라가나·가타가나 완전 학습앱 — Hiragana & Katakana master app",
   "permissions": ["storage"],
   "host_permissions": ["http://localhost/*"],
   "action": {
-    "default_popup": "popup.html",
     "default_icon": {
       "16": "icons/icon16.png",
       "48": "icons/icon48.png",

@@ -8,7 +8,6 @@ const STATIC_CACHE = 'kana-static-v1';
 
 // 앱 핵심 파일 (오프라인에서도 동작)
 const CORE_FILES = [
-  '/',
   '/app.html',
   '/app.css',
   '/yomu-styles.css',

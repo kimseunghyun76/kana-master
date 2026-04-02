@@ -5716,12 +5716,20 @@ body.fc-fullscreen .app-main {
   flex-direction: column;
   overflow: hidden;
 }
-body.fc-fullscreen #view-kana {
+body.fc-fullscreen #view-kana,
+body.fc-fullscreen #view-vocab {
   display: flex !important;
   flex-direction: column;
   flex: 1;
   min-height: 0;
   background: #f0f2f5;
+}
+/* 어휘·회화·롤플레이: view-vocab 안의 flash-panel도 flex 체인 연결 */
+body.fc-fullscreen #vocab-flash-panel {
+  display: flex !important;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
 }
 body.fc-fullscreen .learn-header {
   flex-shrink: 0;
@@ -5731,7 +5739,8 @@ body.fc-fullscreen .learn-header {
   border-bottom: 2px solid var(--border);
   box-shadow: var(--shadow);
 }
-body.fc-fullscreen #flashcard-area {
+body.fc-fullscreen #flashcard-area,
+body.fc-fullscreen #vocab-flashcard-area {
   flex: 1 !important;
   display: flex !important;
   flex-direction: column !important;
@@ -6343,6 +6352,100 @@ body.fc-fullscreen .fc-assess-row {
   transition: transform 0.15s;
 }
 .onboarding-start-btn:active { transform: scale(0.97); }
+
+/* ═══════════════════════════════════════════
+   TTS 엔진 우선순위 묶음 UI
+   ═══════════════════════════════════════════ */
+.tts-engine-group { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+.tts-group-title { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+.tts-priority-hint { font-size: 11px; font-weight: 400; color: var(--gray); }
+
+.tts-option-card {
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  padding: 10px 12px 8px;
+  background: #fafbfc;
+  transition: border-color 0.2s, background 0.2s;
+}
+.tts-option-card.tts-active {
+  border-color: var(--primary);
+  background: #eef2ff;
+}
+.tts-option-card.tts-connecting {
+  border-color: #f6ad55;
+  background: #fffbeb;
+  opacity: 0.85;
+  pointer-events: none;   /* 연결 중 모든 입력 잠금 */
+}
+.tts-option-card.tts-error {
+  border-color: #fc8181;
+  background: #fff5f5;
+}
+.tts-card-always { background: #f7f9ff; }
+
+.tts-option-header {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  cursor: pointer;
+  user-select: none;
+  margin-bottom: 4px;
+}
+.tts-radio { width: 16px; height: 16px; accent-color: var(--primary); flex-shrink: 0; cursor: pointer; }
+.tts-priority-num {
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: white;
+  font-size: 11px; font-weight: 800;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.tts-option-name { font-size: 13px; font-weight: 700; flex: 1; }
+.tts-quality-badge {
+  font-size: 10px; font-weight: 700; padding: 2px 7px;
+  border-radius: 20px; white-space: nowrap;
+}
+.tts-badge-gold   { background: #fef3c7; color: #92400e; }
+.tts-badge-blue   { background: #dbeafe; color: #1e40af; }
+.tts-badge-gray   { background: #f1f5f9; color: #64748b; }
+.tts-status-chip  { font-size: 10.5px; color: var(--gray); white-space: nowrap; }
+.tts-status-ok    { color: #276749; font-weight: 600; }
+.tts-status-connecting::after { content: ' ⌛'; }
+.tts-status-success { color: #276749 !important; font-weight: 600; }
+.tts-status-fail    { color: #c53030 !important; font-weight: 600; }
+
+.tts-option-sub { font-size: 11px; color: var(--gray); margin: 0 0 6px 27px; line-height: 1.5; }
+.tts-guide-btn {
+  font-size: 11px; color: var(--primary); background: none; border: none;
+  cursor: pointer; padding: 0 0 4px 27px; text-decoration: underline;
+}
+.tts-guide-box {
+  background: #f7f8fa; border: 1px solid #e2e8f0;
+  border-radius: 8px; padding: 10px 12px; margin: 6px 0 8px;
+  font-size: 11.5px; line-height: 1.7; color: var(--text);
+}
+.tts-code-block {
+  display: block; background: #e2e8f0;
+  padding: 4px 6px; border-radius: 4px; margin: 3px 0 8px;
+  word-break: break-all; font-family: monospace; font-size: 11px;
+}
+.tts-speaker-rows { margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border); }
+.tts-edge-banner {
+  background: linear-gradient(135deg,#e8f4f8,#dbeafe);
+  border: 1.5px solid #93c5fd; border-radius: 8px;
+  padding: 8px 10px; margin: 6px 0; font-size: 12px; color: #1d4ed8;
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+}
+.tts-edge-missing {
+  background: #fef9c3; border: 1px solid #fde68a;
+  border-radius: 8px; padding: 7px 10px; margin: 6px 0;
+  font-size: 11.5px; color: #78350f;
+}
+.tts-auto-btn {
+  background: #2563eb; color: #fff; border: none; border-radius: 6px;
+  padding: 4px 10px; font-size: 11.5px; font-weight: 700; cursor: pointer;
+}
 
 /* ── SRS 복습 카드 ── */
 #srs-review-card {

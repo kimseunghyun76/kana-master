@@ -240,6 +240,17 @@ const App = (() => {
           }
         });
       }
+      // Edge TTS가 켜진 채 저장된 경우 앱 시작 시 자동 연결
+      if (state.prefs.useEdgeTTS && typeof EdgeTTSModule !== 'undefined') {
+        EdgeTTSModule.configure({
+          url:    state.prefs.edgeTTSUrl,
+          voice1: state.prefs.edgeTTSVoice1,
+          voice2: state.prefs.edgeTTSVoice2,
+        });
+        EdgeTTSModule.checkServer().then(ok => {
+          if (!ok) { state.prefs.useEdgeTTS = false; saveToStorage(); }
+        });
+      }
     });
   }
 
@@ -1163,9 +1174,8 @@ const App = (() => {
         <div class="dcc-messages" id="dcc-messages"></div>
       </div>`;
     wrap.appendChild(card);
-    _renderDailyConvoReady();
-    // 자동 시작: 렌더 후 즉시 대화 애니메이션 시작
-    setTimeout(() => _showDailyConvo(_dailyConvoIdx), 400);
+    _renderDailyConvoReady();  // 텍스트 미리보기만 렌더 (TTS 없이)
+    // ★ 자동 재생 제거 — 사용자가 ▶ 대화 버튼을 클릭해야만 시작
 
     const refreshBtn = card.querySelector('#convo-hero-refresh-btn');
     if (refreshBtn) {
@@ -4361,175 +4371,185 @@ const App = (() => {
     const wttsDivEl = document.getElementById('webtts-settings');
     const vvStatus  = document.getElementById('voicevox-status');
 
-    if (useVvEl) {
-      useVvEl.checked = state.prefs.useVoicevox || false;
-      const updateVvUI = (enabled) => {
-        if (vvRows) vvRows.style.display = enabled ? 'block' : 'none';
-        if (wttsDivEl) wttsDivEl.style.display = enabled ? 'none' : 'block';
-      };
-      updateVvUI(useVvEl.checked);
+    // ══════════════════════════════════════════════════════
+    //  TTS 엔진 통합 설정 — Edge TTS > VOICEVOX > Web TTS
+    // ══════════════════════════════════════════════════════
 
-      useVvEl.onchange = async () => {
-        state.prefs.useVoicevox = useVvEl.checked;
-        updateVvUI(useVvEl.checked);
-        if (useVvEl.checked) {
-          if (vvStatus) vvStatus.textContent = '연결 중...';
-          const ok = await checkVoicevox();
-          if (ok) {
-            populateVoicevoxSelects();
-            if (vvStatus) vvStatus.textContent = `✅ ${voicevoxSpeakers.length}개 화자`;
-          } else {
-            useVvEl.checked = false;
-            state.prefs.useVoicevox = false;
-            updateVvUI(false);
-            if (vvStatus) vvStatus.textContent = '❌ 연결 실패';
-            showToast('VOICEVOX를 찾을 수 없습니다. localhost:50021 실행 확인 후 다시 시도하세요.');
-          }
-        } else {
-          if (vvStatus) vvStatus.textContent = '비활성';
-        }
-        saveToStorage();
-      };
+    const ttsGroup    = document.getElementById('tts-engine-group');
+    const edgeCard    = document.getElementById('tts-card-edge');
+    const vvCard      = document.getElementById('tts-card-voicevox');
+    const webCard     = document.getElementById('tts-card-web');
+    const edgeRadio   = document.getElementById('pref-use-edgetts');    // radio
+    const vvRadio     = document.getElementById('pref-use-voicevox');   // radio
+    const webRadio    = document.getElementById('pref-use-webtts');
+    const edgeStatus  = document.getElementById('edgetts-status');
+    const vvStatus    = document.getElementById('voicevox-status');
+    const edgeRows    = document.getElementById('edgetts-server-rows');
+    const vvRows      = document.getElementById('voicevox-speaker-rows');
 
-      // 이미 활성화 상태면 화자 목록 로드 시도
-      if (useVvEl.checked) {
-        checkVoicevox().then(ok => {
-          if (ok) {
-            populateVoicevoxSelects();
-            if (vvStatus) vvStatus.textContent = `✅ ${voicevoxSpeakers.length}개 화자`;
-          } else {
-            if (vvStatus) vvStatus.textContent = '❌ 연결 실패 (VOICEVOX 미실행?)';
-          }
-        });
-      }
-
-      // VOICEVOX 화자 변경 시 즉시 저장
-      const vvS1 = document.getElementById('pref-voicevox-speaker1');
-      const vvS2 = document.getElementById('pref-voicevox-speaker2');
-      const testVvBtn = document.getElementById('test-voicevox-btn');
-      if (vvS1) vvS1.onchange = () => {
-        state.prefs.voicevoxSpeaker1 = parseInt(vvS1.value);
-        state.voiceCallCount = 0;
-        saveToStorage();
-        playVoicevox('こんにちは', parseInt(vvS1.value));
-        refreshSplashActors();
-        updateActiveSpeakerBadge();
-      };
-      if (vvS2) vvS2.onchange = () => {
-        const id = vvS2.value === 'none' ? 'none' : parseInt(vvS2.value);
-        state.prefs.voicevoxSpeaker2 = id;
-        state.voiceCallCount = 0;
-        saveToStorage();
-        if (id !== 'none') playVoicevox('こんにちは', id);
-        refreshSplashActors();
-        updateActiveSpeakerBadge();
-      };
-      if (testVvBtn) testVvBtn.onclick = () => { playVoicevox('こんにちは', state.prefs.voicevoxSpeaker1); };
+    // 현재 활성 엔진 판별 → 라디오 초기값 설정
+    function _getInitialEngine() {
+      if (state.prefs.useEdgeTTS) return 'edge';
+      if (state.prefs.useVoicevox) return 'voicevox';
+      return 'web';
     }
 
-    // 음성 변경 시 즉시 테스트 재생
-    const femaleSelect = document.getElementById('pref-voice-female');
-    const maleSelect   = document.getElementById('pref-voice-male');
-
-    femaleSelect.onchange = () => {
-      state.prefs.voiceFemale = femaleSelect.value;
-      state.voiceCallCount = 0;
-      saveToStorage();
-      if (femaleSelect.value !== 'none') playTestVoice(femaleSelect.value);
-      refreshSplashActors();
-      updateActiveSpeakerBadge();
-    };
-    maleSelect.onchange = () => {
-      state.prefs.voiceMale = maleSelect.value;
-      state.voiceCallCount = 0;
-      saveToStorage();
-      if (maleSelect.value !== 'none') playTestVoice(maleSelect.value);
-      refreshSplashActors();
-      updateActiveSpeakerBadge();
-    };
-
-    // autoplay/autonext 즉시 반영
-    document.getElementById('pref-autoplay').onchange = (e) => {
-      state.prefs.autoplay = e.target.checked;
-      saveToStorage();
-    };
-    document.getElementById('pref-autonext').onchange = (e) => {
-      state.prefs.autonext = e.target.checked;
-      saveToStorage();
-    };
-
-    // 퀴즈 제한 시간 즉시 저장
-    if (qcdEl) qcdEl.onchange = () => {
-      state.prefs.quizCountdown = parseInt(qcdEl.value) || 0;
-      saveToStorage();
-    };
-
-    // 표시 설정 변경 시 실시간 반영
-    ['pref-show-word-ex','pref-show-sent-ex'].forEach(id => {
-      const el = document.getElementById(id);
-      if (el) el.onchange = () => {
-        state.prefs.showWordEx  = document.getElementById('pref-show-word-ex').checked;
-        state.prefs.showSentEx  = document.getElementById('pref-show-sent-ex').checked;
-        applyVisibilityPrefs();
-        saveToStorage();
-      };
-    });
-
-    // 플래시카드 뒤집기 설정 로드 (기본값: false = 비활성화)
-    const flipCb = document.getElementById('pref-flip-card');
-    if (flipCb) {
-      flipCb.checked = state.prefs.flipCard === true;
-      flipCb.onchange = () => { state.prefs.flipCard = flipCb.checked; saveToStorage(); };
+    // 연결 중 그룹 전체 잠금 / 해제
+    function _lockTTSGroup(lock) {
+      if (!ttsGroup) return;
+      ttsGroup.querySelectorAll('.tts-option-card').forEach(c => {
+        c.classList.toggle('tts-connecting', lock);
+      });
+      // 잠금 시 라디오도 비활성
+      [edgeRadio, vvRadio, webRadio].forEach(r => { if (r) r.disabled = lock; });
     }
 
-    // 최적 음성 자동 설정 버튼
-    const autoVoiceBtn = document.getElementById('auto-select-voice-btn');
-    if (autoVoiceBtn) {
-      autoVoiceBtn.addEventListener('click', () => {
-        if (!voicesCached) { showToast('음성을 로드 중입니다. 잠시 후 다시 시도해주세요.'); return; }
-        const ok = _autoSelectBestVoices();
-        if (!ok) showToast('이 브라우저에서 일본어 음성을 찾을 수 없습니다.\nMicrosoft Edge 브라우저를 사용하면 Nanami/Keita 고품질 음성을 쓸 수 있습니다.', 4000);
+    // 카드 외관 갱신 (active / error)
+    function _updateCardStyle(engine, success) {
+      const map = { edge: edgeCard, voicevox: vvCard, web: webCard };
+      Object.entries(map).forEach(([e, card]) => {
+        if (!card) return;
+        card.classList.remove('tts-active', 'tts-error');
+        if (e === engine) card.classList.add(success ? 'tts-active' : 'tts-error');
       });
     }
 
-    // ── Edge TTS 서버 설정 ──
-    const useEdgeEl   = document.getElementById('pref-use-edgetts');
-    const edgeRows    = document.getElementById('edgetts-server-rows');
-    const edgeStatus  = document.getElementById('edgetts-status');
-    const edgeV1      = document.getElementById('pref-edgetts-voice1');
-    const edgeV2      = document.getElementById('pref-edgetts-voice2');
-    const testEdgeBtn = document.getElementById('test-edgetts-btn');
-
-    function _updateEdgeUI() {
-      if (!useEdgeEl || !edgeRows) return;
-      const on = useEdgeEl.checked;
-      edgeRows.style.display = on ? '' : 'none';
+    // 화자 패널 가시성 — 활성 엔진에 맞는 것만 표시
+    function _updateSpeakerPanels(engine) {
+      if (edgeRows)  edgeRows.style.display  = (engine === 'edge')     ? '' : 'none';
+      if (vvRows)    vvRows.style.display    = (engine === 'voicevox') ? '' : 'none';
+      // Web TTS 화자는 항상 표시 (webtts-settings는 tts-card-web 안에 있음)
     }
 
-    if (useEdgeEl) {
-      useEdgeEl.checked = !!state.prefs.useEdgeTTS;
-      _updateEdgeUI();
-      useEdgeEl.onchange = async () => {
-        state.prefs.useEdgeTTS = useEdgeEl.checked;
-        _updateEdgeUI();
-        saveToStorage();
-        if (useEdgeEl.checked && typeof EdgeTTSModule !== 'undefined') {
-          if (edgeStatus) edgeStatus.textContent = '연결 중...';
-          EdgeTTSModule.configure({
-            url:    state.prefs.edgeTTSUrl,
-            voice1: state.prefs.edgeTTSVoice1,
-            voice2: state.prefs.edgeTTSVoice2,
-          });
-          const ok = await EdgeTTSModule.checkServer();
-          if (edgeStatus) edgeStatus.textContent = ok
-            ? `✅ 연결됨 (Nanami/Keita)`
-            : '❌ 서버 없음 — python edge_tts_server.py 실행 필요';
-          if (!ok) state.prefs.useEdgeTTS = false;
-        } else {
-          if (edgeStatus) edgeStatus.textContent = '비활성';
+    // Edge TTS 활성화 시도
+    async function _tryActivateEdge() {
+      if (typeof EdgeTTSModule === 'undefined') return false;
+      if (edgeStatus) { edgeStatus.className = 'tts-status-chip tts-status-connecting'; edgeStatus.textContent = '연결 중...'; }
+      EdgeTTSModule.configure({
+        url:    state.prefs.edgeTTSUrl,
+        voice1: state.prefs.edgeTTSVoice1,
+        voice2: state.prefs.edgeTTSVoice2,
+      });
+      const ok = await EdgeTTSModule.checkServer();
+      if (edgeStatus) {
+        edgeStatus.className = ok ? 'tts-status-chip tts-status-success' : 'tts-status-chip tts-status-fail';
+        edgeStatus.textContent = ok ? '✅ 연결됨' : '❌ 서버 없음';
+      }
+      return ok;
+    }
+
+    // VOICEVOX 활성화 시도
+    async function _tryActivateVoicevox() {
+      if (vvStatus) { vvStatus.className = 'tts-status-chip tts-status-connecting'; vvStatus.textContent = '연결 중...'; }
+      const ok = await checkVoicevox();
+      if (ok) {
+        populateVoicevoxSelects();
+        if (vvStatus) { vvStatus.className = 'tts-status-chip tts-status-success'; vvStatus.textContent = `✅ ${voicevoxSpeakers.length}개 화자`; }
+      } else {
+        if (vvStatus) { vvStatus.className = 'tts-status-chip tts-status-fail'; vvStatus.textContent = '❌ 연결 실패'; }
+      }
+      return ok;
+    }
+
+    // 엔진 선택 처리 (연결 시도 → 실패 시 자동 강등)
+    async function _onEngineSelect(requested) {
+      _lockTTSGroup(true);
+
+      let active = requested;
+      let ok = true;
+
+      if (requested === 'edge') {
+        ok = await _tryActivateEdge();
+        if (!ok) {
+          showToast('Edge TTS 서버에 연결할 수 없습니다.\npython edge_tts_server.py 를 먼저 실행하세요.\n⬇ VOICEVOX로 전환 시도 중...', 3500);
+          active = 'voicevox';
+          ok = await _tryActivateVoicevox();
+          if (!ok) {
+            showToast('VOICEVOX도 없습니다. Web TTS로 전환합니다.', 2500);
+            active = 'web';
+          }
         }
-      };
+      } else if (requested === 'voicevox') {
+        ok = await _tryActivateVoicevox();
+        if (!ok) {
+          showToast('VOICEVOX를 찾을 수 없습니다.\nlocalhost:50021 실행 확인 후 재시도하세요.\n⬇ Web TTS로 전환합니다.', 3500);
+          active = 'web';
+        }
+      }
+
+      // 상태 저장
+      state.prefs.useEdgeTTS   = (active === 'edge');
+      state.prefs.useVoicevox  = (active === 'voicevox');
+      saveToStorage();
+
+      // UI 갱신
+      const finalRadio = active === 'edge' ? edgeRadio : active === 'voicevox' ? vvRadio : webRadio;
+      if (finalRadio) finalRadio.checked = true;
+      _updateCardStyle(active, true);
+      _updateSpeakerPanels(active);
+
+      // 상태 텍스트 갱신
+      if (active === 'web' && vvStatus) { vvStatus.className = 'tts-status-chip'; vvStatus.textContent = '비활성'; }
+      if (active === 'web' && edgeStatus) { edgeStatus.className = 'tts-status-chip'; edgeStatus.textContent = '비활성'; }
+      if (active === 'edge' && vvStatus) { vvStatus.className = 'tts-status-chip'; vvStatus.textContent = '비활성'; }
+      if (active === 'voicevox' && edgeStatus) { edgeStatus.className = 'tts-status-chip'; edgeStatus.textContent = '비활성'; }
+
+      _lockTTSGroup(false);
     }
+
+    // 라디오 초기값 설정
+    const initEngine = _getInitialEngine();
+    const initRadio  = initEngine === 'edge' ? edgeRadio : initEngine === 'voicevox' ? vvRadio : webRadio;
+    if (initRadio) initRadio.checked = true;
+    _updateCardStyle(initEngine, true);
+    _updateSpeakerPanels(initEngine);
+
+    // 시작 시 상태 텍스트 표시 (네트워크 요청 없이)
+    if (initEngine === 'edge' && edgeStatus) {
+      edgeStatus.className = 'tts-status-chip tts-status-success';
+      edgeStatus.textContent = EdgeTTSModule?.isAvailable() ? '✅ 연결됨' : '❌ 서버 없음';
+    }
+    if (initEngine === 'voicevox' && vvStatus && voicevoxAvailable) {
+      vvStatus.className = 'tts-status-chip tts-status-success';
+      vvStatus.textContent = `✅ ${voicevoxSpeakers.length}개 화자`;
+    }
+
+    // 이미 VOICEVOX 활성화 상태라면 화자 목록 로드
+    if (initEngine === 'voicevox' && voicevoxSpeakers.length === 0) {
+      _tryActivateVoicevox();
+    }
+
+    // 라디오 변경 이벤트
+    [edgeRadio, vvRadio, webRadio].forEach(r => {
+      if (!r) return;
+      r.addEventListener('change', () => {
+        if (r.checked) _onEngineSelect(r.value);
+      });
+    });
+
+    // ── VOICEVOX 화자 변경 ──
+    const vvS1 = document.getElementById('pref-voicevox-speaker1');
+    const vvS2 = document.getElementById('pref-voicevox-speaker2');
+    const testVvBtn = document.getElementById('test-voicevox-btn');
+    if (vvS1) vvS1.onchange = () => {
+      state.prefs.voicevoxSpeaker1 = parseInt(vvS1.value);
+      state.voiceCallCount = 0; saveToStorage();
+      playVoicevox('こんにちは', parseInt(vvS1.value));
+      refreshSplashActors(); updateActiveSpeakerBadge();
+    };
+    if (vvS2) vvS2.onchange = () => {
+      const id = vvS2.value === 'none' ? 'none' : parseInt(vvS2.value);
+      state.prefs.voicevoxSpeaker2 = id;
+      state.voiceCallCount = 0; saveToStorage();
+      if (id !== 'none') playVoicevox('こんにちは', id);
+      refreshSplashActors(); updateActiveSpeakerBadge();
+    };
+    if (testVvBtn) testVvBtn.onclick = () => { playVoicevox('こんにちは', state.prefs.voicevoxSpeaker1); };
+
+    // ── Edge TTS 화자 변경 ──
+    const edgeV1 = document.getElementById('pref-edgetts-voice1');
+    const edgeV2 = document.getElementById('pref-edgetts-voice2');
+    const testEdgeBtn = document.getElementById('test-edgetts-btn');
     if (edgeV1) {
       edgeV1.value = state.prefs.edgeTTSVoice1 || 'ja-JP-NanamiNeural';
       edgeV1.onchange = () => { state.prefs.edgeTTSVoice1 = edgeV1.value; if (typeof EdgeTTSModule !== 'undefined') EdgeTTSModule.configure({ voice1: edgeV1.value }); saveToStorage(); };
@@ -4546,17 +4566,56 @@ const App = (() => {
         await EdgeTTSModule.speak('こんにちは！私はNanamiです。よろしくお願いします！', 1, 1.0);
       };
     }
-    // 저장된 Edge TTS 설정 복원
-    if (state.prefs.useEdgeTTS && typeof EdgeTTSModule !== 'undefined') {
-      EdgeTTSModule.configure({
-        url:    state.prefs.edgeTTSUrl,
-        voice1: state.prefs.edgeTTSVoice1,
-        voice2: state.prefs.edgeTTSVoice2,
-      });
-      EdgeTTSModule.checkServer().then(ok => {
-        if (edgeStatus) edgeStatus.textContent = ok ? '✅ 연결됨' : '❌ 서버 없음';
-        if (!ok) state.prefs.useEdgeTTS = false;
-      });
+
+    // ── Web TTS 화자 변경 ──
+    const femaleSelect = document.getElementById('pref-voice-female');
+    const maleSelect   = document.getElementById('pref-voice-male');
+    if (femaleSelect) femaleSelect.onchange = () => {
+      state.prefs.voiceFemale = femaleSelect.value;
+      state.voiceCallCount = 0; saveToStorage();
+      if (femaleSelect.value !== 'none') playTestVoice(femaleSelect.value);
+      refreshSplashActors(); updateActiveSpeakerBadge();
+    };
+    if (maleSelect) maleSelect.onchange = () => {
+      state.prefs.voiceMale = maleSelect.value;
+      state.voiceCallCount = 0; saveToStorage();
+      if (maleSelect.value !== 'none') playTestVoice(maleSelect.value);
+      refreshSplashActors(); updateActiveSpeakerBadge();
+    };
+
+    // 최적 음성 자동 설정 버튼
+    function _onAutoVoiceClick() {
+      if (!voicesCached) { showToast('음성을 로드 중입니다. 잠시 후 다시 시도해주세요.'); return; }
+      const ok = _autoSelectBestVoices();
+      if (!ok) showToast('이 브라우저에서 일본어 음성을 찾을 수 없습니다.\nMicrosoft Edge 브라우저를 사용하면 Nanami/Keita 고품질 음성을 쓸 수 있습니다.', 4000);
+    }
+    ['auto-select-voice-btn', 'auto-select-voice-btn-fallback'].forEach(id => {
+      const btn = document.getElementById(id);
+      if (btn) btn.addEventListener('click', _onAutoVoiceClick);
+    });
+
+    // autoplay/autonext 즉시 반영
+    document.getElementById('pref-autoplay').onchange = (e) => { state.prefs.autoplay = e.target.checked; saveToStorage(); };
+    document.getElementById('pref-autonext').onchange = (e) => { state.prefs.autonext = e.target.checked; saveToStorage(); };
+
+    // 퀴즈 제한 시간 즉시 저장
+    if (qcdEl) qcdEl.onchange = () => { state.prefs.quizCountdown = parseInt(qcdEl.value) || 0; saveToStorage(); };
+
+    // 표시 설정 변경 시 실시간 반영
+    ['pref-show-word-ex','pref-show-sent-ex'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.onchange = () => {
+        state.prefs.showWordEx = document.getElementById('pref-show-word-ex').checked;
+        state.prefs.showSentEx = document.getElementById('pref-show-sent-ex').checked;
+        applyVisibilityPrefs(); saveToStorage();
+      };
+    });
+
+    // 플래시카드 뒤집기 설정
+    const flipCb = document.getElementById('pref-flip-card');
+    if (flipCb) {
+      flipCb.checked = state.prefs.flipCard === true;
+      flipCb.onchange = () => { state.prefs.flipCard = flipCb.checked; saveToStorage(); };
     }
   }
 
@@ -4589,8 +4648,12 @@ const App = (() => {
     const cheerEl = document.getElementById('pref-quiz-cheer');
     if (cheerEl) state.prefs.quizCheer = cheerEl.checked;
     saveCheerMessages();
-    const useVvEl = document.getElementById('pref-use-voicevox');
-    if (useVvEl) state.prefs.useVoicevox = useVvEl.checked;
+    // TTS 엔진: 라디오 값에서 읽기
+    const ttsEngineChecked = document.querySelector('input[name="tts-engine-radio"]:checked');
+    if (ttsEngineChecked) {
+      state.prefs.useEdgeTTS  = (ttsEngineChecked.value === 'edge');
+      state.prefs.useVoicevox = (ttsEngineChecked.value === 'voicevox');
+    }
     const vvS1 = document.getElementById('pref-voicevox-speaker1');
     if (vvS1) state.prefs.voicevoxSpeaker1 = parseInt(vvS1.value) || 1;
     const vvS2 = document.getElementById('pref-voicevox-speaker2');
@@ -5982,8 +6045,9 @@ const App = (() => {
     { id: 'narrator',   label: '📺 내레이터',  pitch: 0.88, rate: 0.68 },
   ];
 
-  let allJaVoices = [];
-  let voicesCached = false;
+  let allJaVoices        = [];
+  let voicesCached       = false;
+  let _hasMicrosoftVoice = false;   // Edge/Azure 고품질 음성 보유 여부 (캐시)
 
 
 
@@ -6043,7 +6107,8 @@ const App = (() => {
       if (aNat !== bNat) return aNat - bNat;
       return a.name.localeCompare(b.name);
     });
-    voicesCached = true;
+    voicesCached       = true;
+    _hasMicrosoftVoice = allJaVoices.some(v => MICROSOFT_VOICES.some(n => v.name.toLowerCase().includes(n)));
     populateVoiceSelects();
     updateActiveSpeakerBadge();
 
@@ -6077,8 +6142,8 @@ const App = (() => {
     // 저장된 설정 복원
     restoreVoiceSelects();
 
-    // Edge TTS 배너 표시 여부 결정
-    const hasMicrosoft = allJaVoices.some(v => MICROSOFT_VOICES.some(n => v.name.toLowerCase().includes(n)));
+    // Edge TTS 배너 표시 여부 결정 (voicesCached 시 1회만 계산된 캐시 사용)
+    const hasMicrosoft = _hasMicrosoftVoice;
     const edgeBanner   = document.getElementById('edge-tts-banner');
     const edgeMissing  = document.getElementById('edge-tts-missing');
     const autoRow      = document.getElementById('auto-voice-btn-row');
@@ -10357,10 +10422,13 @@ const App = (() => {
     }).join('');
   }
 
+  // 연습 허브 카운트 갱신 — practice 뷰 진입 시마다 호출 가능하도록 외부 노출
+  let _refreshSrsCount = null;
+
   /** 연습 허브 초기화 */
   function _initPracticeHub() {
     // SRS 복습 카드
-    const _refreshSrsCount = () => {
+    _refreshSrsCount = () => {
       const kanaItems  = typeof getSRSReviewItems     === 'function' ? getSRSReviewItems(state.progress || {})           : [];
       const vocabItems = typeof getVocabSRSReviewItems === 'function' ? getVocabSRSReviewItems(state.vocabProgress || {}) : [];
       const total = kanaItems.length + vocabItems.length;
@@ -10404,24 +10472,68 @@ const App = (() => {
     _renderMissions('daily-missions-list');
   }
 
-  /** SRS 복습 시작 */
+  /** SRS 복습 시작 — 가나 + 어휘 복습 모두 처리 */
   function _startSRSReview() {
-    if (typeof getSRSReviewItems !== 'function') return;
-    const items = getSRSReviewItems(state.progress || {});
-    if (items.length === 0) {
+    const kanaItems  = typeof getSRSReviewItems      === 'function' ? getSRSReviewItems(state.progress || {})           : [];
+    const vocabItems = typeof getVocabSRSReviewItems === 'function' ? getVocabSRSReviewItems(state.vocabProgress || {}) : [];
+
+    const totalCount = kanaItems.length + vocabItems.length;
+    if (totalCount === 0) {
       showToast('오늘 복습할 항목이 없습니다! 플래시카드를 먼저 학습해보세요. 🌱');
       return;
     }
-    const kanas = items.map(i => i.kana).filter(k => KANA_MAP[k]);
-    if (kanas.length === 0) { showToast('복습할 가나가 없습니다.'); return; }
+
+    // ── 가나 복습 우선, 어휘 복습은 가나가 없을 때 또는 동시에 있을 때 어휘 먼저 ──
+    if (vocabItems.length > 0) {
+      // 어휘 복습: vocab 플래시카드로
+      const vocabItemObjs = vocabItems
+        .map(i => typeof VOCAB_MAP !== 'undefined' ? VOCAB_MAP[i.id] : null)
+        .filter(Boolean);
+
+      if (vocabItemObjs.length === 0 && kanaItems.length === 0) {
+        showToast('복습 데이터를 찾을 수 없습니다.'); return;
+      }
+
+      if (vocabItemObjs.length > 0) {
+        state.vocabItems   = vocabItemObjs;
+        state.vocabIndex   = 0;
+        state.vocabFlipped = false;
+        state.vocabMode    = 'flash';
+        state.vocabCurrentCategoryId = null;
+        state.vocabSection = 'word';   // 기본 섹션으로 귀속
+
+        showView('vocab');
+        setTimeout(() => {
+          document.getElementById('vocab-setup').style.display = 'none';
+          document.getElementById('vocab-flash-panel').style.display = 'block';
+          document.getElementById('vocab-cat-name').textContent = '🔄 SRS 어휘 복습';
+          document.getElementById('vocab-cat-subtitle').textContent =
+            `${vocabItemObjs.length}개 단어 · SM-2 간격반복` +
+            (kanaItems.length > 0 ? ` (가나 ${kanaItems.length}자는 다음에)` : '');
+          document.getElementById('vocab-flashcard-area').style.display = 'block';
+          document.getElementById('vocab-quiz-area').style.display = 'none';
+          document.body.classList.add('fc-fullscreen');
+          renderNavStrip('vfc-nav-strip', state.vocabItems, 0, (idx) => {
+            state.vocabIndex = idx; showVocabFlashcard();
+          });
+          showVocabFlashcard();
+          setupVocabFlashcardControls();
+        }, 150);
+        return;
+      }
+    }
+
+    // ── 가나 복습 ──
+    const kanas = kanaItems.map(i => i.kana).filter(k => KANA_MAP[k]);
+    if (kanas.length === 0) { showToast('복습할 항목을 찾을 수 없습니다.'); return; }
 
     showView('kana');
     setTimeout(() => {
-      state.learnMode     = 'flash';
-      state.learnLevelId  = 0;  // SRS 특별 ID
-      state.learnChars    = kanas.map(k => ({ kana: k, ...KANA_MAP[k] }));
-      state.learnIndex    = 0;
-      state.learnFlipped  = false;
+      state.learnMode    = 'flash';
+      state.learnLevelId = 0;
+      state.learnChars   = kanas.map(k => ({ kana: k, ...KANA_MAP[k] }));
+      state.learnIndex   = 0;
+      state.learnFlipped = false;
 
       const levelSelectArea = document.getElementById('level-select-area');
       const learnArea       = document.getElementById('learn-area');
@@ -10430,7 +10542,7 @@ const App = (() => {
 
       const titleEl = document.querySelector('#learn-area .learn-header-title') ||
                       document.getElementById('learn-mode-title');
-      if (titleEl) titleEl.textContent = `🔄 SRS 복습 · ${kanas.length}자`;
+      if (titleEl) titleEl.textContent = `🔄 SRS 가나 복습 · ${kanas.length}자`;
 
       showFlashcard();
     }, 150);

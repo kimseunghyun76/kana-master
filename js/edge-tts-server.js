@@ -20,11 +20,11 @@ const EdgeTTSModule = (() => {
     { id: 'ja-JP-ShioriNeural',  name: 'Shiori (여성)',  gender: 'F', quality: '🏆 신경망' },
   ];
 
-  let _serverUrl   = DEFAULT_URL;
-  let _available   = false;
-  let _voice1      = 'ja-JP-NanamiNeural';
-  let _voice2      = 'ja-JP-KeitaNeural';
-  let _callCount   = 0;
+  let _serverUrl      = DEFAULT_URL;
+  let _available      = false;
+  let _voice1         = 'ja-JP-NanamiNeural';
+  let _voice2         = 'ja-JP-KeitaNeural';
+  let _failStreak     = 0;          // 연속 실패 횟수 추적
 
   function getVoices() { return EDGE_VOICES; }
   function isAvailable() { return _available; }
@@ -40,6 +40,7 @@ const EdgeTTSModule = (() => {
     try {
       const resp = await fetch((url || _serverUrl) + '/health', { signal: AbortSignal.timeout(2000) });
       _available = resp.ok;
+      if (_available) _failStreak = 0;
       return _available;
     } catch {
       _available = false;
@@ -55,9 +56,12 @@ const EdgeTTSModule = (() => {
     try {
       const url = `${_serverUrl}/synthesize?text=${encodeURIComponent(text)}&voice=${encodeURIComponent(voice)}`;
       const resp = await fetch(url, { signal: AbortSignal.timeout(6000) });
-      if (!resp.ok) return null;
+      if (!resp.ok) { _failStreak++; return null; }
+      _failStreak = 0;   // 성공 시 리셋
       return await resp.blob();
     } catch {
+      // 타임아웃/연결 오류 → 3회 연속 실패 시 서버 없음으로 표시
+      if (++_failStreak >= 3) _available = false;
       return null;
     }
   }
