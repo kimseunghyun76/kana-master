@@ -4225,7 +4225,7 @@ const App = (() => {
       const ta = document.getElementById('cheer-' + type);
       if (!ta) return;
       const lines = ta.value.split('\n').map(l => l.trim()).filter(Boolean);
-      const defaults = QUIZ_CHEERS[type];
+      const defaults = _getQuizCheers()[type];
       // 기본값과 다를 때만 저장
       const isDefault = JSON.stringify(lines) === JSON.stringify(defaults);
       if (!isDefault && lines.length > 0) { saved[type] = lines; hasCustom = true; }
@@ -4278,7 +4278,7 @@ const App = (() => {
     cheerTypes.forEach(type => {
       const ta = document.getElementById('cheer-' + type);
       if (!ta) return;
-      const msgs = (cc[type] && cc[type].length > 0) ? cc[type] : QUIZ_CHEERS[type];
+      const msgs = (cc[type] && cc[type].length > 0) ? cc[type] : _getQuizCheers()[type];
       ta.value = msgs.join('\n');
       ta.oninput = () => saveCheerMessages();
     });
@@ -4287,7 +4287,7 @@ const App = (() => {
         const type = btn.dataset.type;
         const ta = document.getElementById('cheer-' + type);
         if (ta) {
-          ta.value = QUIZ_CHEERS[type].join('\n');
+          ta.value = _getQuizCheers()[type].join('\n');
           // 해당 타입 커스텀 삭제
           if (state.prefs.quizCheers) { delete state.prefs.quizCheers[type]; saveToStorage(); }
         }
