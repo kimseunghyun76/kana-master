@@ -1311,9 +1311,22 @@
                 <b>① 다운로드</b><br>
                 <a href="https://voicevox.hiroshiba.jp/" target="_blank" style="color:#4361ee">https://voicevox.hiroshiba.jp/</a><br><br>
                 <b>② 실행</b> → <code>localhost:50021</code> 자동 시작<br><br>
-                <b>③ CORS 허용</b><br>
+                <b>③ CORS 허용 (타 기기 접속 시)</b><br>
                 <code class="tts-code-block">VOICEVOX.exe --host 0.0.0.0 --allow-origin "*"</code>
-                <b>④ 위 라디오 버튼 선택</b> → 화자 목록 자동 로드
+                <b>④ 위 라디오 버튼 선택</b> → 자동 연결 후 화자 목록 로드
+              </div>
+              <!-- VOICEVOX 연결 실패 시 가이드 + 재시도 -->
+              <div id="vv-retry-area" style="display:none" class="tts-retry-area">
+                <div class="tts-retry-msg" id="vv-retry-msg">⚠️ VOICEVOX 서버(localhost:50021)에 연결할 수 없습니다.</div>
+                <div class="tts-retry-steps">
+                  <b>확인 사항:</b>
+                  <ol>
+                    <li>VOICEVOX 앱이 실행 중인지 확인하세요</li>
+                    <li>실행 후 <code>localhost:50021</code>이 열리면 재시도하세요</li>
+                    <li>타 기기 접속이라면 <code>--host 0.0.0.0</code> 옵션 필요</li>
+                  </ol>
+                </div>
+                <button class="tts-retry-btn" id="vv-retry-btn">🔄 다시 연결 시도</button>
               </div>
               <!-- VOICEVOX 화자 설정 (연결 성공 시 표시) -->
               <div id="voicevox-speaker-rows" style="display:none" class="tts-speaker-rows">

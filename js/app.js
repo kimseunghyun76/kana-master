@@ -4408,17 +4408,31 @@ const App = (() => {
       });
     }
 
-    // 화자 패널 가시성 — 활성 엔진에 맞는 것만 표시
+    // 화자 패널 가시성 — 활성 엔진 + 연결 상태에 맞는 것만 표시
     function _updateSpeakerPanels(engine) {
-      if (edgeRows)  edgeRows.style.display  = (engine === 'edge')     ? '' : 'none';
-      if (vvRows)    vvRows.style.display    = (engine === 'voicevox') ? '' : 'none';
+      if (edgeRows) edgeRows.style.display = (engine === 'edge') ? '' : 'none';
+      // VOICEVOX 화자 목록은 연결 성공 시에만 표시
+      if (vvRows)   vvRows.style.display   = (engine === 'voicevox' && voicevoxAvailable) ? '' : 'none';
       // Web TTS 화자는 항상 표시 (webtts-settings는 tts-card-web 안에 있음)
+    }
+
+    // VOICEVOX 재시도 영역 표시/숨김
+    function _showVvRetry(show, msg) {
+      const area = document.getElementById('vv-retry-area');
+      const msgEl = document.getElementById('vv-retry-msg');
+      if (!area) return;
+      if (show) {
+        if (msgEl && msg) msgEl.textContent = msg;
+        area.style.display = 'block';
+      } else {
+        area.style.display = 'none';
+      }
     }
 
     // Edge TTS 활성화 시도
     async function _tryActivateEdge() {
       if (typeof EdgeTTSModule === 'undefined') return false;
-      if (edgeStatus) { edgeStatus.className = 'tts-status-chip tts-status-connecting'; edgeStatus.textContent = '연결 중...'; }
+      if (edgeStatus) { edgeStatus.className = 'tts-status-chip tts-status-connecting'; edgeStatus.textContent = '점검 중...'; }
       EdgeTTSModule.configure({
         url:    state.prefs.edgeTTSUrl,
         voice1: state.prefs.edgeTTSVoice1,
@@ -4432,20 +4446,30 @@ const App = (() => {
       return ok;
     }
 
-    // VOICEVOX 활성화 시도
+    // VOICEVOX 활성화 시도 — 성공 시 화자 목록 즉시 갱신
     async function _tryActivateVoicevox() {
-      if (vvStatus) { vvStatus.className = 'tts-status-chip tts-status-connecting'; vvStatus.textContent = '연결 중...'; }
+      _showVvRetry(false);  // 재시도 중 숨김
+      if (vvStatus) { vvStatus.className = 'tts-status-chip tts-status-connecting'; vvStatus.textContent = '활성화 점검 중...'; }
       const ok = await checkVoicevox();
       if (ok) {
-        populateVoicevoxSelects();
-        if (vvStatus) { vvStatus.className = 'tts-status-chip tts-status-success'; vvStatus.textContent = `✅ ${voicevoxSpeakers.length}개 화자`; }
+        populateVoicevoxSelects();        // 화자 select 채우기
+        if (vvRows) vvRows.style.display = '';    // 화자 목록 즉시 표시
+        if (vvStatus) {
+          vvStatus.className = 'tts-status-chip tts-status-success';
+          vvStatus.textContent = `✅ ${voicevoxSpeakers.length}개 화자 연결됨`;
+        }
+        _showVvRetry(false);
       } else {
-        if (vvStatus) { vvStatus.className = 'tts-status-chip tts-status-fail'; vvStatus.textContent = '❌ 연결 실패'; }
+        if (vvStatus) { vvStatus.className = 'tts-status-chip tts-status-fail'; vvStatus.textContent = '❌ 실행 안됨'; }
+        if (vvRows) vvRows.style.display = 'none';
+        _showVvRetry(true, '⚠️ VOICEVOX 서버(localhost:50021)에 연결할 수 없습니다.\nVOICEVOX 앱을 실행한 후 재시도하세요.');
       }
       return ok;
     }
 
-    // 엔진 선택 처리 (연결 시도 → 실패 시 자동 강등)
+    // 엔진 선택 처리
+    // ※ VOICEVOX를 직접 선택한 경우 실패해도 자동 강등하지 않음 (재시도 버튼 안내)
+    // ※ Edge TTS에서 cascading으로 VOICEVOX 시도 후 실패 시에만 Web TTS로 자동 강등
     async function _onEngineSelect(requested) {
       _lockTTSGroup(true);
 
@@ -4455,7 +4479,7 @@ const App = (() => {
       if (requested === 'edge') {
         ok = await _tryActivateEdge();
         if (!ok) {
-          showToast('Edge TTS 서버에 연결할 수 없습니다.\npython edge_tts_server.py 를 먼저 실행하세요.\n⬇ VOICEVOX로 전환 시도 중...', 3500);
+          showToast('Edge TTS 서버를 찾을 수 없습니다.\npython edge_tts_server.py 를 먼저 실행하세요.\n⬇ VOICEVOX로 전환 시도 중...', 3500);
           active = 'voicevox';
           ok = await _tryActivateVoicevox();
           if (!ok) {
@@ -4466,27 +4490,32 @@ const App = (() => {
       } else if (requested === 'voicevox') {
         ok = await _tryActivateVoicevox();
         if (!ok) {
-          showToast('VOICEVOX를 찾을 수 없습니다.\nlocalhost:50021 실행 확인 후 재시도하세요.\n⬇ Web TTS로 전환합니다.', 3500);
-          active = 'web';
+          // 직접 선택한 경우 — 라디오를 VOICEVOX에 유지하고 재시도 안내만 표시
+          // (Web TTS로 자동 강등 없음)
+          state.prefs.useEdgeTTS  = false;
+          state.prefs.useVoicevox = false;  // 연결 실패 상태이므로 저장은 false
+          saveToStorage();
+          if (vvRadio) vvRadio.checked = true;   // 라디오는 VOICEVOX에 유지
+          _updateCardStyle('voicevox', false);    // 에러 스타일
+          _lockTTSGroup(false);
+          return;
         }
       }
 
-      // 상태 저장
+      // 연결 성공 또는 Web TTS (항상 사용 가능)
       state.prefs.useEdgeTTS   = (active === 'edge');
       state.prefs.useVoicevox  = (active === 'voicevox');
       saveToStorage();
 
-      // UI 갱신
       const finalRadio = active === 'edge' ? edgeRadio : active === 'voicevox' ? vvRadio : webRadio;
       if (finalRadio) finalRadio.checked = true;
       _updateCardStyle(active, true);
       _updateSpeakerPanels(active);
 
-      // 상태 텍스트 갱신
-      if (active === 'web' && vvStatus) { vvStatus.className = 'tts-status-chip'; vvStatus.textContent = '비활성'; }
-      if (active === 'web' && edgeStatus) { edgeStatus.className = 'tts-status-chip'; edgeStatus.textContent = '비활성'; }
-      if (active === 'edge' && vvStatus) { vvStatus.className = 'tts-status-chip'; vvStatus.textContent = '비활성'; }
-      if (active === 'voicevox' && edgeStatus) { edgeStatus.className = 'tts-status-chip'; edgeStatus.textContent = '비활성'; }
+      // 비활성 엔진 상태 텍스트 초기화
+      if (active !== 'voicevox' && vvStatus) { vvStatus.className = 'tts-status-chip'; vvStatus.textContent = '비활성'; }
+      if (active !== 'edge' && edgeStatus)   { edgeStatus.className = 'tts-status-chip'; edgeStatus.textContent = '비활성'; }
+      if (active !== 'voicevox') _showVvRetry(false);
 
       _lockTTSGroup(false);
     }
@@ -4498,19 +4527,34 @@ const App = (() => {
     _updateCardStyle(initEngine, true);
     _updateSpeakerPanels(initEngine);
 
-    // 시작 시 상태 텍스트 표시 (네트워크 요청 없이)
+    // 시작 시 상태 텍스트 표시 (네트워크 요청 없이 캐시 상태만)
     if (initEngine === 'edge' && edgeStatus) {
-      edgeStatus.className = 'tts-status-chip tts-status-success';
-      edgeStatus.textContent = EdgeTTSModule?.isAvailable() ? '✅ 연결됨' : '❌ 서버 없음';
+      const edgeAvail = typeof EdgeTTSModule !== 'undefined' && EdgeTTSModule.isAvailable();
+      edgeStatus.className = `tts-status-chip ${edgeAvail ? 'tts-status-success' : 'tts-status-fail'}`;
+      edgeStatus.textContent = edgeAvail ? '✅ 연결됨' : '❌ 서버 없음';
     }
-    if (initEngine === 'voicevox' && vvStatus && voicevoxAvailable) {
-      vvStatus.className = 'tts-status-chip tts-status-success';
-      vvStatus.textContent = `✅ ${voicevoxSpeakers.length}개 화자`;
+    if (initEngine === 'voicevox' && vvStatus) {
+      if (voicevoxAvailable) {
+        vvStatus.className = 'tts-status-chip tts-status-success';
+        vvStatus.textContent = `✅ ${voicevoxSpeakers.length}개 화자 연결됨`;
+      } else {
+        // 이전에 VOICEVOX로 저장됐으나 현재 미실행 상태
+        vvStatus.className = 'tts-status-chip tts-status-fail';
+        vvStatus.textContent = '❌ 실행 안됨';
+        _showVvRetry(true, '⚠️ 이전에 사용하던 VOICEVOX 서버가 응답하지 않습니다.\nVOICEVOX 앱을 실행한 후 재시도하세요.');
+      }
     }
 
-    // 이미 VOICEVOX 활성화 상태라면 화자 목록 로드
-    if (initEngine === 'voicevox' && voicevoxSpeakers.length === 0) {
+    // VOICEVOX 선택 상태이고 화자 목록 미로드 시 자동 연결 시도
+    if (initEngine === 'voicevox' && voicevoxAvailable && voicevoxSpeakers.length === 0) {
       _tryActivateVoicevox();
+    }
+
+    // 재시도 버튼 바인딩
+    const vvRetryBtn = document.getElementById('vv-retry-btn');
+    if (vvRetryBtn && !vvRetryBtn._bound) {
+      vvRetryBtn._bound = true;
+      vvRetryBtn.addEventListener('click', () => _onEngineSelect('voicevox'));
     }
 
     // 라디오 변경 이벤트

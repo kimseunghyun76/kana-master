@@ -6409,6 +6409,51 @@ body.fc-fullscreen .fc-assess-row {
 .tts-status-success { color: #276749 !important; font-weight: 600; }
 .tts-status-fail    { color: #c53030 !important; font-weight: 600; }
 
+/* VOICEVOX 재시도 영역 */
+.tts-retry-area {
+  margin: 8px 0 4px;
+  padding: 10px 14px;
+  background: #fff5f5;
+  border: 1px solid #fed7d7;
+  border-radius: 10px;
+  font-size: 12px;
+}
+.tts-retry-msg {
+  color: #c53030;
+  font-weight: 700;
+  margin-bottom: 6px;
+  font-size: 12.5px;
+}
+.tts-retry-steps {
+  color: #555;
+  line-height: 1.75;
+  margin-bottom: 10px;
+}
+.tts-retry-steps ol {
+  margin: 4px 0 0 16px;
+  padding: 0;
+}
+.tts-retry-steps li { margin-bottom: 2px; }
+.tts-retry-steps code {
+  background: #f1f5f9;
+  border-radius: 4px;
+  padding: 1px 5px;
+  font-size: 11px;
+}
+.tts-retry-btn {
+  padding: 6px 18px;
+  background: #4361ee;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background .15s;
+}
+.tts-retry-btn:hover { background: #3451d1; }
+.tts-retry-btn:active { background: #2541c1; }
+
 .tts-option-sub { font-size: 11px; color: var(--gray); margin: 0 0 6px 27px; line-height: 1.5; }
 .tts-guide-btn {
   font-size: 11px; color: var(--primary); background: none; border: none;
