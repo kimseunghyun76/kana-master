@@ -1,7 +1,7 @@
 // kana-data-drama.js — 드라마 일본어 + 속어 + 친구 사귀기 + 의성어
 // ============================================================
 
-const VOCAB_ITEMS_DRAMA = [
+var VOCAB_ITEMS_DRAMA = [
 
   // ── D1: 드라마 감탄사 ──
   { id:'dr_yabai', japanese:'やばい', kanji:'やばい', korean:'대박이다, 심각하다 (만능 표현)', romaji:'yabai', tip:'본래 "위험하다"는 뜻이었지만 지금은 긍정·부정 모두에 사용. 드라마에서 가장 많이 들리는 단어 중 하나', examples:[{japanese:'このラーメン、やばい！うますぎる！',korean:'이 라멘 대박이야! 너무 맛있어!'},{japanese:'やばい、もうじかんがない！',korean:'심각해, 이제 시간이 없어!'}] },
@@ -167,7 +167,7 @@ const VOCAB_ITEMS_DRAMA = [
   { id:'ono_moyamoya', japanese:'もやもや', kanji:'もやもや', korean:'개운치 않다, 뿌옇게 답답하다, 찜찜하다', romaji:'moyamoya', tip:'마음속이 개운하지 않고 불명확한 감정 상태', examples:[{japanese:'なんかもやもやして、すっきりしない。',korean:'뭔가 찜찜해서 개운하지 않아.'},{japanese:'かれのことがもやもやしてはっきりしない。',korean:'그에 대한 감정이 뭔지 모르겠어.'}] },
 ];
 
-const VOCAB_CATEGORIES_DRAMA = [
+var VOCAB_CATEGORIES_DRAMA = [
   { id:'drama_exclamations', phase:12, type:'word', wlevel:12, name:'드라마 감탄사', icon:'😲', title:'드라마에서 배우는 감탄사', subtitle:'やばい · マジで · うそ！· もう！· ありえない', desc:'일본 드라마를 보면 반드시 나오는 감탄사 15개! 이것만 알면 일본인 리액션이 자연스러워진다.', items:['dr_yabai','dr_majide','dr_uso','dr_majika','dr_ee','dr_nande','dr_chotto_matte','dr_souka','dr_shikata','dr_dakara','dr_mou','dr_arienai','dr_sugoi','dr_kitsui','dr_tsurai'] },
   { id:'drama_casual_speech', phase:12, type:'sentence', wlevel:12, name:'캐주얼 말투', icon:'🗣️', title:'드라마식 캐주얼 일본어', subtitle:'~じゃん · ~でしょ · ~かな · ~ちゃう · ~なきゃ', desc:'교과서에는 없지만 드라마에서 항상 나오는 캐주얼 표현 14개! 자연스러운 일본어의 핵심.', items:['dr_jan','dr_desho','dr_kana','dr_yone','dr_teru','dr_chau','dr_toku','dr_nakya','dr_datte','dr_nda','dr_wake','dr_mitai','dr_ppoi','dr_kke'] },
   { id:'drama_slang', phase:12, type:'word', wlevel:12, name:'속어·유행어', icon:'🔥', title:'지금 일본 젊은이들의 슬랭', subtitle:'めっちゃ · ガチ · ウザい · エモい · タイパ', desc:'현대 일본어 슬랭 15개! 드라마·SNS·일상에서 자연스럽게 사용되는 표현들.', items:['dr_meccha','dr_gachi','dr_uzai','dr_kimoi','dr_darui','dr_tension','dr_teka','dr_nori','dr_iketeru','dr_girigiri','dr_azasu','dr_pien','dr_emoi','dr_taipa','dr_cospa'] },

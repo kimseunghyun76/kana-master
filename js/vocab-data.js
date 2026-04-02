@@ -4,7 +4,7 @@
 // ============================================================
 
 // ─── 개별 항목 ───
-const VOCAB_ITEMS = [
+var VOCAB_ITEMS = [
 
   // ════════════════════════════════════
   //  [4단계] 숫자 기본 (numbers_basic) — 13개
@@ -459,7 +459,7 @@ const VOCAB_ITEMS = [
 ];
 
 // ─── 카테고리 정의 ───
-const VOCAB_CATEGORIES = [
+var VOCAB_CATEGORIES = [
   {
     id: 'pronouns_basic',
     phase: 3,
@@ -787,7 +787,7 @@ const VOCAB_CATEGORIES = [
 ];
 
 // ─── O(1) 조회용 맵 생성 ───
-const VOCAB_MAP = {};
+var VOCAB_MAP = {};
 VOCAB_ITEMS.forEach(item => { VOCAB_MAP[item.id] = item; });
 
 // ─── 카테고리별 항목 가져오기 ───

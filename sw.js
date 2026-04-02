@@ -3,8 +3,9 @@
 //  전략: Cache First (핵심 파일) + Network First (데이터)
 // ════════════════════════════════════════════════════════
 
-const CACHE_NAME   = 'kana-master-v1';
-const STATIC_CACHE = 'kana-static-v1';
+const APP_VERSION  = '1.2';                            // ← 배포 시 이 값만 올리면 캐시 자동 갱신
+const CACHE_NAME   = `kana-master-v${APP_VERSION}`;
+const STATIC_CACHE = `kana-static-v${APP_VERSION}`;
 
 // 앱 핵심 파일 (오프라인에서도 동작)
 const CORE_FILES = [

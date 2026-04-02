@@ -1,7 +1,7 @@
 // kana-data-diary.js — 일기 읽기 데이터 (日記シアター)
 'use strict';
 
-const DIARY_AUTHORS = [
+var DIARY_AUTHORS = [
   {
     id: 'sakura',
     name: 'さくら',
@@ -64,7 +64,7 @@ const DIARY_AUTHORS = [
   }
 ];
 
-const DIARY_ENTRIES = [
+var DIARY_ENTRIES = [
   // ─────────────────────────────────────────────
   // さくら — entry 1
   // ─────────────────────────────────────────────

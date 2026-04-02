@@ -1,7 +1,7 @@
 // kana-data-signs.js — 일본 간판·표지판 읽기 데이터
 'use strict';
 
-const SIGN_CATEGORIES = [
+var SIGN_CATEGORIES = [
   { id: 'station',    name: '역·전철',   icon: '🚉', color_class: 'sign-cat-station'    },
   { id: 'restaurant', name: '식당·카페', icon: '🍜', color_class: 'sign-cat-restaurant' },
   { id: 'shopping',   name: '쇼핑·가게', icon: '🛍️', color_class: 'sign-cat-shopping'   },
@@ -10,7 +10,7 @@ const SIGN_CATEGORIES = [
   { id: 'public',     name: '공공시설',  icon: '🏥', color_class: 'sign-cat-public'     },
 ];
 
-const SIGN_ITEMS = [
+var SIGN_ITEMS = [
 
   // ─────────────────────────────────────────────
   // STATION (5)

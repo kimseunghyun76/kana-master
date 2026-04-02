@@ -5,7 +5,7 @@
 //  키: vocab-data.js 의 item.id
 //  수동으로 자유롭게 추가/수정 가능
 // ─────────────────────────────────────────────
-const VOCAB_EXAMPLES_DB = {
+var VOCAB_EXAMPLES_DB = {
 
   // ── 숫자 ──
   'num_1': {

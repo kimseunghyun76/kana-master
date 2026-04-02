@@ -2,7 +2,7 @@
 //   강의 데이터 — 레벨별 풍부한 스크립트
 //   각 slide: { type, main, sub, reading, captionJp, captionKo, duration, label, audio }
 // ═══════════════════════════════════════════════════════
-const LECTURE_DATA = {
+var LECTURE_DATA = {
 
   // ─────────────────────────────────────────
   //  W1: 인사·응답

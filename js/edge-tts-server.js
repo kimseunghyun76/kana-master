@@ -6,7 +6,7 @@
 //  기본 URL: http://localhost:5050
 // ════════════════════════════════════════════════════════
 
-const EdgeTTSModule = (() => {
+var EdgeTTSModule = (() => {
   const DEFAULT_URL = 'http://localhost:5050';
 
   // 사용 가능한 Edge TTS 일본어 음성 목록

@@ -5849,12 +5849,6 @@ body.fc-fullscreen .fc-ex-item {
   border-radius: 12px !important;
 }
 body.fc-fullscreen .fc-ex-word {
-  font-size: 17px !important;
-}
-body.fc-fullscreen .fc-ex-meaning {
-  font-size: 13px !important;
-}
-body.fc-fullscreen .fc-ex-word {
   font-size: 20px !important;
   font-weight: 700 !important;
 }

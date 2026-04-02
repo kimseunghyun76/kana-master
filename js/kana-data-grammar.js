@@ -1,7 +1,7 @@
 // kana-data-grammar.js — 문법 기초 + JLPT N5/N4 어휘
 // ============================================================
 
-const VOCAB_ITEMS_GRAMMAR = [
+var VOCAB_ITEMS_GRAMMAR = [
 
   // ── A1: 대명사 ──
   { id:'gv_watashi', japanese:'わたし', kanji:'私(わたし)', korean:'나, 저 (중성·공손)', romaji:'watashi', tip:'남녀 모두 사용. 공식/정중 상황에 적합', examples:[{japanese:'わたしは韓国人(かんこくじん)です。',korean:'저는 한국인입니다.'},{japanese:'これはわたしのかばんです。',korean:'이것은 내 가방입니다.'}] },
@@ -214,7 +214,7 @@ const VOCAB_ITEMS_GRAMMAR = [
   { id:'n4_douse', japanese:'どうせ', kanji:'どうせ', korean:'어차피, 결국엔', romaji:'douse', tip:'포기하거나 체념하는 뉘앙스. 드라마에서 자주 나옴', examples:[{japanese:'どうせむりだよ。',korean:'어차피 무리야.'},{japanese:'どうせならたのしくやろう！',korean:'어차피라면 즐겁게 하자!'}] },
 ];
 
-const VOCAB_CATEGORIES_GRAMMAR = [
+var VOCAB_CATEGORIES_GRAMMAR = [
   { id:'gram_pronouns', phase:10, type:'word', wlevel:10, name:'대명사', icon:'👤', title:'대명사 완전 정복', subtitle:'わたし · ぼく · おれ · あなた · だれ', desc:'나·너·그·그녀·누구 등 일상에서 가장 많이 쓰는 대명사를 마스터하자.', items:['gv_watashi','gv_boku','gv_ore','gv_anata','gv_kimi','gv_kare','gv_kanojo','gv_watashitachi','gv_minna','gv_dare','gv_nani','gv_doko','gv_itsu','gv_dore','gv_kochira'] },
   { id:'gram_basic_verbs1', phase:10, type:'word', wlevel:10, name:'기본 동사 Ⅰ', icon:'🏃', title:'핵심 동사 Ⅰ — 행동·이동', subtitle:'いる · ある · する · くる · いく · たべる · のむ', desc:'모든 일본어 문장의 뼈대. 이 14개 동사만 알아도 기본 대화가 가능!', items:['gv_iru','gv_aru','gv_suru','gv_kuru','gv_iku','gv_kaeru','gv_miru','gv_kiku','gv_taberu','gv_nomu','gv_kau','gv_tsukau','gv_motsu','gv_wakaru'] },
   { id:'gram_basic_verbs2', phase:10, type:'word', wlevel:10, name:'기본 동사 Ⅱ', icon:'✍️', title:'핵심 동사 Ⅱ — 사고·소통', subtitle:'はなす · かく · よむ · おもう · かんがえる · なる', desc:'드라마에서 매일 들리는 소통·사고·변화 동사들을 한 번에!', items:['gv_hanasu','gv_kaku','gv_yomu','gv_oshieru','gv_narau','gv_oboeru','gv_shiru','gv_omou','gv_kangaeru','gv_kimeru','gv_hajimeru','gv_owaru','gv_naru'] },

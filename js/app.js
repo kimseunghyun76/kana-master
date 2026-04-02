@@ -1235,7 +1235,7 @@ const App = (() => {
     msgs.appendChild(t1);
 
     _dailyConvoTimer = setTimeout(() => {
-      msgs.removeChild(t1);
+      if (t1.parentNode === msgs) msgs.removeChild(t1);
       const qRow = document.createElement('div');
       qRow.className = 'qa-bubble-row row-q';
       qRow.innerHTML = `
@@ -1256,7 +1256,7 @@ const App = (() => {
           msgs.appendChild(t2);
 
           _dailyConvoTimer = setTimeout(() => {
-            msgs.removeChild(t2);
+            if (t2.parentNode === msgs) msgs.removeChild(t2);
             const aRow = document.createElement('div');
             aRow.className = 'qa-bubble-row row-a';
             aRow.innerHTML = `
@@ -4365,12 +4365,6 @@ const App = (() => {
     if (voicesCached) populateVoiceSelects();
     restoreVoiceSelects();
 
-    // VOICEVOX 설정 UI
-    const useVvEl = document.getElementById('pref-use-voicevox');
-    const vvRows  = document.getElementById('voicevox-speaker-rows');
-    const wttsDivEl = document.getElementById('webtts-settings');
-    const vvStatus  = document.getElementById('voicevox-status');
-
     // ══════════════════════════════════════════════════════
     //  TTS 엔진 통합 설정 — Edge TTS > VOICEVOX > Web TTS
     // ══════════════════════════════════════════════════════
@@ -4622,8 +4616,8 @@ const App = (() => {
   function savePrefs() {
     const langEl = document.getElementById('pref-lang');
     if (langEl) state.prefs.lang = langEl.value;
-    state.prefs.voiceFemale     = document.getElementById('pref-voice-female').value;
-    state.prefs.voiceMale       = document.getElementById('pref-voice-male').value;
+    state.prefs.voiceFemale     = document.getElementById('pref-voice-female')?.value ?? state.prefs.voiceFemale;
+    state.prefs.voiceMale       = document.getElementById('pref-voice-male')?.value   ?? state.prefs.voiceMale;
     const fnEl = document.getElementById('pref-female-name');
     const mnEl = document.getElementById('pref-male-name');
     if (fnEl && fnEl.value.trim()) state.prefs.femaleName = fnEl.value.trim();

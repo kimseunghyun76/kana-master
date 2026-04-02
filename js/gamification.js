@@ -3,7 +3,7 @@
 // ════════════════════════════════════════════════════════
 
 // ─── 계급 (Ranks) ───
-const RANKS = [
+var RANKS = [
   { id: 1,  name: '見習い',    nameKo: '견습생',     icon: '🌱', minXP: 0,     color: '#9ca3af', tier: 'bronze' },
   { id: 2,  name: '入門生',    nameKo: '입문생',     icon: '🌿', minXP: 100,   color: '#78c850', tier: 'bronze' },
   { id: 3,  name: '初心者',    nameKo: '초심자',     icon: '📗', minXP: 300,   color: '#4ade80', tier: 'bronze' },
@@ -19,7 +19,7 @@ const RANKS = [
 ];
 
 // ─── 희귀 아이템 (Collectible Items) ───
-const RARE_ITEMS = [
+var RARE_ITEMS = [
   // ── Common (커먼) · 드롭율 55% ──
   { id: 'c01', name: 'おにぎり',     nameKo: '오니기리',     icon: '🍙', rarity: 'common',    desc: '편의점 삼각김밥. 일본의 소울푸드.' },
   { id: 'c02', name: '緑茶',         nameKo: '녹차',         icon: '🍵', rarity: 'common',    desc: '마음을 가라앉히는 일본 녹차.' },
@@ -64,7 +64,7 @@ const RARE_ITEMS = [
   { id: 'm01', name: '富士山の魂',   nameKo: '후지산의 혼',  icon: '🗻', rarity: 'mythic',    desc: '일본의 영혼. 모든 학습의 정점에 도달한 자에게.' },
 ];
 
-const RARITY_CONFIG = {
+var RARITY_CONFIG = {
   common:    { label: '커먼',       labelJp: 'コモン',     color: '#9ca3af', bgColor: '#f3f4f6', chance: 0.55 },
   uncommon:  { label: '언커먼',     labelJp: 'アンコモン', color: '#22c55e', bgColor: '#f0fdf4', chance: 0.25 },
   rare:      { label: '레어',       labelJp: 'レア',       color: '#3b82f6', bgColor: '#eff6ff', chance: 0.12 },
@@ -74,7 +74,7 @@ const RARITY_CONFIG = {
 };
 
 // ─── 성취 배지 (Achievement Badges) ───
-const BADGES = [
+var BADGES = [
   // 학습 마일스톤
   { id: 'b_first_step',    name: '첫 걸음',          nameJp: '最初の一歩',     icon: '👣', desc: '첫 가나를 학습했다!' },
   { id: 'b_hira_10',       name: '히라가나 탐험가',  nameJp: 'ひらがな探検家', icon: '🗺️', desc: '히라가나 10자 학습' },
@@ -113,7 +113,7 @@ const BADGES = [
 ];
 
 // ─── 데일리 미션 템플릿 ───
-const MISSION_TEMPLATES = [
+var MISSION_TEMPLATES = [
   { type: 'kana_learn',      text: '가나 {n}자 학습하기',      icon: 'あ',  targets: [5, 8, 10, 15], xpReward: [15, 25, 30, 50] },
   { type: 'vocab_learn',     text: '단어 {n}개 학습하기',      icon: '📝', targets: [3, 5, 10],     xpReward: [15, 25, 40] },
   { type: 'quiz_play',       text: '퀴즈 {n}회 풀기',          icon: '🎯', targets: [1, 2, 3],      xpReward: [10, 20, 30] },

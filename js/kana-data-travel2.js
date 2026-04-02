@@ -1,7 +1,7 @@
 // kana-data-travel2.js — 여행 심화 + 커플 여행 + JLPT 시험 준비
 // ============================================================
 
-const VOCAB_ITEMS_TRAVEL2 = [
+var VOCAB_ITEMS_TRAVEL2 = [
 
   // ── H1: 교통 심화 ──
   { id:'tv2_platform', japanese:'〜番線から乗ります', kanji:'〜番線(ばんせん)から乗(の)ります', korean:'~번 선에서 타요', romaji:'~bansen kara norimasu', tip:'일본 전철은 番線으로 플랫폼을 구분. 何番線ですか？로 확인', examples:[{japanese:'3ばんせんからのります。',korean:'3번 선에서 타요.'},{japanese:'のりかえは4ばんせんです。',korean:'환승은 4번 선이에요.'}] },
@@ -161,7 +161,7 @@ const VOCAB_ITEMS_TRAVEL2 = [
   { id:'jt_goukaku', japanese:'合格したいです！', kanji:'合格(ごうかく)したいです！', korean:'합격하고 싶어요! 붙고 싶어요!', romaji:'goukaku shitai desu!', tip:'ごうかく(합격)·ふごうかく(불합격)·ごうかくライン(합격선)', examples:[{japanese:'ぜったいにごうかくしたいです！がんばります！',korean:'반드시 합격하고 싶어요! 열심히 할게요!'},{japanese:'ごうかくしたら、にほんにいきます！',korean:'합격하면 일본에 갈게요!'}] },
 ];
 
-const VOCAB_CATEGORIES_TRAVEL2 = [
+var VOCAB_CATEGORIES_TRAVEL2 = [
   { id:'travel_transport_deep', phase:13, type:'sentence', wlevel:13, name:'교통 심화', icon:'🚆', title:'일본 교통 완전 정복', subtitle:'番線 · 乗り換え · 自由席 · ICカード · 遅延', desc:'신칸센·지하철·버스 완전 정복! 혼자서도 자유롭게 일본 전국을 다닐 수 있게 되는 표현들.', items:['tv2_platform','tv2_norikaee','tv2_jiyuseki','tv2_shiteiseki','tv2_kaisatsu','tv2_iccard','tv2_nimotsu','tv2_shuten','tv2_nanji_tsuki','tv2_chien','tv2_tochuu','tv2_ofuku'] },
   { id:'travel_food_order', phase:13, type:'sentence', wlevel:13, name:'식당·주문 심화', icon:'🍜', title:'일본 식당 완전 정복', subtitle:'禁煙席 · アレルギー · お会計 · 持ち帰り', desc:'주문부터 계산까지! 일본 식당에서 당황하지 않게 되는 13가지 표현.', items:['tv2_kinen','tv2_alergi','tv2_karasa','tv2_osusume','tv2_tanpin','tv2_setto','tv2_chigau','tv2_mochikae','tv2_okaikei','tv2_betsubetsu','tv2_ryoushuusho','tv2_oishikatta','tv2_mata_kuru'] },
   { id:'travel_shopping_deep', phase:13, type:'sentence', wlevel:13, name:'쇼핑 심화', icon:'🛍️', title:'일본 쇼핑 완전 정복', subtitle:'試着 · 免税 · 返品 · 交換 · 在庫', desc:'면세 쇼핑부터 환불까지! 일본 쇼핑을 완벽하게 즐기는 12가지 표현.', items:['tv2_shichaku','tv2_size_l','tv2_iro','tv2_menzei','tv2_wrapping','tv2_betsutsutsu','tv2_gokei','tv2_credit','tv2_henpin','tv2_koukan','tv2_zaiko','tv2_net_order'] },

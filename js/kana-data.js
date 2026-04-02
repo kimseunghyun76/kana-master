@@ -3,7 +3,7 @@
 // 각 항목: { kana, romaji, korean, english, type, examples[] }
 // ============================================================
 
-const LEVELS = [
+var LEVELS = [
   {
     id: 1,
     name: 'Level 1',
@@ -129,7 +129,7 @@ const LEVELS = [
 // ----------------------------------------------------------------
 // 개별 가나 데이터
 // ----------------------------------------------------------------
-const KANA_MAP = {
+var KANA_MAP = {
   // ─────────────────── 히라가나 기본 ───────────────────
   'あ': { romaji:'a',   korean:'아', english:'ah',    type:'hiragana', tip:'알파벳 A를 눕힌 듯한 모양! "아~" 하고 입을 크게 벌려요 👄',
     examples:[{word:'あか',meaning:'빨강 (red)'},{word:'あさ',meaning:'아침 (morning)'},{word:'あに',meaning:'오빠/형 (older brother)'},{word:'あき',meaning:'가을 (autumn)'},{word:'あおい',meaning:'파랗다 (blue)'},{word:'あいさつ',meaning:'인사 (greeting)'}]},
