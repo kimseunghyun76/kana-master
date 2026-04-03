@@ -227,16 +227,23 @@ const App = (() => {
       }
       // 온보딩 (첫 방문 시)
       _showOnboardingIfNew();
-      // VOICEVOX가 켜진 채 저장된 경우 앱 시작 시 자동 연결 + 화자 복원
-      if (state.prefs.useVoicevox) {
+      // ── TTS 엔진 시작 시 자동 연결 ──
+      // VOICEVOX: 저장된 설정이 있거나 엔진 미설정(최초 실행) 시 항상 우선 시도
+      const _noEngineSet = !state.prefs.useVoicevox && !state.prefs.useEdgeTTS;
+      if (state.prefs.useVoicevox || _noEngineSet) {
         checkVoicevox().then(ok => {
           if (ok) {
+            // 연결 성공 → VOICEVOX를 기본 엔진으로 활성화
+            state.prefs.useVoicevox = true;
+            saveToStorage();
             populateVoicevoxSelects();
             updateActiveSpeakerBadge();
           } else {
-            // 연결 실패 시 설정만 유지 (UI에서 재연결 가능)
-            state.prefs.useVoicevox = false;
-            saveToStorage();
+            // 연결 실패 — 저장값만 초기화 (Web TTS로 유지, UI 설정 패널에서 재시도 가능)
+            if (state.prefs.useVoicevox) {
+              state.prefs.useVoicevox = false;
+              saveToStorage();
+            }
           }
         });
       }
@@ -535,6 +542,16 @@ const App = (() => {
 
     // view 전환 — lecture inline style도 반드시 초기화
     document.querySelectorAll('.view').forEach(v => { v.classList.remove('active'); v.style.display = ''; });
+
+    // 뷰 전환 시 가나 플래시카드 관련 요소 강제 초기화 (다른 마스터 뷰에 잔존 방지)
+    ['flashcard-area', 'browse-area', 'learn-header', 'kana-select-panel'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.style.display = 'none';
+    });
+    // 가나 플래시카드 앞면 카드도 초기화
+    const fcCard = document.querySelector('#flashcard-area .flashcard');
+    if (fcCard) { fcCard.classList.remove('flipped'); }
+
     const target = document.getElementById('view-' + actualViewName);
     if (target) target.classList.add('active');
 
@@ -1684,7 +1701,7 @@ const App = (() => {
   }
 
   function startVocabReview() {
-    // 틀린 단어·문장 플래시카드 복습
+    // 틀린 단어·문장 복습 → Word Explorer로 전환
     const weakItems = VOCAB_ITEMS.filter(item => {
       const p = state.vocabProgress[item.id];
       return p && p.incorrect > p.correct;
@@ -1693,29 +1710,69 @@ const App = (() => {
       showToast('복습할 틀린 단어가 없어요! 퀴즈를 먼저 풀어보세요.');
       return;
     }
-    state.vocabItems = weakItems;
-    state.vocabIndex = 0;
-    state.vocabFlipped = false;
-    state.vocabMode = 'flash';
-    state.vocabCurrentCategoryId = null;
     const sectionViewMap = { word: 'vocab', sentence: 'convo', sim: 'roleplay' };
     const view = sectionViewMap[state.vocabSection] || 'vocab';
     showView(view);
+    _startWordExplorerDirect(weakItems, '🔄 복습', '틀린 단어 ' + weakItems.length + '개');
+  }
+
+  // Word Explorer를 catId 없이 직접 아이템 배열로 실행
+  function _startWordExplorerDirect(items, title, subtitle) {
+    if (!items || items.length === 0) return;
+    state.vocabItems = items;
+    state.vocabIndex = 0;
+    state.vocabMode = 'explore';
+    state.vocabCurrentCategoryId = null;
+
     document.getElementById('vocab-setup').style.display = 'none';
-    document.getElementById('vocab-flash-panel').style.display = 'block';
-    const learnHdr = document.querySelector('#vocab-flash-panel .learn-header');
-    if (learnHdr) learnHdr.style.display = '';
-    document.getElementById('vocab-cat-name').textContent = '🔄 복습';
-    document.getElementById('vocab-cat-subtitle').textContent = `틀린 단어 ${weakItems.length}개`;
-    document.getElementById('vocab-flashcard-area').style.display = 'block';
-    document.getElementById('vocab-quiz-area').style.display = 'none';
-    const browseArea = document.getElementById('vocab-browse-area');
-    if (browseArea) browseArea.style.display = 'none';
-    renderNavStrip('vfc-nav-strip', state.vocabItems, 0, (idx) => {
-      state.vocabIndex = idx; showVocabFlashcard();
+    document.getElementById('vocab-flash-panel').style.display = 'none';
+    const stPanel = document.getElementById('scene-trainer-panel');
+    if (stPanel) stPanel.style.display = 'none';
+    const wePanel = document.getElementById('word-explorer-panel');
+    if (!wePanel) return;
+    wePanel.style.display = 'block';
+
+    document.getElementById('we-cat-name').textContent = title || '탐구';
+    document.getElementById('we-cat-subtitle').textContent = subtitle || '';
+
+    const backBtn = document.getElementById('we-back-btn');
+    if (backBtn) backBtn.onclick = vocabBackToSetup;
+
+    const prevBtn = document.getElementById('we-prev-btn');
+    const nextBtn = document.getElementById('we-next-btn');
+    if (prevBtn) prevBtn.onclick = () => {
+      if (state.vocabIndex > 0) { state.vocabIndex--; _weShowCard(state.vocabIndex); }
+    };
+    if (nextBtn) nextBtn.onclick = () => {
+      if (state.vocabIndex < items.length - 1) { state.vocabIndex++; _weShowCard(state.vocabIndex); }
+    };
+
+    const audioBtn = document.getElementById('we-audio-btn');
+    if (audioBtn) audioBtn.onclick = () => {
+      const item = items[state.vocabIndex];
+      if (item) playAudio(item.japanese);
+    };
+
+    // 탭 이벤트 재설정
+    const tabs = document.querySelectorAll('#we-games-tabs .we-tab');
+    tabs.forEach(tab => {
+      const newTab = tab.cloneNode(true);
+      tab.parentNode.replaceChild(newTab, tab);
     });
-    showVocabFlashcard();
-    setupVocabFlashcardControls();
+    document.querySelectorAll('#we-games-tabs .we-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('#we-games-tabs .we-tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        ['fillin','choice','order'].forEach(g => {
+          const gp = document.getElementById('we-game-' + g);
+          if (gp) gp.style.display = g === tab.dataset.game ? 'block' : 'none';
+        });
+        _weSetupGame(tab.dataset.game, items);
+      });
+    });
+
+    _weShowCard(0);
+    _weSetupGame('fillin', items);
   }
 
   // ─── 최근 활동 추적 ───
@@ -2534,30 +2591,16 @@ const App = (() => {
             id: b.vocabId, japanese: b.japanese, korean: b.korean,
             kanji: b.kanji || null, catId: b.catId || null, tip: null, example: null
           }));
-          state.vocabIndex = 0;
-          state.vocabFlipped = false;
-          state.vocabMode = 'flash';
           state.vocabCurrentCategoryId = null;
-          state.vocabNavMeta = null;
-          state.vocabNavPage = 0;
+          state.vocabSection = 'word';
           showView('vocab');
-          document.getElementById('vocab-setup').style.display = 'none';
-          document.getElementById('vocab-flash-panel').style.display = 'block';
-          const browseArea = document.getElementById('vocab-browse-area');
-          if (browseArea) browseArea.style.display = 'none';
-          document.getElementById('vocab-cat-name').textContent = '📌 북마크 복습';
-          document.getElementById('vocab-cat-subtitle').textContent =
-            `단어/문장 ${vocabItems.length}개` +
-            (kanaItems.length > 0 ? ` · 가나 ${kanaItems.length}개는 학습탭에서 복습` : '');
-          document.getElementById('vocab-flashcard-area').style.display = 'block';
-          document.getElementById('vocab-quiz-area').style.display = 'none';
-          const vBrowse = document.getElementById('vocab-browse-area');
-          if (vBrowse) vBrowse.style.display = 'none';
-          renderNavStrip('vfc-nav-strip', state.vocabItems, 0, (idx) => {
-            state.vocabIndex = idx; showVocabFlashcard();
-          });
-          showVocabFlashcard();
-          setupVocabFlashcardControls();
+          const bmItems = vocabItems.map(b => ({
+            id: b.vocabId, japanese: b.japanese, korean: b.korean,
+            kanji: b.kanji || null, tip: null, example: null
+          }));
+          const subLabel = '단어/문장 ' + vocabItems.length + '개' +
+            (kanaItems.length > 0 ? ' · 가나 ' + kanaItems.length + '개는 학습탭에서 복습' : '');
+          _startWordExplorerDirect(bmItems, '📌 북마크 복습', subLabel);
           return;
         }
 
@@ -2873,7 +2916,8 @@ const App = (() => {
     document.getElementById('quiz-header').style.display = 'none';
     document.getElementById('quiz-game').style.display = 'none';
     document.getElementById('quiz-result').style.display = 'none';
-    showQuizIntro();
+    _setupQuizHub();
+    showQuizHub();
   }
 
   // 퀴즈 인트로 화면 표시
@@ -2899,6 +2943,8 @@ const App = (() => {
 
   function _doQiStart() {
     if (_qiCountdownTimer) { clearInterval(_qiCountdownTimer); _qiCountdownTimer = null; }
+    const overlay = document.getElementById('qi-countdown-overlay');
+    if (overlay) overlay.style.display = 'none';
     const cdEl = document.getElementById('qi-cdnum');
     if (cdEl) cdEl.style.display = 'none';
     document.getElementById('quiz-intro').style.display = 'none';
@@ -2908,18 +2954,30 @@ const App = (() => {
 
   function _startQiCountdown() {
     if (_qiCountdownTimer) { clearInterval(_qiCountdownTimer); _qiCountdownTimer = null; }
-    let n = 5;
-    const cdEl = document.getElementById('qi-cdnum');
-    const labelEl = document.getElementById('qi-start-label');
-    if (cdEl) { cdEl.textContent = n; cdEl.style.display = 'inline-flex'; }
-    if (labelEl) labelEl.textContent = '🎯 퀴즈 시작!';
+    const overlay = document.getElementById('qi-countdown-overlay');
+    const numEl = document.getElementById('qi-cd-big');
+    if (!overlay || !numEl) { _doQiStart(); return; }
+    let n = 3;
+    numEl.textContent = n;
+    numEl.className = 'qi-cd-num';
+    overlay.style.display = 'flex';
     _qiCountdownTimer = setInterval(() => {
       n--;
-      if (cdEl) cdEl.textContent = n > 0 ? n : '!';
       if (n <= 0) {
         clearInterval(_qiCountdownTimer);
         _qiCountdownTimer = null;
-        _doQiStart();
+        numEl.textContent = 'GO!';
+        numEl.className = 'qi-cd-num qi-cd-go';
+        setTimeout(() => {
+          overlay.style.display = 'none';
+          numEl.className = 'qi-cd-num';
+          _doQiStart();
+        }, 700);
+      } else {
+        numEl.textContent = n;
+        numEl.className = 'qi-cd-num';
+        // force re-trigger animation
+        void numEl.offsetWidth;
       }
     }, 1000);
   }
@@ -2979,6 +3037,10 @@ const App = (() => {
     document.getElementById('quiz-header').style.display = 'none';
     document.getElementById('quiz-game').style.display = 'none';
     document.getElementById('quiz-result').style.display = 'none';
+    // ensure hub + feed panels are hidden
+    const hub = document.getElementById('quiz-hub');
+    if (hub) hub.style.display = 'none';
+    ['fq-start','fq-player','fq-result'].forEach(id => { const e = document.getElementById(id); if (e) e.style.display = 'none'; });
 
     // 설정 칩 빌드
     _buildQiSettings();
@@ -3028,20 +3090,496 @@ const App = (() => {
   function _buildQiSettings() {
     const el = document.getElementById('qi-settings-summary');
     if (!el) return;
-    const qtype  = state.prefs.quizType  || 'kanaToReading';
-    const qcount = state.prefs.quizCount || '10';
-    const qtimer = state.prefs.quizCountdown !== undefined ? state.prefs.quizCountdown : 5;
-    const qlevel = state.prefs.quizLevel || 'current';
-    const typeMap = { kanaToReading: '가나→읽기', readingToKana: '읽기→가나', listen: '듣기' };
-    const levelLabel = qlevel === 'all' ? '전체 레벨'
-      : qlevel === 'current' ? '현재 레벨'
-      : ((LEVELS.find(l => l.id === parseInt(qlevel)) || {}).name || qlevel);
-    el.innerHTML = `
-      <div class="qi-chip"><span class="qi-chip-icon">📝</span>${typeMap[qtype] || qtype}</div>
-      <div class="qi-chip"><span class="qi-chip-icon">🔢</span>${qcount === 'all' ? '전체' : qcount + '문제'}</div>
-      <div class="qi-chip"><span class="qi-chip-icon">⏱</span>${qtimer > 0 ? qtimer + '초' : '제한없음'}</div>
-      <div class="qi-chip"><span class="qi-chip-icon">🎯</span>${levelLabel}</div>
-    `;
+
+    const typeOptions   = [['kanaToReading','가나→읽기'],['readingToKana','읽기→가나'],['listen','듣기']];
+    const countOptions  = [['10','10문제'],['20','20문제'],['all','전체']];
+    const timerOptions  = [['0','제한없음'],['3','3초'],['5','5초'],['7','7초'],['10','10초']];
+    const levelOptions  = [['current','현재레벨'],['all','전체']];
+    // Add unlocked specific levels
+    if (typeof LEVELS !== 'undefined') {
+      LEVELS.forEach(lv => {
+        if (state.unlockedLevels && state.unlockedLevels.includes(lv.id)) {
+          levelOptions.push([String(lv.id), lv.name]);
+        }
+      });
+    }
+
+    function makeGroup(icon, label, optArr, prefKey) {
+      const cur = state.prefs[prefKey] !== undefined ? String(state.prefs[prefKey]) : optArr[0][0];
+      const chips = optArr.map(([val, lbl]) => {
+        const active = cur === val ? 'active' : '';
+        return `<button class="qi-inline-chip ${active}" data-key="${prefKey}" data-val="${val}">${lbl}</button>`;
+      }).join('');
+      return `<div class="qi-settings-row"><span class="qi-settings-icon">${icon}</span><span class="qi-settings-label">${label}</span><div class="qi-inline-chips">${chips}</div></div>`;
+    }
+
+    el.innerHTML =
+      makeGroup('📝','유형', typeOptions, 'quizType') +
+      makeGroup('🔢','문항', countOptions, 'quizCount') +
+      makeGroup('⏱','타이머', timerOptions, 'quizCountdown') +
+      makeGroup('🎯','레벨', levelOptions, 'quizLevel');
+
+    el.querySelectorAll('.qi-inline-chip').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const key = btn.dataset.key;
+        const val = btn.dataset.val;
+        // exclusive selection within same key
+        el.querySelectorAll(`.qi-inline-chip[data-key="${key}"]`).forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        if (key === 'quizCountdown') {
+          state.prefs[key] = parseInt(val);
+        } else {
+          state.prefs[key] = val;
+        }
+        saveToStorage();
+      });
+    });
+  }
+
+  // ─── 퀴즈 허브 ───
+  function showQuizHub() {
+    // Hide all quiz sub-panels
+    ['quiz-intro','quiz-header','quiz-game','quiz-result','fq-start','fq-player','fq-result'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.style.display = 'none';
+    });
+    const hub = document.getElementById('quiz-hub');
+    if (hub) hub.style.display = 'flex';
+  }
+
+  function _setupQuizHub() {
+    const kanaBtn = document.getElementById('qh-kana-btn');
+    if (kanaBtn) kanaBtn.onclick = () => {
+      document.getElementById('quiz-hub').style.display = 'none';
+      showQuizIntro();
+    };
+    const feedBtn = document.getElementById('qh-feed-btn');
+    if (feedBtn) feedBtn.onclick = () => {
+      document.getElementById('quiz-hub').style.display = 'none';
+      showFqStart();
+    };
+  }
+
+  // ─── 피드 퀴즈 ───
+  let _fqSettings = { masters: ['vocab','sentence','sim'], vocabLevels: [], sentLevels: [], qcount: 10, timer: 0 };
+  let _fqQuestions = [];
+  let _fqIndex = 0;
+  let _fqCorrect = 0;
+  let _fqWrong = 0;
+  let _fqStreak = 0;
+  let _fqMaxStreak = 0;
+  let _fqXP = 0;
+  let _fqWrongItems = [];
+  let _fqTimerInterval = null;
+  let _fqRetryWrongItems = null;
+
+  function showFqStart() {
+    ['quiz-intro','quiz-header','quiz-game','quiz-result','fq-player','fq-result','quiz-hub'].forEach(id => {
+      const e = document.getElementById(id); if (e) e.style.display = 'none';
+    });
+    const panel = document.getElementById('fq-start');
+    if (panel) panel.style.display = 'flex';
+
+    // Back button
+    const backBtn = document.getElementById('fqs-back-btn');
+    if (backBtn) backBtn.onclick = () => {
+      panel.style.display = 'none';
+      showQuizHub();
+    };
+
+    // Build level chips
+    _fqBuildLevelChips();
+
+    // Multi-select masters
+    document.querySelectorAll('#fqs-masters .fqs-chip').forEach(btn => {
+      btn.onclick = () => {
+        btn.classList.toggle('active');
+        _fqBuildLevelChips();
+      };
+    });
+
+    // Exclusive chips for qcount and timer
+    document.querySelectorAll('#fqs-qcount .fqs-chip, #fqs-timer .fqs-chip').forEach(btn => {
+      btn.onclick = () => {
+        const group = btn.closest('.fqs-exclusive');
+        if (group) group.querySelectorAll('.fqs-chip').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+      };
+    });
+
+    // Launch button
+    const launchBtn = document.getElementById('fq-launch-btn');
+    if (launchBtn) launchBtn.onclick = () => _fqReadSettingsAndStart();
+  }
+
+  function _fqBuildLevelChips() {
+    // Check which masters are active
+    const activeMasters = Array.from(document.querySelectorAll('#fqs-masters .fqs-chip.active')).map(b => b.dataset.val);
+    const vocabWrap = document.getElementById('fqs-vocab-levels-wrap');
+    const sentWrap = document.getElementById('fqs-sent-levels-wrap');
+    const showVocab = activeMasters.includes('vocab');
+    const showSent  = activeMasters.includes('sentence') || activeMasters.includes('sim');
+    if (vocabWrap) vocabWrap.style.display = showVocab ? '' : 'none';
+    if (sentWrap) sentWrap.style.display = showSent ? '' : 'none';
+
+    if (typeof VOCAB_CATEGORIES === 'undefined') return;
+
+    // Build vocab level chips (W1~W8)
+    const vocabLevelsEl = document.getElementById('fqs-vocab-levels');
+    if (vocabLevelsEl && !vocabLevelsEl.dataset.built) {
+      const vocabLevels = [...new Set(VOCAB_CATEGORIES.filter(c => c.type === 'word').map(c => c.level).filter(Boolean))].sort((a,b) => a-b);
+      vocabLevelsEl.innerHTML = '';
+      vocabLevels.forEach(lv => {
+        const btn = document.createElement('button');
+        btn.className = 'fqs-chip active';
+        btn.dataset.val = lv;
+        btn.textContent = 'W' + lv;
+        btn.onclick = () => btn.classList.toggle('active');
+        vocabLevelsEl.appendChild(btn);
+      });
+      vocabLevelsEl.dataset.built = '1';
+    }
+
+    // Build sentence/sim level chips
+    const sentLevelsEl = document.getElementById('fqs-sent-levels');
+    if (sentLevelsEl && !sentLevelsEl.dataset.built) {
+      const sentLevels = [...new Set(VOCAB_CATEGORIES.filter(c => c.type === 'sentence' || c.type === 'sim').map(c => c.level).filter(Boolean))].sort((a,b) => a-b);
+      sentLevelsEl.innerHTML = '';
+      sentLevels.forEach(lv => {
+        const btn = document.createElement('button');
+        btn.className = 'fqs-chip active';
+        btn.dataset.val = lv;
+        btn.textContent = 'S' + lv;
+        btn.onclick = () => btn.classList.toggle('active');
+        sentLevelsEl.appendChild(btn);
+      });
+      sentLevelsEl.dataset.built = '1';
+    }
+  }
+
+  function _fqReadSettingsAndStart(overrideItems) {
+    // Read master selection
+    const masters = Array.from(document.querySelectorAll('#fqs-masters .fqs-chip.active')).map(b => b.dataset.val);
+    // Read level chips
+    const vocabLevels = Array.from(document.querySelectorAll('#fqs-vocab-levels .fqs-chip.active')).map(b => parseInt(b.dataset.val));
+    const sentLevels  = Array.from(document.querySelectorAll('#fqs-sent-levels .fqs-chip.active')).map(b => parseInt(b.dataset.val));
+    // Read qcount
+    const qcountBtn = document.querySelector('#fqs-qcount .fqs-chip.active');
+    const qcount = qcountBtn ? parseInt(qcountBtn.dataset.val) : 10;
+    // Read timer
+    const timerBtn = document.querySelector('#fqs-timer .fqs-chip.active');
+    const timer = timerBtn ? parseInt(timerBtn.dataset.val) : 0;
+
+    _fqSettings = { masters, vocabLevels, sentLevels, qcount, timer };
+
+    if (overrideItems) {
+      _fqStartPlayer(_fqBuildQuestionsFromItems(overrideItems));
+    } else {
+      const questions = _fqGenerateQuestions(masters, vocabLevels, sentLevels, qcount);
+      if (!questions.length) { showToast('문제를 생성할 수 없어요. 설정을 확인해 주세요.'); return; }
+      _fqStartPlayer(questions);
+    }
+  }
+
+  function _fqGenerateQuestions(masters, vocabLevels, sentLevels, qcount) {
+    if (typeof VOCAB_CATEGORIES === 'undefined') return [];
+    let pool = [];
+
+    // Collect items from selected masters + levels
+    VOCAB_CATEGORIES.forEach(cat => {
+      const typeMatch = masters.includes(cat.type) || (cat.type === 'word' && masters.includes('vocab'));
+      if (!typeMatch) return;
+      const isVocab = cat.type === 'word';
+      const isSent  = cat.type === 'sentence' || cat.type === 'sim';
+      const levelOk = (isVocab && (vocabLevels.length === 0 || vocabLevels.includes(cat.level))) ||
+                      (isSent  && (sentLevels.length === 0  || sentLevels.includes(cat.level)));
+      if (!levelOk) return;
+      const items = getVocabCategoryItems(cat.id);
+      items.forEach(item => {
+        if (!item) return;
+        pool.push({ item, catType: cat.type, catId: cat.id });
+      });
+    });
+
+    if (!pool.length) return [];
+
+    // Shuffle pool
+    for (let i = pool.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [pool[i], pool[j]] = [pool[j], pool[i]];
+    }
+
+    // Limit to qcount
+    pool = pool.slice(0, qcount);
+
+    return _fqBuildQuestionsFromItems(pool);
+  }
+
+  function _fqBuildQuestionsFromItems(poolItems) {
+    return poolItems.map(({ item, catType, catId }) => {
+      const rand = Math.random();
+      let qType;
+      if (catType === 'word') {
+        qType = rand < 0.5 ? 'jp_to_kr' : 'kr_to_jp';
+      } else {
+        qType = rand < 0.5 ? 'sentence_kr' : 'sentence_jp';
+      }
+
+      // Build wrong options
+      const allItems = (typeof VOCAB_CATEGORIES !== 'undefined')
+        ? VOCAB_CATEGORIES.filter(c => c.type === catType).flatMap(c => getVocabCategoryItems(c.id)).filter(Boolean)
+        : [];
+      const wrongPool = allItems.filter(i => i.id !== item.id);
+      const shuffled = wrongPool.sort(() => Math.random() - 0.5).slice(0, 3);
+
+      let question, questionSub, answer, answerLabel, choices;
+
+      if (qType === 'jp_to_kr') {
+        question = item.japanese || item.id;
+        questionSub = item.kanji || '';
+        answer = item.korean || '';
+        answerLabel = answer;
+        choices = [answer, ...shuffled.map(w => w.korean || '')].sort(() => Math.random() - 0.5);
+      } else if (qType === 'kr_to_jp') {
+        question = item.korean || item.id;
+        questionSub = '';
+        answer = item.japanese || item.id;
+        answerLabel = answer;
+        choices = [answer, ...shuffled.map(w => w.japanese || w.id)].sort(() => Math.random() - 0.5);
+      } else if (qType === 'sentence_kr') {
+        question = item.japanese || item.id;
+        questionSub = item.kanji || '';
+        answer = item.korean || '';
+        answerLabel = answer;
+        choices = [answer, ...shuffled.map(w => w.korean || '')].sort(() => Math.random() - 0.5);
+      } else {
+        question = item.korean || item.id;
+        questionSub = '';
+        answer = item.japanese || item.id;
+        answerLabel = answer;
+        choices = [answer, ...shuffled.map(w => w.japanese || w.id)].sort(() => Math.random() - 0.5);
+      }
+
+      // Fill to exactly 4 choices, remove duplicates
+      const seen = new Set();
+      const finalChoices = [];
+      choices.forEach(c => { if (c && !seen.has(c)) { seen.add(c); finalChoices.push(c); } });
+      while (finalChoices.length < 4) finalChoices.push('?');
+
+      const badgeMap = { word: '어휘', sentence: '회화', sim: '롤플레이' };
+
+      return { item, catType, catId, qType, question, questionSub, answer: answerLabel, choices: finalChoices.slice(0,4), badge: badgeMap[catType] || '어휘' };
+    });
+  }
+
+  function _fqStartPlayer(questions) {
+    _fqQuestions = questions;
+    _fqIndex = 0;
+    _fqCorrect = 0;
+    _fqWrong = 0;
+    _fqStreak = 0;
+    _fqMaxStreak = 0;
+    _fqXP = 0;
+    _fqWrongItems = [];
+
+    ['fq-start','quiz-hub'].forEach(id => { const e = document.getElementById(id); if (e) e.style.display = 'none'; });
+    const player = document.getElementById('fq-player');
+    if (player) player.style.display = 'flex';
+
+    document.getElementById('fqp-qtotal').textContent = questions.length;
+    _fqShowQuestion();
+  }
+
+  function _fqShowQuestion() {
+    if (_fqTimerInterval) { clearInterval(_fqTimerInterval); _fqTimerInterval = null; }
+    const q = _fqQuestions[_fqIndex];
+    if (!q) { _fqShowResult(); return; }
+
+    // HUD
+    document.getElementById('fqp-streak').textContent = _fqStreak;
+    document.getElementById('fqp-qnum').textContent = _fqIndex + 1;
+    document.getElementById('fqp-xp').textContent = _fqXP;
+
+    // Feedback hide
+    const fb = document.getElementById('fqp-feedback');
+    if (fb) fb.style.display = 'none';
+
+    // Card
+    document.getElementById('fqp-card-badge').textContent = q.badge;
+    document.getElementById('fqp-question').textContent = q.question;
+    const qSub = document.getElementById('fqp-question-sub');
+    if (qSub) {
+      qSub.textContent = q.questionSub || '';
+      qSub.style.display = q.questionSub ? '' : 'none';
+    }
+
+    // Choices
+    const choicesEl = document.getElementById('fqp-choices');
+    choicesEl.innerHTML = '';
+    q.choices.forEach(choice => {
+      const btn = document.createElement('button');
+      btn.className = 'fqp-choice-btn';
+      btn.textContent = choice;
+      btn.onclick = () => _fqSelectAnswer(choice, q);
+      choicesEl.appendChild(btn);
+    });
+
+    // Timer
+    const timerSec = _fqSettings.timer;
+    const timerWrap = document.getElementById('fqp-timer-bar-wrap');
+    const timerFill = document.getElementById('fqp-timer-fill');
+    if (timerSec > 0) {
+      if (timerWrap) timerWrap.style.display = '';
+      if (timerFill) {
+        timerFill.style.transition = 'none';
+        timerFill.style.width = '100%';
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+          timerFill.style.transition = `width ${timerSec}s linear`;
+          timerFill.style.width = '0%';
+        }));
+      }
+      _fqTimerInterval = setTimeout(() => {
+        _fqSelectAnswer(null, q);
+      }, timerSec * 1000);
+    } else {
+      if (timerWrap) timerWrap.style.display = 'none';
+    }
+  }
+
+  function _fqSelectAnswer(chosen, q) {
+    if (_fqTimerInterval) { clearInterval(_fqTimerInterval); _fqTimerInterval = null; }
+
+    const isCorrect = chosen === q.answer;
+
+    // Color choices
+    const choiceBtns = document.querySelectorAll('#fqp-choices .fqp-choice-btn');
+    choiceBtns.forEach(btn => {
+      btn.disabled = true;
+      if (btn.textContent === q.answer) btn.classList.add('correct');
+      else if (btn.textContent === chosen && !isCorrect) btn.classList.add('wrong');
+    });
+
+    // Stats
+    if (isCorrect) {
+      _fqCorrect++;
+      _fqStreak++;
+      if (_fqStreak > _fqMaxStreak) _fqMaxStreak = _fqStreak;
+      _fqXP += 5 + (_fqStreak >= 3 ? 2 : 0);
+      if (typeof _awardXP === 'function') _awardXP(5, 'fq_correct');
+    } else {
+      _fqWrong++;
+      _fqStreak = 0;
+      _fqWrongItems.push({ item: q.item, catType: q.catType, catId: q.catId });
+    }
+
+    // Feedback panel
+    const fb = document.getElementById('fqp-feedback');
+    const fbIcon = document.getElementById('fqp-fb-icon');
+    const fbCorrect = document.getElementById('fqp-fb-correct');
+    if (fb) {
+      if (fbIcon) fbIcon.textContent = isCorrect ? '⭕' : '❌';
+      const correctKr = q.item.korean || '';
+      if (fbCorrect) fbCorrect.textContent = isCorrect ? '정답!' : `정답: ${q.answer}${correctKr && q.answer !== correctKr ? '  (' + correctKr + ')' : ''}`;
+      fb.style.display = 'flex';
+      fb.style.flexDirection = 'column';
+      fb.style.alignItems = 'center';
+    }
+
+    // Update HUD
+    document.getElementById('fqp-streak').textContent = _fqStreak;
+    document.getElementById('fqp-xp').textContent = _fqXP;
+
+    // Auto-advance
+    setTimeout(() => {
+      if (fb) fb.style.display = 'none';
+      _fqIndex++;
+      _fqShowQuestion();
+    }, 1500);
+  }
+
+  function _fqShowResult() {
+    ['fq-player'].forEach(id => { const e = document.getElementById(id); if (e) e.style.display = 'none'; });
+    const result = document.getElementById('fq-result');
+    if (result) result.style.display = 'flex';
+
+    const total = _fqQuestions.length;
+    const pct = total > 0 ? Math.round((_fqCorrect / total) * 100) : 0;
+
+    // Grade
+    let grade = 'F', title = '다시 도전!';
+    if (pct >= 95) { grade = 'S'; title = '완벽해요! 🌟'; }
+    else if (pct >= 80) { grade = 'A'; title = '훌륭해요! 🎉'; }
+    else if (pct >= 65) { grade = 'B'; title = '잘했어요! 👍'; }
+    else if (pct >= 50) { grade = 'C'; title = '계속 노력해요! 💪'; }
+    else { grade = 'D'; title = '다시 도전해봐요! 🔄'; }
+
+    document.getElementById('fqr-grade').textContent = grade;
+    document.getElementById('fqr-title').textContent = title;
+    document.getElementById('fqr-pct').textContent = pct + '%';
+    document.getElementById('fqr-score').textContent = `${_fqCorrect}/${total}`;
+    document.getElementById('fqr-correct').textContent = _fqCorrect;
+    document.getElementById('fqr-wrong').textContent = _fqWrong;
+    document.getElementById('fqr-streak').textContent = _fqMaxStreak;
+
+    // Stars
+    const stars = pct >= 80 ? '★★★' : pct >= 50 ? '★★☆' : '★☆☆';
+    document.getElementById('fqr-stars').textContent = stars;
+
+    // Ring animation
+    const ringFill = document.getElementById('fqr-ring-fill');
+    if (ringFill) {
+      const dash = 326.7;
+      const offset = dash - (dash * pct / 100);
+      ringFill.style.strokeDashoffset = dash;
+      setTimeout(() => { ringFill.style.strokeDashoffset = offset; }, 100);
+    }
+
+    // Wrong items list
+    const wrongSec = document.getElementById('fqr-wrong-list');
+    if (wrongSec) {
+      if (_fqWrongItems.length > 0) {
+        let html = '<div class="fqr-wrong-title">❌ 틀린 문제</div>';
+        _fqWrongItems.forEach(({ item }) => {
+          const jp = item.japanese || item.id || '';
+          const kr = item.korean || '';
+          html += `<div class="fqr-wrong-item"><span class="fqr-wrong-jp">${jp}</span><span class="fqr-wrong-kr">${kr}</span></div>`;
+        });
+        wrongSec.innerHTML = html;
+        wrongSec.style.display = '';
+      } else {
+        wrongSec.style.display = 'none';
+      }
+    }
+
+    // Retry wrong items button
+    const retryWrongBtn = document.getElementById('fqr-retry-wrong');
+    if (retryWrongBtn) {
+      if (_fqWrongItems.length > 0) {
+        retryWrongBtn.style.display = '';
+        _fqRetryWrongItems = [..._fqWrongItems];
+        retryWrongBtn.onclick = () => {
+          const items = _fqRetryWrongItems;
+          result.style.display = 'none';
+          _fqStartPlayer(_fqBuildQuestionsFromItems(items));
+        };
+      } else {
+        retryWrongBtn.style.display = 'none';
+      }
+    }
+
+    // Retry from start button
+    const retryBtn = document.getElementById('fqr-retry');
+    if (retryBtn) retryBtn.onclick = () => {
+      result.style.display = 'none';
+      showFqStart();
+    };
+
+    // Hub button
+    const hubBtn = document.getElementById('fqr-hub-btn');
+    if (hubBtn) hubBtn.onclick = () => {
+      result.style.display = 'none';
+      showQuizHub();
+    };
   }
 
   function _spawnQiKanaFloats() {
@@ -4382,9 +4920,11 @@ const App = (() => {
     const vvRows      = document.getElementById('voicevox-speaker-rows');
 
     // 현재 활성 엔진 판별 → 라디오 초기값 설정
+    // 저장된 엔진이 없으면 VOICEVOX 우선 표시 (연결 결과에 따라 실제 활성화)
     function _getInitialEngine() {
-      if (state.prefs.useEdgeTTS) return 'edge';
+      if (state.prefs.useEdgeTTS)  return 'edge';
       if (state.prefs.useVoicevox) return 'voicevox';
+      if (voicevoxAvailable)       return 'voicevox';  // 시작 시 자동 연결 성공
       return 'web';
     }
 
@@ -4416,13 +4956,26 @@ const App = (() => {
       // Web TTS 화자는 항상 표시 (webtts-settings는 tts-card-web 안에 있음)
     }
 
-    // VOICEVOX 재시도 영역 표시/숨김
-    function _showVvRetry(show, msg) {
-      const area = document.getElementById('vv-retry-area');
-      const msgEl = document.getElementById('vv-retry-msg');
+    // VOICEVOX 재시도 영역 표시/숨김 (showFallback=true 시 "다음 옵션으로?" 섹션도 표시)
+    function _showVvRetry(show, msg, showFallback) {
+      const area       = document.getElementById('vv-retry-area');
+      const msgEl      = document.getElementById('vv-retry-msg');
+      const reasonEl   = document.getElementById('vv-error-reason');
+      const fallbackEl = document.getElementById('vv-fallback-prompt');
       if (!area) return;
       if (show) {
         if (msgEl && msg) msgEl.textContent = msg;
+        // 오류 원인 표시
+        if (reasonEl) {
+          if (_lastVvError) {
+            reasonEl.textContent = '📋 원인: ' + _lastVvError;
+            reasonEl.style.display = 'block';
+          } else {
+            reasonEl.style.display = 'none';
+          }
+        }
+        // 폴백 버튼 표시 여부
+        if (fallbackEl) fallbackEl.style.display = showFallback ? 'block' : 'none';
         area.style.display = 'block';
       } else {
         area.style.display = 'none';
@@ -4447,22 +5000,31 @@ const App = (() => {
     }
 
     // VOICEVOX 활성화 시도 — 성공 시 화자 목록 즉시 갱신
+    // retryCount: 내부 재시도 누적 횟수 (2회 이상 실패 시 폴백 제안)
+    let _vvRetryCount = 0;
     async function _tryActivateVoicevox() {
-      _showVvRetry(false);  // 재시도 중 숨김
-      if (vvStatus) { vvStatus.className = 'tts-status-chip tts-status-connecting'; vvStatus.textContent = '활성화 점검 중...'; }
+      _showVvRetry(false);
+      if (vvStatus) { vvStatus.className = 'tts-status-chip tts-status-connecting'; vvStatus.textContent = '연결 시도 중...'; }
       const ok = await checkVoicevox();
       if (ok) {
-        populateVoicevoxSelects();        // 화자 select 채우기
-        if (vvRows) vvRows.style.display = '';    // 화자 목록 즉시 표시
+        _vvRetryCount = 0;
+        populateVoicevoxSelects();
+        if (vvRows) vvRows.style.display = '';
         if (vvStatus) {
           vvStatus.className = 'tts-status-chip tts-status-success';
           vvStatus.textContent = `✅ ${voicevoxSpeakers.length}개 화자 연결됨`;
         }
         _showVvRetry(false);
       } else {
-        if (vvStatus) { vvStatus.className = 'tts-status-chip tts-status-fail'; vvStatus.textContent = '❌ 실행 안됨'; }
+        _vvRetryCount++;
+        if (vvStatus) {
+          vvStatus.className = 'tts-status-chip tts-status-fail';
+          vvStatus.textContent = _vvRetryCount >= 2 ? `❌ ${_vvRetryCount}회 실패` : '❌ 연결 실패';
+        }
         if (vvRows) vvRows.style.display = 'none';
-        _showVvRetry(true, '⚠️ VOICEVOX 서버(localhost:50021)에 연결할 수 없습니다.\nVOICEVOX 앱을 실행한 후 재시도하세요.');
+        // 2회 이상 실패 시 폴백 버튼 표시
+        const showFallback = _vvRetryCount >= 2;
+        _showVvRetry(true, '⚠️ VOICEVOX 서버(localhost:50021)에 연결할 수 없습니다.', showFallback);
       }
       return ok;
     }
@@ -4533,20 +5095,30 @@ const App = (() => {
       edgeStatus.className = `tts-status-chip ${edgeAvail ? 'tts-status-success' : 'tts-status-fail'}`;
       edgeStatus.textContent = edgeAvail ? '✅ 연결됨' : '❌ 서버 없음';
     }
-    if (initEngine === 'voicevox' && vvStatus) {
+    if (vvStatus) {
       if (voicevoxAvailable) {
+        // 이미 연결됨
         vvStatus.className = 'tts-status-chip tts-status-success';
         vvStatus.textContent = `✅ ${voicevoxSpeakers.length}개 화자 연결됨`;
-      } else {
-        // 이전에 VOICEVOX로 저장됐으나 현재 미실행 상태
+        _showVvRetry(false);
+      } else if (state.prefs.useVoicevox) {
+        // 저장됐으나 현재 미연결 (연결 실패)
         vvStatus.className = 'tts-status-chip tts-status-fail';
-        vvStatus.textContent = '❌ 실행 안됨';
-        _showVvRetry(true, '⚠️ 이전에 사용하던 VOICEVOX 서버가 응답하지 않습니다.\nVOICEVOX 앱을 실행한 후 재시도하세요.');
+        vvStatus.textContent = '❌ 연결 끊김';
+        _showVvRetry(true, '⚠️ 이전에 사용하던 VOICEVOX 서버가 응답하지 않습니다.');
+      } else {
+        // 미설정 또는 아직 연결 시도 중 (앱 시작 직후 설정 패널 열린 경우)
+        vvStatus.className = 'tts-status-chip tts-status-connecting';
+        vvStatus.textContent = '연결 시도 중...';
       }
     }
 
-    // VOICEVOX 선택 상태이고 화자 목록 미로드 시 자동 연결 시도
-    if (initEngine === 'voicevox' && voicevoxAvailable && voicevoxSpeakers.length === 0) {
+    // VOICEVOX 연결됐으나 화자 목록 미로드 시 자동 채우기
+    if (voicevoxAvailable && voicevoxSpeakers.length === 0) {
+      _tryActivateVoicevox();
+    }
+    // 미연결 + 미설정 → 설정 패널이 열릴 때도 자동 시도
+    if (!voicevoxAvailable && !state.prefs.useEdgeTTS) {
       _tryActivateVoicevox();
     }
 
@@ -4555,6 +5127,24 @@ const App = (() => {
     if (vvRetryBtn && !vvRetryBtn._bound) {
       vvRetryBtn._bound = true;
       vvRetryBtn.addEventListener('click', () => _onEngineSelect('voicevox'));
+    }
+
+    // 폴백 버튼 바인딩 (2회 실패 후 "다음 옵션으로?" 버튼)
+    const vvFbEdgeBtn = document.getElementById('vv-fallback-edge-btn');
+    if (vvFbEdgeBtn && !vvFbEdgeBtn._bound) {
+      vvFbEdgeBtn._bound = true;
+      vvFbEdgeBtn.addEventListener('click', () => {
+        _vvRetryCount = 0;
+        _onEngineSelect('edge');
+      });
+    }
+    const vvFbWebBtn = document.getElementById('vv-fallback-web-btn');
+    if (vvFbWebBtn && !vvFbWebBtn._bound) {
+      vvFbWebBtn._bound = true;
+      vvFbWebBtn.addEventListener('click', () => {
+        _vvRetryCount = 0;
+        _onEngineSelect('web');
+      });
     }
 
     // 라디오 변경 이벤트
@@ -5621,10 +6211,12 @@ const App = (() => {
   }
   let voicevoxSpeakers = [];
   let voicevoxAvailable = false;
+  let _lastVvError = '';   // 최근 VOICEVOX 연결 실패 원인 (UI 표시용)
   // speakerId → { portrait: base64, icon: base64, charName, charNameJp }
   const vvCharPortraits = {};
 
   async function checkVoicevox() {
+    _lastVvError = '';
     try {
       const resp = await fetch(`${VOICEVOX_URL}/speakers`, {
         signal: AbortSignal.timeout ? AbortSignal.timeout(3000) : undefined
@@ -5677,7 +6269,17 @@ const App = (() => {
 
         return true;
       }
-    } catch (e) { /* VOICEVOX 미실행 */ }
+      // HTTP 에러 응답
+      _lastVvError = `서버 응답 오류 (HTTP ${resp.status}) — VOICEVOX가 비정상 상태입니다`;
+    } catch (e) {
+      if (e.name === 'TimeoutError' || e.name === 'AbortError') {
+        _lastVvError = '연결 시간 초과(3초) — VOICEVOX 앱이 켜져 있어도 응답이 느릴 수 있습니다. 잠시 후 재시도하세요';
+      } else if (e.message && (e.message.includes('Failed to fetch') || e.message.includes('NetworkError') || e.message.includes('ERR_CONNECTION_REFUSED'))) {
+        _lastVvError = 'localhost:50021 포트 연결 거부 — VOICEVOX 앱이 실행되지 않았거나 포트가 다릅니다';
+      } else {
+        _lastVvError = `연결 오류: ${e.message || e.name || '알 수 없는 오류'}`;
+      }
+    }
     voicevoxAvailable = false;
     return false;
   }
@@ -6862,6 +7464,10 @@ const App = (() => {
     if (browseArea) browseArea.style.display = 'none';
     const dialogueArea = document.getElementById('vocab-dialogue-area');
     if (dialogueArea) dialogueArea.style.display = 'none';
+    const wePanel = document.getElementById('word-explorer-panel');
+    if (wePanel) wePanel.style.display = 'none';
+    const stPanel = document.getElementById('scene-trainer-panel');
+    if (stPanel) stPanel.style.display = 'none';
     const vfb = document.getElementById('vocab-flash-back');
     if (vfb) vfb.onclick = vocabBackToSetup;
 
@@ -7045,7 +7651,6 @@ const App = (() => {
           </div>
           <div class="vcc-btn-row">
             <button class="vcc-btn vcc-btn-browse" data-cid="${cat.id}">${_uiText('일람','一覧')}</button>
-            <button class="vcc-btn vcc-btn-quiz" data-cid="${cat.id}">${_uiText('퀴즈','クイズ')}</button>
           </div>
         </div>`;
       card.querySelector('.vcc-btn-lecture').addEventListener('click', (e) => {
@@ -7064,14 +7669,9 @@ const App = (() => {
         showView(v);
         setTimeout(() => startVocabCategory(cat.id, 'browse'), 100);
       });
-      card.querySelector('.vcc-btn-quiz').addEventListener('click', (e) => {
-        e.stopPropagation();
-        const v = cat.type === 'sim' ? 'roleplay' : (cat.type === 'sentence' ? 'convo' : 'vocab');
-        showView(v);
-        setTimeout(() => startVocabCategory(cat.id, 'quiz'), 100);
-      });
     } else {
       const hasLec = true; // 모든 카테고리에 강의 버튼
+      const exploreLabel = cat.type === 'sentence' ? _uiText('연습','練習') : _uiText('탐구','探索');
       card.innerHTML = `
         <div class="vcc-icon">${cat.icon}</div>
         <div class="vcc-name">${stripFurigana(cat.name)}</div>
@@ -7081,10 +7681,9 @@ const App = (() => {
         <div class="vcc-actions">
           <div class="vcc-btn-row">
             ${hasLec ? `<button class="vcc-btn vcc-btn-lecture" data-cid="${cat.id}">${_uiText('강의','講義')}</button>` : ''}
-            <button class="vcc-btn vcc-btn-flash" data-cid="${cat.id}">${_uiText('학습','学習')}</button>
+            <button class="vcc-btn vcc-btn-explore" data-cid="${cat.id}">${exploreLabel}</button>
           </div>
           <div class="vcc-btn-row">
-            <button class="vcc-btn vcc-btn-quiz" data-cid="${cat.id}">${_uiText('퀴즈','クイズ')}</button>
             <button class="vcc-btn vcc-btn-browse" data-cid="${cat.id}">${_uiText('일람','一覧')}</button>
           </div>
         </div>`;
@@ -7096,23 +7695,21 @@ const App = (() => {
           setTimeout(() => startLecture(cat.id), 100);
         });
       }
-      card.querySelector('.vcc-btn-flash').addEventListener('click', (e) => {
+      card.querySelector('.vcc-btn-explore').addEventListener('click', (e) => {
         e.stopPropagation();
         const v = cat.type === 'sim' ? 'roleplay' : (cat.type === 'sentence' ? 'convo' : 'vocab');
         showView(v);
-        setTimeout(() => startVocabCategory(cat.id, 'flash'), 100);
+        if (cat.type === 'sentence') {
+          setTimeout(() => startSceneTrainer(cat.id), 100);
+        } else {
+          setTimeout(() => startWordExplorer(cat.id), 100);
+        }
       });
       card.querySelector('.vcc-btn-browse').addEventListener('click', (e) => {
         e.stopPropagation();
         const v = cat.type === 'sim' ? 'roleplay' : (cat.type === 'sentence' ? 'convo' : 'vocab');
         showView(v);
         setTimeout(() => startVocabCategory(cat.id, 'browse'), 100);
-      });
-      card.querySelector('.vcc-btn-quiz').addEventListener('click', (e) => {
-        e.stopPropagation();
-        const v = cat.type === 'sim' ? 'roleplay' : (cat.type === 'sentence' ? 'convo' : 'vocab');
-        showView(v);
-        setTimeout(() => startVocabCategory(cat.id, 'quiz'), 100);
       });
     }
     // 카드 자체 클릭: 버튼이 아니면 이름 읽기만 (네비게이션 없음)
@@ -7278,42 +7875,49 @@ const App = (() => {
     document.getElementById('vocab-cat-subtitle').textContent = cat.subtitle;
 
     document.getElementById('vocab-setup').style.display = 'none';
-    document.getElementById('vocab-flashcard-area').style.display = 'none';
     document.getElementById('vocab-quiz-area').style.display = 'none';
     const browseArea = document.getElementById('vocab-browse-area');
     if (browseArea) browseArea.style.display = 'none';
     const dialogueArea = document.getElementById('vocab-dialogue-area');
     if (dialogueArea) dialogueArea.style.display = 'none';
+    const wePanel = document.getElementById('word-explorer-panel');
+    if (wePanel) wePanel.style.display = 'none';
+    const stPanel = document.getElementById('scene-trainer-panel');
+    if (stPanel) stPanel.style.display = 'none';
 
-    const targetMode = mode || (cat.dialogue ? 'dialogue' : 'flash');
-    // flash-panel은 항상 표시, 대화 모드에서만 learn-header(제목+카운터) 숨김
-    document.getElementById('vocab-flash-panel').style.display = 'block';
-    const learnHdr = document.querySelector('#vocab-flash-panel .learn-header');
-    if (learnHdr) learnHdr.style.display = targetMode === 'dialogue' ? 'none' : '';
+    const targetMode = mode || (cat.dialogue ? 'dialogue' : (cat.type === 'sentence' ? 'scene' : 'explore'));
 
     if (targetMode === 'dialogue') {
       state.vocabMode = 'dialogue';
+      document.getElementById('vocab-flash-panel').style.display = 'block';
+      const learnHdr = document.querySelector('#vocab-flash-panel .learn-header');
+      if (learnHdr) learnHdr.style.display = 'none';
       if (dialogueArea) dialogueArea.style.display = 'block';
       renderSimDialogue(cat);
     } else if (targetMode === 'quiz') {
       state.vocabMode = 'quiz';
+      document.getElementById('vocab-flash-panel').style.display = 'block';
+      const learnHdr = document.querySelector('#vocab-flash-panel .learn-header');
+      if (learnHdr) learnHdr.style.display = '';
+      document.getElementById('vocab-cat-name').textContent = `${cat.icon} ${cat.name}`;
+      document.getElementById('vocab-cat-subtitle').textContent = cat.subtitle || '';
       document.getElementById('vocab-quiz-area').style.display = 'block';
       showVocabQuizIntro();
     } else if (targetMode === 'browse') {
       state.vocabMode = 'browse';
+      document.getElementById('vocab-flash-panel').style.display = 'block';
+      const learnHdr = document.querySelector('#vocab-flash-panel .learn-header');
+      if (learnHdr) learnHdr.style.display = '';
+      document.getElementById('vocab-cat-name').textContent = `${cat.icon} ${cat.name}`;
+      document.getElementById('vocab-cat-subtitle').textContent = cat.subtitle || '';
       if (browseArea) browseArea.style.display = 'block';
       renderVocabBrowse();
+    } else if (targetMode === 'scene') {
+      // 회화 마스터 → Scene Trainer
+      startSceneTrainer(catId);
     } else {
-      state.vocabMode = 'flash';
-      state.vocabIndex = 0;
-      state.vocabFlipped = false;
-      document.body.classList.add('fc-fullscreen');
-      document.getElementById('vocab-flashcard-area').style.display = 'block';
-      renderNavStrip('vfc-nav-strip', state.vocabItems, 0, (idx) => {
-        state.vocabIndex = idx; showVocabFlashcard();
-      });
-      showVocabFlashcard();
-      setupVocabFlashcardControls();
+      // 어휘 마스터 (word 타입) → Word Explorer
+      startWordExplorer(catId);
     }
   }
 
@@ -9023,7 +9627,7 @@ const App = (() => {
     if (_vqCountdownTimer) { clearInterval(_vqCountdownTimer); _vqCountdownTimer = null; }
     if (state.vqAmbFadeTimer) { clearTimeout(state.vqAmbFadeTimer); state.vqAmbFadeTimer = null; }
     stopAmbient(1.5, false);
-    // 카테고리 패널 리셋
+    // 모든 패널 숨기기
     document.getElementById('vocab-setup').style.display = 'block';
     document.getElementById('vocab-flash-panel').style.display = 'none';
     const browseArea = document.getElementById('vocab-browse-area');
@@ -9036,6 +9640,10 @@ const App = (() => {
     }
     const dialogueArea = document.getElementById('vocab-dialogue-area');
     if (dialogueArea) dialogueArea.style.display = 'none';
+    const wePanel = document.getElementById('word-explorer-panel');
+    if (wePanel) wePanel.style.display = 'none';
+    const stPanel = document.getElementById('scene-trainer-panel');
+    if (stPanel) stPanel.style.display = 'none';
     // 데일리 배너 복원
     ['vocab-daily-item', 'convo-daily-convo', 'sim-daily-item'].forEach(id => {
       const el = document.getElementById(id);
@@ -9050,6 +9658,594 @@ const App = (() => {
     const sectionViewMap = { word: 'vocab', sentence: 'convo', sim: 'roleplay' };
     const returnView = sectionViewMap[state.vocabSection] || 'vocab';
     showView(returnView);
+  }
+
+  // ─────────────────────────────────────────────────────────────
+  //  WORD EXPLORER — 어휘 마스터 탐구 학습
+  // ─────────────────────────────────────────────────────────────
+  function startWordExplorer(catId) {
+    trackActivity('vocab', catId);
+    const cat = VOCAB_CATEGORIES.find(c => c.id === catId);
+    if (!cat) return;
+    state.vocabCurrentCategoryId = catId;
+    state.vocabSection = 'word';
+    state.vocabIndex = 0;
+
+    // 패널 전환
+    document.getElementById('vocab-setup').style.display = 'none';
+    document.getElementById('vocab-flash-panel').style.display = 'none';
+    const wePanel = document.getElementById('word-explorer-panel');
+    if (!wePanel) return;
+    wePanel.style.display = 'block';
+    const stPanel = document.getElementById('scene-trainer-panel');
+    if (stPanel) stPanel.style.display = 'none';
+
+    // 헤더
+    document.getElementById('we-cat-name').textContent = `${cat.icon} ${cat.name}`;
+    document.getElementById('we-cat-subtitle').textContent = cat.subtitle || '';
+
+    // 뒤로가기
+    const backBtn = document.getElementById('we-back-btn');
+    if (backBtn) backBtn.onclick = vocabBackToSetup;
+
+    // 아이템 로드
+    const items = getVocabCategoryItems(catId);
+    state.vocabItems = items;
+    if (!items.length) return;
+
+    // 이전/다음 버튼
+    const prevBtn = document.getElementById('we-prev-btn');
+    const nextBtn = document.getElementById('we-next-btn');
+    if (prevBtn) prevBtn.onclick = () => {
+      if (state.vocabIndex > 0) { state.vocabIndex--; _weShowCard(state.vocabIndex); }
+    };
+    if (nextBtn) nextBtn.onclick = () => {
+      if (state.vocabIndex < items.length - 1) { state.vocabIndex++; _weShowCard(state.vocabIndex); }
+    };
+
+    // 오디오 버튼
+    const audioBtn = document.getElementById('we-audio-btn');
+    if (audioBtn) audioBtn.onclick = () => {
+      const item = items[state.vocabIndex];
+      if (item) playAudio(item.japanese);
+    };
+
+    // 탭 설정 (중복 이벤트 방지)
+    const tabs = document.querySelectorAll('#we-games-tabs .we-tab');
+    tabs.forEach(tab => {
+      const newTab = tab.cloneNode(true);
+      tab.parentNode.replaceChild(newTab, tab);
+    });
+    document.querySelectorAll('#we-games-tabs .we-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('#we-games-tabs .we-tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        ['fillin','choice','order'].forEach(g => {
+          const gp = document.getElementById('we-game-' + g);
+          if (gp) gp.style.display = g === tab.dataset.game ? 'block' : 'none';
+        });
+        _weSetupGame(tab.dataset.game, items);
+      });
+    });
+
+    // 첫 카드 + 첫 게임
+    _weShowCard(0);
+    _weSetupGame('fillin', items);
+  }
+
+  function _weShowCard(idx) {
+    const items = state.vocabItems;
+    if (!items || !items.length) return;
+    const item = items[idx];
+    if (!item) return;
+    const total = items.length;
+
+    document.getElementById('we-card-num').textContent = (idx + 1) + ' / ' + total;
+    const bar = document.getElementById('we-progress-bar');
+    if (bar) bar.style.width = (((idx + 1) / total) * 100) + '%';
+
+    document.getElementById('we-word-jp').textContent = item.japanese || '';
+    const kanjiEl = document.getElementById('we-word-kanji');
+    if (kanjiEl) {
+      kanjiEl.textContent = item.kanji ? '(' + item.kanji + ')' : '';
+      kanjiEl.style.display = item.kanji ? 'block' : 'none';
+    }
+    document.getElementById('we-word-kr').textContent = item.korean || '';
+    const enEl = document.getElementById('we-word-en');
+    if (enEl) { enEl.textContent = item.english || ''; enEl.style.display = item.english ? 'block' : 'none'; }
+
+    const tipBox = document.getElementById('we-tip-box');
+    const tipText = document.getElementById('we-tip-text');
+    if (tipBox && tipText) {
+      if (item.tip) { tipText.textContent = item.tip; tipBox.style.display = 'flex'; }
+      else tipBox.style.display = 'none';
+    }
+    const exBox = document.getElementById('we-example-box');
+    const exText = document.getElementById('we-example-text');
+    if (exBox && exText) {
+      if (item.example) { exText.textContent = item.example; exBox.style.display = 'flex'; }
+      else exBox.style.display = 'none';
+    }
+
+    // 네비 스트립
+    renderNavStrip('we-nav-strip', items, idx, (i) => {
+      state.vocabIndex = i; _weShowCard(i);
+    });
+
+    // 버튼 상태
+    const prevBtn = document.getElementById('we-prev-btn');
+    const nextBtn = document.getElementById('we-next-btn');
+    if (prevBtn) prevBtn.disabled = idx === 0;
+    if (nextBtn) nextBtn.disabled = idx === total - 1;
+
+    // 오디오 버튼 핸들러 갱신
+    const audioBtn = document.getElementById('we-audio-btn');
+    if (audioBtn) audioBtn.onclick = () => playAudio(item.japanese);
+
+    // 현재 게임 갱신
+    const activeTab = document.querySelector('#we-games-tabs .we-tab.active');
+    if (activeTab) _weSetupGame(activeTab.dataset.game, items);
+
+    _onVocabLearn();
+  }
+
+  function _weSetupGame(gameType, items) {
+    if (!items || items.length < 2) return;
+    const cur = items[state.vocabIndex];
+    if (!cur) return;
+    const others = items.filter(it => it.id !== cur.id).sort(() => Math.random() - 0.5).slice(0, 3);
+
+    if (gameType === 'fillin') {
+      const promptEl = document.getElementById('wg-fillin-prompt');
+      const sentEl   = document.getElementById('wg-fillin-sentence');
+      const optsEl   = document.getElementById('wg-fillin-options');
+      const fbEl     = document.getElementById('wg-fillin-feedback');
+      const nxtBtn   = document.getElementById('wg-fillin-next');
+      if (!optsEl) return;
+      if (promptEl) promptEl.textContent = '한국어 뜻을 보고 일본어를 고르세요';
+      if (sentEl) sentEl.textContent = cur.korean;
+      if (fbEl) fbEl.style.display = 'none';
+      if (nxtBtn) nxtBtn.style.display = 'none';
+
+      const choices = [cur, ...others].sort(() => Math.random() - 0.5);
+      optsEl.innerHTML = '';
+      choices.forEach(ch => {
+        const btn = document.createElement('button');
+        btn.className = 'wg-opt-btn';
+        btn.textContent = ch.japanese;
+        btn.onclick = () => {
+          optsEl.querySelectorAll('.wg-opt-btn').forEach(b => { b.disabled = true; });
+          const ok = ch.id === cur.id;
+          btn.classList.add(ok ? 'wg-correct' : 'wg-wrong');
+          if (!ok) {
+            optsEl.querySelectorAll('.wg-opt-btn').forEach(b => {
+              if (b.textContent === cur.japanese) b.classList.add('wg-correct');
+            });
+          }
+          if (fbEl) {
+            fbEl.textContent = ok ? '✅ 정답! ' + cur.japanese + ' = ' + cur.korean : '❌ 오답. 정답: ' + cur.japanese;
+            fbEl.className = 'wg-feedback ' + (ok ? 'wg-fb-ok' : 'wg-fb-ng');
+            fbEl.style.display = 'block';
+          }
+          if (nxtBtn) nxtBtn.style.display = 'block';
+          if (ok) playAudio(cur.japanese);
+          _awardXP(ok ? 5 : 1, 'word_explorer');
+        };
+        optsEl.appendChild(btn);
+      });
+      if (nxtBtn) nxtBtn.onclick = () => {
+        const ni = state.vocabIndex < items.length - 1 ? state.vocabIndex + 1 : 0;
+        state.vocabIndex = ni; _weShowCard(ni);
+      };
+
+    } else if (gameType === 'choice') {
+      const wordEl = document.getElementById('wg-choice-word');
+      const optsEl = document.getElementById('wg-choice-options');
+      const fbEl   = document.getElementById('wg-choice-feedback');
+      const nxtBtn = document.getElementById('wg-choice-next');
+      if (!optsEl) return;
+      if (wordEl) wordEl.textContent = cur.japanese;
+      if (fbEl) fbEl.style.display = 'none';
+      if (nxtBtn) nxtBtn.style.display = 'none';
+
+      const choices = [cur, ...others].sort(() => Math.random() - 0.5);
+      optsEl.innerHTML = '';
+      choices.forEach(ch => {
+        const btn = document.createElement('button');
+        btn.className = 'wg-opt-btn';
+        btn.textContent = ch.korean;
+        btn.onclick = () => {
+          optsEl.querySelectorAll('.wg-opt-btn').forEach(b => { b.disabled = true; });
+          const ok = ch.id === cur.id;
+          btn.classList.add(ok ? 'wg-correct' : 'wg-wrong');
+          if (!ok) optsEl.querySelectorAll('.wg-opt-btn').forEach(b => { if (b.textContent === cur.korean) b.classList.add('wg-correct'); });
+          if (fbEl) {
+            fbEl.textContent = ok ? '✅ 정답! ' + cur.japanese + ' = ' + cur.korean : '❌ 오답. 정답: ' + cur.korean;
+            fbEl.className = 'wg-feedback ' + (ok ? 'wg-fb-ok' : 'wg-fb-ng');
+            fbEl.style.display = 'block';
+          }
+          if (nxtBtn) nxtBtn.style.display = 'block';
+          if (ok) playAudio(cur.japanese);
+          _awardXP(ok ? 5 : 1, 'word_explorer');
+        };
+        optsEl.appendChild(btn);
+      });
+      if (nxtBtn) nxtBtn.onclick = () => {
+        const ni = state.vocabIndex < items.length - 1 ? state.vocabIndex + 1 : 0;
+        state.vocabIndex = ni; _weShowCard(ni);
+      };
+
+    } else if (gameType === 'order') {
+      const hintEl   = document.getElementById('wg-order-hint');
+      const dropEl   = document.getElementById('wg-order-drop');
+      const bankEl   = document.getElementById('wg-order-bank');
+      const fbEl     = document.getElementById('wg-order-feedback');
+      const nxtBtn   = document.getElementById('wg-order-next');
+      const checkBtn = document.getElementById('wg-order-check');
+      const clearBtn = document.getElementById('wg-order-clear');
+      if (!dropEl || !bankEl) return;
+
+      const source = cur.example || cur.japanese;
+      let parts;
+      if (source.includes(' ')) {
+        parts = source.split(/\s+/).filter(Boolean);
+      } else {
+        // 2글자씩 묶어서 타일 생성
+        const chars = [...source];
+        parts = [];
+        for (let i = 0; i < chars.length; i += 2) {
+          parts.push(chars.slice(i, Math.min(i + 2, chars.length)).join(''));
+        }
+      }
+      if (parts.length < 2) parts = [...source];
+
+      const correctOrder = [...parts];
+      let shuffled = [...parts].sort(() => Math.random() - 0.5);
+      let att = 0;
+      while (shuffled.join('') === correctOrder.join('') && att < 8) { shuffled.sort(() => Math.random() - 0.5); att++; }
+
+      if (hintEl) hintEl.textContent = '힌트: ' + cur.korean;
+      if (fbEl) fbEl.style.display = 'none';
+      if (nxtBtn) nxtBtn.style.display = 'none';
+      if (checkBtn) checkBtn.disabled = false;
+
+      const placed = [];
+      dropEl.innerHTML = '<div class="wg-drop-placeholder">여기에 클릭해서 단어를 놓으세요</div>';
+      bankEl.innerHTML = '';
+
+      function wgUpdateDrop() {
+        const ph = dropEl.querySelector('.wg-drop-placeholder');
+        if (ph) ph.style.display = placed.length ? 'none' : 'block';
+      }
+
+      function wgMakeBankTile(word) {
+        const tile = document.createElement('button');
+        tile.className = 'wg-word-tile';
+        tile.textContent = word;
+        tile.onclick = () => {
+          placed.push(word);
+          tile.remove();
+          const dt = document.createElement('span');
+          dt.className = 'wg-dropped-tile';
+          dt.textContent = word;
+          dt.onclick = () => {
+            placed.splice(placed.lastIndexOf(word), 1);
+            dt.remove();
+            wgUpdateDrop();
+            bankEl.appendChild(wgMakeBankTile(word));
+          };
+          dropEl.appendChild(dt);
+          wgUpdateDrop();
+        };
+        return tile;
+      }
+
+      shuffled.forEach(w => bankEl.appendChild(wgMakeBankTile(w)));
+
+      if (checkBtn) checkBtn.onclick = () => {
+        const ok = placed.join('') === correctOrder.join('');
+        if (fbEl) {
+          fbEl.textContent = ok ? '✅ 정답! "' + source + '"' : '❌ 오답. 정답: "' + correctOrder.join(' ') + '"';
+          fbEl.className = 'wg-feedback ' + (ok ? 'wg-fb-ok' : 'wg-fb-ng');
+          fbEl.style.display = 'block';
+        }
+        if (nxtBtn) nxtBtn.style.display = 'block';
+        checkBtn.disabled = true;
+        if (ok) playAudio(source);
+        _awardXP(ok ? 8 : 2, 'word_explorer_order');
+      };
+
+      if (clearBtn) clearBtn.onclick = () => {
+        placed.length = 0;
+        dropEl.innerHTML = '<div class="wg-drop-placeholder">여기에 클릭해서 단어를 놓으세요</div>';
+        bankEl.innerHTML = '';
+        if (fbEl) fbEl.style.display = 'none';
+        if (nxtBtn) nxtBtn.style.display = 'none';
+        if (checkBtn) checkBtn.disabled = false;
+        shuffled.forEach(w => bankEl.appendChild(wgMakeBankTile(w)));
+      };
+
+      if (nxtBtn) nxtBtn.onclick = () => {
+        const ni = state.vocabIndex < items.length - 1 ? state.vocabIndex + 1 : 0;
+        state.vocabIndex = ni; _weShowCard(ni);
+      };
+    }
+  }
+
+  // ─────────────────────────────────────────────────────────────
+  //  SCENE TRAINER — 회화 마스터 상황 연습
+  // ─────────────────────────────────────────────────────────────
+  let _stItems = [];
+  let _stIndex = 0;
+  let _stCorrect = 0;
+  let _stWrong = 0;
+  let _stCatId = null;
+
+  function startSceneTrainer(catId) {
+    trackActivity('vocab', catId);
+    const cat = VOCAB_CATEGORIES.find(c => c.id === catId);
+    if (!cat) return;
+    _stCatId = catId;
+    state.vocabCurrentCategoryId = catId;
+    state.vocabSection = 'sentence';
+    _stIndex = 0; _stCorrect = 0; _stWrong = 0;
+
+    // 패널 전환
+    document.getElementById('vocab-setup').style.display = 'none';
+    document.getElementById('vocab-flash-panel').style.display = 'none';
+    const wePanel = document.getElementById('word-explorer-panel');
+    if (wePanel) wePanel.style.display = 'none';
+    const panel = document.getElementById('scene-trainer-panel');
+    if (!panel) return;
+    panel.style.display = 'block';
+
+    // 헤더
+    document.getElementById('st-cat-name').textContent = cat.icon + ' ' + cat.name;
+
+    // 뒤로가기
+    const backBtn = document.getElementById('st-back-btn');
+    if (backBtn) backBtn.onclick = vocabBackToSetup;
+
+    // 아이템 (japanese 있는 것만)
+    _stItems = getVocabCategoryItems(catId).filter(it => it.japanese);
+    if (!_stItems.length) { vocabBackToSetup(); return; }
+
+    // 완료/피드백 패널 초기화
+    ['st-complete-panel','st-feedback-panel'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.style.display = 'none';
+    });
+    ['st-sentence-display','st-practice-area','st-practice-label'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.style.display = '';
+    });
+
+    // 상황 카드
+    document.getElementById('st-context-icon').textContent = cat.icon || '📖';
+    document.getElementById('st-context-scene').textContent = cat.name;
+    document.getElementById('st-context-desc').textContent = cat.desc || cat.subtitle || '';
+    const ctxAudio = document.getElementById('st-context-audio');
+    if (ctxAudio) {
+      ctxAudio.style.display = 'block';
+      ctxAudio.onclick = () => { const d = document.getElementById('st-context-desc'); if (d) playAudio(d.textContent); };
+    }
+
+    // 다음 버튼
+    const nextBtn = document.getElementById('st-next-step-btn');
+    if (nextBtn) nextBtn.onclick = _stNextStep;
+
+    // 재시작/목록 버튼
+    const replayBtn = document.getElementById('st-replay-btn');
+    if (replayBtn) replayBtn.onclick = () => startSceneTrainer(catId);
+    const backBtn2 = document.getElementById('st-complete-back-btn');
+    if (backBtn2) backBtn2.onclick = vocabBackToSetup;
+
+    _stShowStep(0);
+  }
+
+  function _stShowStep(idx) {
+    if (idx >= _stItems.length) { _stShowComplete(); return; }
+    _stIndex = idx;
+    const item = _stItems[idx];
+    const total = _stItems.length;
+
+    document.getElementById('st-step-num').textContent = (idx + 1) + ' / ' + total;
+    const bar = document.getElementById('st-progress-bar');
+    if (bar) bar.style.width = (((idx + 1) / total) * 100) + '%';
+
+    document.getElementById('st-sentence-jp').textContent = item.japanese || '';
+    const kanjiEl = document.getElementById('st-sentence-kanji');
+    if (kanjiEl) {
+      kanjiEl.textContent = item.kanji ? '(' + item.kanji + ')' : '';
+      kanjiEl.style.display = item.kanji ? 'block' : 'none';
+    }
+    document.getElementById('st-sentence-kr').textContent = item.korean || '';
+
+    const audioBtn = document.getElementById('st-sentence-audio');
+    if (audioBtn) audioBtn.onclick = () => playAudio(item.japanese);
+
+    document.getElementById('st-feedback-panel').style.display = 'none';
+
+    // 3개 이상이면 랜덤으로 모드 선택
+    const useOrder = _stItems.length >= 4 && Math.random() < 0.5;
+    if (useOrder) {
+      _stSetupOrderMode(item);
+    } else {
+      _stSetupChoiceMode(item);
+    }
+  }
+
+  function _stSetupChoiceMode(item) {
+    document.getElementById('st-mode-choices').style.display = 'block';
+    document.getElementById('st-mode-order').style.display = 'none';
+    document.getElementById('st-practice-label').textContent = '💬 올바른 일본어 표현을 고르세요';
+
+    const grid = document.getElementById('st-choices-grid');
+    if (!grid) return;
+    const others = _stItems.filter(it => it.id !== item.id).sort(() => Math.random() - 0.5).slice(0, 3);
+    const choices = [item, ...others].sort(() => Math.random() - 0.5);
+
+    grid.innerHTML = '';
+    choices.forEach(ch => {
+      const btn = document.createElement('button');
+      btn.className = 'st-choice-btn';
+      btn.innerHTML = '<span class="st-choice-jp">' + ch.japanese + '</span><span class="st-choice-kr">' + ch.korean + '</span>';
+      btn.onclick = () => {
+        grid.querySelectorAll('.st-choice-btn').forEach(b => { b.disabled = true; });
+        const ok = ch.id === item.id;
+        btn.classList.add(ok ? 'st-choice-correct' : 'st-choice-wrong');
+        if (!ok) {
+          grid.querySelectorAll('.st-choice-btn').forEach(b => {
+            if (b.querySelector('.st-choice-jp').textContent === item.japanese) b.classList.add('st-choice-correct');
+          });
+        }
+        _stShowFeedback(ok, item);
+      };
+      grid.appendChild(btn);
+    });
+  }
+
+  function _stSetupOrderMode(item) {
+    document.getElementById('st-mode-choices').style.display = 'none';
+    document.getElementById('st-mode-order').style.display = 'block';
+    document.getElementById('st-practice-label').textContent = '✏️ 단어를 올바른 순서로 배열하세요';
+
+    const hintEl   = document.getElementById('st-order-hint');
+    const dropEl   = document.getElementById('st-order-drop');
+    const bankEl   = document.getElementById('st-order-bank');
+    const checkBtn = document.getElementById('st-order-check');
+    const clearBtn = document.getElementById('st-order-clear');
+    if (!dropEl || !bankEl) return;
+
+    const source = item.japanese;
+    let parts;
+    if (source.includes(' ')) {
+      parts = source.split(/\s+/).filter(Boolean);
+    } else {
+      const chars = [...source];
+      parts = [];
+      for (let i = 0; i < chars.length; i += 2) {
+        parts.push(chars.slice(i, Math.min(i + 2, chars.length)).join(''));
+      }
+    }
+    if (parts.length < 2) parts = [...source];
+
+    const correctOrder = [...parts];
+    let shuffled = [...parts].sort(() => Math.random() - 0.5);
+    let att = 0;
+    while (shuffled.join('') === correctOrder.join('') && att < 10) { shuffled.sort(() => Math.random() - 0.5); att++; }
+
+    if (hintEl) hintEl.textContent = item.korean;
+    dropEl.innerHTML = '<div class="st-drop-placeholder">단어를 순서대로 놓으세요</div>';
+    bankEl.innerHTML = '';
+    if (checkBtn) checkBtn.disabled = false;
+
+    const stPlaced = [];
+
+    function stUpdateDrop() {
+      const ph = dropEl.querySelector('.st-drop-placeholder');
+      if (ph) ph.style.display = stPlaced.length ? 'none' : 'block';
+    }
+
+    function stMakeBankTile(word) {
+      const tile = document.createElement('button');
+      tile.className = 'st-word-tile';
+      tile.textContent = word;
+      tile.onclick = () => {
+        stPlaced.push(word);
+        tile.remove();
+        const dt = document.createElement('span');
+        dt.className = 'st-dropped-tile';
+        dt.textContent = word;
+        dt.onclick = () => {
+          stPlaced.splice(stPlaced.lastIndexOf(word), 1);
+          dt.remove();
+          stUpdateDrop();
+          bankEl.appendChild(stMakeBankTile(word));
+        };
+        dropEl.appendChild(dt);
+        stUpdateDrop();
+      };
+      return tile;
+    }
+
+    shuffled.forEach(w => bankEl.appendChild(stMakeBankTile(w)));
+
+    if (checkBtn) checkBtn.onclick = () => {
+      const ok = stPlaced.join('') === correctOrder.join('');
+      _stShowFeedback(ok, item);
+      checkBtn.disabled = true;
+    };
+
+    if (clearBtn) clearBtn.onclick = () => {
+      stPlaced.length = 0;
+      dropEl.innerHTML = '<div class="st-drop-placeholder">단어를 순서대로 놓으세요</div>';
+      bankEl.innerHTML = '';
+      if (checkBtn) checkBtn.disabled = false;
+      shuffled.forEach(w => bankEl.appendChild(stMakeBankTile(w)));
+    };
+  }
+
+  function _stShowFeedback(correct, item) {
+    if (correct) _stCorrect++; else _stWrong++;
+    const panel  = document.getElementById('st-feedback-panel');
+    const resEl  = document.getElementById('st-feedback-result');
+    const corrEl = document.getElementById('st-feedback-correct');
+    const tipEl  = document.getElementById('st-feedback-tip');
+    if (!panel) return;
+
+    resEl.textContent = correct ? '✅ 정답!' : '❌ 오답';
+    resEl.className = 'st-feedback-result ' + (correct ? 'st-fb-ok' : 'st-fb-ng');
+    corrEl.textContent = item.japanese + ' — ' + item.korean;
+
+    if (item.tip) { tipEl.textContent = '💡 ' + item.tip; tipEl.style.display = 'block'; }
+    else tipEl.style.display = 'none';
+
+    panel.style.display = 'block';
+    if (correct) playAudio(item.japanese);
+    _awardXP(correct ? 10 : 3, 'scene_trainer');
+
+    // SRS 진도 저장
+    if (typeof updateVocabSRS === 'function') {
+      updateVocabSRS(item.id, correct ? 'ok' : 'hard', state.vocabProgress);
+      saveToStorage();
+    }
+  }
+
+  function _stNextStep() {
+    document.getElementById('st-feedback-panel').style.display = 'none';
+    const grid = document.getElementById('st-choices-grid');
+    if (grid) grid.querySelectorAll('.st-choice-btn').forEach(b => { b.disabled = false; });
+    const checkBtn = document.getElementById('st-order-check');
+    if (checkBtn) checkBtn.disabled = false;
+    _stShowStep(_stIndex + 1);
+  }
+
+  function _stShowComplete() {
+    ['st-mode-choices','st-mode-order','st-feedback-panel'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.style.display = 'none';
+    });
+    ['st-sentence-display','st-practice-area','st-practice-label'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.style.display = 'none';
+    });
+    const ctxAudio = document.getElementById('st-context-audio');
+    if (ctxAudio) ctxAudio.style.display = 'none';
+
+    const completePanel = document.getElementById('st-complete-panel');
+    if (!completePanel) return;
+    completePanel.style.display = 'flex';
+
+    const total = _stCorrect + _stWrong;
+    const pct = total > 0 ? Math.round((_stCorrect / total) * 100) : 0;
+    const statsEl = document.getElementById('st-complete-stats');
+    if (statsEl) {
+      statsEl.innerHTML =
+        '<div class="st-stat"><span class="st-stat-num st-ok">' + _stCorrect + '</span><span class="st-stat-lbl">정답</span></div>' +
+        '<div class="st-stat"><span class="st-stat-num st-ng">' + _stWrong + '</span><span class="st-stat-lbl">오답</span></div>' +
+        '<div class="st-stat"><span class="st-stat-num">' + pct + '%</span><span class="st-stat-lbl">정확도</span></div>';
+    }
   }
 
   // ─── 관리자 패널 ───
@@ -9390,10 +10586,9 @@ const App = (() => {
 
     prompt.querySelector('.lc-prompt-yes').addEventListener('click', () => {
       prompt.remove();
-      state.vocabMode = 'quiz';
-      document.getElementById('vocab-flashcard-area').style.display = 'none';
-      document.getElementById('vocab-quiz-area').style.display = 'block';
-      showVocabQuizIntro();
+      if (state.vocabCurrentCategoryId) {
+        startVocabCategory(state.vocabCurrentCategoryId, 'quiz');
+      }
     });
     prompt.querySelector('.lc-prompt-no').addEventListener('click', () => { prompt.remove(); });
     prompt.addEventListener('click', (e) => { if (e.target === prompt) prompt.remove(); });
@@ -9435,6 +10630,12 @@ const App = (() => {
     if (state.currentView !== 'lecture') {
       _lecturePrevView = state.currentView || 'home';
     }
+    // ★ 이전 세션 타이머/TTS 완전 정리 (첫 슬라이드 스킵 방지)
+    if (_lectureTimer) { clearTimeout(_lectureTimer); _lectureTimer = null; }
+    if (_lectureFillInterval) { clearInterval(_lectureFillInterval); _lectureFillInterval = null; }
+    window.speechSynthesis && window.speechSynthesis.cancel();
+    if (state.currentVvAudio) { try { state.currentVvAudio.pause(); state.currentVvAudio.src = ''; } catch(e){} state.currentVvAudio = null; }
+
     _lectureCatId = catId;
     _lectureSpeakerSlot = 1; // 새 강의 시작 시 슬롯 초기화
     const cat = VOCAB_CATEGORIES.find(c => c.id === catId);
@@ -9914,8 +11115,9 @@ const App = (() => {
         window.speechSynthesis && window.speechSynthesis.cancel();
         if (state.currentVvAudio) { state.currentVvAudio.pause && state.currentVvAudio.pause(); state.currentVvAudio = null; }
         const ng=document.getElementById('lec-next-guide-btn'); if(ng) ng.style.display='none';
-        _lecturePlaying = true;
-        const pb=document.getElementById('lec-play-btn'); if(pb) pb.textContent='⏸ 자동';
+        // ★ _lecturePlaying 상태 유지 (자동/수동 모드 보존)
+        const pb=document.getElementById('lec-play-btn');
+        if (pb) pb.textContent = _lecturePlaying ? '⏸ 자동' : '▶ 재생';
         _showLectureSlide(_lectureSlideIdx - 1);
       });
     }
@@ -9927,8 +11129,9 @@ const App = (() => {
         window.speechSynthesis && window.speechSynthesis.cancel();
         if (state.currentVvAudio) { state.currentVvAudio.pause && state.currentVvAudio.pause(); state.currentVvAudio = null; }
         const ng=document.getElementById('lec-next-guide-btn'); if(ng) ng.style.display='none';
-        _lecturePlaying = true;
-        const pb=document.getElementById('lec-play-btn'); if(pb) pb.textContent='⏸ 자동';
+        // ★ _lecturePlaying 상태 유지 (자동/수동 모드 보존)
+        const pb=document.getElementById('lec-play-btn');
+        if (pb) pb.textContent = _lecturePlaying ? '⏸ 자동' : '▶ 재생';
         _showLectureSlide(_lectureSlideIdx + 1);
       });
     }
@@ -9966,9 +11169,9 @@ const App = (() => {
         window.speechSynthesis && window.speechSynthesis.cancel();
         ngBtn2.style.display = 'none';
         if (_lectureSlideIdx < _lectureSlides.length - 1) {
-          _lecturePlaying = true; // 다음 장 클릭 시 자동재생 재개
+          // ★ _lecturePlaying 상태 유지 — 자동/수동 모드 보존
           const pb = document.getElementById('lec-play-btn');
-          if (pb) pb.textContent = '⏸ 자동';
+          if (pb) pb.textContent = _lecturePlaying ? '⏸ 자동' : '▶ 재생';
           _showLectureSlide(_lectureSlideIdx + 1);
         } else {
           _lecturePlaying = false;
@@ -10539,22 +11742,11 @@ const App = (() => {
         state.vocabSection = 'word';   // 기본 섹션으로 귀속
 
         showView('vocab');
-        setTimeout(() => {
-          document.getElementById('vocab-setup').style.display = 'none';
-          document.getElementById('vocab-flash-panel').style.display = 'block';
-          document.getElementById('vocab-cat-name').textContent = '🔄 SRS 어휘 복습';
-          document.getElementById('vocab-cat-subtitle').textContent =
-            `${vocabItemObjs.length}개 단어 · SM-2 간격반복` +
-            (kanaItems.length > 0 ? ` (가나 ${kanaItems.length}자는 다음에)` : '');
-          document.getElementById('vocab-flashcard-area').style.display = 'block';
-          document.getElementById('vocab-quiz-area').style.display = 'none';
-          document.body.classList.add('fc-fullscreen');
-          renderNavStrip('vfc-nav-strip', state.vocabItems, 0, (idx) => {
-            state.vocabIndex = idx; showVocabFlashcard();
-          });
-          showVocabFlashcard();
-          setupVocabFlashcardControls();
-        }, 150);
+        state.vocabCurrentCategoryId = null;
+        state.vocabSection = 'word';
+        const srsSubtitle = vocabItemObjs.length + '개 단어 · SM-2 간격반복' +
+          (kanaItems.length > 0 ? ' (가나 ' + kanaItems.length + '자는 다음에)' : '');
+        setTimeout(() => { _startWordExplorerDirect(vocabItemObjs, '🔄 SRS 어휘 복습', srsSubtitle); }, 150);
         return;
       }
     }
@@ -10668,6 +11860,11 @@ const App = (() => {
     vocabFlipCard,
     vocabBackToSetup,
     startVocabCategory,
+    startWordExplorer,
+    startSceneTrainer,
+    _startWordExplorerDirect,
+    showQuizHub,
+    showFqStart,
     removeBookmark,
     stopAllAudio,
     playTestVoice,

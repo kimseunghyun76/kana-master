@@ -436,6 +436,12 @@
     <!-- ========== 퀴즈 뷰 ========== -->
     <div id="view-quiz" class="view">
 
+      <!-- ── 풀스크린 카운트다운 오버레이 ── -->
+      <div id="qi-countdown-overlay" class="qi-countdown-overlay" style="display:none">
+        <div class="qi-cd-ring" id="qi-cd-ring"></div>
+        <div class="qi-cd-num" id="qi-cd-big">3</div>
+      </div>
+
       <!-- ── 퀴즈 인트로 ── -->
       <div id="quiz-intro" class="quiz-intro">
         <div class="qi-bg-anim" id="qi-bg-anim"></div>
@@ -570,6 +576,123 @@
           <div class="qr-btns">
             <button class="qr-btn-retry" id="qr-retry">🔄 다시 도전</button>
             <button class="qr-btn-settings" id="qr-settings-btn">⚙️ 설정</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── 퀴즈 허브 ── -->
+      <div id="quiz-hub" class="quiz-hub" style="display:none">
+        <div class="qh-header">
+          <div class="qh-title">🎯 퀴즈</div>
+          <div class="qh-subtitle">어떤 퀴즈를 할까요?</div>
+        </div>
+        <div class="qh-cards">
+          <div class="qh-card" id="qh-kana-card">
+            <div class="qh-card-emoji">🇯🇵</div>
+            <div class="qh-card-name">가나 마스터</div>
+            <div class="qh-card-desc">히라가나·가타카나 글자 퀴즈</div>
+            <button class="qh-btn" id="qh-kana-btn">시작하기 →</button>
+          </div>
+          <div class="qh-card qh-card-feed" id="qh-feed-card">
+            <div class="qh-card-emoji">📱</div>
+            <div class="qh-card-name">피드 퀴즈</div>
+            <div class="qh-card-desc">어휘·회화·롤플레이 통합 퀴즈</div>
+            <button class="qh-btn qh-btn-feed" id="qh-feed-btn">시작하기 →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── 피드 퀴즈 시작 설정 ── -->
+      <div id="fq-start" class="fq-start" style="display:none">
+        <div class="fq-start-header">
+          <button class="fq-nav-btn" id="fqs-back-btn">← 뒤로</button>
+          <span class="fq-start-title">📱 피드 퀴즈</span>
+        </div>
+        <div class="fq-settings-body" id="fq-settings-body">
+          <div class="fqs-section">
+            <div class="fqs-label">📚 마스터 선택 (복수 선택)</div>
+            <div class="fqs-chips fqs-multi" id="fqs-masters">
+              <button class="fqs-chip active" data-val="vocab">어휘 마스터</button>
+              <button class="fqs-chip active" data-val="sentence">회화 마스터</button>
+              <button class="fqs-chip active" data-val="sim">롤플레이</button>
+            </div>
+          </div>
+          <div class="fqs-section" id="fqs-vocab-levels-wrap">
+            <div class="fqs-label">📊 어휘 레벨 (복수 선택)</div>
+            <div class="fqs-chips fqs-multi" id="fqs-vocab-levels"></div>
+          </div>
+          <div class="fqs-section" id="fqs-sent-levels-wrap">
+            <div class="fqs-label">📊 회화/롤플레이 레벨 (복수 선택)</div>
+            <div class="fqs-chips fqs-multi" id="fqs-sent-levels"></div>
+          </div>
+          <div class="fqs-section">
+            <div class="fqs-label">🔢 문항 수</div>
+            <div class="fqs-chips fqs-exclusive" id="fqs-qcount">
+              <button class="fqs-chip active" data-val="10">10</button>
+              <button class="fqs-chip" data-val="20">20</button>
+              <button class="fqs-chip" data-val="30">30</button>
+            </div>
+          </div>
+          <div class="fqs-section">
+            <div class="fqs-label">⏱ 타이머</div>
+            <div class="fqs-chips fqs-exclusive" id="fqs-timer">
+              <button class="fqs-chip" data-val="10">ON (10초)</button>
+              <button class="fqs-chip active" data-val="0">OFF</button>
+            </div>
+          </div>
+        </div>
+        <button class="fq-launch-btn" id="fq-launch-btn">🚀 퀴즈 시작!</button>
+      </div>
+
+      <!-- ── 피드 퀴즈 플레이어 ── -->
+      <div id="fq-player" class="fq-player" style="display:none">
+        <div class="fqp-hud">
+          <div class="fqp-hud-streak">🔥 <span id="fqp-streak">0</span></div>
+          <div class="fqp-hud-progress">Q<span id="fqp-qnum">1</span>/<span id="fqp-qtotal">10</span></div>
+          <div class="fqp-hud-xp">⭐ <span id="fqp-xp">0</span></div>
+        </div>
+        <div class="fqp-timer-bar-wrap" id="fqp-timer-bar-wrap" style="display:none">
+          <div class="fqp-timer-fill" id="fqp-timer-fill"></div>
+        </div>
+        <div class="fqp-card" id="fqp-card">
+          <div class="fqp-card-badge" id="fqp-card-badge">어휘</div>
+          <div class="fqp-question" id="fqp-question">질문</div>
+          <div class="fqp-question-sub" id="fqp-question-sub"></div>
+        </div>
+        <div class="fqp-choices" id="fqp-choices"></div>
+        <div class="fqp-feedback" id="fqp-feedback" style="display:none">
+          <div class="fqp-fb-icon" id="fqp-fb-icon">⭕</div>
+          <div class="fqp-fb-correct" id="fqp-fb-correct"></div>
+        </div>
+      </div>
+
+      <!-- ── 피드 퀴즈 결과 ── -->
+      <div id="fq-result" class="fq-result" style="display:none">
+        <div class="fqr-wrap">
+          <div class="fqr-grade" id="fqr-grade">A</div>
+          <div class="fqr-stars" id="fqr-stars"></div>
+          <div class="fqr-title" id="fqr-title">훌륭해요!</div>
+          <div class="fqr-ring-wrap">
+            <svg class="fqr-ring-svg" viewBox="0 0 120 120">
+              <circle class="fqr-ring-bg"   cx="60" cy="60" r="52"/>
+              <circle class="fqr-ring-fill" id="fqr-ring-fill" cx="60" cy="60" r="52"
+                      stroke-dasharray="326.7" stroke-dashoffset="326.7"/>
+            </svg>
+            <div class="fqr-ring-inner">
+              <div class="fqr-pct" id="fqr-pct">0%</div>
+              <div class="fqr-score" id="fqr-score">0/0</div>
+            </div>
+          </div>
+          <div class="fqr-stats">
+            <div class="fqr-stat fqr-stat-ok"><div class="fqr-stat-num" id="fqr-correct">0</div><div class="fqr-stat-lbl">정답</div></div>
+            <div class="fqr-stat fqr-stat-ng"><div class="fqr-stat-num" id="fqr-wrong">0</div><div class="fqr-stat-lbl">오답</div></div>
+            <div class="fqr-stat fqr-stat-str"><div class="fqr-stat-num" id="fqr-streak">0</div><div class="fqr-stat-lbl">최고연속</div></div>
+          </div>
+          <div class="fqr-wrong-section" id="fqr-wrong-list"></div>
+          <div class="fqr-btns">
+            <button class="fqr-btn-retry-wrong" id="fqr-retry-wrong" style="display:none">🔄 틀린 문제만 다시</button>
+            <button class="fqr-btn-retry" id="fqr-retry">↺ 처음부터</button>
+            <button class="fqr-btn-hub" id="fqr-hub-btn">🏠 허브로</button>
           </div>
         </div>
       </div>
@@ -735,81 +858,17 @@
         </div>
       </div>
 
-      <!-- PANEL 2: 플래시카드 + 퀴즈 + 일람 -->
+      <!-- PANEL 2: 일람 + 퀴즈 + 대화 (공통 컨테이너) -->
       <div id="vocab-flash-panel" style="display:none">
         <div class="learn-header">
           <button class="back-btn" id="vocab-flash-back">← 목록</button>
           <div class="learn-title-block">
-            <h3 id="vocab-cat-name">숫자 기본</h3>
-            <span id="vocab-cat-subtitle">1~10, 百·千·万</span>
+            <h3 id="vocab-cat-name">카테고리</h3>
+            <span id="vocab-cat-subtitle"></span>
           </div>
           <div class="learn-prog">
-            <span id="vocab-card-num">1 / 13</span>
+            <span id="vocab-card-num"></span>
           </div>
-        </div>
-
-        <!-- 단어 플래시카드 -->
-        <div class="flashcard-area" id="vocab-flashcard-area" style="display:none">
-          <!-- 진도 바 -->
-          <div class="progress-bar-thin" role="progressbar" aria-label="단어 학습 진도" aria-valuemin="0" aria-valuemax="100">
-            <div class="progress-thin-fill" id="vfc-progress-fill"></div>
-          </div>
-
-          <!-- 자동 넘기기 인디케이터 -->
-          <div class="fc-auto-bar" id="vfc-auto-bar" style="display:none">
-            <span class="fc-auto-icon">▶▶</span>
-            <span class="fc-auto-text">자동 읽고 넘기기</span>
-            <span class="fc-auto-countdown" id="vfc-auto-countdown"></span>
-            <button class="fc-auto-cancel" id="vfc-auto-cancel">✕ 취소</button>
-          </div>
-
-          <!-- 단어 네비게이션 스트립 (상단) -->
-          <div class="fc-nav-strip" id="vfc-nav-strip"></div>
-
-          <!-- 단어 플래시카드 (드래그로 이동) -->
-          <div class="fc-card-row">
-            <div class="fc-wrap">
-              <div class="flashcard-container" id="vocab-flashcard">
-                <div class="flashcard-inner" id="vfc-inner">
-                  <div class="flashcard-front">
-                    <div class="fc-kana" id="vfc-japanese">いち</div>
-                    <div class="vfc-kanji" id="vfc-kanji"></div>
-                    <div class="fc-hint">↕ 드래그로 이동 · 탭 뒤집기</div>
-                  </div>
-                  <div class="flashcard-back">
-                    <!-- 섹션1: 메인 — 일본어 + 뜻 -->
-                    <div class="fcb-main">
-                      <div class="fc-kana-small" id="vfc-japanese-back">いち</div>
-                      <div class="vfc-kanji-back" id="vfc-kanji-back"></div>
-                      <div class="fc-pronunciations">
-                        <span class="fc-kor" id="vfc-korean">일 (1)</span>
-                      </div>
-                    </div>
-                    <!-- 섹션2: 팁 + 예문 -->
-                    <div class="fcb-tip-area" id="vfc-tip" style="display:none"></div>
-                    <div class="fcb-tip-area fcb-example-tip" id="vfc-example" style="display:none"></div>
-                    <!-- 섹션3: 관련 단어 -->
-                    <div class="fcb-section" id="vfc-compounds-wrap">
-                      <div class="fcb-section-label">📖 관련 단어</div>
-                      <div class="fc-examples" id="vfc-compounds"></div>
-                    </div>
-                    <!-- 섹션4: 예시 문장 -->
-                    <div class="fcb-section" id="vfc-sentences-wrap" style="display:none">
-                      <div class="fcb-section-label">💬 예시 문장</div>
-                      <div class="fc-sentences" id="vfc-sentences"></div>
-                    </div>
-                    <!-- 섹션5: 자가평가 (SRS) -->
-                    <div class="fc-assess-row" id="vfc-assess-row" role="group" aria-label="자가평가">
-                      <button class="fc-assess-btn fca-hard" id="vfca-hard" aria-label="어려워 — 다시 복습">❌<span>어려워</span></button>
-                      <button class="fc-assess-btn fca-ok"   id="vfca-ok"   aria-label="알겠어 — 보통">😌<span>알겠어</span></button>
-                      <button class="fc-assess-btn fca-good" id="vfca-good" aria-label="외웠어! — 완전 습득">✅<span>외웠어!</span></button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
         </div>
 
         <!-- 단어 일람 보기 -->
@@ -856,6 +915,7 @@
           </div>
           <div class="vocab-browse-grid" id="vocab-browse-grid"></div>
         </div>
+
         <!-- 롤플레이 대화 영역 -->
         <div id="vocab-dialogue-area" style="display:none">
           <div class="sim-dialogue-area" id="sim-dialogue-bubbles"></div>
@@ -866,6 +926,7 @@
           </div>
         </div>
 
+        <!-- 퀴즈 영역 -->
         <div id="vocab-quiz-area" style="display:none">
 
           <!-- ── 단어 퀴즈 인트로 ── -->
@@ -982,6 +1043,181 @@
           </div>
         </div>
       </div>
+
+    <!-- ========== PANEL 3: 어휘 Word Explorer ========== -->
+    <div id="word-explorer-panel" style="display:none">
+      <div class="we-header">
+        <button class="back-btn" id="we-back-btn">← 목록</button>
+        <div class="we-title-block">
+          <h3 id="we-cat-name">카테고리</h3>
+          <span id="we-cat-subtitle"></span>
+        </div>
+        <div class="we-progress-info">
+          <span id="we-card-num">1 / 10</span>
+        </div>
+      </div>
+
+      <!-- 진도바 -->
+      <div class="we-progress-bar-wrap">
+        <div class="we-progress-bar" id="we-progress-bar"></div>
+      </div>
+
+      <!-- 단어 네비게이션 스트립 -->
+      <div class="we-nav-strip" id="we-nav-strip"></div>
+
+      <!-- 메인 단어 카드 -->
+      <div class="we-card" id="we-main-card">
+        <div class="we-card-top">
+          <div class="we-word-col">
+            <div class="we-word-jp" id="we-word-jp">단어</div>
+            <div class="we-word-kanji" id="we-word-kanji"></div>
+          </div>
+          <button class="we-audio-btn" id="we-audio-btn" title="듣기">🔊</button>
+        </div>
+        <div class="we-card-mid">
+          <div class="we-word-kr" id="we-word-kr">뜻</div>
+          <div class="we-word-en" id="we-word-en"></div>
+        </div>
+        <div class="we-tip-box" id="we-tip-box" style="display:none">
+          <span class="we-tip-icon">💡</span>
+          <span class="we-tip-text" id="we-tip-text"></span>
+        </div>
+        <div class="we-example-box" id="we-example-box" style="display:none">
+          <span class="we-ex-icon">📝</span>
+          <span class="we-example-text" id="we-example-text"></span>
+        </div>
+      </div>
+
+      <!-- 미니게임 섹션 -->
+      <div class="we-games-section">
+        <div class="we-games-header">
+          <span class="we-games-title">🎮 미니 게임으로 익히기</span>
+          <div class="we-games-tabs" id="we-games-tabs">
+            <button class="we-tab active" data-game="fillin">빈칸</button>
+            <button class="we-tab" data-game="choice">선택</button>
+            <button class="we-tab" data-game="order">순서</button>
+          </div>
+        </div>
+
+        <!-- 빈칸 채우기: 한국어 뜻 → 일본어 선택 -->
+        <div class="we-game-panel" id="we-game-fillin">
+          <div class="wg-prompt" id="wg-fillin-prompt">한국어 뜻을 보고 일본어를 고르세요</div>
+          <div class="wg-kr-sentence" id="wg-fillin-sentence"></div>
+          <div class="wg-options" id="wg-fillin-options"></div>
+          <div class="wg-feedback" id="wg-fillin-feedback" style="display:none"></div>
+          <button class="wg-next-btn" id="wg-fillin-next" style="display:none">다음 단어 ▶</button>
+        </div>
+
+        <!-- 뜻 선택: 일본어 → 한국어 의미 선택 -->
+        <div class="we-game-panel" id="we-game-choice" style="display:none">
+          <div class="wg-prompt">어떤 뜻인가요?</div>
+          <div class="wg-question-word" id="wg-choice-word"></div>
+          <div class="wg-options wg-choice-opts" id="wg-choice-options"></div>
+          <div class="wg-feedback" id="wg-choice-feedback" style="display:none"></div>
+          <button class="wg-next-btn" id="wg-choice-next" style="display:none">다음 단어 ▶</button>
+        </div>
+
+        <!-- 순서 배열: 단어/음절을 올바른 순서로 -->
+        <div class="we-game-panel" id="we-game-order" style="display:none">
+          <div class="wg-prompt">올바른 순서로 배열하세요</div>
+          <div class="wg-order-hint" id="wg-order-hint"></div>
+          <div class="wg-dropzone" id="wg-order-drop">
+            <div class="wg-drop-placeholder">여기에 클릭해서 단어를 놓으세요</div>
+          </div>
+          <div class="wg-word-bank" id="wg-order-bank"></div>
+          <div class="wg-order-actions">
+            <button class="wg-clear-btn" id="wg-order-clear">↩ 초기화</button>
+            <button class="wg-check-btn" id="wg-order-check">✓ 확인</button>
+          </div>
+          <div class="wg-feedback" id="wg-order-feedback" style="display:none"></div>
+          <button class="wg-next-btn" id="wg-order-next" style="display:none">다음 단어 ▶</button>
+        </div>
+      </div>
+
+      <!-- 이전/다음 단어 네비게이션 -->
+      <div class="we-word-nav">
+        <button class="we-word-nav-btn" id="we-prev-btn">◀ 이전</button>
+        <button class="we-word-nav-btn we-word-nav-next" id="we-next-btn">다음 ▶</button>
+      </div>
+    </div>
+
+    <!-- ========== PANEL 4: 회화 Scene Trainer ========== -->
+    <div id="scene-trainer-panel" style="display:none">
+      <div class="st-header">
+        <button class="back-btn" id="st-back-btn">← 목록</button>
+        <div class="st-title-block">
+          <h3 id="st-cat-name">카테고리</h3>
+        </div>
+        <div class="st-step-info">
+          <span id="st-step-num">1 / 8</span>
+        </div>
+      </div>
+
+      <!-- 진도바 -->
+      <div class="st-progress-bar-wrap">
+        <div class="st-progress-bar" id="st-progress-bar"></div>
+      </div>
+
+      <!-- 상황 카드 -->
+      <div class="st-context-card" id="st-context-card">
+        <div class="st-context-icon" id="st-context-icon">📖</div>
+        <div class="st-context-text">
+          <div class="st-context-scene" id="st-context-scene">상황</div>
+          <div class="st-context-desc" id="st-context-desc"></div>
+        </div>
+        <button class="st-context-audio" id="st-context-audio" style="display:none" title="설명 듣기">🔊</button>
+      </div>
+
+      <!-- 학습할 문장 표시 -->
+      <div class="st-sentence-display" id="st-sentence-display">
+        <div class="st-sentence-jp" id="st-sentence-jp">일본어 문장</div>
+        <div class="st-sentence-kanji" id="st-sentence-kanji"></div>
+        <div class="st-sentence-kr" id="st-sentence-kr">한국어 뜻</div>
+        <button class="st-audio-btn" id="st-sentence-audio">🔊 듣기</button>
+      </div>
+
+      <!-- 연습 영역 -->
+      <div class="st-practice-area" id="st-practice-area">
+        <div class="st-practice-label" id="st-practice-label">💬 어떻게 말할까요?</div>
+
+        <!-- 4지선다 모드 -->
+        <div class="st-mode-choices" id="st-mode-choices">
+          <div class="st-choices-grid" id="st-choices-grid"></div>
+        </div>
+
+        <!-- 순서 배열 모드 -->
+        <div class="st-mode-order" id="st-mode-order" style="display:none">
+          <div class="st-order-hint" id="st-order-hint"></div>
+          <div class="st-order-drop" id="st-order-drop">
+            <div class="st-drop-placeholder">단어를 순서대로 놓으세요</div>
+          </div>
+          <div class="st-order-bank" id="st-order-bank"></div>
+          <div class="st-order-actions">
+            <button class="st-order-clear-btn" id="st-order-clear">↩ 초기화</button>
+            <button class="st-order-check-btn" id="st-order-check">✓ 확인</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 피드백 패널 -->
+      <div class="st-feedback-panel" id="st-feedback-panel" style="display:none">
+        <div class="st-feedback-result" id="st-feedback-result">✅ 정답!</div>
+        <div class="st-feedback-correct" id="st-feedback-correct"></div>
+        <div class="st-feedback-tip" id="st-feedback-tip" style="display:none"></div>
+        <button class="st-next-step-btn" id="st-next-step-btn">다음 ▶</button>
+      </div>
+
+      <!-- 세션 완료 화면 -->
+      <div class="st-complete-panel" id="st-complete-panel" style="display:none">
+        <div class="st-complete-emoji">🎉</div>
+        <div class="st-complete-title">세션 완료!</div>
+        <div class="st-complete-stats" id="st-complete-stats"></div>
+        <div class="st-complete-btns">
+          <button class="st-replay-btn" id="st-replay-btn">🔄 다시 연습</button>
+          <button class="st-complete-back-btn" id="st-complete-back-btn">← 목록으로</button>
+        </div>
+      </div>
+    </div>
 
     </div><!-- /view-vocab -->
 
@@ -1240,15 +1476,79 @@
 
           <!-- ── TTS 엔진 우선순위 묶음 ── -->
           <div class="tts-engine-group" id="tts-engine-group">
-            <div class="tts-group-title">🔊 음성 엔진 <span class="tts-priority-hint">우선순위: 1 &gt; 2 &gt; 3 (연결 실패 시 자동 전환)</span></div>
+            <div class="tts-group-title">🔊 음성 엔진 <span class="tts-priority-hint">VOICEVOX 우선 자동 연결 · 실패 시 재시도 안내</span></div>
 
-            <!-- ① Edge TTS 서버 (1순위 / 최고품질) -->
+            <!-- ① VOICEVOX (1순위 / 기본 권장) -->
+            <div class="tts-option-card" id="tts-card-voicevox">
+              <label class="tts-option-header">
+                <input type="radio" name="tts-engine-radio" id="pref-use-voicevox" value="voicevox" class="tts-radio">
+                <span class="tts-priority-num tts-priority-star">★</span>
+                <span class="tts-option-name">🎵 VOICEVOX</span>
+                <span class="tts-quality-badge tts-badge-gold">기본 권장</span>
+                <span class="tts-status-chip" id="voicevox-status">연결 시도 중...</span>
+              </label>
+              <div class="tts-option-sub">로컬 설치 앱 — 자연스러운 일본어 합성음성 (무료) · 앱 시작 시 자동 연결</div>
+              <button class="tts-guide-btn" onclick="var g=document.getElementById('vv-setup-guide');g.style.display=g.style.display==='none'?'block':'none'">📖 설치 방법</button>
+              <div id="vv-setup-guide" style="display:none" class="tts-guide-box">
+                <b>① 다운로드</b><br>
+                <a href="https://voicevox.hiroshiba.jp/" target="_blank" style="color:#4361ee">https://voicevox.hiroshiba.jp/</a><br><br>
+                <b>② 실행</b> → <code>localhost:50021</code> 자동 시작<br><br>
+                <b>③ CORS 허용 (타 기기 접속 시)</b><br>
+                <code class="tts-code-block">VOICEVOX.exe --host 0.0.0.0 --allow-origin "*"</code>
+                <b>④ 위 라디오 버튼 선택</b> → 자동 연결 후 화자 목록 로드
+              </div>
+              <!-- VOICEVOX 연결 실패 시 가이드 + 재시도 -->
+              <div id="vv-retry-area" style="display:none" class="tts-retry-area">
+                <div class="tts-retry-msg" id="vv-retry-msg">⚠️ VOICEVOX 서버(localhost:50021)에 연결할 수 없습니다.</div>
+                <!-- 오류 원인 상세 표시 -->
+                <div class="vv-error-reason" id="vv-error-reason" style="display:none"></div>
+                <div class="tts-retry-steps">
+                  <b>확인 사항:</b>
+                  <ol>
+                    <li>VOICEVOX 앱이 실행 중인지 확인하세요</li>
+                    <li>실행 후 <code>localhost:50021</code>이 열리면 재시도하세요</li>
+                    <li>타 기기 접속이라면 <code>--host 0.0.0.0</code> 옵션 필요</li>
+                  </ol>
+                </div>
+                <button class="tts-retry-btn" id="vv-retry-btn">🔄 다시 연결 시도</button>
+                <!-- 2회 이상 실패 시 다음 옵션 제안 -->
+                <div class="vv-fallback-prompt" id="vv-fallback-prompt" style="display:none">
+                  <p class="vv-fallback-msg">연결에 계속 실패합니다. 다른 TTS 엔진으로 전환하시겠습니까?</p>
+                  <div class="vv-fallback-btns">
+                    <button class="vv-fallback-btn vv-fallback-edge" id="vv-fallback-edge-btn">🖥️ Edge TTS 시도</button>
+                    <button class="vv-fallback-btn vv-fallback-web" id="vv-fallback-web-btn">🌐 Web TTS 사용</button>
+                  </div>
+                </div>
+              </div>
+              <!-- VOICEVOX 화자 설정 (연결 성공 시 표시) -->
+              <div id="voicevox-speaker-rows" style="display:none" class="tts-speaker-rows">
+                <div class="setting-row" style="align-items:flex-start;gap:8px">
+                  <label style="padding-top:6px">🎤 화자 A:</label>
+                  <div class="vv-speaker-picker">
+                    <img id="vv-portrait-1" class="vv-speaker-icon" src="" alt="" style="display:none">
+                    <select id="pref-voicevox-speaker1"><option value="1">로딩 중...</option></select>
+                  </div>
+                </div>
+                <div class="setting-row" style="align-items:flex-start;gap:8px">
+                  <label style="padding-top:6px">🎤 화자 B:</label>
+                  <div class="vv-speaker-picker">
+                    <img id="vv-portrait-2" class="vv-speaker-icon" src="" alt="" style="display:none">
+                    <select id="pref-voicevox-speaker2"><option value="none">사용 안함</option></select>
+                  </div>
+                </div>
+                <div class="setting-row">
+                  <button class="test-voice-btn" id="test-voicevox-btn">🔊 VOICEVOX 테스트</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- ② Edge TTS 서버 (2순위 / 고품질) -->
             <div class="tts-option-card" id="tts-card-edge">
               <label class="tts-option-header">
                 <input type="radio" name="tts-engine-radio" id="pref-use-edgetts" value="edge" class="tts-radio">
-                <span class="tts-priority-num">1</span>
+                <span class="tts-priority-num">2</span>
                 <span class="tts-option-name">🖥️ Edge TTS 서버</span>
-                <span class="tts-quality-badge tts-badge-gold">최고품질</span>
+                <span class="tts-quality-badge tts-badge-blue">고품질</span>
                 <span class="tts-status-chip" id="edgetts-status">비활성</span>
               </label>
               <div class="tts-option-sub">Python edge-tts 로컬 서버 — Nanami·Keita 신경망 음성 (무료)</div>
@@ -1292,60 +1592,6 @@
                 </div>
                 <div class="setting-row">
                   <button class="test-voice-btn" id="test-edgetts-btn">🔊 Edge TTS 테스트</button>
-                </div>
-              </div>
-            </div>
-
-            <!-- ② VOICEVOX (2순위 / 고품질) -->
-            <div class="tts-option-card" id="tts-card-voicevox">
-              <label class="tts-option-header">
-                <input type="radio" name="tts-engine-radio" id="pref-use-voicevox" value="voicevox" class="tts-radio">
-                <span class="tts-priority-num">2</span>
-                <span class="tts-option-name">🎵 VOICEVOX</span>
-                <span class="tts-quality-badge tts-badge-blue">고품질</span>
-                <span class="tts-status-chip" id="voicevox-status">비활성</span>
-              </label>
-              <div class="tts-option-sub">로컬 설치 앱 — 자연스러운 일본어 합성음성 (무료)</div>
-              <button class="tts-guide-btn" onclick="var g=document.getElementById('vv-setup-guide');g.style.display=g.style.display==='none'?'block':'none'">📖 설치 방법</button>
-              <div id="vv-setup-guide" style="display:none" class="tts-guide-box">
-                <b>① 다운로드</b><br>
-                <a href="https://voicevox.hiroshiba.jp/" target="_blank" style="color:#4361ee">https://voicevox.hiroshiba.jp/</a><br><br>
-                <b>② 실행</b> → <code>localhost:50021</code> 자동 시작<br><br>
-                <b>③ CORS 허용 (타 기기 접속 시)</b><br>
-                <code class="tts-code-block">VOICEVOX.exe --host 0.0.0.0 --allow-origin "*"</code>
-                <b>④ 위 라디오 버튼 선택</b> → 자동 연결 후 화자 목록 로드
-              </div>
-              <!-- VOICEVOX 연결 실패 시 가이드 + 재시도 -->
-              <div id="vv-retry-area" style="display:none" class="tts-retry-area">
-                <div class="tts-retry-msg" id="vv-retry-msg">⚠️ VOICEVOX 서버(localhost:50021)에 연결할 수 없습니다.</div>
-                <div class="tts-retry-steps">
-                  <b>확인 사항:</b>
-                  <ol>
-                    <li>VOICEVOX 앱이 실행 중인지 확인하세요</li>
-                    <li>실행 후 <code>localhost:50021</code>이 열리면 재시도하세요</li>
-                    <li>타 기기 접속이라면 <code>--host 0.0.0.0</code> 옵션 필요</li>
-                  </ol>
-                </div>
-                <button class="tts-retry-btn" id="vv-retry-btn">🔄 다시 연결 시도</button>
-              </div>
-              <!-- VOICEVOX 화자 설정 (연결 성공 시 표시) -->
-              <div id="voicevox-speaker-rows" style="display:none" class="tts-speaker-rows">
-                <div class="setting-row" style="align-items:flex-start;gap:8px">
-                  <label style="padding-top:6px">🎤 화자 A:</label>
-                  <div class="vv-speaker-picker">
-                    <img id="vv-portrait-1" class="vv-speaker-icon" src="" alt="" style="display:none">
-                    <select id="pref-voicevox-speaker1"><option value="1">로딩 중...</option></select>
-                  </div>
-                </div>
-                <div class="setting-row" style="align-items:flex-start;gap:8px">
-                  <label style="padding-top:6px">🎤 화자 B:</label>
-                  <div class="vv-speaker-picker">
-                    <img id="vv-portrait-2" class="vv-speaker-icon" src="" alt="" style="display:none">
-                    <select id="pref-voicevox-speaker2"><option value="none">사용 안함</option></select>
-                  </div>
-                </div>
-                <div class="setting-row">
-                  <button class="test-voice-btn" id="test-voicevox-btn">🔊 VOICEVOX 테스트</button>
                 </div>
               </div>
             </div>
@@ -1407,46 +1653,6 @@
 
         <!-- ══ 탭: 퀴즈 ══ -->
         <div class="stab-content" id="stab-quiz">
-          <div class="setting-section-title">📝 퀴즈 설정</div>
-          <div class="setting-row">
-            <label>레벨 선택:</label>
-            <select id="quiz-level-select" style="flex:1;max-width:200px"></select>
-          </div>
-          <div class="setup-row">
-            <label>문제 유형:</label>
-            <div class="radio-group">
-              <label class="radio-label"><input type="radio" name="qtype" value="kanaToReading" checked> 글자→발음</label>
-              <label class="radio-label"><input type="radio" name="qtype" value="readingToKana"> 발음→글자</label>
-              <label class="radio-label"><input type="radio" name="qtype" value="listen"> 듣기→글자</label>
-            </div>
-          </div>
-          <div class="setup-row">
-            <label>문제 수:</label>
-            <div class="radio-group">
-              <label class="radio-label"><input type="radio" name="qcount" value="10" checked> 10문제</label>
-              <label class="radio-label"><input type="radio" name="qcount" value="20"> 20문제</label>
-              <label class="radio-label"><input type="radio" name="qcount" value="all"> 전체</label>
-            </div>
-          </div>
-          <div class="setup-row">
-            <label>발음 표기:</label>
-            <div class="radio-group">
-              <label class="radio-label"><input type="radio" name="qlang" value="korean" checked> 한국어</label>
-              <label class="radio-label"><input type="radio" name="qlang" value="romaji"> 로마자</label>
-              <label class="radio-label"><input type="radio" name="qlang" value="both"> 둘 다</label>
-            </div>
-          </div>
-          <div class="setting-section-title">⏱ 제한 시간</div>
-          <div class="setting-row">
-            <label>퀴즈 제한 시간:</label>
-            <select id="pref-quiz-countdown">
-              <option value="3">3초</option>
-              <option value="5">5초 (기본)</option>
-              <option value="7">7초</option>
-              <option value="10">10초</option>
-              <option value="0">제한 없음</option>
-            </select>
-          </div>
           <div class="setting-section-title">💬 화자 응원 메시지</div>
           <div class="setting-row">
             <label>응원 메시지 사용:</label>

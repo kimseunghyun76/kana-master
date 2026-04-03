@@ -65,7 +65,23 @@
       "Bash(grep \"const.*DIAGRAM\\\\|const.*DRAMA\\\\|const.*SIGNS\\\\|const.*TRAVEL\" /c/Users/Sptek_emart/kana/js/kana-data-*.js)",
       "Bash(done)",
       "Bash(node -e \"const fs=require\\(''fs''\\); const c=fs.readFileSync\\(''js/app.js'',''utf8''\\); new Function\\(c\\); console.log\\(''OK -'', c.split\\(''\\\\n''\\).length, ''lines''\\);\")",
-      "Bash(node -e \"new Function\\(require\\(''fs''\\).readFileSync\\(''js/app.js'',''utf8''\\)\\); console.log\\(''OK''\\)\")"
+      "Bash(node -e \"new Function\\(require\\(''fs''\\).readFileSync\\(''js/app.js'',''utf8''\\)\\); console.log\\(''OK''\\)\")",
+      "Bash(node -c js/app.js)",
+      "Bash(git -C /c/Users/Sptek_emart/kana log --oneline -10)",
+      "Bash(git -C /c/Users/Sptek_emart/kana show d23be5b --stat)",
+      "Bash(git -C /c/Users/Sptek_emart/kana diff --stat)",
+      "Bash(git -C /c/Users/Sptek_emart/kana diff js/app.js)",
+      "Bash(git -C /c/Users/Sptek_emart/kana diff app.html)",
+      "Bash(git -C /c/Users/Sptek_emart/kana diff app.css)",
+      "Bash(git -C /c/Users/Sptek_emart/kana add js/app.js app.html app.css)",
+      "Bash(git -C /c/Users/Sptek_emart/kana status)",
+      "Bash(git -C:*)",
+      "Bash(git merge:*)",
+      "Bash(node -e \"require\\(''''/c/Users/Sptek_emart/kana/js/kana-data-drama.js''''\\)\")",
+      "Bash(Get-Content \"C:\\\\Users\\\\Sptek_emart\\\\kana\\\\app.css\")",
+      "Bash(Measure-Object -Line)",
+      "Bash(Select-Object -ExpandProperty Lines)",
+      "Bash(\"C:/Users/Sptek_emart/kana/app.css\":*)"
     ]
   }
 }
