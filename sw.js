@@ -3,29 +3,30 @@
 //  전략: Cache First (핵심 파일) + Network First (데이터)
 // ════════════════════════════════════════════════════════
 
-const APP_VERSION  = '1.2';                            // ← 배포 시 이 값만 올리면 캐시 자동 갱신
-const CACHE_NAME   = `kana-master-v${APP_VERSION}`;
-const STATIC_CACHE = `kana-static-v${APP_VERSION}`;
+const APP_VERSION  = '2.0';                            // ← 배포 시 이 값만 올리면 캐시 자동 갱신
+const CACHE_NAME   = `jp-master-v${APP_VERSION}`;
+const STATIC_CACHE = `jp-static-v${APP_VERSION}`;
 
-// 앱 핵심 파일 (오프라인에서도 동작)
+// v2 앱 핵심 파일
 const CORE_FILES = [
+  '/index.html',
+  '/css/v2.css',
+  '/js/kana-data.js',
+  '/js/data/vocab-items-w1w4.js',
+  '/js/data/vocab-items-w5w8.js',
+  '/js/data/vocab-items-w9w10.js',
+  '/js/data/vocab-items-s1s5.js',
+  '/js/data/vocab-items-s6sim.js',
+  '/js/data/vocab-items-it-sim.js',
+  '/js/data/vocab-dialogue.js',
+  '/js/v2/utils.js',
+  '/js/v2/tts.js',
+  '/js/v2/store.js',
+  '/js/v2/curriculum.js',
+  '/js/v2/app.js',
+  // v1 (legacy)
   '/app.html',
   '/app.css',
-  '/yomu-styles.css',
-  '/js/app.js',
-  '/js/gamification.js',
-  '/js/edge-tts-server.js',
-  '/js/kana-data.js',
-  '/js/vocab-data.js',
-  '/js/vocab-examples-data.js',
-  '/js/examples-data.js',
-  '/js/kana-data-extra.js',
-  '/js/kana-data-diary.js',
-  '/js/kana-data-drama.js',
-  '/js/kana-data-grammar.js',
-  '/js/kana-data-signs.js',
-  '/js/kana-data-travel2.js',
-  '/js/data/lecture-data.js',
 ];
 
 // ── 설치: 핵심 파일 캐시 ──
@@ -65,14 +66,14 @@ self.addEventListener('fetch', event => {
     return;
   }
 
-  // JS/CSS/HTML 핵심 파일: Cache First
+  // JS/CSS/HTML: Network First (개발 중 수정사항 즉시 반영)
   if (
     url.pathname.endsWith('.js') ||
     url.pathname.endsWith('.css') ||
     url.pathname.endsWith('.html') ||
     url.pathname === '/'
   ) {
-    event.respondWith(cacheFirst(request));
+    event.respondWith(networkFirst(request));
     return;
   }
 

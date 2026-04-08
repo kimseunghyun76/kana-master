@@ -852,88 +852,94 @@ const App = (() => {
     const items = _getVocabItems(step);
     if (!items.length) { Store.completeStep(_flow.moduleId, stepIndex); _advanceStep(); return; }
 
-    let idx = 0;
-    let showMeaning = false;
+    // Store ALL state on _flow._vocab so render() always reads fresh values
+    _flow._vocab = { items, idx: 0, showMeaning: false, stepIndex, mod, step };
 
-    function render() {
-      if (idx >= items.length) {
-        Store.completeStep(_flow.moduleId, stepIndex);
-        Store.addXP(30 + items.length * 2);
-        _flow.step = stepIndex + 1;
-        _runCurrentStep();
-        return;
-      }
-      const item = items[idx];
-      const showFuri = Store.getSetting('furigana');
+    _vocabRender();
+  }
 
-      const jpHtml = showFuri ? formatJp(item) : escHtml(item.kanji || item.japanese);
+  function _vocabRender() {
+    const st = _flow._vocab;
+    if (!st) return;
 
-      _updateFlowProgress(stepIndex, mod.steps.length, step.title);
-      document.getElementById('flowBody').innerHTML = `
-        <div style="font-size:12px;color:var(--text3);text-align:center;margin-bottom:16px">
-          ${idx + 1} / ${items.length}
-        </div>
-        <div class="vocab-card" onclick="App._vocabFlip()">
-          <button class="vc-audio-btn" onclick="event.stopPropagation();TTS.speak('${(item.japanese||'').replace(/'/g,"\\'")}')">🔊</button>
-          <div class="vc-num">어휘 ${idx + 1}</div>
-          <div class="vc-jp">${jpHtml}</div>
-          ${item.kanji && item.kanji !== item.japanese ? `<div class="vc-kanji">${escHtml(item.kanji)}</div>` : ''}
-          ${showMeaning ? `
-            <div class="vc-divider"></div>
-            <div class="vc-meaning">${escHtml(item.korean || '')}</div>
-            <div class="vc-english">${escHtml(item.english || '')}</div>
-            ${item.tip ? `<div class="vc-tip">${escHtml(item.tip)}</div>` : ''}
-          ` : `<div class="vc-flip-hint">탭해서 의미 보기</div>`}
-        </div>
-        <div class="vocab-nav">
-          <button class="vocab-nav-btn" onclick="App._vocabPrev()" ${idx === 0 ? 'disabled' : ''}>←</button>
-          <div class="vocab-nav-dots">
-            ${items.map((_,i) => `<div class="vocab-nav-dot ${i===idx?'active':i<idx?'done':''}"></div>`).join('')}
-          </div>
-          <button class="vocab-nav-btn" onclick="App._vocabNext()">→</button>
-        </div>
-      `;
+    const { items, idx, showMeaning, stepIndex, mod, step } = st;
 
-      if (showMeaning) {
-        document.getElementById('flowFooter').innerHTML = `
-          <div class="self-eval">
-            <button class="eval-btn again" onclick="App._vocabEval('again')">😵<br>모름</button>
-            <button class="eval-btn hard" onclick="App._vocabEval('hard')">😅<br>어려움</button>
-            <button class="eval-btn good" onclick="App._vocabEval('good')">😊<br>알겠음</button>
-            <button class="eval-btn easy" onclick="App._vocabEval('easy')">😎<br>완벽</button>
-          </div>
-        `;
-      } else {
-        document.getElementById('flowFooter').innerHTML = `
-          <button class="btn btn-outline" onclick="App._vocabFlip()">의미 확인하기</button>
-        `;
-      }
-
-      // Auto-speak
-      TTS.speak(item.japanese || '');
+    if (idx >= items.length) {
+      Store.completeStep(_flow.moduleId, stepIndex);
+      Store.addXP(30 + items.length * 2);
+      _flow.step = stepIndex + 1;
+      _runCurrentStep();
+      return;
     }
 
-    _flow._vocab = { items, idx: 0, showMeaning: false, stepIndex, render };
-    render();
+    const item = items[idx];
+    const showFuri = Store.getSetting('furigana');
+    const jpHtml = showFuri ? formatJp(item) : escHtml(item.kanji || item.japanese);
+
+    _updateFlowProgress(stepIndex, mod.steps.length, step.title);
+    document.getElementById('flowBody').innerHTML = `
+      <div style="font-size:12px;color:var(--text3);text-align:center;margin-bottom:16px">
+        ${idx + 1} / ${items.length}
+      </div>
+      <div class="vocab-card" onclick="App._vocabFlip()">
+        <button class="vc-audio-btn"
+          onclick="event.stopPropagation();TTS.speak('${(item.japanese||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'")}')">🔊</button>
+        <div class="vc-num">어휘 ${idx + 1}</div>
+        <div class="vc-jp">${jpHtml}</div>
+        ${item.kanji && item.kanji !== item.japanese
+          ? `<div class="vc-kanji">${escHtml(item.kanji)}</div>` : ''}
+        ${showMeaning ? `
+          <div class="vc-divider"></div>
+          <div class="vc-meaning">${escHtml(item.korean || '')}</div>
+          <div class="vc-english">${escHtml(item.english || '')}</div>
+          ${item.tip ? `<div class="vc-tip">${escHtml(item.tip)}</div>` : ''}
+        ` : `<div class="vc-flip-hint">탭해서 의미 보기 👆</div>`}
+      </div>
+      <div class="vocab-nav">
+        <button class="vocab-nav-btn" onclick="App._vocabPrev()" ${idx === 0 ? 'disabled' : ''}>←</button>
+        <div class="vocab-nav-dots">
+          ${items.slice(0, 20).map((_,i) =>
+            `<div class="vocab-nav-dot ${i===idx?'active':i<idx?'done':''}"></div>`).join('')}
+        </div>
+        <button class="vocab-nav-btn" onclick="App._vocabNext()">→</button>
+      </div>
+    `;
+
+    if (showMeaning) {
+      document.getElementById('flowFooter').innerHTML = `
+        <div class="self-eval">
+          <button class="eval-btn again" onclick="App._vocabEval('again')">😵<br>모름</button>
+          <button class="eval-btn hard" onclick="App._vocabEval('hard')">😅<br>어려움</button>
+          <button class="eval-btn good" onclick="App._vocabEval('good')">😊<br>알겠음</button>
+          <button class="eval-btn easy" onclick="App._vocabEval('easy')">😎<br>완벽</button>
+        </div>
+      `;
+    } else {
+      document.getElementById('flowFooter').innerHTML = `
+        <button class="btn btn-outline" onclick="App._vocabFlip()">의미 확인하기</button>
+      `;
+    }
+
+    TTS.speak(item.japanese || '');
   }
 
   function _vocabFlip() {
     if (!_flow._vocab) return;
     _flow._vocab.showMeaning = true;
-    _flow._vocab.render();
+    _vocabRender();
   }
 
   function _vocabNext() {
     if (!_flow._vocab) return;
     _flow._vocab.showMeaning = false;
-    if (_flow._vocab.idx < _flow._vocab.items.length - 1) {
-      _flow._vocab.idx++;
-      _flow._vocab.render();
+    const st = _flow._vocab;
+    if (st.idx < st.items.length - 1) {
+      st.idx++;
+      _vocabRender();
     } else {
-      // Last item — finish step
-      Store.completeStep(_flow.moduleId, _flow._vocab.stepIndex);
-      Store.addXP(30 + _flow._vocab.items.length * 2);
-      _flow.step = _flow._vocab.stepIndex + 1;
+      Store.completeStep(_flow.moduleId, st.stepIndex);
+      Store.addXP(30 + st.items.length * 2);
+      _flow.step = st.stepIndex + 1;
       _runCurrentStep();
     }
   }
@@ -942,16 +948,14 @@ const App = (() => {
     if (!_flow._vocab || _flow._vocab.idx === 0) return;
     _flow._vocab.showMeaning = false;
     _flow._vocab.idx--;
-    _flow._vocab.render();
+    _vocabRender();
   }
 
   function _vocabEval(rating) {
-    // rating: again/hard/good/easy
     const st = _flow._vocab;
     if (!st) return;
     st.showMeaning = false;
     if (rating === 'again') {
-      // Move current item to end
       const item = st.items.splice(st.idx, 1)[0];
       st.items.push(item);
     } else {
@@ -963,7 +967,7 @@ const App = (() => {
       _flow.step = st.stepIndex + 1;
       _runCurrentStep();
     } else {
-      st.render();
+      _vocabRender();
     }
   }
 
