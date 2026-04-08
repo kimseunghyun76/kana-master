@@ -219,6 +219,58 @@ var VOCAB_CATEGORIES = [
     items:['bh_kusuri','bh_byoin','bh_isha','bh_kyuukyuu']
   },
 
+  // ── W9 ①②③ — IT·테크 어휘 ──────────────────────────────
+  {
+    id:'it_tech_basic', phase:9, type:'word', wlevel:9,
+    name:'IT 기초 용어', icon:'💻',
+    title:'W9 IT 기초 용어 (IT用語)',
+    subtitle:'バグ·デプロイ·API·Git·Slack',
+    desc:'일본 IT 회사 첫날부터 쓰는 용어 — 코드·버그·서버·배포·GitHub',
+    items:['it_program','it_code','it_bug','it_error','it_server','it_client','it_api','it_db','it_frontend','it_backend','it_infra','it_docker','it_git','it_github','it_slack','it_log','it_test','it_build','it_deploy','it_release']
+  },
+  {
+    id:'it_dev_process', phase:9, type:'word', wlevel:9,
+    name:'개발 프로세스', icon:'🔄',
+    title:'W9 개발 프로세스 용어 (開発プロセス)',
+    subtitle:'スプリント·PR·レビュー·マージ·KPT',
+    desc:'아자일 개발 현장에서 매일 쓰는 프로세스 용어 완전 정복',
+    items:['it_sprint','it_task','it_ticket','it_issue','it_pr','it_review','it_merge','it_refactor','it_debug','it_spec','it_design','it_standup','it_retrospec','it_kpt','it_pipeline']
+  },
+  {
+    id:'it_workplace', phase:9, type:'word', wlevel:9,
+    name:'IT 직장·조직', icon:'🏢',
+    title:'W9 IT 직장·조직 어휘 (職場·組織)',
+    subtitle:'エンジニア·PM·PO·本番·締め切り',
+    desc:'엔지니어·PM·QA·운영환경·우선순위 — 일본 IT 직장 생활의 핵심 어휘',
+    items:['it_engineer','it_designer','it_pm','it_po','it_qa','it_tl','it_ops','it_sre','it_deadline','it_priority','it_impact','it_release2','it_production','it_staging','it_local']
+  },
+
+  // ── W10 ①②③ — 비즈니스 일본어 ──────────────────────────
+  {
+    id:'biz_greetings', phase:10, type:'word', wlevel:10,
+    name:'비즈니스 기본 표현', icon:'🤝',
+    title:'W10 비즈니스 기본 표현 (ビジネス表現)',
+    subtitle:'お疲れ様·承知しました·ご確認ください',
+    desc:'일본 직장에서 하루에도 수십 번 쓰는 비즈니스 표현 완전 정복',
+    items:['biz_otsu','biz_yoroshiku','biz_shochi','biz_ryokai','biz_kashiko','biz_osewa','biz_confirm','biz_taio','biz_kentou','biz_kyoyu','biz_kakunin','biz_renraku']
+  },
+  {
+    id:'biz_hourensou', phase:10, type:'word', wlevel:10,
+    name:'보고·연락·상담', icon:'📢',
+    title:'W10 ほうれんそう — 報告·連絡·相談',
+    subtitle:'進捗報告·相談·遅れています·問題があります',
+    desc:'일본 직장 최고의 미덕 ほうれんそう — 보고·연락·상담 표현 완전 정복',
+    items:['biz_houkoku','biz_soudan','biz_shinchou','biz_yotei','biz_okure','biz_mondai','biz_kaichou','biz_tsuika','biz_ima','biz_ato']
+  },
+  {
+    id:'biz_meeting', phase:10, type:'word', wlevel:10,
+    name:'회의·의견 표현', icon:'💡',
+    title:'W10 회의·의견·제안 표현 (会議·提案)',
+    subtitle:'議題·いかがでしょうか·おっしゃる通り',
+    desc:'회의에서 의견을 제안하고 동의하고 확인하는 비즈니스 일본어 완전 정복',
+    items:['biz_gidai','biz_gijiroku','biz_ikaga','biz_iken','biz_ossharu','biz_teian','biz_kansha','biz_imi','biz_jikan','biz_omakase','biz_wakarima','biz_matome']
+  },
+
   // ══════════════════════════════════════════════════════════
   //  문장 학습 (Sentence) — S1 ~ S6  (앞 단어들을 활용한 패턴 학습)
   //  S1 인사 → S2 자기소개 → S3 쇼핑/식당 → S4 교통 → S5 여행 → S6 긴급
@@ -916,5 +968,66 @@ var VOCAB_CATEGORIES = [
     variants:[
       { scene:'야마자키 품절 + 하쿠슈 구매', items:['sh9_n','sh9_b1','sh9_a1','sh9_b2','sh9_a2','sh9_c1','sh9_a3','sh9_c2','sh9_b3','sh9_a4','sh9_b4','sh9_a5','sh9_b5','sh9_a6','sh9_b6','sh9_a7'] },
     ]
+  },
+
+  // ══════════════════════════════════════════════════════════
+  //  simlevel 7 — IT 직장편 (일본 IT 회사에서 일하기)
+  //  목표: 한국인 엔지니어가 일본 IT 회사에서 실제로 쓰는 대화 완전 정복
+  // ══════════════════════════════════════════════════════════
+  {
+    id:'sim_it_standup', phase:12, type:'sim', simlevel:7, dialogue:true,
+    name:'아침 조회(스탠드업)', icon:'🌅',
+    title:'롤플레이: 아침 조회 · 스탠드업',
+    subtitle:'어제 완료 → 오늘 계획 → 블로커 공유',
+    desc:'매일 아침 팀 전체가 모이는 스탠드업 — 진행 상황 공유부터 장애 긴급 대응까지',
+    items:['its_n1','its_1','its_2','its_3','its_4','its_5','its_6','its_7','its_8','its_9','its_10'],
+    variants:[
+      { scene:'정상 조회 — 태스크·블로커 공유', items:['its_n1','its_1','its_2','its_3','its_4','its_5','its_6','its_7','its_8','its_9','its_10'] },
+      { scene:'긴급 장애 발생 — 롤백·사후 분석', items:['its2_n','its2_1','its2_2','its2_3','its2_4','its2_5','its2_6','its2_7','its2_8'] },
+    ]
+  },
+  {
+    id:'sim_it_codereview', phase:12, type:'sim', simlevel:7, dialogue:true,
+    name:'코드 리뷰', icon:'🔍',
+    title:'롤플레이: 코드 리뷰 요청·논의',
+    subtitle:'PR 의뢰 → 테스트 확인 → 지적 수용 → 승인',
+    desc:'GitHub PR에서 코드 리뷰 요청부터 지적 사항 논의, LGTM까지 — 엔지니어의 필수 소통',
+    items:['itcr_n','itcr_1','itcr_2','itcr_3','itcr_4','itcr_5','itcr_6','itcr_7','itcr_8','itcr_9','itcr_10'],
+    variants:[
+      { scene:'코드 리뷰 요청 + LGTM', items:['itcr_n','itcr_1','itcr_2','itcr_3','itcr_4','itcr_5','itcr_6','itcr_7','itcr_8','itcr_9','itcr_10'] },
+      { scene:'리뷰 코멘트 직접 논의 — N+1 문제', items:['itcr2_n','itcr2_1','itcr2_2','itcr2_3','itcr2_4','itcr2_5'] },
+    ]
+  },
+  {
+    id:'sim_it_1on1', phase:12, type:'sim', simlevel:7, dialogue:true,
+    name:'1on1 미팅', icon:'🙋',
+    title:'롤플레이: 1on1 미팅 — 상사와 개인 면담',
+    subtitle:'근황 → 약점 공유 → 성장 계획 → 일본어 걱정',
+    desc:'매월 상사와 하는 1on1 미팅 — 솔직한 고민 공유, 성장 기회 요청, 언어 걱정 상담까지',
+    items:['it1_n','it1_1','it1_2','it1_3','it1_4','it1_5','it1_6','it1_7','it1_8','it1_9','it1_10']
+  },
+  {
+    id:'sim_it_kickoff', phase:12, type:'sim', simlevel:7, dialogue:true,
+    name:'프로젝트 킥오프', icon:'🚀',
+    title:'롤플레이: 프로젝트 킥오프 미팅',
+    subtitle:'목표 확인 → 담당 범위 → 스프린트 → 기술 스택',
+    desc:'새 프로젝트 시작 — 목표·역할분담·스프린트·기술스택을 확인하는 완전한 킥오프 시나리오',
+    items:['itk_n','itk_1','itk_2','itk_3','itk_4','itk_5','itk_6','itk_7','itk_8','itk_9','itk_10']
+  },
+  {
+    id:'sim_it_spec', phase:12, type:'sim', simlevel:7, dialogue:true,
+    name:'사양 확인·상담', icon:'📝',
+    title:'롤플레이: 사양 확인 · 요건 상담',
+    subtitle:'논리삭제 vs 물리삭제 → 권한 확인 → 설계서 공유',
+    desc:'개발 시작 전 사양을 철저히 확인하는 대화 — 애매한 요건을 명확하게 만드는 실전 시나리오',
+    items:['itsp_n','itsp_1','itsp_2','itsp_3','itsp_4','itsp_5','itsp_6','itsp_7','itsp_8','itsp_9','itsp_10']
+  },
+  {
+    id:'sim_it_intro', phase:12, type:'sim', simlevel:7, dialogue:true,
+    name:'입사 첫날 자기소개', icon:'👋',
+    title:'롤플레이: 입사 첫날 자기소개',
+    subtitle:'이름·출신 → 경력·기술 → 잘 부탁 → 환경 구축',
+    desc:'일본 IT 회사 첫날 — 팀원 앞 자기소개부터 개발 환경 구축 시작까지 완전한 시나리오',
+    items:['iti_n','iti_1','iti_2','iti_3','iti_4','iti_5','iti_6','iti_7','iti_8']
   },
 ];
