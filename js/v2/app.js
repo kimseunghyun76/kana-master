@@ -148,11 +148,32 @@ const App = (() => {
     const prog = Store.get();
     _updateHeader();
     const next = getNextModule(prog);
+    const isFirstVisit = prog.xp === 0 && Object.keys(prog.modules).length === 0;
 
     let html = '';
 
+    // ── First Visit Welcome ────────────────────────────────
+    if (isFirstVisit) {
+      html += `
+        <div style="margin:16px;background:linear-gradient(135deg,#1e1b4b,#312e81);
+                    border:1px solid rgba(139,92,246,.4);border-radius:20px;padding:24px;text-align:center">
+          <div style="font-size:56px;margin-bottom:12px">🇯🇵</div>
+          <div style="font-size:20px;font-weight:800;margin-bottom:8px">일본어 마스터에 오신걸 환영해요!</div>
+          <div style="font-size:14px;color:var(--text2);line-height:1.6;margin-bottom:20px">
+            히라가나부터 IT 비즈니스 일본어까지<br>
+            단계별로 <b style="color:var(--accent2)">각개 격파</b>하는 학습 시스템이에요.<br>
+            먼저 히라가나부터 시작해 볼까요? 😊
+          </div>
+          <button class="btn btn-primary" onclick="App.openModule('kana_hira')"
+                  style="border-radius:20px;padding:14px 32px;font-size:16px">
+            🔤 히라가나 시작하기
+          </button>
+        </div>
+      `;
+    }
+
     // ── Continue Banner ──────────────────────────────────
-    if (next) {
+    if (next && !isFirstVisit) {
       const stage = STAGES.find(s => s.id === next.mod.stageId);
       const pct = getModuleProgressPct(next.mod.id, prog);
       const title = next.roleplay ? `🎭 ${next.mod.roleplay.name}` : next.mod.name;
@@ -168,7 +189,7 @@ const App = (() => {
           </div>
         </div>
       `;
-    } else {
+    } else if (!isFirstVisit) {
       html += `
         <div class="continue-banner" style="cursor:default;">
           <div class="continue-label">오늘의 학습</div>
@@ -178,30 +199,58 @@ const App = (() => {
       `;
     }
 
+    // ── Daily Missions ─────────────────────────────────────
+    if (!isFirstVisit) {
+      const missions = _getDailyMissions(prog);
+      const completedMissions = missions.filter(m => m.done).length;
+      html += `
+        <div style="margin:0 16px 4px">
+          <div class="section-title" style="padding:0 0 10px">
+            🎯 오늘의 미션 · ${completedMissions}/${missions.length}
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            ${missions.map(m => `
+              <div style="background:var(--card);border:1px solid ${m.done ? 'rgba(16,185,129,.3)' : 'var(--border)'};
+                           border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:12px;
+                           cursor:${m.action ? 'pointer' : 'default'}"
+                   onclick="${m.action || ''}">
+                <span style="font-size:22px">${m.icon}</span>
+                <div style="flex:1">
+                  <div style="font-size:13px;font-weight:700;${m.done ? 'text-decoration:line-through;color:var(--text3)' : ''}">${escHtml(m.title)}</div>
+                  <div style="font-size:11px;color:var(--text3);margin-top:2px">${escHtml(m.desc)}</div>
+                </div>
+                <span style="font-size:18px">${m.done ? '✅' : '→'}</span>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+
     // ── Stats ─────────────────────────────────────────────
-    const doneMods = Object.values(prog.modules).filter(
-      (mp, i) => {
-        const k = Object.keys(prog.modules)[i];
-        const mod = MODULES.find(m => m.id === k);
-        return mod && mp.stepsCompleted >= mod.steps.length;
-      }
-    ).length;
-    html += `
-      <div class="stats-row">
-        <div class="stat-card streak">
-          <div class="stat-num">${prog.streak}</div>
-          <div class="stat-name">🔥 연속 일수</div>
+    const doneMods = Object.entries(prog.modules).filter(([k, mp]) => {
+      const mod = MODULES.find(m => m.id === k);
+      return mod && mp.stepsCompleted >= mod.steps.length;
+    }).length;
+
+    if (!isFirstVisit) {
+      html += `
+        <div class="stats-row" style="margin-top:16px">
+          <div class="stat-card streak">
+            <div class="stat-num">${prog.streak}</div>
+            <div class="stat-name">🔥 연속 일수</div>
+          </div>
+          <div class="stat-card xp">
+            <div class="stat-num">${_formatNum(prog.xp)}</div>
+            <div class="stat-name">⚡ XP</div>
+          </div>
+          <div class="stat-card done">
+            <div class="stat-num">${doneMods}</div>
+            <div class="stat-name">✅ 완료 모듈</div>
+          </div>
         </div>
-        <div class="stat-card xp">
-          <div class="stat-num">${_formatNum(prog.xp)}</div>
-          <div class="stat-name">⚡ XP</div>
-        </div>
-        <div class="stat-card done">
-          <div class="stat-num">${doneMods}</div>
-          <div class="stat-name">✅ 완료 모듈</div>
-        </div>
-      </div>
-    `;
+      `;
+    }
 
     // ── Stage Map ─────────────────────────────────────────
     html += `<div class="section-title">학습 로드맵</div>`;
@@ -580,28 +629,46 @@ const App = (() => {
     const level = LEVELS.find(l => l.id === step.levelId);
     if (!level) { _advanceStep(); return; }
 
-    const chars = level.chars;
-    let cardIdx = 0;
-    let flipped = false;
+    // State stored on _flow so all handlers share it
+    _flow._kanaState = {
+      chars: level.chars,
+      level,
+      cardIdx: 0,
+      flipped: false,
+      stepIndex
+    };
 
     function render() {
-      const c = chars[cardIdx];
+      const st = _flow._kanaState;
+      const c = st.chars[st.cardIdx];
       const info = KANA_MAP[c] || {};
       const examples = (info.examples || []).slice(0, 3)
-        .map(ex => `<div class="kana-ex-pill"><span class="ex-word">${escHtml(ex.word)}</span> — ${escHtml(ex.meaning)}</div>`)
-        .join('');
+        .map(ex => `<div class="kana-ex-pill">
+          <span class="ex-word">${escHtml(ex.word)}</span>
+          <span style="color:var(--text3)"> — </span>${escHtml(ex.meaning)}
+        </div>`).join('');
+
+      const typeLabel = st.level.type
+        .replace('hiragana_dakuten','히라가나 탁음')
+        .replace('hiragana_yoon','히라가나 요음')
+        .replace('hiragana','히라가나')
+        .replace('katakana_dakuten','가타가나 탁음')
+        .replace('katakana_yoon','가타가나 요음')
+        .replace('katakana','가타가나');
 
       document.getElementById('flowBody').innerHTML = `
         <div class="kana-card-stack">
           <div style="font-size:12px;color:var(--text3);text-align:center;margin-bottom:12px">
-            ${cardIdx + 1} / ${chars.length} · ${escHtml(level.title)}
+            ${st.cardIdx + 1} / ${st.chars.length}
+            <span style="margin:0 6px">·</span>
+            <span style="color:var(--accent2)">${escHtml(typeLabel)}</span>
           </div>
-          <div class="kana-card ${flipped ? 'flipped' : ''}" id="kanaCard" onclick="App._flipKana()">
+          <div class="kana-card ${st.flipped ? 'flipped' : ''}" id="kanaCard" onclick="App._flipKana()">
             <div class="kana-card-inner">
               <div class="kana-face">
-                <div class="kana-type-label">${level.type.replace('_',' ')}</div>
+                <div class="kana-type-label">${escHtml(typeLabel)}</div>
                 <div class="kana-char">${escHtml(c)}</div>
-                <div class="kana-tap-hint">탭해서 읽는 법 보기</div>
+                <div class="kana-tap-hint">탭해서 읽는 법 보기 👆</div>
               </div>
               <div class="kana-back">
                 <div class="kana-romaji">${escHtml(info.romaji || '')}</div>
@@ -611,42 +678,53 @@ const App = (() => {
               </div>
             </div>
           </div>
+          <!-- Mini progress dots -->
+          <div style="display:flex;gap:3px;justify-content:center;margin-top:10px;flex-wrap:wrap;max-width:340px;padding:0 8px">
+            ${st.chars.slice(0, 46).map((ch, i) => `
+              <div style="width:7px;height:7px;border-radius:50%;flex-shrink:0;
+                background:${i < st.cardIdx ? 'var(--success)' : i === st.cardIdx ? 'var(--accent)' : 'var(--bg3)'}">
+              </div>`).join('')}
+          </div>
         </div>
       `;
 
-      const isLast = cardIdx === chars.length - 1;
+      const isLast = st.cardIdx === st.chars.length - 1;
+      const safeC = c.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
       document.getElementById('flowFooter').innerHTML = `
-        <div style="display:flex;gap:10px">
-          <button class="btn btn-outline" onclick="App._kanaLearnPrev()" ${cardIdx === 0 ? 'disabled' : ''}>← 이전</button>
+        <div style="display:flex;gap:10px;margin-bottom:10px">
+          <button class="btn btn-outline" onclick="App._kanaLearnPrev()"
+                  style="flex:1" ${st.cardIdx === 0 ? 'disabled' : ''}>← 이전</button>
           <button class="btn btn-primary" onclick="App._kanaLearnNext()" style="flex:2">
             ${isLast ? '완료 ✓' : '다음 →'}
           </button>
         </div>
-        <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-top:12px">
-          <button onclick="App._kanaSpeak('${c.replace(/'/g,"\\'")}', '${(info.romaji||'').replace(/'/g,"\\'")}');"
-                  style="background:var(--bg3);border:none;border-radius:20px;padding:6px 14px;color:var(--text);cursor:pointer;font-size:13px">
+        <div style="text-align:center">
+          <button onclick="TTS.speak('${safeC}')"
+                  style="background:var(--bg3);border:1px solid var(--border);border-radius:20px;
+                         padding:8px 20px;color:var(--text);cursor:pointer;font-size:13px;font-weight:600">
             🔊 듣기
           </button>
         </div>
       `;
     }
 
-    _flow._kanaState = { chars, level, cardIdx: 0, flipped: false, stepIndex };
     _flow._kanaRender = render;
-
     render();
-    TTS.speak(chars[0]);
+    TTS.speak(level.chars[0]);
   }
 
   function _flipKana() {
     if (!_flow._kanaState) return;
+    const st = _flow._kanaState;
+    st.flipped = !st.flipped;
     const card = document.getElementById('kanaCard');
-    _flow._kanaState.flipped = !_flow._kanaState.flipped;
-    if (_flow._kanaState.flipped) {
-      card.classList.add('flipped');
-      TTS.speak(_flow._kanaState.chars[_flow._kanaState.cardIdx]);
-    } else {
-      card.classList.remove('flipped');
+    if (card) {
+      if (st.flipped) {
+        card.classList.add('flipped');
+        TTS.speak(st.chars[st.cardIdx]);
+      } else {
+        card.classList.remove('flipped');
+      }
     }
   }
 
@@ -1273,30 +1351,80 @@ const App = (() => {
   }
 
   function _itemMatchesCat(item, catId) {
-    // Map VOCAB_CATEGORIES ids to item patterns
+    // Map category IDs → item ID prefixes (based on actual data file patterns)
     const CAT_PATTERNS = {
-      'basic_words':       ['w1_'],
-      'essential_phrases': ['gr_'],
-      'numbers_basic':     ['num_'],
-      'dates_days':        ['day_','date_','w2_'],
-      'time_expressions':  ['time_','w3_'],
-      'basic_verbs':       ['w5_','verb_'],
-      'adjectives':        ['w6_','adj_'],
-      'places_food':       ['w7_','place_'],
-      'body_health':       ['w8_','body_'],
-      'transport':         ['s1_','trans_'],
-      'food_restaurant':   ['s2_','food_'],
-      'hotel_accommodation':['s3_','hotel_'],
-      'shopping':          ['s4_','shop_'],
-      'it_tech_basic':     ['it_prog','it_code','it_bug','it_error','it_server','it_client','it_api','it_db','it_front','it_back','it_infra','it_docker','it_git','it_slack','it_log','it_test','it_build','it_deploy','it_release'],
-      'it_dev_process':    ['it_sprint','it_task','it_ticket','it_issue','it_pr','it_review','it_merge','it_refactor','it_debug','it_spec','it_design','it_standup','it_retro','it_kpt','it_pipe'],
-      'it_workplace':      ['it_engineer','it_designer','it_pm','it_po','it_qa','it_tl','it_ops','it_sre','it_deadline','it_priority','it_impact','it_release2','it_production','it_staging','it_local'],
-      'biz_greetings':     ['biz_otsu','biz_yoroshiku','biz_shochi','biz_ryokai','biz_kashiko','biz_osewa','biz_confirm','biz_taio','biz_kentou','biz_kyoyu','biz_kakunin','biz_renraku'],
-      'biz_hourensou':     ['biz_houkoku','biz_soudan','biz_shinchou','biz_yotei','biz_okure','biz_mondai','biz_kaichou','biz_tsuika','biz_ima','biz_ato'],
-      'biz_meeting':       ['biz_gidai','biz_gijiroku','biz_ikaga','biz_iken','biz_ossharu','biz_teian','biz_kansha','biz_imi','biz_jikan','biz_omakase','biz_wakarima','biz_matome'],
+      // W1W4 — vocab-items-w1w4.js
+      'basic_words':            ['w1_'],
+      'essential_phrases':      ['gr_'],
+      'numbers_basic':          ['num_', 'nap_'],
+      'dates_days':             ['dt_', 'dn_'],
+      'time_expressions':       ['dt_'],      // same dt_ prefix (date/time)
+      'pronouns':               ['prn_'],
+      // W5W8 — vocab-items-w5w8.js
+      'basic_verbs':            ['vb1_', 'vb2_', 'vb3_'],
+      'adjectives':             ['adj1_', 'adj2_', 'adj_'],
+      'places_food':            ['tr_', 'food_', 'pl_'],
+      'body_health':            ['bh_'],
+      'transport':              ['tr_'],
+      'food_restaurant':        ['food_'],
+      'youth_slang':            ['youth_'],
+      // W9W10 — vocab-items-w9w10.js
+      'it_tech_basic':          ['it_program','it_code','it_bug','it_error','it_server','it_client','it_api','it_db','it_frontend','it_backend','it_infra','it_docker','it_git','it_github','it_slack','it_log','it_test','it_build','it_deploy','it_release'],
+      'it_dev_process':         ['it_sprint','it_task','it_ticket','it_issue','it_pr','it_review','it_merge','it_refactor','it_debug','it_spec','it_design','it_standup','it_retrospec','it_kpt','it_pipeline'],
+      'it_workplace':           ['it_engineer','it_designer','it_pm','it_po','it_qa','it_tl','it_ops','it_sre','it_deadline','it_priority','it_impact','it_release2','it_production','it_staging','it_local'],
+      'biz_greetings':          ['biz_otsu','biz_yoroshiku','biz_shochi','biz_ryokai','biz_kashiko','biz_osewa','biz_confirm','biz_taio','biz_kentou','biz_kyoyu','biz_kakunin','biz_renraku'],
+      'biz_hourensou':          ['biz_houkoku','biz_soudan','biz_shinchou','biz_yotei','biz_okure','biz_mondai','biz_kaichou','biz_tsuika','biz_ima','biz_ato'],
+      'biz_meeting':            ['biz_gidai','biz_gijiroku','biz_ikaga','biz_iken','biz_ossharu','biz_teian','biz_kansha','biz_imi','biz_jikan','biz_omakase','biz_wakarima','biz_matome'],
+      // S1S5/S6SIM
+      'hotel_accommodation':    ['hd_','cin_','cout_','rs_'],
+      'shopping':               ['sd_','sel_','dnq_','dep_'],
     };
     const patterns = CAT_PATTERNS[catId] || [];
     return patterns.some(p => item.id && item.id.startsWith(p));
+  }
+
+  // ── Daily Missions ────────────────────────────────────────
+  function _getDailyMissions(prog) {
+    const today = new Date().toISOString().slice(0, 10);
+    const studiedToday = prog.studyDays?.includes(today);
+    const next = getNextModule(prog);
+    const missions = [];
+
+    // Mission 1: Study session
+    if (next) {
+      const mod = next.mod;
+      const mp = prog.modules[mod.id] || {};
+      const stepsDone = mp.stepsCompleted || 0;
+      missions.push({
+        icon: '📖',
+        title: next.roleplay ? `🎭 롤플레이: ${mod.roleplay.name}` : `${mod.name} 학습`,
+        desc: next.roleplay ? '모든 단계 완료! 롤플레이를 시작하세요' : `${stepsDone}/${mod.steps.length} 단계 완료`,
+        done: false,
+        action: `App.openModule('${mod.id}', ${next.roleplay ? 'true' : 'false'})`
+      });
+    }
+
+    // Mission 2: Daily XP goal
+    const todayXP = prog._todayXP || 0;
+    const xpGoal = 100;
+    missions.push({
+      icon: '⚡',
+      title: `오늘 ${xpGoal} XP 달성`,
+      desc: `현재 오늘 ${todayXP} XP 획득 · 목표까지 ${Math.max(0, xpGoal - todayXP)} XP`,
+      done: todayXP >= xpGoal,
+      action: null
+    });
+
+    // Mission 3: Streak check
+    missions.push({
+      icon: '🔥',
+      title: studiedToday ? `연속 ${prog.streak}일 달성!` : '오늘 첫 학습하기',
+      desc: studiedToday ? '오늘 학습 완료! 내일도 이어가세요' : '오늘 하나라도 학습하면 스트릭이 이어져요',
+      done: studiedToday,
+      action: studiedToday ? null : (next ? `App.openModule('${next.mod.id}')` : null)
+    });
+
+    return missions;
   }
 
   function _getAllVocabItems() {
@@ -1312,36 +1440,36 @@ const App = (() => {
 
   function _getDialogue(key) {
     if (!key) return null;
-    const D = typeof VOCAB_ITEMS_DIALOGUE !== 'undefined' ? VOCAB_ITEMS_DIALOGUE : [];
-    const S6 = typeof VOCAB_ITEMS_S6SIM !== 'undefined' ? VOCAB_ITEMS_S6SIM : [];
-    const IT = typeof VOCAB_ITEMS_IT_SIM !== 'undefined' ? VOCAB_ITEMS_IT_SIM : [];
+    const D  = typeof VOCAB_ITEMS_DIALOGUE !== 'undefined' ? VOCAB_ITEMS_DIALOGUE : [];
+    const IT = typeof VOCAB_ITEMS_IT_SIM   !== 'undefined' ? VOCAB_ITEMS_IT_SIM   : [];
+
+    // Helper: filter by id prefix(es)
+    const by = (...pres) => D.filter(x => pres.some(p => x.id?.startsWith(p)));
 
     const keyMap = {
-      // Stage 2 — travel dialogues from VOCAB_ITEMS_DIALOGUE or S6SIM
-      'transport':     D.filter(x => x.id?.startsWith('dt_') || x.id?.startsWith('tr_')),
-      'food':          D.filter(x => x.id?.startsWith('df_') || x.id?.startsWith('fd_')),
-      'hotel':         D.filter(x => x.id?.startsWith('dh_') || x.id?.startsWith('ht_')),
-      'shopping':      D.filter(x => x.id?.startsWith('ds_') || x.id?.startsWith('sh_')),
-      'schedule':      D.filter(x => x.id?.startsWith('dsc_') || x.id?.startsWith('sc_')),
-      'sightseeing':   D.filter(x => x.id?.startsWith('dg_') || x.id?.startsWith('sg_')),
-      // Stage 3 — daily dialogue
-      'first_meeting': D.filter(x => x.id?.startsWith('dm_')),
-      'daily_chat':    D.filter(x => x.id?.startsWith('dd_')),
-      'couple_travel': S6.filter(x => x.speaker),
-      // Stage 4 — IT dialogues
-      'it_standup':    IT.filter(x => x.id?.startsWith('its_') || x.id?.startsWith('its2_')),
-      'it_codereview': IT.filter(x => x.id?.startsWith('itcr_')),
+      // ── Stage 2: 생존 일본어 ──
+      'airport':       by('ap_'),           // 공항 체크인
+      'schedule':      by('ph_'),           // 전화 예약 (날짜·시간)
+      'transport':     [...by('sub_'), ...by('tx_'), ...by('bus_')],  // 지하철+택시+버스
+      'food':          [...by('rd_'), ...by('iz_'), ...by('cf_')],    // 식당+이자카야+카페
+      'hotel':         [...by('hd_'), ...by('cin_'), ...by('cout_'), ...by('rs_')], // 호텔 전체
+      'shopping':      [...by('sd_'), ...by('sel_'), ...by('dnq_'), ...by('dep_')], // 쇼핑 전체
+      // ── Stage 3: 일상 대화 ──
+      'first_meeting': by('dm_'),           // 처음 만남
+      'daily_chat':    by('dd_'),           // 스몰토크
+      'sightseeing':   [...by('ons_'), ...by('bsb_'), ...by('elv_')], // 관광지
+      'couple_travel': [...by('hp_'), ...by('pk_'), ...by('dk_'), ...by('air_')],  // 건강+약국+치과+비행기
+      // ── Stage 4: IT·비즈니스 ──
+      'it_standup':    IT.filter(x => x.id?.startsWith('its_')  || x.id?.startsWith('its2_')),
+      'it_codereview': IT.filter(x => x.id?.startsWith('itcr_') || x.id?.startsWith('itcr2_')),
       'it_1on1':       IT.filter(x => x.id?.startsWith('it1_')),
       'it_kickoff':    IT.filter(x => x.id?.startsWith('itk_')),
       'it_spec':       IT.filter(x => x.id?.startsWith('itsp_')),
       'it_intro':      IT.filter(x => x.id?.startsWith('iti_')),
-      // Fallback: airport → use first_meeting, restaurant → food scene
-      'airport':       D.filter(x => x.id?.startsWith('dm_')).slice(0, 8),
     };
 
     const result = keyMap[key] || [];
-    // Filter to only items that have speaker field OR are narrative
-    return result.filter(x => x.speaker || x.japanese).length > 0 ? result : null;
+    return result.length > 0 ? result : null;
   }
 
   // ── Misc Helpers ──────────────────────────────────────────
