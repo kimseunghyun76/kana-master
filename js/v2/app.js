@@ -105,6 +105,13 @@ const App = (() => {
           <button class="btn-back" onclick="App.closeFlow()">←</button>
           <div class="flow-title" id="flowTitle">학습 중...</div>
           <div class="flow-step" id="flowStep"></div>
+          <!-- 개발자 퀵 메뉴 -->
+          <button id="btnDevMenu" onclick="App._devMenu()"
+            title="개발자 테스트 도구"
+            style="margin-left:auto;background:none;border:none;color:#475569;
+                   font-size:16px;cursor:pointer;padding:4px 6px;border-radius:6px;
+                   transition:color .2s" onmouseover="this.style.color='#f59e0b'"
+                   onmouseout="this.style.color='#475569'">🛠</button>
         </div>
         <div class="flow-progress">
           <div class="flow-progress-fill" id="flowProgressFill" style="width:0%"></div>
@@ -1367,6 +1374,38 @@ const App = (() => {
   }
 
   // ── 개발자 테스트 도구 ────────────────────────────────────
+  function _devMenu() {
+    const xp = Store.get().xp;
+    const modName = _flow?.moduleId
+      ? (MODULES.find(m => m.id === _flow.moduleId)?.name || _flow.moduleId)
+      : '없음';
+    const stepInfo = _flow?.step >= 0
+      ? `단계 ${_flow.step + 1}`
+      : '인트로';
+
+    const choice = prompt(
+      `🛠 개발자 테스트 도구\n` +
+      `현재 XP: ${xp} | 모듈: ${modName} | ${stepInfo}\n\n` +
+      `1 → 현재 단계 스킵 (100점 통과)\n` +
+      `2 → 현재 모듈 전체 완료\n` +
+      `3 → XP +100\n` +
+      `4 → XP +500\n` +
+      `5 → XP +2000\n` +
+      `6 → 진도 초기화 후 새로고침`,
+      ''
+    );
+
+    switch (choice?.trim()) {
+      case '1': devSkipCurrentStep(); break;
+      case '2': devCompleteCurrentModule(); break;
+      case '3': devAddXP(100); break;
+      case '4': devAddXP(500); break;
+      case '5': devAddXP(2000); break;
+      case '6': resetProgress(); break;
+      default: break;
+    }
+  }
+
   function devAddXP(amount) {
     Store.addXP(amount);
     showToast(`⚡ +${amount} XP 추가! 현재: ${Store.get().xp} XP`);
@@ -1636,6 +1675,7 @@ const App = (() => {
     toggleTTS,
     resetProgress,
     // 개발자 테스트 도구
+    _devMenu,
     devAddXP,
     devSkipCurrentStep,
     devCompleteCurrentModule,
