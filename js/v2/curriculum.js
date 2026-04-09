@@ -116,6 +116,7 @@ const MODULES = [
     xp: 200,
     unlockAfter: ['kana_hira'],
     steps: [
+      { type: 'lecture',    title: '🎬 はじめまして의 비밀', lectureKey: 'slevel_1' },
       { type: 'vocab_learn', title: '인사 필수 표현', categoryId: 'basic_words', limit: 10 },
       { type: 'vocab_quiz',  title: '인사 표현 퀴즈', categoryId: 'basic_words', limit: 10 },
     ],
@@ -133,6 +134,7 @@ const MODULES = [
     xp: 300,
     unlockAfter: ['kana_hira'],
     steps: [
+      { type: 'lecture',    title: '🎬 인사의 나라', lectureKey: 'wlevel_1' },
       { type: 'vocab_learn', title: '인사·응답 어휘', categoryId: 'basic_words' },
       { type: 'vocab_learn', title: '필수 표현어', categoryId: 'essential_phrases' },
       { type: 'vocab_quiz',  title: '인사 퀴즈', categoryIds: ['basic_words', 'essential_phrases'] },
@@ -156,6 +158,7 @@ const MODULES = [
     xp: 350,
     unlockAfter: ['survival_greet'],
     steps: [
+      { type: 'lecture',    title: '🎬 불길한 숫자의 비밀', lectureKey: 'wlevel_2' },
       { type: 'vocab_learn', title: '숫자 기본', categoryId: 'numbers_basic' },
       { type: 'vocab_learn', title: '날짜·요일', categoryId: 'dates_days' },
       { type: 'vocab_learn', title: '시각 표현', categoryId: 'time_expressions' },
@@ -180,6 +183,7 @@ const MODULES = [
     xp: 380,
     unlockAfter: ['survival_numbers'],
     steps: [
+      { type: 'lecture',    title: '🎬 1초도 안 늦는 신칸센', lectureKey: 'slevel_4' },
       { type: 'vocab_learn', title: '교통 어휘', categoryId: 'transport' },
       { type: 'vocab_quiz',  title: '교통 어휘 퀴즈', categoryId: 'transport' },
       { type: 'dialogue_study', title: '대화 미리보기', dialogueKey: 'transport' },
@@ -203,6 +207,7 @@ const MODULES = [
     xp: 380,
     unlockAfter: ['survival_numbers'],
     steps: [
+      { type: 'lecture',    title: '🎬 いただきます의 의미', lectureKey: 'wlevel_7' },
       { type: 'vocab_learn', title: '음식·식당 어휘', categoryId: 'food_restaurant' },
       { type: 'vocab_quiz',  title: '음식 어휘 퀴즈', categoryId: 'food_restaurant' },
       { type: 'dialogue_study', title: '대화 미리보기', dialogueKey: 'food' },
@@ -226,6 +231,7 @@ const MODULES = [
     xp: 300,
     unlockAfter: ['survival_numbers'],
     steps: [
+      { type: 'lecture',    title: '🎬 いらっしゃいませ!', lectureKey: 'slevel_3' },
       { type: 'vocab_learn', title: '쇼핑 어휘', categoryId: 'shopping' },
       { type: 'vocab_quiz',  title: '쇼핑 퀴즈', categoryId: 'shopping' },
     ],
@@ -248,6 +254,7 @@ const MODULES = [
     xp: 300,
     unlockAfter: ['survival_transport'],
     steps: [
+      { type: 'lecture',    title: '🎬 료칸의 나라', lectureKey: 'slevel_5' },
       { type: 'vocab_learn', title: '숙박 어휘', categoryId: 'hotel_accommodation' },
       { type: 'vocab_quiz',  title: '숙박 퀴즈', categoryId: 'hotel_accommodation' },
     ],
@@ -271,6 +278,7 @@ const MODULES = [
     desc: '핵심 동사 30 + い형용사·な형용사',
     xp: 500,
     steps: [
+      { type: 'lecture',    title: '🎬 동사 3그룹의 비밀', lectureKey: 'wlevel_5' },
       { type: 'vocab_learn', title: '기본 동사', categoryId: 'basic_verbs' },
       { type: 'vocab_learn', title: 'い·な 형용사', categoryId: 'adjectives' },
       { type: 'vocab_quiz',  title: '동사·형용사 퀴즈', categoryIds: ['basic_verbs','adjectives'] },
@@ -309,6 +317,7 @@ const MODULES = [
     xp: 400,
     unlockAfter: ['daily_adjectives'],
     steps: [
+      { type: 'lecture',    title: '🎬 お大事に — 건강 표현', lectureKey: 'wlevel_8' },
       { type: 'vocab_learn', title: '신체·건강 어휘', categoryId: 'body_health' },
       { type: 'vocab_quiz',  title: '건강 퀴즈', categoryId: 'body_health' },
     ],

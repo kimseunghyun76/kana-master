@@ -1011,6 +1011,101 @@ body {
   max-width: 80%;
 }
 
+/* ── Lecture Player ───────────────────────────────────────── */
+.lecture-slide {
+  display: flex; flex-direction: column; gap: 14px;
+  padding: 4px 0 12px;
+}
+.lec-header {
+  display: flex; justify-content: space-between; align-items: center;
+}
+.lec-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: color-mix(in srgb, var(--lc, #6366f1) 20%, transparent);
+  border: 1px solid color-mix(in srgb, var(--lc, #6366f1) 40%, transparent);
+  color: var(--lc, #6366f1);
+  font-size: 12px; font-weight: 700;
+  padding: 4px 12px; border-radius: 20px;
+}
+.lec-counter {
+  font-size: 12px; color: var(--text3);
+  background: var(--bg3); border-radius: 20px;
+  padding: 4px 12px;
+}
+.lec-main-area {
+  background: var(--card2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px 20px;
+  text-align: center;
+  display: flex; flex-direction: column; align-items: center; gap: 12px;
+}
+.lec-main {
+  font-size: 26px; font-weight: 800; line-height: 1.25;
+  font-family: 'Noto Sans JP', sans-serif;
+  color: var(--text);
+}
+.lec-main ruby rt { font-size: 11px; color: var(--accent2); }
+.lec-sub {
+  font-size: 14px; color: var(--text2); line-height: 1.5;
+}
+.lec-reading {
+  font-size: 13px; color: var(--accent2);
+  background: rgba(99,102,241,.08); border-radius: 8px;
+  padding: 6px 16px; letter-spacing: 0.06em;
+  font-family: 'Noto Sans JP', sans-serif;
+}
+.lec-audio-btn {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: 20px; padding: 8px 20px;
+  color: var(--text); font-size: 14px; font-weight: 600;
+  cursor: pointer; transition: background var(--dur);
+  font-family: 'Noto Sans JP', sans-serif;
+}
+.lec-audio-btn:hover { background: var(--border); }
+.lec-audio-text ruby rt { font-size: 9px; color: var(--accent2); }
+
+.lec-caption-box {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.lec-cap-tabs {
+  display: flex; border-bottom: 1px solid var(--border);
+}
+.lec-cap-tab {
+  flex: 1; padding: 9px; font-size: 12px; font-weight: 600;
+  background: transparent; border: none; color: var(--text3); cursor: pointer;
+  transition: color var(--dur), background var(--dur);
+}
+.lec-cap-tab.active {
+  color: var(--accent2);
+  background: rgba(99,102,241,.08);
+  border-bottom: 2px solid var(--accent);
+}
+.lec-caption {
+  padding: 14px 16px;
+  font-size: 13px; color: var(--text2); line-height: 1.75;
+}
+.lec-caption ruby rt { font-size: 9px; color: var(--accent2); }
+
+/* 타이머 바 */
+.lec-timer-track {
+  height: 3px; background: var(--bg3); border-radius: 2px; overflow: hidden;
+}
+@keyframes lec-timer-drain {
+  from { width: 100%; }
+  to   { width: 0%; }
+}
+.lec-timer-bar {
+  height: 100%; background: var(--accent);
+  border-radius: 2px;
+  animation: lec-timer-drain linear forwards;
+  animation-play-state: running;
+}
+
 /* ── Module Intro ─────────────────────────────────────────── */
 .module-intro {
   display: flex; flex-direction: column;

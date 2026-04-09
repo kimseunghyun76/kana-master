@@ -685,6 +685,7 @@ const App = (() => {
     _updateFlowProgress(step, total, s.title);
 
     switch (s.type) {
+      case 'lecture':         _renderLecture(mod, s, step); break;
       case 'kana_learn':      _renderKanaLearn(mod, s, step); break;
       case 'kana_quiz':       _renderKanaQuiz(mod, s, step); break;
       case 'kana_listening':  _renderKanaListening(mod, s, step); break;
@@ -1361,6 +1362,177 @@ const App = (() => {
     } else {
       // 퀴즈만 다시 도전 (learn 단계로 돌아가지 않음)
       _runCurrentStep();
+    }
+  }
+
+  // ── Lecture Player ────────────────────────────────────────
+  const _LEC_TYPE = {
+    hook:     { icon: '🎣', color: '#6366f1' },
+    culture:  { icon: '🗾', color: '#10b981' },
+    story:    { icon: '📖', color: '#8b5cf6' },
+    mnemonic: { icon: '💡', color: '#f59e0b' },
+    funfact:  { icon: '🎯', color: '#3b82f6' },
+    practice: { icon: '✍️', color: '#ef4444' },
+    summary:  { icon: '✅', color: '#10b981' },
+  };
+
+  function _renderLecture(mod, step, stepIndex) {
+    const slides = (typeof LECTURE_DATA !== 'undefined') && LECTURE_DATA[step.lectureKey];
+    if (!slides?.length) { _advanceStep(); return; }
+    _flow._lecture = { slides, idx: 0, paused: false, stepIndex, mod, step, timerId: null };
+    _lectureRenderSlide();
+  }
+
+  function _lectureRenderSlide() {
+    const lc = _flow._lecture;
+    if (!lc) return;
+    const { slides, idx, stepIndex, mod, step } = lc;
+    const slide = slides[idx];
+    const ts = _LEC_TYPE[slide.type] || _LEC_TYPE.hook;
+    const isLast = idx === slides.length - 1;
+
+    _updateFlowProgress(stepIndex, mod.steps.length, step.title);
+    const overallPct = Math.round((idx / slides.length) * 100);
+    document.getElementById('flowProgressFill').style.width = overallPct + '%';
+
+    // 오디오 버튼
+    const safeAudio = (slide.audio || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+    const audioBtn = slide.audio ? `
+      <button class="lec-audio-btn" onclick="TTS.speak('${safeAudio}')">
+        🔊 <span class="lec-audio-text">${ruby(slide.audio)}</span>
+      </button>
+    ` : '';
+
+    document.getElementById('flowBody').innerHTML = `
+      <div class="lecture-slide" id="lectureSlide">
+        <div class="lec-header">
+          <div class="lec-badge" style="--lc:${ts.color}">${ts.icon} ${escHtml(slide.label || '')}</div>
+          <div class="lec-counter">${idx + 1} / ${slides.length}</div>
+        </div>
+
+        <div class="lec-main-area">
+          <div class="lec-main">${ruby(slide.main || '')}</div>
+          ${slide.sub ? `<div class="lec-sub">${escHtml(slide.sub)}</div>` : ''}
+          ${slide.reading ? `<div class="lec-reading">${escHtml(slide.reading)}</div>` : ''}
+          ${audioBtn}
+        </div>
+
+        <div class="lec-caption-box">
+          <div class="lec-cap-tabs">
+            <button class="lec-cap-tab active" id="capTabKo"
+                    onclick="App._lecCapTab('ko')">🇰🇷 한국어</button>
+            <button class="lec-cap-tab" id="capTabJp"
+                    onclick="App._lecCapTab('jp')">🇯🇵 日本語</button>
+          </div>
+          <div class="lec-caption" id="lecCapKo">${escHtml(slide.captionKo || '')}</div>
+          <div class="lec-caption hidden" id="lecCapJp">${ruby(slide.captionJp || '')}</div>
+        </div>
+
+        <!-- 타이머 바 -->
+        <div class="lec-timer-track">
+          <div class="lec-timer-bar" id="lecTimerBar"
+               style="animation-duration:${slide.duration || 6000}ms"></div>
+        </div>
+      </div>
+    `;
+
+    document.getElementById('flowFooter').innerHTML = `
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-outline" style="flex:1" id="btnLecPrev"
+                onclick="App._lecPrev()" ${idx === 0 ? 'disabled' : ''}>← 이전</button>
+        <button class="btn btn-outline" style="flex:1" id="btnLecPause"
+                onclick="App._lecPauseToggle()">⏸</button>
+        <button class="btn btn-primary" style="flex:2" id="btnLecNext"
+                onclick="App._lecNext()">
+          ${isLast ? '완료 ✓' : '다음 →'}
+        </button>
+      </div>
+    `;
+
+    // 오디오 자동 재생 (400ms 딜레이)
+    if (slide.audio) setTimeout(() => TTS.speak(slide.audio), 400);
+
+    // 타이머 자동 진행
+    _lecStartTimer();
+  }
+
+  function _lecStartTimer() {
+    const lc = _flow._lecture;
+    if (!lc || lc.paused) return;
+    // 기존 타이머 제거
+    if (lc.timerId) clearTimeout(lc.timerId);
+    const dur = lc.slides[lc.idx].duration || 6000;
+    lc.timerId = setTimeout(() => {
+      if (!_flow._lecture || _flow._lecture.paused) return;
+      _lecNext();
+    }, dur);
+  }
+
+  function _lecStopTimer() {
+    const lc = _flow._lecture;
+    if (!lc) return;
+    if (lc.timerId) { clearTimeout(lc.timerId); lc.timerId = null; }
+    // 타이머 바 정지
+    const bar = document.getElementById('lecTimerBar');
+    if (bar) bar.style.animationPlayState = 'paused';
+  }
+
+  function _lecNext() {
+    const lc = _flow._lecture;
+    if (!lc) return;
+    _lecStopTimer();
+    TTS.stop();
+    if (lc.idx >= lc.slides.length - 1) {
+      // 강의 완료
+      Store.completeStep(_flow.moduleId, lc.stepIndex);
+      Store.addXP(50);
+      _flow.step = lc.stepIndex + 1;
+      _flow._lecture = null;
+      _runCurrentStep();
+    } else {
+      lc.idx++;
+      lc.paused = false;
+      _lectureRenderSlide();
+    }
+  }
+
+  function _lecPrev() {
+    const lc = _flow._lecture;
+    if (!lc || lc.idx === 0) return;
+    _lecStopTimer();
+    TTS.stop();
+    lc.idx--;
+    lc.paused = false;
+    _lectureRenderSlide();
+  }
+
+  function _lecPauseToggle() {
+    const lc = _flow._lecture;
+    if (!lc) return;
+    lc.paused = !lc.paused;
+    const btn = document.getElementById('btnLecPause');
+    if (lc.paused) {
+      _lecStopTimer();
+      if (btn) btn.textContent = '▶ 재생';
+    } else {
+      const bar = document.getElementById('lecTimerBar');
+      if (bar) bar.style.animationPlayState = 'running';
+      if (btn) btn.textContent = '⏸';
+      _lecStartTimer();
+    }
+  }
+
+  function _lecCapTab(lang) {
+    const ko = document.getElementById('lecCapKo');
+    const jp = document.getElementById('lecCapJp');
+    const tKo = document.getElementById('capTabKo');
+    const tJp = document.getElementById('capTabJp');
+    if (lang === 'ko') {
+      ko?.classList.remove('hidden'); jp?.classList.add('hidden');
+      tKo?.classList.add('active'); tJp?.classList.remove('active');
+    } else {
+      jp?.classList.remove('hidden'); ko?.classList.add('hidden');
+      tJp?.classList.add('active'); tKo?.classList.remove('active');
     }
   }
 
@@ -2167,6 +2339,11 @@ const App = (() => {
     _afterQuiz,
     _listeningQuizAnswer,
     _listeningQuizNext,
+    // 강의 플레이어
+    _lecNext,
+    _lecPrev,
+    _lecPauseToggle,
+    _lecCapTab,
     _completeRoleplay,
     _replayAll,
     _stopRoleplay,
