@@ -988,6 +988,12 @@ body {
   ruby rt { font-size: 10px; color: var(--accent2); }
 }
 .dialogue-bubble .db-ko { font-size: 12px; color: var(--text2); margin-top: 4px; line-height: 1.4; }
+.dialogue-bubble .db-tip {
+  font-size: 11px; color: var(--text3); margin-top: 5px; line-height: 1.4;
+  background: rgba(245,158,11,.07); border-radius: 6px;
+  padding: 3px 7px; border-left: 2px solid rgba(245,158,11,.4);
+}
+.dialogue-bubble .db-tip ruby rt { font-size: 9px; color: var(--warning); }
 .dialogue-bubble .db-audio {
   font-size: 12px; color: var(--text3); cursor: pointer;
   margin-top: 4px; display: inline-block;

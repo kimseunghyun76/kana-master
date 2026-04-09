@@ -739,7 +739,7 @@ const App = (() => {
               <div class="kana-back">
                 <div class="kana-romaji">${escHtml(info.romaji || '')}</div>
                 <div class="kana-korean">${escHtml(info.korean || '')}</div>
-                ${info.tip ? `<div class="kana-tip">${escHtml(info.tip)}</div>` : ''}
+                ${info.tip ? `<div class="kana-tip">${ruby(info.tip)}</div>` : ''}
                 <div class="kana-examples">${examples}</div>
               </div>
             </div>
@@ -1027,7 +1027,7 @@ const App = (() => {
 
       const item = its[idx];
       const showFuri = Store.getSetting('furigana');
-      const jpHtml = showFuri ? formatJp(item) : escHtml(item.kanji || item.japanese || '');
+      const jpHtml = showFuri ? formatJp(item) : escHtml(stripFuri(item.kanji || item.japanese || ''));
       const jpText = item.japanese || item.kanji || '';
       const safeJp = jpText.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
       const pct = Math.round((idx / its.length) * 100);
@@ -1106,7 +1106,7 @@ const App = (() => {
 
     const item = items[idx];
     const showFuri = Store.getSetting('furigana');
-    const jpHtml = showFuri ? formatJp(item) : escHtml(item.kanji || item.japanese);
+    const jpHtml = showFuri ? formatJp(item) : escHtml(stripFuri(item.kanji || item.japanese || ''));
 
     _updateFlowProgress(stepIndex, mod.steps.length, step.title);
     document.getElementById('flowBody').innerHTML = `
@@ -1119,12 +1119,12 @@ const App = (() => {
         <div class="vc-num">어휘 ${idx + 1}</div>
         <div class="vc-jp">${jpHtml}</div>
         ${item.kanji && item.kanji !== item.japanese
-          ? `<div class="vc-kanji">${escHtml(item.kanji)}</div>` : ''}
+          ? `<div class="vc-kanji">${ruby(item.kanji)}</div>` : ''}
         ${showMeaning ? `
           <div class="vc-divider"></div>
           <div class="vc-meaning">${escHtml(item.korean || '')}</div>
           <div class="vc-english">${escHtml(item.english || '')}</div>
-          ${item.tip ? `<div class="vc-tip">${escHtml(item.tip)}</div>` : ''}
+          ${item.tip ? `<div class="vc-tip">${ruby(item.tip)}</div>` : ''}
         ` : `<div class="vc-flip-hint">탭해서 의미 보기 👆</div>`}
       </div>
       <div class="vocab-nav">
@@ -1341,17 +1341,20 @@ const App = (() => {
     const html = dialogues.map(line => {
       if (line.speaker === 'N') {
         return `<div class="dialogue-line speaker-N">
-          <div class="dialogue-narrator">${escHtml(line.japanese || '')}</div>
+          <div class="dialogue-narrator">${ruby(line.japanese || '')}</div>
         </div>`;
       }
-      const side = line.speaker === 'A' ? 'speaker-A' : 'speaker-B';
-      const label = line.speaker === 'A' ? '나' : 'B';
+      const sideMap = { A: 'speaker-A', B: 'speaker-B', C: 'speaker-C' };
+      const labelMap = { A: '나', B: 'B', C: 'C' };
+      const side  = sideMap[line.speaker] || 'speaker-B';
+      const label = labelMap[line.speaker] || line.speaker;
       return `
         <div class="dialogue-line ${side}">
           <div class="dialogue-avatar">${label}</div>
           <div class="dialogue-bubble">
             <div class="db-jp">${ruby(line.japanese || '')}</div>
             <div class="db-ko">${escHtml(line.korean || '')}</div>
+            ${line.tip ? `<div class="db-tip">${ruby(line.tip)}</div>` : ''}
             <span class="db-audio" onclick="TTS.speak('${(line.japanese||'').replace(/'/g,"\\'")}')">🔊 듣기</span>
           </div>
         </div>
@@ -1393,7 +1396,7 @@ const App = (() => {
     const html = dialogues.map((line, i) => {
       if (line.speaker === 'N') {
         return `<div class="dialogue-line speaker-N" id="dl-line-${i}">
-          <div class="dialogue-narrator">${escHtml(line.japanese || '')}</div>
+          <div class="dialogue-narrator">${ruby(line.japanese || '')}</div>
         </div>`;
       }
       const sideMap = { A: 'speaker-A', B: 'speaker-B', C: 'speaker-C' };
@@ -1406,6 +1409,7 @@ const App = (() => {
           <div class="dialogue-bubble">
             <div class="db-jp">${ruby(line.japanese || '')}</div>
             <div class="db-ko">${escHtml(line.korean || '')}</div>
+            ${line.tip ? `<div class="db-tip">${ruby(line.tip)}</div>` : ''}
             <span class="db-audio" onclick="TTS.speak('${(line.japanese||'').replace(/'/g,"\\'")}')">🔊</span>
           </div>
         </div>

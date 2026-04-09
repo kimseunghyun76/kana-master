@@ -23,12 +23,20 @@ function ruby(text, reading) {
     return `<ruby>${escHtml(text)}<rt>${escHtml(reading)}</rt></ruby>`;
   }
   // Auto-parse 漢字（よみ）or 漢字(よみ)
+  // Only convert when the reading part contains kana characters
   const parsed = String(text).replace(
-    /([^\s（\(）\)]+)[（\(]([^）\)]+)[）\)]/g,
+    /([^\s（\(）\)]+)[（\(]([ぁ-ヶ]+)[）\)]/g,
     (_, base, rt) => `<ruby>${escHtml(base)}<rt>${escHtml(rt)}</rt></ruby>`
   );
   if (parsed !== text) return parsed;
   return escHtml(text);
+}
+
+// ── Strip furigana parentheticals ─────────────────────────
+// 漢字(よみ) → 漢字  (후리가나 OFF 모드용)
+function stripFuri(text) {
+  if (!text) return '';
+  return String(text).replace(/[（(][ぁ-ヶ]+[）)]/g, '');
 }
 
 // ── Format vocab item Japanese with furigana ──────────────
