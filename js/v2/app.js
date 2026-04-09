@@ -636,12 +636,16 @@ const App = (() => {
 
   function _runCurrentStep() {
     const { moduleId, step } = _flow;
-    const mod = MODULES.find(m => m.id === moduleId);
+    // 실제 모듈 또는 연습용 가상 모듈
+    const mod = MODULES.find(m => m.id === moduleId) || _flow._virtMod;
     if (!mod) return;
 
     if (step >= mod.steps.length) {
-      // All steps done — show completion
-      _showModuleCompletion(mod);
+      if (_flow._virtMod) {
+        _showPracticeComplete(mod);
+      } else {
+        _showModuleCompletion(mod);
+      }
       return;
     }
 
@@ -650,13 +654,27 @@ const App = (() => {
     _updateFlowProgress(step, total, s.title);
 
     switch (s.type) {
-      case 'kana_learn':    _renderKanaLearn(mod, s, step); break;
-      case 'kana_quiz':     _renderKanaQuiz(mod, s, step); break;
-      case 'vocab_learn':   _renderVocabLearn(mod, s, step); break;
-      case 'vocab_quiz':    _renderVocabQuiz(mod, s, step); break;
-      case 'dialogue_study':_renderDialogueStudy(mod, s, step); break;
-      default:              _advanceStep(); break;
+      case 'kana_learn':      _renderKanaLearn(mod, s, step); break;
+      case 'kana_quiz':       _renderKanaQuiz(mod, s, step); break;
+      case 'kana_listening':  _renderKanaListening(mod, s, step); break;
+      case 'vocab_learn':     _renderVocabLearn(mod, s, step); break;
+      case 'vocab_quiz':      _renderVocabQuiz(mod, s, step); break;
+      case 'dialogue_study':  _renderDialogueStudy(mod, s, step); break;
+      default:                _advanceStep(); break;
     }
+  }
+
+  function _showPracticeComplete(mod) {
+    document.getElementById('flowBody').innerHTML = `
+      <div class="completion-screen">
+        <div class="completion-emoji">🎉</div>
+        <div class="completion-title">연습 완료!</div>
+        <div class="completion-sub">${escHtml(mod.name)} 세션 완료!<br>꾸준한 연습이 실력을 만들어요.</div>
+      </div>
+    `;
+    document.getElementById('flowFooter').innerHTML = `
+      <button class="btn btn-primary" onclick="App.closeFlow()">홈으로 →</button>
+    `;
   }
 
   function _advanceStep() {
@@ -893,6 +911,97 @@ const App = (() => {
 
   function _kanaQuizNext() {
     const fq = _flow._kanaQuiz;
+    if (!fq) return;
+    fq.qIdx++;
+    fq.renderQ();
+  }
+
+  // ── Kana Listening Quiz ───────────────────────────────────
+  function _renderKanaListening(mod, step, stepIndex) {
+    const chars = step.chars || shuffle(Object.keys(KANA_MAP)).slice(0, 15);
+
+    function renderQ() {
+      const fq = _flow._listeningQuiz;
+      if (!fq) return;
+      const { qIdx, correct, wrong } = fq;
+
+      if (qIdx >= fq.chars.length) {
+        _showQuizResult(correct, fq.chars.length, stepIndex,
+          Math.round((correct / fq.chars.length) * 100));
+        return;
+      }
+
+      const c = fq.chars[qIdx];
+      const info = KANA_MAP[c] || {};
+      // 같은 타입의 글자 3개를 오답 선지로
+      const pool = Object.keys(KANA_MAP).filter(k => k !== c && KANA_MAP[k]?.type === info.type);
+      const choices = shuffle([c, ...sample(pool, 3)]);
+
+      const pct = Math.round((qIdx / fq.chars.length) * 100);
+      _updateFlowProgress(stepIndex, mod.steps.length, step.title);
+      document.getElementById('flowProgressFill').style.width = pct + '%';
+
+      const safeC = c.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+      document.getElementById('flowBody').innerHTML = `
+        <div style="font-size:12px;color:var(--text3);text-align:center;margin-bottom:16px">
+          ${qIdx + 1} / ${fq.chars.length} · ✅ ${correct} · ❌ ${wrong}
+        </div>
+        <div class="quiz-question">
+          <div class="quiz-q-type">이 음성의 글자는?</div>
+          <div class="quiz-q-text" style="font-size:64px;line-height:1.1">🎧</div>
+          <button class="quiz-audio-btn" id="btnPlayAudio"
+                  onclick="TTS.speak('${safeC}')">🔊 다시 듣기</button>
+        </div>
+        <div class="quiz-choices">
+          ${choices.map((ch, i) => `
+            <button class="quiz-choice" data-correct="${ch === c}"
+                    onclick="App._listeningQuizAnswer(this, ${ch === c}, '${safeC}')">
+              <span class="qc-label">${['A','B','C','D'][i]}</span>
+              <span style="font-size:22px;font-weight:700">${escHtml(ch)}</span>
+            </button>
+          `).join('')}
+        </div>
+        <div class="quiz-feedback" id="quizFeedback"></div>
+      `;
+      document.getElementById('flowFooter').innerHTML = `
+        <button class="btn btn-primary hidden" id="btnNextQ" onclick="App._listeningQuizNext()">
+          다음 →
+        </button>
+      `;
+
+      // 자동 재생 (300ms 딜레이)
+      setTimeout(() => TTS.speak(c), 300);
+    }
+
+    _flow._listeningQuiz = { chars, qIdx: 0, correct: 0, wrong: 0, stepIndex, renderQ };
+    renderQ();
+  }
+
+  function _listeningQuizAnswer(btn, isCorrect, correctChar) {
+    const fq = _flow._listeningQuiz;
+    if (!fq) return;
+    document.querySelectorAll('.quiz-choice').forEach(b => {
+      b.classList.add('answered');
+      b.onclick = null;
+      if (b.dataset.correct === 'true') b.classList.add('correct');
+    });
+    btn.classList.add(isCorrect ? 'correct' : 'wrong');
+    if (isCorrect) { fq.correct++; }
+    else { fq.wrong++; TTS.speak(correctChar); }
+
+    const info = KANA_MAP[correctChar] || {};
+    const fb = document.getElementById('quizFeedback');
+    if (fb) {
+      fb.className = `quiz-feedback show ${isCorrect ? 'correct' : 'wrong'}`;
+      fb.textContent = isCorrect
+        ? `✅ 정답! ${correctChar} = ${info.romaji} (${info.korean})`
+        : `❌ 오답. 정답: ${correctChar} = ${info.romaji} (${info.korean})`;
+    }
+    show(document.getElementById('btnNextQ'));
+  }
+
+  function _listeningQuizNext() {
+    const fq = _flow._listeningQuiz;
     if (!fq) return;
     fq.qIdx++;
     fq.renderQ();
@@ -1146,8 +1255,7 @@ const App = (() => {
       _flow.step++;
       _runCurrentStep();
     } else {
-      // Retry same step
-      _flow.step = Math.max(0, _flow.step - 1);
+      // 퀴즈만 다시 도전 (learn 단계로 돌아가지 않음)
       _runCurrentStep();
     }
   }
@@ -1356,17 +1464,52 @@ const App = (() => {
     _renderKanaLearn(mod, mod.steps[0], 0);
   }
 
+  // ── 연습 플로우 공통 런처 ─────────────────────────────────
+  function _startPracticeFlow(virtMod) {
+    _flow = { moduleId: virtMod.id, step: 0, _virtMod: virtMod };
+    document.getElementById('flowTitle').textContent = virtMod.name;
+    document.getElementById('flowStep').textContent = '';
+    document.getElementById('flowProgressFill').style.width = '0%';
+    _openFlowScreen();
+    _runCurrentStep();
+  }
+
   function startVocabReview() {
-    showToast('📖 어휘 복습 — 곧 추가 예정!');
+    const items = shuffle(_getAllVocabItems()).slice(0, 20);
+    if (!items.length) { showToast('어휘 데이터를 불러올 수 없습니다'); return; }
+    _startPracticeFlow({
+      id: '_practice_vocab_review',
+      stageId: 1, name: '어휘 복습', icon: '📖',
+      steps: [{ type: 'vocab_learn', title: `어휘 플래시카드 (${items.length}개)`, items }],
+      roleplay: null
+    });
   }
 
   function startRandomQuiz(type) {
-    if (type === 'kana') startKanaReview();
-    else showToast('🎮 어휘 퀴즈 — 곧 추가 예정!');
+    if (type === 'kana') {
+      startKanaReview();
+    } else if (type === 'vocab') {
+      const items = shuffle(_getAllVocabItems()).slice(0, 20);
+      if (!items.length) { showToast('어휘 데이터를 불러올 수 없습니다'); return; }
+      _startPracticeFlow({
+        id: '_practice_vocab_quiz',
+        stageId: 1, name: '어휘 퀴즈', icon: '🎮',
+        steps: [{ type: 'vocab_quiz', title: `랜덤 어휘 퀴즈 (${items.length}문제)`, items }],
+        roleplay: null
+      });
+    }
   }
 
   function startListeningQuiz() {
-    showToast('🎧 듣기 퀴즈 — 곧 추가 예정!');
+    const allChars = Object.keys(KANA_MAP);
+    if (!allChars.length) { showToast('가나 데이터를 불러올 수 없습니다'); return; }
+    const chars = shuffle(allChars).slice(0, 15);
+    _startPracticeFlow({
+      id: '_practice_listening',
+      stageId: 1, name: '듣기 퀴즈', icon: '🎧',
+      steps: [{ type: 'kana_listening', title: `음성 듣고 글자 맞추기 (${chars.length}문제)`, chars }],
+      roleplay: null
+    });
   }
 
   function startSpeakingPractice() {
@@ -1472,6 +1615,8 @@ const App = (() => {
 
   // ── Data Helpers ──────────────────────────────────────────
   function _getVocabItems(step) {
+    // 연습 플로우처럼 items를 직접 주입한 경우
+    if (step.items) return step.items;
     const all = _getAllVocabItems();
     if (step.categoryId) {
       return all.filter(item => item.categoryId === step.categoryId
@@ -1695,6 +1840,8 @@ const App = (() => {
     _dialogueStudyDone,
     _startFlowFromStep,
     _afterQuiz,
+    _listeningQuizAnswer,
+    _listeningQuizNext,
     _completeRoleplay,
     _replayAll,
     _startRoleplay,

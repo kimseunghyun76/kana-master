@@ -101,6 +101,43 @@
 
   <script>
     const KEY = 'jp_master_v2';
+
+    // 모듈 순서 + 이름 (curriculum.js 미로드 — 하드코딩)
+    const MODULE_ORDER = [
+      { id: 'kana_hira',          name: '히라가나', steps: 6 },
+      { id: 'kana_kata',          name: '가타가나', steps: 6 },
+      { id: 'first_phrases',      name: '첫 인사 10', steps: 2 },
+      { id: 'survival_greet',     name: '인사·기본 표현', steps: 3 },
+      { id: 'survival_numbers',   name: '숫자·날짜·시간', steps: 4 },
+      { id: 'survival_transport', name: '교통 이동', steps: 3 },
+      { id: 'survival_food',      name: '식사·주문', steps: 3 },
+      { id: 'survival_shopping',  name: '쇼핑', steps: 2 },
+      { id: 'survival_hotel',     name: '숙박', steps: 2 },
+      { id: 'daily_adjectives',   name: '기본 동사·형용사', steps: 3 },
+      { id: 'daily_places',       name: '장소·관광', steps: 2 },
+      { id: 'daily_health',       name: '건강·신체', steps: 2 },
+      { id: 'daily_chat',         name: '일상 대화', steps: 2 },
+      { id: 'it_vocab',           name: 'IT 어휘', steps: 3 },
+      { id: 'biz_basics',         name: '비즈니스 기초', steps: 3 },
+      { id: 'it_standup',         name: 'IT 스탠드업', steps: 2 },
+      { id: 'it_codereview',      name: '코드 리뷰', steps: 2 },
+      { id: 'biz_meeting',        name: '비즈니스 회의', steps: 2 },
+      { id: 'advanced_1',         name: '심화 표현 1', steps: 2 },
+      { id: 'advanced_2',         name: '심화 표현 2', steps: 2 },
+    ];
+
+    function getNextModuleName(data) {
+      const mods = data.modules || {};
+      for (const m of MODULE_ORDER) {
+        const mp = mods[m.id];
+        if (!mp || mp.stepsCompleted < m.steps) {
+          const done = mp?.stepsCompleted || 0;
+          return done > 0 ? `${m.name} (${done}/${m.steps}단계)` : m.name;
+        }
+      }
+      return '🎉 모든 레슨 완료!';
+    }
+
     function load() {
       try {
         if (typeof chrome !== 'undefined' && chrome.storage) {
@@ -111,12 +148,19 @@
         }
       } catch(e) { update({}); }
     }
+
     function update(data) {
-      document.getElementById('popXP').textContent = data.xp || 0;
-      document.getElementById('popStreak').textContent = (data.streak || 0) + '🔥';
+      document.getElementById('popXP').textContent =
+        (data.xp || 0).toLocaleString();
+      document.getElementById('popStreak').textContent =
+        (data.streak || 0) + '🔥';
       const mods = Object.values(data.modules || {});
-      document.getElementById('popDone').textContent = mods.filter(m => m.stepsCompleted > 0).length;
+      document.getElementById('popDone').textContent =
+        mods.filter(m => m.stepsCompleted > 0).length;
+      document.getElementById('popNext').textContent =
+        getNextModuleName(data) + ' →';
     }
+
     document.getElementById('openApp').addEventListener('click', () => {
       if (typeof chrome !== 'undefined' && chrome.tabs) {
         chrome.tabs.create({ url: chrome.runtime.getURL('index.html') });
