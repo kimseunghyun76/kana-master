@@ -842,6 +842,29 @@ body {
 .quiz-feedback.correct { background: rgba(16,185,129,.1); border: 1px solid rgba(16,185,129,.3); color: #6ee7b7; }
 .quiz-feedback.wrong { background: rgba(239,68,68,.08); border: 1px solid rgba(239,68,68,.2); color: #fca5a5; }
 
+/* ── 퀴즈 정답/오답 이펙트 ──────────────────────────────── */
+@keyframes quiz-correct-flash {
+  0%   { background: rgba(16,185,129,.0); }
+  25%  { background: rgba(16,185,129,.25); }
+  60%  { background: rgba(16,185,129,.12); }
+  100% { background: transparent; }
+}
+@keyframes quiz-wrong-shake {
+  0%, 100% { transform: translateX(0); }
+  15%       { transform: translateX(-10px); }
+  30%       { transform: translateX(9px);  }
+  45%       { transform: translateX(-7px); }
+  60%       { transform: translateX(6px);  }
+  75%       { transform: translateX(-4px); }
+  90%       { transform: translateX(3px);  }
+}
+#flowBody.quiz-correct-flash {
+  animation: quiz-correct-flash 0.55s ease-out forwards;
+}
+#flowBody.quiz-wrong-shake {
+  animation: quiz-wrong-shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+}
+
 /* ── Score Screen ─────────────────────────────────────────── */
 .score-screen {
   flex: 1;
@@ -918,6 +941,7 @@ body {
 }
 .dialogue-line.speaker-A .dialogue-avatar { background: rgba(99,102,241,.2); color: var(--accent2); }
 .dialogue-line.speaker-B .dialogue-avatar { background: rgba(16,185,129,.2); color: #34d399; }
+.dialogue-line.speaker-C .dialogue-avatar { background: rgba(251,146,60,.2); color: #fb923c; }
 .dialogue-bubble {
   max-width: 75%;
   background: var(--card);
@@ -926,6 +950,36 @@ body {
   padding: 10px 14px;
 }
 .dialogue-line.speaker-A .dialogue-bubble { background: rgba(99,102,241,.12); border-color: rgba(99,102,241,.3); }
+.dialogue-line.speaker-C .dialogue-bubble { background: rgba(251,146,60,.08); border-color: rgba(251,146,60,.3); }
+
+/* ── 현재 재생 중인 라인 하이라이트 ── */
+@keyframes dl-playing-pulse {
+  0%, 100% { box-shadow: 0 0 0 2px transparent; }
+  50%       { box-shadow: 0 0 0 3px rgba(99,102,241,.6); }
+}
+.dialogue-line.playing .dialogue-bubble,
+.dialogue-line.playing .dialogue-narrator {
+  animation: dl-playing-pulse 0.9s ease-in-out infinite;
+  border-color: rgba(99,102,241,.6) !important;
+  background: rgba(99,102,241,.18) !important;
+  transition: background 0.2s;
+}
+.dialogue-line.speaker-B.playing .dialogue-bubble {
+  border-color: rgba(16,185,129,.6) !important;
+  background: rgba(16,185,129,.18) !important;
+  animation: none;
+  box-shadow: 0 0 0 3px rgba(16,185,129,.4);
+}
+.dialogue-line.speaker-C.playing .dialogue-bubble {
+  border-color: rgba(251,146,60,.6) !important;
+  background: rgba(251,146,60,.18) !important;
+  animation: none;
+  box-shadow: 0 0 0 3px rgba(251,146,60,.4);
+}
+.dialogue-line.playing .dialogue-avatar {
+  transform: scale(1.15);
+  transition: transform 0.2s;
+}
 .dialogue-bubble .db-jp {
   font-family: 'Noto Sans JP', serif;
   font-size: 15px;

@@ -3,6 +3,7 @@
    1단계: VOICEVOX  (localhost:50021) — 최고 품질
    2단계: Edge TTS  (localhost:5050)  — Microsoft 신경망 TTS
    3단계: Web Speech API             — 브라우저 폴백
+   + speakQueue(): 롤플레이 다중 화자 순차 재생
    ============================================================ */
 
 'use strict';
@@ -12,34 +13,35 @@ const TTS = (() => {
   const VOICEVOX_URL  = 'http://localhost:50021';
   const EDGE_TTS_URL  = 'http://localhost:5050';
   const TIMEOUT_MS    = 3000;
-
-  // VOICEVOX 화자 ID (0=사용안함, 3=Zundamon 기본, 8=春日部つむぎ 기본)
-  const VV_SPEAKER_ID = 3;
-
-  // Edge TTS 기본 음성
-  const EDGE_VOICE = 'ja-JP-NanamiNeural';
+  const VV_SPEAKER_DEFAULT_A = 3;   // ずんだもん ノーマル
+  const VV_SPEAKER_DEFAULT_B = 8;   // 春日部つむぎ ノーマル
+  const VV_SPEAKER_DEFAULT_C = 2;   // 四国めたん ノーマル
+  const EDGE_VOICE_DEFAULT   = 'ja-JP-NanamiNeural';
 
   // ── State ────────────────────────────────────────────────
-  let _enabled      = true;
-  let _rate         = 1.0;
-  let _vvAvailable  = false;  // VOICEVOX 사용 가능 여부
-  let _edgeAvailable= false;  // Edge TTS 사용 가능 여부
-  let _wsVoice      = null;   // Web Speech API 음성
-  let _currentAudio = null;   // 현재 재생 중인 Audio 객체
-  let _vvSpeakers   = [];     // VOICEVOX 화자 목록
-  let _vvSpeakerId  = parseInt(localStorage.getItem('tts_vv_speaker') ?? String(VV_SPEAKER_ID));
-  let _edgeVoice    = localStorage.getItem('tts_edge_voice') ?? EDGE_VOICE;
+  let _enabled       = true;
+  let _rate          = 1.0;
+  let _vvAvailable   = false;
+  let _edgeAvailable = false;
+  let _wsVoice       = null;
+  let _currentAudio  = null;
+  let _queueRunning  = false;   // speakQueue 실행 중 플래그
+  let _queueStop     = false;   // 큐 중단 신호
+
+  let _vvSpeakers  = [];
+  let _vvSpeakerA  = parseInt(localStorage.getItem('tts_vv_speaker')   ?? String(VV_SPEAKER_DEFAULT_A));
+  let _vvSpeakerB  = parseInt(localStorage.getItem('tts_vv_speaker_b') ?? String(VV_SPEAKER_DEFAULT_B));
+  let _vvSpeakerC  = parseInt(localStorage.getItem('tts_vv_speaker_c') ?? String(VV_SPEAKER_DEFAULT_C));
+  let _edgeVoice   = localStorage.getItem('tts_edge_voice') ?? EDGE_VOICE_DEFAULT;
 
   // ── Init ─────────────────────────────────────────────────
   async function init() {
-    // Web Speech API 음성 로드
     if (window.speechSynthesis) {
       _loadWsVoice();
       window.speechSynthesis.onvoiceschanged = _loadWsVoice;
     } else {
       _enabled = false;
     }
-    // VOICEVOX · Edge TTS 가용성 병렬 체크 (await로 완료 대기)
     await Promise.all([_checkVoicevox(), _checkEdgeTts()]);
   }
 
@@ -59,17 +61,19 @@ const TTS = (() => {
       if (r.ok) {
         _vvAvailable = true;
         const data = await r.json();
-        // 화자 목록 파싱: [{ id, name, styles:[{id, name}] }]
         _vvSpeakers = [];
         data.forEach(sp => {
           (sp.styles || []).forEach(style => {
             _vvSpeakers.push({ id: style.id, name: `${sp.name} (${style.name})` });
           });
         });
-        // 저장된 화자가 목록에 없으면 첫 번째로 리셋
-        if (!_vvSpeakers.find(s => s.id === _vvSpeakerId) && _vvSpeakers.length) {
-          _vvSpeakerId = _vvSpeakers[0].id;
-        }
+        // 저장된 화자가 없으면 기본값
+        if (!_vvSpeakers.find(s => s.id === _vvSpeakerA) && _vvSpeakers.length)
+          _vvSpeakerA = _vvSpeakers[0].id;
+        if (!_vvSpeakers.find(s => s.id === _vvSpeakerB) && _vvSpeakers.length > 1)
+          _vvSpeakerB = _vvSpeakers[1].id;
+        if (!_vvSpeakers.find(s => s.id === _vvSpeakerC) && _vvSpeakers.length > 2)
+          _vvSpeakerC = _vvSpeakers[2].id;
       }
     } catch { _vvAvailable = false; }
     console.log(`[TTS] VOICEVOX: ${_vvAvailable ? '✅ ' + _vvSpeakers.length + '명' : '❌'}`);
@@ -85,113 +89,162 @@ const TTS = (() => {
     console.log(`[TTS] Edge TTS: ${_edgeAvailable ? '✅' : '❌'}`);
   }
 
-  // ── Speak ─────────────────────────────────────────────────
-  async function speak(text, options = {}) {
+  // ── 단일 발화 (Promise 반환 — 완료 시 resolve) ────────────
+  async function _speakOne(text, speakerId) {
     if (!_enabled || !text) return;
-    stop(); // 이전 재생 중지
-
     if (_vvAvailable) {
-      const ok = await _speakVoicevox(text, options);
+      const ok = await _vvSynth(text, speakerId ?? _vvSpeakerA);
       if (ok) return;
     }
     if (_edgeAvailable) {
-      const ok = await _speakEdgeTts(text, options);
+      const ok = await _edgeSynth(text);
       if (ok) return;
     }
-    _speakWebSpeech(text, options);
+    await _wsSynth(text);
   }
 
-  // ── VOICEVOX ─────────────────────────────────────────────
-  async function _speakVoicevox(text, options) {
-    try {
-      const speakerId = options.speakerId ?? _vvSpeakerId;
-      const ctrl = new AbortController();
-      const tid = setTimeout(() => ctrl.abort(), TIMEOUT_MS);
+  async function _vvSynth(text, speakerId) {
+    return new Promise(async resolve => {
+      try {
+        const c1 = new AbortController();
+        setTimeout(() => c1.abort(), TIMEOUT_MS);
+        const qRes = await fetch(
+          `${VOICEVOX_URL}/audio_query?text=${encodeURIComponent(text)}&speaker=${speakerId}`,
+          { method: 'POST', signal: c1.signal }
+        );
+        if (!qRes.ok) { resolve(false); return; }
+        const query = await qRes.json();
+        query.speedScale = _rate;
 
-      // 1. audio_query
-      const qRes = await fetch(
-        `${VOICEVOX_URL}/audio_query?text=${encodeURIComponent(text)}&speaker=${speakerId}`,
-        { method: 'POST', signal: ctrl.signal }
-      );
-      clearTimeout(tid);
-      if (!qRes.ok) return false;
-      const query = await qRes.json();
+        const c2 = new AbortController();
+        setTimeout(() => c2.abort(), TIMEOUT_MS * 4);
+        const sRes = await fetch(
+          `${VOICEVOX_URL}/synthesis?speaker=${speakerId}`,
+          { method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(query), signal: c2.signal }
+        );
+        if (!sRes.ok) { resolve(false); return; }
 
-      // 속도 조정
-      query.speedScale = _rate * (options.rate ?? 1.0);
+        const blob = await sRes.blob();
+        const url  = URL.createObjectURL(blob);
+        _currentAudio = new Audio(url);
+        _currentAudio.onended  = () => { URL.revokeObjectURL(url); resolve(true); };
+        _currentAudio.onerror  = () => { URL.revokeObjectURL(url); resolve(false); };
+        await _currentAudio.play();
+      } catch(e) {
+        console.warn('[TTS] VV 실패:', e.message);
+        resolve(false);
+      }
+    });
+  }
 
-      // 2. synthesis
-      const ctrl2 = new AbortController();
-      const tid2 = setTimeout(() => ctrl2.abort(), TIMEOUT_MS * 3);
-      const sRes = await fetch(
-        `${VOICEVOX_URL}/synthesis?speaker=${speakerId}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(query),
-          signal: ctrl2.signal
-        }
-      );
-      clearTimeout(tid2);
-      if (!sRes.ok) return false;
+  async function _edgeSynth(text) {
+    return new Promise(async resolve => {
+      try {
+        const rate = Math.round((_rate - 1) * 100);
+        const url  = `${EDGE_TTS_URL}/synthesize?text=${encodeURIComponent(text)}&voice=${_edgeVoice}&rate=${rate}`;
+        const c = new AbortController();
+        setTimeout(() => c.abort(), TIMEOUT_MS * 4);
+        const res = await fetch(url, { signal: c.signal });
+        if (!res.ok) { resolve(false); return; }
+        const blob = await res.blob();
+        const au   = URL.createObjectURL(blob);
+        _currentAudio = new Audio(au);
+        _currentAudio.onended = () => { URL.revokeObjectURL(au); resolve(true); };
+        _currentAudio.onerror = () => { URL.revokeObjectURL(au); resolve(false); };
+        await _currentAudio.play();
+      } catch { resolve(false); }
+    });
+  }
 
-      const blob = await sRes.blob();
-      const url  = URL.createObjectURL(blob);
-      _currentAudio = new Audio(url);
-      _currentAudio.onended = () => URL.revokeObjectURL(url);
-      await _currentAudio.play();
-      return true;
-    } catch (e) {
-      console.warn('[TTS] VOICEVOX 실패, Edge TTS로 전환:', e.message);
-      _vvAvailable = false;  // 이번 세션은 비활성화
-      return false;
+  async function _wsSynth(text) {
+    return new Promise(resolve => {
+      if (!window.speechSynthesis) { resolve(); return; }
+      const utter = new SpeechSynthesisUtterance(text);
+      utter.lang  = 'ja-JP';
+      utter.rate  = _rate;
+      if (_wsVoice) utter.voice = _wsVoice;
+      utter.onend   = resolve;
+      utter.onerror = resolve;
+      window.speechSynthesis.speak(utter);
+    });
+  }
+
+  // ── 공개 speak() ─────────────────────────────────────────
+  async function speak(text, options = {}) {
+    if (!_enabled || !text) return;
+    stopQueue();
+    stop();
+    const sid = options.speakerId ?? _vvSpeakerA;
+    await _speakOne(text, sid);
+  }
+
+  // ── 순차 큐 재생 (롤플레이용) ─────────────────────────────
+  // lines: [{ text, speaker:'A'|'B'|'N', elementId }]
+  // callbacks: { onLineStart(idx, line), onLineEnd(idx, line), onDone() }
+  async function speakQueue(lines, callbacks = {}) {
+    stopQueue();
+    _queueRunning = true;
+    _queueStop    = false;
+
+    for (let i = 0; i < lines.length; i++) {
+      if (_queueStop) break;
+      const line = lines[i];
+      if (!line.text) continue;
+
+      // 화자 ID 결정 (A=학습자, B=상대방, C=제3자/점원 등, N=나레이터→A목소리)
+      const sid = line.speaker === 'B' ? _vvSpeakerB
+                : line.speaker === 'C' ? _vvSpeakerC
+                : _vvSpeakerA;
+
+      if (callbacks.onLineStart) callbacks.onLineStart(i, line);
+      await _speakOne(line.text, sid);
+      if (callbacks.onLineEnd) callbacks.onLineEnd(i, line);
+
+      if (!_queueStop) await _delay(250); // 라인 사이 짧은 쉬어가기
     }
+
+    _queueRunning = false;
+    if (!_queueStop && callbacks.onDone) callbacks.onDone();
   }
 
-  // ── Edge TTS ──────────────────────────────────────────────
-  async function _speakEdgeTts(text, options) {
-    try {
-      const voice = options.voice ?? _edgeVoice;
-      const rate  = Math.round((_rate * (options.rate ?? 1.0) - 1) * 100);  // %
-
-      const ctrl = new AbortController();
-      const tid = setTimeout(() => ctrl.abort(), TIMEOUT_MS * 3);
-      const url = `${EDGE_TTS_URL}/synthesize?text=${encodeURIComponent(text)}&voice=${voice}&rate=${rate}`;
-      const res = await fetch(url, { signal: ctrl.signal });
-      clearTimeout(tid);
-      if (!res.ok) return false;
-
-      const blob = await res.blob();
-      const audioUrl = URL.createObjectURL(blob);
-      _currentAudio = new Audio(audioUrl);
-      _currentAudio.onended = () => URL.revokeObjectURL(audioUrl);
-      await _currentAudio.play();
-      return true;
-    } catch (e) {
-      console.warn('[TTS] Edge TTS 실패, Web Speech로 전환:', e.message);
-      _edgeAvailable = false;
-      return false;
-    }
+  function stopQueue() {
+    _queueStop    = true;
+    _queueRunning = false;
+    stop();
   }
 
-  // ── Web Speech API ────────────────────────────────────────
-  function _speakWebSpeech(text, options) {
-    if (!window.speechSynthesis) return;
-    const utter = new SpeechSynthesisUtterance(text);
-    utter.lang  = 'ja-JP';
-    utter.rate  = _rate * (options.rate ?? 1.0);
-    utter.pitch = options.pitch ?? 1.0;
-    if (_wsVoice) utter.voice = _wsVoice;
-    window.speechSynthesis.speak(utter);
-  }
+  function isQueueRunning() { return _queueRunning; }
 
   // ── Controls ──────────────────────────────────────────────
+  function stop() {
+    if (_currentAudio) {
+      _currentAudio.pause();
+      _currentAudio.currentTime = 0;
+      _currentAudio = null;
+    }
+    window.speechSynthesis?.cancel();
+  }
+
+  function setRate(r) { _rate = Math.max(0.5, Math.min(2.0, r)); }
+
   // ── Speaker Settings ──────────────────────────────────────
-  function getVoicevoxSpeakers() { return _vvSpeakers; }
-  function getVoicevoxSpeakerId() { return _vvSpeakerId; }
+  function getVoicevoxSpeakers()   { return _vvSpeakers; }
+  function getVoicevoxSpeakerId()  { return _vvSpeakerA; }
+  function getVoicevoxSpeakerBId() { return _vvSpeakerB; }
+  function getVoicevoxSpeakerCId() { return _vvSpeakerC; }
+
   function setVoicevoxSpeaker(id) {
-    _vvSpeakerId = parseInt(id);
-    localStorage.setItem('tts_vv_speaker', String(_vvSpeakerId));
+    _vvSpeakerA = parseInt(id);
+    localStorage.setItem('tts_vv_speaker', String(_vvSpeakerA));
+  }
+  function setVoicevoxSpeakerB(id) {
+    _vvSpeakerB = parseInt(id);
+    localStorage.setItem('tts_vv_speaker_b', String(_vvSpeakerB));
+  }
+  function setVoicevoxSpeakerC(id) {
+    _vvSpeakerC = parseInt(id);
+    localStorage.setItem('tts_vv_speaker_c', String(_vvSpeakerC));
   }
 
   const EDGE_VOICES = [
@@ -207,36 +260,27 @@ const TTS = (() => {
     _edgeVoice = v;
     localStorage.setItem('tts_edge_voice', v);
   }
-
-  function getWebSpeechVoiceName() {
-    return _wsVoice?.name ?? '브라우저 기본';
-  }
-
-  function stop() {
-    if (_currentAudio) {
-      _currentAudio.pause();
-      _currentAudio.currentTime = 0;
-      _currentAudio = null;
-    }
-    window.speechSynthesis?.cancel();
-  }
-
-  function setRate(r) { _rate = Math.max(0.5, Math.min(2.0, r)); }
+  function getWebSpeechVoiceName() { return _wsVoice?.name ?? '브라우저 기본'; }
 
   function isEnabled()    { return _enabled; }
   function isVoicevox()   { return _vvAvailable; }
   function isEdgeTts()    { return _edgeAvailable; }
-
-  /** 현재 활성 TTS 엔진 이름 반환 */
   function getEngineName() {
     if (_vvAvailable)   return 'VOICEVOX 🎙️';
     if (_edgeAvailable) return 'Edge TTS 🌐';
     return 'Web Speech 🔊';
   }
 
+  // ── Util ─────────────────────────────────────────────────
+  function _delay(ms) { return new Promise(r => setTimeout(r, ms)); }
+
   return {
-    init, speak, stop, setRate, isEnabled, isVoicevox, isEdgeTts, getEngineName,
-    getVoicevoxSpeakers, getVoicevoxSpeakerId, setVoicevoxSpeaker,
+    init, speak, stop, setRate,
+    speakQueue, stopQueue, isQueueRunning,
+    isEnabled, isVoicevox, isEdgeTts, getEngineName,
+    getVoicevoxSpeakers,
+    getVoicevoxSpeakerId, getVoicevoxSpeakerBId, getVoicevoxSpeakerCId,
+    setVoicevoxSpeaker, setVoicevoxSpeakerB, setVoicevoxSpeakerC,
     getEdgeVoices, getEdgeVoice, setEdgeVoice, getWebSpeechVoiceName
   };
 })();

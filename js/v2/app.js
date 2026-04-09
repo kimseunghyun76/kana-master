@@ -888,21 +888,22 @@ const App = (() => {
   function _kanaQuizAnswer(btn, isCorrect) {
     const fq = _flow._kanaQuiz;
     if (!fq) return;
-    // Disable all buttons
     document.querySelectorAll('.quiz-choice').forEach(b => {
       b.classList.add('answered');
       b.onclick = null;
       if (b.dataset.correct === 'true') b.classList.add('correct');
     });
     btn.classList.add(isCorrect ? 'correct' : 'wrong');
-    if (isCorrect) { fq.correct++; }
-    else { fq.wrong++; TTS.speak(fq.chars[fq.qIdx]); }
+    if (isCorrect) { fq.correct++; } else { fq.wrong++; }
+    // 정답·오답 모두 음성 재생
+    TTS.speak(fq.chars[fq.qIdx]);
+    _playQuizEffect(isCorrect);
 
     const fb = document.getElementById('quizFeedback');
     if (fb) {
-      fb.className = `quiz-feedback show ${isCorrect ? 'correct' : 'wrong'}`;
       const c = fq.chars[fq.qIdx];
       const info = KANA_MAP[c] || {};
+      fb.className = `quiz-feedback show ${isCorrect ? 'correct' : 'wrong'}`;
       fb.textContent = isCorrect
         ? `✅ 정답! ${c} = ${info.romaji} (${info.korean})`
         : `❌ 오답. 정답: ${c} = ${info.romaji} (${info.korean})`;
@@ -987,8 +988,9 @@ const App = (() => {
       if (b.dataset.correct === 'true') b.classList.add('correct');
     });
     btn.classList.add(isCorrect ? 'correct' : 'wrong');
-    if (isCorrect) { fq.correct++; }
-    else { fq.wrong++; TTS.speak(correctChar); }
+    if (isCorrect) { fq.correct++; } else { fq.wrong++; }
+    TTS.speak(correctChar);
+    _playQuizEffect(isCorrect);
 
     const info = KANA_MAP[correctChar] || {};
     const fb = document.getElementById('quizFeedback');
@@ -1269,8 +1271,9 @@ const App = (() => {
       if (b.dataset.correct === 'true') b.classList.add('correct');
     });
     btn.classList.add(isCorrect ? 'correct' : 'wrong');
-    if (isCorrect) { fq.correct++; }
-    else { fq.wrong++; TTS.speak(jp); }
+    if (isCorrect) { fq.correct++; } else { fq.wrong++; }
+    TTS.speak(jp);
+    _playQuizEffect(isCorrect);
 
     const fb = document.getElementById('quizFeedback');
     if (fb) {
@@ -1389,14 +1392,16 @@ const App = (() => {
 
     const html = dialogues.map((line, i) => {
       if (line.speaker === 'N') {
-        return `<div class="dialogue-line speaker-N">
+        return `<div class="dialogue-line speaker-N" id="dl-line-${i}">
           <div class="dialogue-narrator">${escHtml(line.japanese || '')}</div>
         </div>`;
       }
-      const side = line.speaker === 'A' ? 'speaker-A' : 'speaker-B';
-      const label = line.speaker === 'A' ? '나' : 'B';
+      const sideMap = { A: 'speaker-A', B: 'speaker-B', C: 'speaker-C' };
+      const labelMap = { A: '나', B: 'B', C: 'C' };
+      const side  = sideMap[line.speaker] || 'speaker-B';
+      const label = labelMap[line.speaker] || line.speaker;
       return `
-        <div class="dialogue-line ${side}">
+        <div class="dialogue-line ${side}" id="dl-line-${i}">
           <div class="dialogue-avatar">${label}</div>
           <div class="dialogue-bubble">
             <div class="db-jp">${ruby(line.japanese || '')}</div>
@@ -1412,18 +1417,22 @@ const App = (() => {
         <div class="scene-title">${rp.icon} ${escHtml(rp.name)}</div>
         ${escHtml(rp.desc)}
       </div>
-      <div class="dialogue-list">${html}</div>
+      <div class="dialogue-list" id="dialogueList">${html}</div>
     `;
 
     document.getElementById('flowFooter').innerHTML = `
       <div style="display:flex;gap:10px">
-        <button class="btn btn-outline" onclick="App._replayAll('${mod.id}')">🔊 전체 재생</button>
+        <button class="btn btn-outline" id="btnReplayAll" onclick="App._replayAll('${mod.id}')">🔊 전체 재생</button>
+        <button class="btn btn-outline" id="btnStopPlay" style="display:none" onclick="App._stopRoleplay()">⏹ 정지</button>
         <button class="btn btn-success" onclick="App._completeRoleplay('${mod.id}')">완료 ✓</button>
       </div>
     `;
 
     _openFlowScreen();
     _flow = { moduleId: mod.id, step: -1, roleplay: true };
+
+    // 자동 재생
+    setTimeout(() => _replayAll(mod.id), 600);
   }
 
   function _replayAll(moduleId) {
@@ -1431,15 +1440,54 @@ const App = (() => {
     if (!mod?.roleplay) return;
     const dialogues = _getDialogue(mod.roleplay.dialogueKey);
     if (!dialogues) return;
-    let i = 0;
-    const playNext = () => {
-      while (i < dialogues.length && dialogues[i].speaker === 'N') i++;
-      if (i >= dialogues.length) return;
-      TTS.speak(dialogues[i].japanese || '');
-      i++;
-      setTimeout(playNext, 2500);
-    };
-    playNext();
+
+    // 재생 버튼 ↔ 정지 버튼 전환
+    const btnReplay = document.getElementById('btnReplayAll');
+    const btnStop   = document.getElementById('btnStopPlay');
+    if (btnReplay) btnReplay.style.display = 'none';
+    if (btnStop)   btnStop.style.display   = '';
+
+    // 나레이터(N) 포함 모든 라인을 큐에 넣되,
+    // N은 텍스트가 한국어 설명뿐이므로 TTS 스킵 (text 비워 _speakOne가 no-op)
+    const lines = dialogues.map((d, i) => ({
+      text:      d.speaker === 'N' ? '' : (d.japanese || ''),
+      speaker:   d.speaker,
+      elementId: `dl-line-${i}`
+    }));
+
+    TTS.speakQueue(lines, {
+      onLineStart: (idx, line) => {
+        // 이전 하이라이트 제거 후 현재 라인 하이라이트 + 스크롤
+        document.querySelectorAll('.dialogue-line.playing')
+                .forEach(el => el.classList.remove('playing'));
+        if (line.elementId) {
+          const el = document.getElementById(line.elementId);
+          if (el) {
+            el.classList.add('playing');
+            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        }
+      },
+      onLineEnd: (idx, line) => {
+        if (line.elementId) {
+          document.getElementById(line.elementId)?.classList.remove('playing');
+        }
+      },
+      onDone: () => {
+        if (btnReplay) btnReplay.style.display = '';
+        if (btnStop)   btnStop.style.display   = 'none';
+      }
+    });
+  }
+
+  function _stopRoleplay() {
+    TTS.stopQueue();
+    document.querySelectorAll('.dialogue-line.playing')
+            .forEach(el => el.classList.remove('playing'));
+    const btnReplay = document.getElementById('btnReplayAll');
+    const btnStop   = document.getElementById('btnStopPlay');
+    if (btnReplay) btnReplay.style.display = '';
+    if (btnStop)   btnStop.style.display   = 'none';
   }
 
   function _completeRoleplay(moduleId) {
@@ -1593,6 +1641,48 @@ const App = (() => {
     });
   }
 
+  // ── 퀴즈 정답/오답 이펙트 ────────────────────────────────
+  function _playQuizEffect(isCorrect) {
+    // 사운드 (Web Audio API — 짧은 비프음)
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc  = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+
+      if (isCorrect) {
+        // 정답: C5 → E5 상승 2음
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(523, ctx.currentTime);
+        osc.frequency.setValueAtTime(659, ctx.currentTime + 0.12);
+        gain.gain.setValueAtTime(0.25, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
+        osc.start(ctx.currentTime);
+        osc.stop(ctx.currentTime + 0.4);
+      } else {
+        // 오답: 낮은 감소음
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(240, ctx.currentTime);
+        osc.frequency.linearRampToValueAtTime(160, ctx.currentTime + 0.25);
+        gain.gain.setValueAtTime(0.18, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
+        osc.start(ctx.currentTime);
+        osc.stop(ctx.currentTime + 0.3);
+      }
+    } catch(e) { /* AudioContext 미지원 무시 */ }
+
+    // 애니메이션: flowBody에 flash/shake 클래스
+    const body = document.getElementById('flowBody');
+    if (body) {
+      const cls = isCorrect ? 'quiz-correct-flash' : 'quiz-wrong-shake';
+      body.classList.remove('quiz-correct-flash', 'quiz-wrong-shake');
+      void body.offsetWidth; // reflow for re-trigger
+      body.classList.add(cls);
+      setTimeout(() => body.classList.remove(cls), 600);
+    }
+  }
+
   // ── TTS 설정 UI 빌더 ─────────────────────────────────────
   function _buildTTSSettingsHtml() {
     const engine = TTS.getEngineName();
@@ -1604,25 +1694,44 @@ const App = (() => {
 
     if (TTS.isVoicevox()) {
       const speakers = TTS.getVoicevoxSpeakers();
-      const curId    = TTS.getVoicevoxSpeakerId();
+      const curA     = TTS.getVoicevoxSpeakerId();
+      const curB     = TTS.getVoicevoxSpeakerBId();
+      const curC     = TTS.getVoicevoxSpeakerCId();
+      const opts = speakers.map(s => ({ id: s.id, name: s.name }));
+      const makeSelect = (id, onChange, cur) =>
+        `<select id="${id}" onchange="${onChange}(this.value)"
+           style="width:100%;padding:8px 10px;background:var(--bg3);border:1px solid var(--border);
+                  border-radius:10px;color:var(--text);font-size:12px;cursor:pointer;margin-bottom:4px">
+           ${opts.map(s => `<option value="${s.id}" ${s.id === cur ? 'selected' : ''}>${escHtml(s.name)}</option>`).join('')}
+         </select>`;
       html += `
         <div style="margin-bottom:12px">
-          <div style="font-size:12px;color:var(--text2);margin-bottom:6px;font-weight:600">
-            🎙️ VOICEVOX 화자
+          <div style="font-size:12px;color:var(--text2);margin-bottom:8px;font-weight:600">
+            🎙️ VOICEVOX 화자 (롤플레이 다화자)
           </div>
-          <select id="vvSpeakerSelect" onchange="App.setVoicevoxSpeaker(this.value)"
-            style="width:100%;padding:10px 12px;background:var(--bg3);border:1px solid var(--border);
-                   border-radius:10px;color:var(--text);font-size:13px;cursor:pointer">
-            ${speakers.map(s =>
-              `<option value="${s.id}" ${s.id === curId ? 'selected' : ''}>${escHtml(s.name)}</option>`
-            ).join('')}
-          </select>
-          <button onclick="TTS.speak('おはようございます')"
-            style="margin-top:8px;width:100%;padding:9px;background:var(--bg3);
-                   border:1px solid var(--border);border-radius:10px;color:var(--text);
-                   font-size:13px;cursor:pointer">
-            🔊 테스트 재생
-          </button>
+          <div style="display:grid;gap:8px">
+            <div>
+              <div style="font-size:11px;color:var(--accent2);margin-bottom:3px">🟣 화자 A — 나 (학습자)</div>
+              ${makeSelect('vvSpeakerA', 'App.setVoicevoxSpeakerA', curA)}
+              <button onclick="TTS.speak('よろしくお願いします', {speakerId:${curA}})"
+                style="width:100%;padding:7px;background:var(--bg3);border:1px solid var(--border);
+                       border-radius:8px;color:var(--text);font-size:12px;cursor:pointer">🔊 테스트</button>
+            </div>
+            <div>
+              <div style="font-size:11px;color:#34d399;margin-bottom:3px">🟢 화자 B — 상대방</div>
+              ${makeSelect('vvSpeakerB', 'App.setVoicevoxSpeakerB', curB)}
+              <button onclick="TTS.speak('いらっしゃいませ。', {speakerId:${curB}})"
+                style="width:100%;padding:7px;background:var(--bg3);border:1px solid var(--border);
+                       border-radius:8px;color:var(--text);font-size:12px;cursor:pointer">🔊 테스트</button>
+            </div>
+            <div>
+              <div style="font-size:11px;color:#fb923c;margin-bottom:3px">🟠 화자 C — 제3자/점원</div>
+              ${makeSelect('vvSpeakerC', 'App.setVoicevoxSpeakerC', curC)}
+              <button onclick="TTS.speak('かしこまりました。', {speakerId:${curC}})"
+                style="width:100%;padding:7px;background:var(--bg3);border:1px solid var(--border);
+                       border-radius:8px;color:var(--text);font-size:12px;cursor:pointer">🔊 테스트</button>
+            </div>
+          </div>
         </div>
       `;
     } else if (TTS.isEdgeTts()) {
@@ -1663,10 +1772,24 @@ const App = (() => {
     return html;
   }
 
-  function setVoicevoxSpeaker(id) {
+  function setVoicevoxSpeaker(id) {   // legacy alias
     TTS.setVoicevoxSpeaker(id);
-    showToast('🎙️ 화자 변경됨');
-    TTS.speak('はじめまして。よろしくお願いします。');
+    showToast('🎙️ 화자 A 변경됨');
+  }
+  function setVoicevoxSpeakerA(id) {
+    TTS.setVoicevoxSpeaker(id);
+    showToast('🎙️ 화자 A 변경됨');
+    TTS.speak('よろしくお願いします', { speakerId: parseInt(id) });
+  }
+  function setVoicevoxSpeakerB(id) {
+    TTS.setVoicevoxSpeakerB(id);
+    showToast('🎙️ 화자 B 변경됨');
+    TTS.speak('いらっしゃいませ。', { speakerId: parseInt(id) });
+  }
+  function setVoicevoxSpeakerC(id) {
+    TTS.setVoicevoxSpeakerC(id);
+    showToast('🎙️ 화자 C 변경됨');
+    TTS.speak('かしこまりました。', { speakerId: parseInt(id) });
   }
 
   function setEdgeTTSVoice(v) {
@@ -1980,6 +2103,9 @@ const App = (() => {
     resetProgress,
     // TTS 설정
     setVoicevoxSpeaker,
+    setVoicevoxSpeakerA,
+    setVoicevoxSpeakerB,
+    setVoicevoxSpeakerC,
     setEdgeTTSVoice,
     // 쉐도잉
     _shadowingNext,
@@ -2008,6 +2134,7 @@ const App = (() => {
     _listeningQuizNext,
     _completeRoleplay,
     _replayAll,
+    _stopRoleplay,
     _startRoleplay,
     _getMod,
   };
