@@ -605,35 +605,23 @@ const App = (() => {
     document.getElementById('flowStep').textContent = '';
     document.getElementById('flowProgressFill').style.width = '0%';
 
-    // YouTube 강의 섹션
-    const ytVideos = (typeof YOUTUBE_LECTURES !== 'undefined' && YOUTUBE_LECTURES[mod.id]) || [];
-    const ytHtml = ytVideos.length ? `
-      <div class="yt-lecture-section">
-        <div class="yt-lecture-header">
-          <span>📺</span>
-          <span>관련 YouTube 강의</span>
-          <span class="yt-count">${ytVideos.length}</span>
+    // 인앱 강의 슬라이드 프리뷰 (있는 모듈만)
+    const lectureStep = mod.steps.find(s => s.type === 'lecture');
+    const lecPreviewHtml = lectureStep ? (() => {
+      const slides = (typeof LECTURE_DATA !== 'undefined') && LECTURE_DATA[lectureStep.lectureKey];
+      const firstSlide = slides?.[0];
+      if (!firstSlide) return '';
+      const ts = { hook:'🎣', culture:'🗾', story:'📖', mnemonic:'💡', funfact:'🎯', practice:'✍️', summary:'✅' };
+      const icon = ts[firstSlide.type] || '🎬';
+      return `
+        <div class="lec-preview-card">
+          <div class="lec-preview-badge">${icon} 인앱 강의 포함</div>
+          <div class="lec-preview-main">${ruby(firstSlide.main || '')}</div>
+          <div class="lec-preview-sub">${escHtml(firstSlide.sub || '')}</div>
+          <div class="lec-preview-slides">${slides.length}개 슬라이드 · 학습 시작 시 자동 재생</div>
         </div>
-        <div class="yt-lecture-list">
-          ${ytVideos.map(v => `
-            <a href="${escHtml(v.url)}" target="_blank" rel="noopener" class="yt-card"
-               onclick="event.stopPropagation()">
-              <div class="yt-card-icon">${getLectureIcon(v.type)}</div>
-              <div class="yt-card-body">
-                <div class="yt-card-title">${escHtml(v.title)}</div>
-                <div class="yt-card-meta">
-                  <span class="yt-channel">${escHtml(v.channel)}</span>
-                  <span class="yt-lang">${getLangBadge(v.lang)}</span>
-                  ${v.duration ? `<span class="yt-dur">⏱ ${escHtml(v.duration)}</span>` : ''}
-                </div>
-                <div class="yt-card-desc">${escHtml(v.desc)}</div>
-              </div>
-              <div class="yt-card-arrow">↗</div>
-            </a>
-          `).join('')}
-        </div>
-      </div>
-    ` : '';
+      `;
+    })() : '';
 
     document.getElementById('flowBody').innerHTML = `
       <div class="module-intro">
@@ -646,7 +634,7 @@ const App = (() => {
         </div>
         <div class="module-intro-items">${items}</div>
       </div>
-      ${ytHtml}
+      ${lecPreviewHtml}
     `;
 
     const btnLabel = stepsDone > 0 ? `${stepsDone}단계부터 이어서 ▶` : '학습 시작 ▶';
@@ -936,9 +924,9 @@ const App = (() => {
       const c = fq.chars[fq.qIdx];
       const info = KANA_MAP[c] || {};
       fb.className = `quiz-feedback show ${isCorrect ? 'correct' : 'wrong'}`;
-      fb.textContent = isCorrect
-        ? `✅ 정답! ${c} = ${info.romaji} (${info.korean})`
-        : `❌ 오답. 정답: ${c} = ${info.romaji} (${info.korean})`;
+      fb.innerHTML = isCorrect
+        ? `✅ 정답! <strong>${escHtml(c)}</strong> = ${escHtml(info.romaji)} (${escHtml(info.korean)})`
+        : `❌ 오답. 정답: <strong>${escHtml(c)}</strong> = ${escHtml(info.romaji)} (${escHtml(info.korean)})`;
     }
     show(document.getElementById('btnNextQ'));
   }
@@ -1028,9 +1016,9 @@ const App = (() => {
     const fb = document.getElementById('quizFeedback');
     if (fb) {
       fb.className = `quiz-feedback show ${isCorrect ? 'correct' : 'wrong'}`;
-      fb.textContent = isCorrect
-        ? `✅ 정답! ${correctChar} = ${info.romaji} (${info.korean})`
-        : `❌ 오답. 정답: ${correctChar} = ${info.romaji} (${info.korean})`;
+      fb.innerHTML = isCorrect
+        ? `✅ 정답! <strong>${escHtml(correctChar)}</strong> = ${escHtml(info.romaji)} (${escHtml(info.korean)})`
+        : `❌ 오답. 정답: <strong>${escHtml(correctChar)}</strong> = ${escHtml(info.romaji)} (${escHtml(info.korean)})`;
     }
     show(document.getElementById('btnNextQ'));
   }
@@ -1310,9 +1298,9 @@ const App = (() => {
     const fb = document.getElementById('quizFeedback');
     if (fb) {
       fb.className = `quiz-feedback show ${isCorrect ? 'correct' : 'wrong'}`;
-      fb.textContent = isCorrect
-        ? `✅ 정답! ${jp} = ${ko}`
-        : `❌ 오답. 정답: ${jp} = ${ko}`;
+      fb.innerHTML = isCorrect
+        ? `✅ 정답! <strong>${ruby(jp)}</strong> = ${escHtml(ko)}`
+        : `❌ 오답. 정답: <strong>${ruby(jp)}</strong> = ${escHtml(ko)}`;
     }
     show(document.getElementById('btnNextQ'));
   }

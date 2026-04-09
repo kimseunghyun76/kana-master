@@ -44,7 +44,8 @@ function formatJp(item) {
   if (!item) return '';
   const jp = item.japanese || '';
   const kj = item.kanji || '';
-  if (!kj || kj === jp) return escHtml(jp);
+  // japanese 필드에도 申(もう) 같은 패턴이 있을 수 있으므로 ruby() 사용
+  if (!kj || kj === jp) return ruby(jp);
   // Full kanji
   if (/^[\u4e00-\u9faf\u3400-\u4dbf]+$/.test(kj)) {
     return `<ruby>${escHtml(kj)}<rt>${escHtml(jp)}</rt></ruby>`;
