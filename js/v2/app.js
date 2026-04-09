@@ -508,17 +508,17 @@ const App = (() => {
             <span class="si-label">후리가나 표시</span>
             <span class="si-arrow">${prog.settings.furigana ? '✅' : '⬜'}</span>
           </div>
-          <div class="settings-item" onclick="App.toggleTTS()">
-            <span class="si-icon">🔊</span>
-            <span class="si-label">음성 자동 재생</span>
-            <span class="si-arrow">${TTS.isEnabled() ? '✅' : '⬜'}</span>
-          </div>
           <div class="settings-item" onclick="App.resetProgress()">
             <span class="si-icon">🗑️</span>
             <span class="si-label">진도 초기화</span>
             <span class="si-arrow">›</span>
           </div>
         </div>
+      </div>
+
+      <div class="profile-section">
+        <div class="profile-section-title">🔊 음성(TTS) 설정</div>
+        ${_buildTTSSettingsHtml()}
       </div>
 
       <div class="profile-section">
@@ -657,6 +657,7 @@ const App = (() => {
       case 'kana_learn':      _renderKanaLearn(mod, s, step); break;
       case 'kana_quiz':       _renderKanaQuiz(mod, s, step); break;
       case 'kana_listening':  _renderKanaListening(mod, s, step); break;
+      case 'shadowing':       _renderShadowing(mod, s, step); break;
       case 'vocab_learn':     _renderVocabLearn(mod, s, step); break;
       case 'vocab_quiz':      _renderVocabQuiz(mod, s, step); break;
       case 'dialogue_study':  _renderDialogueStudy(mod, s, step); break;
@@ -1005,6 +1006,75 @@ const App = (() => {
     if (!fq) return;
     fq.qIdx++;
     fq.renderQ();
+  }
+
+  // ── Shadowing Practice ───────────────────────────────────
+  function _renderShadowing(mod, step, stepIndex) {
+    const items = step.items || [];
+    if (!items.length) { _showPracticeComplete(mod); return; }
+
+    function renderItem() {
+      const sh = _flow._shadowing;
+      if (!sh) return;
+      const { items: its, idx } = sh;
+
+      if (idx >= its.length) {
+        _showPracticeComplete(mod);
+        return;
+      }
+
+      const item = its[idx];
+      const showFuri = Store.getSetting('furigana');
+      const jpHtml = showFuri ? formatJp(item) : escHtml(item.kanji || item.japanese || '');
+      const jpText = item.japanese || item.kanji || '';
+      const safeJp = jpText.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+      const pct = Math.round((idx / its.length) * 100);
+
+      _updateFlowProgress(stepIndex, mod.steps.length, step.title);
+      document.getElementById('flowProgressFill').style.width = pct + '%';
+
+      document.getElementById('flowBody').innerHTML = `
+        <div style="font-size:12px;color:var(--text3);text-align:center;margin-bottom:16px">
+          ${idx + 1} / ${its.length}
+        </div>
+        <div style="background:var(--bg2);border:1px solid var(--border);border-radius:20px;
+                    padding:32px 20px;text-align:center;margin-bottom:16px">
+          <div style="font-size:36px;font-weight:800;margin-bottom:12px;line-height:1.3">
+            ${jpHtml}
+          </div>
+          <div style="font-size:16px;color:var(--text2);margin-bottom:20px">
+            ${escHtml(item.korean || '')}
+          </div>
+          <button onclick="TTS.speak('${safeJp}')"
+            style="background:var(--bg3);border:1px solid var(--border);border-radius:20px;
+                   padding:10px 24px;color:var(--text);cursor:pointer;font-size:14px;font-weight:600">
+            🔊 다시 듣기
+          </button>
+        </div>
+        <div style="font-size:13px;color:var(--text3);text-align:center">
+          소리를 듣고 따라 말해보세요!
+        </div>
+      `;
+
+      document.getElementById('flowFooter').innerHTML = `
+        <button class="btn btn-primary" onclick="App._shadowingNext()" style="font-size:15px">
+          🗣️ 따라 말했어요 →
+        </button>
+      `;
+
+      // 자동 재생
+      setTimeout(() => TTS.speak(jpText), 300);
+    }
+
+    _flow._shadowing = { items, idx: 0, stepIndex, renderItem };
+    renderItem();
+  }
+
+  function _shadowingNext() {
+    const sh = _flow._shadowing;
+    if (!sh) return;
+    sh.idx++;
+    sh.renderItem();
   }
 
   // ── Vocab Learn ───────────────────────────────────────────
@@ -1513,7 +1583,96 @@ const App = (() => {
   }
 
   function startSpeakingPractice() {
-    showToast('🗣️ 따라 말하기 — 곧 추가 예정!');
+    const items = shuffle(_getAllVocabItems()).slice(0, 15);
+    if (!items.length) { showToast('어휘 데이터를 불러올 수 없습니다'); return; }
+    _startPracticeFlow({
+      id: '_practice_shadowing',
+      stageId: 1, name: '따라 말하기', icon: '🗣️',
+      steps: [{ type: 'shadowing', title: `쉐도잉 연습 (${items.length}개)`, items }],
+      roleplay: null
+    });
+  }
+
+  // ── TTS 설정 UI 빌더 ─────────────────────────────────────
+  function _buildTTSSettingsHtml() {
+    const engine = TTS.getEngineName();
+    let html = `
+      <div style="font-size:12px;color:var(--text3);margin-bottom:10px">
+        현재 엔진: <strong style="color:var(--accent2)">${escHtml(engine)}</strong>
+      </div>
+    `;
+
+    if (TTS.isVoicevox()) {
+      const speakers = TTS.getVoicevoxSpeakers();
+      const curId    = TTS.getVoicevoxSpeakerId();
+      html += `
+        <div style="margin-bottom:12px">
+          <div style="font-size:12px;color:var(--text2);margin-bottom:6px;font-weight:600">
+            🎙️ VOICEVOX 화자
+          </div>
+          <select id="vvSpeakerSelect" onchange="App.setVoicevoxSpeaker(this.value)"
+            style="width:100%;padding:10px 12px;background:var(--bg3);border:1px solid var(--border);
+                   border-radius:10px;color:var(--text);font-size:13px;cursor:pointer">
+            ${speakers.map(s =>
+              `<option value="${s.id}" ${s.id === curId ? 'selected' : ''}>${escHtml(s.name)}</option>`
+            ).join('')}
+          </select>
+          <button onclick="TTS.speak('おはようございます')"
+            style="margin-top:8px;width:100%;padding:9px;background:var(--bg3);
+                   border:1px solid var(--border);border-radius:10px;color:var(--text);
+                   font-size:13px;cursor:pointer">
+            🔊 테스트 재생
+          </button>
+        </div>
+      `;
+    } else if (TTS.isEdgeTts()) {
+      const voices = TTS.getEdgeVoices();
+      const curV   = TTS.getEdgeVoice();
+      html += `
+        <div style="margin-bottom:12px">
+          <div style="font-size:12px;color:var(--text2);margin-bottom:6px;font-weight:600">
+            🌐 Edge TTS 음성
+          </div>
+          <select id="edgeVoiceSelect" onchange="App.setEdgeTTSVoice(this.value)"
+            style="width:100%;padding:10px 12px;background:var(--bg3);border:1px solid var(--border);
+                   border-radius:10px;color:var(--text);font-size:13px;cursor:pointer">
+            ${voices.map(v =>
+              `<option value="${v.id}" ${v.id === curV ? 'selected' : ''}>${escHtml(v.name)}</option>`
+            ).join('')}
+          </select>
+          <button onclick="TTS.speak('おはようございます')"
+            style="margin-top:8px;width:100%;padding:9px;background:var(--bg3);
+                   border:1px solid var(--border);border-radius:10px;color:var(--text);
+                   font-size:13px;cursor:pointer">
+            🔊 테스트 재생
+          </button>
+        </div>
+      `;
+    } else {
+      html += `
+        <div style="font-size:13px;color:var(--text3);padding:10px 0">
+          🔊 브라우저 기본 음성: <strong>${escHtml(TTS.getWebSpeechVoiceName())}</strong><br>
+          <span style="font-size:11px;margin-top:6px;display:block">
+            더 좋은 음질을 원하면 VOICEVOX를 설치하세요.<br>
+            <a href="https://voicevox.hiroshiba.jp" target="_blank"
+               style="color:var(--accent)">voicevox.hiroshiba.jp</a>
+          </span>
+        </div>
+      `;
+    }
+    return html;
+  }
+
+  function setVoicevoxSpeaker(id) {
+    TTS.setVoicevoxSpeaker(id);
+    showToast('🎙️ 화자 변경됨');
+    TTS.speak('はじめまして。よろしくお願いします。');
+  }
+
+  function setEdgeTTSVoice(v) {
+    TTS.setEdgeVoice(v);
+    showToast('🌐 음성 변경됨');
+    TTS.speak('はじめまして。よろしくお願いします。');
   }
 
   // ── 개발자 테스트 도구 ────────────────────────────────────
@@ -1819,6 +1978,11 @@ const App = (() => {
     toggleFurigana,
     toggleTTS,
     resetProgress,
+    // TTS 설정
+    setVoicevoxSpeaker,
+    setEdgeTTSVoice,
+    // 쉐도잉
+    _shadowingNext,
     // 개발자 테스트 도구
     _devMenu,
     devAddXP,

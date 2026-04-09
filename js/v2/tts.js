@@ -26,6 +26,9 @@ const TTS = (() => {
   let _edgeAvailable= false;  // Edge TTS 사용 가능 여부
   let _wsVoice      = null;   // Web Speech API 음성
   let _currentAudio = null;   // 현재 재생 중인 Audio 객체
+  let _vvSpeakers   = [];     // VOICEVOX 화자 목록
+  let _vvSpeakerId  = parseInt(localStorage.getItem('tts_vv_speaker') ?? String(VV_SPEAKER_ID));
+  let _edgeVoice    = localStorage.getItem('tts_edge_voice') ?? EDGE_VOICE;
 
   // ── Init ─────────────────────────────────────────────────
   function init() {
@@ -54,9 +57,23 @@ const TTS = (() => {
       const ctrl = new AbortController();
       setTimeout(() => ctrl.abort(), TIMEOUT_MS);
       const r = await fetch(`${VOICEVOX_URL}/speakers`, { signal: ctrl.signal });
-      _vvAvailable = r.ok;
+      if (r.ok) {
+        _vvAvailable = true;
+        const data = await r.json();
+        // 화자 목록 파싱: [{ id, name, styles:[{id, name}] }]
+        _vvSpeakers = [];
+        data.forEach(sp => {
+          (sp.styles || []).forEach(style => {
+            _vvSpeakers.push({ id: style.id, name: `${sp.name} (${style.name})` });
+          });
+        });
+        // 저장된 화자가 목록에 없으면 첫 번째로 리셋
+        if (!_vvSpeakers.find(s => s.id === _vvSpeakerId) && _vvSpeakers.length) {
+          _vvSpeakerId = _vvSpeakers[0].id;
+        }
+      }
     } catch { _vvAvailable = false; }
-    console.log(`[TTS] VOICEVOX: ${_vvAvailable ? '✅' : '❌'}`);
+    console.log(`[TTS] VOICEVOX: ${_vvAvailable ? '✅ ' + _vvSpeakers.length + '명' : '❌'}`);
   }
 
   async function _checkEdgeTts() {
@@ -88,7 +105,7 @@ const TTS = (() => {
   // ── VOICEVOX ─────────────────────────────────────────────
   async function _speakVoicevox(text, options) {
     try {
-      const speakerId = options.speakerId ?? VV_SPEAKER_ID;
+      const speakerId = options.speakerId ?? _vvSpeakerId;
       const ctrl = new AbortController();
       const tid = setTimeout(() => ctrl.abort(), TIMEOUT_MS);
 
@@ -135,7 +152,7 @@ const TTS = (() => {
   // ── Edge TTS ──────────────────────────────────────────────
   async function _speakEdgeTts(text, options) {
     try {
-      const voice = options.voice ?? EDGE_VOICE;
+      const voice = options.voice ?? _edgeVoice;
       const rate  = Math.round((_rate * (options.rate ?? 1.0) - 1) * 100);  // %
 
       const ctrl = new AbortController();
@@ -170,6 +187,32 @@ const TTS = (() => {
   }
 
   // ── Controls ──────────────────────────────────────────────
+  // ── Speaker Settings ──────────────────────────────────────
+  function getVoicevoxSpeakers() { return _vvSpeakers; }
+  function getVoicevoxSpeakerId() { return _vvSpeakerId; }
+  function setVoicevoxSpeaker(id) {
+    _vvSpeakerId = parseInt(id);
+    localStorage.setItem('tts_vv_speaker', String(_vvSpeakerId));
+  }
+
+  const EDGE_VOICES = [
+    { id: 'ja-JP-NanamiNeural', name: 'Nanami (여성, 권장)' },
+    { id: 'ja-JP-KeitaNeural',  name: 'Keita (남성)' },
+    { id: 'ja-JP-AoiNeural',    name: 'Aoi (여성)' },
+    { id: 'ja-JP-MayuNeural',   name: 'Mayu (여성)' },
+    { id: 'ja-JP-NaokiNeural',  name: 'Naoki (남성)' },
+  ];
+  function getEdgeVoices() { return EDGE_VOICES; }
+  function getEdgeVoice()  { return _edgeVoice; }
+  function setEdgeVoice(v) {
+    _edgeVoice = v;
+    localStorage.setItem('tts_edge_voice', v);
+  }
+
+  function getWebSpeechVoiceName() {
+    return _wsVoice?.name ?? '브라우저 기본';
+  }
+
   function stop() {
     if (_currentAudio) {
       _currentAudio.pause();
@@ -192,5 +235,9 @@ const TTS = (() => {
     return 'Web Speech 🔊';
   }
 
-  return { init, speak, stop, setRate, isEnabled, isVoicevox, isEdgeTts, getEngineName };
+  return {
+    init, speak, stop, setRate, isEnabled, isVoicevox, isEdgeTts, getEngineName,
+    getVoicevoxSpeakers, getVoicevoxSpeakerId, setVoicevoxSpeaker,
+    getEdgeVoices, getEdgeVoice, setEdgeVoice, getWebSpeechVoiceName
+  };
 })();
