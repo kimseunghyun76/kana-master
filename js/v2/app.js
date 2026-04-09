@@ -605,6 +605,36 @@ const App = (() => {
     document.getElementById('flowStep').textContent = '';
     document.getElementById('flowProgressFill').style.width = '0%';
 
+    // YouTube 강의 섹션
+    const ytVideos = (typeof YOUTUBE_LECTURES !== 'undefined' && YOUTUBE_LECTURES[mod.id]) || [];
+    const ytHtml = ytVideos.length ? `
+      <div class="yt-lecture-section">
+        <div class="yt-lecture-header">
+          <span>📺</span>
+          <span>관련 YouTube 강의</span>
+          <span class="yt-count">${ytVideos.length}</span>
+        </div>
+        <div class="yt-lecture-list">
+          ${ytVideos.map(v => `
+            <a href="${escHtml(v.url)}" target="_blank" rel="noopener" class="yt-card"
+               onclick="event.stopPropagation()">
+              <div class="yt-card-icon">${getLectureIcon(v.type)}</div>
+              <div class="yt-card-body">
+                <div class="yt-card-title">${escHtml(v.title)}</div>
+                <div class="yt-card-meta">
+                  <span class="yt-channel">${escHtml(v.channel)}</span>
+                  <span class="yt-lang">${getLangBadge(v.lang)}</span>
+                  ${v.duration ? `<span class="yt-dur">⏱ ${escHtml(v.duration)}</span>` : ''}
+                </div>
+                <div class="yt-card-desc">${escHtml(v.desc)}</div>
+              </div>
+              <div class="yt-card-arrow">↗</div>
+            </a>
+          `).join('')}
+        </div>
+      </div>
+    ` : '';
+
     document.getElementById('flowBody').innerHTML = `
       <div class="module-intro">
         <div class="module-intro-icon">${escHtml(mod.icon)}</div>
@@ -616,6 +646,7 @@ const App = (() => {
         </div>
         <div class="module-intro-items">${items}</div>
       </div>
+      ${ytHtml}
     `;
 
     const btnLabel = stepsDone > 0 ? `${stepsDone}단계부터 이어서 ▶` : '학습 시작 ▶';

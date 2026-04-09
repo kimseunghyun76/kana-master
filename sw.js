@@ -3,7 +3,7 @@
 //  전략: Cache First (핵심 파일) + Network First (데이터)
 // ════════════════════════════════════════════════════════
 
-const APP_VERSION  = '2.5';                            // ← 배포 시 이 값만 올리면 캐시 자동 갱신
+const APP_VERSION  = '2.6';                            // ← 배포 시 이 값만 올리면 캐시 자동 갱신
 const CACHE_NAME   = `jp-master-v${APP_VERSION}`;
 const STATIC_CACHE = `jp-static-v${APP_VERSION}`;
 
