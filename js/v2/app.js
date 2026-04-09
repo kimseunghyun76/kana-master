@@ -513,6 +513,46 @@ const App = (() => {
           </div>
         </div>
       </div>
+
+      <div class="profile-section">
+        <div class="profile-section-title" style="color:var(--warning)">🛠️ 개발자 테스트 도구</div>
+        <div style="font-size:11px;color:var(--text3);padding:0 0 8px 2px">스테이지 해금·퀴즈 통과 테스트용</div>
+
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
+          <button onclick="App.devAddXP(100)"
+            style="flex:1;padding:10px 6px;background:#1e293b;border:1px solid #334155;
+                   border-radius:10px;color:var(--accent);font-weight:700;font-size:13px;cursor:pointer">
+            +100 XP
+          </button>
+          <button onclick="App.devAddXP(500)"
+            style="flex:1;padding:10px 6px;background:#1e293b;border:1px solid #334155;
+                   border-radius:10px;color:var(--accent);font-weight:700;font-size:13px;cursor:pointer">
+            +500 XP
+          </button>
+          <button onclick="App.devAddXP(2000)"
+            style="flex:1;padding:10px 6px;background:#1e293b;border:1px solid #334155;
+                   border-radius:10px;color:var(--accent);font-weight:700;font-size:13px;cursor:pointer">
+            +2000 XP
+          </button>
+        </div>
+
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">
+          <button onclick="App.devSkipCurrentStep()"
+            style="flex:1;min-width:120px;padding:10px 8px;background:#1e293b;border:1px dashed var(--warning);
+                   border-radius:10px;color:var(--warning);font-weight:700;font-size:12px;cursor:pointer">
+            ⏭ 현재 퀴즈 스킵 (100점)
+          </button>
+          <button onclick="App.devCompleteCurrentModule()"
+            style="flex:1;min-width:120px;padding:10px 8px;background:#1e293b;border:1px dashed var(--success);
+                   border-radius:10px;color:var(--success);font-weight:700;font-size:12px;cursor:pointer">
+            ✅ 현재 모듈 완료
+          </button>
+        </div>
+
+        <div style="font-size:11px;color:var(--text3);margin-top:4px">
+          현재 TTS: <strong style="color:var(--text2)">${TTS.getEngineName()}</strong>
+        </div>
+      </div>
     `;
     document.getElementById('profileContent').innerHTML = html;
   }
@@ -763,14 +803,18 @@ const App = (() => {
     if (!level) { _advanceStep(); return; }
 
     const chars = shuffle(level.chars).slice(0, Math.min(20, level.chars.length));
-    let qIdx = 0, correct = 0, wrong = 0, answered = false;
 
+    // renderQ는 반드시 _flow._kanaQuiz에서 읽어야 다음 문제로 넘어감 (클로저 버그 방지)
     function renderQ() {
-      if (qIdx >= chars.length) {
-        _showQuizResult(correct, chars.length, stepIndex, Math.round((correct/chars.length)*100));
+      const fq = _flow._kanaQuiz;
+      if (!fq) return;
+      const { qIdx, correct, wrong } = fq;
+
+      if (qIdx >= fq.chars.length) {
+        _showQuizResult(correct, fq.chars.length, stepIndex, Math.round((correct / fq.chars.length) * 100));
         return;
       }
-      const c = chars[qIdx];
+      const c = fq.chars[qIdx];
       const info = KANA_MAP[c] || {};
       // Build choices: 1 correct + 3 random distractors
       const allChars = Object.keys(KANA_MAP).filter(k => k !== c && KANA_MAP[k].type === info.type);
@@ -780,13 +824,13 @@ const App = (() => {
         ...distractors.map(d => ({ ...d, correct: false }))
       ]);
 
-      const pct = Math.round((qIdx / chars.length) * 100);
+      const pct = Math.round((qIdx / fq.chars.length) * 100);
       _updateFlowProgress(stepIndex, mod.steps.length, step.title);
       document.getElementById('flowProgressFill').style.width = pct + '%';
 
       document.getElementById('flowBody').innerHTML = `
         <div style="font-size:12px;color:var(--text3);text-align:center;margin-bottom:16px">
-          ${qIdx + 1} / ${chars.length} · ✅ ${correct} · ❌ ${wrong}
+          ${qIdx + 1} / ${fq.chars.length} · ✅ ${correct} · ❌ ${wrong}
         </div>
         <div class="quiz-question">
           <div class="quiz-q-type">이 글자의 발음은?</div>
@@ -977,26 +1021,31 @@ const App = (() => {
     if (!items.length) { _advanceStep(); return; }
 
     const questions = shuffle(items).slice(0, Math.min(15, items.length));
-    let qIdx = 0, correct = 0, wrong = 0;
 
     // Build all-items pool for distractors
     const allItems = _getAllVocabItems();
 
+    // renderQ는 반드시 _flow._vocabQuiz에서 읽어야 다음 문제로 넘어감 (클로저 버그 방지)
     function renderQ() {
-      if (qIdx >= questions.length) {
-        _showQuizResult(correct, questions.length, stepIndex, Math.round((correct/questions.length)*100));
+      const fq = _flow._vocabQuiz;
+      if (!fq) return;
+      const { qIdx, correct, wrong } = fq;
+
+      if (qIdx >= fq.questions.length) {
+        _showQuizResult(correct, fq.questions.length, stepIndex, Math.round((correct / fq.questions.length) * 100));
         return;
       }
-      const item = questions[qIdx];
+      const item = fq.questions[qIdx];
       const distractors = sample(allItems.filter(x => x.id !== item.id), 3);
       const choices = shuffle([
         { text: item.korean, correct: true },
         ...distractors.map(d => ({ text: d.korean, correct: false }))
       ]);
 
+      _updateFlowProgress(stepIndex, mod.steps.length, step.title);
       document.getElementById('flowBody').innerHTML = `
         <div style="font-size:12px;color:var(--text3);text-align:center;margin-bottom:16px">
-          ${qIdx + 1} / ${questions.length} · ✅ ${correct} · ❌ ${wrong}
+          ${qIdx + 1} / ${fq.questions.length} · ✅ ${correct} · ❌ ${wrong}
         </div>
         <div class="quiz-question">
           <div class="quiz-q-type">뜻은 무엇인가요?</div>
@@ -1317,6 +1366,50 @@ const App = (() => {
     showToast('🗣️ 따라 말하기 — 곧 추가 예정!');
   }
 
+  // ── 개발자 테스트 도구 ────────────────────────────────────
+  function devAddXP(amount) {
+    Store.addXP(amount);
+    showToast(`⚡ +${amount} XP 추가! 현재: ${Store.get().xp} XP`);
+    _renderHome();
+    _renderLesson();
+    _renderProfile();
+  }
+
+  function devSkipCurrentStep() {
+    if (!_flow || !_flow.moduleId) {
+      showToast('⚠️ 먼저 모듈을 열어주세요 (레슨 탭에서 모듈 선택)');
+      return;
+    }
+    const mod = MODULES.find(m => m.id === _flow.moduleId);
+    if (!mod) return;
+    const stepIndex = _flow.step;
+    if (stepIndex < 0 || stepIndex >= mod.steps.length) {
+      showToast('⚠️ 스킵할 단계가 없습니다');
+      return;
+    }
+    const step = mod.steps[stepIndex];
+    Store.completeStep(_flow.moduleId, stepIndex, 100);
+    Store.addXP(80);
+    showToast(`⏭ "${step.title}" 완료 처리 (100점)`);
+    _flow.step = stepIndex + 1;
+    _runCurrentStep();
+  }
+
+  function devCompleteCurrentModule() {
+    if (!_flow || !_flow.moduleId) {
+      showToast('⚠️ 먼저 모듈을 열어주세요');
+      return;
+    }
+    const mod = MODULES.find(m => m.id === _flow.moduleId);
+    if (!mod) return;
+    // 모든 단계 완료 처리
+    mod.steps.forEach((_, i) => Store.completeStep(_flow.moduleId, i, 100));
+    Store.addXP(mod.xp || 200);
+    showToast(`✅ "${mod.name}" 모든 단계 완료 처리!`);
+    _flow.step = mod.steps.length;
+    _runCurrentStep();
+  }
+
   // ── Settings ──────────────────────────────────────────────
   function toggleFurigana() {
     const cur = Store.getSetting('furigana');
@@ -1542,6 +1635,10 @@ const App = (() => {
     toggleFurigana,
     toggleTTS,
     resetProgress,
+    // 개발자 테스트 도구
+    devAddXP,
+    devSkipCurrentStep,
+    devCompleteCurrentModule,
     // Internal but called from HTML
     _flipKana,
     _kanaLearnNext,
