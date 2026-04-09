@@ -31,7 +31,7 @@ const TTS = (() => {
   let _edgeVoice    = localStorage.getItem('tts_edge_voice') ?? EDGE_VOICE;
 
   // ── Init ─────────────────────────────────────────────────
-  function init() {
+  async function init() {
     // Web Speech API 음성 로드
     if (window.speechSynthesis) {
       _loadWsVoice();
@@ -39,9 +39,8 @@ const TTS = (() => {
     } else {
       _enabled = false;
     }
-    // VOICEVOX · Edge TTS 가용성 비동기 체크
-    _checkVoicevox();
-    _checkEdgeTts();
+    // VOICEVOX · Edge TTS 가용성 병렬 체크 (await로 완료 대기)
+    await Promise.all([_checkVoicevox(), _checkEdgeTts()]);
   }
 
   function _loadWsVoice() {

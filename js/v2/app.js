@@ -16,7 +16,7 @@ const App = (() => {
   // ── Init ─────────────────────────────────────────────────
   async function init() {
     await Store.load();
-    TTS.init();
+    await TTS.init();  // VOICEVOX/Edge TTS 체크 완료 후 진행
     _buildUI();
     _bindNav();
     _renderHome();
