@@ -224,10 +224,14 @@
 .sign-vocab-list { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
 .sign-vocab-item {
   background: var(--blue-light); border-radius: 8px; padding: 6px 12px; font-size: 13px;
+  display: flex; align-items: center; gap: 4px; flex-wrap: wrap;
+  transition: background 0.15s;
 }
+.sign-vocab-item:hover { background: rgba(67,97,238,0.12); }
 .sign-vocab-item .sv-word { font-weight: 700; color: var(--blue); }
 .sign-vocab-item .sv-reading { color: var(--gray); font-size: 11px; }
-.sign-vocab-item .sv-meaning { color: var(--text); }
+.sign-vocab-item .sv-meaning { color: var(--text); flex: 1; }
+.sign-vocab-item .sv-speaker { color: var(--blue); opacity: 0.6; font-size: 12px; margin-left: auto; }
 .sign-tip-box {
   background: #fffbeb; border-left: 3px solid #f4a261;
   border-radius: 0 8px 8px 0; padding: 10px 14px;

@@ -1444,8 +1444,47 @@ body {
   box-shadow: 0 0 40px rgba(230, 57, 70, 0.4), 0 15px 40px rgba(0,0,0,0.15); 
   border-color: rgba(230, 57, 70, 0.6);
 }
-.fc-kana { font-size: clamp(60px, 14vw, 200px); line-height: 1; color: var(--text); }
+.fc-kana { font-size: clamp(120px, 26vw, 260px); line-height: 1; color: var(--text); }
 .fc-hint { color: var(--gray); font-size: 13px; margin-top: 12px; }
+
+/* ── 플래시카드 앞면 🔊 버튼 ── */
+.fc-sound-btn {
+  position: absolute; top: 12px; right: 12px;
+  background: rgba(67, 97, 238, 0.08);
+  border: 1.5px solid rgba(67, 97, 238, 0.2);
+  border-radius: 50%; width: 42px; height: 42px;
+  font-size: 19px; cursor: pointer; z-index: 5;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.15s;
+}
+.fc-sound-btn:hover { background: var(--blue-light); border-color: var(--blue); transform: scale(1.08); }
+.fc-sound-btn:active { transform: scale(0.92); }
+
+/* ── 플래시카드 뒷면 획순 미니패널 ── */
+.fcb-stroke-panel {
+  display: flex; align-items: center; gap: 14px;
+  padding: 10px 16px;
+  border-top: 1px solid rgba(0,0,0,0.06);
+  flex-shrink: 0;
+}
+.fcb-stroke-svg {
+  flex-shrink: 0; width: 96px; height: 96px;
+  border: 1px solid #e2e8f0; border-radius: 10px;
+  background: white;
+}
+.fcb-stroke-info {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 5px;
+}
+.fcb-stroke-label { font-size: 11px; font-weight: 700; color: #64748b; letter-spacing: 0.3px; }
+.fcb-stroke-count { font-size: 15px; font-weight: 800; color: var(--blue); }
+.fcb-stroke-play-btn {
+  background: var(--blue-light); color: var(--blue);
+  border: 1.5px solid var(--blue); border-radius: 8px;
+  padding: 5px 12px; font-size: 12px; font-weight: 700;
+  cursor: pointer; transition: all 0.15s;
+}
+.fcb-stroke-play-btn:hover { background: var(--blue); color: white; }
+.fcb-stroke-play-btn:disabled { opacity: 0.5; cursor: default; }
 /* ── 플래시카드 뒷면: 섹션 기반 레이아웃 ── */
 .flashcard-back { display: flex; flex-direction: column; }
 .fcb-main {
@@ -1930,7 +1969,7 @@ body {
   box-shadow: var(--shadow); margin-bottom: 20px;
   min-height: 180px; display: flex; align-items: center; justify-content: center;
 }
-.qb-kana { font-size: 100px; }
+.qb-kana { font-size: 130px; }
 .qb-label { font-size: 13px; color: var(--gray); margin-top: 8px; }
 .qb-listen-btn {
   background: var(--blue); color: white;
@@ -1982,6 +2021,10 @@ body {
   50% { transform: scale(1.08); }
   100% { transform: scale(1); }
 }
+@keyframes quizSparkFly {
+  0%   { transform: translate(0,0) scale(1); opacity: 1; }
+  100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; }
+}
 @keyframes quizWrong {
   10%, 90% { transform: translateX(-6px); }
   30%, 70% { transform: translateX(6px); }
@@ -1989,7 +2032,7 @@ body {
 }
 
 .choice-btn.disabled { cursor: not-allowed; opacity: 0.8; }
-.choice-kana { font-size: 34px; display: block; line-height: 1.2; }
+.choice-kana { font-size: 46px; display: block; line-height: 1.2; }
 .choice-reading { font-size: 14px; color: var(--gray); display: block; margin-top: 4px; font-weight: 600; }
 
 .quiz-feedback {
@@ -2516,6 +2559,26 @@ body {
 .qr-wc-reading { font-size: 11px; color: rgba(255,255,255,0.55); margin-top: 2px; }
 
 /* 결과 버튼 */
+/* ── 퀴즈 결과 통과/재도전 배지 ── */
+.qr-pass-badge {
+  display: none; width: 100%; text-align: center;
+  padding: 7px 14px; border-radius: 20px;
+  font-size: 13px; font-weight: 700; margin-bottom: 6px;
+}
+.qr-pass-badge:not(:empty) { display: block; }
+.qr-pass-ok { background: rgba(16,185,129,0.18); color: #10b981; border: 1.5px solid rgba(16,185,129,0.35); }
+.qr-pass-ng { background: rgba(239,68,68,0.12); color: #ef4444; border: 1.5px solid rgba(239,68,68,0.25); }
+
+/* ── 설정 퀴즈 탭 chip 버튼 ── */
+.setting-chip-row { display: flex; flex-wrap: wrap; gap: 6px; padding: 4px 0 8px 0; }
+.sq-chip {
+  padding: 5px 13px; border-radius: 20px; border: 1.5px solid var(--border);
+  background: #f8fafc; color: #64748b; font-size: 13px; font-weight: 600;
+  cursor: pointer; transition: all 0.15s;
+}
+.sq-chip:hover { border-color: var(--blue); color: var(--blue); background: var(--blue-light); }
+.sq-chip.active { background: var(--blue); color: white; border-color: var(--blue); }
+
 .qr-btns {
   display: flex; gap: 10px; justify-content: center;
   width: 100%;
@@ -6098,6 +6161,8 @@ rt {
 .lec-comp-btn-next:hover { opacity: 0.88; }
 .lec-comp-btn-back { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.8); border: 1px solid rgba(255,255,255,0.2); }
 .lec-comp-btn-back:hover { background: rgba(255,255,255,0.2); }
+.lec-comp-btn-replay { background: rgba(255,255,255,0.15); color: #fff; border: 1.5px solid rgba(255,255,255,0.4); }
+.lec-comp-btn-replay:hover { background: rgba(255,255,255,0.25); }
 /* ── 강의 칠판 애니메이션 ── */
 @keyframes lbCharAppear {
   from { opacity: 0; transform: scale(0.6) translateY(16px); }

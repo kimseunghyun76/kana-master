@@ -105,13 +105,6 @@ const App = (() => {
           <button class="btn-back" onclick="App.closeFlow()">←</button>
           <div class="flow-title" id="flowTitle">학습 중...</div>
           <div class="flow-step" id="flowStep"></div>
-          <!-- 개발자 퀵 메뉴 -->
-          <button id="btnDevMenu" onclick="App._devMenu()"
-            title="개발자 테스트 도구"
-            style="margin-left:auto;background:none;border:none;color:#475569;
-                   font-size:16px;cursor:pointer;padding:4px 6px;border-radius:6px;
-                   transition:color .2s" onmouseover="this.style.color='#f59e0b'"
-                   onmouseout="this.style.color='#475569'">🛠</button>
         </div>
         <div class="flow-progress">
           <div class="flow-progress-fill" id="flowProgressFill" style="width:0%"></div>
@@ -517,6 +510,27 @@ const App = (() => {
       </div>
 
       <div class="profile-section">
+        <div class="profile-section-title">📝 퀴즈 설정</div>
+        <div style="font-size:12px;color:var(--text3);margin-bottom:10px">통과 기준 점수</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          ${[50,60,70,80,90].map(r => {
+            const cur = parseInt(Store.getSetting('quizPassRate')) || 60;
+            const active = cur === r;
+            return `<button onclick="App.setQuizPassRate(${r})"
+              style="flex:1;padding:10px 6px;border-radius:10px;font-weight:700;font-size:13px;cursor:pointer;
+                     background:${active ? 'var(--accent)' : 'var(--bg3)'};
+                     border:1.5px solid ${active ? 'var(--accent)' : 'var(--border)'};
+                     color:${active ? '#fff' : 'var(--text2)'}">
+              ${r}%
+            </button>`;
+          }).join('')}
+        </div>
+        <div style="font-size:11px;color:var(--text3);margin-top:8px">
+          현재: <strong style="color:var(--accent)">${parseInt(Store.getSetting('quizPassRate')) || 60}% 이상</strong>이면 통과
+        </div>
+      </div>
+
+      <div class="profile-section">
         <div class="profile-section-title">🔊 음성(TTS) 설정</div>
         ${_buildTTSSettingsHtml()}
       </div>
@@ -637,12 +651,26 @@ const App = (() => {
       ${lecPreviewHtml}
     `;
 
-    const btnLabel = stepsDone > 0 ? `${stepsDone}단계부터 이어서 ▶` : '학습 시작 ▶';
-    document.getElementById('flowFooter').innerHTML = `
-      <button class="btn btn-primary" onclick="App._startFlowFromStep('${mod.id}', ${startStep})">
-        ${escHtml(btnLabel)}
-      </button>
-    `;
+    const allDone = stepsDone >= mod.steps.length;
+    if (stepsDone > 0) {
+      // 진행 중 또는 완료 — 처음부터 + 이어서 두 버튼 모두 표시
+      const continueLabel = allDone ? '복습 모드 (처음부터) ▶' : `${stepsDone}단계부터 이어서 ▶`;
+      document.getElementById('flowFooter').innerHTML = `
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-outline" style="flex:1"
+                  onclick="App._startFlowFromStep('${mod.id}', 0)">↩ 처음부터</button>
+          <button class="btn btn-primary" style="flex:2"
+                  onclick="App._startFlowFromStep('${mod.id}', ${startStep})">
+            ${escHtml(continueLabel)}
+          </button>
+        </div>
+      `;
+    } else {
+      document.getElementById('flowFooter').innerHTML = `
+        <button class="btn btn-primary"
+                onclick="App._startFlowFromStep('${mod.id}', 0)">학습 시작 ▶</button>
+      `;
+    }
 
     _openFlowScreen();
     _flow = { moduleId: mod.id, step: -1 };
@@ -727,6 +755,7 @@ const App = (() => {
     function render() {
       const st = _flow._kanaState;
       const c = st.chars[st.cardIdx];
+      const safeC = c.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
       const info = KANA_MAP[c] || {};
       const examples = (info.examples || []).slice(0, 3)
         .map(ex => `<div class="kana-ex-pill">
@@ -752,6 +781,7 @@ const App = (() => {
           <div class="kana-card ${st.flipped ? 'flipped' : ''}" id="kanaCard" onclick="App._flipKana()">
             <div class="kana-card-inner">
               <div class="kana-face">
+                <button class="kana-sound-btn" onclick="event.stopPropagation();TTS.speak('${safeC}')" title="발음 듣기">🔊</button>
                 <div class="kana-type-label">${escHtml(typeLabel)}</div>
                 <div class="kana-char">${escHtml(c)}</div>
                 <div class="kana-tap-hint">탭해서 읽는 법 보기 👆</div>
@@ -775,20 +805,12 @@ const App = (() => {
       `;
 
       const isLast = st.cardIdx === st.chars.length - 1;
-      const safeC = c.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
       document.getElementById('flowFooter').innerHTML = `
-        <div style="display:flex;gap:10px;margin-bottom:10px">
+        <div style="display:flex;gap:10px">
           <button class="btn btn-outline" onclick="App._kanaLearnPrev()"
                   style="flex:1" ${st.cardIdx === 0 ? 'disabled' : ''}>← 이전</button>
           <button class="btn btn-primary" onclick="App._kanaLearnNext()" style="flex:2">
             ${isLast ? '완료 ✓' : '다음 →'}
-          </button>
-        </div>
-        <div style="text-align:center">
-          <button onclick="TTS.speak('${safeC}')"
-                  style="background:var(--bg3);border:1px solid var(--border);border-radius:20px;
-                         padding:8px 20px;color:var(--text);cursor:pointer;font-size:13px;font-weight:600">
-            🔊 듣기
           </button>
         </div>
       `;
@@ -881,7 +903,7 @@ const App = (() => {
         <div class="quiz-question">
           <div class="quiz-q-type">이 글자의 발음은?</div>
           <div class="quiz-q-text">${escHtml(c)}</div>
-          <button class="quiz-audio-btn" onclick="TTS.speak('${c.replace(/'/g,"\\'")}')">🔊 듣기</button>
+          <button class="quiz-audio-btn" onclick="TTS.speak('${c.replace(/'/g,"\\'")}')">🔊</button>
         </div>
         <div class="quiz-choices" id="quizChoices">
           ${choices.map((ch, i) => `
@@ -972,7 +994,7 @@ const App = (() => {
           <div class="quiz-q-type">이 음성의 글자는?</div>
           <div class="quiz-q-text" style="font-size:64px;line-height:1.1">🎧</div>
           <button class="quiz-audio-btn" id="btnPlayAudio"
-                  onclick="TTS.speak('${safeC}')">🔊 다시 듣기</button>
+                  onclick="TTS.speak('${safeC}')">🔊</button>
         </div>
         <div class="quiz-choices">
           ${choices.map((ch, i) => `
@@ -1070,7 +1092,7 @@ const App = (() => {
           <button onclick="TTS.speak('${safeJp}')"
             style="background:var(--bg3);border:1px solid var(--border);border-radius:20px;
                    padding:10px 24px;color:var(--text);cursor:pointer;font-size:14px;font-weight:600">
-            🔊 다시 듣기
+            🔊
           </button>
         </div>
         <div style="font-size:13px;color:var(--text3);text-align:center">
@@ -1258,7 +1280,7 @@ const App = (() => {
         <div class="quiz-question">
           <div class="quiz-q-type">뜻은 무엇인가요?</div>
           <div class="quiz-q-text">${formatJp(item)}</div>
-          <button class="quiz-audio-btn" onclick="TTS.speak('${(item.japanese||'').replace(/'/g,"\\'")}')">🔊 듣기</button>
+          <button class="quiz-audio-btn" onclick="TTS.speak('${(item.japanese||'').replace(/'/g,"\\'")}')">🔊</button>
         </div>
         <div class="quiz-choices">
           ${choices.map((ch, i) => `
@@ -1315,9 +1337,14 @@ const App = (() => {
   // ── Quiz Result ───────────────────────────────────────────
   function _showQuizResult(correct, total, stepIndex, score) {
     const pct = score;
+    const passRate = parseInt(Store.getSetting('quizPassRate')) || 60;
+    const passed = pct >= passRate;
     const emoji = pct >= 90 ? '🏆' : pct >= 70 ? '🎉' : pct >= 50 ? '😊' : '💪';
     const title = pct >= 90 ? '완벽해요!' : pct >= 70 ? '잘 했어요!' : pct >= 50 ? '괜찮아요!' : '다시 도전!';
     const xpEarned = Math.round((pct / 100) * 100 + 20);
+    const passBadge = passed
+      ? `<div class="v2-pass-badge v2-pass-ok">✅ 통과! (기준 ${passRate}%)</div>`
+      : `<div class="v2-pass-badge v2-pass-ng">❌ 재도전 필요 (기준 ${passRate}%, 현재 ${pct}%)</div>`;
 
     Store.completeStep(_flow.moduleId, stepIndex, score);
     Store.addXP(xpEarned);
@@ -1331,14 +1358,15 @@ const App = (() => {
         <div class="score-ring" id="scoreRing">
           <div class="score-pct">${pct}%</div>
         </div>
+        ${passBadge}
         <div class="xp-earned">+<span class="xp-num">${xpEarned}</span> XP 획득!</div>
       </div>
     `;
     updateScoreRing(document.getElementById('scoreRing'), pct);
 
     document.getElementById('flowFooter').innerHTML = `
-      <button class="btn btn-primary" onclick="App._afterQuiz(${pct >= 60})">
-        ${pct >= 60 ? '다음 단계 →' : '다시 도전 🔁'}
+      <button class="btn btn-primary" onclick="App._afterQuiz(${passed})">
+        ${passed ? '다음 단계 →' : '다시 도전 🔁'}
       </button>
     `;
   }
@@ -1383,14 +1411,6 @@ const App = (() => {
     const overallPct = Math.round((idx / slides.length) * 100);
     document.getElementById('flowProgressFill').style.width = overallPct + '%';
 
-    // 오디오 버튼
-    const safeAudio = (slide.audio || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
-    const audioBtn = slide.audio ? `
-      <button class="lec-audio-btn" onclick="TTS.speak('${safeAudio}')">
-        🔊 <span class="lec-audio-text">${ruby(slide.audio)}</span>
-      </button>
-    ` : '';
-
     document.getElementById('flowBody').innerHTML = `
       <div class="lecture-slide" id="lectureSlide">
         <div class="lec-header">
@@ -1398,28 +1418,23 @@ const App = (() => {
           <div class="lec-counter">${idx + 1} / ${slides.length}</div>
         </div>
 
-        <div class="lec-main-area">
-          <div class="lec-main">${ruby(slide.main || '')}</div>
-          ${slide.sub ? `<div class="lec-sub">${escHtml(slide.sub)}</div>` : ''}
-          ${slide.reading ? `<div class="lec-reading">${escHtml(slide.reading)}</div>` : ''}
-          ${audioBtn}
+        <!-- 칠판 영역 — 애니메이션 여기서 발생 -->
+        <div class="lec-board" id="lecBoard">
+          <div class="lec-board-text" id="lecBoardText"></div>
+          ${slide.sub ? `<div class="lec-board-sub">${escHtml(slide.sub)}</div>` : ''}
         </div>
 
+        <!-- 설명: 일본어 메인 + 한국어 번역 하단 -->
+        ${(slide.captionJp || slide.captionKo) ? `
         <div class="lec-caption-box">
-          <div class="lec-cap-tabs">
-            <button class="lec-cap-tab active" id="capTabKo"
-                    onclick="App._lecCapTab('ko')">🇰🇷 한국어</button>
-            <button class="lec-cap-tab" id="capTabJp"
-                    onclick="App._lecCapTab('jp')">🇯🇵 日本語</button>
-          </div>
-          <div class="lec-caption" id="lecCapKo">${escHtml(slide.captionKo || '')}</div>
-          <div class="lec-caption hidden" id="lecCapJp">${ruby(slide.captionJp || '')}</div>
-        </div>
+          ${slide.captionJp ? `<div class="lec-cap-jp" id="lecCapJp">${ruby(slide.captionJp)}</div>` : ''}
+          ${slide.captionKo ? `<div class="lec-cap-ko">${escHtml(slide.captionKo)}</div>` : ''}
+        </div>` : ''}
 
         <!-- 타이머 바 -->
         <div class="lec-timer-track">
           <div class="lec-timer-bar" id="lecTimerBar"
-               style="animation-duration:${slide.duration || 6000}ms"></div>
+               style="animation-duration:2000ms;animation-play-state:paused"></div>
         </div>
       </div>
     `;
@@ -1430,6 +1445,7 @@ const App = (() => {
                 onclick="App._lecPrev()" ${idx === 0 ? 'disabled' : ''}>← 이전</button>
         <button class="btn btn-outline" style="flex:1" id="btnLecPause"
                 onclick="App._lecPauseToggle()">⏸</button>
+        ${isLast ? `<button class="btn btn-outline" style="flex:1" onclick="App._lecRestart()" title="처음부터 다시 보기">↩</button>` : ''}
         <button class="btn btn-primary" style="flex:2" id="btnLecNext"
                 onclick="App._lecNext()">
           ${isLast ? '완료 ✓' : '다음 →'}
@@ -1437,11 +1453,143 @@ const App = (() => {
       </div>
     `;
 
-    // 오디오 자동 재생 (400ms 딜레이)
-    if (slide.audio) setTimeout(() => TTS.speak(slide.audio), 400);
+    // 1. 칠판 한 글자씩 필기 애니메이션
+    const animDur = _lecChalkboardAnim(slide.main);
 
-    // 타이머 자동 진행
-    _lecStartTimer();
+    // 2. 칠판 애니메이션 완료 후 → captionJp 다화자 읽기
+    setTimeout(() => {
+      if (!_flow._lecture || _flow._lecture.idx !== idx) return;
+      if (slide.captionJp) {
+        _lecReadCaptionJp(slide.captionJp, slide.captionKo, () => {
+          // TTS 완료 → 2초 후 자동 진행
+          if (!_flow._lecture || _flow._lecture.paused || _flow._lecture.idx !== idx) return;
+          const bar = document.getElementById('lecTimerBar');
+          if (bar) bar.style.animationPlayState = 'running';
+          lc.timerId = setTimeout(() => {
+            if (_flow._lecture && !_flow._lecture.paused && _flow._lecture.idx === idx) _lecNext();
+          }, 2000);
+        });
+      } else {
+        // captionJp 없으면 기존 타이머로 자동 진행
+        _lecStartTimer();
+      }
+    }, animDur + 300);
+  }
+
+  // ── 칠판 한 글자씩 필기 애니메이션 ─────────────────────────
+  function _lecChalkboardAnim(text) {
+    const el = document.getElementById('lecBoardText');
+    if (!el || !text) return 0;
+    const plain = text.replace(/<[^>]*>/g, ''); // ruby 태그 제거 → 순수 텍스트
+    const chars = [...plain]; // 유니코드 안전 분리 (이모지 포함)
+    const PER_CHAR = 65; // ms per character
+    el.innerHTML = chars.map((ch, i) =>
+      `<span class="chalk-char" style="animation-delay:${i * PER_CHAR}ms">${escHtml(ch)}</span>`
+    ).join('');
+    const totalDur = chars.length * PER_CHAR + 200;
+    // 애니메이션 완료 후 ruby 버전으로 교체
+    setTimeout(() => {
+      const el2 = document.getElementById('lecBoardText');
+      if (el2) el2.innerHTML = ruby(text);
+    }, totalDur + 100);
+    return totalDur;
+  }
+
+  // ── 한국어 → 가타카나 근사 변환 (TTS용) ────────────────────
+  // captionJp 안에 섞인 한글을 일본 TTS가 읽을 수 있도록 변환
+  const _KO_KATA_MAP = {
+    '안녕하세요': 'アンニョンハセヨ', '안녕': 'アンニョン',
+    '감사합니다': 'カムサハムニダ', '고마워요': 'コマウォヨ',
+    '죄송합니다': 'チェソンハムニダ', '미안해요': 'ミアネヨ',
+    '괜찮아요': 'クェンチャナヨ', '괜찮아': 'クェンチャナ',
+    '잠깐만요': 'チャムッカンマンニョ', '네': 'ネ', '아니요': 'アニヨ',
+    '이': 'イ', '가': 'カ', '한국': 'ハングク', '한국어': 'ハングゴ',
+    '일본어': 'イルボノ', '일본': 'イルボン',
+  };
+  function _koToKatakana(text) {
+    let r = text;
+    // 단어 단위 변환 (긴 것부터)
+    for (const [ko, kata] of Object.entries(_KO_KATA_MAP)) {
+      r = r.replaceAll(ko, kata);
+    }
+    // 나머지 한글 문자 제거 (TTS가 읽지 못함)
+    r = r.replace(/[\uAC00-\uD7A3\u1100-\u11FF\u3130-\u318F]+/g, '');
+    return r;
+  }
+
+  // ── captionJp 다화자 순차 읽기 ──────────────────────────────
+  // captionKo를 함께 받아 한국어 번역도 병렬 하이라이트
+  function _lecReadCaptionJp(captionJp, captionKo, onDone) {
+    if (!captionJp) { if (onDone) onDone(); return; }
+
+    // ① 표시용 문장 분리 (원문 유지, 후리가나 패턴 포함)
+    const rawText = captionJp
+      .replace(/<rt>[^<]*<\/rt>/gi, '')
+      .replace(/<[^>]*>/g, '');
+    const jpSentences = rawText
+      .match(/[^。！？…]+[。！？…]*/g)?.map(s => s.trim()).filter(Boolean);
+    if (!jpSentences?.length) { if (onDone) onDone(); return; }
+
+    // ② TTS용 텍스트: 후리가나 괄호 + 한글 제거/변환
+    const ttsSentences = jpSentences.map(s =>
+      _koToKatakana(
+        s.replace(/[（(][ぁ-んァ-ンー・]+[）)]/g, '')
+      ).trim()
+    );
+
+    // ③ 한국어 문장 분리
+    const koSentences = captionKo
+      ? (captionKo.match(/[^.!?…！？]+[.!?…！？]*/g) || [captionKo])
+          .map(s => s.trim()).filter(Boolean)
+      : [];
+
+    // ④ JP 문장 spans 재구성
+    const capJpEl = document.getElementById('lecCapJp');
+    if (capJpEl) {
+      capJpEl.innerHTML = jpSentences.map((s, i) =>
+        `<span class="lec-sentence" id="lecSent${i}">${ruby(s)}</span>`
+      ).join('');
+    }
+
+    // ⑤ KO 문장 spans 재구성 (비례 하이라이트용)
+    const capKoEl = document.querySelector('.lec-cap-ko');
+    if (capKoEl && koSentences.length) {
+      capKoEl.innerHTML = koSentences.map((s, i) =>
+        `<span class="lec-sentence-ko" id="lecSentKo${i}">${escHtml(s)}</span>`
+      ).join('');
+    }
+
+    const jpLen = jpSentences.length;
+    const koLen = koSentences.length;
+
+    // ⑥ A(짝수) / B(홀수) 화자 교대
+    const lines = ttsSentences.map((text, i) => ({
+      text,
+      speaker: i % 2 === 0 ? 'A' : 'B',
+    }));
+
+    TTS.speakQueue(lines, {
+      onLineStart: (i) => {
+        // JP 하이라이트
+        document.querySelectorAll('.lec-sentence').forEach(el => el.classList.remove('reading'));
+        document.getElementById(`lecSent${i}`)?.classList.add('reading');
+        document.getElementById(`lecSent${i}`)?.scrollIntoView?.({ block: 'nearest', behavior: 'smooth' });
+        // KO 비례 하이라이트
+        if (koLen > 0) {
+          document.querySelectorAll('.lec-sentence-ko').forEach(el => el.classList.remove('reading'));
+          const ki = Math.min(Math.floor(i * koLen / jpLen), koLen - 1);
+          document.getElementById(`lecSentKo${ki}`)?.classList.add('reading');
+        }
+      },
+      onLineEnd: (i) => {
+        document.getElementById(`lecSent${i}`)?.classList.remove('reading');
+        if (koLen > 0) {
+          const ki = Math.min(Math.floor(i * koLen / jpLen), koLen - 1);
+          document.getElementById(`lecSentKo${ki}`)?.classList.remove('reading');
+        }
+      },
+      onDone,
+    });
   }
 
   function _lecStartTimer() {
@@ -1469,7 +1617,7 @@ const App = (() => {
     const lc = _flow._lecture;
     if (!lc) return;
     _lecStopTimer();
-    TTS.stop();
+    TTS.stopQueue();
     if (lc.idx >= lc.slides.length - 1) {
       // 강의 완료
       Store.completeStep(_flow.moduleId, lc.stepIndex);
@@ -1484,11 +1632,21 @@ const App = (() => {
     }
   }
 
+  function _lecRestart() {
+    const lc = _flow._lecture;
+    if (!lc) return;
+    _lecStopTimer();
+    TTS.stopQueue();
+    lc.idx = 0;
+    lc.paused = false;
+    _lectureRenderSlide();
+  }
+
   function _lecPrev() {
     const lc = _flow._lecture;
     if (!lc || lc.idx === 0) return;
     _lecStopTimer();
-    TTS.stop();
+    TTS.stopQueue();
     lc.idx--;
     lc.paused = false;
     _lectureRenderSlide();
@@ -1501,12 +1659,26 @@ const App = (() => {
     const btn = document.getElementById('btnLecPause');
     if (lc.paused) {
       _lecStopTimer();
+      TTS.stopQueue();
       if (btn) btn.textContent = '▶ 재생';
     } else {
-      const bar = document.getElementById('lecTimerBar');
-      if (bar) bar.style.animationPlayState = 'running';
       if (btn) btn.textContent = '⏸';
-      _lecStartTimer();
+      const slide = lc.slides[lc.idx];
+      if (slide.captionJp) {
+        // 일시정지 후 재개 → captionJp 처음부터 다시 읽기
+        _lecReadCaptionJp(slide.captionJp, slide.captionKo, () => {
+          if (!_flow._lecture || _flow._lecture.paused || _flow._lecture.idx !== lc.idx) return;
+          const bar = document.getElementById('lecTimerBar');
+          if (bar) { bar.style.animationDuration = '2000ms'; bar.style.animationPlayState = 'running'; }
+          lc.timerId = setTimeout(() => {
+            if (_flow._lecture && !_flow._lecture.paused) _lecNext();
+          }, 2000);
+        });
+      } else {
+        const bar = document.getElementById('lecTimerBar');
+        if (bar) bar.style.animationPlayState = 'running';
+        _lecStartTimer();
+      }
     }
   }
 
@@ -1546,7 +1718,7 @@ const App = (() => {
             <div class="db-jp">${ruby(line.japanese || '')}</div>
             <div class="db-ko">${escHtml(line.korean || '')}</div>
             ${line.tip ? `<div class="db-tip">${ruby(line.tip)}</div>` : ''}
-            <span class="db-audio" onclick="TTS.speak('${(line.japanese||'').replace(/'/g,"\\'")}')">🔊 듣기</span>
+            <span class="db-audio" onclick="TTS.speak('${(line.japanese||'').replace(/'/g,"\\'")}')">🔊</span>
           </div>
         </div>
       `;
@@ -1867,15 +2039,197 @@ const App = (() => {
       }
     } catch(e) { /* AudioContext 미지원 무시 */ }
 
-    // 애니메이션: flowBody에 flash/shake 클래스
+    // 애니메이션
     const body = document.getElementById('flowBody');
     if (body) {
-      const cls = isCorrect ? 'quiz-correct-flash' : 'quiz-wrong-shake';
-      body.classList.remove('quiz-correct-flash', 'quiz-wrong-shake');
-      void body.offsetWidth; // reflow for re-trigger
-      body.classList.add(cls);
-      setTimeout(() => body.classList.remove(cls), 600);
+      if (isCorrect) {
+        // 정답: 스파크 파티클 효과
+        const correctBtn = document.querySelector('.quiz-choice.correct');
+        if (correctBtn) _spawnV2Sparks(correctBtn);
+      } else {
+        // 오답: 흔들림 유지
+        body.classList.remove('quiz-wrong-shake');
+        void body.offsetWidth;
+        body.classList.add('quiz-wrong-shake');
+        setTimeout(() => body.classList.remove('quiz-wrong-shake'), 600);
+      }
     }
+  }
+
+  function setQuizPassRate(rate) {
+    Store.setSetting('quizPassRate', rate);
+    _renderProfile(); // 설정 화면 새로고침
+  }
+
+  function _spawnV2Sparks(el) {
+    const rect = el.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    const colors = ['#10b981','#34d399','#f59e0b','#3b82f6','#a78bfa','#fbbf24','#f97316'];
+    for (let i = 0; i < 14; i++) {
+      const sp = document.createElement('div');
+      const angle = (Math.PI * 2 * i) / 14 + (Math.random() - 0.5) * 0.4;
+      const dist  = 45 + Math.random() * 55;
+      sp.style.cssText = `
+        position:fixed; z-index:9999; pointer-events:none;
+        width:${5 + Math.random() * 6}px; height:${5 + Math.random() * 6}px;
+        border-radius:${Math.random() > 0.5 ? '50%' : '3px'};
+        background:${colors[Math.floor(Math.random() * colors.length)]};
+        left:${cx}px; top:${cy}px;
+        --tx:${Math.cos(angle) * dist}px; --ty:${Math.sin(angle) * dist}px;
+        animation: v2SparkFly 0.55s ease-out forwards;
+        animation-delay:${Math.random() * 0.07}s;
+      `;
+      document.body.appendChild(sp);
+      setTimeout(() => sp.remove(), 700);
+    }
+  }
+
+  // ── 획순 애니메이션 ────────────────────────────────────────
+  let _strokeState = null; // { kana, strokes, stepIdx, timer }
+
+  function _showStrokePanel(kana) {
+    const data = (typeof STROKE_DATA !== 'undefined') ? STROKE_DATA[kana] : null;
+    if (!data) { _toast('획순 데이터가 없습니다'); return; }
+
+    // 기존 모달 제거
+    const existing = document.getElementById('strokeModal');
+    if (existing) existing.remove();
+    if (_strokeState && _strokeState.timer) clearInterval(_strokeState.timer);
+
+    _strokeState = { kana, strokes: data.strokes, stepIdx: -1, timer: null };
+
+    const overlay = document.createElement('div');
+    overlay.id = 'strokeModal';
+    overlay.style.cssText = `
+      position:fixed;inset:0;z-index:2000;
+      background:rgba(0,0,0,.75);
+      display:flex;align-items:center;justify-content:center;
+      padding:24px;
+    `;
+    overlay.innerHTML = `
+      <div style="
+        background:var(--bg2);border-radius:24px;
+        border:1px solid var(--border);
+        padding:24px 20px 20px;
+        width:100%;max-width:340px;
+        display:flex;flex-direction:column;align-items:center;gap:14px;
+        position:relative;
+      ">
+        <button onclick="App._closeStrokePanel()"
+          style="position:absolute;top:12px;right:12px;
+            width:32px;height:32px;border-radius:50%;
+            border:none;background:var(--bg3);color:var(--text);
+            font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center">✕</button>
+        <div style="font-size:13px;color:var(--text3);letter-spacing:1px">✏️ 획순 애니메이션</div>
+        <div style="font-size:64px;font-family:'Noto Sans JP',serif;line-height:1;color:#fff;letter-spacing:0">${kana}</div>
+        <div class="stroke-svg-wrap" id="strokeSvgWrap">
+          ${_buildStrokeSVG(data.strokes, -1)}
+        </div>
+        <div class="stroke-counter" id="strokeCounter">시작 전</div>
+        <div class="stroke-controls">
+          <button class="stroke-btn" onclick="App._strokeStep(-1)">◀ 이전</button>
+          <button class="stroke-btn primary" id="strokePlayBtn" onclick="App._strokePlay()">▶ 자동 재생</button>
+          <button class="stroke-btn" onclick="App._strokeStep(1)">다음 ▶</button>
+        </div>
+        <div style="font-size:11px;color:var(--text3)">총 ${data.strokes.length}획</div>
+      </div>
+    `;
+    document.body.appendChild(overlay);
+    overlay.addEventListener('click', e => { if (e.target === overlay) App._closeStrokePanel(); });
+
+    // 첫 획부터 자동 재생
+    _strokeAutoPlay();
+  }
+
+  function _buildStrokeSVG(strokes, activeIdx) {
+    // viewBox 109×109 → display 180×180
+    let paths = '';
+    // 십자 가이드선
+    paths += `<line class="stroke-guide-line" x1="54.5" y1="0" x2="54.5" y2="109"/>`;
+    paths += `<line class="stroke-guide-line" x1="0" y1="54.5" x2="109" y2="54.5"/>`;
+
+    strokes.forEach((d, i) => {
+      let cls = 'stroke-path';
+      if (i < activeIdx) cls += ' done';
+      else if (i === activeIdx) cls += ' active';
+      paths += `<path class="${cls}" d="${d}" id="sp${i}"/>`;
+    });
+    return `<svg viewBox="0 0 109 109" xmlns="http://www.w3.org/2000/svg">${paths}</svg>`;
+  }
+
+  function _strokeUpdateSVG() {
+    const wrap = document.getElementById('strokeSvgWrap');
+    const counter = document.getElementById('strokeCounter');
+    if (!wrap || !_strokeState) return;
+    wrap.innerHTML = _buildStrokeSVG(_strokeState.strokes, _strokeState.stepIdx);
+    const total = _strokeState.strokes.length;
+    const idx = _strokeState.stepIdx;
+    if (idx < 0) {
+      counter.textContent = '시작 전';
+    } else if (idx >= total - 1) {
+      counter.textContent = `완료 (${total}획)`;
+    } else {
+      counter.textContent = `${idx + 1} / ${total} 획`;
+    }
+    // 현재 활성 획에 dash 애니메이션
+    const activePath = document.getElementById(`sp${idx}`);
+    if (activePath) {
+      const len = activePath.getTotalLength ? activePath.getTotalLength() : 100;
+      activePath.style.strokeDasharray = len;
+      activePath.style.strokeDashoffset = len;
+      activePath.style.transition = 'none';
+      void activePath.getBoundingClientRect();
+      activePath.style.transition = 'stroke-dashoffset 0.45s ease';
+      activePath.style.strokeDashoffset = '0';
+    }
+  }
+
+  function _strokeStep(dir) {
+    if (!_strokeState) return;
+    if (_strokeState.timer) { clearInterval(_strokeState.timer); _strokeState.timer = null; }
+    const btn = document.getElementById('strokePlayBtn');
+    if (btn) btn.textContent = '▶ 자동 재생';
+    _strokeState.stepIdx = Math.max(-1, Math.min(_strokeState.strokes.length - 1, _strokeState.stepIdx + dir));
+    _strokeUpdateSVG();
+  }
+
+  function _strokePlay() {
+    if (!_strokeState) return;
+    const btn = document.getElementById('strokePlayBtn');
+    if (_strokeState.timer) {
+      clearInterval(_strokeState.timer);
+      _strokeState.timer = null;
+      if (btn) btn.textContent = '▶ 자동 재생';
+      return;
+    }
+    // 처음부터 재생
+    _strokeState.stepIdx = -1;
+    _strokeUpdateSVG();
+    if (btn) btn.textContent = '⏸ 일시정지';
+    _strokeState.timer = setInterval(() => {
+      _strokeState.stepIdx++;
+      _strokeUpdateSVG();
+      if (_strokeState.stepIdx >= _strokeState.strokes.length - 1) {
+        clearInterval(_strokeState.timer);
+        _strokeState.timer = null;
+        if (btn) btn.textContent = '▶ 다시 재생';
+      }
+    }, 700);
+  }
+
+  function _strokeAutoPlay() {
+    // 약간 딜레이 후 자동 시작
+    setTimeout(() => {
+      if (document.getElementById('strokeModal')) _strokePlay();
+    }, 300);
+  }
+
+  function _closeStrokePanel() {
+    if (_strokeState && _strokeState.timer) { clearInterval(_strokeState.timer); _strokeState.timer = null; }
+    _strokeState = null;
+    const m = document.getElementById('strokeModal');
+    if (m) m.remove();
   }
 
   // ── TTS 설정 UI 빌더 ─────────────────────────────────────
@@ -2330,13 +2684,20 @@ const App = (() => {
     // 강의 플레이어
     _lecNext,
     _lecPrev,
+    _lecRestart,
     _lecPauseToggle,
     _lecCapTab,
+    setQuizPassRate,
     _completeRoleplay,
     _replayAll,
     _stopRoleplay,
     _startRoleplay,
     _getMod,
+    // 획순 애니메이션
+    _showStrokePanel,
+    _closeStrokePanel,
+    _strokeStep,
+    _strokePlay,
   };
 })();
 

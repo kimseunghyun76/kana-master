@@ -3,7 +3,7 @@
 //  전략: Cache First (핵심 파일) + Network First (데이터)
 // ════════════════════════════════════════════════════════
 
-const APP_VERSION  = '2.8';                            // ← 배포 시 이 값만 올리면 캐시 자동 갱신
+const APP_VERSION  = '3.0';                            // ← 배포 시 이 값만 올리면 캐시 자동 갱신
 const CACHE_NAME   = `jp-master-v${APP_VERSION}`;
 const STATIC_CACHE = `jp-static-v${APP_VERSION}`;
 
@@ -19,6 +19,7 @@ const CORE_FILES = [
   '/js/data/vocab-items-s6sim.js',
   '/js/data/vocab-items-it-sim.js',
   '/js/data/vocab-dialogue.js',
+  '/js/v2/stroke-data.js',
   '/js/v2/utils.js',
   '/js/v2/tts.js',
   '/js/v2/store.js',

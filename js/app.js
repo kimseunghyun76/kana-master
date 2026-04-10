@@ -1803,6 +1803,9 @@ const App = (() => {
     // 가나 자동 읽기 (항상)
     setTimeout(() => playAudio(char.kana), 300);
 
+    // 획순 미니패널 갱신
+    _updateFcStrokePanel(char.kana);
+
     // 네비 스트립 활성 업데이트
     updateNavStripActive('fc-nav-strip', idx);
 
@@ -2099,6 +2102,17 @@ const App = (() => {
     if (hardBtn && !hardBtn._bound) { hardBtn._bound = true; hardBtn.addEventListener('click', (e) => { e.stopPropagation(); _fcAssessNext('hard'); }); }
     if (okBtn   && !okBtn._bound)   { okBtn._bound   = true; okBtn.addEventListener  ('click', (e) => { e.stopPropagation(); _fcAssessNext('ok');   }); }
     if (goodBtn && !goodBtn._bound) { goodBtn._bound = true; goodBtn.addEventListener('click', (e) => { e.stopPropagation(); _fcAssessNext('good'); }); }
+
+    // 🔊 앞면 듣기 버튼
+    const soundBtn = document.getElementById('fc-sound-btn');
+    if (soundBtn && !soundBtn._bound) {
+      soundBtn._bound = true;
+      soundBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const cur = state.learnChars[state.learnIndex];
+        if (cur) playAudio(cur.kana);
+      });
+    }
   }
 
   // ─── 네비게이션 스트립 (가나·어휘 모두 가로 드래그 방식) ───
@@ -3606,7 +3620,7 @@ const App = (() => {
         <div style="width:100%">
           <div class="qb-kana">${q.displayKana || q.kana}</div>
           <div class="qb-label">이 글자의 발음은?</div>
-          <button class="audio-btn" style="margin-top:10px" onclick="App.playAudio('${q.displayKana || q.kana}')">🔊 발음 듣기</button>
+          <button class="audio-btn" style="margin-top:10px" onclick="App.playAudio('${q.displayKana || q.kana}')">🔊</button>
         </div>`;
     } else if (q.qtype === 'readingToKana') {
       const readingText = getReadingText(q.info);
@@ -3751,7 +3765,14 @@ const App = (() => {
     // 결과 기록
     recordResult(q.kana, isCorrect);
 
-    if (isCorrect) _onQuizCorrect(); else _onQuizWrong();
+    if (isCorrect) {
+      _onQuizCorrect();
+      // 정답 버튼에서 스파크 효과
+      const correctBtn = document.querySelector(`.choice-btn[data-kana="${q.correctKana}"]`);
+      if (correctBtn) _spawnSparks(correctBtn);
+    } else {
+      _onQuizWrong();
+    }
     let cheerType = 'correct';
     if (isCorrect) {
       state.quizCorrect++;
@@ -3984,6 +4005,15 @@ const App = (() => {
       }, 30);
     }
     document.getElementById('qr-score').textContent = `${correct} / ${total}`;
+
+    // 통과 기준 배지
+    const passRate = parseInt(state.prefs.quizPassRate) || 70;
+    const passed = pct >= passRate;
+    const passBadgeEl = document.getElementById('qr-pass-badge');
+    if (passBadgeEl) {
+      passBadgeEl.textContent = passed ? `✅ 통과! (기준 ${passRate}%)` : `❌ 재도전 필요 (기준 ${passRate}%, 현재 ${pct}%)`;
+      passBadgeEl.className = 'qr-pass-badge ' + (passed ? 'qr-pass-ok' : 'qr-pass-ng');
+    }
 
     // 통계
     document.getElementById('qr-stat-correct').textContent = correct;
@@ -4317,6 +4347,118 @@ const App = (() => {
    */
   function _scaleStrokePath(d) {
     return d;
+  }
+
+  // ─── 플래시카드 뒷면 획순 미니패널 ───
+
+  let _fcStrokeTimer = null;
+
+  /** 플래시카드 획순 패널 갱신 */
+  function _updateFcStrokePanel(kana) {
+    const panel = document.getElementById('fcb-stroke-panel');
+    if (!panel) return;
+    if (_fcStrokeTimer) { clearTimeout(_fcStrokeTimer); _fcStrokeTimer = null; }
+
+    const data = getStrokeData(kana);
+    if (!data) { panel.style.display = 'none'; return; }
+
+    panel.style.display = 'flex';
+    const countEl = document.getElementById('fcb-stroke-count');
+    if (countEl) countEl.textContent = data.strokes.length + '획';
+
+    const playBtn = document.getElementById('fcb-stroke-play');
+    if (playBtn) {
+      playBtn.disabled = false;
+      playBtn.textContent = '▶ 재생';
+      if (!playBtn._fcBound) {
+        playBtn._fcBound = true;
+        playBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const cur = state.learnChars[state.learnIndex];
+          if (cur) _playFcStrokeAnim(cur.kana);
+        });
+      }
+    }
+    _renderFcStrokesFull(kana);
+  }
+
+  /** 플래시카드 획순 전체 획 흐리게 미리보기 */
+  function _renderFcStrokesFull(kana) {
+    const data = getStrokeData(kana);
+    if (!data) return;
+    const sg = document.getElementById('fcb-stroke-strokes');
+    const lg = document.getElementById('fcb-stroke-labels');
+    if (!sg || !lg) return;
+    sg.innerHTML = ''; lg.innerHTML = '';
+    const svgNS = 'http://www.w3.org/2000/svg';
+    data.strokes.forEach((d, i) => {
+      const path = document.createElementNS(svgNS, 'path');
+      path.setAttribute('d', d);
+      path.setAttribute('class', 'stroke-done');
+      sg.appendChild(path);
+      const start = _getPathStart(d);
+      const text = document.createElementNS(svgNS, 'text');
+      text.setAttribute('x', start.x);
+      text.setAttribute('y', start.y - 3);
+      text.setAttribute('class', 'stroke-num');
+      text.textContent = i + 1;
+      lg.appendChild(text);
+    });
+  }
+
+  /** 플래시카드 획순 순차 애니메이션 재생 */
+  function _playFcStrokeAnim(kana) {
+    const data = getStrokeData(kana);
+    if (!data) return;
+    if (_fcStrokeTimer) { clearTimeout(_fcStrokeTimer); _fcStrokeTimer = null; }
+
+    const playBtn = document.getElementById('fcb-stroke-play');
+    if (playBtn) { playBtn.disabled = true; playBtn.textContent = '재생 중…'; }
+
+    const svgNS = 'http://www.w3.org/2000/svg';
+    const sg = document.getElementById('fcb-stroke-strokes');
+    const lg = document.getElementById('fcb-stroke-labels');
+    if (!sg || !lg) return;
+    sg.innerHTML = ''; lg.innerHTML = '';
+
+    const donePaths = data.strokes.map(d => {
+      const path = document.createElementNS(svgNS, 'path');
+      path.setAttribute('d', d);
+      path.setAttribute('class', 'stroke-done');
+      path.style.opacity = '0';
+      sg.appendChild(path);
+      return path;
+    });
+
+    let idx = 0;
+    function next() {
+      if (idx >= data.strokes.length) {
+        donePaths.forEach(p => { p.style.opacity = '1'; });
+        if (playBtn) { playBtn.disabled = false; playBtn.textContent = '▶ 다시'; }
+        return;
+      }
+      for (let j = 0; j < idx; j++) donePaths[j].style.opacity = '1';
+      const activePath = document.createElementNS(svgNS, 'path');
+      activePath.setAttribute('d', data.strokes[idx]);
+      activePath.setAttribute('class', 'stroke-active');
+      sg.appendChild(activePath);
+      const start = _getPathStart(data.strokes[idx]);
+      const dot = document.createElementNS(svgNS, 'circle');
+      dot.setAttribute('cx', start.x); dot.setAttribute('cy', start.y); dot.setAttribute('r', '3.5');
+      dot.setAttribute('class', 'stroke-dot');
+      lg.appendChild(dot);
+      const text = document.createElementNS(svgNS, 'text');
+      text.setAttribute('x', start.x + 5); text.setAttribute('y', start.y - 4);
+      text.setAttribute('class', 'stroke-num');
+      text.textContent = idx + 1;
+      lg.appendChild(text);
+      idx++;
+      _fcStrokeTimer = setTimeout(() => {
+        activePath.remove(); dot.remove(); text.remove();
+        next();
+      }, 750);
+    }
+    next();
   }
 
   function getStrokeHint(kana) {
@@ -4837,6 +4979,16 @@ const App = (() => {
       loadPrefsUI();
     };
     closeBtn.onclick = () => { modal.style.display = 'none'; savePrefs(); };
+
+    // 개발자 탭 → 관리자 패널 열기
+    const adminFromSettings = document.getElementById('open-admin-from-settings');
+    if (adminFromSettings) {
+      adminFromSettings.addEventListener('click', () => {
+        modal.style.display = 'none';
+        savePrefs();
+        openAdminPanel();
+      });
+    }
     modal.addEventListener('click', (e) => {
       if (e.target === modal) { modal.style.display = 'none'; savePrefs(); }
     });
@@ -4880,6 +5032,37 @@ const App = (() => {
       cheerEl.checked = state.prefs.quizCheer !== false;
       cheerEl.onchange = () => { state.prefs.quizCheer = cheerEl.checked; saveToStorage(); };
     }
+
+    // 퀴즈 설정 탭 chip 버튼 동기화
+    function syncQuizChips() {
+      const chipDefs = {
+        quizCountdown: String(state.prefs.quizCountdown !== undefined ? state.prefs.quizCountdown : 5),
+        quizCount:     String(state.prefs.quizCount || '10'),
+        quizPassRate:  String(state.prefs.quizPassRate || '70'),
+      };
+      document.querySelectorAll('.sq-chip').forEach(chip => {
+        const pref = chip.dataset.pref;
+        chip.classList.toggle('active', pref && chipDefs[pref] === chip.dataset.val);
+        if (!chip._sqBound) {
+          chip._sqBound = true;
+          chip.addEventListener('click', () => {
+            const key = chip.dataset.pref;
+            const val = chip.dataset.val;
+            document.querySelectorAll(`.sq-chip[data-pref="${key}"]`).forEach(c => c.classList.remove('active'));
+            chip.classList.add('active');
+            state.prefs[key] = key === 'quizCountdown' ? parseInt(val) : val;
+            saveToStorage();
+            // 퀴즈 인트로 chips도 동기화
+            const qiChip = document.querySelector(`.qi-inline-chip[data-key="${key}"][data-val="${val}"]`);
+            if (qiChip) {
+              document.querySelectorAll(`.qi-inline-chip[data-key="${key}"]`).forEach(c => c.classList.remove('active'));
+              qiChip.classList.add('active');
+            }
+          });
+        }
+      });
+    }
+    syncQuizChips();
 
     // 롤플레이 이름 설정
     const fnEl = document.getElementById('pref-female-name');
@@ -10045,6 +10228,14 @@ const App = (() => {
         showView(_lecturePrevView || 'home');
       };
     }
+    // 다시 보기 버튼
+    const replayBtn = document.getElementById('lec-comp-replay');
+    if (replayBtn) {
+      replayBtn.onclick = () => {
+        panel.style.display = 'none';
+        startLecture(_lectureCatId);
+      };
+    }
     panel.style.display = 'flex';
   }
 
@@ -10801,6 +10992,32 @@ const App = (() => {
   }
 
   /** 퀴즈 문제 정답 시 호출 */
+  /** 정답 버튼에서 스파크 파티클 효과 */
+  function _spawnSparks(btn) {
+    const rect = btn.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    const colors = ['#f59e0b','#10b981','#3b82f6','#e63946','#8b5cf6','#fbbf24','#f97316'];
+    for (let i = 0; i < 14; i++) {
+      const sp = document.createElement('div');
+      sp.className = 'quiz-spark';
+      const angle = (Math.PI * 2 * i) / 14 + (Math.random() - 0.5) * 0.4;
+      const dist  = 40 + Math.random() * 50;
+      sp.style.cssText = `
+        position:fixed; z-index:9999; pointer-events:none;
+        width:${5 + Math.random() * 5}px; height:${5 + Math.random() * 5}px;
+        border-radius:${Math.random() > 0.5 ? '50%' : '2px'};
+        background:${colors[Math.floor(Math.random() * colors.length)]};
+        left:${cx}px; top:${cy}px;
+        --tx:${Math.cos(angle) * dist}px; --ty:${Math.sin(angle) * dist}px;
+        animation: quizSparkFly 0.55s ease-out forwards;
+        animation-delay:${Math.random() * 0.08}s;
+      `;
+      document.body.appendChild(sp);
+      setTimeout(() => sp.remove(), 700);
+    }
+  }
+
   function _onQuizCorrect() {
     _awardXP(5, null);
     _advanceMission('quiz_correct', 1);
