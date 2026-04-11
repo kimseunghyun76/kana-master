@@ -11,6 +11,8 @@ const STORAGE_KEY = 'jp_master_v2';
 function defaultProgress() {
   return {
     xp: 0,
+    todayXP: 0,
+    lastXPUpdateDate: null,
     streak: 0,
     lastStudyDate: null,
     totalDays: 0,
@@ -87,6 +89,12 @@ const Store = (() => {
   function getStreak() { return _data.streak; }
 
   function addXP(amount) {
+    const today = _todayStr();
+    if (_data.lastXPUpdateDate !== today) {
+      _data.todayXP = 0;
+      _data.lastXPUpdateDate = today;
+    }
+    _data.todayXP += amount;
     _data.xp += amount;
     _recordStudy();
     _notify('xp', _data.xp);

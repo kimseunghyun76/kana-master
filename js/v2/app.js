@@ -12,6 +12,7 @@ const App = (() => {
   let _currentTab = 'home';       // home | lesson | practice | profile
   let _flow = null;               // current learning flow
   let _flowEl = null;             // flow screen DOM element
+  let _autoNextTimer = null;      // timer for automatic next question
 
   // ── Init ─────────────────────────────────────────────────
   async function init() {
@@ -783,7 +784,7 @@ const App = (() => {
               <div class="kana-face">
                 <button class="kana-sound-btn" onclick="event.stopPropagation();TTS.speak('${safeC}')" title="발음 듣기">🔊</button>
                 <div class="kana-type-label">${escHtml(typeLabel)}</div>
-                <div class="kana-char">${escHtml(c)}</div>
+                <div class="kana-char ${isSmallKana(c) ? 'is-small' : ''}">${ruby(c)}</div>
                 <div class="kana-tap-hint">탭해서 읽는 법 보기 👆</div>
               </div>
               <div class="kana-back">
@@ -879,7 +880,16 @@ const App = (() => {
       const { qIdx, correct, wrong } = fq;
 
       if (qIdx >= fq.chars.length) {
-        _showQuizResult(correct, fq.chars.length, stepIndex, Math.round((correct / fq.chars.length) * 100));
+        // [Retry Logic] 틀린 문제가 있으면 다시 풀기 페이즈로 전환 (단, 최종 점수는 첫 시도 기준)
+        if (!fq.isReview && fq.missed.length > 0) {
+          fq.isReview = true;
+          fq.originalChars = fq.chars; // 원래 문제들 보관 (혹시 필요할까봐)
+          fq.chars = shuffle([...fq.missed]);
+          fq.qIdx = 0;
+          _showRetryTransition(fq.missed.length, fq.renderQ);
+          return;
+        }
+        _showQuizResult(correct, fq.totalCount, stepIndex, Math.round((correct / fq.totalCount) * 100));
         return;
       }
       const c = fq.chars[qIdx];
@@ -902,7 +912,7 @@ const App = (() => {
         </div>
         <div class="quiz-question">
           <div class="quiz-q-type">이 글자의 발음은?</div>
-          <div class="quiz-q-text">${escHtml(c)}</div>
+          <div class="quiz-q-text ${isSmallKana(c) ? 'is-small' : ''}">${ruby(c)}</div>
           <button class="quiz-audio-btn" onclick="TTS.speak('${c.replace(/'/g,"\\'")}')">🔊</button>
         </div>
         <div class="quiz-choices" id="quizChoices">
@@ -923,7 +933,17 @@ const App = (() => {
       `;
     }
 
-    _flow._kanaQuiz = { chars, qIdx: 0, correct: 0, wrong: 0, stepIndex, renderQ };
+    _flow._kanaQuiz = {
+      chars,
+      qIdx: 0,
+      correct: 0,
+      wrong: 0,
+      missed: [],
+      isReview: false,
+      totalCount: chars.length,
+      stepIndex,
+      renderQ
+    };
     renderQ();
   }
 
@@ -936,7 +956,13 @@ const App = (() => {
       if (b.dataset.correct === 'true') b.classList.add('correct');
     });
     btn.classList.add(isCorrect ? 'correct' : 'wrong');
-    if (isCorrect) { fq.correct++; } else { fq.wrong++; }
+    if (isCorrect) {
+      fq.correct++;
+    } else {
+      fq.wrong++;
+      // 첫 풀이(not review)에서만 오답 목록에 추가
+      if (!fq.isReview) fq.missed.push(fq.chars[fq.qIdx]);
+    }
     // 정답·오답 모두 음성 재생
     TTS.speak(fq.chars[fq.qIdx]);
     _playQuizEffect(isCorrect);
@@ -950,10 +976,27 @@ const App = (() => {
         ? `✅ 정답! <strong>${escHtml(c)}</strong> = ${escHtml(info.romaji)} (${escHtml(info.korean)})`
         : `❌ 오답. 정답: <strong>${escHtml(c)}</strong> = ${escHtml(info.romaji)} (${escHtml(info.korean)})`;
     }
-    show(document.getElementById('btnNextQ'));
+    const btnNext = document.getElementById('btnNextQ');
+    show(btnNext);
+    // 5초 후 자동 다음 (정답일 때만)
+    if (isCorrect) {
+      if (btnNext) {
+        btnNext.innerHTML = '다음 → <div class="auto-next-bar"></div>';
+      }
+      clearTimeout(_autoNextTimer);
+      _autoNextTimer = setTimeout(() => {
+        const btn = document.getElementById('btnNextQ');
+        if (btn && !btn.classList.contains('hidden')) _kanaQuizNext();
+      }, 5000);
+    } else {
+      if (btnNext) btnNext.innerHTML = '다음 →';
+    }
   }
 
   function _kanaQuizNext() {
+    clearTimeout(_autoNextTimer);
+    const btn = document.getElementById('btnNextQ');
+    if (btn) btn.innerHTML = '다음 →';
     const fq = _flow._kanaQuiz;
     if (!fq) return;
     fq.qIdx++;
@@ -970,8 +1013,16 @@ const App = (() => {
       const { qIdx, correct, wrong } = fq;
 
       if (qIdx >= fq.chars.length) {
-        _showQuizResult(correct, fq.chars.length, stepIndex,
-          Math.round((correct / fq.chars.length) * 100));
+        if (!fq.isReview && fq.missed.length > 0) {
+          fq.isReview = true;
+          fq.originalChars = fq.chars;
+          fq.chars = shuffle([...fq.missed]);
+          fq.qIdx = 0;
+          _showRetryTransition(fq.missed.length, fq.renderQ);
+          return;
+        }
+        _showQuizResult(correct, fq.totalCount, stepIndex,
+          Math.round((correct / fq.totalCount) * 100));
         return;
       }
 
@@ -1017,7 +1068,17 @@ const App = (() => {
       setTimeout(() => TTS.speak(c), 300);
     }
 
-    _flow._listeningQuiz = { chars, qIdx: 0, correct: 0, wrong: 0, stepIndex, renderQ };
+    _flow._listeningQuiz = {
+      chars,
+      qIdx: 0,
+      correct: 0,
+      wrong: 0,
+      missed: [],
+      isReview: false,
+      totalCount: chars.length,
+      stepIndex,
+      renderQ
+    };
     renderQ();
   }
 
@@ -1030,7 +1091,12 @@ const App = (() => {
       if (b.dataset.correct === 'true') b.classList.add('correct');
     });
     btn.classList.add(isCorrect ? 'correct' : 'wrong');
-    if (isCorrect) { fq.correct++; } else { fq.wrong++; }
+    if (isCorrect) {
+      fq.correct++;
+    } else {
+      fq.wrong++;
+      if (!fq.isReview) fq.missed.push(fq.chars[fq.qIdx]);
+    }
     TTS.speak(correctChar);
     _playQuizEffect(isCorrect);
 
@@ -1042,10 +1108,26 @@ const App = (() => {
         ? `✅ 정답! <strong>${escHtml(correctChar)}</strong> = ${escHtml(info.romaji)} (${escHtml(info.korean)})`
         : `❌ 오답. 정답: <strong>${escHtml(correctChar)}</strong> = ${escHtml(info.romaji)} (${escHtml(info.korean)})`;
     }
-    show(document.getElementById('btnNextQ'));
+    const btnNext = document.getElementById('btnNextQ');
+    show(btnNext);
+    if (isCorrect) {
+      if (btnNext) {
+        btnNext.innerHTML = '다음 → <div class="auto-next-bar"></div>';
+      }
+      clearTimeout(_autoNextTimer);
+      _autoNextTimer = setTimeout(() => {
+        const btn = document.getElementById('btnNextQ');
+        if (btn && !btn.classList.contains('hidden')) _listeningQuizNext();
+      }, 5000);
+    } else {
+      if (btnNext) btnNext.innerHTML = '다음 →';
+    }
   }
 
   function _listeningQuizNext() {
+    clearTimeout(_autoNextTimer);
+    const btn = document.getElementById('btnNextQ');
+    if (btn) btn.innerHTML = '다음 →';
     const fq = _flow._listeningQuiz;
     if (!fq) return;
     fq.qIdx++;
@@ -1157,7 +1239,7 @@ const App = (() => {
       </div>
       <div class="vocab-card" onclick="App._vocabFlip()">
         <button class="vc-audio-btn"
-          onclick="event.stopPropagation();TTS.speak('${(item.japanese||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'")}')">🔊</button>
+          onclick="event.stopPropagation();App._vocabSpeak()">🔊</button>
         <div class="vc-num">어휘 ${idx + 1}</div>
         <div class="vc-jp">${jpHtml}</div>
         ${item.kanji && item.kanji !== item.japanese
@@ -1195,6 +1277,12 @@ const App = (() => {
     }
 
     TTS.speak(item.japanese || '');
+  }
+
+  function _vocabSpeak() {
+    const st = _flow._vocab;
+    if (!st || !st.items[st.idx]) return;
+    TTS.speak(stripFuri(st.items[st.idx].japanese));
   }
 
   function _vocabFlip() {
@@ -1262,7 +1350,15 @@ const App = (() => {
       const { qIdx, correct, wrong } = fq;
 
       if (qIdx >= fq.questions.length) {
-        _showQuizResult(correct, fq.questions.length, stepIndex, Math.round((correct / fq.questions.length) * 100));
+        if (!fq.isReview && fq.missed.length > 0) {
+          fq.isReview = true;
+          fq.originalQuestions = fq.questions;
+          fq.questions = shuffle([...fq.missed]);
+          fq.qIdx = 0;
+          _showRetryTransition(fq.missed.length, fq.renderQ);
+          return;
+        }
+        _showQuizResult(correct, fq.totalCount, stepIndex, Math.round((correct / fq.totalCount) * 100));
         return;
       }
       const item = fq.questions[qIdx];
@@ -1300,7 +1396,17 @@ const App = (() => {
       `;
     }
 
-    _flow._vocabQuiz = { questions, qIdx: 0, correct: 0, wrong: 0, stepIndex, renderQ };
+    _flow._vocabQuiz = {
+      questions,
+      qIdx: 0,
+      correct: 0,
+      wrong: 0,
+      missed: [],
+      isReview: false,
+      totalCount: questions.length,
+      stepIndex,
+      renderQ
+    };
     renderQ();
   }
 
@@ -1313,8 +1419,13 @@ const App = (() => {
       if (b.dataset.correct === 'true') b.classList.add('correct');
     });
     btn.classList.add(isCorrect ? 'correct' : 'wrong');
-    if (isCorrect) { fq.correct++; } else { fq.wrong++; }
-    TTS.speak(jp);
+    if (isCorrect) {
+      fq.correct++;
+    } else {
+      fq.wrong++;
+      if (!fq.isReview) fq.missed.push(fq.questions[fq.qIdx]);
+    }
+    TTS.speak(stripFuri(jp));
     _playQuizEffect(isCorrect);
 
     const fb = document.getElementById('quizFeedback');
@@ -1324,14 +1435,55 @@ const App = (() => {
         ? `✅ 정답! <strong>${ruby(jp)}</strong> = ${escHtml(ko)}`
         : `❌ 오답. 정답: <strong>${ruby(jp)}</strong> = ${escHtml(ko)}`;
     }
-    show(document.getElementById('btnNextQ'));
+    const btnNext = document.getElementById('btnNextQ');
+    show(btnNext);
+    if (isCorrect) {
+      if (btnNext) {
+        btnNext.innerHTML = '다음 → <div class="auto-next-bar"></div>';
+      }
+      clearTimeout(_autoNextTimer);
+      _autoNextTimer = setTimeout(() => {
+        const btn = document.getElementById('btnNextQ');
+        if (btn && !btn.classList.contains('hidden')) _vocabQuizNext();
+      }, 5000);
+    } else {
+      if (btnNext) btnNext.innerHTML = '다음 →';
+    }
   }
 
   function _vocabQuizNext() {
+    clearTimeout(_autoNextTimer);
+    const btn = document.getElementById('btnNextQ');
+    if (btn) btn.innerHTML = '다음 →';
     const fq = _flow._vocabQuiz;
     if (!fq) return;
     fq.qIdx++;
     fq.renderQ();
+  }
+
+  // ── Retry Transition ─────────────────────────────────────
+  function _showRetryTransition(count, onStart) {
+    document.getElementById('flowBody').innerHTML = `
+      <div class="completion-screen">
+        <div class="completion-emoji">🔁</div>
+        <div class="completion-title">오답 다시 풀기</div>
+        <div class="completion-sub">
+          잠깐만요! 방금 틀렸던 <strong>${count}문제</strong>를<br>
+          제대로 익혔는지 다시 한번 확인해볼까요? 😊
+          <div style="font-size:11px;color:var(--text3);margin-top:12px;opacity:0.8">
+            * 최종 점수와 진도는 첫 시도 결과로 기록됩니다.
+          </div>
+        </div>
+      </div>
+    `;
+    document.getElementById('flowFooter').innerHTML = `
+      <button class="btn btn-primary" onclick="App._startRetryPhase()">시작하기 →</button>
+    `;
+    _flow._onRetryStart = onStart;
+  }
+
+  function _startRetryPhase() {
+    if (_flow._onRetryStart) _flow._onRetryStart();
   }
 
   // ── Quiz Result ───────────────────────────────────────────
@@ -1339,8 +1491,16 @@ const App = (() => {
     const pct = score;
     const passRate = parseInt(Store.getSetting('quizPassRate')) || 60;
     const passed = pct >= passRate;
-    const emoji = pct >= 90 ? '🏆' : pct >= 70 ? '🎉' : pct >= 50 ? '😊' : '💪';
-    const title = pct >= 90 ? '완벽해요!' : pct >= 70 ? '잘 했어요!' : pct >= 50 ? '괜찮아요!' : '다시 도전!';
+    
+    // 티어별 일본어 감탄사 및 메시지
+    const tiers = [
+      { min: 90, icon: '🏆', title: '완벽해요!', jp: '最高(さいこう)입니다!', ko: '최고예요!', msg: '완벽하게 마스터하셨군요! 당신은 이미 일본어 마스터! 👑' },
+      { min: 70, icon: '🎉', title: '잘 했어요!', jp: '立派(りっぱ)입니다!', ko: '훌륭해요!', msg: '정말 대단해요! 실력이 쑥쑥 늘고 있는 게 느껴져요! ✨' },
+      { min: 50, icon: '😊', title: '괜찮아요!', jp: 'いいですね！', ko: '좋아요!', msg: '안정적인 성적이에요. 조금만 더 연습하면 최고가 될 수 있어요! 👍' },
+      { min: 0,  icon: '💪', title: '다시 도전!', jp: '頑張(がんば)りましょう！', ko: '힘내세요!', msg: '기초를 튼튼히 다지는 과정이에요. 한 번 더 도전해 볼까요? 🔥' }
+    ];
+    const res = tiers.find(t => pct >= t.min);
+
     const xpEarned = Math.round((pct / 100) * 100 + 20);
     const passBadge = passed
       ? `<div class="v2-pass-badge v2-pass-ok">✅ 통과! (기준 ${passRate}%)</div>`
@@ -1348,16 +1508,25 @@ const App = (() => {
 
     Store.completeStep(_flow.moduleId, stepIndex, score);
     Store.addXP(xpEarned);
-    if (pct >= 70) confetti(pct >= 90 ? 60 : 30);
+
+    // 팡파레 효과 (Confetti + TTS)
+    if (pct >= 50) {
+      confetti(pct >= 90 ? 100 : 50);
+      setTimeout(() => TTS.speak(stripFuri(res.jp)), 600);
+    }
 
     document.getElementById('flowBody').innerHTML = `
-      <div class="score-screen">
-        <div class="score-emoji">${emoji}</div>
-        <div class="score-title">${title}</div>
-        <div class="score-subtitle">${correct} / ${total} 정답</div>
+      <div class="score-screen fanfare-burst">
+        <div class="score-emoji">${res.icon}</div>
+        <div class="score-title">${res.title}</div>
+        <div class="score-exclamation">${ruby(res.jp)}</div>
+        <div class="score-msg">${res.msg}</div>
+        
         <div class="score-ring" id="scoreRing">
           <div class="score-pct">${pct}%</div>
         </div>
+        
+        <div class="score-subtitle" style="margin-top:20px">${correct} / ${total} 정답</div>
         ${passBadge}
         <div class="xp-earned">+<span class="xp-num">${xpEarned}</span> XP 획득!</div>
       </div>
@@ -1390,6 +1559,9 @@ const App = (() => {
     funfact:  { icon: '🎯', color: '#3b82f6' },
     practice: { icon: '✍️', color: '#ef4444' },
     summary:  { icon: '✅', color: '#10b981' },
+    grammar:  { icon: '🧩', color: '#f43f5e' },
+    table:    { icon: '📊', color: '#0ea5e9' },
+    dialog:   { icon: '💬', color: '#14b8a6' },
   };
 
   function _renderLecture(mod, step, stepIndex) {
@@ -1420,8 +1592,9 @@ const App = (() => {
 
         <!-- 칠판 영역 — 애니메이션 여기서 발생 -->
         <div class="lec-board" id="lecBoard">
-          <div class="lec-board-text" id="lecBoardText"></div>
-          ${slide.sub ? `<div class="lec-board-sub">${escHtml(slide.sub)}</div>` : ''}
+          ${slide.image ? `<img src="${slide.image}" style="max-width:100%; max-height:140px; border-radius:12px; margin-bottom:10px; object-fit:contain;" />` : ''}
+          <div class="lec-board-text" id="lecBoardText" style="font-weight:bold; font-size:28px;"></div>
+          ${slide.sub ? `<div class="lec-board-sub" style="margin-top:8px;">${escHtml(slide.sub)}</div>` : ''}
         </div>
 
         <!-- 설명: 일본어 메인 + 한국어 번역 하단 -->
@@ -1460,7 +1633,7 @@ const App = (() => {
     setTimeout(() => {
       if (!_flow._lecture || _flow._lecture.idx !== idx) return;
       if (slide.captionJp) {
-        _lecReadCaptionJp(slide.captionJp, slide.captionKo, () => {
+        _lecReadCaptionJp(slide.captionJp, slide.captionKo, idx, () => {
           // TTS 완료 → 2초 후 자동 진행
           if (!_flow._lecture || _flow._lecture.paused || _flow._lecture.idx !== idx) return;
           const bar = document.getElementById('lecTimerBar');
@@ -1519,23 +1692,17 @@ const App = (() => {
 
   // ── captionJp 다화자 순차 읽기 ──────────────────────────────
   // captionKo를 함께 받아 한국어 번역도 병렬 하이라이트
-  function _lecReadCaptionJp(captionJp, captionKo, onDone) {
+  function _lecReadCaptionJp(captionJp, captionKo, slideIdx, onDone) {
     if (!captionJp) { if (onDone) onDone(); return; }
 
-    // ① 표시용 문장 분리 (원문 유지, 후리가나 패턴 포함)
-    const rawText = captionJp
-      .replace(/<rt>[^<]*<\/rt>/gi, '')
-      .replace(/<[^>]*>/g, '');
+    // ① 표시용 문장 분리 (후리가나 제거 후 분리)
+    const rawText = stripFuri(captionJp);
     const jpSentences = rawText
       .match(/[^。！？…]+[。！？…]*/g)?.map(s => s.trim()).filter(Boolean);
     if (!jpSentences?.length) { if (onDone) onDone(); return; }
 
-    // ② TTS용 텍스트: 후리가나 괄호 + 한글 제거/변환
-    const ttsSentences = jpSentences.map(s =>
-      _koToKatakana(
-        s.replace(/[（(][ぁ-んァ-ンー・]+[）)]/g, '')
-      ).trim()
-    );
+    // ② TTS용 텍스트: 한글 근사 변환만 추가 진행
+    const ttsSentences = jpSentences.map(s => _koToKatakana(s).trim());
 
     // ③ 한국어 문장 분리
     const koSentences = captionKo
@@ -1562,10 +1729,11 @@ const App = (() => {
     const jpLen = jpSentences.length;
     const koLen = koSentences.length;
 
-    // ⑥ A(짝수) / B(홀수) 화자 교대
+    // ⑥ 슬라이드 인덱스에 따라 A, B, C 화자 교대
+    const speakerId = ['A', 'B', 'C'][slideIdx % 3];
     const lines = ttsSentences.map((text, i) => ({
       text,
-      speaker: i % 2 === 0 ? 'A' : 'B',
+      speaker: speakerId,
     }));
 
     TTS.speakQueue(lines, {
@@ -1597,7 +1765,15 @@ const App = (() => {
     if (!lc || lc.paused) return;
     // 기존 타이머 제거
     if (lc.timerId) clearTimeout(lc.timerId);
-    const dur = lc.slides[lc.idx].duration || 6000;
+    
+    // 텍스트 길이에 기반한 동적 시간 계산 (음성이 없는 경우를 대비)
+    const slide = lc.slides[lc.idx];
+    const textLen = (slide.main || '').length + (slide.sub || '').length + (slide.captionJp || '').length;
+    const dur = slide.duration || Math.max(5000, textLen * 100);
+    
+    // CSS 타이머 바 애니메이션 시간 동기화
+    const bar = document.getElementById('lecTimerBar');
+    if (bar) bar.style.animationDuration = `${dur}ms`;
     lc.timerId = setTimeout(() => {
       if (!_flow._lecture || _flow._lecture.paused) return;
       _lecNext();
@@ -1925,6 +2101,7 @@ const App = (() => {
   }
 
   function closeFlow() {
+    clearTimeout(_autoNextTimer);
     document.getElementById('flowScreen').classList.remove('open');
     TTS.stop();
     _flow = null;
@@ -2517,7 +2694,7 @@ const App = (() => {
     }
 
     // Mission 2: Daily XP goal
-    const todayXP = prog._todayXP || 0;
+    const todayXP = prog.todayXP || 0;
     const xpGoal = 100;
     missions.push({
       icon: '⚡',
@@ -2670,6 +2847,7 @@ const App = (() => {
     _kanaSpeak,
     _kanaQuizAnswer,
     _kanaQuizNext,
+    _vocabSpeak,
     _vocabFlip,
     _vocabNext,
     _vocabPrev,
@@ -2679,6 +2857,7 @@ const App = (() => {
     _dialogueStudyDone,
     _startFlowFromStep,
     _afterQuiz,
+    _startRetryPhase,
     _listeningQuizAnswer,
     _listeningQuizNext,
     // 강의 플레이어

@@ -631,6 +631,19 @@ body {
   font-weight: 400;
   line-height: 1;
   color: #fff;
+  transition: font-size 0.3s var(--ease);
+}
+
+/* Small kana (yoon/sokuon) specific sizing for flashcards */
+.kana-char.is-small {
+  font-size: 110px;
+  opacity: 0.9;
+}
+
+.small-kana {
+  font-size: 0.85em;
+  display: inline-block;
+  transform: translateY(0.05em); /* slight adjustment for alignment if needed */
 }
 
 /* 🔊 sound button — top-right of kana-face */
@@ -735,6 +748,24 @@ body {
   line-height: 1.5;
 }
 .vocab-card .vc-tip::before { content: '💡 '; }
+
+/* Fanfare / completion effects */
+.fanfare-burst {
+  animation: fanfareGrow 0.8s var(--ease);
+}
+@keyframes fanfareGrow {
+  0% { transform: scale(0.8); opacity: 0; }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); opacity: 1; }
+}
+.score-exclamation {
+  font-size: 24px; font-weight: 800; color: var(--accent2);
+  margin: 10px 0 4px; letter-spacing: -0.5px;
+}
+.score-msg {
+  font-size: 14px; color: var(--text2); line-height: 1.6;
+  max-width: 280px; margin: 0 auto 20px;
+}
 .vocab-card .vc-audio-btn {
   position: absolute; top: 16px; right: 16px;
   width: 36px; height: 36px;
@@ -806,6 +837,10 @@ body {
   line-height: 1.3;
   ruby { line-height: 2; }
   rt { font-size: 16px; color: var(--accent2); }
+}
+.quiz-q-text.is-small {
+  font-size: 56px;
+  opacity: 0.9;
 }
 .quiz-q-sub { font-size: 14px; color: var(--text2); margin-top: 8px; }
 .quiz-audio-btn {
@@ -1324,6 +1359,7 @@ body {
   cursor: pointer;
   transition: transform var(--dur), opacity var(--dur);
   display: flex; align-items: center; justify-content: center; gap: 8px;
+  position: relative; overflow: hidden;
 }
 .btn:active { transform: scale(.97); }
 .btn-primary { background: var(--accent); color: #fff; }
@@ -1335,6 +1371,22 @@ body {
 }
 .btn-outline:hover { border-color: var(--accent); color: var(--accent2); }
 .btn-sm { padding: 10px 20px; font-size: 14px; width: auto; border-radius: 20px; }
+
+/* Auto-next timer progress inside btn */
+.auto-next-bar {
+  position: absolute;
+  bottom: 0; left: 0;
+  height: 4px;
+  background: rgba(255,255,255,0.4);
+  width: 100%;
+  transform-origin: left;
+  animation: autoNextProgress 5s linear forwards;
+}
+
+@keyframes autoNextProgress {
+  from { transform: scaleX(1); }
+  to   { transform: scaleX(0); }
+}
 
 /* ── Toast ────────────────────────────────────────────────── */
 .toast {

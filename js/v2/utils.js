@@ -4,6 +4,9 @@
 
 'use strict';
 
+const KANA_SMALL = /[ぁぃぅぇぉっゃゅょゎァィゥェォッャュョヮヵヶ]/;
+const KANA_SMALL_G = /[ぁぃぅぇぉっゃゅょゎァィゥェォッャュョヮヵヶ]/g;
+
 // ── HTML Escape ────────────────────────────────────────────
 function escHtml(str) {
   if (!str) return '';
@@ -28,15 +31,28 @@ function ruby(text, reading) {
     /([^\s（\(）\)]+)[（\(]([ぁ-ヶ]+)[）\)]/g,
     (_, base, rt) => `<ruby>${escHtml(base)}<rt>${escHtml(rt)}</rt></ruby>`
   );
-  if (parsed !== text) return parsed;
-  return escHtml(text);
+  let final = parsed;
+  if (parsed === text) {
+    final = escHtml(text);
+  }
+  // Wrap small kana for potential styling
+  return final.replace(KANA_SMALL_G, m => `<span class="small-kana">${m}</span>`);
+}
+
+function isSmallKana(c) {
+  return KANA_SMALL.test(c);
 }
 
 // ── Strip furigana parentheticals ─────────────────────────
 // 漢字(よみ) → 漢字  (후리가나 OFF 모드용)
 function stripFuri(text) {
   if (!text) return '';
-  return String(text).replace(/[（(][ぁ-ヶ]+[）)]/g, '');
+  // 1. Ruby tag removal
+  let s = String(text)
+    .replace(/<rt>[^<]*<\/rt>/gi, '')
+    .replace(/<[^>]*>/g, '');
+  // 2. Parenthesis removal
+  return s.replace(/[（(][ぁ-ヶー・]+[）)]/g, '');
 }
 
 // ── Format vocab item Japanese with furigana ──────────────
