@@ -7,6 +7,7 @@ document.write('<script src="js/data/lecture-data-v2/wlevel_4b.js"></script>');
 document.write('<script src="js/data/lecture-data-v2/wlevel_5.js"></script>');
 document.write('<script src="js/data/lecture-data-v2/wlevel_6.js"></script>');
 document.write('<script src="js/data/lecture-data-v2/wlevel_7.js"></script>');
+document.write('<script src="js/data/lecture-data-v2/wlevel_7b.js"></script>');
 document.write('<script src="js/data/lecture-data-v2/wlevel_8.js"></script>');
 document.write('<script src="js/data/lecture-data-v2/slevel_1.js"></script>');
 document.write('<script src="js/data/lecture-data-v2/slevel_2.js"></script>');

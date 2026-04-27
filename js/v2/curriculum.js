@@ -252,11 +252,12 @@ const MODULES = [
     name: '주문·부탁',
     nameJp: '注文・お願い',
     icon: '🍣',
-    desc: 'これをください, 물 요청, 주문 확인 같은 서비스 표현',
+    desc: '〜をください, お願いします, ありますか로 서비스 표현의 뼈대 만들기',
     xp: 380,
     unlockAfter: ['survival_location'],
     steps: [
-      { type: 'lecture',    title: '🎬 いただきます의 의미', lectureKey: 'wlevel_7' },
+      { type: 'lecture',    title: '🎬 주세요 · 부탁합니다', lectureKey: 'wlevel_7b' },
+      { type: 'lecture',    title: '🍱 식사 문화 노트', lectureKey: 'wlevel_7' },
       { type: 'vocab_learn', title: '필수 부탁 표현', categoryId: 'essential_phrases' },
       { type: 'vocab_learn', title: '음식·식당 어휘', categoryId: 'food_restaurant' },
       { type: 'vocab_quiz',  title: '주문·부탁 퀴즈', categoryIds: ['essential_phrases', 'food_restaurant'] },
@@ -284,6 +285,7 @@ const MODULES = [
       { type: 'lecture',    title: '🎬 いらっしゃいませ!', lectureKey: 'slevel_3' },
       { type: 'vocab_learn', title: '쇼핑 어휘', categoryId: 'shopping' },
       { type: 'vocab_quiz',  title: '쇼핑 퀴즈', categoryId: 'shopping' },
+      { type: 'dialogue_study', title: '대화 미리보기', dialogueKey: 'shopping' },
     ],
     roleplay: {
       id: 'rp_shopping',
@@ -307,6 +309,7 @@ const MODULES = [
       { type: 'lecture',    title: '🎬 료칸의 나라', lectureKey: 'slevel_5' },
       { type: 'vocab_learn', title: '숙박 어휘', categoryId: 'hotel_accommodation' },
       { type: 'vocab_quiz',  title: '숙박 퀴즈', categoryId: 'hotel_accommodation' },
+      { type: 'dialogue_study', title: '대화 미리보기', dialogueKey: 'hotel' },
     ],
     roleplay: {
       id: 'rp_hotel',
