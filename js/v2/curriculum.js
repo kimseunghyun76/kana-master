@@ -198,6 +198,31 @@ const MODULES = [
     }
   },
   {
+    id: 'survival_location',
+    stageId: 2,
+    name: '어디에 있어요?',
+    nameJp: 'どこにありますか',
+    icon: '🧭',
+    desc: 'あります / います, 장소 + に, 시설 위치 묻기와 답하기',
+    xp: 340,
+    unlockAfter: ['survival_numbers'],
+    steps: [
+      { type: 'lecture',    title: '🎬 あります · います', lectureKey: 'wlevel_4b' },
+      { type: 'vocab_learn', title: '장소 지시어', categoryId: 'pronouns_place' },
+      { type: 'vocab_learn', title: '위치·교통 어휘', categoryId: 'transport' },
+      { type: 'vocab_quiz',  title: '위치 표현 퀴즈', categoryIds: ['pronouns_place', 'transport'] },
+      { type: 'dialogue_study', title: '시설 위치 미리보기', dialogueKey: 'facility_help' },
+    ],
+    roleplay: {
+      id: 'rp_facility_help',
+      name: '시설 찾기',
+      nameJp: '場所を探す',
+      icon: '🧭',
+      desc: '화장실, 층수, 방향을 물어보고 안내받기',
+      dialogueKey: 'facility_help'
+    }
+  },
+  {
     id: 'survival_transport',
     stageId: 2,
     name: '위치·이동',
@@ -205,7 +230,7 @@ const MODULES = [
     icon: '🚆',
     desc: '어디에 있나요, 어디로 가나요, 길 묻기와 교통 이동',
     xp: 380,
-    unlockAfter: ['survival_numbers'],
+    unlockAfter: ['survival_location'],
     steps: [
       { type: 'lecture',    title: '🎬 1초도 안 늦는 신칸센', lectureKey: 'slevel_4' },
       { type: 'vocab_learn', title: '교통 어휘', categoryId: 'transport' },
@@ -229,11 +254,12 @@ const MODULES = [
     icon: '🍣',
     desc: 'これをください, 물 요청, 주문 확인 같은 서비스 표현',
     xp: 380,
-    unlockAfter: ['survival_numbers'],
+    unlockAfter: ['survival_location'],
     steps: [
       { type: 'lecture',    title: '🎬 いただきます의 의미', lectureKey: 'wlevel_7' },
+      { type: 'vocab_learn', title: '필수 부탁 표현', categoryId: 'essential_phrases' },
       { type: 'vocab_learn', title: '음식·식당 어휘', categoryId: 'food_restaurant' },
-      { type: 'vocab_quiz',  title: '음식 어휘 퀴즈', categoryId: 'food_restaurant' },
+      { type: 'vocab_quiz',  title: '주문·부탁 퀴즈', categoryIds: ['essential_phrases', 'food_restaurant'] },
       { type: 'dialogue_study', title: '대화 미리보기', dialogueKey: 'food' },
     ],
     roleplay: {

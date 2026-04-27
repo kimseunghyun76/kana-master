@@ -2834,6 +2834,7 @@ window.App = (() => {
       'pronouns_personal':      ['prn_1', 'prn_2', 'prn_3', 'prn_4', 'prn_5'],
       'pronouns_thing':         ['prn_6', 'prn_7', 'prn_8', 'prn_12', 'prn_13', 'prn_14'],
       'pronouns_place':         ['prn_9', 'prn_10', 'prn_11'],
+      'place_transport':        ['tr_'],
       // W5W8 — vocab-items-w5w8.js
       'basic_verbs':            ['vb1_', 'vb2_', 'vb3_'],
       'adjectives':             ['adj1_', 'adj2_', 'adj_'],
@@ -2925,6 +2926,7 @@ window.App = (() => {
       'airport':       by('ap_'),           // 공항 체크인
       'schedule':      by('ph_'),           // 전화 예약 (날짜·시간)
       'transport':     [...by('sub_'), ...by('tx_'), ...by('bus_')],  // 지하철+택시+버스
+      'facility_help': [...by('tlt_'), ...by('elv_')], // 화장실+엘리베이터
       'food':          [...by('rd_'), ...by('iz_'), ...by('cf_')],    // 식당+이자카야+카페
       'hotel':         [...by('hd_'), ...by('cin_'), ...by('cout_'), ...by('rs_')], // 호텔 전체
       'shopping':      [...by('sd_'), ...by('sel_'), ...by('dnq_'), ...by('dep_')], // 쇼핑 전체
