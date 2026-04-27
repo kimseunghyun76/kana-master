@@ -1944,16 +1944,44 @@ window.App = (() => {
   }
 
   // ── Roleplay ──────────────────────────────────────────────
-  function _startRoleplay(mod) {
+  function _getRoleplayPracticeLines(dialogues) {
+    return (dialogues || [])
+      .map((line, sourceIndex) => ({ ...line, sourceIndex }))
+      .filter(line => line.speaker === 'A' && (line.japanese || '').trim());
+  }
+
+  function _getRoleplayState(mod) {
+    const dialogues = _getDialogue(mod?.roleplay?.dialogueKey);
+    const practiceLines = _getRoleplayPracticeLines(dialogues);
+    if (!_flow?.roleplayState) {
+      _flow.roleplayState = {
+        practiceLines,
+        revealed: [],
+        shadowDone: [],
+        outputDone: []
+      };
+    }
+    return _flow.roleplayState;
+  }
+
+  function _renderRoleplay(mod) {
     const rp = mod.roleplay;
     const dialogues = _getDialogue(rp.dialogueKey);
-    if (!dialogues?.length) { showToast('대화 데이터를 찾을 수 없습니다'); return; }
+    const state = _getRoleplayState(mod);
+    const practiceLines = state.practiceLines || [];
+    const shadowDone = state.shadowDone || [];
+    const outputDone = state.outputDone || [];
+    const revealed = state.revealed || [];
+    const readyCount = practiceLines.filter((_, idx) => shadowDone[idx] && outputDone[idx]).length;
+    const allReady = practiceLines.length === 0 || readyCount === practiceLines.length;
 
     document.getElementById('flowTitle').textContent = `🎭 ${rp.name}`;
-    document.getElementById('flowStep').textContent = '';
+    document.getElementById('flowStep').textContent = practiceLines.length
+      ? `내 대사 ${readyCount}/${practiceLines.length}개 연습 완료`
+      : '';
     document.getElementById('flowProgressFill').style.width = '100%';
 
-    const html = dialogues.map((line, i) => {
+    const dialogueHtml = dialogues.map((line, i) => {
       if (line.speaker === 'N') {
         return `<div class="dialogue-line speaker-N" id="dl-line-${i}">
           <div class="dialogue-narrator">${ruby(line.japanese || '')}</div>
@@ -1970,30 +1998,115 @@ window.App = (() => {
             <div class="db-jp">${ruby(line.japanese || '')}</div>
             <div class="db-ko">${escHtml(line.korean || '')}</div>
             ${line.tip ? `<div class="db-tip">${ruby(line.tip)}</div>` : ''}
-            <span class="db-audio" onclick="event.stopPropagation(); TTS.speak('${(line.japanese||'').replace(/'/g,"\\'")}')">🔊</span>
+            <span class="db-audio" onclick="event.stopPropagation(); App._speakDialogueLine('${line.id}')">🔊</span>
           </div>
         </div>
       `;
     }).join('');
+
+    const practiceHtml = practiceLines.length ? practiceLines.map((line, idx) => {
+      const answerVisible = !!revealed[idx];
+      const shadowOk = !!shadowDone[idx];
+      const outputOk = !!outputDone[idx];
+      return `
+        <div class="card" style="padding:16px;border:1px solid var(--line);background:var(--surface);margin-bottom:12px">
+          <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:10px">
+            <div>
+              <div style="font-weight:800;font-size:14px;color:var(--text1)">내 대사 ${idx + 1}</div>
+              <div style="font-size:13px;color:var(--text2);margin-top:4px">${escHtml(line.korean || '')}</div>
+            </div>
+            <div style="font-size:12px;color:var(--text3)">${shadowOk && outputOk ? '완료' : '연습 중'}</div>
+          </div>
+          <div style="padding:12px;border-radius:12px;background:var(--surface2);font-size:14px;color:var(--text1);margin-bottom:10px">
+            ${answerVisible ? ruby(line.japanese || '') : '먼저 한국어 힌트를 보고 일본어로 말해보세요.'}
+          </div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px">
+            <button class="btn btn-outline" onclick="App._toggleRoleplayReveal(${idx})">${answerVisible ? '정답 가리기' : '정답 보기'}</button>
+            <button class="btn btn-outline" onclick="App._speakDialogueLine('${line.id}')">🔊 정답 듣기</button>
+            <button class="btn ${shadowOk ? 'btn-success' : 'btn-outline'}" onclick="App._markRoleplayShadow(${idx})">${shadowOk ? '따라 말하기 완료' : '따라 말했어요'}</button>
+            <button class="btn ${outputOk ? 'btn-success' : 'btn-outline'}" onclick="App._markRoleplayOutput(${idx})">${outputOk ? '힌트 말하기 완료' : '힌트 보고 말했어요'}</button>
+          </div>
+        </div>
+      `;
+    }).join('') : `
+      <div class="card" style="padding:16px;border:1px solid var(--line);background:var(--surface)">
+        <div style="font-weight:800;color:var(--text1);margin-bottom:6px">자동 완료형 롤플레이</div>
+        <div style="font-size:13px;color:var(--text2)">이 대화에는 학습자 A 대사가 없어서 전체 흐름을 듣고 마무리할 수 있습니다.</div>
+      </div>
+    `;
 
     document.getElementById('flowBody').innerHTML = `
       <div class="dialogue-scene">
         <div class="scene-title">${rp.icon} ${escHtml(rp.name)}</div>
         ${escHtml(rp.desc)}
       </div>
-      <div class="dialogue-list" id="dialogueList">${html}</div>
+      <div class="card" style="padding:16px;border:1px solid var(--line);background:var(--surface);margin-bottom:14px">
+        <div style="font-weight:800;font-size:14px;color:var(--text1);margin-bottom:8px">말하기 미션</div>
+        <div style="font-size:13px;color:var(--text2);line-height:1.6">
+          1. 전체 대화를 듣고 흐름을 익힙니다.<br>
+          2. 내 대사를 따라 말합니다.<br>
+          3. 한국어 힌트만 보고 다시 말해 봅니다.
+        </div>
+      </div>
+      <div class="dialogue-list" id="dialogueList">${dialogueHtml}</div>
+      <div style="height:12px"></div>
+      <div class="scene-title">🗣️ 내 말하기 연습</div>
+      <div style="font-size:13px;color:var(--text2);margin:6px 0 12px">정답을 바로 보기 전에 먼저 입으로 말해 본 뒤 체크해 주세요.</div>
+      <div>${practiceHtml}</div>
     `;
 
     document.getElementById('flowFooter').innerHTML = `
-      <div style="display:flex;gap:10px">
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
         <button class="btn btn-outline" id="btnReplayAll" onclick="App._replayAll('${mod.id}')">🔊 전체 재생</button>
         <button class="btn btn-outline" id="btnStopPlay" style="display:none" onclick="App._stopRoleplay()">⏹ 정지</button>
-        <button class="btn btn-success" onclick="App._completeRoleplay('${mod.id}')">완료 ✓</button>
+        <button class="btn ${allReady ? 'btn-success' : 'btn-outline'}" onclick="App._completeRoleplay('${mod.id}')">${allReady ? '완료 ✓' : `말하기 ${readyCount}/${practiceLines.length}`}</button>
       </div>
     `;
+  }
 
+  function _toggleRoleplayReveal(index) {
+    if (!_flow?.roleplayState) return;
+    _stopRoleplay();
+    _flow.roleplayState.revealed[index] = !_flow.roleplayState.revealed[index];
+    _renderRoleplay(_getMod(_flow.moduleId));
+  }
+
+  function _markRoleplayShadow(index) {
+    if (!_flow?.roleplayState) return;
+    _flow.roleplayState.shadowDone[index] = true;
+    _renderRoleplay(_getMod(_flow.moduleId));
+  }
+
+  function _markRoleplayOutput(index) {
+    if (!_flow?.roleplayState) return;
+    _flow.roleplayState.outputDone[index] = true;
+    _renderRoleplay(_getMod(_flow.moduleId));
+  }
+
+  function _speakDialogueLine(lineId) {
+    const all = typeof VOCAB_ITEMS_DIALOGUE !== 'undefined' ? VOCAB_ITEMS_DIALOGUE : [];
+    const line = all.find(x => x.id === lineId);
+    if (!line?.japanese) return;
+    TTS.speak(stripFuri(line.japanese));
+  }
+
+  function _startRoleplay(mod) {
+    const rp = mod.roleplay;
+    const dialogues = _getDialogue(rp.dialogueKey);
+    if (!dialogues?.length) { showToast('대화 데이터를 찾을 수 없습니다'); return; }
     _openFlowScreen();
-    _flow = { moduleId: mod.id, step: -1, roleplay: true };
+    _flow = {
+      moduleId: mod.id,
+      step: -1,
+      roleplay: true,
+      roleplayState: {
+        practiceLines: _getRoleplayPracticeLines(dialogues),
+        revealed: [],
+        shadowDone: [],
+        outputDone: []
+      }
+    };
+    _renderRoleplay(mod);
 
     // 자동 재생
     setTimeout(() => _replayAll(mod.id), 600);
@@ -2210,6 +2323,14 @@ window.App = (() => {
     return points;
   }
   function _completeRoleplay(moduleId) {
+    const state = _flow?.roleplayState;
+    const practiceLines = state?.practiceLines || [];
+    const readyCount = practiceLines.filter((_, idx) => state?.shadowDone?.[idx] && state?.outputDone?.[idx]).length;
+    if (practiceLines.length && readyCount < practiceLines.length) {
+      showToast('내 대사를 먼저 끝까지 연습해 주세요');
+      return;
+    }
+
     Store.completeRoleplay(moduleId);
     const mod = MODULES.find(m => m.id === moduleId);
     const xp = mod?.xp || 200;
@@ -3058,6 +3179,10 @@ window.App = (() => {
     _replayAll,
     _stopRoleplay,
     _startRoleplay,
+    _toggleRoleplayReveal,
+    _markRoleplayShadow,
+    _markRoleplayOutput,
+    _speakDialogueLine,
     showDialogueDetail,
     closeDialogueDetail,
     _getMod,
