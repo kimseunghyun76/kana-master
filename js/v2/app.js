@@ -1974,6 +1974,8 @@ window.App = (() => {
     const revealed = state.revealed || [];
     const readyCount = practiceLines.filter((_, idx) => shadowDone[idx] && outputDone[idx]).length;
     const allReady = practiceLines.length === 0 || readyCount === practiceLines.length;
+    const activeIndex = practiceLines.findIndex((_, idx) => !(shadowDone[idx] && outputDone[idx]));
+    const activeLine = activeIndex >= 0 ? practiceLines[activeIndex] : null;
 
     document.getElementById('flowTitle').textContent = `🎭 ${rp.name}`;
     document.getElementById('flowStep').textContent = practiceLines.length
@@ -2035,6 +2037,28 @@ window.App = (() => {
       </div>
     `;
 
+    const currentTurnHtml = activeLine ? `
+      <div class="card" style="padding:16px;border:1px solid var(--primary);background:linear-gradient(180deg, rgba(255,255,255,0.96), rgba(255,247,237,0.96));margin-bottom:14px">
+        <div style="font-weight:800;font-size:14px;color:var(--text1);margin-bottom:8px">🎯 지금 내 차례</div>
+        <div style="font-size:12px;color:var(--text3);margin-bottom:8px">대사 ${activeIndex + 1} / ${practiceLines.length}</div>
+        <div style="font-size:14px;color:var(--text1);margin-bottom:10px">${escHtml(activeLine.korean || '')}</div>
+        <div style="padding:12px;border-radius:12px;background:var(--surface2);font-size:14px;color:var(--text1);margin-bottom:10px">
+          ${revealed[activeIndex] ? ruby(activeLine.japanese || '') : '먼저 스스로 말해 보고, 막히면 정답을 확인해 보세요.'}
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px">
+          <button class="btn btn-outline" onclick="App._speakDialogueLine('${activeLine.id}')">🔊 정답 듣기</button>
+          <button class="btn btn-outline" onclick="App._toggleRoleplayReveal(${activeIndex})">${revealed[activeIndex] ? '정답 가리기' : '정답 보기'}</button>
+          <button class="btn ${shadowDone[activeIndex] ? 'btn-success' : 'btn-outline'}" onclick="App._markRoleplayShadow(${activeIndex})">${shadowDone[activeIndex] ? '따라 말하기 완료' : '따라 말했어요'}</button>
+          <button class="btn ${outputDone[activeIndex] ? 'btn-success' : 'btn-outline'}" onclick="App._markRoleplayOutput(${activeIndex})">${outputDone[activeIndex] ? '힌트 말하기 완료' : '힌트 보고 말했어요'}</button>
+        </div>
+      </div>
+    ` : `
+      <div class="card" style="padding:16px;border:1px solid var(--ok);background:rgba(34,197,94,0.08);margin-bottom:14px">
+        <div style="font-weight:800;font-size:14px;color:var(--text1);margin-bottom:6px">✅ 모든 내 대사 연습 완료</div>
+        <div style="font-size:13px;color:var(--text2)">전체 대화를 한 번 더 재생한 뒤 완료하면 마무리됩니다.</div>
+      </div>
+    `;
+
     document.getElementById('flowBody').innerHTML = `
       <div class="dialogue-scene">
         <div class="scene-title">${rp.icon} ${escHtml(rp.name)}</div>
@@ -2048,6 +2072,7 @@ window.App = (() => {
           3. 한국어 힌트만 보고 다시 말해 봅니다.
         </div>
       </div>
+      ${currentTurnHtml}
       <div class="dialogue-list" id="dialogueList">${dialogueHtml}</div>
       <div style="height:12px"></div>
       <div class="scene-title">🗣️ 내 말하기 연습</div>
