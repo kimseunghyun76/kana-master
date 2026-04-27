@@ -127,25 +127,49 @@ const MODULES = [
   {
     id: 'survival_greet',
     stageId: 2,
-    name: '인사·기본 표현',
-    nameJp: '挨拶・基本表現',
+    name: '자기소개 · です',
+    nameJp: '自己紹介・です',
     icon: '🙏',
-    desc: '인사, 감사, 사과, 부탁 — 어디서나 쓰는 표현',
+    desc: 'AはBです, 인사, 이름, 출신 소개의 기초 문형',
     xp: 300,
     unlockAfter: ['kana_hira', 'kana_kata', 'first_phrases'],
     steps: [
-      { type: 'lecture',    title: '🎬 인사의 나라', lectureKey: 'wlevel_1' },
+      { type: 'lecture',    title: '🎬 완벽한 자기소개', lectureKey: 'slevel_2' },
       { type: 'vocab_learn', title: '인사·응답 어휘', categoryId: 'basic_words' },
       { type: 'vocab_learn', title: '필수 표현어', categoryId: 'essential_phrases' },
       { type: 'vocab_quiz',  title: '인사 퀴즈', categoryIds: ['basic_words', 'essential_phrases'] },
     ],
     roleplay: {
-      id: 'rp_airport',
-      name: '공항에서',
-      nameJp: '空港で',
-      icon: '✈️',
-      desc: '입국심사·짐 찾기·환전',
-      dialogueKey: 'airport'
+      id: 'rp_first_meeting',
+      name: '처음 만남',
+      nameJp: 'はじめての出会い',
+      icon: '🤝',
+      desc: '이름, 출신, 첫인상으로 대화 시작하기',
+      dialogueKey: 'first_meeting'
+    }
+  },
+  {
+    id: 'survival_pointing',
+    stageId: 2,
+    name: '이것 · 저것 · 여기',
+    nameJp: 'これ・それ・ここ',
+    icon: '📍',
+    desc: 'これ/それ/あれ, ここ/そこ/あそこ로 사물과 장소를 가리키기',
+    xp: 320,
+    unlockAfter: ['survival_greet'],
+    steps: [
+      { type: 'lecture',    title: '🎬 지시어 (こそあど)', lectureKey: 'wlevel_4' },
+      { type: 'vocab_learn', title: '사물 지시어', categoryId: 'pronouns_thing' },
+      { type: 'vocab_learn', title: '장소 지시어', categoryId: 'pronouns_place' },
+      { type: 'vocab_quiz',  title: '지시어 퀴즈', categoryIds: ['pronouns_thing', 'pronouns_place'] },
+    ],
+    roleplay: {
+      id: 'rp_shopping_choice',
+      name: '물건 고르기',
+      nameJp: 'これください',
+      icon: '🛍️',
+      desc: '원하는 물건을 가리키고 질문하기',
+      dialogueKey: 'shopping'
     }
   },
   {
@@ -156,7 +180,7 @@ const MODULES = [
     icon: '🔢',
     desc: '1~10000, 요일, 날짜, 시각 완전 정복',
     xp: 350,
-    unlockAfter: ['survival_greet'],
+    unlockAfter: ['survival_pointing'],
     steps: [
       { type: 'lecture',    title: '🎬 불길한 숫자의 비밀', lectureKey: 'wlevel_2' },
       { type: 'vocab_learn', title: '숫자 기본', categoryId: 'numbers_basic' },
@@ -176,10 +200,10 @@ const MODULES = [
   {
     id: 'survival_transport',
     stageId: 2,
-    name: '교통 이동',
-    nameJp: '交通・移動',
+    name: '위치·이동',
+    nameJp: '場所・移動',
     icon: '🚆',
-    desc: '전철·버스·택시·길 물어보기',
+    desc: '어디에 있나요, 어디로 가나요, 길 묻기와 교통 이동',
     xp: 380,
     unlockAfter: ['survival_numbers'],
     steps: [
@@ -200,10 +224,10 @@ const MODULES = [
   {
     id: 'survival_food',
     stageId: 2,
-    name: '식사·주문',
-    nameJp: '食事・注文',
+    name: '주문·부탁',
+    nameJp: '注文・お願い',
     icon: '🍣',
-    desc: '음식점 예약, 주문, 계산, 음식 이름',
+    desc: 'これをください, 물 요청, 주문 확인 같은 서비스 표현',
     xp: 380,
     unlockAfter: ['survival_numbers'],
     steps: [
@@ -224,12 +248,12 @@ const MODULES = [
   {
     id: 'survival_shopping',
     stageId: 2,
-    name: '쇼핑',
-    nameJp: 'ショッピング',
+    name: '가격·비교·쇼핑',
+    nameJp: '買い物・比較',
     icon: '🛍️',
-    desc: '편의점·백화점·드럭스토어 쇼핑',
+    desc: '비싸다, 싸다, 이거 주세요, 가격 묻기와 비교 표현',
     xp: 300,
-    unlockAfter: ['survival_numbers'],
+    unlockAfter: ['survival_food'],
     steps: [
       { type: 'lecture',    title: '🎬 いらっしゃいませ!', lectureKey: 'slevel_3' },
       { type: 'vocab_learn', title: '쇼핑 어휘', categoryId: 'shopping' },
@@ -247,12 +271,12 @@ const MODULES = [
   {
     id: 'survival_hotel',
     stageId: 2,
-    name: '숙박',
-    nameJp: '宿泊',
+    name: '숙박·요청',
+    nameJp: '宿泊・依頼',
     icon: '🏨',
-    desc: '호텔 체크인·아웃, 요청, 컴플레인',
+    desc: '체크인, 위치 확인, 요청, 와이파이·조식·체크아웃 묻기',
     xp: 300,
-    unlockAfter: ['survival_transport'],
+    unlockAfter: ['survival_transport', 'survival_food'],
     steps: [
       { type: 'lecture',    title: '🎬 료칸의 나라', lectureKey: 'slevel_5' },
       { type: 'vocab_learn', title: '숙박 어휘', categoryId: 'hotel_accommodation' },

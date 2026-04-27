@@ -2831,6 +2831,9 @@ window.App = (() => {
       'dates_days':             ['dt_', 'dn_'],
       'time_expressions':       ['dt_'],      // same dt_ prefix (date/time)
       'pronouns':               ['prn_'],
+      'pronouns_personal':      ['prn_1', 'prn_2', 'prn_3', 'prn_4', 'prn_5'],
+      'pronouns_thing':         ['prn_6', 'prn_7', 'prn_8', 'prn_12', 'prn_13', 'prn_14'],
+      'pronouns_place':         ['prn_9', 'prn_10', 'prn_11'],
       // W5W8 — vocab-items-w5w8.js
       'basic_verbs':            ['vb1_', 'vb2_', 'vb3_'],
       'adjectives':             ['adj1_', 'adj2_', 'adj_'],
