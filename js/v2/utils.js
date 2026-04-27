@@ -22,20 +22,34 @@ function escHtml(str) {
 // Parses 漢字（よみ）patterns or accepts explicit kanji+reading
 function ruby(text, reading) {
   if (!text) return '';
+  
+  // Get setting from store (default true if store not available yet)
+  const showFuri = typeof window.Store !== 'undefined'
+                   ? window.Store.getSetting('furigana') !== false
+                   : true;
+
   if (reading) {
+    if (!showFuri) return escHtml(text);
     return `<ruby>${escHtml(text)}<rt>${escHtml(reading)}</rt></ruby>`;
   }
+
+  // If furigana is disabled, strip existing (readings) or ruby tags
+  if (!showFuri) {
+    return escHtml(stripFuri(text));
+  }
+
   // Auto-parse 漢字（よみ）or 漢字(よみ)
-  // Only convert when the reading part contains kana characters
   const parsed = String(text).replace(
-    /([^\s（\(）\)]+)[（\(]([ぁ-ヶ]+)[）\)]/g,
+    /([^\s（\(）\)]+)[（\(]([ぁ-ヶー・]+)[）\)]/g,
     (_, base, rt) => `<ruby>${escHtml(base)}<rt>${escHtml(rt)}</rt></ruby>`
   );
+  
   let final = parsed;
   if (parsed === text) {
     final = escHtml(text);
   }
-  // Wrap small kana for potential styling
+  
+  // Wrap small kana for styling
   return final.replace(KANA_SMALL_G, m => `<span class="small-kana">${m}</span>`);
 }
 

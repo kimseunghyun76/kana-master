@@ -31,7 +31,7 @@ function defaultProgress() {
 }
 
 // ── Store singleton ────────────────────────────────────────
-const Store = (() => {
+window.Store = (() => {
   let _data = defaultProgress();
   let _listeners = [];
 

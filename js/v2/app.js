@@ -6,7 +6,7 @@
 'use strict';
 
 // ── App singleton ──────────────────────────────────────────
-const App = (() => {
+window.App = (() => {
 
   // ── State ────────────────────────────────────────────────
   let _currentTab = 'home';       // home | lesson | practice | profile
@@ -1890,11 +1890,11 @@ const App = (() => {
       return `
         <div class="dialogue-line ${side}">
           <div class="dialogue-avatar">${label}</div>
-          <div class="dialogue-bubble">
+          <div class="dialogue-bubble" style="cursor:pointer" onclick="App.showDialogueDetail('${line.id}')">
             <div class="db-jp">${ruby(line.japanese || '')}</div>
             <div class="db-ko">${escHtml(line.korean || '')}</div>
             ${line.tip ? `<div class="db-tip">${ruby(line.tip)}</div>` : ''}
-            <span class="db-audio" onclick="TTS.speak('${(line.japanese||'').replace(/'/g,"\\'")}')">🔊</span>
+            <span class="db-audio" onclick="event.stopPropagation(); TTS.speak('${(line.japanese||'').replace(/'/g,"\\'")}')">🔊</span>
           </div>
         </div>
       `;
@@ -1945,11 +1945,11 @@ const App = (() => {
       return `
         <div class="dialogue-line ${side}" id="dl-line-${i}">
           <div class="dialogue-avatar">${label}</div>
-          <div class="dialogue-bubble">
+          <div class="dialogue-bubble" style="cursor:pointer" onclick="App.showDialogueDetail('${line.id}')">
             <div class="db-jp">${ruby(line.japanese || '')}</div>
             <div class="db-ko">${escHtml(line.korean || '')}</div>
             ${line.tip ? `<div class="db-tip">${ruby(line.tip)}</div>` : ''}
-            <span class="db-audio" onclick="TTS.speak('${(line.japanese||'').replace(/'/g,"\\'")}')">🔊</span>
+            <span class="db-audio" onclick="event.stopPropagation(); TTS.speak('${(line.japanese||'').replace(/'/g,"\\'")}')">🔊</span>
           </div>
         </div>
       `;
@@ -1993,7 +1993,7 @@ const App = (() => {
     // 나레이터(N) 포함 모든 라인을 큐에 넣되,
     // N은 텍스트가 한국어 설명뿐이므로 TTS 스킵 (text 비워 _speakOne가 no-op)
     const lines = dialogues.map((d, i) => ({
-      text:      d.speaker === 'N' ? '' : (d.japanese || ''),
+      text:      d.speaker === 'N' ? '' : stripFuri(d.japanese || ''),
       speaker:   d.speaker,
       elementId: `dl-line-${i}`
     }));
@@ -2033,6 +2033,161 @@ const App = (() => {
     if (btnStop)   btnStop.style.display   = 'none';
   }
 
+  function showDialogueDetail(lineId) {
+    if (!lineId) return;
+    const all = typeof VOCAB_ITEMS_DIALOGUE !== 'undefined' ? VOCAB_ITEMS_DIALOGUE : [];
+    const line = all.find(x => x.id === lineId);
+    if (!line) return;
+
+    // TTS 중단
+    TTS.stopQueue();
+    const btnReplay = document.getElementById('btnReplayAll');
+    const btnStop   = document.getElementById('btnStopPlay');
+    if (btnReplay) btnReplay.style.display = '';
+    if (btnStop)   btnStop.style.display   = 'none';
+
+    // 상세 정보 파싱
+    let breakdown = _parseBreakdown(line.japanese);
+    const grammar   = _parseGrammar(line.japanese, line.korean);
+
+    // [강력 조치] '문장 전체'라는 문구가 포함된 분석 결과는 무조건 제거
+    breakdown = breakdown.filter(b => b.mean !== '문장 전체');
+
+    closeDialogueDetail();
+    const overlay = document.createElement('div');
+    overlay.className = 'detail-overlay';
+    overlay.id = 'detailOverlay';
+    overlay.onclick = closeDialogueDetail;
+
+    overlay.innerHTML = `
+      <div class="detail-popup" onclick="event.stopPropagation()">
+        <button class="detail-close-btn" onclick="App.closeDialogueDetail()">✕</button>
+        <div class="detail-header">
+          <div class="detail-jap">${ruby(line.japanese)}</div>
+          <div class="detail-kor">${escHtml(line.korean)}</div>
+        </div>
+
+        <div class="detail-section">
+          <div class="detail-section-title">단어별 분석</div>
+          <div class="detail-breakdown">
+            ${breakdown.length > 0 ? breakdown.map(b => `
+              <div class="breakdown-item">
+                <div class="breakdown-word-group">
+                  <span class="breakdown-pos-tag" data-pos="${b.pos}">${b.pos}</span>
+                  <span class="breakdown-word">${ruby(b.word)}</span>
+                </div>
+                <span class="breakdown-meaning">${b.mean}</span>
+              </div>
+            `).join('') : '<div style="font-size:13px;color:var(--text3);padding:10px;text-align:center">매칭된 핵심 단어가 없습니다.</div>'}
+          </div>
+        </div>
+
+        <div class="detail-section">
+          <div class="detail-section-title">핵심 포인트</div>
+          <div class="detail-grammar-list">
+            ${grammar.map(g => `
+              <div class="grammar-item">
+                <span class="grammar-tag">${g.tag}</span> ${g.desc}
+              </div>
+            `).join('')}
+          </div>
+        </div>
+
+        <div class="detail-actions">
+          <button class="btn btn-replay-sent" onclick="TTS.speak('${line.japanese.replace(/'/g,"\\\\'")}')">
+            🔊 다시 듣기
+          </button>
+          <button class="btn btn-primary" onclick="App.closeDialogueDetail()">
+            확인했어요
+          </button>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(overlay);
+  }
+
+  function closeDialogueDetail() {
+    const overlay = document.getElementById('detailOverlay');
+    if (overlay) overlay.remove();
+  }
+
+  function _parseBreakdown(jp) {
+    if (!jp) return [];
+    const cleanJp = stripFuri(jp);
+    const allVocab = [
+      ...(typeof VOCAB_ITEMS_W1W4 !== "undefined" ? VOCAB_ITEMS_W1W4 : []),
+      ...(typeof VOCAB_ITEMS_W5W8 !== "undefined" ? VOCAB_ITEMS_W5W8 : []),
+      ...(typeof VOCAB_ITEMS_W9W10 !== "undefined" ? VOCAB_ITEMS_W9W10 : []),
+      ...(typeof VOCAB_ITEMS_S1S5 !== "undefined" ? VOCAB_ITEMS_S1S5 : []),
+      ...(typeof VOCAB_ITEMS_S6SIM !== "undefined" ? VOCAB_ITEMS_S6SIM : []),
+      ...(typeof VOCAB_ITEMS_DIALOGUE !== "undefined" ? VOCAB_ITEMS_DIALOGUE : []),
+    ];
+    const found = [];
+    const seen = new Set();
+    const getPos = (item) => {
+      const cat = item.category || "";
+      if (cat.includes("noun") || cat.includes("time") || cat.includes("place") || cat.includes("food")) return "명사";
+      if (cat.includes("verb") || cat.includes("motion") || cat.includes("action")) return "동사";
+      if (cat.includes("adj") || cat.includes("condition")) return "형용사";
+      if (cat.includes("adv") || cat.includes("filler")) return "부사";
+      return "단어";
+    };
+    const sortedDb = allVocab.filter(v => v.japanese && v.japanese.length > 1).sort((a,b) => b.japanese.length - a.japanese.length);
+    for (const item of sortedDb) {
+      const word = stripFuri(item.japanese);
+      if (word.length < 2) continue;
+      if (cleanJp.includes(word) && !seen.has(word)) {
+        let isSubset = false;
+        for (const f of found) { if (stripFuri(f.word).includes(word)) { isSubset = true; break; } }
+        if (!isSubset) { found.push({ word: item.japanese, mean: item.korean, pos: getPos(item) }); seen.add(word); }
+        if (found.length >= 6) break;
+      }
+    }
+    const common = [
+      { jp: "ます", mean: "합니다", pos: "어미" },
+      { jp: "です", mean: "입니다", pos: "어미" },
+      { jp: "ください", mean: "주세요", pos: "동사" }
+    ];
+    common.forEach(p => {
+      if (cleanJp.includes(p.jp) && !seen.has(p.jp)) { found.push({ word: p.jp, mean: p.mean, pos: p.pos }); seen.add(p.jp); }
+    });
+    return found;
+  }
+
+  function _parseGrammar(jp, ko) {
+    const points = [];
+    const cleanJp = stripFuri(jp);
+
+    // 1. 핵심 문법 패턴 감지
+    if (cleanJp.includes("てください")) points.push({ tag: "요청", desc: "「~해 주세요」 상대방에게 동작을 부탁할 때 씁니다." });
+    if (cleanJp.includes("いただけますか")) points.push({ tag: "공손", desc: "「~해 주실 수 있나요?」 매우 정중하고 격식 있는 부탁입니다." });
+    if (cleanJp.includes("たいです")) points.push({ tag: "희망", desc: "「~하고 싶습니다」 본인의 의지나 소망을 나타냅니다." });
+    if (cleanJp.includes("ましょう")) points.push({ tag: "권유", desc: "「~합시다 / ~할까요?」 제안이나 권유를 할 때 사용하는 표현입니다." });
+    if (cleanJp.includes("ですか")) points.push({ tag: "의문", desc: "문장 끝에 붙여 질문을 만드는 표준적인 표현입니다." });
+    if (cleanJp.includes("ながら")) points.push({ tag: "동시", desc: "「~하면서」 두 가지 행동을 함께 할 때 씁니다." });
+    if (cleanJp.includes("なければなりません")) points.push({ tag: "의무", desc: "「~해야만 합니다」 꼭 필요한 상황이나 책임을 나타냅니다." });
+    if (cleanJp.includes("ことがある")) points.push({ tag: "경험", desc: "「~한 적이 있다」 과거의 경험을 이야기할 때 씁니다." });
+
+    // 2. 상황별 포인트
+    if (cleanJp.includes("ありがとう") || cleanJp.includes("すみません")) points.push({ tag: "매너", desc: "감사나 사과 시에는 고개를 살짝 숙이는 예의를 갖추면 좋습니다." });
+    if (cleanJp.includes("にございます") || cleanJp.includes("でございます")) points.push({ tag: "경어", desc: "비즈니스나 공식 안내에서 쓰이는 최고 수준의 정중한 표현입니다." });
+
+    // 3. 패턴이 없을 때 보여줄 랜덤 팁 리스트
+    if (points.length === 0) {
+      const fallbacks = [
+        { tag: "팁", desc: "후리가나를 확인하며 큰 소리로 3번만 따라 읽어보세요." },
+        { tag: "매너", desc: "일본어는 문장 끝을 흐리지 않고 끝까지 발음하는 것이 정중하게 들립니다." },
+        { tag: "학습", desc: "이 문장에 쓰인 핵심 단어를 [나의 단어장]에 추가해 복습해 보세요." },
+        { tag: "발음", desc: "일본어의 [つ]나 [ざ] 발음은 한국어와 미세하게 다르니 주의해서 들어보세요." },
+        { tag: "팁", desc: "자연스러운 억양을 위해 TTS(음성) 버튼을 눌러 리듬을 익혀보세요." }
+      ];
+      // 랜덤하게 하나 선택 (Math.random 사용)
+      const randomIdx = Math.floor(Math.random() * fallbacks.length);
+      points.push(fallbacks[randomIdx]);
+    }
+    return points;
+  }
   function _completeRoleplay(moduleId) {
     Store.completeRoleplay(moduleId);
     const mod = MODULES.find(m => m.id === moduleId);
@@ -2871,6 +3026,8 @@ const App = (() => {
     _replayAll,
     _stopRoleplay,
     _startRoleplay,
+    showDialogueDetail,
+    closeDialogueDetail,
     _getMod,
     // 획순 애니메이션
     _showStrokePanel,

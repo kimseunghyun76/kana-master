@@ -8,7 +8,7 @@
 
 'use strict';
 
-const TTS = (() => {
+window.TTS = (() => {
   // ── Config ──────────────────────────────────────────────
   const VOICEVOX_URL  = 'http://localhost:50021';
   const EDGE_TTS_URL  = 'http://localhost:5050';
@@ -175,8 +175,10 @@ const TTS = (() => {
     if (!_enabled || !text) return;
     stopQueue();
     stop();
+    // Strip furigana if the utility is available
+    const cleanText = typeof window.stripFuri === 'function' ? window.stripFuri(text) : text;
     const sid = options.speakerId ?? _vvSpeakerA;
-    await _speakOne(text, sid);
+    await _speakOne(cleanText, sid);
   }
 
   // ── 순차 큐 재생 (롤플레이용) ─────────────────────────────
@@ -198,7 +200,8 @@ const TTS = (() => {
                 : _vvSpeakerA;
 
       if (callbacks.onLineStart) callbacks.onLineStart(i, line);
-      await _speakOne(line.text, sid);
+      const cleanLineText = typeof window.stripFuri === 'function' ? window.stripFuri(line.text) : line.text;
+      await _speakOne(cleanLineText, sid);
       if (callbacks.onLineEnd) callbacks.onLineEnd(i, line);
 
       if (!_queueStop) await _delay(250); // 라인 사이 짧은 쉬어가기

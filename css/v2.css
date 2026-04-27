@@ -1596,3 +1596,196 @@ rt {
 .badge-n4 { background: rgba(59,130,246,.15); color: #93c5fd; border: 1px solid rgba(59,130,246,.3); }
 .badge-n3 { background: rgba(16,185,129,.15); color: #6ee7b7; border: 1px solid rgba(16,185,129,.3); }
 .badge-n2 { background: rgba(245,158,11,.15); color: #fcd34d; border: 1px solid rgba(245,158,11,.3); }
+
+/* ── Dialogue Detail Popup (Premium Modal) ── */
+.detail-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 5000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: fadeIn 0.3s var(--ease) forwards;
+}
+
+.detail-popup {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  width: 100%;
+  max-width: 400px;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+  animation: slideUp 0.4s var(--ease) forwards;
+}
+
+.detail-close-btn {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: var(--bg3);
+  color: var(--text);
+  cursor: pointer;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.detail-header {
+  padding: 32px 24px 24px;
+  text-align: center;
+  border-bottom: 1px solid var(--border);
+}
+
+.detail-jap {
+  font-family: 'Noto Sans JP', serif;
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1.6;
+  margin-bottom: 8px;
+  color: #fff;
+}
+
+.detail-jap ruby { line-height: 2.2; }
+.detail-jap rt { font-size: 12px; color: var(--accent2); }
+
+.detail-kor {
+  font-size: 16px;
+  color: var(--text2);
+}
+
+.detail-section {
+  padding: 20px 24px;
+}
+
+.detail-section-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 12px;
+}
+
+.detail-breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.breakdown-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 18px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 12px;
+  margin-bottom: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.breakdown-word-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.breakdown-pos-tag {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: rgba(99, 102, 241, 0.15);
+  color: #818cf8;
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  min-width: 44px;
+  text-align: center;
+}
+
+.breakdown-pos-tag[data-pos="동사"] { background: rgba(16, 185, 129, 0.15); color: #34d399; border-color: rgba(16, 185, 129, 0.3); }
+.breakdown-pos-tag[data-pos="형용사"] { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border-color: rgba(245, 158, 11, 0.3); }
+.breakdown-pos-tag[data-pos="부사"] { background: rgba(236, 72, 153, 0.15); color: #f472b6; border-color: rgba(236, 72, 153, 0.3); }
+.breakdown-pos-tag[data-pos="어미"] { background: rgba(255, 255, 255, 0.1); color: #9ca3af; border-color: rgba(255, 255, 255, 0.2); }
+
+.breakdown-word {
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--text1);
+}
+
+.breakdown-meaning {
+  font-size: 14px;
+  color: var(--text2);
+}
+
+.detail-grammar-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.grammar-item {
+  background: rgba(99, 102, 241, 0.1);
+  border-left: 3px solid var(--accent);
+  padding: 12px;
+  border-radius: 0 10px 10px 0;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.grammar-tag {
+  font-weight: 800;
+  color: var(--accent2);
+  margin-right: 6px;
+}
+
+.detail-actions {
+  padding: 16px 24px 24px;
+  display: flex;
+  gap: 10px;
+}
+
+.detail-actions .btn {
+  flex: 1;
+  height: 48px;
+  border-radius: 14px;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-replay-sent {
+  background: var(--bg3);
+  color: var(--text);
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: #fff;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
