@@ -132,7 +132,7 @@ const MODULES = [
     icon: '🙏',
     desc: '인사, 감사, 사과, 부탁 — 어디서나 쓰는 표현',
     xp: 300,
-    unlockAfter: ['kana_hira'],
+    unlockAfter: ['kana_hira', 'kana_kata', 'first_phrases'],
     steps: [
       { type: 'lecture',    title: '🎬 인사의 나라', lectureKey: 'wlevel_1' },
       { type: 'vocab_learn', title: '인사·응답 어휘', categoryId: 'basic_words' },

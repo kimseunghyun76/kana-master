@@ -20,6 +20,8 @@ function defaultProgress() {
     modules: {},              // { [moduleId]: ModuleProgress }
     // ModuleProgress: { stepsCompleted:0, stepResults:[], roleplayDone:false }
     kanaProgress: {},         // { [levelId]: { learned:bool, quizScore:0 } }
+    kanaItemProgress: {},     // { [kana]: SRSProgress }
+    vocabProgress: {},        // { [vocabId]: SRSProgress }
     settings: {
       ttsLang: 'ja-JP',
       ttsRate: 1.0,
@@ -88,6 +90,13 @@ window.Store = (() => {
   function getXP()     { return _data.xp; }
   function getStreak() { return _data.streak; }
 
+  function _ensureModule(moduleId) {
+    if (!_data.modules[moduleId]) {
+      _data.modules[moduleId] = { stepsCompleted: 0, stepResults: [], roleplayDone: false };
+    }
+    return _data.modules[moduleId];
+  }
+
   function addXP(amount) {
     const today = _todayStr();
     if (_data.lastXPUpdateDate !== today) {
@@ -123,24 +132,50 @@ window.Store = (() => {
 
   // Mark a step complete in a module
   function completeStep(moduleId, stepIndex, quizScore) {
-    if (!_data.modules[moduleId]) {
-      _data.modules[moduleId] = { stepsCompleted: 0, stepResults: [], roleplayDone: false };
-    }
-    const mp = _data.modules[moduleId];
+    const mp = _ensureModule(moduleId);
     if (stepIndex >= mp.stepsCompleted) {
       mp.stepsCompleted = stepIndex + 1;
     }
-    mp.stepResults[stepIndex] = { score: quizScore ?? 100, ts: Date.now() };
+    const prev = mp.stepResults[stepIndex] || {};
+    const score = quizScore ?? prev.lastScore ?? prev.score ?? 100;
+    mp.stepResults[stepIndex] = {
+      ...prev,
+      completed: true,
+      passed: true,
+      passedEver: true,
+      score,
+      lastScore: score,
+      bestScore: Math.max(prev.bestScore ?? 0, score),
+      completedAt: Date.now(),
+      ts: Date.now()
+    };
+    _recordStudy();
+    _notify('module', moduleId);
+    save();
+  }
+
+  function recordStepAttempt(moduleId, stepIndex, quizScore, passed) {
+    const mp = _ensureModule(moduleId);
+    const prev = mp.stepResults[stepIndex] || {};
+    const score = quizScore ?? 0;
+    mp.stepResults[stepIndex] = {
+      ...prev,
+      score: prev.completed ? (prev.score ?? score) : score,
+      lastScore: score,
+      bestScore: Math.max(prev.bestScore ?? 0, score),
+      attempts: (prev.attempts ?? 0) + 1,
+      passed: !!passed,
+      passedEver: (prev.passedEver ?? false) || !!passed,
+      lastAttemptAt: Date.now(),
+      ts: Date.now()
+    };
     _recordStudy();
     _notify('module', moduleId);
     save();
   }
 
   function completeRoleplay(moduleId) {
-    if (!_data.modules[moduleId]) {
-      _data.modules[moduleId] = { stepsCompleted: 0, stepResults: [], roleplayDone: false };
-    }
-    _data.modules[moduleId].roleplayDone = true;
+    _ensureModule(moduleId).roleplayDone = true;
     _recordStudy();
     _notify('roleplay', moduleId);
     save();
@@ -150,6 +185,110 @@ window.Store = (() => {
     _data.kanaProgress[levelId] = { learned: true, quizScore: score ?? 100, ts: Date.now() };
     _recordStudy();
     save();
+  }
+
+  function _today() {
+    return new Date().toISOString().slice(0, 10);
+  }
+
+  function _addDays(dateStr, days) {
+    const d = new Date(dateStr);
+    d.setDate(d.getDate() + days);
+    return d.toISOString().slice(0, 10);
+  }
+
+  function _applySrs(progress, grade) {
+    let ef = progress.srsEasiness ?? 2.5;
+    let repetitions = progress.srsRepetitions ?? 0;
+    let interval = progress.srsInterval ?? 0;
+    const today = _today();
+
+    progress.srsLastReview = today;
+    progress.seen = (progress.seen ?? 0) + 1;
+
+    if (grade >= 3) {
+      if (repetitions === 0) interval = 1;
+      else if (repetitions === 1) interval = 6;
+      else interval = Math.round(interval * ef);
+      repetitions += 1;
+    } else {
+      repetitions = 0;
+      interval = 1;
+    }
+
+    ef = ef + (0.1 - (5 - grade) * (0.08 + (5 - grade) * 0.02));
+    ef = Math.max(1.3, Math.min(5.0, ef));
+
+    progress.srsEasiness = Math.round(ef * 100) / 100;
+    progress.srsInterval = interval;
+    progress.srsRepetitions = repetitions;
+    progress.srsDueDate = _addDays(today, interval);
+    progress.lastGrade = grade;
+    return progress;
+  }
+
+  function _gradeFromRating(rating) {
+    if (rating === 'easy') return 5;
+    if (rating === 'good') return 4;
+    if (rating === 'hard') return 3;
+    return 1;
+  }
+
+  function _isDue(progress) {
+    if (!progress || !progress.srsDueDate) return false;
+    return progress.srsDueDate <= _today();
+  }
+
+  function _reviewQueue(ids, progressMap) {
+    const due = [];
+    const fresh = [];
+    const future = [];
+    ids.forEach(id => {
+      const p = progressMap[id];
+      if (p && _isDue(p)) {
+        due.push(id);
+      } else if (!p || !p.srsDueDate) {
+        fresh.push(id);
+      } else {
+        future.push(id);
+      }
+    });
+    future.sort((a, b) => {
+      const pa = progressMap[a]?.srsDueDate || '9999-12-31';
+      const pb = progressMap[b]?.srsDueDate || '9999-12-31';
+      return pa.localeCompare(pb);
+    });
+    return [...due, ...fresh, ...future];
+  }
+
+  function reviewVocabItem(id, rating) {
+    if (!id) return;
+    const progress = _data.vocabProgress[id] || {};
+    _data.vocabProgress[id] = _applySrs(progress, _gradeFromRating(rating));
+    save();
+  }
+
+  function reviewKanaItem(char, rating) {
+    if (!char) return;
+    const progress = _data.kanaItemProgress[char] || {};
+    _data.kanaItemProgress[char] = _applySrs(progress, _gradeFromRating(rating));
+    save();
+  }
+
+  function countDueVocab(ids) {
+    return ids.filter(id => _isDue(_data.vocabProgress[id])).length;
+  }
+
+  function countDueKana(chars) {
+    return chars.filter(char => _isDue(_data.kanaItemProgress[char])).length;
+  }
+
+  function getVocabReviewQueue(ids) {
+    return _reviewQueue(ids, _data.vocabProgress);
+  }
+
+  function getKanaReviewQueue(chars) {
+    return _reviewQueue(chars, _data.kanaItemProgress);
   }
 
   function getSetting(key) { return _data.settings[key]; }
@@ -168,7 +307,9 @@ window.Store = (() => {
   }
 
   return { load, save, get, getXP, getStreak, addXP,
-           completeStep, completeRoleplay, completeKanaLevel,
+           completeStep, recordStepAttempt, completeRoleplay, completeKanaLevel,
+           reviewVocabItem, reviewKanaItem, countDueVocab, countDueKana,
+           getVocabReviewQueue, getKanaReviewQueue,
            getSetting, setSetting, subscribe };
 })();
 

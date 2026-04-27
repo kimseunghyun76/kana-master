@@ -384,6 +384,10 @@ window.App = (() => {
     const kanaUnlocked = (prog.kanaProgress[1]?.learned) || true;
     const vocabUnlocked = prog.xp >= 400;
     const quizUnlocked  = prog.xp >= 800;
+    const allKanaChars = Object.keys(KANA_MAP || {});
+    const allVocabIds = _getAllVocabItems().map(item => item.id).filter(Boolean);
+    const dueKanaCount = Store.countDueKana(allKanaChars);
+    const dueVocabCount = Store.countDueVocab(allVocabIds);
 
     let html = `
       <div class="practice-section-title">빠른 복습</div>
@@ -391,13 +395,13 @@ window.App = (() => {
         <div class="practice-item" onclick="App.startKanaReview()">
           <div class="pi-icon">あア</div>
           <div class="pi-name">가나 플래시카드</div>
-          <div class="pi-stage">히라가나 · 가타가나</div>
+          <div class="pi-stage">${dueKanaCount > 0 ? `오늘 복습 ${dueKanaCount}개` : '히라가나 · 가타가나 전체'}</div>
         </div>
         <div class="practice-item ${!vocabUnlocked ? 'locked' : ''}"
              onclick="${vocabUnlocked ? "App.startVocabReview()" : ''}">
           <div class="pi-icon">📖</div>
           <div class="pi-name">어휘 복습</div>
-          <div class="pi-stage">학습한 단어 전체</div>
+          <div class="pi-stage">${dueVocabCount > 0 ? `오늘 복습 ${dueVocabCount}개` : '학습한 단어 전체'}</div>
           ${!vocabUnlocked ? '<div class="pi-lock">🔒</div>' : ''}
         </div>
         <div class="practice-item ${!quizUnlocked ? 'locked' : ''}"
@@ -742,12 +746,15 @@ window.App = (() => {
   // ── Kana Learn ────────────────────────────────────────────
   function _renderKanaLearn(mod, step, stepIndex) {
     const level = LEVELS.find(l => l.id === step.levelId);
-    if (!level) { _advanceStep(); return; }
+    const chars = step.chars?.length ? step.chars : level?.chars;
+    if (!chars?.length) { _advanceStep(); return; }
+    const levelType = step.kanaType || level?.type || 'hiragana';
 
     // State stored on _flow so all handlers share it
     _flow._kanaState = {
-      chars: level.chars,
-      level,
+      chars,
+      level: level || { type: levelType },
+      customLabel: step.customLabel || '',
       cardIdx: 0,
       flipped: false,
       stepIndex
@@ -764,13 +771,14 @@ window.App = (() => {
           <span style="color:var(--text3)"> — </span>${escHtml(ex.meaning)}
         </div>`).join('');
 
-      const typeLabel = st.level.type
+      const typeLabel = st.customLabel || st.level.type
         .replace('hiragana_dakuten','히라가나 탁음')
         .replace('hiragana_yoon','히라가나 요음')
         .replace('hiragana','히라가나')
         .replace('katakana_dakuten','가타가나 탁음')
         .replace('katakana_yoon','가타가나 요음')
-        .replace('katakana','가타가나');
+        .replace('katakana','가타가나')
+        .replace('mixed_review','오늘의 복습');
 
       document.getElementById('flowBody').innerHTML = `
         <div class="kana-card-stack">
@@ -819,7 +827,7 @@ window.App = (() => {
 
     _flow._kanaRender = render;
     render();
-    TTS.speak(level.chars[0]);
+    TTS.speak(chars[0]);
   }
 
   function _flipKana() {
@@ -869,9 +877,9 @@ window.App = (() => {
   // ── Kana Quiz ─────────────────────────────────────────────
   function _renderKanaQuiz(mod, step, stepIndex) {
     const level = LEVELS.find(l => l.id === step.levelId);
-    if (!level) { _advanceStep(); return; }
-
-    const chars = shuffle(level.chars).slice(0, Math.min(20, level.chars.length));
+    const sourceChars = step.chars?.length ? step.chars : level?.chars;
+    if (!sourceChars?.length) { _advanceStep(); return; }
+    const chars = shuffle(sourceChars).slice(0, Math.min(20, sourceChars.length));
 
     // renderQ는 반드시 _flow._kanaQuiz에서 읽어야 다음 문제로 넘어감 (클로저 버그 방지)
     function renderQ() {
@@ -963,6 +971,7 @@ window.App = (() => {
       // 첫 풀이(not review)에서만 오답 목록에 추가
       if (!fq.isReview) fq.missed.push(fq.chars[fq.qIdx]);
     }
+    Store.reviewKanaItem(fq.chars[fq.qIdx], isCorrect ? 'good' : 'again');
     // 정답·오답 모두 음성 재생
     TTS.speak(fq.chars[fq.qIdx]);
     _playQuizEffect(isCorrect);
@@ -1097,6 +1106,7 @@ window.App = (() => {
       fq.wrong++;
       if (!fq.isReview) fq.missed.push(fq.chars[fq.qIdx]);
     }
+    Store.reviewKanaItem(correctChar, isCorrect ? 'good' : 'again');
     TTS.speak(correctChar);
     _playQuizEffect(isCorrect);
 
@@ -1316,10 +1326,14 @@ window.App = (() => {
   function _vocabEval(rating) {
     const st = _flow._vocab;
     if (!st) return;
+    const item = st.items[st.idx];
+    if (item?.id) {
+      Store.reviewVocabItem(item.id, rating);
+    }
     st.showMeaning = false;
     if (rating === 'again') {
-      const item = st.items.splice(st.idx, 1)[0];
-      st.items.push(item);
+      const currentItem = st.items.splice(st.idx, 1)[0];
+      st.items.push(currentItem);
     } else {
       st.idx++;
     }
@@ -1425,6 +1439,9 @@ window.App = (() => {
       fq.wrong++;
       if (!fq.isReview) fq.missed.push(fq.questions[fq.qIdx]);
     }
+    if (fq.questions[fq.qIdx]?.id) {
+      Store.reviewVocabItem(fq.questions[fq.qIdx].id, isCorrect ? 'good' : 'again');
+    }
     TTS.speak(stripFuri(jp));
     _playQuizEffect(isCorrect);
 
@@ -1471,7 +1488,7 @@ window.App = (() => {
           잠깐만요! 방금 틀렸던 <strong>${count}문제</strong>를<br>
           제대로 익혔는지 다시 한번 확인해볼까요? 😊
           <div style="font-size:11px;color:var(--text3);margin-top:12px;opacity:0.8">
-            * 최종 점수와 진도는 첫 시도 결과로 기록됩니다.
+            * 진도는 통과할 때만 반영되고, 점수는 첫 시도 기준으로 계산됩니다.
           </div>
         </div>
       </div>
@@ -1502,15 +1519,19 @@ window.App = (() => {
     const res = tiers.find(t => pct >= t.min);
 
     const xpEarned = Math.round((pct / 100) * 100 + 20);
+    const awardedXP = passed ? xpEarned : 0;
     const passBadge = passed
       ? `<div class="v2-pass-badge v2-pass-ok">✅ 통과! (기준 ${passRate}%)</div>`
-      : `<div class="v2-pass-badge v2-pass-ng">❌ 재도전 필요 (기준 ${passRate}%, 현재 ${pct}%)</div>`;
+      : `<div class="v2-pass-badge v2-pass-ng">❌ 재도전 필요 (기준 ${passRate}%, 현재 ${pct}%)<br><span style="font-size:12px;opacity:.8">통과 전에는 다음 단계로 넘어가지 않습니다.</span></div>`;
 
-    Store.completeStep(_flow.moduleId, stepIndex, score);
-    Store.addXP(xpEarned);
+    Store.recordStepAttempt(_flow.moduleId, stepIndex, score, passed);
+    if (passed) {
+      Store.completeStep(_flow.moduleId, stepIndex, score);
+      Store.addXP(awardedXP);
+    }
 
     // 팡파레 효과 (Confetti + TTS)
-    if (pct >= 50) {
+    if (passed && pct >= 50) {
       confetti(pct >= 90 ? 100 : 50);
       setTimeout(() => TTS.speak(stripFuri(res.jp)), 600);
     }
@@ -1528,7 +1549,7 @@ window.App = (() => {
         
         <div class="score-subtitle" style="margin-top:20px">${correct} / ${total} 정답</div>
         ${passBadge}
-        <div class="xp-earned">+<span class="xp-num">${xpEarned}</span> XP 획득!</div>
+        <div class="xp-earned">${passed ? `+<span class="xp-num">${awardedXP}</span> XP 획득!` : '이번에는 XP 획득 없이 재도전합니다.'}</div>
       </div>
     `;
     updateScoreRing(document.getElementById('scoreRing'), pct);
@@ -2268,10 +2289,13 @@ window.App = (() => {
 
   // ── Random Practice ───────────────────────────────────────
   function startKanaReview() {
-    // Use Level 1 (hiragana basics) as demo
+    const allChars = Object.keys(KANA_MAP || {});
+    const queue = Store.getKanaReviewQueue(allChars);
+    const chars = queue.slice(0, Math.min(20, queue.length));
+    if (!chars.length) { showToast('가나 데이터를 불러올 수 없습니다'); return; }
     const mod = { id: '_review_kana', stageId: 1, name: '가나 복습', icon: 'あ', iconIsText: true, steps: [
-      { type: 'kana_learn', title: '히라가나 기본 복습', kanaType: 'hiragana', levelId: 1 },
-      { type: 'kana_quiz', title: '히라가나 퀴즈', kanaType: 'hiragana', levelId: 1 }
+      { type: 'kana_learn', title: '가나 복습 카드', kanaType: 'mixed_review', chars, customLabel: '오늘의 복습' },
+      { type: 'kana_quiz', title: '가나 복습 퀴즈', kanaType: 'mixed_review', chars }
     ], roleplay: null };
     document.getElementById('flowTitle').textContent = '가나 복습';
     document.getElementById('flowStep').textContent = '';
@@ -2292,7 +2316,10 @@ window.App = (() => {
   }
 
   function startVocabReview() {
-    const items = shuffle(_getAllVocabItems()).slice(0, 20);
+    const allItems = _getAllVocabItems();
+    const itemMap = new Map(allItems.map(item => [item.id, item]));
+    const queueIds = Store.getVocabReviewQueue(allItems.map(item => item.id).filter(Boolean));
+    const items = queueIds.map(id => itemMap.get(id)).filter(Boolean).slice(0, 20);
     if (!items.length) { showToast('어휘 데이터를 불러올 수 없습니다'); return; }
     _startPracticeFlow({
       id: '_practice_vocab_review',
