@@ -5,6 +5,17 @@
 import { state, saveToStorage } from './state.js';
 import { showToast } from './utils.js';
 
+// ─── 외부 콜백 (app.js에서 registerCallbacks로 주입) ───
+let _extSyncHdrIconButtons = () => {};
+let _extUpdateHqAmbientLabel = () => {};
+let _uiTier = () => 'beginner';  // 기본값: 초보자 (한국어 응원)
+
+export function registerCallbacks(cbs) {
+  if (cbs.syncHdrIconButtons)   _extSyncHdrIconButtons   = cbs.syncHdrIconButtons;
+  if (cbs.updateHqAmbientLabel) _extUpdateHqAmbientLabel = cbs.updateHqAmbientLabel;
+  if (cbs.uiTier)               _uiTier                  = cbs.uiTier;
+}
+
 // ─── 오디오 ───
 
 // ─── VOICEVOX 통합 ───
@@ -382,7 +393,8 @@ async function playVoicevox(text, speakerId, wait = false) {
       });
     } else {
       audio.onended = () => { URL.revokeObjectURL(url); state.currentVvAudio = null; };
-      await audio.play();
+      audio.onerror = () => { URL.revokeObjectURL(url); state.currentVvAudio = null; };
+      await audio.play().catch(() => { state.currentVvAudio = null; });
       return true;
     }
   } catch (e) { return false; }
@@ -417,37 +429,78 @@ const NATURAL_VOICES    = ['kyoko', 'otoya', 'o-ren', 'haruka', 'ayumi', 'nanami
 const MICROSOFT_VOICES  = ['nanami', 'keita', 'haruka', 'ichiro'];  // Edge/Azure 고품질
 const TEST_PHRASE = 'こんにちは！私の声はこんな感じです。よろしくお願いします！';
 
-// ─── 퀴즈 응원 문구 (화자가 1/3 볼륨으로 읽어줌) ───
-const QUIZ_CHEERS_KO = {
-  start:   ['자, 시작하자! 화이팅!', '좋아! 전력으로 가자!', '시작! 분명 할 수 있어!', '퀴즈 시작! 파이팅!'],
-  correct: ['정답! 대단해!', '맞았어! 잘했어!', '딩동댕! 완벽!', '좋아! 역시 잘하네!', '정답! 훌륭해!'],
-  wrong:   ['아쉬워! 다음엔 잘하자!', '아깝다! 조금만 더!', '괜찮아! 다음엔 할 수 있어!', '걱정 마, 다음엔 분명!', '신경 쓰지 마, 계속 가자!'],
-  streak3: ['3연속 정답! 잘하고 있어!', '멈출 수 없어! 이 기세로!', '3연속! 대단해!'],
-  streak5: ['5연속! 너무 잘해!', '완벽한 콤보! 멈출 수 없어!', '5연속 정답! 훌륭해!'],
-  streak8: ['헐! 믿을 수 없어! 천재야!', '전설이야! 아무도 못 막아!', '너무 잘해! 천재 인정!'],
-  perfect: ['만점! 정말 훌륭해! 천재인가!', '완벽! 이 이상은 없어! 최고!', '백점 만점! 정말 대단해!'],
-  good:    ['잘했어! 이 기세로 힘내자!', '정말 잘했어! 계속하자!', '실력 좋은데! 더 연습하자!'],
-  pass:    ['그럭저럭이네. 더 연습하자!', '다음엔 더 잘할 수 있어! 포기 마!', '점점 늘고 있어!'],
-  poor:    ['어려웠지? 같이 힘내자!', '괜찮아, 연습하면 분명 할 수 있어!', '포기하지 마! 다시 도전하자!'],
+// ─── 퀴즈 응원 문구 — 만화·애니 스타일 일본어 ───
+// 파일에서 직접 관리합니다. 설정 UI에서 수정할 수 없습니다.
+const QUIZ_CHEERS = {
+  start: [
+    'よし、行くよ！全力でかかってこい！',
+    'さあ、始めよう！燃えてきたぜ！',
+    'いくぞ！俺の本気を見せてやる！',
+    'ファイト！絶対できる、信じてる！',
+    'よーし、やるぞ！気合い十分！',
+    'じゃあいくよ！楽しんでいこう！',
+  ],
+  correct: [
+    'やった！さすがだ！',
+    'すごい！天才じゃん！',
+    'ピンポーン！完璧！',
+    'その調子！どんどんいこう！',
+    'よっしゃ！キマった！',
+    'さすが！やるじゃないか！',
+    'イエス！正解！',
+    'やるじゃん！かっこいい！',
+  ],
+  wrong: [
+    'ドンマイ！次があるさ！',
+    '惜しい！もうちょっとだよ！',
+    '大丈夫！諦めるな！',
+    'ドンマイドンマイ！ここで折れるな！',
+    'くっ…次は絶対やる！',
+    'まだまだ！ここからが本番だ！',
+  ],
+  streak3: [
+    '三連続！止まらないね！',
+    'コンボ！この調子でいこう！',
+    'すごい！三連勝だ！',
+  ],
+  streak5: [
+    '五連続！もう無敵じゃん！',
+    'やばい、止まらない！どこまで行くの！',
+    '五連勝！伝説になりそう！',
+  ],
+  streak8: [
+    'えっ、何者？！天才認定！',
+    '信じらんない！どんだけすごいんだ！',
+    '伝説の勇者みたい！もう誰も止められない！',
+    'チートレベル！本物の天才だ！',
+  ],
+  perfect: [
+    '満点！信じられない！天才すぎる！',
+    '百点満点！これ以上ないよ！最高！',
+    'パーフェクト！もうプロじゃん！',
+    '完璧すぎ！神レベルだ！',
+  ],
+  good: [
+    'よくできました！この調子！',
+    'すごく上手！もっとやれる！',
+    'いい感じ！次はもっと上を目指せ！',
+  ],
+  pass: [
+    'まあまあかな。もっと練習しよう！',
+    '次はもっとできるよ！諦めないで！',
+    'だんだん上手になってるよ！',
+  ],
+  poor: [
+    '難しかった？一緒に頑張ろう！',
+    '大丈夫、練習すれば絶対できる！',
+    '諦めないで！また挑戦しよう！',
+    'ここで折れないのが本物だ！また来い！',
+  ],
 };
-const QUIZ_CHEERS_JP = {
-  start:   ['さあ、始めましょう！頑張ってね！', 'よーし！全力でいこう！', 'じゃあスタート！きっとできる！', 'クイズ開始！ファイト！'],
-  correct: ['正解！すごい！', 'その通り！よくできました！', 'ピンポン！完璧！', 'いいね！さすがだね！', '正解！素晴らしい！'],
-  wrong:   ['残念！次は頑張ろう！', '惜しい！もう少し！', 'ドンマイ！次はできる！', '大丈夫、次はきっとできるよ！', '気にしないで、続けよう！'],
-  streak3: ['三連続正解！調子いいね！', '止まらないね！この調子！', '三連続！すごい！'],
-  streak5: ['五連続！すごすぎる！', '完璧なコンボ！止まらない！', '五連続正解！素晴らしい！'],
-  streak8: ['えっ！信じられない！天才だ！', '伝説！もう誰も止められない！', 'すごすぎ！天才認定！'],
-  perfect: ['満点！本当に素晴らしい！天才かも！', '完璧！これ以上ないよ！最高！', '百点満点！本当にすごい！'],
-  good:    ['よくできました！この調子で頑張ろう！', 'すごく良かった！続けよう！', '上手だね！もっと練習しよう！'],
-  pass:    ['まあまあかな。もっと練習しましょう！', '次はもっとできるよ！諦めないで！', 'だんだん上手になってるよ！'],
-  poor:    ['難しかったね。一緒に頑張ろう！', '大丈夫、練習すれば絶対できる！', '諦めないで！また挑戦しよう！'],
-};
-function _getQuizCheers() { return _uiTier() === 'beginner' ? QUIZ_CHEERS_KO : QUIZ_CHEERS_JP; }
+export function _getQuizCheers() { return QUIZ_CHEERS; }
 
 function _pickCheer(type) {
-  const custom = state.prefs.quizCheers && state.prefs.quizCheers[type];
-  const cheers = _getQuizCheers();
-  const arr = (custom && custom.length > 0) ? custom : cheers[type];
+  const arr = QUIZ_CHEERS[type];
   if (!arr || !arr.length) return '';
   return arr[Math.floor(Math.random() * arr.length)];
 }
@@ -559,7 +612,8 @@ function _autoSelectBestVoices() {
   }).sort((a, b) => a.rank - b.rank);
 
   const best  = ranked[0];
-  const best2 = ranked.find(r => r.i !== best.i && r.rank <= 4);  // 두 번째 고품질
+  // 두 번째 화자: 품질 무관 가장 다른 음성 (항상 설정)
+  const best2 = ranked.find(r => r.i !== best.i);
 
   if (!best) return false;
 
@@ -713,6 +767,9 @@ let _ambDlgReduced   = false;      // 대화 진행 중 볼륨 축소 플래그
 let _ttsPaused           = false;  // 화자 배지 클릭으로 TTS 일시정지 중
 let _hideVoiceBadgeTimer = null;   // TTS 종료 후 배지 지연 숨김 타이머
 
+// app.js에서 _ttsPaused 를 설정할 수 있도록 setter 제공
+function setTtsPaused(val) { _ttsPaused = val; }
+
 // 앱 시작 시 1회 — 트랙 목록 로드 (대화 + 퀴즈 동시)
 async function loadAmbientTracks() {
   const toUrl = path => (typeof chrome !== 'undefined' && chrome.runtime?.getURL)
@@ -823,7 +880,7 @@ function stopAmbient(fadeTime = 2.0, showStopped = true) {
 // ── 하단 바 표시/숨김 동기화 ────────────────────────────────
 function syncSidebarVisibility() {
   // right-sidebar는 헤더로 이동됨 — 아이콘 버튼 토글만 수행
-  syncHdrIconButtons();
+  _extSyncHdrIconButtons();
 }
 
 // ── 화자 배지 표시 (TTS 발화 시작 시 호출) ───────────────────
@@ -876,7 +933,7 @@ function showAmbientBadge(mode, file) {
   // 클릭 → 정지
   badge.onclick = () => stopAmbient(1.2);
   syncSidebarVisibility();
-  updateHqAmbientLabel();
+  _extUpdateHqAmbientLabel();
 }
 
 function hideAmbientBadge() {
@@ -889,7 +946,7 @@ function hideAmbientBadge() {
   badge.style.background = '';
   badge.onclick = () => startAmbient('on', 'dialogue');
   syncSidebarVisibility();
-  updateHqAmbientLabel();
+  _extUpdateHqAmbientLabel();
 }
 
 // ── 배경음 정지 상태 배지 (클릭 시 재시작 가능) ────────────
@@ -904,7 +961,7 @@ function showAmbientBadgeStopped(mode) {
   badge.style.background = 'var(--gray-light)';
   badge.onclick = () => startAmbient('on', mode || 'dialogue');
   syncSidebarVisibility();
-  updateHqAmbientLabel();
+  _extUpdateHqAmbientLabel();
 }
 
 // ── duckAmbient: TTS 발화 시 배경음 낮추기 ───────────────────
@@ -1038,6 +1095,7 @@ function _speakTimeoutJa() {
 // playAudio: 모든 발음이 완전히 끝날 때까지 대기하는 Promise 반환
 async function playAudio(kana) {
   if (!kana) return;
+  try {
   duckAmbient();
 
   // ── Edge TTS 서버 (최우선) ──
@@ -1114,12 +1172,14 @@ async function playAudio(kana) {
     }
   }
   unduckAmbient();
+  } catch (e) { console.warn('[kana] playAudio 오류:', e); unduckAmbient(); }
 }
 
 // ─── 단일 화자 슬롯으로만 재생 (대화 모드 전용) ───
 // slot 1 = A (학습자), slot 2 = B (상대방)
 async function playAudioSlot(text, slot) {
   if (!text || state.audioStopped) return;
+  try {
   duckAmbient();
 
   // Edge TTS 서버 (최우선)
@@ -1191,6 +1251,7 @@ async function playAudioSlot(text, slot) {
     utter.onerror = () => { hideSpeakingIndicator(); unduckAmbient(); resolve(); };
     window.speechSynthesis.speak(utter);
   });
+  } catch (e) { console.warn('[kana] playAudioSlot 오류:', e); unduckAmbient(); }
 }
 
 // 화자 슬롯 설정 여부 확인
@@ -1253,8 +1314,8 @@ function stopAllAudio() {
   setTimeout(() => { state.audioStopped = false; }, 200); // 짧은 시간 후 리셋
 
   // 전체 듣기 타이머 취소
-  clearTimeout(ss.readAllTimer);
-  ss.readAllTimer = null;
+  clearTimeout(state.readAllTimer);
+  state.readAllTimer = null;
   state.isReadingAll = false;
 
   // Web TTS 중지
@@ -1307,7 +1368,7 @@ function startReadAll(chars) {
     const slot = hasDualSpeaker ? (i % 2 === 0 ? 1 : 2) : 1;
     playAudioSlot(chars[i].kana, slot).then(() => {
       i++;
-      if (state.isReadingAll) ss.readAllTimer = setTimeout(next, 400);
+      if (state.isReadingAll) state.readAllTimer = setTimeout(next, 400);
     });
   }
   showToast(hasDualSpeaker
@@ -1394,7 +1455,11 @@ export {
   showVoiceBadge, hideVoiceBadgeNow, showAmbientBadge, hideAmbientBadge,
   showSpeakingIndicator, showSpeakingIndicatorWeb, hideSpeakingIndicator,
   // Quiz cheers
-  speakCheer, QUIZ_CHEERS_KO, QUIZ_CHEERS_JP,
+  speakCheer, _pickCheer, _showCheerBanner,
   // Splash/speaker picker
   buildSplashSpeakerPicker,
+  // Ambient internals (used by app.js)
+  _ambAudio, _ambDucked, _ambTracks, _ambFadeTo, _ambTargetVol,
+  // TTS helpers (used by app.js)
+  _speakTimeoutJa, _ttsPaused, setTtsPaused,
 };

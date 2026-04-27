@@ -81,7 +81,28 @@
       "Bash(Get-Content \"C:\\\\Users\\\\Sptek_emart\\\\kana\\\\app.css\")",
       "Bash(Measure-Object -Line)",
       "Bash(Select-Object -ExpandProperty Lines)",
-      "Bash(\"C:/Users/Sptek_emart/kana/app.css\":*)"
+      "Bash(\"C:/Users/Sptek_emart/kana/app.css\":*)",
+      "Bash(find ./js -type f -name \"*.js\" -exec ls -lh {})",
+      "Bash(grep -r \"TODO\\\\|FIXME\\\\|BUG\\\\|HACK\\\\|XXX\\\\|ISSUE\" /c/Users/Sptek_emart/kana --include=*.js --include=*.html --include=*.css)",
+      "Bash(grep -r \"console\\\\.\\\\\\(log\\\\|warn\\\\|error\\\\|debug\\\\\\)\" /c/Users/Sptek_emart/kana/js --include=*.js)",
+      "Bash(grep -r \"eval\\\\|innerHTML\\\\|dangerouslySetInnerHTML\" /c/Users/Sptek_emart/kana/js --include=*.js)",
+      "Bash(grep -n \"innerHTML.*$\\\\|innerHTML.*+\\\\|innerHTML.*variable\" /c/Users/Sptek_emart/kana/js/app.js)",
+      "Bash(find /c/Users/Sptek_emart/kana -maxdepth 2 -type f \\\\\\( -name \"*.js\" -o -name \"*.html\" -o -name \"*.css\" -o -name \"*.json\" \\\\\\) ! -path \"./.claude/*\" ! -path \"./.git/*\" -exec wc -l {} +)",
+      "Bash(grep -v \"^.*//.*fetch\\\\|^.*//.*play\\\\|^.*//.*async\")",
+      "Bash(grep -v \"//.*play\\\\|//.*async\")",
+      "Bash(node \"C:/Users/Sptek_emart/kana/scripts/check-size.js\")",
+      "Bash(node -e \"require\\(''fs''\\).readFileSync\\(''C:/Users/Sptek_emart/kana/js/kana-data-drama.js'', ''utf8''\\)\")",
+      "Bash(node -e \"const fs=require\\(''fs''\\); const c1=fs.readFileSync\\(''C:/Users/Sptek_emart/kana/js/data/vocab-items-w9w10.js'',''utf8''\\); try{new Function\\(c1\\);console.log\\(''w9w10 OK, items:'', \\(c1.match\\(/id:''/g\\)||[]\\).length\\);}catch\\(e\\){console.error\\(''ERROR w9w10:'',e.message\\);} const c2=fs.readFileSync\\(''C:/Users/Sptek_emart/kana/js/data/vocab-items-it-sim.js'',''utf8''\\); try{new Function\\(c2\\);console.log\\(''it-sim OK, items:'', \\(c2.match\\(/id:''/g\\)||[]\\).length\\);}catch\\(e\\){console.error\\(''ERROR it-sim:'',e.message\\);};\")",
+      "Bash(node -e \"const fs=require\\(''fs''\\); const c=fs.readFileSync\\(''C:/Users/Sptek_emart/kana/js/data/vocab-categories.js'',''utf8''\\); try{new Function\\(c\\);const cats=c.match\\(/id:''/g\\)||[]; console.log\\(''categories OK, cats:'', cats.length\\);}catch\\(e\\){console.error\\(''ERROR:'',e.message\\);};\")",
+      "Bash(wc -l /c/Users/Sptek_emart/kana/js/data/*.js /c/Users/Sptek_emart/kana/js/kana-data*.js)",
+      "Bash(__NEW_LINE_10d5f2f9ede56929__ echo:*)",
+      "Bash(__NEW_LINE_07af98c6af453047__ echo:*)",
+      "Bash(sort -k2 __NEW_LINE_07af98c6af453047__ echo \"\" echo \"SENTENCE/DIALOGUE CATEGORIES \\(Type: sentence\\):\" grep \"type:''''sentence''''\" /c/Users/Sptek_emart/kana/js/data/vocab-categories.js)",
+      "Bash(sort -k2 __NEW_LINE_07af98c6af453047__ echo \"\" echo \"ROLEPLAY/SCENARIO CATEGORIES \\(Type: sim\\):\" grep \"type:''''sim''''\" /c/Users/Sptek_emart/kana/js/data/vocab-categories.js)",
+      "Bash(sort -k2)",
+      "Bash(git checkout:*)",
+      "Bash(node -e \"new Function\\(require\\(''fs''\\).readFileSync\\(''js/v2/app.js'',''utf8''\\)\\); console.log\\(''✅ syntax OK''\\);\")",
+      "Bash(node -e \"new Function\\(require\\(''fs''\\).readFileSync\\(''js/v2/app.js'',''utf8''\\)\\); console.log\\(''✅ app.js OK''\\);\")"
     ]
   }
 }

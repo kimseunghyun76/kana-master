@@ -3,59 +3,172 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>かな学習</title>
-  <link rel="stylesheet" href="popup.css">
+  <title>일본어 마스터</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      width: 320px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans KR', sans-serif;
+      background: #0f172a; color: #f1f5f9;
+    }
+    .header {
+      padding: 20px 16px 16px;
+      background: linear-gradient(135deg, #6366f1 0%, #7c3aed 100%);
+      display: flex; align-items: center; gap: 12px;
+    }
+    .logo {
+      width: 44px; height: 44px; border-radius: 14px;
+      background: rgba(255,255,255,.2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 24px; font-weight: 700;
+      font-family: 'Noto Sans JP', serif;
+    }
+    .title h1 { font-size: 17px; font-weight: 800; }
+    .title p  { font-size: 12px; opacity: .75; margin-top: 1px; }
+    .stats {
+      display: grid; grid-template-columns: 1fr 1fr 1fr;
+      gap: 1px; background: #334155;
+    }
+    .stat {
+      background: #1e293b; padding: 14px 8px; text-align: center;
+    }
+    .stat-num { font-size: 22px; font-weight: 800; line-height: 1; }
+    .stat-label { font-size: 10px; color: #64748b; margin-top: 4px; font-weight: 500; }
+    .stat-num.xp { color: #818cf8; }
+    .stat-num.streak { color: #f59e0b; }
+    .stat-num.done { color: #10b981; }
+    .open-btn {
+      width: calc(100% - 24px);
+      margin: 14px 12px 0;
+      padding: 14px;
+      background: #6366f1; border: none; border-radius: 12px;
+      color: #fff; font-size: 15px; font-weight: 700;
+      cursor: pointer; display: flex; align-items: center;
+      justify-content: center; gap: 8px;
+      transition: background .2s;
+    }
+    .open-btn:hover { background: #5254cc; }
+    .next-module {
+      margin: 10px 12px;
+      padding: 12px 14px;
+      background: #1e293b; border: 1px solid #334155;
+      border-radius: 10px;
+      font-size: 12px; color: #94a3b8;
+    }
+    .next-module .nm-label { font-size: 10px; color: #64748b; margin-bottom: 4px; }
+    .next-module .nm-name { font-size: 13px; font-weight: 700; color: #f1f5f9; }
+    .footer {
+      padding: 12px 12px 14px;
+      text-align: center;
+      font-size: 11px; color: #475569;
+    }
+  </style>
 </head>
 <body>
-  <div class="popup-container">
-    <div class="popup-header">
-      <div class="logo">か</div>
-      <div class="title-block">
-        <h1>かな学習</h1>
-        <p>Kana Master</p>
-      </div>
-    </div>
-
-    <div class="stats-grid">
-      <div class="stat-card">
-        <div class="stat-value" id="stat-level">1</div>
-        <div class="stat-label">현재 레벨</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-value" id="stat-xp">0</div>
-        <div class="stat-label">총 XP</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-value" id="stat-streak">0🔥</div>
-        <div class="stat-label">연속 학습</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-value" id="stat-mastered">0</div>
-        <div class="stat-label">마스터한 글자</div>
-      </div>
-    </div>
-
-    <div class="progress-section">
-      <div class="progress-label">
-        <span>전체 진도</span>
-        <span id="progress-pct">0%</span>
-      </div>
-      <div class="progress-bar-bg">
-        <div class="progress-bar-fill" id="progress-fill" style="width:0%"></div>
-      </div>
-    </div>
-
-    <button class="open-btn" id="open-app">
-      📖 학습 시작하기
-    </button>
-
-    <div class="quick-links">
-      <button class="quick-btn" data-view="learn">📚 학습</button>
-      <button class="quick-btn" data-view="quiz">✏️ 퀴즈</button>
-      <button class="quick-btn" data-view="write">🖊️ 필기</button>
-      <button class="quick-btn" data-view="progress">📊 진도</button>
+  <div class="header">
+    <div class="logo">日</div>
+    <div class="title">
+      <h1>일본어 마스터</h1>
+      <p>Japanese Master v2</p>
     </div>
   </div>
-  <script src="popup.js"></script>
+
+  <div class="stats">
+    <div class="stat">
+      <div class="stat-num xp" id="popXP">0</div>
+      <div class="stat-label">⚡ XP</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num streak" id="popStreak">0🔥</div>
+      <div class="stat-label">연속 일수</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num done" id="popDone">0</div>
+      <div class="stat-label">완료 모듈</div>
+    </div>
+  </div>
+
+  <div class="next-module">
+    <div class="nm-label">다음 학습</div>
+    <div class="nm-name" id="popNext">히라가나부터 시작하세요 →</div>
+  </div>
+
+  <button class="open-btn" id="openApp">
+    📖 학습 시작하기
+  </button>
+
+  <div class="footer">일본어 마스터 v2.0 · Stage-based Learning</div>
+
+  <script>
+    const KEY = 'jp_master_v2';
+
+    // 모듈 순서 + 이름 (curriculum.js 미로드 — 하드코딩)
+    const MODULE_ORDER = [
+      { id: 'kana_hira',          name: '히라가나', steps: 6 },
+      { id: 'kana_kata',          name: '가타가나', steps: 6 },
+      { id: 'first_phrases',      name: '첫 인사 10', steps: 2 },
+      { id: 'survival_greet',     name: '인사·기본 표현', steps: 3 },
+      { id: 'survival_numbers',   name: '숫자·날짜·시간', steps: 4 },
+      { id: 'survival_transport', name: '교통 이동', steps: 3 },
+      { id: 'survival_food',      name: '식사·주문', steps: 3 },
+      { id: 'survival_shopping',  name: '쇼핑', steps: 2 },
+      { id: 'survival_hotel',     name: '숙박', steps: 2 },
+      { id: 'daily_adjectives',   name: '기본 동사·형용사', steps: 3 },
+      { id: 'daily_places',       name: '장소·관광', steps: 2 },
+      { id: 'daily_health',       name: '건강·신체', steps: 2 },
+      { id: 'daily_chat',         name: '일상 대화', steps: 2 },
+      { id: 'it_vocab',           name: 'IT 어휘', steps: 3 },
+      { id: 'biz_basics',         name: '비즈니스 기초', steps: 3 },
+      { id: 'it_standup',         name: 'IT 스탠드업', steps: 2 },
+      { id: 'it_codereview',      name: '코드 리뷰', steps: 2 },
+      { id: 'biz_meeting',        name: '비즈니스 회의', steps: 2 },
+      { id: 'advanced_1',         name: '심화 표현 1', steps: 2 },
+      { id: 'advanced_2',         name: '심화 표현 2', steps: 2 },
+    ];
+
+    function getNextModuleName(data) {
+      const mods = data.modules || {};
+      for (const m of MODULE_ORDER) {
+        const mp = mods[m.id];
+        if (!mp || mp.stepsCompleted < m.steps) {
+          const done = mp?.stepsCompleted || 0;
+          return done > 0 ? `${m.name} (${done}/${m.steps}단계)` : m.name;
+        }
+      }
+      return '🎉 모든 레슨 완료!';
+    }
+
+    function load() {
+      try {
+        if (typeof chrome !== 'undefined' && chrome.storage) {
+          chrome.storage.local.get(KEY, r => update(r[KEY] || {}));
+        } else {
+          const raw = localStorage.getItem(KEY);
+          update(raw ? JSON.parse(raw) : {});
+        }
+      } catch(e) { update({}); }
+    }
+
+    function update(data) {
+      document.getElementById('popXP').textContent =
+        (data.xp || 0).toLocaleString();
+      document.getElementById('popStreak').textContent =
+        (data.streak || 0) + '🔥';
+      const mods = Object.values(data.modules || {});
+      document.getElementById('popDone').textContent =
+        mods.filter(m => m.stepsCompleted > 0).length;
+      document.getElementById('popNext').textContent =
+        getNextModuleName(data) + ' →';
+    }
+
+    document.getElementById('openApp').addEventListener('click', () => {
+      if (typeof chrome !== 'undefined' && chrome.tabs) {
+        chrome.tabs.create({ url: chrome.runtime.getURL('index.html') });
+      } else {
+        window.open('index.html', '_blank');
+      }
+    });
+    load();
+  </script>
 </body>
 </html>

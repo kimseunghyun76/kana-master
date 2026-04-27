@@ -3,14 +3,44 @@
 //  학습 / 퀴즈 / 필기 / 진도 전체 관리
 // ============================================================
 
+// ─── ES6 모듈 import ───
+import { state, loadFromStorage, applyStoredData, saveToStorage } from './modules/state.js';
+import { stripFurigana, cleanJaText, _makeEl, _escHtml, _injectRuby, showToast } from './modules/utils.js';
+import { srsReview, gradeFromResult, isDue, sortBySRS, countDueToday, getSRSSummary } from './modules/srs.js';
+import { getStrokeData, getStrokeCount } from './modules/stroke-data.js';
+import { getJLPT, jlptBadgeHtml, getJLPTProgress, getItemJLPT } from './modules/jlpt.js';
+import {
+  registerCallbacks,
+  checkVoicevox, voicevoxAvailable, voicevoxSpeakers, vvCharPortraits,
+  updateVvPortraitUI, populateVoicevoxSelects, refreshSplashActors,
+  buildSlotAvatarHtml, buildSlotItemHtml, updateActiveSpeakerBadge,
+  allJaVoices, voicesCached, CHARACTER_VOICES, NATURAL_VOICES, MICROSOFT_VOICES,
+  loadJapaneseVoices, populateVoiceSelects, restoreVoiceSelects,
+  playTestVoice, getVoiceForPlayback, getVoiceDisplayName,
+  _autoSelectBestVoices, _hasMicrosoftVoice,
+  playAudio, playAudioSlot, playVoicevox, hasSpeakerConfigured,
+  stopAllAudio, startReadAll,
+  loadAmbientTracks, startAmbient, stopAmbient, syncSidebarVisibility,
+  duckAmbient, unduckAmbient, enterDialogueMode, exitDialogueMode,
+  stopAmbientLoud, stopQuizAmbientLoud,
+  showVoiceBadge, hideVoiceBadgeNow, showAmbientBadge, hideAmbientBadge,
+  showSpeakingIndicator, showSpeakingIndicatorWeb, hideSpeakingIndicator,
+  speakCheer, _getQuizCheers, _pickCheer, _showCheerBanner,
+  buildSplashSpeakerPicker,
+  _ambAudio, _ambDucked, _ambTracks, _ambFadeTo, _ambTargetVol,
+  _speakTimeoutJa, _ttsPaused, setTtsPaused,
+} from './modules/tts.js';
+
 // ─── 단어 데이터 ───
 // app.html 에서 로드된 전역 변수들 결합
 const VOCAB_ITEMS = [
   ...(typeof VOCAB_ITEMS_W1W4 !== 'undefined' ? VOCAB_ITEMS_W1W4 : []),
   ...(typeof VOCAB_ITEMS_W5W8 !== 'undefined' ? VOCAB_ITEMS_W5W8 : []),
+  ...(typeof VOCAB_ITEMS_W9W10 !== 'undefined' ? VOCAB_ITEMS_W9W10 : []),
   ...(typeof VOCAB_ITEMS_S1S5 !== 'undefined' ? VOCAB_ITEMS_S1S5 : []),
   ...(typeof VOCAB_ITEMS_S6SIM !== 'undefined' ? VOCAB_ITEMS_S6SIM : []),
-  ...(typeof VOCAB_ITEMS_DIALOGUE !== 'undefined' ? VOCAB_ITEMS_DIALOGUE : [])
+  ...(typeof VOCAB_ITEMS_DIALOGUE !== 'undefined' ? VOCAB_ITEMS_DIALOGUE : []),
+  ...(typeof VOCAB_ITEMS_IT_SIM !== 'undefined' ? VOCAB_ITEMS_IT_SIM : [])
 ];
 
 const VOCAB_MAP = {};
@@ -54,36 +84,21 @@ function getVocabWrongOptions(correctId, categoryId, count = 3) {
 }
 
 const App = (() => {
-  // ─── 후리가나 제거 헬퍼 ───
-  function stripFurigana(str) {
-    return (str || '').replace(/（[^）]*）|\([^)]*\)/g, '').trim();
-  }
-
-  // 일본어 문장에서 불필요한 공백 제거
-  function cleanJaText(text) {
-    if (!text) return text;
-    return text.replace(/([\u3000-\u9fff\uff00-\uffef])\s+([\u3000-\u9fff\uff00-\uffef（）「」『』【】、。！？・])/g, '$1$2')
-               .replace(/([\u3000-\u9fff\uff00-\uffef（）「」『』【】、。！？・])\s+([a-zA-Z0-9])/g, '$1$2')
-               .replace(/([a-zA-Z0-9])\s+([\u3000-\u9fff\uff00-\uffef（）「」『』【】、。！？・])/g, '$1$2');
-  }
-
   // 강의 화자: 슬롯1/슬롯2 번갈아 사용 (남녀 교대)
   let _lectureSpeakerSlot = 1;
 
   // 강의 전용 화자 슬롯 (슬롯1↔슬롯2 교대)
   function _speakLecCaption(text, onEnd) {
-    if (!text) { if (onEnd) setTimeout(onEnd, 500); return; }
+    if (!text || _lecAudioMuted) { if (onEnd) setTimeout(onEnd, 500); return; }
     const clean = text.replace(/（[^）]*）|\([^)]*\)/g, '').replace(/[（）()]/g, '').trim();
     if (!clean) { if (onEnd) setTimeout(onEnd, 500); return; }
     window.speechSynthesis && window.speechSynthesis.cancel();
     const slot = _lectureSpeakerSlot;
-    _lectureSpeakerSlot = _lectureSpeakerSlot === 1 ? 2 : 1; // 다음 호출 시 교대
-    _setLecNavEnabled(false);
+    _lectureSpeakerSlot = _lectureSpeakerSlot === 1 ? 2 : 1;
+    // ★ 내비 버튼은 TTS 중에도 항상 활성화
     playAudioSlot(clean, slot).then(() => {
-      _setLecNavEnabled(true);
       if (onEnd) onEnd();
     }).catch(() => {
-      _setLecNavEnabled(true);
       if (onEnd) onEnd();
     });
   }
@@ -101,102 +116,14 @@ const App = (() => {
     });
   }
 
-  // ─── 상태 ───
-  let state = {
-    currentView: 'home',
-    currentLevel: 1,
-    // 학습
-    learnMode: null,
-    learnLevelId: 1,
-    learnChars: [],
-    learnIndex: 0,
-    learnFlipped: false,
-    learnSpeakerTurn: 1,   // 플래시카드 번갈아 발음 (1 or 2)
-    vocabSpeakerTurn: 1,   // vocab 플래시카드 번갈아 발음 (1 or 2)
-    // 퀴즈
-    quizLevelId: 1,
-    quizType: 'kanaToReading',
-    quizLang: 'korean',
-    quizCount: 10,
-    quizQuestions: [],
-    quizCurrentIdx: 0,
-    quizCorrect: 0,
-    quizWrong: 0,
-    quizWrongList: [],
-    quizAnswered: false,
-    quizCountdownTimer: null,
-    quizStreak: 0,
-    // 필기
-    writeType: 'hiragana',
-    writeChars: [],
-    writeIndex: 0,
-    overlayOn: false,
-    isDrawing: false,
-    lastX: 0,
-    lastY: 0,
-    writeExamMode: false,
-    writeExamScore: { ok: 0, fail: 0 },
-    // 설정
-    prefs: {
-      lang: 'korean', autoplay: true, autonext: true,
-      voiceFemale: 'none', voiceMale: 'none',
-      femaleName: 'ジュヨン', maleName: 'スンヒョン',
-      showWordEx: true, showSentEx: true, showReading: true,
-      quizCountdown: 5,
-      quizAutoAdvance: true,
-      useVoicevox: false, voicevoxSpeaker1: 1, voicevoxSpeaker2: 'none',
-      useEdgeTTS: false, edgeTTSUrl: 'http://localhost:5050',
-      edgeTTSVoice1: 'ja-JP-NanamiNeural', edgeTTSVoice2: 'none'
-    },
-    // 음성 교대 카운터
-    voiceCallCount: 0,
-    // 오디오 재생 상태
-    isReadingAll: false,
-    audioStopped: false,   // 사용자가 명시적으로 중지 요청했는지
-    currentVvAudio: null,
-    // 플래시카드 예시 자동 읽기
-    fcExReadQueue: [],
-    fcExReadTimer: null,
-    fcReadSession: 0,
-    vocabReadSession: 0,
-    // vocab 네비 패널 페이지 상태
-    vocabNavPage: 0,
-    vocabNavMeta: null,  // { chars, clickCb, perPage, isSentence }
-    // 필기 시험 타이머
-    writeExamTimerInterval: null,
-    // 진도
-    progress: {},
-    totalXP: 0,
-    streak: 0,
-    lastStudied: null,
-    unlockedLevels: [1],
-    // 단어 학습
-    vocabCurrentCategoryId: null,
-    vocabItems: [],
-    vocabIndex: 0,
-    vocabFlipped: false,
-    vocabMode: null,
-    vocabQuizQuestions: [],
-    vocabQuizCurrentIdx: 0,
-    vocabQuizCorrect: 0,
-    vocabQuizAnswered: false,
-    vocabProgress: {},
-    // 북마크
-    bookmarks: [],
-    // 최근 활동 (홈 "이어서 학습하기")
-    recentActivity: [],  // [{ type: 'kana'|'vocab', id, ts }]
-    // 게이미피케이션
-    totalXP: 0,
-    streak: 0,
-    lastStudied: null,       // 'YYYY-MM-DD'
-    collectedItems: [],      // ['c01','u03',...]
-    earnedBadges: [],        // ['b_first_step',...]
-    dailyMissions: null,     // { date, missions: [...] }
-    dailyMissionProgress: {} // { kana_learn: 3, quiz_play: 1, ... }
-  };
-
   // ─── 초기화 ───
   function init() {
+    // tts.js 외부 콜백 주입 (순환 의존성 없이 UI 헬퍼 연결)
+    registerCallbacks({
+      syncHdrIconButtons,
+      updateHqAmbientLabel,
+      uiTier: _uiTier,
+    });
     loadAmbientTracks();   // sounds/index.json 비동기 로드 (앱 시작 시 1회)
     syncSidebarVisibility(); // 초기 로드 시 하단 바 숨김 (TTS·배경음 모두 꺼진 상태)
     loadFromStorage(() => {
@@ -238,11 +165,21 @@ const App = (() => {
             saveToStorage();
             populateVoicevoxSelects();
             updateActiveSpeakerBadge();
+            const vvChip = document.getElementById('voicevox-status');
+            if (vvChip) {
+              vvChip.className = 'tts-status-chip tts-status-success';
+              vvChip.textContent = `✅ ${voicevoxSpeakers.length}개 화자 연결됨`;
+            }
           } else {
             // 연결 실패 — 저장값만 초기화 (Web TTS로 유지, UI 설정 패널에서 재시도 가능)
             if (state.prefs.useVoicevox) {
               state.prefs.useVoicevox = false;
               saveToStorage();
+            }
+            const vvChip = document.getElementById('voicevox-status');
+            if (vvChip && vvChip.textContent === '연결 시도 중...') {
+              vvChip.className = 'tts-status-chip tts-status-fail';
+              vvChip.textContent = '❌ 연결 실패';
             }
           }
         });
@@ -272,117 +209,6 @@ const App = (() => {
       setTimeout(() => startLearn(state.currentLevel, sub), 200);
     } else {
       showView(view);
-    }
-  }
-
-  // ─── 스토리지 ───
-  function loadFromStorage(cb) {
-    if (typeof chrome !== 'undefined' && chrome.storage) {
-      chrome.storage.local.get(['kanaProgress'], (result) => {
-        if (result.kanaProgress) applyStoredData(result.kanaProgress);
-        cb && cb();
-      });
-    } else {
-      const raw = localStorage.getItem('kanaProgress');
-      if (raw) applyStoredData(JSON.parse(raw));
-      cb && cb();
-    }
-  }
-
-  function applyStoredData(data) {
-    state.progress = data.progress || {};
-    state.totalXP = data.totalXP || 0;
-    state.streak = data.streak || 0;
-    state.lastStudied = data.lastStudied || null;
-    state.unlockedLevels = data.unlockedLevels || [1];
-    state.currentLevel = data.currentLevel || 1;
-    const savedPrefs = data.prefs || {};
-    state.prefs = {
-      autoplay:         savedPrefs.autoplay    !== undefined ? savedPrefs.autoplay    : true,
-      autonext:         savedPrefs.autonext    !== undefined ? savedPrefs.autonext    : true,
-      voiceFemale:      savedPrefs.voiceFemale !== undefined ? savedPrefs.voiceFemale : 'none',
-      voiceMale:        savedPrefs.voiceMale   !== undefined ? savedPrefs.voiceMale   : 'none',
-      femaleName:       savedPrefs.femaleName  || 'ジュヨン',
-      maleName:         savedPrefs.maleName    || 'スンヒョン',
-      showWordEx:       savedPrefs.showWordEx  !== undefined ? savedPrefs.showWordEx  : true,
-      showSentEx:       savedPrefs.showSentEx  !== undefined ? savedPrefs.showSentEx  : true,
-      showReading:      savedPrefs.showReading !== undefined ? savedPrefs.showReading : true,
-      quizCountdown:    savedPrefs.quizCountdown !== undefined ? parseInt(savedPrefs.quizCountdown) : 5,
-      quizAutoAdvance:  savedPrefs.quizAutoAdvance !== undefined ? savedPrefs.quizAutoAdvance : true,
-      quizCheer:        savedPrefs.quizCheer !== undefined ? savedPrefs.quizCheer : true,
-      quizCheers:       savedPrefs.quizCheers || null,
-      quizLevel:        savedPrefs.quizLevel || 'current',
-      quizType:         savedPrefs.quizType  || 'kanaToReading',
-      quizCount:        savedPrefs.quizCount || '10',
-      quizLang:         savedPrefs.quizLang  || 'korean',
-      useVoicevox:      savedPrefs.useVoicevox  || false,
-      voicevoxSpeaker1: savedPrefs.voicevoxSpeaker1 !== undefined ? savedPrefs.voicevoxSpeaker1 : 1,
-      voicevoxSpeaker2: savedPrefs.voicevoxSpeaker2 !== undefined ? savedPrefs.voicevoxSpeaker2 : 'none',
-      ambientDialogue:  savedPrefs.ambientDialogue !== undefined ? savedPrefs.ambientDialogue : 'on',
-      ambientQuiz:      savedPrefs.ambientQuiz !== undefined ? savedPrefs.ambientQuiz : 'on',
-      ambientVolume:    savedPrefs.ambientVolume   !== undefined ? savedPrefs.ambientVolume : 0.18,
-      useEdgeTTS:       savedPrefs.useEdgeTTS       || false,
-      edgeTTSUrl:       savedPrefs.edgeTTSUrl       || 'http://localhost:5050',
-      edgeTTSVoice1:    savedPrefs.edgeTTSVoice1    || 'ja-JP-NanamiNeural',
-      edgeTTSVoice2:    savedPrefs.edgeTTSVoice2    || 'none',
-    };
-    state.vocabProgress = data.vocabProgress || {};
-    state.recentActivity = data.recentActivity || [];
-    // 게이미피케이션 데이터 로드
-    state.collectedItems = data.collectedItems || [];
-    state.earnedBadges = data.earnedBadges || [];
-    state.dailyMissions = data.dailyMissions || null;
-    state.dailyMissionProgress = data.dailyMissionProgress || {};
-    state.totalQuizzes = data.totalQuizzes || 0;
-    state.hadPerfectQuiz = data.hadPerfectQuiz || false;
-    state.signsRead = data.signsRead || 0;
-    state.diariesRead = data.diariesRead || 0;
-    state.quizStreak = data.quizStreak || 0;
-    // 구버전 북마크 마이그레이션 (type 필드 없는 경우 자동 보정)
-    state.bookmarks = (data.bookmarks || []).map(b => {
-      if (!b.type) {
-        if (b.kana) return { ...b, type: 'kana' };
-        if (b.vocabId || b.japanese) return { ...b, type: 'vocab' };
-      }
-      return b;
-    });
-
-    // 연속 학습 체크
-    const today = new Date().toDateString();
-    if (state.lastStudied) {
-      const last = new Date(state.lastStudied).toDateString();
-      const yesterday = new Date(Date.now() - 86400000).toDateString();
-      if (last !== today && last !== yesterday) state.streak = 0;
-    }
-  }
-
-  function saveToStorage() {
-    const data = {
-      progress: state.progress,
-      totalXP: state.totalXP,
-      streak: state.streak,
-      lastStudied: state.lastStudied,
-      unlockedLevels: state.unlockedLevels,
-      currentLevel: state.currentLevel,
-      prefs: state.prefs,
-      vocabProgress: state.vocabProgress,
-      bookmarks: state.bookmarks,
-      recentActivity: state.recentActivity,
-      // 게이미피케이션
-      collectedItems: state.collectedItems,
-      earnedBadges: state.earnedBadges,
-      dailyMissions: state.dailyMissions,
-      dailyMissionProgress: state.dailyMissionProgress,
-      totalQuizzes: state.totalQuizzes,
-      hadPerfectQuiz: state.hadPerfectQuiz,
-      signsRead: state.signsRead,
-      diariesRead: state.diariesRead,
-      quizStreak: state.quizStreak
-    };
-    if (typeof chrome !== 'undefined' && chrome.storage) {
-      chrome.storage.local.set({ kanaProgress: data });
-    } else {
-      localStorage.setItem('kanaProgress', JSON.stringify(data));
     }
   }
 
@@ -501,7 +327,15 @@ const App = (() => {
     clearFcAutoAdvance();
     state.fcReadSession = (state.fcReadSession || 0) + 1;
     state.vocabReadSession = (state.vocabReadSession || 0) + 1;
-    if (ss.timer) { clearTimeout(ss.timer); ss.timer = null; ss.paused = true; }
+    if (ss.timer) { clearTimeout(ss.timer); ss.timer = null; ss.paused = true;
+      const _ssp = document.getElementById('slideshow-panel'); if (_ssp) _ssp.style.display = 'none';
+      const _bg = document.getElementById('browse-grid'); if (_bg) _bg.style.display = '';
+    }
+    // vocab slideshow도 중단
+    const _vssp = document.getElementById('vbc-slideshow-panel'); if (_vssp && _vssp.style.display !== 'none') {
+      _vssp.style.display = 'none';
+      const _vbg = document.getElementById('vocab-browse-grid'); if (_vbg) _vbg.style.display = '';
+    }
     if (state.quizCountdownTimer) { clearInterval(state.quizCountdownTimer); state.quizCountdownTimer = null; }
     if (_qiSpeechTimer) { clearInterval(_qiSpeechTimer); _qiSpeechTimer = null; }
     if (typeof _qiCountdownTimer !== 'undefined' && _qiCountdownTimer) { clearInterval(_qiCountdownTimer); _qiCountdownTimer = null; }
@@ -608,116 +442,143 @@ const App = (() => {
   function setupHeroKanji(offset) {
     if (typeof VOCAB_ITEMS === 'undefined') return;
 
-    // ── 한자 후보: kanji 필드에 실제 한자가 있고, 〜 접두사 없고, 단어형(speaker 없음)
-    //   우선순위: 단독 한자(1자) > 2자 > 3자  (복합어 4자 이상 제외)
+    // ── 후보: kanji 필드에 한자가 있는 단어 (〜 패턴·화자 제외)
+    const kanjiRe = /[\u4e00-\u9fff]/;
     const kanjiItems = VOCAB_ITEMS.filter(item => {
       if (!item.kanji || !item.korean || item.speaker) return false;
-      const stripped = stripFurigana(item.kanji).replace(/[〜～\s]/g, '');
-      if (!/[\u4e00-\u9fff]/.test(stripped)) return false;  // 한자 없음
-      if (/〜/.test(item.kanji) || (item.japanese || '').startsWith('〜')) return false; // 패턴형 제외
-      return stripped.length >= 1 && stripped.length <= 3;  // 1~3자만
+      const s = stripFurigana(item.kanji).replace(/[〜～\s]/g, '');
+      if (!kanjiRe.test(s)) return false;
+      if (/〜/.test(item.kanji) || (item.japanese || '').startsWith('〜')) return false;
+      const kanjiOnly = s.replace(/[^\u4e00-\u9fff]/g, '');
+      return kanjiOnly.length >= 1 && kanjiOnly.length <= 4;
     });
-
     if (!kanjiItems.length) return;
 
-    // 단독 한자(1자) 항목을 앞으로, 나머지는 뒤로 정렬
-    const sorted = [...kanjiItems].sort((a, b) => {
-      const la = stripFurigana(a.kanji).replace(/[〜～\s]/g, '').length;
-      const lb = stripFurigana(b.kanji).replace(/[〜～\s]/g, '').length;
-      return la - lb;
-    });
-
     const baseIdx = Math.floor(Date.now() / 86400000);
-    const item = sorted[(baseIdx + (offset || 0)) % sorted.length];
+    const item = kanjiItems[(baseIdx + (offset || 0)) % kanjiItems.length];
 
-    // ── 핵심 정보 추출
-    const mainKanji = stripFurigana(item.kanji || '');
+    // ── 핵심 정보
+    const rawKanji  = stripFurigana(item.kanji || '');
+    const kanjiOnly = rawKanji.replace(/[^\u4e00-\u9fff]/g, '');  // 순수 한자 문자만
     const reading   = (item.japanese || '').replace(/〜/g, '').trim();
     const meaning   = (item.korean || '').trim();
     const english   = (item.english || '').trim();
-    const itemTip   = (item.tip || '').trim();
 
-    // ── DOM 업데이트: 한자 / 읽기 / 뜻 / 영문
+    // ── DOM 기본 정보 업데이트
+    // ★ hero 버튼에는 순수 한자만 표시 (후리가나/가나 없이)
     const charEl    = document.getElementById('hero-kanji-char');
     const furiEl    = document.getElementById('hero-kanji-furigana');
     const meaningEl = document.getElementById('hero-kanji-meaning');
     const englishEl = document.getElementById('hero-kanji-english');
-    if (charEl)    charEl.textContent = mainKanji;
+    if (charEl) {
+      charEl.textContent = kanjiOnly;   // ← 순수 한자만
+      charEl.onclick = () => playAudio(reading || kanjiOnly);
+    }
     if (furiEl)    furiEl.textContent = reading;
     if (meaningEl) meaningEl.textContent = meaning;
-    if (englishEl) englishEl.textContent = english ? english : '';
-    // 💡 팁 블록은 제거 (중복 표시 방지)
+    if (englishEl) englishEl.textContent = english;
 
-    // ── 예시 문장 검색 (mainKanji 정확 포함 필수)
+    // ── 개별 한자 분해 (1자 이상이면 모두 표시)
+    const decompSec   = document.getElementById('hero-decomp-section');
+    const decompChips = document.getElementById('hero-decomp-chips');
+    const hasDecomp   = typeof KANJI_INFO !== 'undefined' && kanjiOnly.length >= 1;
+
+    if (decompSec) decompSec.style.display = hasDecomp ? '' : 'none';
+
+    if (hasDecomp && decompChips) {
+      decompChips.innerHTML = '';
+      for (const ch of kanjiOnly) {
+        const info = KANJI_INFO[ch];
+        const chip = document.createElement('div');
+        chip.className = 'hero-decomp-chip';
+        // 후리가나: reading 에서 이 글자 위치의 읽기를 추출 (없으면 KANJI_INFO에서 가져옴)
+        const chReading = info ? info.r : '—';
+        const chMeaning = info ? info.m : '';
+        const chEnglish = info ? (info.e || '') : '';
+        chip.innerHTML = `
+          <div class="hdc-char">${ch}</div>
+          <div class="hdc-reading">${chReading}</div>
+          <div class="hdc-meaning">${chMeaning}${chEnglish ? `<span class="hdc-en"> ${chEnglish}</span>` : ''}</div>`;
+        chip.addEventListener('click', () => playAudio(ch));
+        decompChips.appendChild(chip);
+      }
+    }
+
+    // ── 예시 문장 찾기: KANJI_EXAMPLES → VOCAB_EXAMPLES_DB → VOCAB_ITEMS → tip
     const sentEl  = document.getElementById('hero-sentence');
     const transEl = document.getElementById('hero-translation');
     let exJp = '', exKo = '';
 
-    // 1순위: item 자체의 example 필드 (〜 없는 것)
-    if (item.example && !/〜/.test(item.example) && item.example.length > mainKanji.length) {
-      exJp = item.example;
-      exKo = '';
+    // 1순위: KANJI_EXAMPLES (신뢰할 수 있는 큐레이션 데이터)
+    if (typeof KANJI_EXAMPLES !== 'undefined' && KANJI_EXAMPLES[item.id]) {
+      const ex = KANJI_EXAMPLES[item.id][0];
+      exJp = ex.jp || '';
+      exKo = ex.ko || '';
     }
 
-    // 2순위: VOCAB_ITEMS 중 mainKanji 전체 문자열이 포함된 항목
-    //        - 단어/문장 모두 허용, 단 mainKanji 자체 항목 제외
-    //        - 문장형(길이가 더 긴 것) 우선
-    if (!exJp) {
-      const exactMatches = VOCAB_ITEMS.filter(v => {
-        if (v.id === item.id || v.speaker || !v.korean) return false;
-        if ((v.japanese || '').includes('〜') || (v.kanji || '').includes('〜')) return false;
-        const vKanji = stripFurigana(v.kanji || '');
-        const vJp    = v.japanese || '';
-        // mainKanji가 정확히 포함되어야 함 (부분 자 아닌 전체 문자열)
-        return vKanji.includes(mainKanji) || vJp.includes(mainKanji);
-      });
-
-      // 길이 내림차순 (더 풍부한 문장 우선), 최소 mainKanji보다 길어야 의미 있음
-      exactMatches.sort((a, b) => {
-        const la = stripFurigana(a.kanji || a.japanese || '').length;
-        const lb = stripFurigana(b.kanji || b.japanese || '').length;
-        return lb - la;
-      });
-
-      const filtered = exactMatches.filter(v =>
-        stripFurigana(v.kanji || v.japanese || '').length > mainKanji.length
-      );
-
-      if (filtered.length) {
-        const ex = filtered[0];
-        exJp = stripFurigana(ex.kanji || '') || (ex.japanese || '');
-        exKo = ex.korean || '';
+    // 2순위: VOCAB_EXAMPLES_DB (sentences 배열)
+    if (!exJp && typeof VOCAB_EXAMPLES_DB !== 'undefined' && VOCAB_EXAMPLES_DB[item.id]) {
+      const db = VOCAB_EXAMPLES_DB[item.id];
+      const sent = db.sentences && db.sentences[0];
+      if (sent) { exJp = sent.japanese || ''; exKo = sent.meaning || ''; }
+      if (!exJp) {
+        const comp = db.compounds && db.compounds[0];
+        if (comp) { exJp = comp.japanese || ''; exKo = comp.meaning || ''; }
       }
     }
 
-    // 3순위: item의 tip을 예시 문장으로 활용 (일본어 포함 시)
-    if (!exJp && itemTip && /[\u3040-\u9fff]/.test(itemTip)) {
-      exJp = itemTip;
-      exKo = '';
+    // 3순위: VOCAB_ITEMS 중 kanjiOnly가 포함된 더 긴 문장
+    if (!exJp && kanjiOnly) {
+      const matches = VOCAB_ITEMS.filter(v => {
+        if (v.id === item.id || v.speaker || !v.korean) return false;
+        if ((v.japanese || '').includes('〜') || (v.kanji || '').includes('〜')) return false;
+        const vk = stripFurigana(v.kanji || '');
+        const vj = v.japanese || '';
+        return vk.includes(kanjiOnly) || vj.includes(kanjiOnly);
+      }).sort((a, b) => {
+        const la = (a.japanese || '').length;
+        const lb = (b.japanese || '').length;
+        return lb - la;
+      });
+      const best = matches.find(v =>
+        (stripFurigana(v.kanji || '') || v.japanese || '').length > kanjiOnly.length
+      );
+      if (best) {
+        exJp = stripFurigana(best.kanji || '') || (best.japanese || '');
+        exKo = best.korean || '';
+      }
     }
 
-    // ── 예시 렌더: mainKanji를 노란색으로 강조 (innerHTML)
+    // 4순위: item 자체의 example 필드
+    if (!exJp && item.example && !/〜/.test(item.example)) {
+      exJp = item.example;
+    }
+
+    // 5순위: tip (일본어 포함 시)
+    if (!exJp && item.tip && /[\u3040-\u9fff]/.test(item.tip)) {
+      exJp = item.tip;
+    }
+
+    // ── 예시 렌더 — kanjiOnly를 강조 표시
     if (sentEl) {
       if (exJp) {
-        const cleanedJp = cleanJaText(exJp);
-        const escaped = mainKanji.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-        const highlighted = cleanedJp.replace(
-          new RegExp(escaped, 'g'),
-          `<span class="hero-ex-kanji-hl">${mainKanji}</span>`
-        );
-        sentEl.innerHTML = highlighted;
-        sentEl.onclick = () => playAudio(cleanedJp);
+        const cleanJp = cleanJaText(exJp);
+        const esc = kanjiOnly.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const hl  = esc
+          ? cleanJp.replace(new RegExp(esc, 'g'), `<span class="hero-ex-kanji-hl">${kanjiOnly}</span>`)
+          : cleanJp;
+        sentEl.innerHTML = hl;
+        sentEl.onclick   = () => playAudio(cleanJp);
         sentEl.style.cursor = 'pointer';
       } else {
-        sentEl.textContent = '예시를 찾는 중…';
-        sentEl.onclick = null;
+        // 최후 수단: 단어 자체를 예시로 사용
+        const fallback = `${rawKanji}（${reading}）— ${meaning}`;
+        sentEl.textContent = fallback;
+        sentEl.onclick = () => playAudio(reading);
+        sentEl.style.cursor = 'pointer';
       }
     }
     if (transEl) transEl.textContent = exKo;
-
-    // ── 발음 듣기 버튼 → 한자 읽기
-    const audioBtn = document.getElementById('hero-audio-btn');
-    if (audioBtn) audioBtn.onclick = () => playAudio(reading || mainKanji);
   }
 
   // ─── 전체 가나 레벨 그리드 렌더 (かな뷰 선택 패널용) ───
@@ -1942,6 +1803,9 @@ const App = (() => {
     // 가나 자동 읽기 (항상)
     setTimeout(() => playAudio(char.kana), 300);
 
+    // 획순 미니패널 갱신
+    _updateFcStrokePanel(char.kana);
+
     // 네비 스트립 활성 업데이트
     updateNavStripActive('fc-nav-strip', idx);
 
@@ -2013,7 +1877,7 @@ const App = (() => {
       item.el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 
       // 발음 완전히 끝날 때까지 대기
-      await playAudio(item.text);
+      try { await playAudio(item.text); } catch (e) { /* TTS 실패 시 다음 항목으로 */ }
 
       if (session !== state.fcReadSession) return;
 
@@ -2238,6 +2102,17 @@ const App = (() => {
     if (hardBtn && !hardBtn._bound) { hardBtn._bound = true; hardBtn.addEventListener('click', (e) => { e.stopPropagation(); _fcAssessNext('hard'); }); }
     if (okBtn   && !okBtn._bound)   { okBtn._bound   = true; okBtn.addEventListener  ('click', (e) => { e.stopPropagation(); _fcAssessNext('ok');   }); }
     if (goodBtn && !goodBtn._bound) { goodBtn._bound = true; goodBtn.addEventListener('click', (e) => { e.stopPropagation(); _fcAssessNext('good'); }); }
+
+    // 🔊 앞면 듣기 버튼
+    const soundBtn = document.getElementById('fc-sound-btn');
+    if (soundBtn && !soundBtn._bound) {
+      soundBtn._bound = true;
+      soundBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const cur = state.learnChars[state.learnIndex];
+        if (cur) playAudio(cur.kana);
+      });
+    }
   }
 
   // ─── 네비게이션 스트립 (가나·어휘 모두 가로 드래그 방식) ───
@@ -2726,76 +2601,6 @@ const App = (() => {
     });
   }
 
-  // ─── 전체 오디오 중지 ───
-  function stopAllAudio() {
-    // 사용자 중지 플래그 세팅 (playAudio 내 2번째 화자 차단용)
-    state.audioStopped = true;
-    setTimeout(() => { state.audioStopped = false; }, 200); // 짧은 시간 후 리셋
-
-    // 전체 듣기 타이머 취소
-    clearTimeout(ss.readAllTimer);
-    ss.readAllTimer = null;
-    state.isReadingAll = false;
-
-    // Web TTS 중지
-    if (window.speechSynthesis) window.speechSynthesis.cancel();
-
-    // VOICEVOX 오디오 중지
-    if (state.currentVvAudio) {
-      try { state.currentVvAudio.pause(); state.currentVvAudio.src = ''; } catch(e) {}
-      state.currentVvAudio = null;
-    }
-
-    // 발화 인디케이터 + 화자 배지 즉시 숨김 (일시정지 상태도 해제)
-    hideVoiceBadgeNow();
-    hideSpeakingIndicator();
-
-    // 버튼 복원 (kana 일람 + vocab 일람)
-    const btn = document.getElementById('bc-readall-btn');
-    if (btn) { btn.textContent = '🔊 전체 듣기'; btn.classList.remove('bc-active'); }
-    const vbtn = document.getElementById('vbc-readall-btn');
-    if (vbtn) { vbtn.textContent = '🔊 전체 듣기'; vbtn.classList.remove('bc-active'); }
-
-    // 플로팅 중지 버튼 숨김
-    const fab = document.getElementById('stop-audio-fab');
-    if (fab) fab.style.display = 'none';
-  }
-
-  // ─── 전체 듣기 (순서대로 TTS 재생) ───
-  function startReadAll(chars) {
-    stopAllAudio();
-    state.isReadingAll = true;
-
-    // 버튼 상태 → 중지
-    const btn = document.getElementById('bc-readall-btn');
-    if (btn) { btn.textContent = '⏹ 중지'; btn.classList.add('bc-active'); }
-
-    // 플로팅 중지 버튼 표시
-    const fab = document.getElementById('stop-audio-fab');
-    if (fab) fab.style.display = 'flex';
-
-    // 화자 2명이면 번갈아 읽기, 1명이면 순서대로
-    const hasDualSpeaker = hasSpeakerConfigured(2);
-
-    let i = 0;
-    function next() {
-      if (!state.isReadingAll || i >= chars.length) {
-        if (i >= chars.length) showToast('번갈아 듣기 완료! ✓');
-        stopAllAudio();
-        return;
-      }
-      const slot = hasDualSpeaker ? (i % 2 === 0 ? 1 : 2) : 1;
-      playAudioSlot(chars[i].kana, slot).then(() => {
-        i++;
-        if (state.isReadingAll) ss.readAllTimer = setTimeout(next, 400);
-      });
-    }
-    showToast(hasDualSpeaker
-      ? `🎤 번갈아 듣기 (${chars.length}자) — 버튼을 다시 누르면 중지`
-      : `🔊 전체 ${chars.length}자 듣기 시작 — 버튼을 다시 누르면 중지`);
-    next();
-  }
-
   // ─── 슬라이드쇼 ───
   function startSlideshow(chars) {
     ss.chars = chars;
@@ -2832,7 +2637,20 @@ const App = (() => {
     const interval = parseInt(document.getElementById('bc-interval-select').value) || 3;
     const total = ss.chars.length;
     document.getElementById('ss-count-text').textContent = `${ss.index + 1} / ${total}`;
-    document.getElementById('ss-kana').textContent = char.kana;
+    const ssKanaEl = document.getElementById('ss-kana');
+    ssKanaEl.textContent = char.kana;
+    // 텍스트 길이에 따라 폰트 크기 자동 조정
+    requestAnimationFrame(() => {
+      const len = (char.kana || '').length;
+      let fs;
+      if      (len <= 1)  fs = 'clamp(100px, 22vw, 180px)';
+      else if (len <= 3)  fs = 'clamp(72px,  16vw, 140px)';
+      else if (len <= 6)  fs = 'clamp(48px,  10vw, 100px)';
+      else if (len <= 10) fs = 'clamp(32px,  7vw,   72px)';
+      else                fs = 'clamp(22px,  5vw,   52px)';
+      ssKanaEl.style.fontSize = fs;
+      ssKanaEl.style.whiteSpace = len > 6 ? 'normal' : 'nowrap';
+    });
     document.getElementById('ss-korean').textContent = char.korean;
     document.getElementById('ss-english').textContent = char.english;
     document.getElementById('ss-hint-text').textContent = '읽어보세요 ↑';
@@ -2911,8 +2729,6 @@ const App = (() => {
   function setupQuizView() {
     const retryBtn = document.getElementById('qr-retry');
     if (retryBtn) retryBtn.onclick = showQuizIntro;
-    const settingsBtn = document.getElementById('qr-settings-btn');
-    if (settingsBtn) settingsBtn.onclick = openSettingsToQuizTab;
     document.getElementById('quiz-header').style.display = 'none';
     document.getElementById('quiz-game').style.display = 'none';
     document.getElementById('quiz-result').style.display = 'none';
@@ -2957,7 +2773,7 @@ const App = (() => {
     const overlay = document.getElementById('qi-countdown-overlay');
     const numEl = document.getElementById('qi-cd-big');
     if (!overlay || !numEl) { _doQiStart(); return; }
-    let n = 3;
+    let n = 5;
     numEl.textContent = n;
     numEl.className = 'qi-cd-num';
     overlay.style.display = 'flex';
@@ -3053,7 +2869,8 @@ const App = (() => {
     }
 
     // 퀵 컨트롤 (배경음 / 화자 / 설정)
-    _setupQiExtras('qi-amb-btn', 'qi-amb-label', 'qi-voice-btn', 'qi-settings-btn2', _buildQiSettings);
+    _setupQiExtras('qi-amb-btn', 'qi-amb-label', 'qi-voice-btn', null, null);
+    _updateQiVoiceDisplay();
 
     // 시작 버튼
     const startBtn = document.getElementById('qi-start-btn');
@@ -3085,6 +2902,26 @@ const App = (() => {
 
     // 인트로 배경음 시작 (크게)
     startAmbient(state.prefs.ambientQuiz || 'none', 'quiz');
+  }
+
+  function _updateQiVoiceDisplay() {
+    const btn = document.getElementById('qi-voice-btn');
+    if (!btn) return;
+    let name = '화자';
+    try {
+      if (state.prefs.useVoicevox && voicevoxSpeakers && voicevoxSpeakers.length) {
+        const sid = state.prefs.voicevoxSpeaker1;
+        const spk = voicevoxSpeakers.flatMap(c => c.styles || []).find(s => String(s.id) === String(sid));
+        if (spk) name = spk._koName || spk.name;
+      } else if (allJaVoices && allJaVoices.length) {
+        const fIdx = state.prefs.voiceFemale;
+        const v = (fIdx !== undefined && fIdx !== 'none') ? allJaVoices[parseInt(fIdx)] : allJaVoices[0];
+        if (v) name = v.name.replace(/Microsoft\s+|Google\s+/, '').split(' ')[0];
+      }
+    } catch(e) {}
+    const labelEl = btn.querySelector('.qi-icon-label');
+    if (labelEl) labelEl.textContent = name;
+    else btn.title = name;
   }
 
   function _buildQiSettings() {
@@ -3783,7 +3620,7 @@ const App = (() => {
         <div style="width:100%">
           <div class="qb-kana">${q.displayKana || q.kana}</div>
           <div class="qb-label">이 글자의 발음은?</div>
-          <button class="audio-btn" style="margin-top:10px" onclick="App.playAudio('${q.displayKana || q.kana}')">🔊 발음 듣기</button>
+          <button class="audio-btn" style="margin-top:10px" onclick="App.playAudio('${q.displayKana || q.kana}')">🔊</button>
         </div>`;
     } else if (q.qtype === 'readingToKana') {
       const readingText = getReadingText(q.info);
@@ -3928,7 +3765,14 @@ const App = (() => {
     // 결과 기록
     recordResult(q.kana, isCorrect);
 
-    if (isCorrect) _onQuizCorrect(); else _onQuizWrong();
+    if (isCorrect) {
+      _onQuizCorrect();
+      // 정답 버튼에서 스파크 효과
+      const correctBtn = document.querySelector(`.choice-btn[data-kana="${q.correctKana}"]`);
+      if (correctBtn) _spawnSparks(correctBtn);
+    } else {
+      _onQuizWrong();
+    }
     let cheerType = 'correct';
     if (isCorrect) {
       state.quizCorrect++;
@@ -3960,6 +3804,7 @@ const App = (() => {
     const nextBtn = document.getElementById('qf-next-btn');
 
     qfExamples.innerHTML = '';
+    qfExamples.style.display = 'none';
 
     const autoAdv = state.prefs.quizAutoAdvance !== false;
 
@@ -3968,66 +3813,87 @@ const App = (() => {
     const isMilestoneCheer = (cheerType !== 'correct'); // streak3/5/8
     const shouldVoiceCheer = isMilestoneCheer || (state.quizCheerCount % 3 === 0);
 
+    // 관련 예시 단어 (정답 시 읽어줄 단어들)
+    const examples = (q.info && Array.isArray(q.info.examples)) ? q.info.examples.slice(0, 2) : [];
+
+    state.quizSeqId = (state.quizSeqId || 0) + 1;
+    const seqId = state.quizSeqId;
+    qfCountdown.style.display = 'none';
+    qfCountdownLabel.style.display = 'none';
+
+    const _cancelSeq = () => {
+      state.quizSeqId = (state.quizSeqId || 0) + 1;
+      if (window.speechSynthesis) window.speechSynthesis.cancel();
+      if (state.quizCountdownTimer) { clearInterval(state.quizCountdownTimer); state.quizCountdownTimer = null; }
+    };
+
     if (isCorrect) {
       qfResult.textContent = '✓ 정답!';
       qfResult.className = 'qf-result correct';
       qfCorrect.textContent = '';
       playCorrectSound();
 
-      state.quizSeqId = (state.quizSeqId || 0) + 1;
-      const seqId = state.quizSeqId;
-      qfCountdown.style.display = 'none';
-      qfCountdownLabel.style.display = 'none';
-
-      if (autoAdv) {
-        nextBtn.textContent = '건너뛰기 →';
-        ;(async () => {
-          await new Promise(r => setTimeout(r, 300));
-          if (state.quizSeqId !== seqId) return;
-          if (shouldVoiceCheer) {
-            await speakCheer(cheerType);
-          } else {
-            // 배너만 표시, 발화 없이 짧게 대기
-            const text = _pickCheer(cheerType);
-            if (text) _showCheerBanner(text, '');
-            await new Promise(r => setTimeout(r, 400));
-          }
-          if (state.quizSeqId !== seqId) return;
-          nextQuizQuestion();
-        })();
-        nextBtn.onclick = () => {
-          state.quizSeqId = (state.quizSeqId || 0) + 1;
-          if (window.speechSynthesis) window.speechSynthesis.cancel();
-          nextQuizQuestion();
-        };
-      } else {
-        if (shouldVoiceCheer) {
-          setTimeout(() => speakCheer(cheerType), 200);
-        } else {
-          const text = _pickCheer(cheerType);
-          if (text) _showCheerBanner(text, '');
-        }
-        nextBtn.textContent = '다음 문제 →';
-        nextBtn.onclick = () => {
-          state.quizSeqId = (state.quizSeqId || 0) + 1;
-          if (window.speechSynthesis) window.speechSynthesis.cancel();
-          nextQuizQuestion();
-        };
+      // 예시 단어 카드 표시
+      if (examples.length) {
+        qfExamples.style.display = 'block';
+        qfExamples.innerHTML = `<div class="qf-ex-label">📖 관련 단어</div>` +
+          examples.map((ex, i) =>
+            `<div class="qf-ex-card" id="qfex-${i}">` +
+            `<span class="qf-ex-word">${ex.w || ''}</span>` +
+            `<span class="qf-ex-reading">${ex.r || ''}</span>` +
+            `<span class="qf-ex-ko">${ex.ko || ''}</span>` +
+            `</div>`).join('');
       }
 
+      nextBtn.textContent = '건너뛰기 →';
+      nextBtn.onclick = () => { _cancelSeq(); nextQuizQuestion(); };
+
+      ;(async () => {
+        await new Promise(r => setTimeout(r, 300));
+        if (state.quizSeqId !== seqId) return;
+        // 응원 발화/배너
+        if (shouldVoiceCheer) {
+          await speakCheer(cheerType);
+        } else {
+          const ct = _pickCheer(cheerType);
+          if (ct) _showCheerBanner(ct, '');
+          await new Promise(r => setTimeout(r, 400));
+        }
+        if (state.quizSeqId !== seqId) return;
+        // 예시 단어 하나씩 강조 + TTS
+        for (let i = 0; i < examples.length; i++) {
+          if (state.quizSeqId !== seqId) return;
+          qfExamples.querySelectorAll('.qf-ex-card').forEach((c, j) => c.classList.toggle('qf-ex-active', j === i));
+          const word = examples[i].w || '';
+          if (word) await playAudioSlot(word, 1);
+          await new Promise(r => setTimeout(r, 700));
+        }
+        if (state.quizSeqId !== seqId) return;
+        if (autoAdv) nextQuizQuestion();
+        else {
+          nextBtn.textContent = '다음 문제 →';
+          nextBtn.onclick = () => { _cancelSeq(); nextQuizQuestion(); };
+        }
+      })();
+
     } else {
+      // 오답 / 시간 초과
       qfResult.textContent = isTimeout ? '⏰ 시간 초과!' : '✗ 틀렸어요';
       qfResult.className = 'qf-result wrong';
       qfCorrect.textContent = `정답: ${q.kana} = ${getReadingText(q.info)}`;
-      qfCountdown.style.display = 'none';
-      qfCountdownLabel.style.display = 'none';
-      if (!isTimeout) {
-        playWrongSound();
-        setTimeout(() => speakCheer('wrong'), 150);
-      }
+
+      ;(async () => {
+        if (!isTimeout) {
+          playWrongSound();
+          await speakCheer('wrong');
+        }
+        if (state.quizSeqId !== seqId) return;
+        // 정답 글자 읽어주기
+        await playAudioSlot(q.displayKana || q.kana || '', 1);
+      })();
 
       if (autoAdv) {
-        let count = 5;
+        let count = 10;
         qfCountdown.textContent = count;
         qfCountdown.style.display = 'block';
         qfCountdownLabel.textContent = '초 후 자동으로 다음 문제';
@@ -4036,20 +3902,14 @@ const App = (() => {
         state.quizCountdownTimer = setInterval(() => {
           count--;
           if (count <= 0) {
-            clearInterval(state.quizCountdownTimer);
-            state.quizCountdownTimer = null;
+            clearInterval(state.quizCountdownTimer); state.quizCountdownTimer = null;
             nextQuizQuestion();
-          } else {
-            qfCountdown.textContent = count;
-          }
+          } else { qfCountdown.textContent = count; }
         }, 1000);
-        nextBtn.onclick = () => {
-          if (state.quizCountdownTimer) { clearInterval(state.quizCountdownTimer); state.quizCountdownTimer = null; }
-          nextQuizQuestion();
-        };
+        nextBtn.onclick = () => { _cancelSeq(); nextQuizQuestion(); };
       } else {
         nextBtn.textContent = '다음 문제 →';
-        nextBtn.onclick = nextQuizQuestion;
+        nextBtn.onclick = () => { _cancelSeq(); nextQuizQuestion(); };
       }
     }
   }
@@ -4145,6 +4005,15 @@ const App = (() => {
       }, 30);
     }
     document.getElementById('qr-score').textContent = `${correct} / ${total}`;
+
+    // 통과 기준 배지
+    const passRate = parseInt(state.prefs.quizPassRate) || 70;
+    const passed = pct >= passRate;
+    const passBadgeEl = document.getElementById('qr-pass-badge');
+    if (passBadgeEl) {
+      passBadgeEl.textContent = passed ? `✅ 통과! (기준 ${passRate}%)` : `❌ 재도전 필요 (기준 ${passRate}%, 현재 ${pct}%)`;
+      passBadgeEl.className = 'qr-pass-badge ' + (passed ? 'qr-pass-ok' : 'qr-pass-ng');
+    }
 
     // 통계
     document.getElementById('qr-stat-correct').textContent = correct;
@@ -4302,11 +4171,294 @@ const App = (() => {
       updateCanvasOverlay('');
     } else {
       kanaEl.style.visibility = 'visible';
-      // 필기 힌트
-      const hints = getStrokeHint(char.kana);
-      document.getElementById('stroke-hint').textContent = hints;
       updateCanvasOverlay(char.kana);
     }
+    // 획순 SVG 패널 항상 갱신
+    _updateStrokePanel(char.kana);
+  }
+
+  // ─── 획순 SVG 애니메이션 ───
+
+  let _strokeAnimTimer = null;
+
+  /** 획순 패널 갱신 — 글자 변경 시 호출 */
+  function _updateStrokePanel(kana) {
+    const panel = document.getElementById('stroke-anim-panel');
+    const countEl = document.getElementById('stroke-anim-count');
+    const playBtn = document.getElementById('stroke-anim-play');
+    const fallback = document.getElementById('stroke-anim-fallback');
+    const hintEl = document.getElementById('stroke-hint');
+    if (!panel) return;
+
+    // 이전 애니메이션 중지
+    if (_strokeAnimTimer) { clearTimeout(_strokeAnimTimer); _strokeAnimTimer = null; }
+
+    const data = getStrokeData(kana);
+    if (data) {
+      fallback.style.display = 'none';
+      countEl.textContent = data.strokes.length + '획';
+      playBtn.disabled = false;
+      playBtn.textContent = '▶ 재생';
+      _renderStrokesFull(kana); // 전체 획 흐리게 미리보기
+    } else {
+      // SVG 데이터 없음 → 텍스트 힌트 폴백
+      fallback.style.display = 'block';
+      if (hintEl) hintEl.textContent = getStrokeHint(kana);
+      countEl.textContent = '';
+      playBtn.disabled = true;
+      playBtn.textContent = '▶ 재생';
+      _clearStrokeSvg();
+    }
+
+    // 재생 버튼 바인딩 (중복 방지)
+    if (!playBtn._saBound) {
+      playBtn._saBound = true;
+      playBtn.addEventListener('click', () => {
+        const cur = state.writeChars[state.writeIndex];
+        if (cur) _playStrokeAnim(cur.kana);
+      });
+    }
+  }
+
+  /** SVG 내용 초기화 */
+  function _clearStrokeSvg() {
+    const sg = document.getElementById('stroke-anim-strokes');
+    const lg = document.getElementById('stroke-anim-labels');
+    if (sg) sg.innerHTML = '';
+    if (lg) lg.innerHTML = '';
+  }
+
+  /** 전체 획 흐리게 정적 미리보기 */
+  function _renderStrokesFull(kana) {
+    const data = getStrokeData(kana);
+    if (!data) return;
+    _clearStrokeSvg();
+    const sg = document.getElementById('stroke-anim-strokes');
+    const lg = document.getElementById('stroke-anim-labels');
+    if (!sg || !lg) return;
+
+    const svgNS = 'http://www.w3.org/2000/svg';
+    data.strokes.forEach((d, i) => {
+      const path = document.createElementNS(svgNS, 'path');
+      path.setAttribute('d', _scaleStrokePath(d));
+      path.setAttribute('class', 'stroke-done');
+      sg.appendChild(path);
+
+      // 시작점 라벨
+      const start = _getPathStart(d);
+      const text = document.createElementNS(svgNS, 'text');
+      text.setAttribute('x', start.x);
+      text.setAttribute('y', start.y - 3);
+      text.setAttribute('class', 'stroke-num');
+      text.textContent = i + 1;
+      lg.appendChild(text);
+    });
+  }
+
+  /**
+   * 획순 순차 애니메이션 재생
+   * 각 획을 0.6s 간격으로 순서대로 그림
+   */
+  function _playStrokeAnim(kana) {
+    const data = getStrokeData(kana);
+    if (!data) return;
+    if (_strokeAnimTimer) { clearTimeout(_strokeAnimTimer); _strokeAnimTimer = null; }
+
+    const playBtn = document.getElementById('stroke-anim-play');
+    if (playBtn) { playBtn.disabled = true; playBtn.textContent = '재생 중…'; }
+
+    const svgNS = 'http://www.w3.org/2000/svg';
+    _clearStrokeSvg();
+    const sg = document.getElementById('stroke-anim-strokes');
+    const lg = document.getElementById('stroke-anim-labels');
+    if (!sg || !lg) return;
+
+    // 완료된 획들을 미리 흐리게 그려두기
+    const donePaths = data.strokes.map((d, i) => {
+      const path = document.createElementNS(svgNS, 'path');
+      path.setAttribute('d', _scaleStrokePath(d));
+      path.setAttribute('class', 'stroke-done');
+      path.style.opacity = '0';
+      sg.appendChild(path);
+      return path;
+    });
+
+    let idx = 0;
+    function animateNext() {
+      if (idx >= data.strokes.length) {
+        // 완료: 모든 획 표시, 버튼 복원
+        donePaths.forEach(p => { p.style.opacity = '1'; });
+        if (playBtn) { playBtn.disabled = false; playBtn.textContent = '▶ 다시보기'; }
+        return;
+      }
+
+      // 이전 획들 흐리게 표시
+      for (let j = 0; j < idx; j++) donePaths[j].style.opacity = '1';
+
+      // 현재 획 애니메이션
+      const activePath = document.createElementNS(svgNS, 'path');
+      activePath.setAttribute('d', _scaleStrokePath(data.strokes[idx]));
+      activePath.setAttribute('class', 'stroke-active');
+      sg.appendChild(activePath);
+
+      // 시작점 빨간 점
+      const start = _getPathStart(data.strokes[idx]);
+      const dot = document.createElementNS(svgNS, 'circle');
+      dot.setAttribute('cx', start.x);
+      dot.setAttribute('cy', start.y);
+      dot.setAttribute('r', '3.5');
+      dot.setAttribute('class', 'stroke-dot');
+      lg.appendChild(dot);
+
+      // 획 번호
+      const text = document.createElementNS(svgNS, 'text');
+      text.setAttribute('x', start.x + 5);
+      text.setAttribute('y', start.y - 4);
+      text.setAttribute('class', 'stroke-num');
+      text.textContent = idx + 1;
+      lg.appendChild(text);
+
+      idx++;
+      _strokeAnimTimer = setTimeout(() => {
+        // active → done으로 교체
+        activePath.remove();
+        dot.remove();
+        text.remove();
+        animateNext();
+      }, 750);
+    }
+
+    animateNext();
+  }
+
+  /**
+   * 경로 d 문자열의 시작 좌표 추출 (M x,y 또는 M x y)
+   */
+  function _getPathStart(d) {
+    const m = d.match(/M\s*([\d.]+)[, ]([\d.]+)/);
+    if (!m) return { x: 10, y: 10 };
+    // 109 좌표계에서 그대로 사용 (viewBox="0 0 109 109")
+    return { x: parseFloat(m[1]), y: parseFloat(m[2]) };
+  }
+
+  /**
+   * stroke-data의 좌표는 이미 0-109 범위이므로 그대로 반환
+   * (향후 다른 좌표계 데이터 지원 시 여기서 스케일 변환)
+   */
+  function _scaleStrokePath(d) {
+    return d;
+  }
+
+  // ─── 플래시카드 뒷면 획순 미니패널 ───
+
+  let _fcStrokeTimer = null;
+
+  /** 플래시카드 획순 패널 갱신 */
+  function _updateFcStrokePanel(kana) {
+    const panel = document.getElementById('fcb-stroke-panel');
+    if (!panel) return;
+    if (_fcStrokeTimer) { clearTimeout(_fcStrokeTimer); _fcStrokeTimer = null; }
+
+    const data = getStrokeData(kana);
+    if (!data) { panel.style.display = 'none'; return; }
+
+    panel.style.display = 'flex';
+    const countEl = document.getElementById('fcb-stroke-count');
+    if (countEl) countEl.textContent = data.strokes.length + '획';
+
+    const playBtn = document.getElementById('fcb-stroke-play');
+    if (playBtn) {
+      playBtn.disabled = false;
+      playBtn.textContent = '▶ 재생';
+      if (!playBtn._fcBound) {
+        playBtn._fcBound = true;
+        playBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const cur = state.learnChars[state.learnIndex];
+          if (cur) _playFcStrokeAnim(cur.kana);
+        });
+      }
+    }
+    _renderFcStrokesFull(kana);
+  }
+
+  /** 플래시카드 획순 전체 획 흐리게 미리보기 */
+  function _renderFcStrokesFull(kana) {
+    const data = getStrokeData(kana);
+    if (!data) return;
+    const sg = document.getElementById('fcb-stroke-strokes');
+    const lg = document.getElementById('fcb-stroke-labels');
+    if (!sg || !lg) return;
+    sg.innerHTML = ''; lg.innerHTML = '';
+    const svgNS = 'http://www.w3.org/2000/svg';
+    data.strokes.forEach((d, i) => {
+      const path = document.createElementNS(svgNS, 'path');
+      path.setAttribute('d', d);
+      path.setAttribute('class', 'stroke-done');
+      sg.appendChild(path);
+      const start = _getPathStart(d);
+      const text = document.createElementNS(svgNS, 'text');
+      text.setAttribute('x', start.x);
+      text.setAttribute('y', start.y - 3);
+      text.setAttribute('class', 'stroke-num');
+      text.textContent = i + 1;
+      lg.appendChild(text);
+    });
+  }
+
+  /** 플래시카드 획순 순차 애니메이션 재생 */
+  function _playFcStrokeAnim(kana) {
+    const data = getStrokeData(kana);
+    if (!data) return;
+    if (_fcStrokeTimer) { clearTimeout(_fcStrokeTimer); _fcStrokeTimer = null; }
+
+    const playBtn = document.getElementById('fcb-stroke-play');
+    if (playBtn) { playBtn.disabled = true; playBtn.textContent = '재생 중…'; }
+
+    const svgNS = 'http://www.w3.org/2000/svg';
+    const sg = document.getElementById('fcb-stroke-strokes');
+    const lg = document.getElementById('fcb-stroke-labels');
+    if (!sg || !lg) return;
+    sg.innerHTML = ''; lg.innerHTML = '';
+
+    const donePaths = data.strokes.map(d => {
+      const path = document.createElementNS(svgNS, 'path');
+      path.setAttribute('d', d);
+      path.setAttribute('class', 'stroke-done');
+      path.style.opacity = '0';
+      sg.appendChild(path);
+      return path;
+    });
+
+    let idx = 0;
+    function next() {
+      if (idx >= data.strokes.length) {
+        donePaths.forEach(p => { p.style.opacity = '1'; });
+        if (playBtn) { playBtn.disabled = false; playBtn.textContent = '▶ 다시'; }
+        return;
+      }
+      for (let j = 0; j < idx; j++) donePaths[j].style.opacity = '1';
+      const activePath = document.createElementNS(svgNS, 'path');
+      activePath.setAttribute('d', data.strokes[idx]);
+      activePath.setAttribute('class', 'stroke-active');
+      sg.appendChild(activePath);
+      const start = _getPathStart(data.strokes[idx]);
+      const dot = document.createElementNS(svgNS, 'circle');
+      dot.setAttribute('cx', start.x); dot.setAttribute('cy', start.y); dot.setAttribute('r', '3.5');
+      dot.setAttribute('class', 'stroke-dot');
+      lg.appendChild(dot);
+      const text = document.createElementNS(svgNS, 'text');
+      text.setAttribute('x', start.x + 5); text.setAttribute('y', start.y - 4);
+      text.setAttribute('class', 'stroke-num');
+      text.textContent = idx + 1;
+      lg.appendChild(text);
+      idx++;
+      _fcStrokeTimer = setTimeout(() => {
+        activePath.remove(); dot.remove(); text.remove();
+        next();
+      }, 750);
+    }
+    next();
   }
 
   function getStrokeHint(kana) {
@@ -4686,27 +4838,8 @@ const App = (() => {
       levelsDiv.appendChild(el);
     });
 
-    // 약점 글자
-    const weakChars = Object.entries(state.progress)
-      .filter(([k, v]) => v && v.incorrect > 0)
-      .sort((a, b) => (b[1].incorrect || 0) - (a[1].incorrect || 0))
-      .slice(0, 20);
-
-    const weakGrid = document.getElementById('weak-chars-grid');
-    if (weakChars.length === 0) {
-      weakGrid.innerHTML = '<p class="no-weak">약점 글자가 없어요! 퀴즈를 더 풀어보세요.</p>';
-    } else {
-      weakGrid.innerHTML = weakChars.map(([k, v]) => {
-        const info = KANA_MAP[k];
-        const total = (v.correct || 0) + (v.incorrect || 0);
-        const acc = total > 0 ? Math.round((v.correct / total) * 100) : 0;
-        return `
-          <div class="weak-char-card" onclick="App.playAudio('${k}')">
-            <span class="wcc-kana">${k}</span>
-            <span class="wcc-acc">${acc}% (${v.incorrect}틀)</span>
-          </div>`;
-      }).join('');
-    }
+    // ── 취약 가나 분석 대시보드 ──
+    _renderWeakDashboard();
 
     // 초기화 버튼
     document.getElementById('reset-btn').onclick = () => {
@@ -4726,6 +4859,102 @@ const App = (() => {
 
     // 단어 진도 표시
     renderVocabProgress();
+  }
+
+  // ─── 취약 가나 분석 대시보드 ───
+
+  function _renderWeakDashboard() {
+    const allKeys = Object.keys(KANA_MAP);
+    const prog = state.progress;
+
+    // ── 정확도 히트맵 ──
+    const heatmap = document.getElementById('weak-heatmap');
+    if (heatmap) {
+      heatmap.innerHTML = allKeys.map(k => {
+        const p = prog[k];
+        const total = p ? (p.correct || 0) + (p.incorrect || 0) : 0;
+        const acc = total > 0 ? Math.round((p.correct || 0) / total * 100) : -1;
+        let cls, title;
+        if (acc < 0)       { cls = 'whm-unseen';  title = `${k}: 미학습`; }
+        else if (acc < 50) { cls = 'whm-low';     title = `${k}: ${acc}% (위험)`; }
+        else if (acc < 80) { cls = 'whm-mid';     title = `${k}: ${acc}% (학습 중)`; }
+        else if (acc < 95) { cls = 'whm-high';    title = `${k}: ${acc}% (양호)`; }
+        else               { cls = 'whm-perfect'; title = `${k}: ${acc}% (완벽)`; }
+        return `<div class="whm-cell ${cls}" title="${title}" onclick="App.playAudio('${k}')">${k}</div>`;
+      }).join('');
+    }
+
+    // ── SRS 현황 요약 ──
+    const srsSummary = getSRSSummary(allKeys, prog);
+    const srsEl = document.getElementById('weak-srs-summary');
+    if (srsEl) {
+      srsEl.innerHTML = `
+        <div class="wss-card wss-due">
+          <div class="wss-num">${srsSummary.due}</div>
+          <div class="wss-label">오늘 복습</div>
+        </div>
+        <div class="wss-card wss-new">
+          <div class="wss-num">${srsSummary.newCards}</div>
+          <div class="wss-label">신규</div>
+        </div>
+        <div class="wss-card wss-learn">
+          <div class="wss-num">${srsSummary.learning}</div>
+          <div class="wss-label">학습 중</div>
+        </div>
+        <div class="wss-card wss-master">
+          <div class="wss-num">${srsSummary.mastered}</div>
+          <div class="wss-label">마스터</div>
+        </div>`;
+    }
+
+    // ── 약점 카드 (오답률 상위 20) ──
+    const weakChars = allKeys
+      .filter(k => prog[k] && (prog[k].incorrect || 0) > 0)
+      .map(k => {
+        const p = prog[k];
+        const total = (p.correct || 0) + (p.incorrect || 0);
+        const acc = total > 0 ? Math.round(p.correct / total * 100) : 0;
+        return { k, p, acc, total };
+      })
+      .sort((a, b) => a.acc - b.acc)  // 정확도 낮은 순
+      .slice(0, 20);
+
+    const weakGrid = document.getElementById('weak-chars-grid');
+    if (weakGrid) {
+      if (weakChars.length === 0) {
+        weakGrid.innerHTML = '<p class="no-weak">약점 글자가 없어요! 퀴즈를 더 풀어보세요.</p>';
+      } else {
+        weakGrid.innerHTML = weakChars.map(({ k, p, acc }) => {
+          const info = KANA_MAP[k];
+          const due = isDue(p) ? ' 🔔' : '';
+          return `<div class="weak-char-card" onclick="App.playAudio('${k}')" title="${k}: ${acc}% 정확도">
+            <span class="wcc-kana">${k}</span>
+            <span class="wcc-romaji">${info ? info.romaji || '' : ''}${due}</span>
+            <span class="wcc-acc">${acc}% (${p.incorrect}틀)</span>
+          </div>`;
+        }).join('');
+      }
+    }
+
+    // ── 약점만 퀴즈 버튼 ──
+    const quizBtn = document.getElementById('weak-dash-quiz-btn');
+    if (quizBtn && !quizBtn._bound) {
+      quizBtn._bound = true;
+      quizBtn.addEventListener('click', () => {
+        const weak = allKeys.filter(k => {
+          const p = prog[k];
+          if (!p) return false;
+          const total = (p.correct || 0) + (p.incorrect || 0);
+          return total > 0 && Math.round(p.correct / total * 100) < 80;
+        });
+        if (weak.length === 0) {
+          showToast('약점 글자가 없습니다! 퀴즈를 더 풀어보세요.');
+          return;
+        }
+        const chars = weak.map(k => ({ kana: k, ...KANA_MAP[k] }));
+        startQuizWithChars(chars, 'kanaToReading', state.prefs.lang || 'korean');
+      });
+    }
   }
 
   // ─── 설정 ───
@@ -4750,25 +4979,19 @@ const App = (() => {
       loadPrefsUI();
     };
     closeBtn.onclick = () => { modal.style.display = 'none'; savePrefs(); };
+
+    // 개발자 탭 → 관리자 패널 열기
+    const adminFromSettings = document.getElementById('open-admin-from-settings');
+    if (adminFromSettings) {
+      adminFromSettings.addEventListener('click', () => {
+        modal.style.display = 'none';
+        savePrefs();
+        openAdminPanel();
+      });
+    }
     modal.addEventListener('click', (e) => {
       if (e.target === modal) { modal.style.display = 'none'; savePrefs(); }
     });
-  }
-
-  function saveCheerMessages() {
-    const cheerTypes = ['start','correct','wrong','streak3','streak5','streak8','perfect','good','pass','poor'];
-    const saved = {};
-    let hasCustom = false;
-    cheerTypes.forEach(type => {
-      const ta = document.getElementById('cheer-' + type);
-      if (!ta) return;
-      const lines = ta.value.split('\n').map(l => l.trim()).filter(Boolean);
-      const defaults = _getQuizCheers()[type];
-      // 기본값과 다를 때만 저장
-      const isDefault = JSON.stringify(lines) === JSON.stringify(defaults);
-      if (!isDefault && lines.length > 0) { saved[type] = lines; hasCustom = true; }
-    });
-    state.prefs.quizCheers = hasCustom ? saved : null;
   }
 
   function applyVisibilityPrefs() {
@@ -4810,27 +5033,36 @@ const App = (() => {
       cheerEl.onchange = () => { state.prefs.quizCheer = cheerEl.checked; saveToStorage(); };
     }
 
-    // 응원 메시지 에디터
-    const cheerTypes = ['start','correct','wrong','streak3','streak5','streak8','perfect','good','pass','poor'];
-    const cc = state.prefs.quizCheers || {};
-    cheerTypes.forEach(type => {
-      const ta = document.getElementById('cheer-' + type);
-      if (!ta) return;
-      const msgs = (cc[type] && cc[type].length > 0) ? cc[type] : _getQuizCheers()[type];
-      ta.value = msgs.join('\n');
-      ta.oninput = () => saveCheerMessages();
-    });
-    document.querySelectorAll('.cheer-reset').forEach(btn => {
-      btn.onclick = () => {
-        const type = btn.dataset.type;
-        const ta = document.getElementById('cheer-' + type);
-        if (ta) {
-          ta.value = _getQuizCheers()[type].join('\n');
-          // 해당 타입 커스텀 삭제
-          if (state.prefs.quizCheers) { delete state.prefs.quizCheers[type]; saveToStorage(); }
-        }
+    // 퀴즈 설정 탭 chip 버튼 동기화
+    function syncQuizChips() {
+      const chipDefs = {
+        quizCountdown: String(state.prefs.quizCountdown !== undefined ? state.prefs.quizCountdown : 5),
+        quizCount:     String(state.prefs.quizCount || '10'),
+        quizPassRate:  String(state.prefs.quizPassRate || '70'),
       };
-    });
+      document.querySelectorAll('.sq-chip').forEach(chip => {
+        const pref = chip.dataset.pref;
+        chip.classList.toggle('active', pref && chipDefs[pref] === chip.dataset.val);
+        if (!chip._sqBound) {
+          chip._sqBound = true;
+          chip.addEventListener('click', () => {
+            const key = chip.dataset.pref;
+            const val = chip.dataset.val;
+            document.querySelectorAll(`.sq-chip[data-pref="${key}"]`).forEach(c => c.classList.remove('active'));
+            chip.classList.add('active');
+            state.prefs[key] = key === 'quizCountdown' ? parseInt(val) : val;
+            saveToStorage();
+            // 퀴즈 인트로 chips도 동기화
+            const qiChip = document.querySelector(`.qi-inline-chip[data-key="${key}"][data-val="${val}"]`);
+            if (qiChip) {
+              document.querySelectorAll(`.qi-inline-chip[data-key="${key}"]`).forEach(c => c.classList.remove('active'));
+              qiChip.classList.add('active');
+            }
+          });
+        }
+      });
+    }
+    syncQuizChips();
 
     // 롤플레이 이름 설정
     const fnEl = document.getElementById('pref-female-name');
@@ -4948,12 +5180,15 @@ const App = (() => {
       });
     }
 
-    // 화자 패널 가시성 — 활성 엔진 + 연결 상태에 맞는 것만 표시
+    // 화자 패널 가시성 — 활성 엔진에 맞는 것만 표시
     function _updateSpeakerPanels(engine) {
-      if (edgeRows) edgeRows.style.display = (engine === 'edge') ? '' : 'none';
+      // Edge TTS 화자 행
+      if (edgeRows)   edgeRows.style.display   = (engine === 'edge') ? '' : 'none';
       // VOICEVOX 화자 목록은 연결 성공 시에만 표시
-      if (vvRows)   vvRows.style.display   = (engine === 'voicevox' && voicevoxAvailable) ? '' : 'none';
-      // Web TTS 화자는 항상 표시 (webtts-settings는 tts-card-web 안에 있음)
+      if (vvRows)     vvRows.style.display     = (engine === 'voicevox' && voicevoxAvailable) ? '' : 'none';
+      // Web TTS 화자: VOICEVOX 또는 Edge 선택 시 숨김 (Web TTS가 활성일 때만 표시)
+      const webSettingsEl = document.getElementById('webtts-settings');
+      if (webSettingsEl) webSettingsEl.style.display = (engine === 'web') ? '' : 'none';
     }
 
     // VOICEVOX 재시도 영역 표시/숨김 (showFallback=true 시 "다음 옵션으로?" 섹션도 표시)
@@ -5239,12 +5474,7 @@ const App = (() => {
       };
     });
 
-    // 플래시카드 뒤집기 설정
-    const flipCb = document.getElementById('pref-flip-card');
-    if (flipCb) {
-      flipCb.checked = state.prefs.flipCard === true;
-      flipCb.onchange = () => { state.prefs.flipCard = flipCb.checked; saveToStorage(); };
-    }
+    // 플래시카드 뒤집기 설정 — UI 제거됨, 기본값 유지 (즉시 뒷면 표시)
   }
 
   function savePrefs() {
@@ -5275,7 +5505,6 @@ const App = (() => {
     if (qlvSel) state.prefs.quizLevel = qlvSel.value;
     const cheerEl = document.getElementById('pref-quiz-cheer');
     if (cheerEl) state.prefs.quizCheer = cheerEl.checked;
-    saveCheerMessages();
     // TTS 엔진: 라디오 값에서 읽기
     const ttsEngineChecked = document.querySelector('input[name="tts-engine-radio"]:checked');
     if (ttsEngineChecked) {
@@ -5300,9 +5529,6 @@ const App = (() => {
     if (aaEl) state.prefs.autoAdvance = aaEl.checked;
     if (aadEl) state.prefs.autoAdvanceDelay = parseInt(aadEl.value) || 3;
     if (aadRow) aadRow.style.display = (aaEl && aaEl.checked) ? 'flex' : 'none';
-    // 플래시카드 뒤집기 저장
-    const flipCbSave = document.getElementById('pref-flip-card');
-    if (flipCbSave) state.prefs.flipCard = flipCbSave.checked;
     state.voiceCallCount = 0;
     applyVisibilityPrefs();
     saveToStorage();
@@ -5506,7 +5732,6 @@ const App = (() => {
 
   function _buildSignHTML(item) {
     let html = '';
-    // 알림판은 헤더 별도 처리
     if (item.sign_style === 'notice_white' && item.header) {
       html += `<div class="sign-head">${item.header}</div>`;
     }
@@ -5515,15 +5740,13 @@ const App = (() => {
       const sizeClass = line.size || 'md';
       const mutedClass = line.muted ? ' muted' : '';
       if (i > 0 && line.divider) html += '<hr class="sign-divider">';
-      
-      // 사용자 인터랙션 추가: 퀴즈 모드일 때 클릭하면 블러 해제
-      const onClickAttr = line.muted ? '' : `onclick="this.classList.toggle('revealed')"`;
-      const titleAttr = line.muted ? '' : 'title="클릭해서 선명하게 보기"';
+
+      // ★ 클릭 시: 블러 해제 + TTS 읽기
+      const onClickAttr = line.muted ? '' : `onclick="this.classList.add('revealed'); App.playAudio('${(line.text||'').replace(/'/g,'\\\'')}')"`;
+      const titleAttr = line.muted ? '' : 'title="클릭해서 읽기 + 발음 듣기"';
 
       html += `<div class="sign-line ${sizeClass}${mutedClass}" ${onClickAttr} ${titleAttr}>`;
-      if (line.ruby && !yomu.signRevealed) {
-        html += _escHtml(line.text);
-      } else if (line.ruby && yomu.signRevealed) {
+      if (line.ruby && yomu.signRevealed) {
         html += _injectRuby(line.text, line.ruby);
       } else {
         html += _escHtml(line.text);
@@ -5540,6 +5763,13 @@ const App = (() => {
     _onSignRead();
     const items = yomu.signFiltered;
     const item = items[yomu.signIndex];
+
+    // ★ TTS: 간판의 모든 라인을 순서대로 읽기
+    const readableText = (item.lines || [])
+      .filter(l => !l.muted && l.text)
+      .map(l => l.text)
+      .join('。');
+    if (readableText) playAudio(readableText);
 
     // 간판에 루비 추가 및 블러 제거
     const renderEl = document.getElementById('sign-render');
@@ -5561,10 +5791,10 @@ const App = (() => {
       const vocabEl = document.getElementById('sign-vocab-list');
       if (vocabEl) {
         vocabEl.innerHTML = (item.vocab || []).map(v =>
-          `<div class="sign-vocab-item">
-            <span class="sv-word">${_escHtml(v.word)}</span>
-            <span class="sv-reading"> (${_escHtml(v.reading)})</span>
+          `<div class="sign-vocab-item" onclick="App.playAudio('${(v.word||'').replace(/'/g,'\\\'')}')" title="클릭하여 발음 듣기" style="cursor:pointer">
+            <span class="sv-word"><ruby>${_escHtml(v.word)}<rt>${_escHtml(v.reading)}</rt></ruby></span>
             <span class="sv-meaning"> — ${_escHtml(v.meaning)}</span>
+            <span class="sv-speaker">🔊</span>
           </div>`
         ).join('');
       }
@@ -5937,24 +6167,36 @@ const App = (() => {
     const items = yomu.diaryFiltered;
     if (!items || !items.length) return;
     const entry = items[yomu.diaryIndex];
-    const text = (entry.content || []).map(p => p.text).join('　');
+    const text = (entry.content || []).map(p => p.text).join('。');
     const btnTts = document.getElementById('diary-btn-tts');
+    if (!text) return;
 
+    // 이미 읽고 있으면 중지 토글
     if (window.speechSynthesis && window.speechSynthesis.speaking) {
       window.speechSynthesis.cancel();
-      if (btnTts) btnTts.classList.remove('active');
+      if (btnTts) { btnTts.classList.remove('active'); btnTts.textContent = '🔊 읽기'; }
       return;
     }
-    if (!window.speechSynthesis || !text) return;
-    if (btnTts) btnTts.classList.add('active');
-    const utt = new SpeechSynthesisUtterance(text);
-    utt.lang = 'ja-JP'; utt.rate = 0.9;
-    const voices = window.speechSynthesis.getVoices();
-    const jaVoice = voices.find(v => v.lang.startsWith('ja'));
-    if (jaVoice) utt.voice = jaVoice;
-    utt.onend = () => { if (btnTts) btnTts.classList.remove('active'); };
-    utt.onerror = () => { if (btnTts) btnTts.classList.remove('active'); };
-    window.speechSynthesis.speak(utt);
+    if (state.currentVvAudio && !state.currentVvAudio.paused) {
+      state.currentVvAudio.pause(); state.currentVvAudio = null;
+      if (btnTts) { btnTts.classList.remove('active'); btnTts.textContent = '🔊 읽기'; }
+      return;
+    }
+
+    if (btnTts) { btnTts.classList.add('active'); btnTts.textContent = '⏹ 중지'; }
+
+    // ★ playAudio 사용 — VOICEVOX 설정되어 있으면 VOICEVOX로, 아니면 Web TTS
+    playAudio(text);
+
+    // 완료 후 버튼 복원 (Web TTS 경우)
+    if (window.speechSynthesis) {
+      const _check = setInterval(() => {
+        if (!window.speechSynthesis.speaking) {
+          clearInterval(_check);
+          if (btnTts) { btnTts.classList.remove('active'); btnTts.textContent = '🔊 읽기'; }
+        }
+      }, 500);
+    }
   }
 
   // ─── 폴백 데이터 (데이터 파일 없을 때) ─────────────────
@@ -6097,32 +6339,6 @@ const App = (() => {
     ];
   }
 
-  // ─── 유틸리티 ─────────────────────────────────────────
-
-  function _makeEl(tag, className, text) {
-    const el = document.createElement(tag);
-    if (className) el.className = className;
-    if (text !== undefined) el.textContent = text;
-    return el;
-  }
-
-  function _escHtml(str) {
-    if (!str) return '';
-    return String(str)
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;');
-  }
-
-  function _injectRuby(text, ruby) {
-    // ruby가 string이면 전체 텍스트에 루비 적용
-    if (typeof ruby === 'string') {
-      return `<ruby>${_escHtml(text)}<rt>${_escHtml(ruby)}</rt></ruby>`;
-    }
-    return _escHtml(text);
-  }
-
   // ─── 진도 기록 ───
   function markCharSeen(kana) {
     if (!state.progress[kana]) state.progress[kana] = { seen: 0, correct: 0, incorrect: 0 };
@@ -6130,10 +6346,28 @@ const App = (() => {
     saveToStorage();
   }
 
-  // 플래시카드 뒷면 열람 = "마스터" 기록 (퀴즈와 무관)
+  // 플래시카드 뒷면 열람 = "마스터" 기록 + SRS grade 4 (정답)
   function markCharFlipped(kana) {
     if (!state.progress[kana]) state.progress[kana] = { seen: 0, correct: 0, incorrect: 0 };
     state.progress[kana].flipped = (state.progress[kana].flipped || 0) + 1;
+    state.progress[kana] = srsReview(state.progress[kana], 4);
+    state.lastStudied = new Date().toISOString();
+    saveToStorage();
+  }
+
+  // 플래시카드 자가평가: 어려웠음 (grade 3)
+  function markCharHard(kana) {
+    if (!state.progress[kana]) state.progress[kana] = { seen: 0, correct: 0, incorrect: 0 };
+    state.progress[kana] = srsReview(state.progress[kana], 3);
+    state.lastStudied = new Date().toISOString();
+    saveToStorage();
+  }
+
+  // 플래시카드 자가평가: 잊었음/오답 (grade 1)
+  function markCharForgot(kana) {
+    if (!state.progress[kana]) state.progress[kana] = { seen: 0, correct: 0, incorrect: 0 };
+    state.progress[kana].incorrect = (state.progress[kana].incorrect || 0) + 1;
+    state.progress[kana] = srsReview(state.progress[kana], 1);
     state.lastStudied = new Date().toISOString();
     saveToStorage();
   }
@@ -6146,1260 +6380,10 @@ const App = (() => {
       state.progress[kana].incorrect = (state.progress[kana].incorrect || 0) + 1;
     }
     state.progress[kana].seen = (state.progress[kana].seen || 0) + 1;
+    // SRS 스케줄 업데이트
+    state.progress[kana] = srsReview(state.progress[kana], gradeFromResult(isCorrect));
     state.lastStudied = new Date().toISOString();
     saveToStorage();
-  }
-
-  // ─── 오디오 ───
-
-  // ─── VOICEVOX 통합 ───
-  const VOICEVOX_URL = 'http://localhost:50021';
-
-  // VOICEVOX 화자 이름 한글 번역 테이블
-  const VV_NAME_KO = {
-    // 캐릭터 이름
-    '四国めたん':        '시코쿠 메탄',
-    'ずんだもん':        '준다몬',
-    '春日部つむぎ':      '카스카베 츠무기',
-    '雨晴はう':          '아마하레 하우',
-    '波音リツ':          '나나미 리츠',
-    '玄野武宏':          '쿠로노 타케히로',
-    '白上虎太郎':        '시라카미 코타로',
-    '青山龍星':          '아오야마 류세이',
-    '冥鳴ひまり':        '메이메이 히마리',
-    '九州そら':          '큐슈 소라',
-    'もち子さん':        '모치코상',
-    '剣崎雌雄':          '켄자키 메스오',
-    'ちび式じい':        '치비시키지이',
-    '櫻歌ミコ':          '사쿠라카 미코',
-    '小夜/SAYO':         '소요/SAYO',
-    'ナースロボ＿タイプT':'너스로봇 타입T',
-    '後鬼':              '고키',
-    // 스타일 이름
-    'ノーマル':  '기본',
-    'あまあま':  '달콤',
-    'ツンツン':  '쌀쌀',
-    'セクシー':  '섹시',
-    'ささやき':  '속삭임',
-    'ヒソヒソ':  '귓속말',
-    'クオリティ':'고품질',
-    'ふつう':    '보통',
-    'わーい':    '신남',
-    'びくびく':  '긴장',
-    'おこ':      '화남',
-    'びえーん':  '울음',
-    '喜び':      '기쁨',
-    'ツンギレ':  '격노',
-    '悲しみ':    '슬픔',
-    'たのしい':  '즐거움',
-    'かなしい':  '슬픔',
-    'アナウンス':'아나운서',
-    '読み聞かせ':'낭독',
-    '人間ver.':  '인간형',
-    'ロボットver.':'로봇형',
-    '第1形態':   '1형태',
-    '第2形態':   '2형태',
-    'ロリ':      '로리',
-    '楽しい':    '즐거움',
-    '怒り':      '화남',
-  };
-
-  function translateVvName(jpName, jpStyle) {
-    const koName  = VV_NAME_KO[jpName]  || jpName;
-    const koStyle = VV_NAME_KO[jpStyle] || jpStyle;
-    return `${koName} (${koStyle})`;
-  }
-  let voicevoxSpeakers = [];
-  let voicevoxAvailable = false;
-  let _lastVvError = '';   // 최근 VOICEVOX 연결 실패 원인 (UI 표시용)
-  // speakerId → { portrait: base64, icon: base64, charName, charNameJp }
-  const vvCharPortraits = {};
-
-  async function checkVoicevox() {
-    _lastVvError = '';
-    try {
-      const resp = await fetch(`${VOICEVOX_URL}/speakers`, {
-        signal: AbortSignal.timeout ? AbortSignal.timeout(3000) : undefined
-      });
-      if (resp.ok) {
-        const data = await resp.json();
-        voicevoxAvailable = true;
-        voicevoxSpeakers = [];
-
-        // 화자 목록 구성 + portrait 비동기 로드
-        const speakerUuids = [];
-        data.forEach(speaker => {
-          speakerUuids.push({ uuid: speaker.speaker_uuid, name: speaker.name });
-          (speaker.styles || []).forEach(style => {
-            voicevoxSpeakers.push({
-              id: style.id,
-              name: translateVvName(speaker.name, style.name),
-              nameJp: `${speaker.name} (${style.name})`,
-              charName: translateVvName(speaker.name, ''),
-              charNameJp: speaker.name,
-              speakerUuid: speaker.speaker_uuid
-            });
-          });
-        });
-
-        // 캐릭터 portrait를 백그라운드에서 로드 (실패해도 OK)
-        speakerUuids.forEach(async ({ uuid, name }) => {
-          try {
-            const r = await fetch(`${VOICEVOX_URL}/speaker_info?speaker_uuid=${uuid}`);
-            if (!r.ok) return;
-            const info = await r.json();
-            // portrait (308x308) base64 png
-            const portrait = info.portrait ? `data:image/png;base64,${info.portrait}` : null;
-            const icon     = info.style_infos?.[0]?.icon ? `data:image/png;base64,${info.style_infos[0].icon}` : null;
-            // 해당 uuid의 모든 스타일 ID에 이미지 매핑
-            voicevoxSpeakers
-              .filter(sp => sp.speakerUuid === uuid)
-              .forEach(sp => {
-                vvCharPortraits[sp.id] = { portrait, icon, charName: name };
-                // style별 아이콘도 매핑
-                const styleInfo = info.style_infos?.find(si => si.id === sp.id);
-                if (styleInfo?.icon) {
-                  vvCharPortraits[sp.id].icon = `data:image/png;base64,${styleInfo.icon}`;
-                }
-              });
-            // 화자 설정 UI 이미지 새로고침
-            updateVvPortraitUI();
-          } catch (e) { /* portrait 로드 실패 무시 */ }
-        });
-
-        return true;
-      }
-      // HTTP 에러 응답
-      _lastVvError = `서버 응답 오류 (HTTP ${resp.status}) — VOICEVOX가 비정상 상태입니다`;
-    } catch (e) {
-      if (e.name === 'TimeoutError' || e.name === 'AbortError') {
-        _lastVvError = '연결 시간 초과(3초) — VOICEVOX 앱이 켜져 있어도 응답이 느릴 수 있습니다. 잠시 후 재시도하세요';
-      } else if (e.message && (e.message.includes('Failed to fetch') || e.message.includes('NetworkError') || e.message.includes('ERR_CONNECTION_REFUSED'))) {
-        _lastVvError = 'localhost:50021 포트 연결 거부 — VOICEVOX 앱이 실행되지 않았거나 포트가 다릅니다';
-      } else {
-        _lastVvError = `연결 오류: ${e.message || e.name || '알 수 없는 오류'}`;
-      }
-    }
-    voicevoxAvailable = false;
-    return false;
-  }
-
-  function updateVvPortraitUI() {
-    ['pref-voicevox-speaker1','pref-voicevox-speaker2'].forEach((selId, idx) => {
-      const sel = document.getElementById(selId);
-      const imgEl = document.getElementById(`vv-portrait-${idx + 1}`);
-      if (!sel || !imgEl) return;
-      const sid = parseInt(sel.value);
-      const info = vvCharPortraits[sid];
-      if (info?.icon) {
-        imgEl.src = info.icon;
-        imgEl.style.display = 'inline-block';
-        imgEl.title = info.charName;
-      } else {
-        imgEl.style.display = 'none';
-      }
-    });
-    // 현재 활성 화자 배지 갱신
-    updateActiveSpeakerBadge();
-  }
-
-  // 음파 막대 HTML (3개)
-  function barsHtml() {
-    return `<div class="vvb-bars"><div class="vvb-bar b1"></div><div class="vvb-bar b2"></div><div class="vvb-bar b3"></div></div>`;
-  }
-
-  // Web TTS 제공자 정보 (로고 색상·레이블)
-  function getVoiceProvider(voice) {
-    if (!voice) return null;
-    const n = voice.name.toLowerCase();
-    if (n.includes('google'))    return { letter: 'G', bg: '#4285F4', label: 'Google' };
-    if (n.includes('microsoft')) return { letter: 'M', bg: '#00A4EF', label: 'Microsoft' };
-    if (n.includes('apple'))     return { letter: '',  bg: '#555555', label: 'Apple' };
-    if (n.includes('samsung'))   return { letter: 'S', bg: '#1428A0', label: 'Samsung' };
-    return { letter: '🔊', bg: '#718096', label: getVoiceDisplayName(voice) };
-  }
-
-  // 슬롯 아바타 HTML 생성
-  function buildSlotAvatarHtml(slot) {
-    const useVV = state.prefs.useVoicevox && voicevoxAvailable;
-
-    if (useVV) {
-      // VOICEVOX 모드: 캐릭터 초상화
-      const sid  = slot === 1 ? state.prefs.voicevoxSpeaker1 : state.prefs.voicevoxSpeaker2;
-      const info = vvCharPortraits[sid];
-      const sp   = voicevoxSpeakers.find(s => s.id == sid);
-      if (!sp) return null;  // 화자 미설정
-      const name = sp.name;
-      const avatarHtml = info?.icon
-        ? `<img src="${info.icon}" class="vvb-avatar-img">`
-        : `<div class="vvb-avatar-emoji">🎤</div>`;
-      return { avatarHtml, name };
-    } else {
-      // Web TTS 모드: slot1=남자(voiceMale), slot2=여자(voiceFemale)
-      const vIdx   = slot === 1 ? state.prefs.voiceMale : state.prefs.voiceFemale;
-      const charId = slot === 1 ? (state.prefs.charVoice1 || 'none') : (state.prefs.charVoice2 || 'none');
-      const cv     = CHARACTER_VOICES.find(c => c.id === charId) || CHARACTER_VOICES[0];
-      const voice  = (vIdx !== 'none' && vIdx !== undefined && vIdx !== null)
-                     ? allJaVoices[parseInt(vIdx)] : null;
-
-      // 화자2 "사용 안함" 체크
-      if (slot === 2 && (vIdx === 'none' || vIdx === undefined) && charId === 'none') return null;
-      if (slot === 1 && !voice && charId === 'none') {
-        // 기본값: 브라우저 TTS
-        const avatarHtml = `<div class="vvb-avatar-emoji">🔊</div>`;
-        return { avatarHtml, name: '브라우저 TTS' };
-      }
-
-      // 캐릭터 프리셋 있으면 이모지 우선
-      if (charId !== 'none') {
-        const emoji = cv.label.match(/\p{Emoji}/u)?.[0] || '🔊';
-        const charName = cv.label.replace(/\p{Emoji}/gu, '').trim() || cv.label;
-        const avatarHtml = `<div class="vvb-avatar-emoji">${emoji}</div>`;
-        return { avatarHtml, name: charName };
-      }
-
-      // 음성 제공자 로고
-      const prov = getVoiceProvider(voice);
-      if (prov) {
-        const avatarHtml = prov.letter.length === 1
-          ? `<div class="vvb-avatar-letter" style="background:${prov.bg}">${prov.letter}</div>`
-          : `<div class="vvb-avatar-emoji">${prov.letter}</div>`;
-        const shortName = voice ? getVoiceDisplayName(voice) : prov.label;
-        return { avatarHtml, name: shortName.length > 12 ? prov.label : shortName };
-      }
-      return null;
-    }
-  }
-
-  // 헤더 화자 슬롯 HTML 생성
-  function buildSlotItemHtml(slot) {
-    const info = buildSlotAvatarHtml(slot);
-    if (!info) return '';
-    // slot1=남자(maleName), slot2=여자(femaleName)
-    const roleName = slot === 1
-      ? (state.prefs.maleName   || 'スンヒョン')
-      : (state.prefs.femaleName || 'ジュヨン');
-    const genderEmoji = slot === 1 ? '👨' : '👩';
-    const avatarDisplay = info.avatarHtml || `<span>${genderEmoji}</span>`;
-    return `
-      <div class="hdr-slot" data-slot="${slot}">
-        <div class="hdr-slot-avatar-wrap">
-          <button class="hdr-slot-avatar" data-slot="${slot}" title="화자 변경 → 설정">${avatarDisplay}</button>
-          <div class="hdr-slot-waves">
-            <div class="hsw-bar b1"></div>
-            <div class="hsw-bar b2"></div>
-            <div class="hsw-bar b3"></div>
-            <div class="hsw-bar b4"></div>
-          </div>
-        </div>
-        <span class="hdr-slot-name">${roleName}</span>
-        <button class="hdr-slot-tts" data-slot="${slot}" title="음성 일시정지/재개">⏸</button>
-      </div>`;
-  }
-
-  function updateActiveSpeakerBadge() {
-    const badge = document.getElementById('vv-active-badge');
-    if (!badge) return;
-
-    const slot1Html = buildSlotItemHtml(1);
-    const slot2Html = buildSlotItemHtml(2);
-
-    // 표시할 슬롯이 하나도 없으면 숨김
-    if (!slot1Html && !slot2Html) {
-      badge.style.display = 'none';
-      return;
-    }
-
-    badge.innerHTML = slot1Html + slot2Html;
-    badge.style.display = 'flex';
-
-    // ─ 아바타 버튼 → 설정 모달 열기 (음성 탭) ─
-    badge.querySelectorAll('.hdr-slot-avatar').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.getElementById('settings-modal').style.display = 'flex';
-        // 음성 탭으로 이동
-        setTimeout(() => {
-          const voiceTab = document.querySelector('.stab[data-tab="voice"]');
-          if (voiceTab) voiceTab.click();
-          const voiceSection = document.getElementById('webtts-settings') || document.getElementById('voicevox-speaker-rows');
-          if (voiceSection) voiceSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }, 80);
-      });
-    });
-
-    // ─ TTS 버튼 → 일시정지 / 재개 ─
-    badge.querySelectorAll('.hdr-slot-tts').forEach(btn => {
-      btn.addEventListener('click', () => {
-        if (_ttsPaused) {
-          // 재개
-          if (state.prefs.useVoicevox && state.currentVvAudio) {
-            state.currentVvAudio.play().catch(() => {});
-          }
-          _ttsPaused = false;
-          _syncTtsButtons();
-        } else {
-          // 일시정지
-          if (state.prefs.useVoicevox && state.currentVvAudio) {
-            state.currentVvAudio.pause();
-          } else if (window.speechSynthesis) {
-            window.speechSynthesis.cancel();
-          }
-          _ttsPaused = true;
-          _syncTtsButtons();
-        }
-      });
-    });
-
-    _syncTtsButtons();
-  }
-
-  // TTS 버튼 ⏸/▶ 상태 동기화
-  function _syncTtsButtons() {
-    document.querySelectorAll('.hdr-slot-tts').forEach(btn => {
-      btn.textContent = _ttsPaused ? '▶' : '⏸';
-      btn.title = _ttsPaused ? '음성 재개' : '음성 일시정지';
-      btn.classList.toggle('tts-paused', _ttsPaused);
-    });
-  }
-
-  // ─── 대화 스플래시 화자 카드 실시간 갱신 ───
-  // 설정에서 음성이 변경될 때 스플래시 화면이 열려있으면 즉시 반영
-  function refreshSplashActors() {
-    const splash = document.getElementById('dlg-splash');
-    if (!splash) return;  // 스플래시가 표시되지 않은 상태면 무시
-
-    const hasSlot1  = hasSpeakerConfigured(1);
-    const hasSlot2  = hasSpeakerConfigured(2);
-    const slot1Info = buildSlotAvatarHtml(1);
-    const slot2Info = buildSlotAvatarHtml(2);
-
-    // 화자 A 카드 업데이트
-    const actorA = splash.querySelector('.dlg-actor-A');
-    if (actorA) {
-      actorA.querySelector('.dlg-actor-avatar').innerHTML =
-        slot1Info ? slot1Info.avatarHtml : '<div class="vvb-avatar-emoji">🔊</div>';
-      actorA.querySelector('.dlg-actor-name').textContent =
-        slot1Info ? slot1Info.name : '기본 TTS';
-    }
-
-    // 화자 B 카드 업데이트
-    const actorB = splash.querySelector('.dlg-actor-B');
-    if (actorB) {
-      actorB.querySelector('.dlg-actor-avatar').innerHTML =
-        slot2Info ? slot2Info.avatarHtml : '<div class="vvb-avatar-emoji">🎙️</div>';
-      actorB.querySelector('.dlg-actor-name').textContent =
-        slot2Info ? slot2Info.name : (hasSlot1 ? '(A와 동일)' : '기본 TTS');
-    }
-
-    // 경고/안내 메모 갱신 (있으면 제거하고 재생성)
-    splash.querySelector('.dlg-splash-warn')?.remove();
-    splash.querySelector('.dlg-splash-note')?.remove();
-
-    // 시작 버튼 앞에 삽입
-    const startBtn = splash.querySelector('.dlg-start-btn');
-    if (!hasSlot1) {
-      const warn = document.createElement('div');
-      warn.className = 'dlg-splash-warn';
-      warn.innerHTML = `⚠️ 음성이 설정되지 않았습니다.<br>설정에서 음성을 선택하면 각 화자에게 다른 목소리가 할당됩니다.
-        <br><button class="dlg-settings-btn" id="dlg-open-settings">⚙️ 설정 열기</button>`;
-      warn.querySelector('#dlg-open-settings').onclick = () => {
-        document.getElementById('settings-modal').style.display = 'flex';
-      };
-      splash.insertBefore(warn, startBtn);
-    } else if (!hasSlot2) {
-      const note = document.createElement('div');
-      note.className = 'dlg-splash-note';
-      note.textContent = '💡 두 번째 음성이 없으면 A/B 모두 같은 목소리로 재생됩니다.';
-      splash.insertBefore(note, startBtn);
-    }
-  }
-
-  // VOICEVOX 재생 (wait=true 시 재생 완료까지 대기)
-  async function playVoicevox(text, speakerId, wait = false) {
-    if (speakerId === 'none' || speakerId === undefined || speakerId === null) return false;
-    try {
-      const qResp = await fetch(`${VOICEVOX_URL}/audio_query?text=${encodeURIComponent(text)}&speaker=${speakerId}`, { method: 'POST' });
-      if (!qResp.ok) return false;
-      const query = await qResp.json();
-      const sResp = await fetch(`${VOICEVOX_URL}/synthesis?speaker=${speakerId}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(query)
-      });
-      if (!sResp.ok) return false;
-      const blob = await sResp.blob();
-      const url = URL.createObjectURL(blob);
-      const audio = new Audio(url);
-      state.currentVvAudio = audio;
-      if (wait) {
-        return new Promise((resolve) => {
-          audio.onended = () => { URL.revokeObjectURL(url); state.currentVvAudio = null; resolve(true); };
-          audio.onerror = () => { URL.revokeObjectURL(url); state.currentVvAudio = null; resolve(false); };
-          audio.play().catch(() => resolve(false));
-        });
-      } else {
-        audio.onended = () => { URL.revokeObjectURL(url); state.currentVvAudio = null; };
-        await audio.play();
-        return true;
-      }
-    } catch (e) { return false; }
-  }
-
-  function populateVoicevoxSelects() {
-    const s1 = document.getElementById('pref-voicevox-speaker1');
-    const s2 = document.getElementById('pref-voicevox-speaker2');
-    if (!s1 || !s2 || !voicevoxSpeakers.length) return;
-    s1.innerHTML = '';
-    s2.innerHTML = '<option value="none">사용 안함</option>';
-    voicevoxSpeakers.forEach(sp => {
-      const o1 = document.createElement('option');
-      o1.value = sp.id; o1.textContent = sp.name;
-      s1.appendChild(o1);
-      const o2 = document.createElement('option');
-      o2.value = sp.id; o2.textContent = sp.name;
-      s2.appendChild(o2);
-    });
-    s1.value = String(state.prefs.voicevoxSpeaker1);
-    if (state.prefs.voicevoxSpeaker2 !== 'none') {
-      s2.value = String(state.prefs.voicevoxSpeaker2);
-    }
-    // portrait 이미지 초기 표시
-    updateVvPortraitUI();
-    // 화자 변경 시 portrait 갱신
-    s1.addEventListener('change', updateVvPortraitUI);
-    s2.addEventListener('change', updateVvPortraitUI);
-  }
-
-  const NATURAL_VOICES    = ['kyoko', 'otoya', 'o-ren', 'haruka', 'ayumi', 'nanami', 'keita', 'ichiro', 'google 日本語'];
-  const MICROSOFT_VOICES  = ['nanami', 'keita', 'haruka', 'ichiro'];  // Edge/Azure 고품질
-  const TEST_PHRASE = 'こんにちは！私の声はこんな感じです。よろしくお願いします！';
-
-  // ─── 퀴즈 응원 문구 (화자가 1/3 볼륨으로 읽어줌) ───
-  const QUIZ_CHEERS_KO = {
-    start:   ['자, 시작하자! 화이팅!', '좋아! 전력으로 가자!', '시작! 분명 할 수 있어!', '퀴즈 시작! 파이팅!'],
-    correct: ['정답! 대단해!', '맞았어! 잘했어!', '딩동댕! 완벽!', '좋아! 역시 잘하네!', '정답! 훌륭해!'],
-    wrong:   ['아쉬워! 다음엔 잘하자!', '아깝다! 조금만 더!', '괜찮아! 다음엔 할 수 있어!', '걱정 마, 다음엔 분명!', '신경 쓰지 마, 계속 가자!'],
-    streak3: ['3연속 정답! 잘하고 있어!', '멈출 수 없어! 이 기세로!', '3연속! 대단해!'],
-    streak5: ['5연속! 너무 잘해!', '완벽한 콤보! 멈출 수 없어!', '5연속 정답! 훌륭해!'],
-    streak8: ['헐! 믿을 수 없어! 천재야!', '전설이야! 아무도 못 막아!', '너무 잘해! 천재 인정!'],
-    perfect: ['만점! 정말 훌륭해! 천재인가!', '완벽! 이 이상은 없어! 최고!', '백점 만점! 정말 대단해!'],
-    good:    ['잘했어! 이 기세로 힘내자!', '정말 잘했어! 계속하자!', '실력 좋은데! 더 연습하자!'],
-    pass:    ['그럭저럭이네. 더 연습하자!', '다음엔 더 잘할 수 있어! 포기 마!', '점점 늘고 있어!'],
-    poor:    ['어려웠지? 같이 힘내자!', '괜찮아, 연습하면 분명 할 수 있어!', '포기하지 마! 다시 도전하자!'],
-  };
-  const QUIZ_CHEERS_JP = {
-    start:   ['さあ、始めましょう！頑張ってね！', 'よーし！全力でいこう！', 'じゃあスタート！きっとできる！', 'クイズ開始！ファイト！'],
-    correct: ['正解！すごい！', 'その通り！よくできました！', 'ピンポン！完璧！', 'いいね！さすがだね！', '正解！素晴らしい！'],
-    wrong:   ['残念！次は頑張ろう！', '惜しい！もう少し！', 'ドンマイ！次はできる！', '大丈夫、次はきっとできるよ！', '気にしないで、続けよう！'],
-    streak3: ['三連続正解！調子いいね！', '止まらないね！この調子！', '三連続！すごい！'],
-    streak5: ['五連続！すごすぎる！', '完璧なコンボ！止まらない！', '五連続正解！素晴らしい！'],
-    streak8: ['えっ！信じられない！天才だ！', '伝説！もう誰も止められない！', 'すごすぎ！天才認定！'],
-    perfect: ['満点！本当に素晴らしい！天才かも！', '完璧！これ以上ないよ！最高！', '百点満点！本当にすごい！'],
-    good:    ['よくできました！この調子で頑張ろう！', 'すごく良かった！続けよう！', '上手だね！もっと練習しよう！'],
-    pass:    ['まあまあかな。もっと練習しましょう！', '次はもっとできるよ！諦めないで！', 'だんだん上手になってるよ！'],
-    poor:    ['難しかったね。一緒に頑張ろう！', '大丈夫、練習すれば絶対できる！', '諦めないで！また挑戦しよう！'],
-  };
-  function _getQuizCheers() { return _uiTier() === 'beginner' ? QUIZ_CHEERS_KO : QUIZ_CHEERS_JP; }
-
-  function _pickCheer(type) {
-    const custom = state.prefs.quizCheers && state.prefs.quizCheers[type];
-    const cheers = _getQuizCheers();
-    const arr = (custom && custom.length > 0) ? custom : cheers[type];
-    if (!arr || !arr.length) return '';
-    return arr[Math.floor(Math.random() * arr.length)];
-  }
-
-  let _cheerBannerTimer = null;
-  function _showCheerBanner(text, type) {
-    if (_cheerBannerTimer) { clearTimeout(_cheerBannerTimer); }
-    document.querySelectorAll('.quiz-cheer-banner').forEach(el => el.remove());
-    const banner = document.createElement('div');
-    const cls = type && ['streak3','streak5','streak8'].includes(type) ? ' ' + type
-              : type === 'result' ? ' result' : '';
-    banner.className = 'quiz-cheer-banner' + cls;
-    banner.textContent = text;
-    document.body.appendChild(banner);
-    _cheerBannerTimer = setTimeout(() => {
-      banner.style.animation = 'cheerOut 0.3s ease forwards';
-      setTimeout(() => banner.remove(), 300);
-    }, 2200);
-  }
-
-  async function speakCheer(type) {
-    if (!state.prefs.quizCheer) return;
-    const text = _pickCheer(type);
-    if (!text) return;
-    const bannerType = type.startsWith('streak') ? type : (type === 'perfect' || type === 'good' || type === 'pass' || type === 'poor' ? 'result' : '');
-    _showCheerBanner(text, bannerType);
-
-    // VOICEVOX 모드: 별도 Audio 객체, volume = 0.33, 완료까지 대기
-    if (state.prefs.useVoicevox && voicevoxAvailable) {
-      const sid = state.prefs.voicevoxSpeaker1;
-      if (sid !== 'none' && sid !== undefined && sid !== null) {
-        try {
-          const qResp = await fetch(`${VOICEVOX_URL}/audio_query?text=${encodeURIComponent(text)}&speaker=${sid}`, { method: 'POST' });
-          if (qResp.ok) {
-            const query = await qResp.json();
-            const sResp = await fetch(`${VOICEVOX_URL}/synthesis?speaker=${sid}`, {
-              method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(query)
-            });
-            if (sResp.ok) {
-              const blob = await sResp.blob();
-              const url = URL.createObjectURL(blob);
-              const audio = new Audio(url);
-              audio.volume = 0.33;
-              await new Promise(r => { audio.onended = () => { URL.revokeObjectURL(url); r(); }; audio.onerror = () => { URL.revokeObjectURL(url); r(); }; audio.play().catch(r); });
-              return;
-            }
-          }
-        } catch(e) {}
-      }
-    }
-
-    // Web TTS: speaker 1, volume 0.33, 완료까지 대기
-    if (!window.speechSynthesis) return;
-    window.speechSynthesis.cancel();
-    const fIdx = state.prefs.voiceFemale;
-    const voice1 = (fIdx !== 'none' && fIdx !== undefined && fIdx !== null) ? allJaVoices[parseInt(fIdx)] : (allJaVoices[0] || null);
-    const cv1 = CHARACTER_VOICES.find(c => c.id === (state.prefs.charVoice1 || 'none')) || CHARACTER_VOICES[0];
-    const utter = new SpeechSynthesisUtterance(text);
-    utter.lang = 'ja-JP';
-    utter.volume = 0.33;
-    if (voice1) utter.voice = voice1;
-    utter.pitch = cv1.pitch;
-    utter.rate = cv1.rate;
-    await new Promise(r => { utter.onend = r; utter.onerror = r; window.speechSynthesis.speak(utter); });
-  }
-
-  // 캐릭터 목소리 프리셋 (pitch + rate 조합으로 개성 표현)
-  const CHARACTER_VOICES = [
-    { id: 'none',       label: '없음',         pitch: 1.0,  rate: 0.8  },
-    { id: 'anime_girl', label: '🎌 애니 소녀', pitch: 1.85, rate: 1.0  },
-    { id: 'child',      label: '🧒 어린이',    pitch: 1.55, rate: 1.1  },
-    { id: 'hero',       label: '🦸 용사',      pitch: 0.72, rate: 0.82 },
-    { id: 'wizard',     label: '🧙 마법사',    pitch: 0.82, rate: 0.70 },
-    { id: 'robot',      label: '🤖 로봇',      pitch: 1.0,  rate: 1.45 },
-    { id: 'grandma',    label: '👵 할머니',    pitch: 1.30, rate: 0.62 },
-    { id: 'villain',    label: '😈 악당',      pitch: 0.52, rate: 0.80 },
-    { id: 'ghost',      label: '👻 유령',      pitch: 1.45, rate: 0.72 },
-    { id: 'narrator',   label: '📺 내레이터',  pitch: 0.88, rate: 0.68 },
-  ];
-
-  let allJaVoices        = [];
-  let voicesCached       = false;
-  let _hasMicrosoftVoice = false;   // Edge/Azure 고품질 음성 보유 여부 (캐시)
-
-
-
-  function isNaturalVoice(name) {
-    return NATURAL_VOICES.some(n => name.toLowerCase().includes(n));
-  }
-
-  function getVoiceDisplayName(v) {
-    const name = v.name.toLowerCase();
-    const isMicrosoft = MICROSOFT_VOICES.some(n => name.includes(n));
-    const isNatural   = !isMicrosoft && isNaturalVoice(v.name);
-    const badge = isMicrosoft ? ' 🏆Edge' : isNatural ? ' ⭐' : '';
-    const displayName = v.name.replace(/\s*\(.*?\)\s*/g, '').trim();
-    return `${displayName}${badge}`;
-  }
-
-  /** 최고 품질 일본어 음성 자동 선택 (Edge TTS 우선) */
-  function _autoSelectBestVoices() {
-    if (!allJaVoices.length) return false;
-    const PRIORITY = ['nanami', 'keita', 'haruka', 'ichiro', 'kyoko', 'otoya', 'google 日本語', 'ayumi'];
-
-    const ranked = allJaVoices.map((v, i) => {
-      const lc = v.name.toLowerCase();
-      const rank = PRIORITY.findIndex(p => lc.includes(p));
-      return { i, rank: rank === -1 ? PRIORITY.length : rank };
-    }).sort((a, b) => a.rank - b.rank);
-
-    const best  = ranked[0];
-    const best2 = ranked.find(r => r.i !== best.i && r.rank <= 4);  // 두 번째 고품질
-
-    if (!best) return false;
-
-    state.prefs.voiceFemale = String(best.i);
-    state.prefs.voiceMale   = best2 ? String(best2.i) : 'none';
-    restoreVoiceSelects();
-    updateActiveSpeakerBadge();
-    saveToStorage();
-
-    const v1name = allJaVoices[best.i]?.name || '';
-    const v2name = best2 ? allJaVoices[best2.i]?.name || '' : '';
-    const msg = v2name
-      ? `✅ 화자 A: ${v1name}\n화자 B: ${v2name}`
-      : `✅ 화자 A: ${v1name}\n화자 B: 사용 안함`;
-    showToast(msg, 3000);
-    return true;
-  }
-
-  function loadJapaneseVoices() {
-    const voices = window.speechSynthesis.getVoices();
-    const jaVoices = voices.filter(v => v.lang === 'ja-JP' || v.lang.startsWith('ja'));
-    if (jaVoices.length === 0) return;
-
-    // 자연스러운 음성 우선, 그 다음 이름순
-    allJaVoices = jaVoices.slice().sort((a, b) => {
-      const aNat = isNaturalVoice(a.name) ? 0 : 1;
-      const bNat = isNaturalVoice(b.name) ? 0 : 1;
-      if (aNat !== bNat) return aNat - bNat;
-      return a.name.localeCompare(b.name);
-    });
-    voicesCached       = true;
-    _hasMicrosoftVoice = allJaVoices.some(v => MICROSOFT_VOICES.some(n => v.name.toLowerCase().includes(n)));
-    populateVoiceSelects();
-    updateActiveSpeakerBadge();
-
-    // 처음 실행이고 음성이 설정 안 된 경우 자동 최적 선택
-    if (state.prefs.voiceFemale === 'none' && !state.prefs.useVoicevox) {
-      _autoSelectBestVoices();
-    }
-  }
-
-  function populateVoiceSelects() {
-    const femaleSelect = document.getElementById('pref-voice-female');
-    const maleSelect = document.getElementById('pref-voice-male');
-    if (!femaleSelect || !maleSelect || allJaVoices.length === 0) return;
-
-    // 기존 옵션 제거 ("사용 안함" 유지)
-    while (femaleSelect.options.length > 1) femaleSelect.remove(1);
-    while (maleSelect.options.length > 1) maleSelect.remove(1);
-
-    allJaVoices.forEach((v, i) => {
-      const opt1 = document.createElement('option');
-      opt1.value = String(i);
-      opt1.textContent = getVoiceDisplayName(v);
-      femaleSelect.appendChild(opt1);
-
-      const opt2 = document.createElement('option');
-      opt2.value = String(i);
-      opt2.textContent = getVoiceDisplayName(v);
-      maleSelect.appendChild(opt2);
-    });
-
-    // 저장된 설정 복원
-    restoreVoiceSelects();
-
-    // Edge TTS 배너 표시 여부 결정 (voicesCached 시 1회만 계산된 캐시 사용)
-    const hasMicrosoft = _hasMicrosoftVoice;
-    const edgeBanner   = document.getElementById('edge-tts-banner');
-    const edgeMissing  = document.getElementById('edge-tts-missing');
-    const autoRow      = document.getElementById('auto-voice-btn-row');
-    if (edgeBanner) edgeBanner.style.display  = hasMicrosoft ? '' : 'none';
-    if (edgeMissing) edgeMissing.style.display = hasMicrosoft ? 'none' : '';
-    if (autoRow)     autoRow.style.display     = hasMicrosoft ? 'none' : '';
-  }
-
-  function restoreVoiceSelects() {
-    const femaleSelect = document.getElementById('pref-voice-female');
-    const maleSelect = document.getElementById('pref-voice-male');
-    if (!femaleSelect || !maleSelect) return;
-
-    const fv = state.prefs.voiceFemale;
-    const mv = state.prefs.voiceMale;
-
-    femaleSelect.value = (fv !== undefined && fv !== null && fv !== 'none') ? String(fv) : 'none';
-    maleSelect.value = (mv !== undefined && mv !== null && mv !== 'none') ? String(mv) : 'none';
-
-    // 선택값이 없으면 none으로 복원
-    if (!femaleSelect.querySelector(`option[value="${fv}"]`)) femaleSelect.value = 'none';
-    if (!maleSelect.querySelector(`option[value="${mv}"]`)) maleSelect.value = 'none';
-  }
-
-  // 음성 목록 로드 (비동기 대응 + 폴링 fallback)
-  if (window.speechSynthesis) {
-    window.speechSynthesis.onvoiceschanged = loadJapaneseVoices;
-    loadJapaneseVoices();
-    let voicePollCount = 0;
-    const voicePoll = setInterval(() => {
-      voicePollCount++;
-      if (voicesCached || voicePollCount > 20) { clearInterval(voicePoll); return; }
-      loadJapaneseVoices();
-    }, 200);
-  }
-
-  // voiceIndex: 시스템 음성 인덱스
-  function playTestVoice(voiceIndex) {
-    if (!window.speechSynthesis) return;
-    window.speechSynthesis.cancel();
-    const utter = new SpeechSynthesisUtterance(TEST_PHRASE);
-    utter.lang = 'ja-JP';
-    utter.rate  = 0.82;
-    utter.pitch = 1.0;
-    if (voiceIndex !== 'none' && allJaVoices[parseInt(voiceIndex)]) {
-      utter.voice = allJaVoices[parseInt(voiceIndex)];
-    }
-    window.speechSynthesis.speak(utter);
-  }
-
-  // 반환값: { voice, pitch, rate }  — Web TTS 전용
-  function getVoiceForPlayback() {
-    if (!voicesCached) loadJapaneseVoices();
-
-    const fIdx = state.prefs.voiceFemale;  // 첫번째 음성 (기존 필드명 유지)
-    const mIdx = state.prefs.voiceMale;    // 두번째 음성
-
-    const voice1 = (fIdx !== 'none' && fIdx !== undefined) ? allJaVoices[parseInt(fIdx)] : null;
-    const voice2 = (mIdx !== 'none' && mIdx !== undefined) ? allJaVoices[parseInt(mIdx)] : null;
-
-    // 두 음성 모두 설정된 경우 교대로 사용
-    const slots = [];
-    if (voice1) slots.push({ voice: voice1, pitch: 1.0, rate: 0.8 });
-    if (voice2) slots.push({ voice: voice2, pitch: 1.0, rate: 0.8 });
-
-    if (slots.length === 0) {
-      return { voice: allJaVoices[0] || null, pitch: 1.0, rate: 0.8 };
-    }
-    const slot = slots[state.voiceCallCount % slots.length];
-    state.voiceCallCount++;
-    return slot;
-  }
-
-  // ═══════════════════════════════════════════════════════════
-  //  배경음 — MP3 파일 기반 플레이어
-  // ═══════════════════════════════════════════════════════════
-  let _ambAudio      = null;   // 현재 재생 중인 Audio 객체
-  let _ambFadeId     = null;   // 페이드 인터벌 ID
-  let _ambTracks     = [];     // sounds/index.json 에서 로드한 파일 목록 (대화용)
-  let _ambQuizTracks = [];     // sounds/quiz/index.json 에서 로드한 파일 목록 (퀴즈용)
-  let _ambDucked     = false;  // TTS 발화 중 볼륨 낮춤 여부
-  let _ambCurrentMode  = 'dialogue'; // 현재 재생 모드 추적
-  let _ambDlgReduced   = false;      // 대화 진행 중 볼륨 축소 플래그
-  let _ttsPaused           = false;  // 화자 배지 클릭으로 TTS 일시정지 중
-  let _hideVoiceBadgeTimer = null;   // TTS 종료 후 배지 지연 숨김 타이머
-
-  // 앱 시작 시 1회 — 트랙 목록 로드 (대화 + 퀴즈 동시)
-  async function loadAmbientTracks() {
-    const toUrl = path => (typeof chrome !== 'undefined' && chrome.runtime?.getURL)
-                          ? chrome.runtime.getURL(path)
-                          : path;
-    try {
-      const resp = await fetch(toUrl('sounds/index.json'));
-      if (resp.ok) _ambTracks = await resp.json();
-    } catch(e) { _ambTracks = []; }
-    try {
-      const resp = await fetch(toUrl('sounds/quiz/index.json'));
-      if (resp.ok) _ambQuizTracks = await resp.json();
-    } catch(e) { _ambQuizTracks = []; }
-  }
-
-  // 현재 재생 중인 트랙을 제외하고 랜덤 선택
-  // mode: 'quiz' → _ambQuizTracks (비어있으면 _ambTracks 폴백)
-  function _pickAmbTrack(mode) {
-    const pool0 = (mode === 'quiz' && _ambQuizTracks.length) ? _ambQuizTracks : _ambTracks;
-    if (!pool0.length) return null;
-    const current = _ambAudio?._trackName;
-    const pool    = pool0.length > 1 ? pool0.filter(t => t !== current) : pool0;
-    return pool[Math.floor(Math.random() * pool.length)];
-  }
-
-  // 볼륨을 targetVol 까지 durationMs 동안 서서히 변경
-  function _ambFadeTo(audio, targetVol, durationMs, onDone) {
-    if (_ambFadeId) { clearInterval(_ambFadeId); _ambFadeId = null; }
-    const startVol = audio.volume;
-    const steps    = Math.max(1, Math.round(durationMs / 50));
-    const delta    = (targetVol - startVol) / steps;
-    let   n        = 0;
-    _ambFadeId = setInterval(() => {
-      if (!_ambAudio || _ambAudio !== audio) { clearInterval(_ambFadeId); _ambFadeId = null; return; }
-      n++;
-      audio.volume = Math.max(0, Math.min(1, startVol + delta * n));
-      if (n >= steps) {
-        clearInterval(_ambFadeId); _ambFadeId = null;
-        audio.volume = targetVol;
-        if (onDone) onDone();
-      }
-    }, 50);
-  }
-
-  // 현재 설정 볼륨 (0~1)
-  function _ambTargetVol() {
-    return Math.max(0, Math.min(1, (state.prefs.ambientVolume ?? 0.18)));
-  }
-
-  // ── startAmbient: type = 'on' | 'none',  mode = 'dialogue' | 'quiz' ──
-  function startAmbient(type, mode = 'dialogue') {
-    stopAmbient(0.4);
-    const trackList = (mode === 'quiz' && _ambQuizTracks.length) ? _ambQuizTracks : _ambTracks;
-    if (!type || type === 'none' || !trackList.length) return;
-
-    const file = _pickAmbTrack(mode);
-    if (!file) return;
-
-    // 퀴즈 전용 폴더 사용 여부 결정
-    const folder = (mode === 'quiz' && _ambQuizTracks.length) ? 'sounds/quiz/' : 'sounds/';
-    const url    = (typeof chrome !== 'undefined' && chrome.runtime?.getURL)
-                   ? chrome.runtime.getURL(folder + file)
-                   : folder + file;
-
-    const audio      = new Audio(url);
-    audio._trackName = file;
-    audio.loop       = true;
-    audio.volume     = 0;
-    _ambAudio        = audio;
-    _ambDucked       = false;
-    _ambCurrentMode  = mode;
-
-    audio.play().catch(() => { if (_ambAudio === audio) _ambAudio = null; });
-    // 인트로: 사용자 설정의 2.5배 볼륨으로 페이드인 (최대 0.65)
-    const introVol = Math.min(0.65, _ambTargetVol() * 2.5);
-    _ambFadeTo(audio, introVol, 2000);
-    showAmbientBadge(mode, file);
-  }
-
-  // ── stopAmbient: fadeTime(초) 동안 페이드아웃 후 정지 ─────────
-  // showStopped=true 이면 정지 배지 표시(대화 완료시), false 이면 그냥 숨김(뷰 이동 시)
-  function stopAmbient(fadeTime = 2.0, showStopped = true) {
-    if (!_ambAudio) return;
-    const audio = _ambAudio;
-    _ambAudio  = null;   // 즉시 null → 다음 startAmbient가 새 오디오 시작 가능
-    _ambDucked = false;
-    if (showStopped) showAmbientBadgeStopped(_ambCurrentMode);
-    else hideAmbientBadge();
-
-    // ★ _ambFadeTo는 _ambAudio가 null이면 즉시 멈추므로, 페이드아웃은 로컬 인터벌로 처리
-    if (_ambFadeId) { clearInterval(_ambFadeId); _ambFadeId = null; }
-    const startVol = audio.volume;
-    if (startVol <= 0 || fadeTime <= 0) { audio.pause(); return; }
-    const steps = Math.max(1, Math.round((fadeTime * 1000) / 50));
-    const delta = startVol / steps;   // 매 스텝 줄일 양
-    let n = 0;
-    const tid = setInterval(() => {
-      n++;
-      audio.volume = Math.max(0, startVol - delta * n);
-      if (n >= steps) {
-        clearInterval(tid);
-        audio.volume = 0;
-        audio.pause();
-      }
-    }, 50);
-  }
-
-  // ── 하단 바 표시/숨김 동기화 ────────────────────────────────
-  function syncSidebarVisibility() {
-    // right-sidebar는 헤더로 이동됨 — 아이콘 버튼 토글만 수행
-    syncHdrIconButtons();
-  }
-
-  // ── 화자 배지 표시 (TTS 발화 시작 시 호출) ───────────────────
-  // 헤더에 항상 표시이므로 TTS 버튼 상태만 업데이트
-  function showVoiceBadge() {
-    clearTimeout(_hideVoiceBadgeTimer);
-    _hideVoiceBadgeTimer = null;
-    updateActiveSpeakerBadge();
-    _syncTtsButtons();
-  }
-
-  // ── 화자 배지 지연 숨김 → 헤더 상시 표시이므로 버튼 상태만 갱신 ─
-  function scheduleHideVoiceBadge(delay = 1500) {
-    clearTimeout(_hideVoiceBadgeTimer);
-    _hideVoiceBadgeTimer = setTimeout(() => {
-      _hideVoiceBadgeTimer = null;
-      _syncTtsButtons();
-    }, delay);
-  }
-
-  // ── 화자 배지 즉시 숨김 (명시적 중지) ────────────────
-  function hideVoiceBadgeNow() {
-    clearTimeout(_hideVoiceBadgeTimer);
-    _hideVoiceBadgeTimer = null;
-    _ttsPaused = false;
-    _syncTtsButtons();
-  }
-
-  // ── 배경음악 재생 배지 표시/숨기기 ───────────────────────────
-  function showAmbientBadge(mode, file) {
-    const badge = document.getElementById('ambient-music-badge');
-    if (!badge) return;
-    const isQuiz = mode === 'quiz';
-    const color  = isQuiz ? '#6366f1' : '#10b981';
-    const icon   = isQuiz ? '🎮' : '🎵';
-    // 헤더 compact 버전: 이모지 + 파형 바
-    badge.innerHTML = `
-      <span style="font-size:13px">${icon}</span>
-      <div class="amb-badge-waves" style="height:14px">
-        <div class="amb-wave-bar w1" style="background:${color}"></div>
-        <div class="amb-wave-bar w2" style="background:${color}"></div>
-        <div class="amb-wave-bar w3" style="background:${color}"></div>
-        <div class="amb-wave-bar w4" style="background:${color}"></div>
-      </div>`;
-    badge.classList.remove('stopping');
-    badge.classList.add('playing');
-    badge.style.display = 'flex';
-    badge.style.borderColor = color + '88';
-    badge.style.background = isQuiz ? 'rgba(237,233,254,.95)' : 'rgba(240,253,244,.95)';
-    // 클릭 → 정지
-    badge.onclick = () => stopAmbient(1.2);
-    syncSidebarVisibility();
-    updateHqAmbientLabel();
-  }
-
-  function hideAmbientBadge() {
-    const badge = document.getElementById('ambient-music-badge');
-    if (!badge) return;
-    badge.classList.remove('stopping', 'playing');
-    badge.innerHTML = `<span style="font-size:13px">🎵</span><span style="font-size:10px;color:var(--gray)">배경음</span>`;
-    badge.style.display = 'flex'; // 항상 표시 유지
-    badge.style.borderColor = '';
-    badge.style.background = '';
-    badge.onclick = () => startAmbient('on', 'dialogue');
-    syncSidebarVisibility();
-    updateHqAmbientLabel();
-  }
-
-  // ── 배경음 정지 상태 배지 (클릭 시 재시작 가능) ────────────
-  function showAmbientBadgeStopped(mode) {
-    const badge = document.getElementById('ambient-music-badge');
-    if (!badge) return;
-    const icon = mode === 'quiz' ? '🎮' : '🎵';
-    badge.classList.remove('stopping');
-    badge.innerHTML = `<span style="font-size:13px">🎵</span><span style="font-size:10px;color:var(--gray)">배경음</span>`;
-    badge.style.display = 'flex';
-    badge.style.borderColor = 'var(--border)';
-    badge.style.background = 'var(--gray-light)';
-    badge.onclick = () => startAmbient('on', mode || 'dialogue');
-    syncSidebarVisibility();
-    updateHqAmbientLabel();
-  }
-
-  // ── duckAmbient: TTS 발화 시 배경음 낮추기 ───────────────────
-  function duckAmbient() {
-    if (!_ambAudio || _ambDucked) return;
-    _ambDucked = true;
-    _ambFadeTo(_ambAudio, _ambTargetVol() * 0.20, 300);
-  }
-
-  // ── unduckAmbient: TTS 끝나면 원래 볼륨으로 복귀 ─────────────
-  function unduckAmbient() {
-    if (!_ambAudio || !_ambDucked) return;
-    _ambDucked = false;
-    // 대화 진행 중이면 40% 수준으로 복귀, 아니면 100%
-    const restoreVol = _ambDlgReduced ? _ambTargetVol() * 0.40 : _ambTargetVol();
-    _ambFadeTo(_ambAudio, restoreVol, 700);
-  }
-
-  // ── 대화 모드 진입: 인트로 후 배경음 40%로 축소 ─────────────
-  function enterDialogueMode() {
-    _ambDlgReduced = true;
-    if (_ambAudio && !_ambDucked) {
-      _ambFadeTo(_ambAudio, _ambTargetVol() * 0.40, 1500);
-    }
-  }
-
-  // ── 대화 모드 종료: 볼륨 올렸다가 4초 페이드아웃 ───────────
-  function exitDialogueMode() {
-    _ambDlgReduced = false;
-    stopAmbientLoud();
-  }
-
-  // ── stopAmbientLoud: 인트로 볼륨까지 올린 뒤 4초 페이드아웃 ─
-  function stopAmbientLoud() {
-    if (!_ambAudio) return;
-    const audio = _ambAudio;
-    _ambAudio  = null;  // 즉시 null → 새 startAmbient 허용
-    _ambDucked = false;
-    hideAmbientBadge();
-    if (_ambFadeId) { clearInterval(_ambFadeId); _ambFadeId = null; }
-
-    const introVol  = Math.min(0.65, (state.prefs.ambientVolume ?? 0.18) * 2.5);
-    const startVol  = audio.volume;
-    const rampSteps = Math.max(1, Math.round(1200 / 50));
-    const deltaUp   = (introVol - startVol) / rampSteps;
-    let n = 0;
-    // Phase 1: 볼륨 올리기 (1.2초)
-    const tid1 = setInterval(() => {
-      n++;
-      audio.volume = Math.max(0, Math.min(1, startVol + deltaUp * n));
-      if (n >= rampSteps) {
-        clearInterval(tid1);
-        // Phase 2: 4초 페이드아웃
-        const outSteps = Math.max(1, Math.round(4000 / 50));
-        const deltaOut = audio.volume / outSteps;
-        let m = 0;
-        const tid2 = setInterval(() => {
-          m++;
-          audio.volume = Math.max(0, audio.volume - deltaOut);
-          if (m >= outSteps) { clearInterval(tid2); audio.volume = 0; audio.pause(); }
-        }, 50);
-      }
-    }, 50);
-  }
-
-  // ── 퀴즈 결과 시 배경음: 크게 올렸다가 5초 유지 후 5초 페이드아웃 ──
-  function stopQuizAmbientLoud() {
-    if (!_ambAudio) return;
-    const audio = _ambAudio;
-    _ambAudio  = null;
-    _ambDucked = false;
-    hideAmbientBadge();
-    if (_ambFadeId) { clearInterval(_ambFadeId); _ambFadeId = null; }
-
-    const introVol  = Math.min(0.65, (state.prefs.ambientVolume ?? 0.18) * 2.5);
-    const startVol  = audio.volume;
-    const rampSteps = Math.max(1, Math.round(1000 / 50));
-    const deltaUp   = (introVol - startVol) / rampSteps;
-    let n = 0;
-    // Phase 1: 볼륨 올리기 (1초)
-    const tid1 = setInterval(() => {
-      n++;
-      audio.volume = Math.max(0, Math.min(1, startVol + deltaUp * n));
-      if (n >= rampSteps) {
-        clearInterval(tid1);
-        // Phase 2: 5초 유지
-        setTimeout(() => {
-          // Phase 3: 5초 페이드아웃
-          const outSteps = Math.max(1, Math.round(5000 / 50));
-          const deltaOut = audio.volume / outSteps;
-          let m = 0;
-          const tid3 = setInterval(() => {
-            m++;
-            audio.volume = Math.max(0, audio.volume - deltaOut);
-            if (m >= outSteps) { clearInterval(tid3); audio.volume = 0; audio.pause(); }
-          }, 50);
-        }, 5000);
-      }
-    }, 50);
-  }
-
-  // ── 시간 초과 시 일본어로 TTS ──
-  function _speakTimeoutJa() {
-    const text = '時間切れです';
-    if (state.prefs.useVoicevox && voicevoxAvailable) {
-      const sid = state.prefs.voicevoxSpeaker1;
-      if (sid !== 'none' && sid !== undefined && sid !== null) {
-        fetch(`${VOICEVOX_URL}/audio_query?text=${encodeURIComponent(text)}&speaker=${sid}`, { method: 'POST' })
-          .then(r => r.ok ? r.json() : null)
-          .then(query => query ? fetch(`${VOICEVOX_URL}/synthesis?speaker=${sid}`, {
-            method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(query)
-          }) : null)
-          .then(r => r && r.ok ? r.blob() : null)
-          .then(blob => { if (blob) { const a = new Audio(URL.createObjectURL(blob)); a.volume = 0.55; a.play().catch(()=>{}); } })
-          .catch(() => {});
-        return;
-      }
-    }
-    if (!window.speechSynthesis) return;
-    window.speechSynthesis.cancel();
-    const fIdx = state.prefs.voiceFemale;
-    const voice = (fIdx !== 'none' && fIdx !== undefined && fIdx !== null)
-      ? allJaVoices[parseInt(fIdx)]
-      : (allJaVoices[0] || null);
-    const utter = new SpeechSynthesisUtterance(text);
-    utter.lang = 'ja-JP'; utter.volume = 0.6; utter.rate = 0.9;
-    if (voice) utter.voice = voice;
-    window.speechSynthesis.speak(utter);
-  }
-
-  // playAudio: 모든 발음이 완전히 끝날 때까지 대기하는 Promise 반환
-  async function playAudio(kana) {
-    if (!kana) return;
-    duckAmbient();
-
-    // ── Edge TTS 서버 (최우선) ──
-    if (state.prefs.useEdgeTTS && typeof EdgeTTSModule !== 'undefined' && EdgeTTSModule.isAvailable()) {
-      const ok = await EdgeTTSModule.speak(kana, 1, 1.0);
-      if (ok) { unduckAmbient(); return; }
-    }
-
-    // ── VOICEVOX: 화자1 완전히 끝난 후 → 800ms → 화자2 완전히 끝난 후 resolve ──
-    if (state.prefs.useVoicevox && voicevoxAvailable) {
-      const s1 = state.prefs.voicevoxSpeaker1;
-      const s2 = state.prefs.voicevoxSpeaker2;
-      const hasS1 = s1 !== 'none' && s1 !== undefined && s1 !== null;
-      const hasS2 = s2 !== 'none' && s2 !== undefined && s2 !== null;
-
-      if (hasS1) {
-        showSpeakingIndicator(s1, 1);
-        const ok = await playVoicevox(kana, s1, /* wait= */ true); // 항상 완료 대기
-        hideSpeakingIndicator();
-
-        if (ok && hasS2 && !state.audioStopped) {
-          await new Promise(r => setTimeout(r, 800));
-          if (!state.audioStopped) {
-            showSpeakingIndicator(s2, 2);
-            await playVoicevox(kana, s2, /* wait= */ true); // 화자2도 완료 대기
-            hideSpeakingIndicator();
-          }
-        }
-        if (ok) return;
-        // VOICEVOX 실패 → Web TTS fallback
-      }
-    }
-
-    // ── Web Speech API: Promise로 감싸 완전히 끝날 때까지 대기 ──
-    if (!window.speechSynthesis) {
-      showToast('이 브라우저는 음성 합성을 지원하지 않습니다.');
-      return;
-    }
-    window.speechSynthesis.cancel();
-
-    const fIdx = state.prefs.voiceFemale;
-    const mIdx = state.prefs.voiceMale;
-    const voice1 = (fIdx !== 'none' && fIdx !== undefined) ? allJaVoices[parseInt(fIdx)] : null;
-    const voice2 = (mIdx !== 'none' && mIdx !== undefined) ? allJaVoices[parseInt(mIdx)] : null;
-    const charPref1 = state.prefs.charVoice1 || 'none';
-    const charPref2 = state.prefs.charVoice2 || 'none';
-    const cv1 = CHARACTER_VOICES.find(c => c.id === charPref1) || CHARACTER_VOICES[0];
-    const cv2 = CHARACTER_VOICES.find(c => c.id === charPref2) || CHARACTER_VOICES[0];
-    const webName1 = voice1 ? getVoiceDisplayName(voice1) : (cv1.id !== 'none' ? cv1.label : '음성1');
-    const webName2 = voice2 ? getVoiceDisplayName(voice2) : (cv2.id !== 'none' ? cv2.label : '음성2');
-    const hasWebV2 = voice2 || (charPref2 && charPref2 !== 'none');
-
-    // Promise로 발음 완료까지 대기
-    function speakAndWait(voice, pitch, rate, label, slot) {
-      return new Promise((resolve) => {
-        const utter = new SpeechSynthesisUtterance(kana);
-        utter.lang  = 'ja-JP';
-        if (voice) utter.voice = voice;
-        utter.pitch = pitch;
-        utter.rate  = rate;
-        utter.onstart = () => showSpeakingIndicatorWeb(label, slot);
-        utter.onend   = () => { hideSpeakingIndicator(); resolve(); };
-        utter.onerror = () => { hideSpeakingIndicator(); resolve(); };
-        window.speechSynthesis.speak(utter);
-      });
-    }
-
-    await speakAndWait(voice1 || allJaVoices[0] || null, cv1.pitch, cv1.rate, webName1, 1);
-
-    if (hasWebV2 && !state.audioStopped) {
-      await new Promise(r => setTimeout(r, 800));
-      if (!state.audioStopped) {
-        await speakAndWait(voice2 || allJaVoices[0] || null, cv2.pitch, cv2.rate, webName2, 2);
-      }
-    }
-    unduckAmbient();
-  }
-
-  // ─── 단일 화자 슬롯으로만 재생 (대화 모드 전용) ───
-  // slot 1 = A (학습자), slot 2 = B (상대방)
-  async function playAudioSlot(text, slot) {
-    if (!text || state.audioStopped) return;
-    duckAmbient();
-
-    // Edge TTS 서버 (최우선)
-    if (state.prefs.useEdgeTTS && typeof EdgeTTSModule !== 'undefined' && EdgeTTSModule.isAvailable()) {
-      const ok = await EdgeTTSModule.speak(text, slot, 1.0);
-      if (ok) { unduckAmbient(); return; }
-    }
-
-    // VOICEVOX 모드
-    if (state.prefs.useVoicevox && voicevoxAvailable) {
-      let sid;
-      if (slot === 1) {
-        sid = state.prefs.voicevoxSpeaker1;
-      } else if (slot === 2) {
-        sid = state.prefs.voicevoxSpeaker2;
-      } else {
-        // 슬롯3 (C 화자): speaker1/2와 다른 화자 자동 선택
-        const s1 = state.prefs.voicevoxSpeaker1;
-        const s2 = state.prefs.voicevoxSpeaker2;
-        const other = voicevoxSpeakers.find(sp => sp.id != s1 && sp.id != s2);
-        sid = other ? other.id : s1;
-      }
-      // 슬롯2 미설정 시 슬롯1로 폴백
-      const useSid = (sid === 'none' || sid === undefined || sid === null)
-                     ? state.prefs.voicevoxSpeaker1 : sid;
-      if (useSid !== 'none' && useSid !== undefined && useSid !== null) {
-        showSpeakingIndicator(useSid, slot);
-        await playVoicevox(text, useSid, true);
-        hideSpeakingIndicator();
-        unduckAmbient();
-        return;
-      }
-    }
-
-    // Web TTS 모드
-    if (!window.speechSynthesis) return;
-    window.speechSynthesis.cancel();
-
-    // slot1=남자(voiceMale), slot2=여자(voiceFemale), slot3=직원(voiceFemale)
-    const vIdx   = slot === 1 ? state.prefs.voiceMale : slot === 2 ? state.prefs.voiceFemale : state.prefs.voiceFemale;
-    const charId = slot === 1 ? (state.prefs.charVoice1 || 'none') : slot === 2 ? (state.prefs.charVoice2 || 'none') : (state.prefs.charVoice2 || 'none');
-    const cv     = CHARACTER_VOICES.find(c => c.id === charId) || CHARACTER_VOICES[0];
-
-    // 슬롯2 미설정이면 슬롯1 설정으로 폴백
-    const useVIdx   = (slot >= 2 && (vIdx === 'none' || vIdx === undefined) && charId === 'none')
-                      ? state.prefs.voiceFemale : vIdx;
-    const useCv     = (slot === 2 && charId === 'none')
-                      ? (CHARACTER_VOICES.find(c => c.id === (state.prefs.charVoice1||'none')) || CHARACTER_VOICES[0])
-                      : cv;
-
-    // 슬롯3(C)는 다른 목소리로 구분: 두번째 ja 음성 or 피치 1.25
-    const voice = slot === 3
-      ? (allJaVoices[1] || allJaVoices[0] || null)
-      : (useVIdx !== 'none' && useVIdx !== undefined)
-        ? allJaVoices[parseInt(useVIdx)] : (allJaVoices[0] || null);
-
-    const avatarInfo = slot < 3 ? buildSlotAvatarHtml(slot) : null;
-    const label = avatarInfo?.name || (slot === 1 ? 'A' : slot === 2 ? 'B' : '주변인');
-
-    await new Promise((resolve) => {
-      const utter = new SpeechSynthesisUtterance(text);
-      utter.lang  = 'ja-JP';
-      if (voice) utter.voice = voice;
-      // 슬롯3(C): 피치를 살짝 높여 A/B와 구분
-      utter.pitch = slot === 3 ? 1.25 : (useCv.pitch || 1.0);
-      utter.rate  = slot === 3 ? 0.82 : (useCv.rate  || 0.8);
-      utter.onstart = () => showSpeakingIndicatorWeb(label, slot);
-      utter.onend   = () => { hideSpeakingIndicator(); unduckAmbient(); resolve(); };
-      utter.onerror = () => { hideSpeakingIndicator(); unduckAmbient(); resolve(); };
-      window.speechSynthesis.speak(utter);
-    });
-  }
-
-  // 화자 슬롯 설정 여부 확인
-  function hasSpeakerConfigured(slot) {
-    if (state.prefs.useVoicevox && voicevoxAvailable) {
-      const sid = slot === 1 ? state.prefs.voicevoxSpeaker1 : state.prefs.voicevoxSpeaker2;
-      return sid !== 'none' && sid !== undefined && sid !== null;
-    }
-    // slot1=남자(voiceMale), slot2=여자(voiceFemale)
-    const vIdx   = slot === 1 ? state.prefs.voiceMale : state.prefs.voiceFemale;
-    const charId = slot === 1 ? (state.prefs.charVoice1 || 'none') : (state.prefs.charVoice2 || 'none');
-    if (slot === 1) return true; // 슬롯1은 항상 브라우저 기본 TTS라도 사용 가능
-    return (vIdx !== 'none' && vIdx !== undefined) || charId !== 'none';
-  }
-
-  // ─── 발화 인디케이터 (어떤 캐릭터가 지금 말하는지) ───
-  // 우측 배지 — 발음 중인 슬롯 애니메이션
-  function highlightBadgeSlot(slot) {
-    const badge = document.getElementById('vv-active-badge');
-    if (!badge) return;
-    // 모든 슬롯 초기화 (.vvb-item + .hdr-slot 모두)
-    badge.querySelectorAll('.vvb-item, .hdr-slot').forEach(el => {
-      el.classList.remove('speaking', 'speaking-2');
-    });
-    // 해당 슬롯만 강조
-    const target = badge.querySelector(`[data-slot="${slot}"]`);
-    if (target) target.classList.add(slot === 2 ? 'speaking-2' : 'speaking');
-  }
-
-  function clearBadgeSlot() {
-    const badge = document.getElementById('vv-active-badge');
-    if (!badge) return;
-    badge.querySelectorAll('.vvb-item, .hdr-slot').forEach(el => {
-      el.classList.remove('speaking', 'speaking-2');
-    });
-  }
-
-  // 발음 시작 — 배지 표시 + 슬롯 애니메이션
-  function showSpeakingIndicator(speakerId, slot) {
-    showVoiceBadge();         // 배지 표시 (이미 표시 중이면 타이머 취소만)
-    highlightBadgeSlot(slot);
-  }
-
-  function showSpeakingIndicatorWeb(label, slot) {
-    showVoiceBadge();
-    highlightBadgeSlot(slot);
-  }
-
-  // 발음 종료 — 슬롯 애니메이션 해제 + 배지 지연 숨김 (1.5s 디바운스)
-  function hideSpeakingIndicator() {
-    clearBadgeSlot();
-    scheduleHideVoiceBadge(1500);  // 다음 문장이 오면 타이머가 취소됨
   }
 
   // ─── 효과음 (간단한 Web Audio) ───
@@ -7498,9 +6482,9 @@ const App = (() => {
   }
 
   function renderVocabSection(section) {
-    const WORD_LABELS  = {1:'인사·응답', 2:'숫자·날짜', 3:'날짜·시각', 4:'대명사', 5:'기본 동사', 6:'형용사', 7:'장소·음식', 8:'신체·건강'};
+    const WORD_LABELS  = {1:'인사·응답', 2:'숫자·날짜', 3:'날짜·시각', 4:'대명사', 5:'기본 동사', 6:'형용사', 7:'장소·음식', 8:'신체·건강', 9:'IT·테크 용어', 10:'비즈니스 일본어'};
     const SENT_LABELS  = {1:'인사·기초', 2:'자기소개', 3:'쇼핑·식당', 4:'교통·이동', 5:'여행·호텔', 6:'일상·긴급'};
-    const SIM_LABELS   = {1:'교통편', 2:'식사편', 3:'숙박편', 4:'쇼핑편', 5:'관광·문화', 6:'부부 여행편'};
+    const SIM_LABELS   = {1:'교통편', 2:'식사편', 3:'숙박편', 4:'쇼핑편', 5:'관광·문화', 6:'부부 여행편', 7:'🏢 IT 직장편'};
 
     if (section === 'word') {
       const wrap = document.getElementById('vocab-word-levels-main');
@@ -7872,7 +6856,9 @@ const App = (() => {
     });
 
     document.getElementById('vocab-cat-name').textContent = `${cat.icon} ${cat.name}`;
-    document.getElementById('vocab-cat-subtitle').textContent = cat.subtitle;
+    const jlptLv = getJLPT(catId);
+    document.getElementById('vocab-cat-subtitle').innerHTML =
+      (jlptLv ? jlptBadgeHtml(jlptLv) + ' ' : '') + _escHtml(cat.subtitle || '');
 
     document.getElementById('vocab-setup').style.display = 'none';
     document.getElementById('vocab-quiz-area').style.display = 'none';
@@ -8268,7 +7254,7 @@ const App = (() => {
       playBtn.textContent = '⏹ 중지';
       playBtn.onclick = () => {
         state.audioStopped = true;
-        _ttsPaused = false;   // 일시정지 중이어도 완전 중지
+        setTtsPaused(false);   // 일시정지 중이어도 완전 중지
         window.speechSynthesis?.cancel();
         if (state.currentVvAudio) { state.currentVvAudio.pause(); state.currentVvAudio = null; }
         const hint = document.querySelector('#vv-active-badge .vvb-hint');
@@ -8493,7 +7479,7 @@ const App = (() => {
       const el = document.createElement('div');
       el.className = 'vb-item';
       el.innerHTML = `
-        <div class="vb-jp">${item.kanji ? formatKanjiWithHint(item.kanji, item.japanese) : (item.japanese || item)}</div>
+        <div class="vb-jp">${item.kanji ? formatKanjiWithHint(item.kanji, item.japanese) : _escHtml(item.japanese || '')}</div>
         <div class="vb-korean">${item.korean || ''}</div>`;
       el.addEventListener('click', () => {
         playAudio(item.japanese || item);
@@ -8578,16 +7564,30 @@ const App = (() => {
 
     function _fitSsFont(el) {
       if (!el) return;
-      el.style.fontSize = '';
+      // ruby 태그를 제외한 순수 텍스트 길이로 계산
+      const text = el.textContent || '';
+      const len = text.replace(/\s/g,'').length;
+      let fs;
+      if      (len <= 1)  fs = 100;
+      else if (len <= 3)  fs = 80;
+      else if (len <= 6)  fs = 60;
+      else if (len <= 10) fs = 44;
+      else if (len <= 16) fs = 34;
+      else                fs = 26;
+      // 부모 너비 기준으로 실제 맞춤
       const parent = el.parentElement;
-      if (!parent) return;
-      const maxW = parent.offsetWidth - 40;
-      let fs = 72;
-      el.style.fontSize = fs + 'px';
-      while (el.scrollWidth > maxW && fs > 18) {
-        fs -= 2;
+      if (parent) {
+        const maxW = parent.offsetWidth - 24;
+        el.style.fontSize = fs + 'px';
+        el.style.whiteSpace = 'nowrap';
+        let tries = 0;
+        while (el.scrollWidth > maxW && fs > 14 && tries < 30) {
+          fs -= 2; el.style.fontSize = fs + 'px'; tries++;
+        }
+      } else {
         el.style.fontSize = fs + 'px';
       }
+      el.style.whiteSpace = len > 8 ? 'normal' : 'nowrap';
     }
 
     function showSlide() {
@@ -8595,11 +7595,27 @@ const App = (() => {
       const item = items[idx];
       if (!item) return;
       if (countEl)  countEl.textContent = `${idx + 1} / ${items.length}`;
-      const display = item.kanji
-        ? (item.kanji + '(' + item.japanese + ')')
-        : (item.japanese || '');
+      // 한자+후리가나 형태로 표시
+      let display, displayHtml;
+      if (item.kanji) {
+        const cleanKanji = stripFurigana(item.kanji);
+        const reading = item.japanese || '';
+        // 漢字(ふりがな) 형태면 ruby로 표시
+        const rubyMatch = item.kanji.match(/^([^\（\(]+)[（\(]([^）\)]+)[）\)]/);
+        if (rubyMatch) {
+          displayHtml = `<ruby>${_escHtml(rubyMatch[1])}<rt>${_escHtml(rubyMatch[2])}</rt></ruby>`;
+          display = cleanKanji;
+        } else {
+          // 한자만 있고 reading이 별도이면 ruby
+          displayHtml = `<ruby>${_escHtml(cleanKanji)}<rt>${_escHtml(reading)}</rt></ruby>`;
+          display = cleanKanji;
+        }
+      } else {
+        display = item.japanese || '';
+        displayHtml = _escHtml(display);
+      }
       if (mainEl) {
-        mainEl.textContent = display;
+        mainEl.innerHTML = displayHtml;
         requestAnimationFrame(() => _fitSsFont(mainEl));
       }
       if (hintEl)   hintEl.textContent = '읽어보세요 ↑';
@@ -8683,7 +7699,7 @@ const App = (() => {
       const slot = hasDual ? (i % 2 === 0 ? 1 : 2) : 1;
       playAudioSlot(items[i].japanese || items[i], slot).then(() => {
         i++;
-        if (state.isReadingAll) ss.readAllTimer = setTimeout(next, 400);
+        if (state.isReadingAll) state.readAllTimer = setTimeout(next, 400);
       });
     }
     next();
@@ -8769,22 +7785,42 @@ const App = (() => {
   // kanji="喫煙所", japanese="きつえんじょ"  → "喫煙所(きつえんじょ)"
   // kanji="喫煙所はどこ", japanese="きつえんじょはどこ" → "喫煙所(きつえんじょ)はどこ"
   function formatWithFurigana(kanji, japanese) {
-    if (!kanji || kanji === japanese) return kanji || japanese || '';
+    if (!kanji || kanji === japanese) return _escHtml(kanji || japanese || '');
     const isKanjiChar = c => /[\u4e00-\u9faf\u3400-\u4dbf]/.test(c);
     const kanjiCount = [...kanji].filter(isKanjiChar).length;
-    if (kanjiCount === 0) return kanji;
-    // japanese에서 읽기(히라가나/가타가나)만 추출
-    const reading = japanese.replace(/[^\u3040-\u309f\u30a0-\u30ff]/g, '');
-    // kanji 문자열의 첫 번째 한자 블록 뒤에 괄호로 읽기 삽입, 나머지는 그대로
-    // 예: "喫煙所はどこ" → "喫煙所(きつえんじょ)はどこ"
-    const replaced = kanji.replace(/[\u4e00-\u9faf\u3400-\u4dbf]+/, match => `${match}(${reading})`);
-    return replaced;
+    if (kanjiCount === 0) return _escHtml(kanji);
+    // 이미 （よみ） 포맷이면 ruby로 변환
+    const preMatch = kanji.match(/^([^\（\(]+)[（\(]([^）\)]+)[）\)]/);
+    if (preMatch) {
+      return `<ruby>${_escHtml(preMatch[1])}<rt>${_escHtml(preMatch[2])}</rt></ruby>`;
+    }
+    // 순수 한자 문자열
+    if (/^[\u4e00-\u9faf\u3400-\u4dbf]+$/.test(kanji)) {
+      return `<ruby>${_escHtml(kanji)}<rt>${_escHtml(japanese)}</rt></ruby>`;
+    }
+    // 한자 + 후속 가나(okurigana) 분리
+    const mixedMatch = kanji.match(/^([\u4e00-\u9faf\u3400-\u4dbf]+)([\u3040-\u30ff\uff65-\uff9f].*)$/);
+    if (mixedMatch) {
+      const kj = mixedMatch[1];
+      const oku = mixedMatch[2] || '';
+      if (oku && japanese.endsWith(oku)) {
+        const kjReading = japanese.slice(0, japanese.length - oku.length);
+        return `<ruby>${_escHtml(kj)}<rt>${_escHtml(kjReading)}</rt></ruby>${_escHtml(oku)}`;
+      }
+      return `<ruby>${_escHtml(kj)}<rt>${_escHtml(japanese)}</rt></ruby>${_escHtml(oku)}`;
+    }
+    return `<ruby>${_escHtml(kanji)}<rt>${_escHtml(japanese)}</rt></ruby>`;
   }
 
-  // 한자 + 히라가나를 괄호 표기로 반환 (플래시카드 외 영역용)
+  // 한자 + 히라가나를 ruby HTML로 반환 (플래시카드 외 영역용)
   function formatKanjiWithHint(kanji, japanese) {
-    if (!kanji || kanji === japanese) return kanji || japanese || '';
-    return `${kanji}（${japanese}）`;
+    if (!kanji || kanji === japanese) return _escHtml(kanji || japanese || '');
+    // 이미 （よみ） 포맷이면 ruby로 변환
+    const preMatch = kanji.match(/^([^\（\(]+)[（\(]([^）\)]+)[）\)]/);
+    if (preMatch) {
+      return `<ruby>${_escHtml(preMatch[1])}<rt>${_escHtml(preMatch[2])}</rt></ruby>`;
+    }
+    return `<ruby>${_escHtml(kanji)}<rt>${_escHtml(japanese)}</rt></ruby>`;
   }
 
   // 현재 카테고리가 문장형인지 확인
@@ -8977,7 +8013,7 @@ const App = (() => {
       back.querySelectorAll('.vfc-reading').forEach(e => e.classList.remove('vfc-reading'));
       t.el.closest('.vfc-ex-item, .vfc-similar-item, .vfc-sent')?.classList.add('vfc-reading');
       t.el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-      await playAudio(t.text);
+      try { await playAudio(t.text); } catch (e) { /* TTS 실패 시 다음 항목으로 */ }
       if (session !== state.vocabReadSession) return;
       await new Promise(r => setTimeout(r, 350));
     }
@@ -9080,7 +8116,7 @@ const App = (() => {
           clearVocabAutoAdvance();
           const item = state.vocabItems[state.vocabIndex];
           recordVocabResult(item.id, true);
-          if (typeof updateVocabSRS === 'function') updateVocabSRS(item.id, 'ok', state.vocabProgress);
+          updateVocabSRS(item.id, 'ok', state.vocabProgress);
           if (state.vocabIndex < state.vocabItems.length - 1) {
             state.vocabIndex++; showVocabFlashcard();
           } else {
@@ -9103,7 +8139,7 @@ const App = (() => {
       const item = state.vocabItems[state.vocabIndex];
       if (!item) return;
       // SRS 업데이트
-      if (typeof updateVocabSRS === 'function') updateVocabSRS(item.id, rating, state.vocabProgress);
+      updateVocabSRS(item.id, rating, state.vocabProgress);
       // 진도 기록
       if (rating === 'good')  recordVocabResult(item.id, true);
       else if (rating === 'hard') recordVocabResult(item.id, false);
@@ -9568,13 +8604,62 @@ const App = (() => {
     if (ok) state.vocabProgress[id].correct = (state.vocabProgress[id].correct || 0) + 1;
     else state.vocabProgress[id].incorrect = (state.vocabProgress[id].incorrect || 0) + 1;
     state.vocabProgress[id].seen = (state.vocabProgress[id].seen || 0) + 1;
+    // SRS 스케줄 업데이트
+    state.vocabProgress[id] = srsReview(state.vocabProgress[id], gradeFromResult(ok));
     saveToStorage();
+  }
+
+  // 어휘 SRS 업데이트 (rating: 'good'|'ok'|'hard')
+  function updateVocabSRS(id, rating, progress) {
+    const gradeMap = { good: 4, ok: 3, hard: 1 };
+    const grade = gradeMap[rating] ?? 3;
+    if (!progress[id]) progress[id] = { seen: 0, correct: 0, incorrect: 0 };
+    progress[id] = srsReview(progress[id], grade);
+    saveToStorage();
+  }
+
+  /** 오늘 복습해야 할 가나 항목 반환 (progress 기반) */
+  function getSRSReviewItems(progress) {
+    const allKeys = Object.keys(progress);
+    return allKeys
+      .filter(k => isDue(progress[k]) && progress[k].flipped >= 1)
+      .map(k => ({ kana: k, p: progress[k] }));
+  }
+
+  /** 오늘 복습해야 할 어휘 항목 반환 (vocabProgress 기반) */
+  function getVocabSRSReviewItems(vocabProgress) {
+    const allKeys = Object.keys(vocabProgress);
+    return allKeys
+      .filter(k => isDue(vocabProgress[k]) && (vocabProgress[k].seen >= 1))
+      .map(k => ({ id: k, p: vocabProgress[k] }));
   }
 
   function renderVocabProgress() {
     const container = document.getElementById('vocab-progress-list');
     if (!container) return;
     container.innerHTML = '';
+
+    // ── JLPT 레벨별 현황 ──
+    const jlptData = getJLPTProgress(VOCAB_CATEGORIES, state.vocabProgress);
+    const jlptHtml = ['N5', 'N4', 'N3'].map(lv => {
+      const d = jlptData[lv];
+      if (!d || d.total === 0) return '';
+      const pct = d.total > 0 ? Math.round(d.learned / d.total * 100) : 0;
+      return `<div class="jlpt-prog-row">
+        ${jlptBadgeHtml(lv)}
+        <div class="jlpt-prog-info">
+          <div class="jlpt-prog-bar-bg"><div class="jlpt-prog-bar-fill" style="width:${pct}%"></div></div>
+          <span class="jlpt-prog-stat">${d.learned}/${d.total} 학습 · 마스터 ${d.mastered}</span>
+        </div>
+        <span class="jlpt-prog-pct">${pct}%</span>
+      </div>`;
+    }).join('');
+    if (jlptHtml) {
+      const jlptSection = document.createElement('div');
+      jlptSection.className = 'jlpt-prog-section';
+      jlptSection.innerHTML = '<div class="jlpt-prog-title">🎌 JLPT 레벨별 학습 현황</div>' + jlptHtml;
+      container.appendChild(jlptSection);
+    }
 
     // 타입별 그룹핑
     const groups = { word: [], sentence: [], sim: [] };
@@ -10206,10 +9291,7 @@ const App = (() => {
     _awardXP(correct ? 10 : 3, 'scene_trainer');
 
     // SRS 진도 저장
-    if (typeof updateVocabSRS === 'function') {
-      updateVocabSRS(item.id, correct ? 'ok' : 'hard', state.vocabProgress);
-      saveToStorage();
-    }
+    updateVocabSRS(item.id, correct ? 'ok' : 'hard', state.vocabProgress);
   }
 
   function _stNextStep() {
@@ -10594,13 +9676,7 @@ const App = (() => {
     prompt.addEventListener('click', (e) => { if (e.target === prompt) prompt.remove(); });
   }
 
-  // ─── 토스트 알림 ───
-  function showToast(msg, duration = 2500) {
-    const toast = document.getElementById('toast');
-    toast.textContent = msg;
-    toast.classList.add('show');
-    setTimeout(() => toast.classList.remove('show'), duration);
-  }
+
 
   // 순차 읽기를 중단하고 해당 텍스트만 발음 (뒤집힌 카드 단어 클릭용)
   function playWord(text) {
@@ -10622,6 +9698,7 @@ const App = (() => {
   let _lectureTimerFill = null;
   let _lectureFillInterval = null;
   let _lectureCatId = null;
+  let _lecAudioMuted = false;   // 🔇 뮤트 토글 상태
 
   let _lecturePrevView = 'home';
 
@@ -10638,6 +9715,8 @@ const App = (() => {
 
     _lectureCatId = catId;
     _lectureSpeakerSlot = 1; // 새 강의 시작 시 슬롯 초기화
+    _lecAudioMuted = false;  // 뮤트 해제
+    const ab = document.getElementById('lec-audio-btn'); if (ab) ab.textContent = '🔊';
     const cat = VOCAB_CATEGORIES.find(c => c.id === catId);
     if (!cat) { showToast('강의 데이터를 찾을 수 없습니다.'); return; }
     _lectureSlides = generateLectureSlides(cat);
@@ -10696,53 +9775,144 @@ const App = (() => {
     const slides = [];
     const catName = cat.name || '롤플레이';
     const catIcon = cat.icon || '🎭';
-    // Hook
-    slides.push({
-      type: 'hook', label: '상황 소개', duration: 6000, audio: null,
-      main: `${catIcon} ${catName}`,
-      sub: '이 상황에서 꼭 필요한 표현들',
-      reading: '',
-      captionJp: `今日(きょう)は「${catName}」の場面(ばめん)を練習(れんしゅう)します！実際(じっさい)の会話(かいわ)でよく使(つか)われる表現(ひょうげん)を一(ひと)つひとつ丁寧(ていねい)に見(み)ていきましょう。`,
-      captionKo: `오늘은 「${catName}」 상황을 연습해요! ${cat.desc || ''} 실제 대화에서 자주 사용되는 표현들을 하나씩 꼼꼼히 살펴봐요.`,
-      subtitleList: cat.subtitle ? `📋 ${cat.subtitle}` : '',
-    });
-    // Culture
-    slides.push({
-      type: 'culture', label: '문화 노트', duration: 7000, audio: null,
-      main: '일본의 서비스 문화',
-      sub: 'おもてなし — 극진한 환대',
-      reading: 'おもてなし',
-      captionJp: '日本(にほん)のサービスは「おもてなし」が基本(きほん)！店員(てんいん)さんは必(かなら)ず「いらっしゃいませ」と声(こえ)をかけ、お客様(きゃくさま)を最優先(さいゆうせん)にします。日本語(にほんご)で丁寧(ていねい)に話(はな)すと、さらに親切(しんせつ)に対応(たいおう)してもらえます！',
-      captionKo: '일본의 서비스는 "おもてなし"가 기본! 점원은 반드시 "いらっしゃいませ"라고 인사하며 손님을 최우선으로 해요. 일본어로 정중하게 말하면 더욱 친절하게 응대해줘요!'
-    });
-    // 핵심 표현 분석
-    const items = typeof VOCAB_ITEMS !== 'undefined'
-      ? VOCAB_ITEMS.filter(v => cat.items && cat.items.includes(v.id)).slice(0, 5)
+    const catDesc = cat.desc || '';
+    const allItems = typeof VOCAB_ITEMS !== 'undefined'
+      ? VOCAB_ITEMS.filter(v => cat.items && cat.items.includes(v.id))
       : [];
-    items.forEach((item) => {
+
+    // 카테고리별 문화/상황 노트 매핑
+    const _SIM_CULTURE = {
+      '레스토랑': { main: '일본 식당 에티켓', sub: '주문부터 계산까지', reading: 'いただきます・ごちそうさま', captionJp: '日本のレストランでは「いただきます」と「ごちそうさまでした」が必須マナー！店員を呼ぶ時は「すみません」と声をかけましょう。大声で呼ぶのは失礼です。お水は無料で出てきますよ！', captionKo: '일본 식당에서 "いただきます"와 "ごちそうさまでした"는 필수 예절! 점원 부를 때는 "すみません"으로 조용히 불러요. 물은 무료로 나와요!' },
+      '쇼핑': { main: '일본 쇼핑 문화', sub: 'いらっしゃいませ의 세계', reading: 'いらっしゃいませ', captionJp: '日本の店員は必ず「いらっしゃいませ」と声をかけます。返事をする必要はありません！値切り交渉は基本的にNGです。消費税(10%)が別途かかることを覚えておいてください。', captionKo: '일본 점원은 반드시 "いらっしゃいませ"라고 인사해요. 답하지 않아도 돼요! 가격 흥정은 기본적으로 안 됩니다. 소비세(10%)가 별도 부과됩니다.' },
+      '호텔': { main: '일본 숙박 문화', sub: '체크인부터 체크아웃까지', reading: 'チェックイン・チェックアウト', captionJp: '日本のホテルはサービスが世界一！チェックインは通常15:00から、チェックアウトは11:00まで。ルームキーは外出の際もフロントに預けないでOK。大浴場がある場合は利用時間を確認してね！', captionKo: '일본 호텔은 세계 최고 수준의 서비스! 체크인은 보통 15시부터, 체크아웃은 11시까지. 대욕장이 있으면 이용 시간을 꼭 확인하세요!' },
+      '병원': { main: '일본 의료 시스템', sub: '진찰부터 처방까지', reading: '保険証(ほけんしょう)', captionJp: '日本の病院では「保険証」が必要です！外国人は「在留カード」でOK。初めて行く病院では「初診(しょしん)」の手続きが必要。薬は院内処方か調剤薬局でもらいます。', captionKo: '일본 병원에서는 "보험증(保険証)"이 필요해요! 외국인은 재류카드로 OK. 처음 가는 병원은 "초진" 절차가 필요합니다. 약은 병원 내 또는 조제약국에서 받아요.' },
+      '학교': { main: '일본 학교 문화', sub: '선생님과의 대화', reading: '先生(せんせい)', captionJp: '日本の学校では先生への敬語が大切！「はい」「わかりました」は基本。授業中に発言する時は手を挙げて「先生、質問があります」と言おう。廊下でも先生に会ったら軽くお辞儀をするのがマナーです。', captionKo: '일본 학교에서는 선생님께 경어 사용이 중요! "はい", "わかりました"는 기본. 수업 중 발언할 때는 손을 들고 "선생님, 질문이 있습니다"라고 말해요.' },
+      // IT 직장편
+      '조회': { main: '일본 IT 직장 문화 — ほうれんそう', sub: '報告·連絡·相談が命', reading: 'ほうれんそう', captionJp: '日本のIT企業では「ほうれんそう(報告·連絡·相談)」が最重要文化！問題があればすぐに報告、変更があればすぐに連絡、迷ったらすぐに相談。「わからない」は恥ずかしくない。「報告しない」が最大のNG！', captionKo: '일본 IT 회사에서 "ほうれんそう(보고·연락·상담)"이 핵심 문화! 문제가 생기면 바로 보고, 변경이 생기면 바로 연락, 모르면 바로 상담. "모른다"는 부끄러운 게 아니에요. "보고 안 한다"가 최대 금기!' },
+      '스탠드업': { main: '일본 IT 직장 문화 — ほうれんそう', sub: '報告·連絡·相談が命', reading: 'ほうれんそう', captionJp: '日本のIT企業では「ほうれんそう(報告·連絡·相談)」が最重要文化！問題があればすぐに報告、変更があればすぐに連絡、迷ったらすぐに相談。「わからない」は恥ずかしくない。「報告しない」が最大のNG！', captionKo: '일본 IT 회사에서 "ほうれんそう(보고·연락·상담)"이 핵심 문화! 문제가 생기면 바로 보고, 변경이 생기면 바로 연락, 모르면 바로 상담. "모른다"는 부끄러운 게 아니에요. "보고 안 한다"가 최대 금기!' },
+      '코드': { main: '코드 리뷰 문화', sub: '謙虚に·丁寧に·建設的に', reading: 'コードレビュー', captionJp: '日本のコードレビューは「批判せず提案する」が基本スタイル！「〜はどうでしょうか？」「〜の方が良いかもしれません」など柔らかい表現を使います。LGTMは「Looks Good To Me」の略。良いコードには「良い！」ではなく「ありがとうございます」と言うのも日本流。', captionKo: '일본 코드 리뷰는 "비판하지 않고 제안한다"가 기본! "〜는 어떨까요?", "〜가 더 좋을 수도 있습니다" 등 부드러운 표현을 씁니다. LGTM = Looks Good To Me. 좋은 코드에도 "감사합니다"라고 하는 것이 일본 스타일.' },
+      '킥오프': { main: 'アジャイル개발 문화', sub: 'スプリントの流れを理解しよう', reading: 'スプリント・ふりかえり', captionJp: '日本のITスタートアップはアジャイル開発が主流！スプリントプランニング→デイリースタンドアップ→スプリントレビュー→ふりかえりのサイクル。「ふりかえり」ではKPT（Keep·Problem·Try）で改善点を話し合います。', captionKo: '일본 IT 스타트업은 애자일 개발이 주류! 스프린트 플래닝 → 데일리 스탠드업 → 스프린트 리뷰 → 회고의 사이클. 회고에서는 KPT(Keep·Problem·Try)로 개선점을 이야기합니다.' },
+      '1on1': { main: '일본 직장 1on1 문화', sub: '上司との信頼関係を築く', reading: 'ワンオンワン', captionJp: '日本のIT企業では月1回の1on1が一般的！上司が部下の状況を確認する場。「正直に話す」が成長への近道。弱点を伝えたら、上司はサポートする義務があります。遠慮せず「相談があります」と言って大丈夫！', captionKo: '일본 IT 회사에서는 월 1회 1on1이 일반적! 상사가 부하의 상황을 확인하는 자리. "솔직하게 말하는 것"이 성장의 지름길. 약점을 전달하면 상사는 지원할 의무가 있어요. 망설이지 말고 "상담이 있어요"라고 말해도 괜찮아요!' },
+      '사양': { main: '사양 확인의 중요성', sub: '曖昧をなくすのがエンジニアの仕事', reading: '仕様確認(しようかくにん)', captionJp: '「仕様が曖昧(あいまい)なまま実装(じっそう)する」のは最大のリスク！「念(ねん)のため確認(かくにん)ですが…」「〜という意味(いみ)でしょうか？」で曖昧さを排除しよう。질문은 恥(はじ)ずかしくない！むしろ「確認できる人」が信頼されます。', captionKo: '"사양이 애매한 채로 구현한다"는 최대의 리스크! "혹시 몰라 확인인데요…", "〜라는 의미일까요?"로 애매함을 제거하세요. 질문은 부끄럽지 않아요! 오히려 "확인할 수 있는 사람"이 신뢰받습니다.' },
+      '입사': { main: '일본 직장 예절', sub: '初日から印象アップのコツ', reading: 'ほうれんそう・お辞儀(おじぎ)', captionJp: '日本企業の初日は「笑顔(えがお)・挨拶(あいさつ)・メモ」が基本！名前は「〜と申(もう)します」で丁寧に。先輩には積極的に質問してOK。昼食は同僚と一緒に行くのがベター。「お疲れ様です」は退社時だけでなく、廊下でも使えます。', captionKo: '일본 회사 첫날은 "웃는 얼굴·인사·메모"가 기본! 이름은 "〜と申します"로 정중하게. 선배에게 적극적으로 질문해도 OK. 점심은 동료와 함께 가는 편이 좋아요. "お疲れ様です"는 퇴근 시뿐 아니라 복도에서도 사용 가능!' },
+    };
+
+    // 카테고리명에서 문화 노트 찾기
+    let cultureNote = null;
+    for (const [key, val] of Object.entries(_SIM_CULTURE)) {
+      if (catName.includes(key) || catDesc.includes(key)) { cultureNote = val; break; }
+    }
+
+    // ─ 1. 오프닝: 상황 소개 ─
+    const keyPhrases = allItems.slice(0,4).map(i => {
+      const jp = (i.japanese || '').replace(/（[^）]*）/g,'').replace(/[〜～]/g,'');
+      return jp;
+    }).filter(Boolean).join(' / ');
+
+    slides.push({
+      type: 'hook', label: '상황 소개',
+      main: `${catIcon} ${catName}`,
+      sub: catDesc || '이 상황에서 꼭 필요한 표현들',
+      reading: '',
+      captionJp: `今日(きょう)は「${catName}」の場面(ばめん)を徹底(てってい)解説(かいせつ)します！実際(じっさい)の会話(かいわ)では${allItems.length}つの重要(じゅうよう)表現(ひょうげん)を使(つか)います。${catDesc ? catDesc + ' ' : ''}キーフレーズ：${keyPhrases}。しっかり身(み)につけましょう！`,
+      captionKo: `「${catName}」 상황을 완전 분석합니다! ${catDesc || ''} 총 ${allItems.length}개 핵심 표현을 배워요. 키 표현: ${keyPhrases}. 완벽하게 익혀봐요!`,
+      subtitleList: allItems.slice(0,5).map(i => `• ${(i.japanese||'').replace(/（[^）]*）/g,'')}`).join('\n'),
+    });
+
+    // ─ 2. 문화 노트 (카테고리별 맞춤) ─
+    if (cultureNote) {
+      slides.push({ type: 'culture', label: '문화 노트', ...cultureNote });
+    } else {
+      slides.push({
+        type: 'culture', label: '문화 노트',
+        main: `${catIcon} 일본 문화 포인트`,
+        sub: `${catName}에서 알아야 할 것`,
+        reading: '',
+        captionJp: `「${catName}」の場面(ばめん)では、丁寧(ていねい)な言葉(ことば)遣(づか)いが重要(じゅうよう)です！「〜てください」より「〜ていただけますか」の方(ほう)がより丁寧(ていねい)。また、相手(あいて)の目(め)を見(み)て話(はな)すのがマナーです。`,
+        captionKo: `「${catName}」 상황에서 정중한 말투가 중요해요! "〜てください"보다 "〜ていただけますか"가 더 정중한 표현이에요. 상대방 눈을 보며 이야기하는 것이 매너입니다.`
+      });
+    }
+
+    // ─ 3. 핵심 표현 그룹핑 ─
+    // 인사/시작 표현 (1~3번째)
+    const openPhrases = allItems.slice(0, Math.min(3, allItems.length));
+    // 핵심 요청/질문 표현 (4~6번째)
+    const mainPhrases = allItems.slice(3, Math.min(6, allItems.length));
+    // 마무리 표현 (나머지)
+    const closePhrases = allItems.slice(6);
+
+    // 그룹 1: 대화 시작 표현
+    if (openPhrases.length) {
+      const groupJp = openPhrases.map(i => {
+        const jp = (i.japanese||'').replace(/（[^）]*）/g,'');
+        return `「${jp}」(${i.korean||''})`;
+      }).join('、');
+      slides.push({
+        type: 'group', label: '표현 그룹 ①',
+        main: openPhrases.map(i => (i.japanese||'').replace(/（[^）]*）/g,'')).join(' / '),
+        sub: openPhrases.map(i => i.korean||'').join(' · '),
+        reading: '',
+        captionJp: `まず、会話(かいわ)を始(はじ)める表現(ひょうげん)から！${groupJp}。これらは${catName}の場面(ばめん)で最初(さいしょ)に使(つか)う重要(じゅうよう)フレーズです。自然(しぜん)に言(い)えるまで練習(れんしゅう)しましょう！`,
+        captionKo: `먼저 대화를 시작하는 표현부터! ${groupJp}. 이것들은 ${catName} 상황에서 처음 사용하는 핵심 표현들이에요. 자연스럽게 말할 수 있을 때까지 연습해봐요!`
+      });
+    }
+
+    // 개별 표현 상세 분석 (최대 5개)
+    allItems.slice(0, 5).forEach((item, i) => {
       const jp = item.japanese || '';
-      const jpClean = jp.replace(/（[^）]*）|[\（）\(\)]/g, '');
+      const jpClean = jp.replace(/（[^）]*）|[\（）\(\)]/g, '').replace(/[〜～]/g,'');
       const readingMatch = jp.match(/[（(]([ぁ-んァ-ン・ー]+)[）)]/g);
       const reading = readingMatch ? readingMatch.map(m => m.replace(/[（）()]/g, '')).join(' ') : '';
+
+      // 정중체/일반체 변환 정보
+      const formalMap = { 'ください': 'いただけますか', 'てください': 'ていただけますか', 'ます': 'ます (ていねい)' };
+      let formalNote = '';
+      for (const [k,v] of Object.entries(formalMap)) {
+        if (jpClean.includes(k)) { formalNote = ` ★더 공손한 표현: ${jpClean.replace(k, v)}`; break; }
+      }
+
+      // 예시 문장이 있으면 사용
+      const exSentence = item.sentences && item.sentences[0];
       slides.push({
-        type: 'practice', label: '핵심 표현', duration: 6000,
+        type: 'practice', label: `표현 ${i+1}`,
         audio: jpClean || null,
         main: jpClean || jp,
         sub: item.korean || '',
         reading: reading,
-        captionJp: `「${jpClean}」は${catName}でよく使(つか)う重要(じゅうよう)な表現(ひょうげん)です！`,
-        captionKo: `「${jpClean}」는 ${catName} 상황에서 자주 쓰는 중요 표현이에요! 뜻: ${item.korean || ''}`
+        english: item.english || '',
+        tip: item.tip || formalNote || '',
+        captionJp: `${i+1}番目(ばんめ)のフレーズ「${jpClean}」！意味(いみ)は「${item.korean||''}」。${item.english ? `英語(えいご)では「${item.english}」。` : ''}${formalNote ? 'さらに丁寧(ていねい)に言(い)うと「' + jpClean.replace('ください','いただけますか') + '」になります。' : ''}ゆっくり発音(はつおん)してみてください！`,
+        captionKo: `${i+1}번째 표현 「${jpClean}」! 뜻: 「${item.korean||''}」. ${formalNote || ''} 실제 대화에서 바로 쓸 수 있는 표현이에요!`,
+        example: exSentence ? { jp: exSentence.japanese || '', ko: exSentence.meaning || '' } : null
       });
     });
-    // Summary
+
+    // ─ 4. 유사 표현 비교 슬라이드 ─
+    if (allItems.length >= 3) {
+      const pair = allItems.slice(0,2);
+      const jp1 = (pair[0].japanese||'').replace(/（[^）]*）/g,'');
+      const jp2 = (pair[1].japanese||'').replace(/（[^）]*）/g,'');
+      slides.push({
+        type: 'compare', label: '비교 분석',
+        main: `${jp1} vs ${jp2}`,
+        sub: `${pair[0].korean||''} vs ${pair[1].korean||''}`,
+        reading: '',
+        captionJp: `「${jp1}」と「${jp2}」の違(ちが)いを見(み)てみましょう！「${jp1}」は${pair[0].korean||''}という意味(いみ)で、より${jp1.endsWith('か') ? 'ていねい' : 'カジュアル'}な場面(ばめん)で使(つか)います。「${jp2}」は${pair[1].korean||''}という意味(いみ)です。場面(ばめん)によって使(つか)い分(わ)けましょう！`,
+        captionKo: `「${jp1}」와「${jp2}」의 차이를 알아봐요! 「${jp1}」는 ${pair[0].korean||''}, 「${jp2}」는 ${pair[1].korean||''} 이에요. 상황에 따라 구분해서 사용합니다!`
+      });
+    }
+
+    // ─ 5. 마무리 ─
+    const allKo = allItems.slice(0,5).map(i => i.korean||'').join(', ');
     slides.push({
-      type: 'summary', label: '정리', duration: 5000, audio: null,
+      type: 'summary', label: '정리',
       main: `✅ ${catName} 완료!`,
-      sub: '이제 실전 롤플레이를 시작해보세요!',
+      sub: `총 ${allItems.length}개 표현 습득`,
       reading: '',
-      captionJp: `「${catName}」の強化(きょうか)講座(こうざ)が終(お)わりました！覚(おぼ)えた表現(ひょうげん)を使(つか)って、実際(じっさい)のロールプレイに挑戦(ちょうせん)してみましょう！`,
-      captionKo: `「${catName}」 심화 강의가 끝났어요! 외운 표현을 사용해서 실제 롤플레이에 도전해봐요!`
+      captionJp: `お疲(つか)れさまでした！「${catName}」の${allItems.length}つの重要(じゅうよう)表現(ひょうげん)を学(まな)びました！覚(おぼ)えた表現(ひょうげん)：${allItems.slice(0,4).map(i=>`「${(i.japanese||'').replace(/（[^）]*）/g,'').replace(/[〜～]/g,'')}」`).join('、')}。次(つぎ)は実際(じっさい)のロールプレイに挑戦(ちょうせん)しましょう！頑張(がんば)ってね！`,
+      captionKo: `수고하셨습니다! 「${catName}」의 ${allItems.length}개 핵심 표현을 배웠어요! 배운 것: ${allKo}. 이제 실전 롤플레이에 도전해봐요! 응원합니다!`
     });
+
     return slides;
   }
 
@@ -10784,28 +9954,39 @@ const App = (() => {
 
     // ─ 단어 슬라이드: 미리 작성된 메모 + 자동 생성 혼합 ─
     const WORD_NOTES = {
-      // 인사 관련
-      'ありがとう':   { note: '「有難い」= 있기 어렵다! 이런 친절은 세상에 드물다는 뜻이에요 💝', emoji: '💝' },
-      'すみません':   { note: '「済みません」= 아직 해결이 안 됐어요. 폐를 끼쳐 아직 해소가 안 됐다는 깊은 사과예요!', emoji: '🙇' },
-      'おはよう':     { note: '「お早い」= 일찍 일어났군요! 칭찬이 인사말이 됐어요 ☀️', emoji: '☀️' },
-      'こんにちは':   { note: '「今日は」의 생략! 원래 "오늘은 어떠세요?" 라는 안부 인사였어요 🌸', emoji: '🌸' },
-      'よろしく':     { note: '영어로 번역 불가능! "잘 부탁해요"+"앞으로도 잘"+"기대해요" 모두 포함 🤝', emoji: '🤝' },
+      // 인사
+      'ありがとう':   { note: '「有難い(ありがたい)」= 있기 어렵다! 이런 친절은 세상에 드물다는 뜻. ありがとうございます(정중) ↔ ありがとう(친구)', formalAlt: 'ありがとうございます', emoji: '💝' },
+      'すみません':   { note: '「済みません」= 아직 해결이 안됐어요. 사과(미안)+감사+실례 3가지로 사용! すみません(일상) ↔ 申し訳ございません(격식)', formalAlt: '申し訳ございません', emoji: '🙇' },
+      'おはよう':     { note: '「お早い(おはやい)」→ おはようさん → おはよう로 줄었어요! 친구: おはよう / 선생님·직장: おはようございます', formalAlt: 'おはようございます', emoji: '☀️' },
+      'こんにちは':   { note: '「今日はご機嫌いかがですか」의 극약 생략! 낮(10~17시) 인사. こんにちは(일반) ↔ こんにちは(없음, 이미 중립적)', formalAlt: 'こんにちは', emoji: '🌸' },
+      'こんばんは':   { note: '「今晩はご機嫌いかがですか」의 생략! 저녁(17시~) 인사. 밤이 되면 おやすみなさい', formalAlt: 'おやすみなさい', emoji: '🌙' },
+      'よろしく':     { note: '영어로 번역 불가! "잘 부탁해요+기대해요+앞으로도 잘" 모두 포함. よろしく(친구) ↔ よろしくお願いします(공식)', formalAlt: 'よろしくお願いいたします', emoji: '🤝' },
       // 숫자
-      'いち':         { note: '一(いち) — 한자 一의 모양 그대로! 획이 1개라 기억하기 쉬워요 ①', emoji: '①' },
-      'に':           { note: '二(に) — 두 줄! 그냥 보면 바로 보여요 ✌️', emoji: '✌️' },
-      'さん':         { note: '三(さん) — 세 줄! 순서대로 기억하면 OK 3️⃣', emoji: '3️⃣' },
-      'し':           { note: '四(し) = 死(し)와 발음 같아서 불길! 그래서 よん이라고도 읽어요 😱', emoji: '😱' },
-      'ご':           { note: '五(ご) — 손가락 5개! 양손 반씩 펼치면 고(ご) 5️⃣', emoji: '5️⃣' },
-      'ろく':         { note: '六(ろく) — Rock(록)처럼 발음! 락앤롤로 기억해요 🎸', emoji: '🎸' },
-      'なな':         { note: '七(なな/しち) — 세븐일레븐을 나나로 기억! 일본에서도 セブンイレブン은 인기 7️⃣', emoji: '7️⃣' },
-      'はち':         { note: '八(はち) — 한자 八은 아래로 넓어지는 모양 → 복을 부른다 🎋', emoji: '🎋' },
-      'く':           { note: '九(く) = 苦(く)와 발음 같아 불길! 그래서 きゅう로도 읽어요 😅', emoji: '😅' },
-      // 동사 관련
-      '食べる':       { note: '먹는 행위의 대표! "食"(식)=먹다, 2그룹 동사라 食べます로 활용돼요 🍽️', emoji: '🍽️' },
-      '飲む':         { note: '1그룹 동사! 飲みます, 飲んで, 飲んだ… 물 마시듯 자연스럽게 익혀요 🥤', emoji: '🥤' },
-      '行く':         { note: '1그룹 동사! 行きます, 行って(이거 불규칙!)… 行って만 특별히 외워요 ✈️', emoji: '✈️' },
-      '来る':         { note: '3그룹 불규칙! 来ます(きます), 来て(きて)… 読み方が変ですが覚えてください 🏃', emoji: '🏃' },
-      'する':         { note: '3그룹 최강 동사! 名詞+する로 뭐든 동사가 돼요! 勉強する、料理する… 최강 패턴 💪', emoji: '💪' },
+      'いち':         { note: '一(いち) — 한자 一의 획 1개! 전화번호에서 주의: いち와 しち(7)는 발음이 비슷해서 혼동 주의!', formalAlt: '', emoji: '①' },
+      'に':           { note: '二(に) — 두 줄! 날짜에서도 사용: 2月2日 = にがつふつか', formalAlt: '', emoji: '✌️' },
+      'し':           { note: '四(し) = 死(し)와 발음 같아 불길! 그래서 よん이라고도 해요. 병원에서는 반드시 よん을 씀!', formalAlt: 'よん (병원·공식)', emoji: '😱' },
+      'しち':         { note: '七(しち) = 얼핏 いち(1)와 혼동될 수 있어요. 전화에서는 なな(なな)라고 또렷이 말해요!', formalAlt: 'なな (전화·방송)', emoji: '7️⃣' },
+      // 동사
+      '食べる':       { note: '2그룹 동사(いちだん)! 食べます(정중) / 食べない(부정) / 食べて(て형). "食"=먹다, 자주 쓰이는 일상 동사', formalAlt: '食べます・召し上がります(존경)', emoji: '🍽️' },
+      '飲む':         { note: '1그룹 동사(ごだん)! 飲みます / 飲まない / 飲んで(て형 = ん+で 특이!). 음료·약 모두 사용', formalAlt: '飲みます・お飲みになります(존경)', emoji: '🥤' },
+      '行く':         { note: '1그룹이지만 て형이 行って(不規則)! 行きます / 行かない / 行って. 가장 자주 나오는 동사 중 하나!', formalAlt: '行きます・いらっしゃいます(존경)', emoji: '✈️' },
+      '来る':         { note: '3그룹 불규칙! 来ます(きます) / 来ない(こない) / 来て(きて). 읽는 방법이 바뀌어요!', formalAlt: '来ます・いらっしゃいます(존경)', emoji: '🏃' },
+      'する':         { note: '3그룹 최강! 名詞+する로 뭐든 동사가 됩니다. 勉強する・料理する・クリックする…', formalAlt: 'します・なさいます(존경)', emoji: '💪' },
+      'ある':         { note: '무생물의 존재: 물건·장소에 사용! ある(있다) ↔ ない(없다). 사람·동물은 いる를 씁니다!', formalAlt: 'あります・ございます(격식)', emoji: '📦' },
+      'いる':         { note: '생물(사람·동물)의 존재에 사용! いる ↔ いない. "犬がいる"(개가 있다), "本がある"(책이 있다)', formalAlt: 'います・いらっしゃいます(존경)', emoji: '🐕' },
+      // 형용사
+      'いい':         { note: '특수 활용! いい(기본) / よくない(부정) / よかった(과거). 부정·과거형에서 よ로 바뀜!', formalAlt: 'よろしい(정중)', emoji: '👍' },
+      // 물건
+      '水':           { note: '水(みず) = 차가운 물. お水(おみず)라고 높임말로 자주 씀. 뜨거운 물은 お湯(おゆ)!', formalAlt: 'お水をください', emoji: '💧' },
+      // IT 용어
+      'バグ':         { note: 'Bug(벌레)에서 유래! 1940년대 초기 컴퓨터에 진짜 나방이 끼어 오작동한 게 시초. 「バグる」= 버그가 발생하다 (동사로도 사용!)', formalAlt: '不具合(ふぐあい)(격식)', emoji: '🐛' },
+      'デプロイ':     { note: 'Deploy = 배치·배포. 코드를 서버에 올리는 것. 「本番(ほんばん)デプロイ」= 운영에 배포. 절대 금요일에는 하지 않는 문화도!', formalAlt: 'リリース・公開(こうかい)(격식)', emoji: '🚀' },
+      'レビュー':     { note: 'Code Review! 「LGTM」= Looks Good To Me. PR에서 승인 시 사용. 「指摘(してき)」= 지적·코멘트. 일본은 겸손하게 "提案(ていあん)として" 라고 붙이는 경우 多', formalAlt: 'コードレビュー', emoji: '👀' },
+      'スプリント':   { note: 'アジャイル(Agile) 개발의 핵심! 통상 2주간. 「スプリントプランニング」→「デイリースタンドアップ」→「スプリントレビュー」→「ふりかえり」순서로 반복', formalAlt: 'イテレーション(iteration)', emoji: '🏃' },
+      // 비즈니스 표현
+      'お疲れ様':     { note: '直訳: "당신의 피로함이 귀합니다". 아침·낮·저녁·메일·Slack 어디서나 사용 가능한 만능 표현! 後輩→先輩는 「お疲れ様です」, 先輩→後輩는 「お疲れ」도 OK', formalAlt: 'お疲れ様でございます(최격식)', emoji: '🙏' },
+      '承知':         { note: '「承知しました」가 가장 프로다운 표현! 상사에게는 「了解(りょうかい)」보다 「承知」를 쓰세요. 「かしこまりました」는 고객 서비스 수준의 최고 격식체', formalAlt: 'かしこまりました', emoji: '✅' },
+      'ほうれんそう': { note: '「報告(ほうこく)」+「連絡(れんらく)」+「相談(そうだん)」의 머리글자! 일본 직장 문화의 핵심. 이걸 잘 하면 신뢰를 얻고, 못 하면 가장 먼저 지적받는 항목', formalAlt: '報連相', emoji: '🥬' },
     };
 
     items.forEach((item, i) => {
@@ -10825,7 +10006,9 @@ const App = (() => {
         ? `${i + 1}번째! 「${jp}」는 「${item.korean}」. ${wordNote.note}`
         : `${i + 1}번째! 「${jp}」= 「${item.korean}」. ${item.english ? `(${item.english})` : ''} 꼭 외워두세요!`;
 
-      const captionJp = `${i + 1}番目(ばんめ)は「${jp}」— 「${item.korean}」という意味(いみ)です！${item.english ? `英語(えいご)では「${item.english}」。` : ''}ゆっくり発音(はつおん)してみましょう！`;
+      const captionJp = wordNote
+        ? `${i + 1}番目(ばんめ)は「${jp}」— 「${item.korean}」！${item.english ? `英語では「${item.english}」。` : ''}${wordNote.formalAlt ? `丁寧(ていねい)な表現(ひょうげん)は「${wordNote.formalAlt}」。` : ''}ゆっくり発音(はつおん)して、意味(いみ)も一緒(いっしょ)に覚(おぼ)えましょう！`
+        : `${i + 1}番目(ばんめ)は「${jp}」— 「${item.korean}」！${item.english ? `英語では「${item.english}」。` : ''}${item.tip ? item.tip + ' ' : ''}しっかり覚(おぼ)えましょう！`;
 
       slides.push({
         type: 'word', label: cat.type === 'sentence' ? '문장' : '단어',
@@ -10919,13 +10102,13 @@ const App = (() => {
       typeEl.textContent = slide.label || '';
       typeEl.className = `lb-type-label type-${slide.type || 'word'}`;
     }
-    if (mainEl) mainEl.textContent = slide.main || '';
+    if (mainEl) mainEl.innerHTML = slide.main ? _injectRuby(slide.main) : '';
     if (readEl) readEl.textContent = slide.reading || '';
     if (meaningEl) meaningEl.textContent = slide.meaning || '';
     if (exBox) {
       if (slide.example && (slide.example.jp || slide.example.ko)) {
         exBox.style.display = 'block';
-        if (exJpEl) exJpEl.textContent = slide.example.jp || '';
+        if (exJpEl) exJpEl.innerHTML = _injectRuby(slide.example.jp || '');
         if (exKoEl) exKoEl.textContent = slide.example.ko || '';
       } else {
         exBox.style.display = 'none';
@@ -10968,9 +10151,10 @@ const App = (() => {
     const playBtn2 = document.getElementById('lec-play-btn');
     if (playBtn2 && _lecturePlaying) playBtn2.textContent = '⏸ 자동';
     // captionJp TTS 읽기 → 끝나면 자동 다음 장 (영상처럼 연속 재생)
-    _speakLecCaption(slide.captionJp || slide.captionKo || '', () => {
-      if (!_lecturePlaying) {
-        // 일시정지 상태 → 버튼 표시
+    // ★ 첫 번째 슬라이드(인트로)는 자동으로 넘어가지 않음 — TTS는 읽되 수동 진행
+    const _doCaption = () => _speakLecCaption(slide.captionJp || slide.captionKo || '', () => {
+      if (!_lecturePlaying || idx === 0) {
+        // 일시정지 상태 또는 첫 슬라이드 → 버튼 표시
         if (ngBtn) { ngBtn.style.display = ''; ngBtn.textContent = _lectureSlideIdx >= _lectureSlides.length - 1 ? '강의 완료 ✅' : '▶ 다음 장으로'; }
         return;
       }
@@ -10986,6 +10170,9 @@ const App = (() => {
         _showLectureCompletion();
       }
     });
+    // 첫 슬라이드는 TTS 준비를 위해 500ms 대기 후 실행
+    if (idx === 0) setTimeout(_doCaption, 500);
+    else _doCaption();
   }
 
   function _showLectureCompletion() {
@@ -11039,6 +10226,14 @@ const App = (() => {
         _lecturePlaying = false;
         stopAmbient(1.5, false);
         showView(_lecturePrevView || 'home');
+      };
+    }
+    // 다시 보기 버튼
+    const replayBtn = document.getElementById('lec-comp-replay');
+    if (replayBtn) {
+      replayBtn.onclick = () => {
+        panel.style.display = 'none';
+        startLecture(_lectureCatId);
       };
     }
     panel.style.display = 'flex';
@@ -11181,15 +10376,19 @@ const App = (() => {
     }
     if (audioBtn && !audioBtn._lecBound) {
       audioBtn._lecBound = true;
+      // 🔊/🔇 뮤트 토글
       audioBtn.addEventListener('click', () => {
-        const slide = _lectureSlides[_lectureSlideIdx];
-        if (!slide) return;
-        // 현재 TTS 중지 후 재생
-        window.speechSynthesis && window.speechSynthesis.cancel();
-        if (state.currentVvAudio) { state.currentVvAudio.pause && state.currentVvAudio.pause(); state.currentVvAudio = null; }
-        const audioText = slide.audio || slide.main || slide.captionJp || '';
-        const clean = audioText.replace(/[（）()✅🎯🎭🔥💡📖🛎️☎️🧳🎉]/g, '').replace(/[^\u3000-\u9fff\u30a0-\u30ff\u3040-\u309f\uff00-\uffefa-zA-Z0-9\s、。！？]/g, '').trim();
-        if (clean) _speakLecCaption(clean, null);
+        _lecAudioMuted = !_lecAudioMuted;
+        audioBtn.textContent = _lecAudioMuted ? '🔇' : '🔊';
+        audioBtn.title = _lecAudioMuted ? '음소거 중 — 다시 눌러 해제' : '음소거';
+        if (_lecAudioMuted) {
+          window.speechSynthesis && window.speechSynthesis.cancel();
+          if (state.currentVvAudio) { state.currentVvAudio.pause && state.currentVvAudio.pause(); state.currentVvAudio = null; }
+        } else {
+          // 뮤트 해제 → 현재 슬라이드 다시 읽기
+          const slide = _lectureSlides[_lectureSlideIdx];
+          if (slide) _speakLecCaption(slide.captionJp || slide.captionKo || '', null);
+        }
       });
     }
   }
@@ -11247,23 +10446,19 @@ const App = (() => {
   /** 게이미피케이션 초기화 — 스트릭/미션 계산, 헤더 갱신 */
   function _initGamification() {
     // 스트릭 계산
-    if (typeof calculateStreak === 'function') {
-      state.streak = calculateStreak(state.lastStudied, state.streak);
-    }
+    state.streak = calculateStreak(state.lastStudied, state.streak);
     // 오늘 미션 확인/생성
     const today = _todayStr();
     if (!state.dailyMissions || state.dailyMissions.date !== today) {
-      if (typeof generateDailyMissions === 'function') {
-        state.dailyMissions = { date: today, missions: generateDailyMissions(today) };
-        state.dailyMissionProgress = {};
-      }
+      state.dailyMissions = { date: today, missions: generateDailyMissions(today) };
+      state.dailyMissionProgress = {};
+      saveToStorage();
     }
     _updateHeaderGamification();
   }
 
   /** 헤더 계급·스트릭 갱신 */
   function _updateHeaderGamification() {
-    if (typeof getRank !== 'function') return;
     const rank = getRank(state.totalXP || 0);
     const el = (id) => document.getElementById(id);
     if (el('hdr-rank-icon'))  el('hdr-rank-icon').textContent = rank.icon;
@@ -11407,7 +10602,7 @@ const App = (() => {
     state.totalXP = prevXP + amount;
 
     // 계급업 체크
-    if (typeof getRank === 'function') {
+    {
       const prevRank = getRank(prevXP);
       const newRank  = getRank(state.totalXP);
       if (newRank.id > prevRank.id) {
@@ -11448,10 +10643,12 @@ const App = (() => {
   /** 미션 진행 */
   function _advanceMission(type, delta) {
     if (!state.dailyMissions || !state.dailyMissions.missions) return;
+    let changed = false;
     state.dailyMissions.missions.forEach(m => {
       if (m.completed) return;
       if (m.type === type) {
         m.current = (m.current || 0) + (delta || 1);
+        changed = true;
         if (m.current >= m.target) {
           m.completed = true;
           _awardXP(m.reward, 'daily_mission');
@@ -11459,11 +10656,15 @@ const App = (() => {
         }
       }
     });
+    if (changed) {
+      saveToStorage();
+      _renderMissions('daily-missions-list');
+      _renderMissions('mypage-missions-list');
+    }
   }
 
   /** 아이템 드롭 시도 */
   function _tryDropItem(action) {
-    if (typeof shouldDropItem !== 'function' || typeof rollRandomItem !== 'function') return;
     if (!shouldDropItem(action)) return;
     const item = rollRandomItem();
     if (!state.collectedItems) state.collectedItems = [];
@@ -11527,7 +10728,6 @@ const App = (() => {
 
   /** 배지 전체 검사 */
   function _checkAllBadges() {
-    if (typeof BADGES === 'undefined') return;
     if (!state.earnedBadges) state.earnedBadges = [];
     const s = state;
     const kanaCount = Object.keys(s.progress || {}).length;
@@ -11548,11 +10748,11 @@ const App = (() => {
       b_streak_100:    (s.streak || 0) >= 100,
       b_collect_5:     (s.collectedItems || []).length >= 5,
       b_collect_15:    (s.collectedItems || []).length >= 15,
-      b_collect_all:   (s.collectedItems || []).length >= (typeof RARE_ITEMS !== 'undefined' ? RARE_ITEMS.length : 99),
-      b_collect_mythic: (s.collectedItems || []).some(id => typeof RARE_ITEMS !== 'undefined' && RARE_ITEMS.find(i => i.id === id && i.rarity === 'mythic')),
-      b_rank_silver:   typeof getRankLevel === 'function' && getRankLevel(s.totalXP || 0) >= 4,
-      b_rank_gold:     typeof getRankLevel === 'function' && getRankLevel(s.totalXP || 0) >= 6,
-      b_rank_master:   typeof getRankLevel === 'function' && getRankLevel(s.totalXP || 0) >= 12,
+      b_collect_all:   (s.collectedItems || []).length >= RARE_ITEMS.length,
+      b_collect_mythic: (s.collectedItems || []).some(id => RARE_ITEMS.find(i => i.id === id && i.rarity === 'mythic')),
+      b_rank_silver:   getRankLevel(s.totalXP || 0) >= 4,
+      b_rank_gold:     getRankLevel(s.totalXP || 0) >= 6,
+      b_rank_master:   getRankLevel(s.totalXP || 0) >= 12,
       b_vocab_50:      vocabCount >= 50,
       b_vocab_200:     vocabCount >= 200,
       b_read_sign:     (s.signsRead || 0) >= 10,
@@ -11569,11 +10769,10 @@ const App = (() => {
 
   /** 마이페이지 렌더 */
   function _renderMypage() {
-    if (typeof getRank !== 'function') return;
     const xp = state.totalXP || 0;
     const rank = getRank(xp);
-    const next = typeof getNextRank === 'function' ? getNextRank(xp) : null;
-    const progress = typeof getRankProgress === 'function' ? getRankProgress(xp) : 0;
+    const next = getNextRank(xp);
+    const progress = getRankProgress(xp);
     const el = (id) => document.getElementById(id);
 
     // 계급 카드
@@ -11632,7 +10831,7 @@ const App = (() => {
   /** 아이템 컬렉션 렌더 */
   function _renderItems() {
     const grid = document.getElementById('my-item-grid');
-    if (!grid || typeof RARE_ITEMS === 'undefined') return;
+    if (!grid) return;
     const collected = state.collectedItems || [];
     const countEl = document.getElementById('my-item-count');
     if (countEl) countEl.textContent = `(${collected.length}/${RARE_ITEMS.length})`;
@@ -11648,7 +10847,7 @@ const App = (() => {
   /** 배지 선반 렌더 */
   function _renderBadges() {
     const shelf = document.getElementById('my-badge-shelf');
-    if (!shelf || typeof BADGES === 'undefined') return;
+    if (!shelf) return;
     const earned = state.earnedBadges || [];
     const countEl = document.getElementById('my-badge-count');
     if (countEl) countEl.textContent = `(${earned.length}/${BADGES.length})`;
@@ -11668,8 +10867,8 @@ const App = (() => {
   function _initPracticeHub() {
     // SRS 복습 카드
     _refreshSrsCount = () => {
-      const kanaItems  = typeof getSRSReviewItems     === 'function' ? getSRSReviewItems(state.progress || {})           : [];
-      const vocabItems = typeof getVocabSRSReviewItems === 'function' ? getVocabSRSReviewItems(state.vocabProgress || {}) : [];
+      const kanaItems  = getSRSReviewItems(state.progress || {});
+      const vocabItems = getVocabSRSReviewItems(state.vocabProgress || {});
       const total = kanaItems.length + vocabItems.length;
       const countEl = document.getElementById('srs-count-display');
       if (countEl) countEl.textContent = total > 0 ? total + '장' : '없음';
@@ -11713,8 +10912,8 @@ const App = (() => {
 
   /** SRS 복습 시작 — 가나 + 어휘 복습 모두 처리 */
   function _startSRSReview() {
-    const kanaItems  = typeof getSRSReviewItems      === 'function' ? getSRSReviewItems(state.progress || {})           : [];
-    const vocabItems = typeof getVocabSRSReviewItems === 'function' ? getVocabSRSReviewItems(state.vocabProgress || {}) : [];
+    const kanaItems  = getSRSReviewItems(state.progress || {});
+    const vocabItems = getVocabSRSReviewItems(state.vocabProgress || {});
 
     const totalCount = kanaItems.length + vocabItems.length;
     if (totalCount === 0) {
@@ -11787,12 +10986,38 @@ const App = (() => {
     _advanceMission('kana_learn', 1);
     // SRS 업데이트
     const char = state.learnChars[state.learnIndex];
-    if (char && char.kana && typeof updateSRS === 'function') {
+    if (char && char.kana) {
       updateSRS(char.kana, rating, state.progress);
     }
   }
 
   /** 퀴즈 문제 정답 시 호출 */
+  /** 정답 버튼에서 스파크 파티클 효과 */
+  function _spawnSparks(btn) {
+    const rect = btn.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    const colors = ['#f59e0b','#10b981','#3b82f6','#e63946','#8b5cf6','#fbbf24','#f97316'];
+    for (let i = 0; i < 14; i++) {
+      const sp = document.createElement('div');
+      sp.className = 'quiz-spark';
+      const angle = (Math.PI * 2 * i) / 14 + (Math.random() - 0.5) * 0.4;
+      const dist  = 40 + Math.random() * 50;
+      sp.style.cssText = `
+        position:fixed; z-index:9999; pointer-events:none;
+        width:${5 + Math.random() * 5}px; height:${5 + Math.random() * 5}px;
+        border-radius:${Math.random() > 0.5 ? '50%' : '2px'};
+        background:${colors[Math.floor(Math.random() * colors.length)]};
+        left:${cx}px; top:${cy}px;
+        --tx:${Math.cos(angle) * dist}px; --ty:${Math.sin(angle) * dist}px;
+        animation: quizSparkFly 0.55s ease-out forwards;
+        animation-delay:${Math.random() * 0.08}s;
+      `;
+      document.body.appendChild(sp);
+      setTimeout(() => sp.remove(), 700);
+    }
+  }
+
   function _onQuizCorrect() {
     _awardXP(5, null);
     _advanceMission('quiz_correct', 1);
@@ -11879,6 +11104,9 @@ const App = (() => {
     _onDiaryRead
   };
 })();
+
+// ES6 모듈 환경에서도 HTML onclick="App.xxx()" 접근 가능하도록 전역 노출
+window.App = App;
 
 // 음성 목록 로드 (비동기)
 if (window.speechSynthesis) {

@@ -89,27 +89,35 @@
     <!-- ========== 홈 뷰 ========== -->
     <div id="view-home" class="view active">
 
-      <!-- ── 히어로: 오늘의 한자 + 예시 문장 통합 카드 ── -->
-      <div class="home-hero">
-        <button class="hero-corner-refresh" id="hero-kanji-refresh-btn" title="다음 한자">🔄</button>
-        <div class="hero-today-label">
+      <!-- ── 히어로: 오늘의 한자 ── -->
+      <div class="home-hero" id="home-hero-kanji">
+        <div class="hero-top-bar">
           <span class="hero-today-badge">📌 오늘의 한자</span>
+          <button class="hero-corner-refresh" id="hero-kanji-refresh-btn" title="다음 한자">🔄</button>
         </div>
-        <div class="home-hero-inner">
-          <!-- 한자 -->
-          <div class="hero-kanji-display">
-            <div class="hero-kanji-char" id="hero-kanji-char">日</div>
+
+        <!-- ① 복합어 전체 표시 -->
+        <div class="hero-compound-row">
+          <button class="hero-kanji-char" id="hero-kanji-char" title="발음 듣기">日</button>
+          <div class="hero-compound-info">
             <div class="hero-kanji-furigana" id="hero-kanji-furigana">にち・ひ</div>
-            <div class="hero-kanji-meaning" id="hero-kanji-meaning">날·해</div>
-            <div class="hero-kanji-english" id="hero-kanji-english">Sun / Day</div>
+            <div class="hero-kanji-meaning"  id="hero-kanji-meaning">날·해</div>
+            <div class="hero-kanji-english"  id="hero-kanji-english">Sun / Day</div>
           </div>
-          <!-- 구분선 -->
-          <div class="hero-divider"></div>
-          <div class="hero-example-label">📖 이 한자가 쓰인 예시</div>
-          <!-- 예시 문장 -->
+        </div>
+
+        <!-- ② 개별 한자 분해 (복합어일 때만 표시) -->
+        <div class="hero-decomp-section" id="hero-decomp-section" style="display:none">
+          <div class="hero-decomp-label">한자 분해</div>
+          <div class="hero-decomp-chips" id="hero-decomp-chips"></div>
+        </div>
+
+        <!-- ③ 예시 문장 -->
+        <div class="hero-divider"></div>
+        <div class="hero-example-label">📖 이 단어가 쓰인 예시</div>
+        <div class="hero-example-block">
           <div class="home-hero-sentence" id="hero-sentence">불러오는 중…</div>
-          <div class="home-hero-trans" id="hero-translation"></div>
-          <!-- 💡 팁 블록 제거 (예시와 중복 방지) -->
+          <div class="home-hero-trans"    id="hero-translation"></div>
         </div>
       </div>
 
@@ -342,6 +350,7 @@
             <div class="flashcard-container" id="flashcard">
               <div class="flashcard-inner" id="fc-inner">
                 <div class="flashcard-front">
+                  <button class="fc-sound-btn" id="fc-sound-btn" title="발음 듣기">🔊</button>
                   <div class="fc-kana" id="fc-kana">あ</div>
                   <div class="fc-hint" id="fc-hint">↕ 드래그로 이동 · 탭 뒤집기</div>
                 </div>
@@ -353,6 +362,20 @@
                       <span class="fc-kor" id="fc-korean">아</span>
                       <span class="fc-sep">·</span>
                       <span class="fc-eng" id="fc-english">ah</span>
+                    </div>
+                  </div>
+                  <!-- 획순 미니패널 (stroke data 있을 때만 표시) -->
+                  <div class="fcb-stroke-panel" id="fcb-stroke-panel" style="display:none">
+                    <svg id="fcb-stroke-svg" class="fcb-stroke-svg" viewBox="0 0 109 109">
+                      <line x1="54.5" y1="3" x2="54.5" y2="106" stroke="#e2e8f0" stroke-width="0.5"/>
+                      <line x1="3" y1="54.5" x2="106" y2="54.5" stroke="#e2e8f0" stroke-width="0.5"/>
+                      <g id="fcb-stroke-strokes"></g>
+                      <g id="fcb-stroke-labels"></g>
+                    </svg>
+                    <div class="fcb-stroke-info">
+                      <span class="fcb-stroke-label">✍ 획순</span>
+                      <span id="fcb-stroke-count" class="fcb-stroke-count"></span>
+                      <button id="fcb-stroke-play" class="fcb-stroke-play-btn">▶ 재생</button>
                     </div>
                   </div>
                   <!-- 섹션2: 팁 (있을 때만) -->
@@ -446,40 +469,50 @@
       <div id="quiz-intro" class="quiz-intro">
         <div class="qi-bg-anim" id="qi-bg-anim"></div>
         <div class="qi-content">
-          <!-- 마스코트 -->
-          <div class="qi-mascot">
-            <div class="qi-mascot-char">👩‍🏫</div>
-            <div class="qi-mascot-bubble" id="qi-mascot-bubble">
-              <span id="qi-speech-text">자, 같이 해보자!</span>
+
+          <!-- 상단: 마스코트 + 타이틀 -->
+          <div class="qi-hero-row">
+            <div class="qi-mascot-wrap">
+              <div class="qi-mascot-char">👩‍🏫</div>
+              <div class="qi-speech-bubble" id="qi-mascot-bubble">
+                <span id="qi-speech-text">자, 같이 해보자!</span>
+              </div>
+            </div>
+            <div class="qi-title-wrap">
+              <div class="qi-title-main" id="qi-title-main">가나 퀴즈</div>
+              <div class="qi-title-sub" id="qi-title-sub"></div>
             </div>
           </div>
-          <!-- 타이틀 -->
-          <div class="qi-title">
-            <span class="qi-title-main" id="qi-title-main">가나 퀴즈</span>
-            <span class="qi-title-sub" id="qi-title-sub"></span>
+
+          <!-- 설정 카드: 유형·문항·타이머·레벨 + 자동넘기기 -->
+          <div class="qi-settings-card">
+            <div class="qi-settings-summary" id="qi-settings-summary"></div>
+            <div class="qi-auto-row">
+              <span class="qi-auto-label">⚡ 정답 시 자동 넘기기</span>
+              <label class="qi-toggle">
+                <input type="checkbox" id="qi-autonext-cb">
+                <span class="qi-toggle-slider"></span>
+              </label>
+            </div>
           </div>
-          <!-- 현재 설정 칩 -->
-          <div class="qi-settings-summary" id="qi-settings-summary"></div>
-          <!-- 자동 넘기기 토글 -->
-          <div class="qi-auto-row">
-            <span class="qi-auto-label">⚡ 정답 시 자동 넘기기</span>
-            <label class="qi-toggle">
-              <input type="checkbox" id="qi-autonext-cb">
-              <span class="qi-toggle-slider"></span>
-            </label>
+
+          <!-- 하단 액션 -->
+          <div class="qi-action-area">
+            <div class="qi-icon-row">
+              <button class="qi-icon-btn" id="qi-amb-btn" title="배경음 켜기/끄기">
+                🎵<span class="qi-icon-label" id="qi-amb-label">배경음</span>
+              </button>
+              <button class="qi-icon-btn" id="qi-voice-btn" title="음성 설정으로 이동">
+                🎙<span class="qi-icon-label">화자</span>
+              </button>
+            </div>
+            <button class="qi-start-btn" id="qi-start-btn">
+              <span class="qi-start-ripple"></span>
+              <span id="qi-start-label">🎯 퀴즈 시작!</span>
+              <span class="qi-cdnum" id="qi-cdnum"></span>
+            </button>
           </div>
-          <!-- 퀵 컨트롤 -->
-          <div class="qi-extras-row">
-            <button class="qi-extra-btn" id="qi-amb-btn">🎵 <span id="qi-amb-label">배경음</span></button>
-            <button class="qi-extra-btn" id="qi-voice-btn">🎤 화자</button>
-            <button class="qi-extra-btn" id="qi-settings-btn2">⚙️ 설정</button>
-          </div>
-          <!-- 시작 버튼 -->
-          <button class="qi-start-btn" id="qi-start-btn">
-            <span class="qi-start-ripple"></span>
-            <span id="qi-start-label">🎯 퀴즈 시작!</span>
-            <span class="qi-cdnum" id="qi-cdnum"></span>
-          </button>
+
           <button class="qi-config-btn" id="qi-config-btn" style="display:none"></button>
         </div>
       </div>
@@ -551,6 +584,7 @@
               <div class="qr-score" id="qr-score">0 / 0</div>
             </div>
           </div>
+          <div class="qr-pass-badge" id="qr-pass-badge"></div>
           <div class="qr-stats-row">
             <div class="qr-stat qr-stat-ok">
               <div class="qr-stat-num" id="qr-stat-correct">0</div>
@@ -575,7 +609,6 @@
           <div class="qr-wrong-section" id="qr-wrong-list"></div>
           <div class="qr-btns">
             <button class="qr-btn-retry" id="qr-retry">🔄 다시 도전</button>
-            <button class="qr-btn-settings" id="qr-settings-btn">⚙️ 설정</button>
           </div>
         </div>
       </div>
@@ -760,9 +793,27 @@
             </div>
           </div>
 
-          <div class="stroke-order-info">
-            <p>💡 <strong>획순 팁:</strong> 위→아래, 왼쪽→오른쪽 순서로 쓰세요</p>
-            <p class="stroke-hint" id="stroke-hint"></p>
+          <!-- 획순 SVG 애니메이션 패널 -->
+          <div class="stroke-anim-panel" id="stroke-anim-panel">
+            <div class="stroke-anim-header">
+              <span class="stroke-anim-title">획순</span>
+              <span class="stroke-anim-count" id="stroke-anim-count"></span>
+              <button class="stroke-anim-play" id="stroke-anim-play" title="획순 재생">▶ 재생</button>
+            </div>
+            <div class="stroke-anim-body">
+              <svg id="stroke-anim-svg" viewBox="0 0 109 109" xmlns="http://www.w3.org/2000/svg">
+                <!-- 격자 가이드 -->
+                <line x1="54.5" y1="0" x2="54.5" y2="109" stroke="#e2e8f0" stroke-width="0.5"/>
+                <line x1="0" y1="54.5" x2="109" y2="54.5" stroke="#e2e8f0" stroke-width="0.5"/>
+                <!-- 획들은 JS로 동적 주입 -->
+                <g id="stroke-anim-strokes"></g>
+                <!-- 번호 라벨 -->
+                <g id="stroke-anim-labels"></g>
+              </svg>
+              <div class="stroke-anim-fallback" id="stroke-anim-fallback" style="display:none">
+                <p class="stroke-hint" id="stroke-hint"></p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -783,14 +834,38 @@
 
       <!-- 탭: 가나 진도 -->
       <div class="prog-tab-content" id="prog-tab-kana">
+
+        <!-- 취약 가나 분석 대시보드 -->
+        <div class="weak-dash" id="weak-dash">
+          <div class="weak-dash-header">
+            <span class="weak-dash-title">🔬 취약 가나 분석</span>
+            <button class="weak-dash-quiz-btn" id="weak-dash-quiz-btn">🎯 약점만 퀴즈</button>
+          </div>
+          <!-- 정확도 히트맵 -->
+          <div class="weak-heatmap-wrap">
+            <div class="weak-heatmap-label">정확도 히트맵</div>
+            <div class="weak-heatmap" id="weak-heatmap"></div>
+            <div class="weak-heatmap-legend">
+              <span class="whl-item whl-unseen">미학습</span>
+              <span class="whl-item whl-low">0~49%</span>
+              <span class="whl-item whl-mid">50~79%</span>
+              <span class="whl-item whl-high">80~94%</span>
+              <span class="whl-item whl-perfect">95%+</span>
+            </div>
+          </div>
+          <!-- SRS 현황 -->
+          <div class="weak-srs-summary" id="weak-srs-summary"></div>
+          <!-- 약점 카드 목록 -->
+          <div class="weak-chars-section">
+            <h4>⚠️ 약점 글자 TOP 20</h4>
+            <div class="weak-chars-grid" id="weak-chars-grid">
+              <p class="no-weak">아직 데이터가 없습니다. 퀴즈를 먼저 풀어보세요!</p>
+            </div>
+          </div>
+        </div>
+
         <div class="progress-levels" id="progress-levels">
           <!-- 레벨별 진도 -->
-        </div>
-        <div class="weak-chars-section">
-          <h4>⚠️ 약점 글자</h4>
-          <div class="weak-chars-grid" id="weak-chars-grid">
-            <p class="no-weak">아직 데이터가 없습니다. 퀴즈를 먼저 풀어보세요!</p>
-          </div>
         </div>
       </div>
 
@@ -898,7 +973,7 @@
               </div>
             </div>
             <div class="ss-card">
-              <div class="ss-kana" id="vbc-ss-main">단어</div>
+              <div class="ss-kana vbc-ss-main" id="vbc-ss-main">단어</div>
               <div class="ss-hint-text" id="vbc-ss-hint">읽어보세요 ↑</div>
               <div class="ss-reveal" id="vbc-ss-reveal">
                 <div class="ss-readings">
@@ -1294,6 +1369,7 @@
           <div class="lec-comp-title">강의 완료!</div>
           <div class="lec-comp-sub" id="lec-comp-sub">수고하셨습니다</div>
           <div class="lec-comp-btns">
+            <button class="lec-comp-btn lec-comp-btn-replay" id="lec-comp-replay">↩ 다시 보기</button>
             <button class="lec-comp-btn lec-comp-btn-main" id="lec-comp-dialogue">🎭 実戦対話(실전)</button>
             <button class="lec-comp-btn lec-comp-btn-next" id="lec-comp-next">📖 다음 강의 →</button>
             <button class="lec-comp-btn lec-comp-btn-back" id="lec-comp-back">← 홈으로</button>
@@ -1465,6 +1541,7 @@
         <button class="stab active" data-tab="voice">🔊 음성</button>
         <button class="stab" data-tab="quiz">📝 퀴즈</button>
         <button class="stab" data-tab="env">🌿 환경</button>
+        <button class="stab" data-tab="dev">🔧 개발자</button>
       </div>
       <div class="modal-body">
         <!-- autoplay/autonext 항상 true 고정 — hidden inputs으로 유지 -->
@@ -1523,14 +1600,14 @@
               <!-- VOICEVOX 화자 설정 (연결 성공 시 표시) -->
               <div id="voicevox-speaker-rows" style="display:none" class="tts-speaker-rows">
                 <div class="setting-row" style="align-items:flex-start;gap:8px">
-                  <label style="padding-top:6px">🎤 화자 A:</label>
+                  <label style="padding-top:6px">👩 여자 음성:</label>
                   <div class="vv-speaker-picker">
                     <img id="vv-portrait-1" class="vv-speaker-icon" src="" alt="" style="display:none">
                     <select id="pref-voicevox-speaker1"><option value="1">로딩 중...</option></select>
                   </div>
                 </div>
                 <div class="setting-row" style="align-items:flex-start;gap:8px">
-                  <label style="padding-top:6px">🎤 화자 B:</label>
+                  <label style="padding-top:6px">👨 남자 음성:</label>
                   <div class="vv-speaker-picker">
                     <img id="vv-portrait-2" class="vv-speaker-icon" src="" alt="" style="display:none">
                     <select id="pref-voicevox-speaker2"><option value="none">사용 안함</option></select>
@@ -1566,7 +1643,7 @@
               <!-- Edge TTS 화자 설정 (연결 성공 시 표시) -->
               <div id="edgetts-server-rows" style="display:none" class="tts-speaker-rows">
                 <div class="setting-row">
-                  <label>🎤 화자 A:</label>
+                  <label>👩 여자 음성:</label>
                   <select id="pref-edgetts-voice1" style="flex:1;max-width:200px">
                     <option value="ja-JP-NanamiNeural">Nanami (여성) 🏆</option>
                     <option value="ja-JP-AoiNeural">Aoi (여성) 🏆</option>
@@ -1578,7 +1655,7 @@
                   </select>
                 </div>
                 <div class="setting-row">
-                  <label>🎤 화자 B:</label>
+                  <label>👨 남자 음성:</label>
                   <select id="pref-edgetts-voice2" style="flex:1;max-width:200px">
                     <option value="none">사용 안함</option>
                     <option value="ja-JP-KeitaNeural">Keita (남성) 🏆</option>
@@ -1614,18 +1691,20 @@
               <div id="edge-tts-missing" style="display:none" class="tts-edge-missing">
                 💡 <b>Microsoft Edge</b> 브라우저 사용 시 Nanami/Keita 고품질 음성 이용 가능
               </div>
-              <!-- Web TTS 화자 선택 -->
+              <!-- Web TTS 화자 선택 (VOICEVOX/Edge 선택 시 JS로 숨김) -->
               <div id="webtts-settings" class="tts-speaker-rows">
-                <div class="setting-desc" style="font-size:11.5px;color:#718096;margin-bottom:6px;">🏆Edge = Edge 고품질 · ⭐ = 고품질 · 화자 A/B 교대 재생</div>
+                <div class="setting-desc" style="font-size:11.5px;color:#718096;margin-bottom:6px;">
+                  🏆Edge = Edge 고품질 · ⭐ = 고품질 · 남자/여자 음성이 역할에 따라 교대 재생
+                </div>
                 <div class="setting-row">
-                  <label>🎤 화자 A:</label>
+                  <label>👩 여자 음성:</label>
                   <div style="display:flex;gap:6px;align-items:center;flex:1">
                     <select id="pref-voice-female" style="flex:1"><option value="none">사용 안함</option></select>
                     <button class="test-voice-btn" onclick="App.playTestVoice(document.getElementById('pref-voice-female').value)" style="padding:4px 8px;font-size:11px">▶</button>
                   </div>
                 </div>
                 <div class="setting-row">
-                  <label>🎤 화자 B:</label>
+                  <label>👨 남자 음성:</label>
                   <div style="display:flex;gap:6px;align-items:center;flex:1">
                     <select id="pref-voice-male" style="flex:1"><option value="none">사용 안함</option></select>
                     <button class="test-voice-btn" onclick="App.playTestVoice(document.getElementById('pref-voice-male').value)" style="padding:4px 8px;font-size:11px">▶</button>
@@ -1653,7 +1732,39 @@
 
         <!-- ══ 탭: 퀴즈 ══ -->
         <div class="stab-content" id="stab-quiz">
-          <div class="setting-section-title">💬 화자 응원 메시지</div>
+
+          <!-- 타이머 -->
+          <div class="setting-section-title">⏱ 제한 시간</div>
+          <div class="setting-chip-row" id="sq-timer-chips">
+            <button class="sq-chip" data-pref="quizCountdown" data-val="0">없음</button>
+            <button class="sq-chip" data-pref="quizCountdown" data-val="3">3초</button>
+            <button class="sq-chip active" data-pref="quizCountdown" data-val="5">5초</button>
+            <button class="sq-chip" data-pref="quizCountdown" data-val="7">7초</button>
+            <button class="sq-chip" data-pref="quizCountdown" data-val="10">10초</button>
+          </div>
+
+          <!-- 문제 개수 -->
+          <div class="setting-section-title" style="margin-top:14px">🔢 문제 개수</div>
+          <div class="setting-chip-row" id="sq-count-chips">
+            <button class="sq-chip active" data-pref="quizCount" data-val="10">10문제</button>
+            <button class="sq-chip" data-pref="quizCount" data-val="20">20문제</button>
+            <button class="sq-chip" data-pref="quizCount" data-val="all">전체</button>
+          </div>
+
+          <!-- 통과 기준 -->
+          <div class="setting-section-title" style="margin-top:14px">🎯 통과 기준</div>
+          <div class="setting-chip-row" id="sq-pass-chips">
+            <button class="sq-chip" data-pref="quizPassRate" data-val="60">60%</button>
+            <button class="sq-chip active" data-pref="quizPassRate" data-val="70">70%</button>
+            <button class="sq-chip" data-pref="quizPassRate" data-val="80">80%</button>
+            <button class="sq-chip" data-pref="quizPassRate" data-val="90">90%</button>
+          </div>
+          <div class="setting-note" style="font-size:11px;color:#718096;padding:4px 0 10px 0;">
+            퀴즈 결과 화면에서 통과/재도전 기준으로 사용됩니다.
+          </div>
+
+          <!-- 응원 메시지 -->
+          <div class="setting-section-title" style="margin-top:6px">💬 화자 응원 메시지</div>
           <div class="setting-row">
             <label>응원 메시지 사용:</label>
             <label class="toggle">
@@ -1661,81 +1772,8 @@
               <span class="toggle-slider"></span>
             </label>
           </div>
-          <div class="setting-note" style="font-size:11px;color:#718096;padding:2px 0 6px 0;">
-            화자가 1/3 볼륨으로 읽어줍니다. 각 상황별 메시지를 한 줄씩 입력하세요. (랜덤 선택)
-          </div>
-          <!-- 응원 메시지 에디터 -->
-          <div id="cheer-editor">
-            <div class="cheer-row">
-              <div class="cheer-label"><span class="cheer-badge cheer-start">시작</span> 퀴즈 시작할 때</div>
-              <div class="cheer-input-wrap">
-                <textarea class="cheer-ta" id="cheer-start" rows="2" placeholder="한 줄에 하나씩 입력"></textarea>
-                <button class="cheer-reset" data-type="start">초기화</button>
-              </div>
-            </div>
-            <div class="cheer-row">
-              <div class="cheer-label"><span class="cheer-badge cheer-correct">정답</span> 정답 맞췄을 때</div>
-              <div class="cheer-input-wrap">
-                <textarea class="cheer-ta" id="cheer-correct" rows="2" placeholder="한 줄에 하나씩 입력"></textarea>
-                <button class="cheer-reset" data-type="correct">초기화</button>
-              </div>
-            </div>
-            <div class="cheer-row">
-              <div class="cheer-label"><span class="cheer-badge cheer-wrong">오답</span> 틀렸을 때</div>
-              <div class="cheer-input-wrap">
-                <textarea class="cheer-ta" id="cheer-wrong" rows="2" placeholder="한 줄에 하나씩 입력"></textarea>
-                <button class="cheer-reset" data-type="wrong">초기화</button>
-              </div>
-            </div>
-            <div class="cheer-row">
-              <div class="cheer-label"><span class="cheer-badge cheer-streak3">3연속</span> 3문제 연속 정답</div>
-              <div class="cheer-input-wrap">
-                <textarea class="cheer-ta" id="cheer-streak3" rows="2" placeholder="한 줄에 하나씩 입력"></textarea>
-                <button class="cheer-reset" data-type="streak3">초기화</button>
-              </div>
-            </div>
-            <div class="cheer-row">
-              <div class="cheer-label"><span class="cheer-badge cheer-streak5">5연속</span> 5문제 연속 정답</div>
-              <div class="cheer-input-wrap">
-                <textarea class="cheer-ta" id="cheer-streak5" rows="2" placeholder="한 줄에 하나씩 입력"></textarea>
-                <button class="cheer-reset" data-type="streak5">초기화</button>
-              </div>
-            </div>
-            <div class="cheer-row">
-              <div class="cheer-label"><span class="cheer-badge cheer-streak8">8연속</span> 8문제 이상 연속</div>
-              <div class="cheer-input-wrap">
-                <textarea class="cheer-ta" id="cheer-streak8" rows="2" placeholder="한 줄에 하나씩 입력"></textarea>
-                <button class="cheer-reset" data-type="streak8">초기화</button>
-              </div>
-            </div>
-            <div class="cheer-row">
-              <div class="cheer-label"><span class="cheer-badge cheer-result">결과</span> 만점 (100%)</div>
-              <div class="cheer-input-wrap">
-                <textarea class="cheer-ta" id="cheer-perfect" rows="2" placeholder="한 줄에 하나씩 입력"></textarea>
-                <button class="cheer-reset" data-type="perfect">초기화</button>
-              </div>
-            </div>
-            <div class="cheer-row">
-              <div class="cheer-label"><span class="cheer-badge cheer-result">결과</span> 우수 (70%↑)</div>
-              <div class="cheer-input-wrap">
-                <textarea class="cheer-ta" id="cheer-good" rows="2" placeholder="한 줄에 하나씩 입력"></textarea>
-                <button class="cheer-reset" data-type="good">초기화</button>
-              </div>
-            </div>
-            <div class="cheer-row">
-              <div class="cheer-label"><span class="cheer-badge cheer-result">결과</span> 보통 (50%↑)</div>
-              <div class="cheer-input-wrap">
-                <textarea class="cheer-ta" id="cheer-pass" rows="2" placeholder="한 줄에 하나씩 입력"></textarea>
-                <button class="cheer-reset" data-type="pass">초기화</button>
-              </div>
-            </div>
-            <div class="cheer-row">
-              <div class="cheer-label"><span class="cheer-badge cheer-wrong">결과</span> 재도전 (50%↓)</div>
-              <div class="cheer-input-wrap">
-                <textarea class="cheer-ta" id="cheer-poor" rows="2" placeholder="한 줄에 하나씩 입력"></textarea>
-                <button class="cheer-reset" data-type="poor">초기화</button>
-              </div>
-            </div>
+          <div class="setting-note" style="font-size:11px;color:#718096;padding:2px 0 10px 0;">
+            화자가 1/3 볼륨으로 애니·만화 스타일 일본어 응원 메시지를 읽어줍니다.
           </div>
         </div>
 
@@ -1755,11 +1793,19 @@
             <input type="range" id="pref-ambient-volume" min="0" max="40" step="1" style="flex:1;max-width:160px">
             <span id="pref-ambient-volume-label" style="font-size:12px;color:#64748b;min-width:32px;text-align:right"></span>
           </div>
-          <div class="setting-section-title">&#x1F0CF; 플래시카드 설정</div>
+        </div>
+
+        <!-- ══ 탭: 개발자 ══ -->
+        <div class="stab-content" id="stab-dev">
+          <div class="setting-section-title">🔧 개발자 도구</div>
+          <div class="setting-desc" style="font-size:12px;color:#718096;margin-bottom:12px;">
+            테스트 및 XP·레벨 관리 도구입니다.<br>
+            로고를 5번 클릭해도 열 수 있습니다.
+          </div>
           <div class="setting-row">
-            <label>뒤집기 기능:</label>
-            <label class="toggle"><input type="checkbox" id="pref-flip-card"><span class="toggle-slider"></span></label>
-            <span class="setting-note">비활성화 시 즉시 뒷면 표시</span>
+            <button id="open-admin-from-settings" style="width:100%;padding:10px;background:var(--blue-light);color:var(--blue);border:1.5px solid var(--blue);border-radius:10px;cursor:pointer;font-size:14px;font-weight:600;">
+              🔧 관리자 패널 열기
+            </button>
           </div>
         </div>
       </div>
@@ -1857,9 +1903,11 @@
   <script src="js/kana-data.js"></script>
   <script src="js/data/vocab-items-w1w4.js"></script>
   <script src="js/data/vocab-items-w5w8.js"></script>
+  <script src="js/data/vocab-items-w9w10.js"></script>
   <script src="js/data/vocab-items-s1s5.js"></script>
   <script src="js/data/vocab-items-s6sim.js"></script>
   <script src="js/data/vocab-dialogue.js"></script>
+  <script src="js/data/vocab-items-it-sim.js"></script>
   <script src="js/data/vocab-categories.js"></script>
   <script src="js/kana-data-extra.js"></script>
   <script src="js/kana-data-grammar.js"></script>
@@ -1869,10 +1917,13 @@
   <script src="js/kana-data-diary.js"></script>
   <script src="js/examples-data.js"></script>
   <script src="js/vocab-examples-data.js"></script>
-  <script src="js/data/lecture-data.js"></script>
+  <script src="js/kanji-decomp-data.js"></script>
+  <!-- Use the segmented lecture data files -->
+  <script src="js/data/lecture-data-v2/index.js"></script>
+  <!-- <script src="js/data/lecture-data.js"></script> -->
   <script src="js/gamification.js"></script>
   <script src="js/edge-tts-server.js"></script>
-  <script src="js/app.js"></script>
+  <script type="module" src="js/app.js"></script>
   <script>
     // Service Worker 등록 (PWA 오프라인 지원)
     if ('serviceWorker' in navigator) {

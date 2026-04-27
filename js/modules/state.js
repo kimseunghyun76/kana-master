@@ -56,6 +56,8 @@ export let state = {
   fcExReadTimer: null,
   fcReadSession: 0,
   vocabReadSession: 0,
+  // 전체 듣기 타이머 (stopAllAudio/startReadAll용)
+  readAllTimer: null,
   // vocab 네비 패널 페이지 상태
   vocabNavPage: 0,
   vocabNavMeta: null,  // { chars, clickCb, perPage, isSentence }
@@ -101,7 +103,14 @@ export function loadFromStorage(cb) {
     });
   } else {
     const raw = localStorage.getItem('kanaProgress');
-    if (raw) applyStoredData(JSON.parse(raw));
+    if (raw) {
+      try {
+        applyStoredData(JSON.parse(raw));
+      } catch (e) {
+        console.warn('[kana] kanaProgress 데이터 손상 — 초기화:', e);
+        localStorage.removeItem('kanaProgress');
+      }
+    }
     cb && cb();
   }
 }

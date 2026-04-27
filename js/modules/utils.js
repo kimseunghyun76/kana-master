@@ -29,10 +29,16 @@ export function _escHtml(str) {
 }
 
 export function _injectRuby(text, ruby) {
-  // ruby가 string이면 전체 텍스트에 루비 적용
-  if (typeof ruby === 'string') {
+  if (!text) return '';
+  // ruby가 명시된 경우: 전체 텍스트에 루비 적용
+  if (typeof ruby === 'string' && ruby) {
     return `<ruby>${_escHtml(text)}<rt>${_escHtml(ruby)}</rt></ruby>`;
   }
+  // 자동 파싱: 漢字（よみ） 또는 漢字(よみ) 패턴을 ruby HTML로 변환
+  const parsed = text.replace(/([^\s（\(）\)]+)[（\(]([^）\)]+)[）\)]/g, (_, base, rt) => {
+    return `<ruby>${_escHtml(base)}<rt>${_escHtml(rt)}</rt></ruby>`;
+  });
+  if (parsed !== text) return parsed;
   return _escHtml(text);
 }
 
