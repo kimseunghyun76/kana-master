@@ -36,6 +36,27 @@ window.App = (() => {
     }
   }
 
+  function _getModuleVisual(mod) {
+    const map = {
+      kana_hira:         { image: 'images/ohayou.png',   focus: '문자 자동화', tone: 'violet' },
+      kana_kata:         { image: 'images/lucky_eight.png', focus: '가타카나 읽기', tone: 'violet' },
+      first_phrases:     { image: 'images/ohayou.png',   focus: '첫 인사', tone: 'violet' },
+      survival_greet:    { image: 'images/ohayou.png',   focus: '자기소개', tone: 'blue' },
+      survival_pointing: { image: 'images/kosoado.png',  focus: '지시어 감각', tone: 'blue' },
+      survival_numbers:  { image: 'images/horse_clock.png', focus: '숫자·시간', tone: 'blue' },
+      survival_location: { image: 'images/kosoado.png',  focus: '위치·존재', tone: 'blue' },
+      survival_transport:{ image: null,                  focus: '길 묻기', tone: 'blue' },
+      survival_food:     { image: null,                  focus: '주문·부탁', tone: 'blue' },
+      survival_shopping: { image: null,                  focus: '가격·비교', tone: 'blue' },
+      survival_hotel:    { image: null,                  focus: '숙박 요청', tone: 'blue' },
+      daily_adjectives:  { image: 'images/shiba.png',    focus: '동사 활용', tone: 'emerald' },
+      daily_feelings:    { image: null,                  focus: '형용사 표현', tone: 'emerald' },
+      daily_places:      { image: 'images/kosoado.png',  focus: '장소 설명', tone: 'emerald' },
+      daily_health:      { image: 'images/bird_fire.png',focus: '증상 설명', tone: 'emerald' }
+    };
+    return map[mod?.id] || { image: null, focus: '실전 학습', tone: 'slate' };
+  }
+
   // ── Build Shell UI ────────────────────────────────────────
   function _buildUI() {
     const app = document.getElementById('app');
@@ -179,11 +200,16 @@ window.App = (() => {
       const pct = getModuleProgressPct(next.mod.id, prog);
       const title = next.roleplay ? `🎭 ${next.mod.roleplay.name}` : next.mod.name;
       const sub = `STAGE ${stage.id}: ${stage.name}`;
+      const visual = _getModuleVisual(next.mod);
       html += `
         <div class="continue-banner" onclick="App.openModule('${next.mod.id}', ${next.roleplay ? 'true' : 'false'})">
+          <div class="continue-visual ${visual.tone}">
+            ${visual.image ? `<img src="${visual.image}" alt="${escHtml(next.mod.name)}">` : `<span>${escHtml(next.mod.icon)}</span>`}
+          </div>
           <div class="continue-label">계속 학습하기</div>
           <div class="continue-module">${escHtml(title)}</div>
           <div class="continue-stage">${escHtml(sub)}</div>
+          <div class="continue-focus">${escHtml(visual.focus)}</div>
           <div class="continue-arrow">›</div>
           <div class="continue-progress">
             <div class="continue-progress-bar" style="width:${pct}%"></div>
@@ -326,6 +352,7 @@ window.App = (() => {
         const pct = Math.round((done / totalSteps) * 100);
         const completed = done >= totalSteps;
         const rpUnlocked = isRoleplayUnlocked(mod.id, prog);
+        const visual = _getModuleVisual(mod);
 
         let statusIcon = '▶';
         let statusClass = 'play';
@@ -335,12 +362,16 @@ window.App = (() => {
         html += `
           <div class="module-card ${modLocked ? 'locked' : ''} ${completed ? 'completed' : ''}"
                onclick="${!modLocked ? `App.openModule('${mod.id}')` : ''}">
+            <div class="module-visual ${visual.tone}">
+              ${visual.image ? `<img src="${visual.image}" alt="${escHtml(mod.name)}">` : `<span class="module-visual-emoji">${escHtml(mod.icon)}</span>`}
+            </div>
             <div class="module-icon" style="${mod.iconIsText ? 'font-size:24px;' : ''}">
               ${escHtml(mod.icon)}
             </div>
             <div class="module-info">
               <div class="module-name">${escHtml(mod.name)}</div>
               <div class="module-sub">${escHtml(mod.nameJp || '')} · ${totalSteps}단계</div>
+              <div class="module-focus-tag">${escHtml(visual.focus)}</div>
               ${!modLocked ? `
               <div class="module-prog">
                 <div class="module-prog-bar">

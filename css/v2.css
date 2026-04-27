@@ -182,6 +182,45 @@ body {
 .continue-label { font-size: 12px; font-weight: 600; letter-spacing: 1px; opacity: .8; text-transform: uppercase; }
 .continue-module { font-size: 20px; font-weight: 800; margin: 6px 0 4px; }
 .continue-stage { font-size: 13px; opacity: .8; }
+.continue-focus {
+  display: inline-flex;
+  align-items: center;
+  margin-top: 10px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.14);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .3px;
+}
+.continue-visual {
+  position: absolute;
+  right: 56px;
+  top: 14px;
+  width: 72px;
+  height: 72px;
+  border-radius: 18px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,.18);
+  background: rgba(15,23,42,.2);
+  box-shadow: 0 14px 32px rgba(15,23,42,.25);
+}
+.continue-visual img,
+.module-visual img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.continue-visual span {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 30px;
+  font-weight: 800;
+}
 .continue-arrow {
   position: absolute; right: 20px; top: 50%;
   transform: translateY(-50%);
@@ -354,6 +393,33 @@ body {
 .module-card:not(.locked):active { transform: scale(.97); }
 .module-card.completed { border-color: rgba(16,185,129,.3); }
 
+.module-visual {
+  width: 72px;
+  height: 72px;
+  border-radius: 16px;
+  overflow: hidden;
+  flex-shrink: 0;
+  border: 1px solid rgba(255,255,255,.08);
+  box-shadow: 0 10px 24px rgba(2,6,23,.22);
+  background: linear-gradient(135deg, rgba(59,130,246,.22), rgba(15,23,42,.55));
+}
+.module-visual-emoji {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+}
+.module-visual.violet { background: linear-gradient(135deg, rgba(139,92,246,.35), rgba(49,46,129,.7)); }
+.continue-visual.violet { background: linear-gradient(135deg, rgba(139,92,246,.26), rgba(49,46,129,.55)); }
+.module-visual.blue { background: linear-gradient(135deg, rgba(59,130,246,.35), rgba(30,64,175,.65)); }
+.continue-visual.blue { background: linear-gradient(135deg, rgba(59,130,246,.26), rgba(30,64,175,.5)); }
+.module-visual.emerald { background: linear-gradient(135deg, rgba(16,185,129,.34), rgba(6,95,70,.68)); }
+.continue-visual.emerald { background: linear-gradient(135deg, rgba(16,185,129,.24), rgba(6,95,70,.48)); }
+.module-visual.slate,
+.continue-visual.slate { background: linear-gradient(135deg, rgba(148,163,184,.24), rgba(30,41,59,.68)); }
+
 .module-icon {
   width: 44px; height: 44px;
   border-radius: 12px;
@@ -367,6 +433,18 @@ body {
 .module-info { flex: 1; min-width: 0; }
 .module-name { font-size: 14px; font-weight: 700; }
 .module-sub { font-size: 11px; color: var(--text2); margin-top: 2px; }
+.module-focus-tag {
+  display: inline-flex;
+  align-items: center;
+  margin-top: 8px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.06);
+  color: var(--text2);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .2px;
+}
 .module-prog { display: flex; align-items: center; gap: 6px; margin-top: 6px; }
 .module-prog-bar {
   flex: 1; height: 4px;
@@ -1788,4 +1866,16 @@ rt {
 @keyframes slideUp {
   from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 420px) {
+  .continue-visual {
+    width: 60px;
+    height: 60px;
+    right: 52px;
+  }
+  .module-visual {
+    width: 60px;
+    height: 60px;
+  }
 }
