@@ -2730,27 +2730,92 @@ window.App = (() => {
     const strokeNodes = strokeGroup ? Array.from(strokeGroup.children) : [];
     const strokeCount = strokeNodes.length || 1;
     const totalDuration = mode === 'inline'
-      ? Math.max(3.8, strokeCount * 0.9)
-      : Math.max(2.8, strokeCount * 0.75);
-    const strokeWindow = Math.max(0.4, totalDuration / strokeCount);
+      ? Math.max(4200, strokeCount * 900)
+      : Math.max(2800, strokeCount * 760);
+    const strokeWindow = Math.max(480, Math.round(totalDuration / strokeCount));
 
     strokeNodes.forEach((node, idx) => {
       const paths = node.tagName?.toLowerCase() === 'path'
         ? [node]
         : Array.from(node.querySelectorAll('path'));
       paths.forEach(path => {
-        path.setAttribute('pathLength', '1');
         path.dataset.strokeIndex = String(idx);
-        path.style.setProperty('--stroke-delay', `${(idx * strokeWindow).toFixed(2)}s`);
-        path.style.setProperty('--stroke-window', `${strokeWindow.toFixed(2)}s`);
       });
     });
 
-    svgEl.style.setProperty('--stroke-cycle', `${totalDuration.toFixed(2)}s`);
-    svgEl.style.setProperty('--stroke-window', `${strokeWindow.toFixed(2)}s`);
-    svgEl.style.setProperty('--stroke-count', String(strokeCount));
+    svgEl.dataset.strokeMode = mode;
+    svgEl.dataset.strokeCount = String(strokeCount);
+    svgEl.dataset.strokeDuration = String(totalDuration);
+    svgEl.dataset.strokeWindow = String(strokeWindow);
 
     return { svgEl, strokeCount };
+  }
+
+  function _clearStrokeSvgAnimation(svgEl) {
+    if (!svgEl) return;
+    const timers = svgEl._strokeTimers || [];
+    timers.forEach(timer => clearTimeout(timer));
+    svgEl._strokeTimers = [];
+  }
+
+  function _primeStrokeSvgAnimation(svgEl) {
+    if (!svgEl) return [];
+    const paths = Array.from(svgEl.querySelectorAll('[data-stroke-index]'));
+    paths.forEach(path => {
+      const len = Math.max(1, Math.ceil(path.getTotalLength ? path.getTotalLength() : 100));
+      path.style.transition = 'none';
+      path.style.strokeDasharray = String(len);
+      path.style.strokeDashoffset = String(len);
+      path.style.opacity = '0';
+    });
+    void svgEl.getBoundingClientRect();
+    return paths;
+  }
+
+  function _runStrokeSvgAnimation(svgEl, { loop = false } = {}) {
+    if (!svgEl) return;
+    _clearStrokeSvgAnimation(svgEl);
+    const paths = _primeStrokeSvgAnimation(svgEl);
+    const strokeWindow = Number(svgEl.dataset.strokeWindow || 700);
+    const holdWindow = Math.max(180, Math.round(strokeWindow * 0.2));
+    const timers = [];
+
+    const grouped = new Map();
+    paths.forEach(path => {
+      const idx = Number(path.dataset.strokeIndex || 0);
+      if (!grouped.has(idx)) grouped.set(idx, []);
+      grouped.get(idx).push(path);
+    });
+
+    Array.from(grouped.entries()).forEach(([idx, groupPaths]) => {
+      const startAt = idx * strokeWindow;
+      const timer = setTimeout(() => {
+        groupPaths.forEach(path => {
+          const len = Math.max(1, Math.ceil(path.getTotalLength ? path.getTotalLength() : 100));
+          path.style.opacity = '1';
+          path.style.transition = `stroke-dashoffset ${Math.max(280, strokeWindow - holdWindow)}ms ease, opacity 120ms ease`;
+          path.style.strokeDasharray = String(len);
+          path.style.strokeDashoffset = '0';
+        });
+      }, startAt);
+      timers.push(timer);
+    });
+
+    if (loop) {
+      const totalDuration = Number(svgEl.dataset.strokeDuration || (grouped.size * strokeWindow));
+      timers.push(setTimeout(() => {
+        _runStrokeSvgAnimation(svgEl, { loop: true });
+      }, totalDuration + 320));
+    } else {
+      timers.push(setTimeout(() => {
+        paths.forEach(path => {
+          path.style.opacity = '1';
+          path.style.strokeDashoffset = '0';
+        });
+      }, grouped.size * strokeWindow));
+    }
+
+    svgEl._strokeTimers = timers;
   }
 
   async function _mountInlineStrokePreview(kana, mountId) {
@@ -2761,9 +2826,9 @@ window.App = (() => {
       const svgText = await _loadStrokeSvgSource(kana);
       if (!document.getElementById(mountId)) return;
       const { svgEl } = _prepareStrokeSvgElement(svgText, 'inline');
-      svgEl.classList.add('is-animated');
       host.innerHTML = '';
       host.appendChild(svgEl);
+      _runStrokeSvgAnimation(svgEl, { loop: true });
     } catch (_) {
       if (document.getElementById(mountId)) {
         host.innerHTML = `<div class="inline-stroke-loading is-error">획순 미리보기를 불러오지 못했어요</div>`;
@@ -2871,9 +2936,7 @@ window.App = (() => {
 
   function _restartStrokeSvgAnimation(svgEl) {
     if (!svgEl) return;
-    svgEl.classList.remove('is-animated');
-    void svgEl.getBoundingClientRect();
-    svgEl.classList.add('is-animated');
+    _runStrokeSvgAnimation(svgEl, { loop: svgEl.dataset.strokeMode === 'inline' });
   }
 
   function _showStrokePanel(kana) {
@@ -2936,6 +2999,8 @@ window.App = (() => {
   }
 
   function _closeStrokePanel() {
+    const activeSvg = document.querySelector('#strokeModal .strokesvg-render');
+    if (activeSvg) _clearStrokeSvgAnimation(activeSvg);
     _strokeState = null;
     const m = document.getElementById('strokeModal');
     if (m) m.remove();

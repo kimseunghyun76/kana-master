@@ -836,10 +836,9 @@ body {
   fill: none;
   stroke-linecap: round;
   stroke-linejoin: round;
+  filter: drop-shadow(0 0 10px rgba(255,255,255,.12));
 }
 .strokesvg-render [data-stroke-index] {
-  stroke-dasharray: 1;
-  stroke-dashoffset: 1;
   opacity: 0;
 }
 .inline-stroke-svg-host .strokesvg-render {
@@ -847,20 +846,6 @@ body {
 }
 .inline-stroke-svg-host .strokesvg-render [data-strokesvg="shadows"] {
   fill: rgba(167,139,250,.14);
-}
-.inline-stroke-svg-host .strokesvg-render.is-animated [data-stroke-index] {
-  animation-name: strokesvgRevealLoop;
-  animation-duration: var(--stroke-cycle);
-  animation-timing-function: linear;
-  animation-iteration-count: infinite;
-  animation-delay: var(--stroke-delay);
-}
-.stroke-svg-host .strokesvg-render.is-animated [data-stroke-index] {
-  animation-name: strokesvgRevealOnce;
-  animation-duration: var(--stroke-window);
-  animation-timing-function: ease;
-  animation-fill-mode: both;
-  animation-delay: var(--stroke-delay);
 }
 .kana-examples {
   display: flex;
@@ -1831,32 +1816,6 @@ rt {
   color: var(--text2);
   min-width: 50px;
   text-align: center;
-}
-
-@keyframes strokesvgRevealLoop {
-  0% {
-    opacity: 0;
-    stroke-dashoffset: 1;
-  }
-  10% {
-    opacity: 1;
-    stroke-dashoffset: 1;
-  }
-  28%, 100% {
-    opacity: 1;
-    stroke-dashoffset: 0;
-  }
-}
-
-@keyframes strokesvgRevealOnce {
-  from {
-    opacity: 1;
-    stroke-dashoffset: 1;
-  }
-  to {
-    opacity: 1;
-    stroke-dashoffset: 0;
-  }
 }
 
 /* ── JLPT Badge Colors ────────────────────────────────────── */
