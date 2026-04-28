@@ -364,9 +364,7 @@ window.App = (() => {
                onclick="${!modLocked ? `App.openModule('${mod.id}')` : ''}">
             <div class="module-visual ${visual.tone}">
               ${visual.image ? `<img src="${visual.image}" alt="${escHtml(mod.name)}">` : `<span class="module-visual-emoji">${escHtml(mod.icon)}</span>`}
-            </div>
-            <div class="module-icon" style="${mod.iconIsText ? 'font-size:24px;' : ''}">
-              ${escHtml(mod.icon)}
+              <div class="module-visual-overlay">${escHtml(mod.icon)}</div>
             </div>
             <div class="module-info">
               <div class="module-name">${escHtml(mod.name)}</div>
@@ -796,6 +794,7 @@ window.App = (() => {
       const c = st.chars[st.cardIdx];
       const safeC = c.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
       const info = KANA_MAP[c] || {};
+      const strokePreview = _buildInlineStrokePreview(c);
       const examples = (info.examples || []).slice(0, 3)
         .map(ex => {
           const word = stripFuri(ex.word || '');
@@ -829,9 +828,14 @@ window.App = (() => {
             <div class="kana-card-inner">
               <div class="kana-face">
                 <button class="kana-sound-btn" onclick="event.stopPropagation();TTS.speak('${safeC}')" title="발음 듣기">🔊</button>
-                <button class="kana-stroke-btn" onclick="event.stopPropagation();App._showStrokePanel('${safeC}')" title="획순 보기">✍️</button>
                 <div class="kana-type-label">${escHtml(typeLabel)}</div>
                 <div class="kana-char ${isSmallKana(c) ? 'is-small' : ''}">${ruby(c)}</div>
+                ${strokePreview ? `
+                  <div class="kana-inline-stroke" onclick="event.stopPropagation();App._showStrokePanel('${safeC}')">
+                    <div class="kana-inline-stroke-label">붓글씨 획순 미리보기</div>
+                    ${strokePreview}
+                  </div>
+                ` : ''}
                 <div class="kana-tap-hint">탭해서 읽는 법 보기 👆</div>
               </div>
               <div class="kana-back">
@@ -2631,6 +2635,29 @@ window.App = (() => {
 
   // ── 획순 애니메이션 ────────────────────────────────────────
   let _strokeState = null; // { kana, strokes, stepIdx, timer }
+
+  function _buildInlineStrokePreview(kana) {
+    const data = (typeof STROKE_DATA !== 'undefined') ? STROKE_DATA[kana] : null;
+    if (!data?.strokes?.length) return '';
+    const duration = (data.strokes.length * 0.55) + 1.1;
+    const guides = `
+      <line class="inline-stroke-guide" x1="54.5" y1="0" x2="54.5" y2="109"></line>
+      <line class="inline-stroke-guide" x1="0" y1="54.5" x2="109" y2="54.5"></line>
+    `;
+    const paths = data.strokes.map((d, i) => `
+      <path class="inline-stroke-base" d="${d}"></path>
+      <path class="inline-stroke-anim" d="${d}" pathLength="100"
+            style="--stroke-delay:${(i * 0.55).toFixed(2)}s;--stroke-cycle:${duration.toFixed(2)}s"></path>
+    `).join('');
+    return `
+      <div class="inline-stroke-svg-wrap">
+        <svg viewBox="0 0 109 109" xmlns="http://www.w3.org/2000/svg" class="inline-stroke-svg">
+          ${guides}
+          ${paths}
+        </svg>
+      </div>
+    `;
+  }
 
   function _getStrokeCharsForWord(word) {
     const clean = Array.from(stripFuri(word || ''))
