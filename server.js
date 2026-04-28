@@ -22,11 +22,31 @@ const MIME = {
   '.woff': 'font/woff',
 };
 
+function resolveExistingPath(requestPath) {
+  const candidates = [
+    requestPath,
+    requestPath.normalize('NFC'),
+    requestPath.normalize('NFD'),
+  ];
+  for (const candidate of candidates) {
+    const fullPath = path.join(BASE, candidate);
+    if (fullPath.startsWith(BASE) && fs.existsSync(fullPath)) return fullPath;
+  }
+  return path.join(BASE, requestPath);
+}
+
 const server = http.createServer((req, res) => {
   let urlPath = req.url.split('?')[0];
+  try {
+    urlPath = decodeURIComponent(urlPath);
+  } catch {
+    res.writeHead(400, { 'Content-Type': 'text/plain; charset=utf-8' });
+    res.end('Bad Request');
+    return;
+  }
   if (urlPath === '/') urlPath = '/index.html';
 
-  const filePath = path.join(BASE, urlPath);
+  const filePath = resolveExistingPath(urlPath);
   const ext = path.extname(filePath);
 
   // 경로 탈출 방지
