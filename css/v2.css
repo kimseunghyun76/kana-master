@@ -805,31 +805,61 @@ body {
   border: 1px solid rgba(255,255,255,.06);
   overflow: hidden;
 }
-.inline-stroke-svg {
+.inline-stroke-svg-host {
   width: 100%;
   height: 100%;
+  display: grid;
+  place-items: center;
 }
-.inline-stroke-guide {
-  stroke: rgba(255,255,255,.05);
-  stroke-width: 1;
+.inline-stroke-loading,
+.stroke-svg-loading {
+  font-size: 12px;
+  color: var(--text3);
+  text-align: center;
+  line-height: 1.5;
+  padding: 0 16px;
 }
-.inline-stroke-base {
-  fill: none;
-  stroke: rgba(167,139,250,.18);
-  stroke-width: 4;
-  stroke-linecap: round;
-  stroke-linejoin: round;
+.inline-stroke-loading.is-error,
+.stroke-svg-loading.is-error {
+  color: #fda4af;
 }
-.inline-stroke-anim {
-  fill: none;
+.strokesvg-render {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.strokesvg-render [data-strokesvg="shadows"] {
+  fill: rgba(167,139,250,.16);
+}
+.strokesvg-render [data-strokesvg="strokes"] {
   stroke: #fff;
-  stroke-width: 4.2;
+  fill: none;
   stroke-linecap: round;
   stroke-linejoin: round;
-  stroke-dasharray: 100;
-  stroke-dashoffset: 100;
-  filter: drop-shadow(0 0 6px rgba(255,255,255,.2));
-  animation: inlineStrokeReveal var(--stroke-cycle) ease-in-out infinite;
+}
+.strokesvg-render [data-stroke-index] {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  opacity: 0;
+}
+.inline-stroke-svg-host .strokesvg-render {
+  padding: 8px;
+}
+.inline-stroke-svg-host .strokesvg-render [data-strokesvg="shadows"] {
+  fill: rgba(167,139,250,.14);
+}
+.inline-stroke-svg-host .strokesvg-render.is-animated [data-stroke-index] {
+  animation-name: strokesvgRevealLoop;
+  animation-duration: var(--stroke-cycle);
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  animation-delay: var(--stroke-delay);
+}
+.stroke-svg-host .strokesvg-render.is-animated [data-stroke-index] {
+  animation-name: strokesvgRevealOnce;
+  animation-duration: var(--stroke-window);
+  animation-timing-function: ease;
+  animation-fill-mode: both;
   animation-delay: var(--stroke-delay);
 }
 .kana-examples {
@@ -1703,8 +1733,15 @@ rt {
   border: 1px solid var(--border);
   overflow: visible;
 }
+.stroke-svg-host {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+}
 .stroke-svg-wrap svg {
-  width: 100%; height: 100%;
+  width: 100%;
+  height: 100%;
 }
 /* grid guidelines inside SVG */
 .stroke-guide-line {
@@ -1794,6 +1831,32 @@ rt {
   color: var(--text2);
   min-width: 50px;
   text-align: center;
+}
+
+@keyframes strokesvgRevealLoop {
+  0% {
+    opacity: 0;
+    stroke-dashoffset: 1;
+  }
+  10% {
+    opacity: 1;
+    stroke-dashoffset: 1;
+  }
+  28%, 100% {
+    opacity: 1;
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes strokesvgRevealOnce {
+  from {
+    opacity: 1;
+    stroke-dashoffset: 1;
+  }
+  to {
+    opacity: 1;
+    stroke-dashoffset: 0;
+  }
 }
 
 /* ── JLPT Badge Colors ────────────────────────────────────── */
@@ -1993,28 +2056,6 @@ rt {
 @keyframes slideUp {
   from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes inlineStrokeReveal {
-  0% {
-    stroke-dashoffset: 100;
-    opacity: 0;
-  }
-  12% {
-    opacity: 1;
-  }
-  28% {
-    stroke-dashoffset: 0;
-    opacity: 1;
-  }
-  44% {
-    stroke-dashoffset: 0;
-    opacity: .25;
-  }
-  100% {
-    stroke-dashoffset: 0;
-    opacity: 0;
-  }
 }
 
 @media (max-width: 420px) {

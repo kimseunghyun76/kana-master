@@ -794,7 +794,8 @@ window.App = (() => {
       const c = st.chars[st.cardIdx];
       const safeC = c.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
       const info = KANA_MAP[c] || {};
-      const strokePreview = _buildInlineStrokePreview(c);
+      const strokeMountId = `inlineStroke-${stepIndex}-${st.cardIdx}-${c.codePointAt(0)}`;
+      const strokePreview = _buildInlineStrokePreview(c, strokeMountId);
       const examples = (info.examples || []).slice(0, 3)
         .map(ex => {
           const word = stripFuri(ex.word || '');
@@ -866,6 +867,8 @@ window.App = (() => {
           </button>
         </div>
       `;
+
+      if (strokePreview) _mountInlineStrokePreview(c, strokeMountId);
     }
 
     _flow._kanaRender = render;
@@ -2634,132 +2637,141 @@ window.App = (() => {
   }
 
   // ── 획순 애니메이션 ────────────────────────────────────────
-  let _strokeState = null; // { kana, strokes, stepIdx, timer }
+  let _strokeState = null;
+  const _strokeSvgCache = new Map();
+  let _strokeSvgInstanceSeq = 0;
 
-  function _buildInlineStrokePreview(kana) {
-    const data = (typeof STROKE_DATA !== 'undefined') ? STROKE_DATA[kana] : null;
-    if (!data?.strokes?.length) return '';
-    const duration = (data.strokes.length * 0.55) + 1.1;
-    const guides = `
-      <line class="inline-stroke-guide" x1="54.5" y1="0" x2="54.5" y2="109"></line>
-      <line class="inline-stroke-guide" x1="0" y1="54.5" x2="109" y2="54.5"></line>
-    `;
-    const paths = data.strokes.map((d, i) => `
-      <path class="inline-stroke-base" d="${d}"></path>
-      <path class="inline-stroke-anim" d="${d}" pathLength="100"
-            style="--stroke-delay:${(i * 0.55).toFixed(2)}s;--stroke-cycle:${duration.toFixed(2)}s"></path>
-    `).join('');
-    return `
-      <div class="inline-stroke-svg-wrap">
-        <svg viewBox="0 0 109 109" xmlns="http://www.w3.org/2000/svg" class="inline-stroke-svg">
-          ${guides}
-          ${paths}
-        </svg>
-      </div>
-    `;
+  function _isStrokeKanaChar(ch) {
+    if (!ch) return false;
+    const code = ch.codePointAt(0);
+    return (code >= 0x3040 && code <= 0x309f) || (code >= 0x30a0 && code <= 0x30ff);
   }
 
   function _getStrokeCharsForWord(word) {
     const clean = Array.from(stripFuri(word || ''))
       .filter(ch => ch && !/[~〜・\s()（）]/.test(ch));
     if (!clean.length) return [];
-    return clean.every(ch => typeof STROKE_DATA !== 'undefined' && STROKE_DATA[ch]) ? clean : [];
+    return clean.every(_isStrokeKanaChar) ? clean : [];
   }
 
-  function _setStrokeTarget(kana) {
-    if (!kana) return false;
-    const data = (typeof STROKE_DATA !== 'undefined') ? STROKE_DATA[kana] : null;
-    if (!data) return false;
-    _strokeState.kana = kana;
-    _strokeState.strokes = data.strokes;
-    _strokeState.stepIdx = -1;
-    return true;
-  }
-
-  function _showStrokePanel(kana) {
-    const data = (typeof STROKE_DATA !== 'undefined') ? STROKE_DATA[kana] : null;
-    if (!data) { showToast('획순 데이터가 없습니다'); return; }
-
-    // 기존 모달 제거
-    const existing = document.getElementById('strokeModal');
-    if (existing) existing.remove();
-    if (_strokeState && _strokeState.timer) clearInterval(_strokeState.timer);
-
-    _strokeState = {
-      mode: 'single',
-      word: kana,
-      chars: [kana],
-      charIdx: 0,
-      kana,
-      strokes: data.strokes,
-      stepIdx: -1,
-      timer: null
+  function _getStrokeSvgMeta(kana) {
+    if (!_isStrokeKanaChar(kana)) return null;
+    const code = kana.codePointAt(0);
+    const folder = (code >= 0x3040 && code <= 0x309f) ? 'hiragana' : 'katakana';
+    const filename = `${kana.normalize('NFD')}.svg`;
+    return {
+      folder,
+      filename,
+      url: `assets/strokesvg/dist/${folder}/${encodeURIComponent(filename)}`
     };
+  }
 
-    const overlay = document.createElement('div');
-    overlay.id = 'strokeModal';
-    overlay.style.cssText = `
-      position:fixed;inset:0;z-index:2000;
-      background:rgba(0,0,0,.75);
-      display:flex;align-items:center;justify-content:center;
-      padding:24px;
-    `;
-    overlay.innerHTML = `
-      <div style="
-        background:var(--bg2);border-radius:24px;
-        border:1px solid var(--border);
-        padding:24px 20px 20px;
-        width:100%;max-width:340px;
-        display:flex;flex-direction:column;align-items:center;gap:14px;
-        position:relative;
-      ">
-        <button onclick="App._closeStrokePanel()"
-          style="position:absolute;top:12px;right:12px;
-            width:32px;height:32px;border-radius:50%;
-            border:none;background:var(--bg3);color:var(--text);
-            font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center">✕</button>
-        <div style="font-size:13px;color:var(--text3);letter-spacing:1px">✏️ 획순 애니메이션</div>
-        <div style="font-size:64px;font-family:'Noto Sans JP',serif;line-height:1;color:#fff;letter-spacing:0">${kana}</div>
-        <div class="stroke-word-strip" id="strokeWordStrip"></div>
-        <div class="stroke-svg-wrap" id="strokeSvgWrap">
-          ${_buildStrokeSVG(data.strokes, -1)}
+  function _buildInlineStrokePreview(kana, mountId) {
+    if (!_getStrokeSvgMeta(kana)) return '';
+    return `
+      <div class="inline-stroke-svg-wrap">
+        <div class="inline-stroke-svg-host" id="${mountId}">
+          <div class="inline-stroke-loading">붓글씨 획순을 준비하고 있어요…</div>
         </div>
-        <div class="stroke-counter" id="strokeCounter">시작 전</div>
-        <div class="stroke-controls">
-          <button class="stroke-btn" onclick="App._strokeStep(-1)">◀ 이전</button>
-          <button class="stroke-btn primary" id="strokePlayBtn" onclick="App._strokePlay()">▶ 자동 재생</button>
-          <button class="stroke-btn" onclick="App._strokeStep(1)">다음 ▶</button>
-        </div>
-        <div style="font-size:11px;color:var(--text3)">총 ${data.strokes.length}획</div>
       </div>
     `;
-    document.body.appendChild(overlay);
-    overlay.addEventListener('click', e => { if (e.target === overlay) App._closeStrokePanel(); });
-
-    _strokeRenderMeta();
-    // 첫 획부터 자동 재생
-    _strokeAutoPlay();
   }
 
-  function _showStrokeWord(word) {
-    const chars = _getStrokeCharsForWord(word);
-    if (!chars.length) { showToast('이 예시 단어는 아직 획순 지원이 없습니다'); return; }
+  async function _loadStrokeSvgSource(kana) {
+    const meta = _getStrokeSvgMeta(kana);
+    if (!meta) throw new Error('unsupported-kana');
+    if (!_strokeSvgCache.has(meta.url)) {
+      _strokeSvgCache.set(meta.url, fetch(meta.url).then(res => {
+        if (!res.ok) throw new Error(`stroke-svg-${res.status}`);
+        return res.text();
+      }));
+    }
+    return _strokeSvgCache.get(meta.url);
+  }
 
-    const existing = document.getElementById('strokeModal');
-    if (existing) existing.remove();
-    if (_strokeState && _strokeState.timer) clearInterval(_strokeState.timer);
+  function _rewriteStrokeSvgIds(svgEl, suffix) {
+    const idMap = new Map();
+    svgEl.querySelectorAll('[id]').forEach(node => {
+      const oldId = node.id;
+      const nextId = `${oldId}-${suffix}`;
+      idMap.set(oldId, nextId);
+      node.id = nextId;
+    });
 
-    _strokeState = {
-      mode: 'word',
-      word,
-      chars,
-      charIdx: 0,
-      kana: chars[0],
-      strokes: STROKE_DATA[chars[0]].strokes,
-      stepIdx: -1,
-      timer: null
+    const rewriteRef = (value) => {
+      if (!value) return value;
+      let next = value;
+      idMap.forEach((newId, oldId) => {
+        next = next.replaceAll(`url(#${oldId})`, `url(#${newId})`);
+        if (next === `#${oldId}`) next = `#${newId}`;
+      });
+      return next;
     };
 
+    svgEl.querySelectorAll('*').forEach(node => {
+      ['href', 'xlink:href', 'clip-path', 'mask', 'filter', 'fill', 'stroke'].forEach(attr => {
+        const val = node.getAttribute(attr);
+        if (val) node.setAttribute(attr, rewriteRef(val));
+      });
+    });
+  }
+
+  function _prepareStrokeSvgElement(svgText, mode) {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(svgText, 'image/svg+xml');
+    const svgEl = doc.documentElement;
+    const suffix = `stroke-${++_strokeSvgInstanceSeq}`;
+    _rewriteStrokeSvgIds(svgEl, suffix);
+
+    svgEl.classList.add('strokesvg-render', mode === 'inline' ? 'is-inline' : 'is-modal');
+    svgEl.setAttribute('aria-hidden', 'true');
+
+    const strokeGroup = svgEl.querySelector('g[data-strokesvg="strokes"]');
+    const strokeNodes = strokeGroup ? Array.from(strokeGroup.children) : [];
+    const strokeCount = strokeNodes.length || 1;
+    const totalDuration = mode === 'inline'
+      ? Math.max(3.8, strokeCount * 0.9)
+      : Math.max(2.8, strokeCount * 0.75);
+    const strokeWindow = Math.max(0.4, totalDuration / strokeCount);
+
+    strokeNodes.forEach((node, idx) => {
+      const paths = node.tagName?.toLowerCase() === 'path'
+        ? [node]
+        : Array.from(node.querySelectorAll('path'));
+      paths.forEach(path => {
+        path.setAttribute('pathLength', '1');
+        path.dataset.strokeIndex = String(idx);
+        path.style.setProperty('--stroke-delay', `${(idx * strokeWindow).toFixed(2)}s`);
+        path.style.setProperty('--stroke-window', `${strokeWindow.toFixed(2)}s`);
+      });
+    });
+
+    svgEl.style.setProperty('--stroke-cycle', `${totalDuration.toFixed(2)}s`);
+    svgEl.style.setProperty('--stroke-window', `${strokeWindow.toFixed(2)}s`);
+    svgEl.style.setProperty('--stroke-count', String(strokeCount));
+
+    return { svgEl, strokeCount };
+  }
+
+  async function _mountInlineStrokePreview(kana, mountId) {
+    const host = document.getElementById(mountId);
+    if (!host) return;
+    host.innerHTML = `<div class="inline-stroke-loading">붓글씨 획순을 준비하고 있어요…</div>`;
+    try {
+      const svgText = await _loadStrokeSvgSource(kana);
+      if (!document.getElementById(mountId)) return;
+      const { svgEl } = _prepareStrokeSvgElement(svgText, 'inline');
+      svgEl.classList.add('is-animated');
+      host.innerHTML = '';
+      host.appendChild(svgEl);
+    } catch (_) {
+      if (document.getElementById(mountId)) {
+        host.innerHTML = `<div class="inline-stroke-loading is-error">획순 미리보기를 불러오지 못했어요</div>`;
+      }
+    }
+  }
+
+  function _createStrokeModalShell(title, headline, helperText, showCharNav) {
     const overlay = document.createElement('div');
     overlay.id = 'strokeModal';
     overlay.style.cssText = `
@@ -2782,86 +2794,50 @@ window.App = (() => {
             width:32px;height:32px;border-radius:50%;
             border:none;background:var(--bg3);color:var(--text);
             font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center">✕</button>
-        <div style="font-size:13px;color:var(--text3);letter-spacing:1px">🖌️ 단어 획순</div>
-        <div style="font-size:34px;font-family:'Noto Sans JP',serif;line-height:1.2;color:#fff;text-align:center">${ruby(word)}</div>
+        <div class="stroke-panel-title">${title}</div>
+        <div style="font-size:34px;font-family:'Noto Sans JP',serif;line-height:1.2;color:#fff;text-align:center">${headline}</div>
         <div class="stroke-word-strip" id="strokeWordStrip"></div>
-        <div style="font-size:64px;font-family:'Noto Sans JP',serif;line-height:1;color:#fff;letter-spacing:0" id="strokeKanaDisplay">${chars[0]}</div>
-        <div class="stroke-svg-wrap" id="strokeSvgWrap">
-          ${_buildStrokeSVG(STROKE_DATA[chars[0]].strokes, -1)}
+        <div style="font-size:64px;font-family:'Noto Sans JP',serif;line-height:1;color:#fff;letter-spacing:0" id="strokeKanaDisplay"></div>
+        <div class="stroke-svg-wrap">
+          <div class="stroke-svg-host" id="strokeSvgHost">
+            <div class="stroke-svg-loading">획순 애니메이션을 불러오는 중…</div>
+          </div>
         </div>
-        <div class="stroke-counter" id="strokeCounter">시작 전</div>
-        <div class="stroke-char-nav">
-          <button class="stroke-btn" onclick="App._strokeWordStep(-1)">◀ 글자</button>
-          <div class="stroke-char-index" id="strokeCharIndex"></div>
-          <button class="stroke-btn" onclick="App._strokeWordStep(1)">글자 ▶</button>
-        </div>
+        <div class="stroke-counter" id="strokeCounter">준비 중</div>
+        ${showCharNav ? `
+          <div class="stroke-char-nav">
+            <button class="stroke-btn" onclick="App._strokeWordStep(-1)">◀ 글자</button>
+            <div class="stroke-char-index" id="strokeCharIndex"></div>
+            <button class="stroke-btn" onclick="App._strokeWordStep(1)">글자 ▶</button>
+          </div>
+        ` : ''}
         <div class="stroke-controls">
-          <button class="stroke-btn" onclick="App._strokeStep(-1)">◀ 이전</button>
-          <button class="stroke-btn primary" id="strokePlayBtn" onclick="App._strokePlay()">▶ 자동 재생</button>
-          <button class="stroke-btn" onclick="App._strokeStep(1)">다음 ▶</button>
+          <button class="stroke-btn primary" id="strokePlayBtn" onclick="App._strokePlay()">↻ 다시 재생</button>
         </div>
-        <div style="font-size:11px;color:var(--text3)">각 글자를 붓글씨 순서처럼 차례대로 따라 써 보세요</div>
+        <div style="font-size:11px;color:var(--text3)">${helperText}</div>
       </div>
     `;
     document.body.appendChild(overlay);
     overlay.addEventListener('click', e => { if (e.target === overlay) App._closeStrokePanel(); });
-    _strokeRenderMeta();
-    _strokeAutoPlay();
   }
 
-  function _buildStrokeSVG(strokes, activeIdx) {
-    // viewBox 109×109 → display 180×180
-    let paths = '';
-    // 십자 가이드선
-    paths += `<line class="stroke-guide-line" x1="54.5" y1="0" x2="54.5" y2="109"/>`;
-    paths += `<line class="stroke-guide-line" x1="0" y1="54.5" x2="109" y2="54.5"/>`;
+  async function _renderStrokeCurrentChar(autoPlay = true) {
+    if (!_strokeState?.chars?.length) return;
+    const kana = _strokeState.chars[_strokeState.charIdx];
+    _strokeState.kana = kana;
 
-    strokes.forEach((d, i) => {
-      let cls = 'stroke-path';
-      if (i < activeIdx) cls += ' done';
-      else if (i === activeIdx) cls += ' active';
-      paths += `<path class="${cls}" d="${d}" id="sp${i}"/>`;
-    });
-    return `<svg viewBox="0 0 109 109" xmlns="http://www.w3.org/2000/svg">${paths}</svg>`;
-  }
-
-  function _strokeUpdateSVG() {
-    const wrap = document.getElementById('strokeSvgWrap');
-    const counter = document.getElementById('strokeCounter');
-    if (!wrap || !_strokeState) return;
-    wrap.innerHTML = _buildStrokeSVG(_strokeState.strokes, _strokeState.stepIdx);
-    const total = _strokeState.strokes.length;
-    const idx = _strokeState.stepIdx;
-    if (idx < 0) {
-      counter.textContent = '시작 전';
-    } else if (idx >= total - 1) {
-      counter.textContent = `완료 (${total}획)`;
-    } else {
-      counter.textContent = `${idx + 1} / ${total} 획`;
-    }
-    // 현재 활성 획에 dash 애니메이션
-    const activePath = document.getElementById(`sp${idx}`);
-    if (activePath) {
-      const len = activePath.getTotalLength ? activePath.getTotalLength() : 100;
-      activePath.style.strokeDasharray = len;
-      activePath.style.strokeDashoffset = len;
-      activePath.style.transition = 'none';
-      void activePath.getBoundingClientRect();
-      activePath.style.transition = 'stroke-dashoffset 0.45s ease';
-      activePath.style.strokeDashoffset = '0';
-    }
-  }
-
-  function _strokeRenderMeta() {
-    if (!_strokeState) return;
     const display = document.getElementById('strokeKanaDisplay');
     const strip = document.getElementById('strokeWordStrip');
     const charIndex = document.getElementById('strokeCharIndex');
-    if (display) display.textContent = _strokeState.kana;
-    if (charIndex && _strokeState.chars?.length > 1) {
-      charIndex.textContent = `${_strokeState.charIdx + 1} / ${_strokeState.chars.length}`;
-    } else if (charIndex) {
-      charIndex.textContent = '한 글자';
+    const counter = document.getElementById('strokeCounter');
+    const host = document.getElementById('strokeSvgHost');
+    if (!host) return;
+
+    if (display) display.textContent = kana;
+    if (charIndex) {
+      charIndex.textContent = _strokeState.chars.length > 1
+        ? `${_strokeState.charIdx + 1} / ${_strokeState.chars.length}`
+        : '한 글자';
     }
     if (strip) {
       strip.innerHTML = (_strokeState.chars || []).map((ch, idx) => `
@@ -2869,27 +2845,84 @@ window.App = (() => {
                 onclick="App._strokeJumpToChar(${idx})">${escHtml(ch)}</button>
       `).join('');
     }
+
+    host.innerHTML = `<div class="stroke-svg-loading">획순 애니메이션을 불러오는 중…</div>`;
+    if (counter) counter.textContent = '준비 중';
+
+    try {
+      const svgText = await _loadStrokeSvgSource(kana);
+      if (!document.getElementById('strokeSvgHost')) return;
+      const { svgEl, strokeCount } = _prepareStrokeSvgElement(svgText, 'modal');
+      host.innerHTML = '';
+      host.appendChild(svgEl);
+      if (counter) counter.textContent = `${strokeCount}획 순서로 재생됩니다`;
+      if (autoPlay) {
+        requestAnimationFrame(() => {
+          const currentHost = document.getElementById('strokeSvgHost');
+          const currentSvg = currentHost?.querySelector('.strokesvg-render');
+          if (currentSvg) _restartStrokeSvgAnimation(currentSvg);
+        });
+      }
+    } catch (_) {
+      host.innerHTML = `<div class="stroke-svg-loading is-error">획순 SVG를 불러오지 못했어요</div>`;
+      if (counter) counter.textContent = '지원되지 않는 글자예요';
+    }
   }
 
-  function _strokeStep(dir) {
-    if (!_strokeState) return;
-    if (_strokeState.timer) { clearInterval(_strokeState.timer); _strokeState.timer = null; }
-    const btn = document.getElementById('strokePlayBtn');
-    if (btn) btn.textContent = '▶ 자동 재생';
-    _strokeState.stepIdx = Math.max(-1, Math.min(_strokeState.strokes.length - 1, _strokeState.stepIdx + dir));
-    _strokeUpdateSVG();
+  function _restartStrokeSvgAnimation(svgEl) {
+    if (!svgEl) return;
+    svgEl.classList.remove('is-animated');
+    void svgEl.getBoundingClientRect();
+    svgEl.classList.add('is-animated');
   }
 
-  function _strokeJumpToChar(index) {
+  function _showStrokePanel(kana) {
+    if (!_getStrokeSvgMeta(kana)) { showToast('획순 데이터가 없습니다'); return; }
+    _closeStrokePanel();
+    _strokeState = {
+      mode: 'single',
+      word: kana,
+      chars: [kana],
+      charIdx: 0,
+      kana
+    };
+    _createStrokeModalShell(
+      '붓글씨 획순',
+      kana,
+      '실제 획순 SVG로 재생됩니다. 눈으로 먼저 따라가고, 손으로 천천히 써 보세요.',
+      false
+    );
+    _renderStrokeCurrentChar(true);
+  }
+
+  function _showStrokeWord(word) {
+    const chars = _getStrokeCharsForWord(word);
+    if (!chars.length) { showToast('이 예시 단어는 아직 획순 지원이 없습니다'); return; }
+    _closeStrokePanel();
+    _strokeState = {
+      mode: 'word',
+      word,
+      chars,
+      charIdx: 0,
+      kana: chars[0]
+    };
+    _createStrokeModalShell(
+      '단어 획순',
+      ruby(word),
+      '단어를 이루는 각 글자를 하나씩 넘기며 획순을 정확하게 익혀 보세요.',
+      true
+    );
+    _renderStrokeCurrentChar(true);
+  }
+
+  function _strokeStep() {
+    _strokePlay();
+  }
+
+  async function _strokeJumpToChar(index) {
     if (!_strokeState?.chars?.length) return;
-    const nextIdx = Math.max(0, Math.min(_strokeState.chars.length - 1, index));
-    if (_strokeState.timer) { clearInterval(_strokeState.timer); _strokeState.timer = null; }
-    const btn = document.getElementById('strokePlayBtn');
-    if (btn) btn.textContent = '▶ 자동 재생';
-    _strokeState.charIdx = nextIdx;
-    _setStrokeTarget(_strokeState.chars[nextIdx]);
-    _strokeRenderMeta();
-    _strokeUpdateSVG();
+    _strokeState.charIdx = Math.max(0, Math.min(_strokeState.chars.length - 1, index));
+    await _renderStrokeCurrentChar(true);
   }
 
   function _strokeWordStep(dir) {
@@ -2898,38 +2931,11 @@ window.App = (() => {
   }
 
   function _strokePlay() {
-    if (!_strokeState) return;
-    const btn = document.getElementById('strokePlayBtn');
-    if (_strokeState.timer) {
-      clearInterval(_strokeState.timer);
-      _strokeState.timer = null;
-      if (btn) btn.textContent = '▶ 자동 재생';
-      return;
-    }
-    // 처음부터 재생
-    _strokeState.stepIdx = -1;
-    _strokeUpdateSVG();
-    if (btn) btn.textContent = '⏸ 일시정지';
-    _strokeState.timer = setInterval(() => {
-      _strokeState.stepIdx++;
-      _strokeUpdateSVG();
-      if (_strokeState.stepIdx >= _strokeState.strokes.length - 1) {
-        clearInterval(_strokeState.timer);
-        _strokeState.timer = null;
-        if (btn) btn.textContent = '▶ 다시 재생';
-      }
-    }, 700);
-  }
-
-  function _strokeAutoPlay() {
-    // 약간 딜레이 후 자동 시작
-    setTimeout(() => {
-      if (document.getElementById('strokeModal')) _strokePlay();
-    }, 300);
+    const svgEl = document.querySelector('#strokeSvgHost .strokesvg-render');
+    if (svgEl) _restartStrokeSvgAnimation(svgEl);
   }
 
   function _closeStrokePanel() {
-    if (_strokeState && _strokeState.timer) { clearInterval(_strokeState.timer); _strokeState.timer = null; }
     _strokeState = null;
     const m = document.getElementById('strokeModal');
     if (m) m.remove();
