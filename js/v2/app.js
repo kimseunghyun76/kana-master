@@ -797,10 +797,17 @@ window.App = (() => {
       const safeC = c.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
       const info = KANA_MAP[c] || {};
       const examples = (info.examples || []).slice(0, 3)
-        .map(ex => `<div class="kana-ex-pill">
+        .map(ex => {
+          const word = stripFuri(ex.word || '');
+          const safeWord = word.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+          const strokeable = _getStrokeCharsForWord(word).length > 0;
+          return `<div class="kana-ex-pill ${strokeable ? 'is-strokeable' : ''}"
+          ${strokeable ? `onclick="App._showStrokeWord('${safeWord}')"` : ''}>
           <span class="ex-word">${escHtml(ex.word)}</span>
           <span style="color:var(--text3)"> — </span>${escHtml(ex.meaning)}
-        </div>`).join('');
+          ${strokeable ? `<span class="ex-stroke-tag">획순</span>` : ''}
+        </div>`;
+        }).join('');
 
       const typeLabel = st.customLabel || st.level.type
         .replace('hiragana_dakuten','히라가나 탁음')
@@ -822,6 +829,7 @@ window.App = (() => {
             <div class="kana-card-inner">
               <div class="kana-face">
                 <button class="kana-sound-btn" onclick="event.stopPropagation();TTS.speak('${safeC}')" title="발음 듣기">🔊</button>
+                <button class="kana-stroke-btn" onclick="event.stopPropagation();App._showStrokePanel('${safeC}')" title="획순 보기">✍️</button>
                 <div class="kana-type-label">${escHtml(typeLabel)}</div>
                 <div class="kana-char ${isSmallKana(c) ? 'is-small' : ''}">${ruby(c)}</div>
                 <div class="kana-tap-hint">탭해서 읽는 법 보기 👆</div>
@@ -2624,16 +2632,42 @@ window.App = (() => {
   // ── 획순 애니메이션 ────────────────────────────────────────
   let _strokeState = null; // { kana, strokes, stepIdx, timer }
 
+  function _getStrokeCharsForWord(word) {
+    const clean = Array.from(stripFuri(word || ''))
+      .filter(ch => ch && !/[~〜・\s()（）]/.test(ch));
+    if (!clean.length) return [];
+    return clean.every(ch => typeof STROKE_DATA !== 'undefined' && STROKE_DATA[ch]) ? clean : [];
+  }
+
+  function _setStrokeTarget(kana) {
+    if (!kana) return false;
+    const data = (typeof STROKE_DATA !== 'undefined') ? STROKE_DATA[kana] : null;
+    if (!data) return false;
+    _strokeState.kana = kana;
+    _strokeState.strokes = data.strokes;
+    _strokeState.stepIdx = -1;
+    return true;
+  }
+
   function _showStrokePanel(kana) {
     const data = (typeof STROKE_DATA !== 'undefined') ? STROKE_DATA[kana] : null;
-    if (!data) { _toast('획순 데이터가 없습니다'); return; }
+    if (!data) { showToast('획순 데이터가 없습니다'); return; }
 
     // 기존 모달 제거
     const existing = document.getElementById('strokeModal');
     if (existing) existing.remove();
     if (_strokeState && _strokeState.timer) clearInterval(_strokeState.timer);
 
-    _strokeState = { kana, strokes: data.strokes, stepIdx: -1, timer: null };
+    _strokeState = {
+      mode: 'single',
+      word: kana,
+      chars: [kana],
+      charIdx: 0,
+      kana,
+      strokes: data.strokes,
+      stepIdx: -1,
+      timer: null
+    };
 
     const overlay = document.createElement('div');
     overlay.id = 'strokeModal';
@@ -2659,6 +2693,7 @@ window.App = (() => {
             font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center">✕</button>
         <div style="font-size:13px;color:var(--text3);letter-spacing:1px">✏️ 획순 애니메이션</div>
         <div style="font-size:64px;font-family:'Noto Sans JP',serif;line-height:1;color:#fff;letter-spacing:0">${kana}</div>
+        <div class="stroke-word-strip" id="strokeWordStrip"></div>
         <div class="stroke-svg-wrap" id="strokeSvgWrap">
           ${_buildStrokeSVG(data.strokes, -1)}
         </div>
@@ -2674,7 +2709,76 @@ window.App = (() => {
     document.body.appendChild(overlay);
     overlay.addEventListener('click', e => { if (e.target === overlay) App._closeStrokePanel(); });
 
+    _strokeRenderMeta();
     // 첫 획부터 자동 재생
+    _strokeAutoPlay();
+  }
+
+  function _showStrokeWord(word) {
+    const chars = _getStrokeCharsForWord(word);
+    if (!chars.length) { showToast('이 예시 단어는 아직 획순 지원이 없습니다'); return; }
+
+    const existing = document.getElementById('strokeModal');
+    if (existing) existing.remove();
+    if (_strokeState && _strokeState.timer) clearInterval(_strokeState.timer);
+
+    _strokeState = {
+      mode: 'word',
+      word,
+      chars,
+      charIdx: 0,
+      kana: chars[0],
+      strokes: STROKE_DATA[chars[0]].strokes,
+      stepIdx: -1,
+      timer: null
+    };
+
+    const overlay = document.createElement('div');
+    overlay.id = 'strokeModal';
+    overlay.style.cssText = `
+      position:fixed;inset:0;z-index:2000;
+      background:rgba(0,0,0,.75);
+      display:flex;align-items:center;justify-content:center;
+      padding:24px;
+    `;
+    overlay.innerHTML = `
+      <div style="
+        background:var(--bg2);border-radius:24px;
+        border:1px solid var(--border);
+        padding:24px 20px 20px;
+        width:100%;max-width:360px;
+        display:flex;flex-direction:column;align-items:center;gap:14px;
+        position:relative;
+      ">
+        <button onclick="App._closeStrokePanel()"
+          style="position:absolute;top:12px;right:12px;
+            width:32px;height:32px;border-radius:50%;
+            border:none;background:var(--bg3);color:var(--text);
+            font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center">✕</button>
+        <div style="font-size:13px;color:var(--text3);letter-spacing:1px">🖌️ 단어 획순</div>
+        <div style="font-size:34px;font-family:'Noto Sans JP',serif;line-height:1.2;color:#fff;text-align:center">${ruby(word)}</div>
+        <div class="stroke-word-strip" id="strokeWordStrip"></div>
+        <div style="font-size:64px;font-family:'Noto Sans JP',serif;line-height:1;color:#fff;letter-spacing:0" id="strokeKanaDisplay">${chars[0]}</div>
+        <div class="stroke-svg-wrap" id="strokeSvgWrap">
+          ${_buildStrokeSVG(STROKE_DATA[chars[0]].strokes, -1)}
+        </div>
+        <div class="stroke-counter" id="strokeCounter">시작 전</div>
+        <div class="stroke-char-nav">
+          <button class="stroke-btn" onclick="App._strokeWordStep(-1)">◀ 글자</button>
+          <div class="stroke-char-index" id="strokeCharIndex"></div>
+          <button class="stroke-btn" onclick="App._strokeWordStep(1)">글자 ▶</button>
+        </div>
+        <div class="stroke-controls">
+          <button class="stroke-btn" onclick="App._strokeStep(-1)">◀ 이전</button>
+          <button class="stroke-btn primary" id="strokePlayBtn" onclick="App._strokePlay()">▶ 자동 재생</button>
+          <button class="stroke-btn" onclick="App._strokeStep(1)">다음 ▶</button>
+        </div>
+        <div style="font-size:11px;color:var(--text3)">각 글자를 붓글씨 순서처럼 차례대로 따라 써 보세요</div>
+      </div>
+    `;
+    document.body.appendChild(overlay);
+    overlay.addEventListener('click', e => { if (e.target === overlay) App._closeStrokePanel(); });
+    _strokeRenderMeta();
     _strokeAutoPlay();
   }
 
@@ -2721,6 +2825,25 @@ window.App = (() => {
     }
   }
 
+  function _strokeRenderMeta() {
+    if (!_strokeState) return;
+    const display = document.getElementById('strokeKanaDisplay');
+    const strip = document.getElementById('strokeWordStrip');
+    const charIndex = document.getElementById('strokeCharIndex');
+    if (display) display.textContent = _strokeState.kana;
+    if (charIndex && _strokeState.chars?.length > 1) {
+      charIndex.textContent = `${_strokeState.charIdx + 1} / ${_strokeState.chars.length}`;
+    } else if (charIndex) {
+      charIndex.textContent = '한 글자';
+    }
+    if (strip) {
+      strip.innerHTML = (_strokeState.chars || []).map((ch, idx) => `
+        <button class="stroke-char-chip ${idx === _strokeState.charIdx ? 'active' : ''}"
+                onclick="App._strokeJumpToChar(${idx})">${escHtml(ch)}</button>
+      `).join('');
+    }
+  }
+
   function _strokeStep(dir) {
     if (!_strokeState) return;
     if (_strokeState.timer) { clearInterval(_strokeState.timer); _strokeState.timer = null; }
@@ -2728,6 +2851,23 @@ window.App = (() => {
     if (btn) btn.textContent = '▶ 자동 재생';
     _strokeState.stepIdx = Math.max(-1, Math.min(_strokeState.strokes.length - 1, _strokeState.stepIdx + dir));
     _strokeUpdateSVG();
+  }
+
+  function _strokeJumpToChar(index) {
+    if (!_strokeState?.chars?.length) return;
+    const nextIdx = Math.max(0, Math.min(_strokeState.chars.length - 1, index));
+    if (_strokeState.timer) { clearInterval(_strokeState.timer); _strokeState.timer = null; }
+    const btn = document.getElementById('strokePlayBtn');
+    if (btn) btn.textContent = '▶ 자동 재생';
+    _strokeState.charIdx = nextIdx;
+    _setStrokeTarget(_strokeState.chars[nextIdx]);
+    _strokeRenderMeta();
+    _strokeUpdateSVG();
+  }
+
+  function _strokeWordStep(dir) {
+    if (!_strokeState?.chars?.length) return;
+    _strokeJumpToChar(_strokeState.charIdx + dir);
   }
 
   function _strokePlay() {
@@ -3247,6 +3387,9 @@ window.App = (() => {
     _closeStrokePanel,
     _strokeStep,
     _strokePlay,
+    _showStrokeWord,
+    _strokeWordStep,
+    _strokeJumpToChar,
   };
 })();
 
