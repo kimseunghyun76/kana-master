@@ -24,6 +24,7 @@ window.App = (() => {
       streak: `<svg viewBox="0 0 24 24" class="${cls}" aria-hidden="true"><path d="M13.2 2.8c.6 2.6-.2 4.7-2.5 6.5-2 1.6-2.9 3.4-2.9 5.5 0 3 2 5.2 5 5.2s5.2-2.4 5.2-5.6c0-2.8-1.4-5-4.2-6.9.1 1.6-.5 2.8-1.8 3.8.3-2.6-.5-4.9-2.4-7.1.1-.4.2-.9.2-1.4Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>`,
       target: `<svg viewBox="0 0 24 24" class="${cls}" aria-hidden="true"><circle cx="12" cy="12" r="7.5" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="3.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 4v3M20 12h-3M12 20v-3M4 12h3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>`,
       check: `<svg viewBox="0 0 24 24" class="${cls}" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="m8.5 12.2 2.4 2.4 4.7-5.1" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+      close: `<svg viewBox="0 0 24 24" class="${cls}" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M9 9l6 6M15 9l-6 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>`,
       progress: `<svg viewBox="0 0 24 24" class="${cls}" aria-hidden="true"><path d="M5 12h14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="m13 7 5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
       lock: `<svg viewBox="0 0 24 24" class="${cls}" aria-hidden="true"><rect x="5" y="10" width="14" height="10" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M8 10V7.8A4 4 0 0 1 12 4a4 4 0 0 1 4 3.8V10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>`,
       book: `<svg viewBox="0 0 24 24" class="${cls}" aria-hidden="true"><path d="M6 5.5A2.5 2.5 0 0 1 8.5 3H19v16H8.5A2.5 2.5 0 0 0 6 21V5.5Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M8.8 7.5h6M8.8 11h6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>`,
@@ -67,6 +68,31 @@ window.App = (() => {
 
   function _uiIconWrap(name, cls = 'ui-icon') {
     return `<span class="ui-icon-wrap">${_uiIconSvg(name, cls)}</span>`;
+  }
+
+  function _renderQuizHud(current, total, correct, wrong) {
+    const pct = total > 0 ? Math.round((current / total) * 100) : 0;
+    return `
+      <div class="quiz-hud">
+        <div class="quiz-hud-main">
+          <div class="quiz-hud-label">진행 현황</div>
+          <div class="quiz-hud-value">${current} <span>/ ${total}</span></div>
+        </div>
+        <div class="quiz-hud-stats">
+          <div class="quiz-hud-chip quiz-hud-chip-ok">
+            ${_uiIconSvg('check', 'quiz-hud-icon')}
+            <span>${correct}</span>
+          </div>
+          <div class="quiz-hud-chip quiz-hud-chip-ng">
+            ${_uiIconSvg('close', 'quiz-hud-icon')}
+            <span>${wrong}</span>
+          </div>
+        </div>
+        <div class="quiz-hud-bar">
+          <div class="quiz-hud-bar-fill" style="width:${pct}%"></div>
+        </div>
+      </div>
+    `;
   }
 
   // ── Init ─────────────────────────────────────────────────
@@ -1133,9 +1159,7 @@ window.App = (() => {
       document.getElementById('flowProgressFill').style.width = pct + '%';
 
       document.getElementById('flowBody').innerHTML = `
-        <div style="font-size:12px;color:var(--text3);text-align:center;margin-bottom:16px">
-          ${qIdx + 1} / ${fq.chars.length} · ✅ ${correct} · ❌ ${wrong}
-        </div>
+        ${_renderQuizHud(qIdx + 1, fq.chars.length, correct, wrong)}
         <div class="quiz-question">
           <div class="quiz-q-type">이 글자의 발음은?</div>
           <div class="quiz-q-text ${isSmallKana(c) ? 'is-small' : ''}">${ruby(c)}</div>
@@ -1265,9 +1289,7 @@ window.App = (() => {
 
       const safeC = c.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
       document.getElementById('flowBody').innerHTML = `
-        <div style="font-size:12px;color:var(--text3);text-align:center;margin-bottom:16px">
-          ${qIdx + 1} / ${fq.chars.length} · ✅ ${correct} · ❌ ${wrong}
-        </div>
+        ${_renderQuizHud(qIdx + 1, fq.chars.length, correct, wrong)}
         <div class="quiz-question">
           <div class="quiz-q-type">이 음성의 글자는?</div>
           <div class="quiz-q-text" style="font-size:64px;line-height:1.1">🎧</div>
@@ -1602,9 +1624,7 @@ window.App = (() => {
 
       _updateFlowProgress(stepIndex, mod.steps.length, step.title);
       document.getElementById('flowBody').innerHTML = `
-        <div style="font-size:12px;color:var(--text3);text-align:center;margin-bottom:16px">
-          ${qIdx + 1} / ${fq.questions.length} · ✅ ${correct} · ❌ ${wrong}
-        </div>
+        ${_renderQuizHud(qIdx + 1, fq.questions.length, correct, wrong)}
         <div class="quiz-question">
           <div class="quiz-q-type">뜻은 무엇인가요?</div>
           <div class="quiz-q-text">${formatJp(item)}</div>
@@ -2824,26 +2844,32 @@ window.App = (() => {
       const playVoice = (type, startFreq, endFreq, startAt, duration, gainAmount) => {
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
+        const filter = ctx.createBiquadFilter();
         osc.type = type;
         osc.frequency.setValueAtTime(startFreq, startAt);
         if (endFreq !== startFreq) {
           osc.frequency.exponentialRampToValueAtTime(endFreq, startAt + duration);
         }
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(isCorrect ? 4200 : 1800, startAt);
+        filter.Q.value = 0.9;
         gain.gain.setValueAtTime(0.0001, startAt);
         gain.gain.linearRampToValueAtTime(gainAmount, startAt + 0.015);
         gain.gain.exponentialRampToValueAtTime(0.0001, startAt + duration);
-        osc.connect(gain);
+        osc.connect(filter);
+        filter.connect(gain);
         gain.connect(master);
         osc.start(startAt);
         osc.stop(startAt + duration + 0.02);
       };
 
       if (isCorrect) {
-        playVoice('triangle', 740, 988, ctx.currentTime, 0.18, 0.16);
-        playVoice('sine', 1110, 1320, ctx.currentTime + 0.09, 0.16, 0.08);
+        playVoice('triangle', 784, 1046, ctx.currentTime, 0.16, 0.13);
+        playVoice('sine', 1174, 1396, ctx.currentTime + 0.07, 0.14, 0.075);
+        playVoice('triangle', 1568, 1760, ctx.currentTime + 0.12, 0.12, 0.045);
       } else {
-        playVoice('sine', 320, 220, ctx.currentTime, 0.2, 0.14);
-        playVoice('triangle', 210, 170, ctx.currentTime + 0.06, 0.18, 0.07);
+        playVoice('sine', 300, 232, ctx.currentTime, 0.18, 0.11);
+        playVoice('triangle', 220, 174, ctx.currentTime + 0.055, 0.16, 0.055);
       }
       setTimeout(() => { try { ctx.close(); } catch {} }, 520);
     } catch(e) { /* AudioContext 미지원 무시 */ }
@@ -2852,9 +2878,12 @@ window.App = (() => {
     const body = document.getElementById('flowBody');
     if (body) {
       if (isCorrect) {
-        // 정답: 스파크 파티클 효과
         const correctBtn = document.querySelector('.quiz-choice.correct');
         if (correctBtn) _spawnV2Sparks(correctBtn);
+        body.classList.remove('quiz-correct-sheen');
+        void body.offsetWidth;
+        body.classList.add('quiz-correct-sheen');
+        setTimeout(() => body.classList.remove('quiz-correct-sheen'), 760);
       } else {
         // 오답: 흔들림 유지
         body.classList.remove('quiz-wrong-shake');
@@ -2874,23 +2903,38 @@ window.App = (() => {
     const rect = el.getBoundingClientRect();
     const cx = rect.left + rect.width / 2;
     const cy = rect.top + rect.height / 2;
-    const colors = ['#10b981','#34d399','#f59e0b','#3b82f6','#a78bfa','#fbbf24','#f97316'];
-    for (let i = 0; i < 14; i++) {
+    const colors = ['#f8fafc', '#dbeafe', '#bfdbfe', '#c4b5fd', '#86efac', '#fde68a'];
+
+    const halo = document.createElement('div');
+    halo.style.cssText = `
+      position: fixed; z-index: 9998; pointer-events: none;
+      width: 18px; height: 18px; border-radius: 999px;
+      left:${cx}px; top:${cy}px; transform: translate(-50%, -50%);
+      background: radial-gradient(circle, rgba(255,255,255,.95) 0%, rgba(129,140,248,.35) 42%, rgba(129,140,248,0) 72%);
+      animation: quizLuxuryHalo .72s cubic-bezier(.2,.8,.2,1) forwards;
+      mix-blend-mode: screen;
+    `;
+    document.body.appendChild(halo);
+    setTimeout(() => halo.remove(), 800);
+
+    for (let i = 0; i < 10; i++) {
       const sp = document.createElement('div');
-      const angle = (Math.PI * 2 * i) / 14 + (Math.random() - 0.5) * 0.4;
-      const dist  = 45 + Math.random() * 55;
+      const angle = (Math.PI * 2 * i) / 10 + (Math.random() - 0.5) * 0.22;
+      const dist  = 26 + Math.random() * 30;
       sp.style.cssText = `
         position:fixed; z-index:9999; pointer-events:none;
-        width:${5 + Math.random() * 6}px; height:${5 + Math.random() * 6}px;
-        border-radius:${Math.random() > 0.5 ? '50%' : '3px'};
+        width:${6 + Math.random() * 8}px; height:${3 + Math.random() * 3}px;
+        border-radius:999px;
         background:${colors[Math.floor(Math.random() * colors.length)]};
-        left:${cx}px; top:${cy}px;
+        box-shadow:0 0 16px rgba(255,255,255,.28);
+        left:${cx}px; top:${cy}px; transform:translate(-50%, -50%);
         --tx:${Math.cos(angle) * dist}px; --ty:${Math.sin(angle) * dist}px;
-        animation: v2SparkFly 0.55s ease-out forwards;
-        animation-delay:${Math.random() * 0.07}s;
+        animation: v2SparkFly 0.68s cubic-bezier(.18,.8,.25,1) forwards;
+        animation-delay:${Math.random() * 0.05}s;
+        opacity:.95;
       `;
       document.body.appendChild(sp);
-      setTimeout(() => sp.remove(), 700);
+      setTimeout(() => sp.remove(), 760);
     }
   }
 

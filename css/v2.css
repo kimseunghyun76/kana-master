@@ -1157,6 +1157,93 @@ body {
 .eval-btn.easy  { background: rgba(16,185,129,.15); color: #34d399; border: 1px solid rgba(16,185,129,.3); }
 
 /* ── Quiz Component ───────────────────────────────────────── */
+.quiz-hud {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, rgba(30,41,59,.96), rgba(38,53,72,.92));
+  border: 1px solid rgba(148,163,184,.14);
+  border-radius: 20px;
+  padding: 16px 16px 14px;
+  margin-bottom: 18px;
+  box-shadow: 0 16px 40px rgba(2,6,23,.2);
+}
+.quiz-hud::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(120deg, rgba(255,255,255,.08), rgba(255,255,255,0) 38%);
+  pointer-events: none;
+}
+.quiz-hud-main {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.quiz-hud-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.4px;
+  color: var(--text3);
+  text-transform: uppercase;
+}
+.quiz-hud-value {
+  font-size: 28px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -.03em;
+  color: var(--text);
+}
+.quiz-hud-value span {
+  font-size: 14px;
+  color: var(--text3);
+  font-weight: 700;
+}
+.quiz-hud-stats {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.quiz-hud-chip {
+  min-width: 74px;
+  padding: 7px 10px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 700;
+  border: 1px solid transparent;
+}
+.quiz-hud-chip-ok {
+  background: rgba(16,185,129,.12);
+  color: #7ce9be;
+  border-color: rgba(16,185,129,.22);
+}
+.quiz-hud-chip-ng {
+  background: rgba(239,68,68,.10);
+  color: #f5a3a3;
+  border-color: rgba(239,68,68,.18);
+}
+.quiz-hud-icon {
+  width: 14px;
+  height: 14px;
+}
+.quiz-hud-bar {
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.08);
+  overflow: hidden;
+}
+.quiz-hud-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #818cf8, #38bdf8 55%, #34d399);
+  box-shadow: 0 0 18px rgba(129,140,248,.35);
+  transition: width .35s var(--ease);
+}
 .quiz-question {
   background: var(--card2);
   border: 1px solid var(--border);
@@ -1232,8 +1319,13 @@ body {
 
 /* ── 퀴즈 스파크 파티클 ──────────────────────────────────── */
 @keyframes v2SparkFly {
-  0%   { transform: translate(0,0) scale(1); opacity: 1; }
-  100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; }
+  0%   { transform: translate(-50%, -50%) translate(0,0) scale(1); opacity: 1; }
+  100% { transform: translate(-50%, -50%) translate(var(--tx), var(--ty)) scale(.55); opacity: 0; }
+}
+@keyframes quizLuxuryHalo {
+  0%   { transform: translate(-50%, -50%) scale(.5); opacity: .9; }
+  55%  { transform: translate(-50%, -50%) scale(8.5); opacity: .35; }
+  100% { transform: translate(-50%, -50%) scale(12); opacity: 0; }
 }
 
 /* ── 통과 배지 ────────────────────────────────────────────── */
@@ -1247,9 +1339,9 @@ body {
 
 /* ── 퀴즈 정답/오답 이펙트 ──────────────────────────────── */
 @keyframes quiz-correct-flash {
-  0%   { background: rgba(16,185,129,.0); }
-  25%  { background: rgba(16,185,129,.25); }
-  60%  { background: rgba(16,185,129,.12); }
+  0%   { background: rgba(129,140,248,0); }
+  28%  { background: radial-gradient(circle at 50% 28%, rgba(255,255,255,.12), rgba(129,140,248,.16) 38%, transparent 72%); }
+  60%  { background: radial-gradient(circle at 50% 28%, rgba(255,255,255,.06), rgba(129,140,248,.08) 38%, transparent 72%); }
   100% { background: transparent; }
 }
 @keyframes quiz-wrong-shake {
@@ -1263,6 +1355,9 @@ body {
 }
 #flowBody.quiz-correct-flash {
   animation: quiz-correct-flash 0.55s ease-out forwards;
+}
+#flowBody.quiz-correct-sheen {
+  animation: quiz-correct-flash 0.72s cubic-bezier(.16,.84,.24,1) forwards;
 }
 #flowBody.quiz-wrong-shake {
   animation: quiz-wrong-shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
