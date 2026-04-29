@@ -864,6 +864,11 @@ window.App = (() => {
     return Array.from(clean).every(ch => allowedChars?.has(ch));
   }
 
+  function _supportsKanaStrokePreview(kana) {
+    const clean = stripFuri(kana || '');
+    return Array.from(clean).length === 1;
+  }
+
   function _getKanaPatternExamples(char, allowedChars, existingWords = []) {
     if (!allowedChars?.size) return [];
     const isKatakana = /[ァ-ヺ]/.test(char);
@@ -942,6 +947,7 @@ window.App = (() => {
       const c = st.chars[st.cardIdx];
       const safeC = c.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
       const info = KANA_MAP[c] || {};
+      const canShowStroke = _supportsKanaStrokePreview(c);
       const examples = _getKanaExamplesForCard(c, st.level)
         .map(ex => `<div class="kana-ex-pill">
           <span class="ex-word">${escHtml(ex.word)}</span>
@@ -991,6 +997,7 @@ window.App = (() => {
                   <div class="kana-tip-body">${ruby(info.tip)}</div>
                 </div>` : ''}
                 <!-- ③ 획순 인라인 (전체 너비, 🔄 우상단 오버레이) -->
+                ${canShowStroke ? `
                 <div class="kana-stroke-row">
                   <div class="kana-stroke-mini" id="kanaStrokeInline">
                     <div class="kana-stroke-loading">…</div>
@@ -998,7 +1005,7 @@ window.App = (() => {
                   <button class="kana-stroke-replay-btn"
                           onclick="event.stopPropagation();App._replayInlineStroke()"
                           title="다시 그리기">🔄</button>
-                </div>
+                </div>` : ''}
                 <!-- ④ 예문 -->
                 <div class="kana-examples">${examples}</div>
               </div>
@@ -1041,7 +1048,9 @@ window.App = (() => {
         card.classList.add('flipped');
         TTS.speak(st.chars[st.cardIdx]);
         // 카드 플립 애니메이션(500ms) 완료 후 획순 자동 시작
-        setTimeout(() => _startInlineStroke(st.chars[st.cardIdx]), 520);
+        if (_supportsKanaStrokePreview(st.chars[st.cardIdx])) {
+          setTimeout(() => _startInlineStroke(st.chars[st.cardIdx]), 520);
+        }
       } else {
         card.classList.remove('flipped');
         _stopInlineStroke();
@@ -1719,10 +1728,38 @@ window.App = (() => {
     
     // 티어별 일본어 감탄사 및 메시지
     const tiers = [
-      { min: 90, icon: '🏆', title: '완벽해요!', jp: '最高(さいこう)입니다!', ko: '최고예요!', msg: '완벽하게 마스터하셨군요! 당신은 이미 일본어 마스터! 👑' },
-      { min: 70, icon: '🎉', title: '잘 했어요!', jp: '立派(りっぱ)입니다!', ko: '훌륭해요!', msg: '정말 대단해요! 실력이 쑥쑥 늘고 있는 게 느껴져요! ✨' },
-      { min: 50, icon: '😊', title: '괜찮아요!', jp: 'いいですね！', ko: '좋아요!', msg: '안정적인 성적이에요. 조금만 더 연습하면 최고가 될 수 있어요! 👍' },
-      { min: 0,  icon: '💪', title: '다시 도전!', jp: '頑張(がんば)りましょう！', ko: '힘내세요!', msg: '기초를 튼튼히 다지는 과정이에요. 한 번 더 도전해 볼까요? 🔥' }
+      {
+        min: 90,
+        icon: '🏆',
+        title: '정말 인상적인 결과예요',
+        jp: '最高(さいこう)です。この調子(ちょうし)でどんどん伸(の)びていけます！',
+        ko: '최고예요. 이 흐름이면 다음 단계도 아주 좋게 이어질 거예요.',
+        msg: '이번 점수는 단순히 많이 맞춘 결과가 아니라, 보고 바로 떠올리는 힘이 분명히 자라고 있다는 증거예요. 지금처럼 차분하게 쌓아 가면 읽기와 말하기 모두 훨씬 더 자연스럽게 붙기 시작할 거예요.'
+      },
+      {
+        min: 70,
+        icon: '🎉',
+        title: '실력이 분명히 올라오고 있어요',
+        jp: '立派(りっぱ)です。もう一歩(いっぽ)でぐっと自然(しぜん)になります！',
+        ko: '아주 좋아요. 이제 조금만 더 다듬으면 훨씬 자연스러워질 거예요.',
+        msg: '핵심은 이미 잘 잡혀 있고, 헷갈린 부분도 다시 보면 금방 메울 수 있는 상태예요. 오늘 맞힌 문제들로 자신감을 얻고, 틀린 몇 가지만 다시 정리하면 다음 도전에서는 훨씬 단단하게 통과할 수 있어요.'
+      },
+      {
+        min: 50,
+        icon: '😊',
+        title: '좋은 흐름으로 가고 있어요',
+        jp: 'いいですね。今(いま)は土台(どだい)をしっかり作(つく)っているところです。',
+        ko: '좋아요. 지금은 기초를 제대로 다지는 아주 중요한 구간이에요.',
+        msg: '점수 하나로 실력을 판단할 필요는 없어요. 지금 단계에서는 서두르기보다 자주 헷갈리는 부분을 익숙하게 만드는 것이 더 중요합니다. 한 번 더 천천히 보면 머리에 훨씬 오래 남을 거예요.'
+      },
+      {
+        min: 0,
+        icon: '💪',
+        title: '지금부터가 진짜 실력이 붙는 구간이에요',
+        jp: '頑張(がんば)りましょう。今日(きょう)の復習(ふくしゅう)が明日(あした)の自信(じしん)になります。',
+        ko: '괜찮아요. 오늘의 복습이 내일의 자신감으로 이어질 거예요.',
+        msg: '틀린 문제는 부족함의 증거가 아니라, 다음에 훨씬 쉽게 떠올리게 될 힌트예요. 너무 조급해하지 말고 이번에 헷갈린 부분만 한 번 더 보면, 바로 다음 도전에서 체감이 달라질 거예요.'
+      }
     ];
     const res = tiers.find(t => pct >= t.min);
 
@@ -3137,6 +3174,7 @@ window.App = (() => {
 
   async function _startInlineStroke(kana) {
     _stopInlineStroke(); // 이전 상태 완전 초기화
+    if (!_supportsKanaStrokePreview(kana)) return;
 
     const tgt = document.getElementById('kanaStrokeInline');
     if (!tgt) return;
@@ -3269,7 +3307,10 @@ window.App = (() => {
   }
 
   // 공개 — 🔄 버튼에서 호출
-  function _replayInlineStroke() { _inlinePlay(); }
+  function _replayInlineStroke() {
+    if (!_supportsKanaStrokePreview(_inlineStrokeState?.kana)) return;
+    _inlinePlay();
+  }
 
   // 카드 이동 / 앞면 복귀 시 호출
   function _stopInlineStroke() {
