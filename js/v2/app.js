@@ -37,6 +37,7 @@ window.App = (() => {
       trash: `<svg viewBox="0 0 24 24" class="${cls}" aria-hidden="true"><path d="M5 7h14M9 7V5.5h6V7M7.5 7l.8 11a1.5 1.5 0 0 0 1.5 1.4h4.4a1.5 1.5 0 0 0 1.5-1.4l.8-11" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
       voice: `<svg viewBox="0 0 24 24" class="${cls}" aria-hidden="true"><path d="M12 5a3.5 3.5 0 0 1 3.5 3.5v2A3.5 3.5 0 0 1 12 14a3.5 3.5 0 0 1-3.5-3.5v-2A3.5 3.5 0 0 1 12 5Z" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M6.5 11.5a5.5 5.5 0 0 0 11 0M12 17v2.5M9.3 19.5h5.4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>`,
       audio: `<svg viewBox="0 0 24 24" class="${cls}" aria-hidden="true"><path d="M5 14.5V9.5h3.7L13.5 6v12l-4.8-3.5H5Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M16 9.5a4.2 4.2 0 0 1 0 5M18.5 7.5a7 7 0 0 1 0 9" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>`,
+      sparkle: `<svg viewBox="0 0 24 24" class="${cls}" aria-hidden="true"><path d="m12 3 1.7 5 5.3 1.7-5.3 1.7L12 17l-1.7-5.3L5 10l5.3-1.7L12 3Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>`,
       tools: `<svg viewBox="0 0 24 24" class="${cls}" aria-hidden="true"><path d="m14.5 6.5 3 3M5 19l5.5-5.5M13 4a4 4 0 0 0 5.2 5.2L13 14.4l-3.4-3.4 5.2-5.2A4 4 0 0 0 13 4Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
       roleplay: `<svg viewBox="0 0 24 24" class="${cls}" aria-hidden="true"><path d="M5 7a2 2 0 0 1 2-2h6.5a2 2 0 0 1 2 2v4.5a2 2 0 0 1-2 2H10l-3 2.2V13.5H7a2 2 0 0 1-2-2V7Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M15.5 10.5h1.5a2 2 0 0 1 2 2V17l-2.5-1.8H15a2 2 0 0 1-2-2v-.7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>`,
       'stage-kana': `<svg viewBox="0 0 24 24" class="${cls}" aria-hidden="true"><path d="M6 5h12v14H6z" fill="none" stroke="currentColor" stroke-width="1.8" rx="2"/><path d="M9 9h6M9 13h6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="9" cy="17" r="1.2" fill="currentColor"/><circle cx="15" cy="17" r="1.2" fill="currentColor"/></svg>`,
@@ -1483,13 +1484,13 @@ window.App = (() => {
     const jpHtml = showFuri ? formatJp(item) : escHtml(stripFuri(item.kanji || item.japanese || ''));
 
     _updateFlowProgress(stepIndex, mod.steps.length, step.title);
-    document.getElementById('flowBody').innerHTML = `
+      document.getElementById('flowBody').innerHTML = `
       <div style="font-size:12px;color:var(--text3);text-align:center;margin-bottom:16px">
         ${idx + 1} / ${items.length}
       </div>
       <div class="vocab-card" onclick="App._vocabFlip()">
         <button class="vc-audio-btn"
-          onclick="event.stopPropagation();App._vocabSpeak()">🔊</button>
+          onclick="event.stopPropagation();App._vocabSpeak()">${_uiIconSvg('audio', 'vc-audio-icon')}</button>
         <div class="vc-num">어휘 ${idx + 1}</div>
         <div class="vc-jp">${jpHtml}</div>
         ${item.kanji && item.kanji !== item.japanese
@@ -1514,10 +1515,26 @@ window.App = (() => {
     if (showMeaning) {
       document.getElementById('flowFooter').innerHTML = `
         <div class="self-eval">
-          <button class="eval-btn again" onclick="App._vocabEval('again')">😵<br>모름</button>
-          <button class="eval-btn hard" onclick="App._vocabEval('hard')">😅<br>어려움</button>
-          <button class="eval-btn good" onclick="App._vocabEval('good')">😊<br>알겠음</button>
-          <button class="eval-btn easy" onclick="App._vocabEval('easy')">😎<br>완벽</button>
+          <button class="eval-btn again" onclick="App._vocabEval('again')">
+            <span class="eval-icon-wrap">${_uiIconSvg('close', 'eval-icon')}</span>
+            <span class="eval-label">모름</span>
+            <span class="eval-meta">다시 보기</span>
+          </button>
+          <button class="eval-btn hard" onclick="App._vocabEval('hard')">
+            <span class="eval-icon-wrap">${_uiIconSvg('progress', 'eval-icon')}</span>
+            <span class="eval-label">어려움</span>
+            <span class="eval-meta">한 번 더</span>
+          </button>
+          <button class="eval-btn good" onclick="App._vocabEval('good')">
+            <span class="eval-icon-wrap">${_uiIconSvg('check', 'eval-icon')}</span>
+            <span class="eval-label">알겠음</span>
+            <span class="eval-meta">기억남</span>
+          </button>
+          <button class="eval-btn easy" onclick="App._vocabEval('easy')">
+            <span class="eval-icon-wrap">${_uiIconSvg('sparkle', 'eval-icon')}</span>
+            <span class="eval-label">완벽</span>
+            <span class="eval-meta">바로 떠오름</span>
+          </button>
         </div>
       `;
     } else {
