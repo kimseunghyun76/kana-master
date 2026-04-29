@@ -5,7 +5,7 @@ var VOCAB_ITEMS_S1S5 = [
 
   // ── S1: 인사·기본 회화 (first_expressions) ──────────────
   { id:'s1_hajimemashite', japanese:'はじめまして',                      korean:'처음 뵙겠습니다',       english:'Nice to meet you',                   tip:'첫 만남의 필수 인사말' },
-  { id:'gr_modoichi',      japanese:'もう一度(いちど)おねがいします',    kanji:'もう一度お願いします',   korean:'다시 한번 부탁드립니다',               english:'Please say that again' },
+  { id:'gr_modoichi',      japanese:'もう一度(いちど)おねがいします',    kanji:'もう一度(いちど)お願(ねが)いします',   korean:'다시 한번 부탁드립니다',               english:'Please say that again' },
   { id:'gr_english',       japanese:'えいごはなせますか',               kanji:'英語(えいご)話(はな)せますか', korean:'영어 하실 수 있어요?',           english:'Can you speak English?',             tip:'언어 장벽 돌파 비상용' },
   { id:'s1_yukkuri',       japanese:'ゆっくりはなしてください',          kanji:'ゆっくり話(はな)してください', korean:'천천히 말해주세요',              english:'Please speak slowly',                tip:'언어 장벽에서 가장 유용한 표현' },
   { id:'s1_chotto',        japanese:'ちょっとまってください',            kanji:'ちょっと待(ま)ってください', korean:'잠깐 기다려주세요',               english:'Please wait a moment' },

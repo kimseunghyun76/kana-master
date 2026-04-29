@@ -13,6 +13,9 @@ const App = (() => {
   let _flow = null;               // current learning flow
   let _flowEl = null;             // flow screen DOM element
   let _autoNextTimer = null;      // timer for automatic next question
+  let _quizVoiceIdx  = 0;         // TTS 3-voice round-robin index (0=A,1=B,2=C)
+  let _bgmCtx        = null;      // BGM AudioContext
+  let _bgmNodes      = [];        // BGM oscillator/gain nodes (for cleanup)
 
   // ── Init ─────────────────────────────────────────────────
   async function init() {
@@ -169,6 +172,14 @@ const App = (() => {
                   style="border-radius:20px;padding:14px 32px;font-size:16px">
             🔤 히라가나 시작하기
           </button>
+          <div style="margin-top:14px">
+            <button onclick="App.openPlacementTest()"
+                    style="background:none;border:1.5px solid rgba(139,92,246,.5);border-radius:14px;
+                           color:var(--accent2);font-size:13px;font-weight:600;padding:10px 22px;
+                           cursor:pointer;width:100%">
+              📊 이미 일본어를 배웠다면? 레벨 진단하기 →
+            </button>
+          </div>
         </div>
       `;
     }
@@ -537,6 +548,20 @@ const App = (() => {
       </div>
 
       <div class="profile-section">
+        <div class="profile-section-title">📊 레벨 진단</div>
+        <div style="font-size:13px;color:var(--text2);margin-bottom:12px;line-height:1.6">
+          5개 섹션, 약 25문제로 현재 일본어 실력을 진단하고<br>
+          최적의 시작 단계를 추천해 드립니다.
+        </div>
+        <button onclick="App.openPlacementTest()"
+                style="width:100%;padding:14px;background:linear-gradient(135deg,#1e1b4b,#312e81);
+                       border:1.5px solid rgba(139,92,246,.5);border-radius:14px;
+                       color:var(--accent2);font-size:14px;font-weight:700;cursor:pointer">
+          📊 레벨 진단 테스트 시작 →
+        </button>
+      </div>
+
+      <div class="profile-section">
         <div class="profile-section-title" style="color:var(--warning)">🛠️ 개발자 테스트 도구</div>
         <div style="font-size:11px;color:var(--text3);padding:0 0 8px 2px">스테이지 해금·퀴즈 통과 테스트용</div>
 
@@ -610,8 +635,21 @@ const App = (() => {
     const stepsDone = prog.modules[mod.id]?.stepsCompleted || 0;
     const startStep = Math.min(stepsDone, mod.steps.length - 1);
 
+    const stepIcons = { lecture:'🎬', vocab_learn:'📚', vocab_quiz:'✏️', kana_learn:'🔤', kana_quiz:'🎯', dialogue_study:'💬' };
     const items = [
-      ...mod.steps.map(s => `<div class="intro-item"><span class="ii-check">📖</span> ${escHtml(s.title)}</div>`),
+      ...mod.steps.map((s, i) => {
+        const done = i < stepsDone;
+        const icon = done ? '✅' : (stepIcons[s.type] || '📖');
+        if (done) {
+          return `<div class="intro-item done" onclick="App._startFlowFromStep('${mod.id}',${i})">
+            <span class="ii-check">${icon}</span> ${escHtml(s.title)}
+            <span class="ii-revisit">다시보기 ▶</span>
+          </div>`;
+        }
+        return `<div class="intro-item ${i > stepsDone ? 'locked' : ''}">
+          <span class="ii-check">${icon}</span> ${escHtml(s.title)}
+        </div>`;
+      }),
       mod.roleplay ? `<div class="intro-item"><span class="ii-check">🎭</span> 롤플레이: ${escHtml(mod.roleplay.name)}</div>` : ''
     ].join('');
 
@@ -788,9 +826,30 @@ const App = (() => {
                 <div class="kana-tap-hint">탭해서 읽는 법 보기 👆</div>
               </div>
               <div class="kana-back">
-                <div class="kana-romaji">${escHtml(info.romaji || '')}</div>
-                <div class="kana-korean">${escHtml(info.korean || '')}</div>
-                ${info.tip ? `<div class="kana-tip">${ruby(info.tip)}</div>` : ''}
+                <!-- ① 읽기 정보 -->
+                <div class="kana-reading-row">
+                  <button class="kana-back-sound"
+                          onclick="event.stopPropagation();TTS.speak('${safeC}')">🔊</button>
+                  <span class="kana-romaji-sm">${escHtml(info.romaji || '')}</span>
+                  <span class="kana-reading-dot">·</span>
+                  <span class="kana-korean-sm">${escHtml(info.korean || '')}</span>
+                </div>
+                <!-- ② 기억법 (TIP) — 메인 콘텐츠 -->
+                ${info.tip ? `
+                <div class="kana-tip-main">
+                  <div class="kana-tip-label">💡 기억법</div>
+                  <div class="kana-tip-body">${ruby(info.tip)}</div>
+                </div>` : ''}
+                <!-- ③ 획순 인라인 (전체 너비, 🔄 우상단 오버레이) -->
+                <div class="kana-stroke-row">
+                  <div class="kana-stroke-mini" id="kanaStrokeInline">
+                    <div class="kana-stroke-loading">…</div>
+                  </div>
+                  <button class="kana-stroke-replay-btn"
+                          onclick="event.stopPropagation();App._replayInlineStroke()"
+                          title="다시 그리기">🔄</button>
+                </div>
+                <!-- ④ 예문 -->
                 <div class="kana-examples">${examples}</div>
               </div>
             </div>
@@ -831,13 +890,17 @@ const App = (() => {
       if (st.flipped) {
         card.classList.add('flipped');
         TTS.speak(st.chars[st.cardIdx]);
+        // 카드 플립 애니메이션(500ms) 완료 후 획순 자동 시작
+        setTimeout(() => _startInlineStroke(st.chars[st.cardIdx]), 520);
       } else {
         card.classList.remove('flipped');
+        _stopInlineStroke();
       }
     }
   }
 
   function _kanaLearnNext() {
+    _stopInlineStroke();
     const st = _flow._kanaState;
     if (!st) return;
     st.flipped = false;
@@ -855,6 +918,7 @@ const App = (() => {
   }
 
   function _kanaLearnPrev() {
+    _stopInlineStroke();
     const st = _flow._kanaState;
     if (!st || st.cardIdx === 0) return;
     st.cardIdx--;
@@ -944,6 +1008,8 @@ const App = (() => {
       stepIndex,
       renderQ
     };
+    _quizVoiceIdx = 0;
+    _startBgm('quiz');
     renderQ();
   }
 
@@ -963,8 +1029,10 @@ const App = (() => {
       // 첫 풀이(not review)에서만 오답 목록에 추가
       if (!fq.isReview) fq.missed.push(fq.chars[fq.qIdx]);
     }
-    // 정답·오답 모두 음성 재생
-    TTS.speak(fq.chars[fq.qIdx]);
+    // 정답·오답 모두 음성 재생 (A→B→C 순환)
+    const _vSpeakers = [TTS.getVoicevoxSpeakerId(), TTS.getVoicevoxSpeakerBId(), TTS.getVoicevoxSpeakerCId()];
+    TTS.speak(fq.chars[fq.qIdx], { speakerId: _vSpeakers[_quizVoiceIdx % 3] });
+    _quizVoiceIdx++;
     _playQuizEffect(isCorrect);
 
     const fb = document.getElementById('quizFeedback');
@@ -987,7 +1055,7 @@ const App = (() => {
       _autoNextTimer = setTimeout(() => {
         const btn = document.getElementById('btnNextQ');
         if (btn && !btn.classList.contains('hidden')) _kanaQuizNext();
-      }, 5000);
+      }, 3000);
     } else {
       if (btnNext) btnNext.innerHTML = '다음 →';
     }
@@ -1079,6 +1147,8 @@ const App = (() => {
       stepIndex,
       renderQ
     };
+    _quizVoiceIdx = 0;
+    _startBgm('quiz');
     renderQ();
   }
 
@@ -1097,7 +1167,8 @@ const App = (() => {
       fq.wrong++;
       if (!fq.isReview) fq.missed.push(fq.chars[fq.qIdx]);
     }
-    TTS.speak(correctChar);
+    { const _vs = [TTS.getVoicevoxSpeakerId(), TTS.getVoicevoxSpeakerBId(), TTS.getVoicevoxSpeakerCId()];
+      TTS.speak(correctChar, { speakerId: _vs[_quizVoiceIdx % 3] }); _quizVoiceIdx++; }
     _playQuizEffect(isCorrect);
 
     const info = KANA_MAP[correctChar] || {};
@@ -1118,7 +1189,7 @@ const App = (() => {
       _autoNextTimer = setTimeout(() => {
         const btn = document.getElementById('btnNextQ');
         if (btn && !btn.classList.contains('hidden')) _listeningQuizNext();
-      }, 5000);
+      }, 3000);
     } else {
       if (btnNext) btnNext.innerHTML = '다음 →';
     }
@@ -1204,12 +1275,33 @@ const App = (() => {
   }
 
   // ── Vocab Learn ───────────────────────────────────────────
+  function _buildDisplayItems(items) {
+    // 같은 groupId를 가진 항목들을 하나의 그룹 카드로 묶음
+    const result = [];
+    const groupMap = new Map(); // groupId → result 배열 인덱스
+    for (const item of items) {
+      if (item.groupId) {
+        if (groupMap.has(item.groupId)) {
+          result[groupMap.get(item.groupId)].groupItems.push(item);
+        } else {
+          const grp = { _isGroup: true, groupId: item.groupId, groupLabel: item.groupLabel || item.groupId, groupItems: [item] };
+          groupMap.set(item.groupId, result.length);
+          result.push(grp);
+        }
+      } else {
+        result.push(item);
+      }
+    }
+    return result;
+  }
+
   function _renderVocabLearn(mod, step, stepIndex) {
-    const items = _getVocabItems(step);
-    if (!items.length) { Store.completeStep(_flow.moduleId, stepIndex); _advanceStep(); return; }
+    const rawItems = _getVocabItems(step);
+    if (!rawItems.length) { Store.completeStep(_flow.moduleId, stepIndex); _advanceStep(); return; }
+    const items = _buildDisplayItems(rawItems);
 
     // Store ALL state on _flow._vocab so render() always reads fresh values
-    _flow._vocab = { items, idx: 0, showMeaning: false, stepIndex, mod, step };
+    _flow._vocab = { items, idx: 0, showMeaning: true, stepIndex, mod, step };
 
     _vocabRender();
   }
@@ -1230,27 +1322,10 @@ const App = (() => {
 
     const item = items[idx];
     const showFuri = Store.getSetting('furigana');
-    const jpHtml = showFuri ? formatJp(item) : escHtml(stripFuri(item.kanji || item.japanese || ''));
 
     _updateFlowProgress(stepIndex, mod.steps.length, step.title);
-    document.getElementById('flowBody').innerHTML = `
-      <div style="font-size:12px;color:var(--text3);text-align:center;margin-bottom:16px">
-        ${idx + 1} / ${items.length}
-      </div>
-      <div class="vocab-card" onclick="App._vocabFlip()">
-        <button class="vc-audio-btn"
-          onclick="event.stopPropagation();App._vocabSpeak()">🔊</button>
-        <div class="vc-num">어휘 ${idx + 1}</div>
-        <div class="vc-jp">${jpHtml}</div>
-        ${item.kanji && item.kanji !== item.japanese
-          ? `<div class="vc-kanji">${ruby(item.kanji)}</div>` : ''}
-        ${showMeaning ? `
-          <div class="vc-divider"></div>
-          <div class="vc-meaning">${escHtml(item.korean || '')}</div>
-          <div class="vc-english">${escHtml(item.english || '')}</div>
-          ${item.tip ? `<div class="vc-tip">${ruby(item.tip)}</div>` : ''}
-        ` : `<div class="vc-flip-hint">탭해서 의미 보기 👆</div>`}
-      </div>
+
+    const navHtml = `
       <div class="vocab-nav">
         <button class="vocab-nav-btn" onclick="App._vocabPrev()" ${idx === 0 ? 'disabled' : ''}>←</button>
         <div class="vocab-nav-dots">
@@ -1258,31 +1333,65 @@ const App = (() => {
             `<div class="vocab-nav-dot ${i===idx?'active':i<idx?'done':''}"></div>`).join('')}
         </div>
         <button class="vocab-nav-btn" onclick="App._vocabNext()">→</button>
-      </div>
-    `;
+      </div>`;
 
-    if (showMeaning) {
-      document.getElementById('flowFooter').innerHTML = `
-        <div class="self-eval">
-          <button class="eval-btn again" onclick="App._vocabEval('again')">😵<br>모름</button>
-          <button class="eval-btn hard" onclick="App._vocabEval('hard')">😅<br>어려움</button>
-          <button class="eval-btn good" onclick="App._vocabEval('good')">😊<br>알겠음</button>
-          <button class="eval-btn easy" onclick="App._vocabEval('easy')">😎<br>완벽</button>
+    const counterHtml = `<div style="font-size:12px;color:var(--text3);text-align:center;margin-bottom:16px">${idx + 1} / ${items.length}</div>`;
+
+    if (item._isGroup) {
+      // ── 그룹 카드 렌더링 ─────────────────────────────────
+      const gridHtml = item.groupItems.map(gi => {
+        const jpH = showFuri ? formatJp(gi) : escHtml(stripFuri(gi.kanji || gi.japanese || ''));
+        return `<div class="vc-group-item">
+          <div class="vc-group-jp">${jpH}</div>
+          <div class="vc-group-ko">${escHtml(gi.korean || '')}</div>
+        </div>`;
+      }).join('');
+
+      document.getElementById('flowBody').innerHTML = `
+        ${counterHtml}
+        <div class="vocab-card vocab-card-group">
+          <button class="vc-audio-btn" onclick="App._vocabSpeak()">🔊</button>
+          <div class="vc-num">${escHtml(item.groupLabel)}</div>
+          <div class="vc-group-grid">${gridHtml}</div>
         </div>
-      `;
-    } else {
-      document.getElementById('flowFooter').innerHTML = `
-        <button class="btn btn-outline" onclick="App._vocabFlip()">의미 확인하기</button>
-      `;
-    }
+        ${navHtml}`;
 
-    TTS.speak(item.japanese || '');
+      // 그룹 항목 순서대로 순차 읽기
+      const qLines = item.groupItems.map(gi => ({ text: gi.japanese || '', speaker: 'A' }));
+      TTS.speakQueue(qLines, {});
+    } else {
+      // ── 일반 카드 렌더링 ─────────────────────────────────
+      const jpHtml = showFuri ? formatJp(item) : escHtml(stripFuri(item.kanji || item.japanese || ''));
+
+      document.getElementById('flowBody').innerHTML = `
+        ${counterHtml}
+        <div class="vocab-card">
+          <button class="vc-audio-btn" onclick="App._vocabSpeak()">🔊</button>
+          <div class="vc-num">어휘 ${idx + 1}</div>
+          <div class="vc-jp">${jpHtml}</div>
+          <div class="vc-divider"></div>
+          <div class="vc-meaning">${escHtml(item.korean || '')}</div>
+          <div class="vc-english">${escHtml(item.english || '')}</div>
+          ${item.tip ? `<div class="vc-tip">${ruby(item.tip)}</div>` : ''}
+        </div>
+        ${navHtml}`;
+
+      TTS.speak(item.japanese || '');
+    }
   }
 
   function _vocabSpeak() {
     const st = _flow._vocab;
-    if (!st || !st.items[st.idx]) return;
-    TTS.speak(stripFuri(st.items[st.idx].japanese));
+    if (!st) return;
+    const item = st.items[st.idx];
+    if (!item) return;
+    if (item._isGroup) {
+      // 그룹: 순서대로 순차 읽기
+      const qLines = item.groupItems.map(gi => ({ text: stripFuri(gi.japanese || ''), speaker: 'A' }));
+      TTS.speakQueue(qLines, {});
+    } else {
+      TTS.speak(stripFuri(item.japanese));
+    }
   }
 
   function _vocabFlip() {
@@ -1293,7 +1402,6 @@ const App = (() => {
 
   function _vocabNext() {
     if (!_flow._vocab) return;
-    _flow._vocab.showMeaning = false;
     const st = _flow._vocab;
     if (st.idx < st.items.length - 1) {
       st.idx++;
@@ -1308,7 +1416,6 @@ const App = (() => {
 
   function _vocabPrev() {
     if (!_flow._vocab || _flow._vocab.idx === 0) return;
-    _flow._vocab.showMeaning = false;
     _flow._vocab.idx--;
     _vocabRender();
   }
@@ -1316,7 +1423,6 @@ const App = (() => {
   function _vocabEval(rating) {
     const st = _flow._vocab;
     if (!st) return;
-    st.showMeaning = false;
     if (rating === 'again') {
       const item = st.items.splice(st.idx, 1)[0];
       st.items.push(item);
@@ -1407,6 +1513,8 @@ const App = (() => {
       stepIndex,
       renderQ
     };
+    _quizVoiceIdx = 0;
+    _startBgm('quiz');
     renderQ();
   }
 
@@ -1425,7 +1533,8 @@ const App = (() => {
       fq.wrong++;
       if (!fq.isReview) fq.missed.push(fq.questions[fq.qIdx]);
     }
-    TTS.speak(stripFuri(jp));
+    { const _vs = [TTS.getVoicevoxSpeakerId(), TTS.getVoicevoxSpeakerBId(), TTS.getVoicevoxSpeakerCId()];
+      TTS.speak(stripFuri(jp), { speakerId: _vs[_quizVoiceIdx % 3] }); _quizVoiceIdx++; }
     _playQuizEffect(isCorrect);
 
     const fb = document.getElementById('quizFeedback');
@@ -1445,7 +1554,7 @@ const App = (() => {
       _autoNextTimer = setTimeout(() => {
         const btn = document.getElementById('btnNextQ');
         if (btn && !btn.classList.contains('hidden')) _vocabQuizNext();
-      }, 5000);
+      }, 3000);
     } else {
       if (btnNext) btnNext.innerHTML = '다음 →';
     }
@@ -1492,14 +1601,39 @@ const App = (() => {
     const passRate = parseInt(Store.getSetting('quizPassRate')) || 60;
     const passed = pct >= passRate;
     
-    // 티어별 일본어 감탄사 및 메시지
-    const tiers = [
-      { min: 90, icon: '🏆', title: '완벽해요!', jp: '最高(さいこう)입니다!', ko: '최고예요!', msg: '완벽하게 마스터하셨군요! 당신은 이미 일본어 마스터! 👑' },
-      { min: 70, icon: '🎉', title: '잘 했어요!', jp: '立派(りっぱ)입니다!', ko: '훌륭해요!', msg: '정말 대단해요! 실력이 쑥쑥 늘고 있는 게 느껴져요! ✨' },
-      { min: 50, icon: '😊', title: '괜찮아요!', jp: 'いいですね！', ko: '좋아요!', msg: '안정적인 성적이에요. 조금만 더 연습하면 최고가 될 수 있어요! 👍' },
-      { min: 0,  icon: '💪', title: '다시 도전!', jp: '頑張(がんば)りましょう！', ko: '힘내세요!', msg: '기초를 튼튼히 다지는 과정이에요. 한 번 더 도전해 볼까요? 🔥' }
+    // 티어별 일본어 감탄사 및 메시지 (랜덤 선택)
+    const tierPool = [
+      { min: 90, entries: [
+        { icon: '🏆', title: '완벽해요!',     jp: '最高(さいこう)です！',              msg: '완벽한 점수예요! 당신은 이미 일본어 천재! 이 속도라면 금세 원어민급이 될 거예요! 👑' },
+        { icon: '🌟', title: '대단해요!',     jp: 'すごい！パーフェクト！',             msg: '와, 이런 점수가 나오다니! 정말 열심히 공부하셨군요. 일본 여행 가도 완벽하게 통할 실력이에요! ✨' },
+        { icon: '🎊', title: '만점이에요!',   jp: '素晴(すば)らしい！',               msg: '믿을 수 없는 점수예요! 매 문제 흔들리지 않는 집중력, 진짜 대단해요. 그 실력 계속 유지해요! 💫' },
+        { icon: '🥇', title: '최고예요!',     jp: 'やったあ！完璧(かんぺき)！',         msg: '100점을 향한 완벽한 질주! 이 기세로 다음 레벨도 가볍게 정복해버리세요! 🚀' },
+        { icon: '💎', title: '압도적이에요!', jp: '信(しん)じられない！',              msg: '거의 실수 없이 클리어! 오늘 학습은 완전히 뇌에 새겨졌어요. 내일도 이 감각 유지해요! 🔥' },
+      ]},
+      { min: 70, entries: [
+        { icon: '🎉', title: '잘 했어요!',    jp: '立派(りっぱ)です！',               msg: '훌륭해요! 실력이 쑥쑥 자라고 있는 게 느껴져요. 이 페이스라면 금방 마스터할 거예요! ✨' },
+        { icon: '😄', title: '굿이에요!',     jp: 'よくできました！',                  msg: '좋은 점수예요! 틀린 문제들은 오늘 복습하면 다음엔 만점도 가능해요. 화이팅! 💪' },
+        { icon: '⭐', title: '훌륭해요!',     jp: 'いい調子(ちょうし)！',              msg: '착실하게 실력이 쌓이고 있어요! 꾸준함이 최고의 무기예요. 계속 이 페이스로 가요! 🌱' },
+        { icon: '🙌', title: '잘하고 있어요!', jp: 'ナイス！もう少し(すこし)で完璧！',  msg: '완벽에 아주 가까워요! 조금만 더 집중하면 만점이 보여요. 오늘 정말 잘했어요! 🎯' },
+        { icon: '🌈', title: '대견해요!',     jp: 'どんどん上手(うま)くなってます！',   msg: '점점 더 좋아지고 있어요! 포기하지 않고 계속 도전하는 당신이 자랑스러워요! 🏅' },
+      ]},
+      { min: 50, entries: [
+        { icon: '😊', title: '괜찮아요!',     jp: 'いいですね！',                     msg: '합격선을 넘었어요! 이 결과에 만족하지 말고, 한 번 더 복습하면 훨씬 올라갈 거예요. 💡' },
+        { icon: '👍', title: '잘했어요!',     jp: 'もう少し(すこし)で上(うえ)です！', msg: '절반 이상 맞췄어요! 틀린 문제만 집중 복습하면 다음엔 훨씬 더 잘 할 수 있어요! 📚' },
+        { icon: '🌿', title: '성장 중이에요!', jp: '少しずつ上手(うま)くなってます！', msg: '서두르지 마세요. 조금씩 착실히 쌓아가는 게 진짜 실력이에요! 꾸준히 가요! 🐢' },
+        { icon: '✌️', title: '화이팅!',      jp: 'ファイト！もう一回(いっかい)！',    msg: '포기하지 않는 당신이 이미 대단해요! 반복이 습관이 되면 자연스럽게 늘어요. 계속해봐요! 🔄' },
+        { icon: '💬', title: '계속 해봐요!', jp: 'あと少しで合格(ごうかく)です！',    msg: '합격이 바로 코앞이에요! 틀린 문제들을 체크하고 다시 도전해보면 금방 넘을 수 있어요! 🎯' },
+      ]},
+      { min: 0, entries: [
+        { icon: '💪', title: '다시 도전!',    jp: '頑張(がんば)りましょう！',          msg: '괜찮아요! 처음엔 누구나 어려워요. 오답 문제를 다시 보면서 차근차근 익혀봐요. 같이 해봐요! 🔥' },
+        { icon: '🫂', title: '힘내요!',       jp: 'あきらめないで！',                  msg: '실수는 실력이 자라는 증거예요! 틀렸던 문제가 나중엔 가장 기억에 잘 남게 돼요. 다시 해봐요! 🌱' },
+        { icon: '🎮', title: '레벨업 중!',    jp: 'まだまだこれから！',               msg: '이제 시작이에요! 일본어는 매일 조금씩 하는 게 비결이에요. 오늘 틀린 걸 내일은 다 맞혀봐요! 🗓️' },
+        { icon: '🧩', title: '같이 해봐요!', jp: 'もう一度(いちど)チャレンジ！',      msg: '아직 배우는 과정이에요. 틀려도 괜찮아요! 중요한 건 포기하지 않는 거예요. 화이팅! ✨' },
+        { icon: '🔑', title: '복습이 열쇠!', jp: '復習(ふくしゅう)が大切(たいせつ)！', msg: '복습이 실력의 70%예요! 오늘 틀린 문제가 내일은 확실히 맞을 거예요. 믿어요! 📖' },
+      ]},
     ];
-    const res = tiers.find(t => pct >= t.min);
+    const tier = tierPool.find(t => pct >= t.min);
+    const res  = tier.entries[Math.floor(Math.random() * tier.entries.length)];
 
     const xpEarned = Math.round((pct / 100) * 100 + 20);
     const passBadge = passed
@@ -1509,9 +1643,14 @@ const App = (() => {
     Store.completeStep(_flow.moduleId, stepIndex, score);
     Store.addXP(xpEarned);
 
-    // 팡파레 효과 (Confetti + TTS)
-    if (pct >= 50) {
-      confetti(pct >= 90 ? 100 : 50);
+    // 팡파레 효과 (Confetti + 팡파레 음악 + TTS)
+    _stopBgm(); // 퀴즈 BGM 종료
+    if (pct >= 70) {
+      confetti(pct >= 90 ? 150 : 80);
+      _playFanfare(pct >= 90 ? 'perfect' : 'good');
+      setTimeout(() => TTS.speak(stripFuri(res.jp)), 700);
+    } else if (pct >= 50) {
+      confetti(40);
       setTimeout(() => TTS.speak(stripFuri(res.jp)), 600);
     }
 
@@ -1568,6 +1707,7 @@ const App = (() => {
     const slides = (typeof LECTURE_DATA !== 'undefined') && LECTURE_DATA[step.lectureKey];
     if (!slides?.length) { _advanceStep(); return; }
     _flow._lecture = { slides, idx: 0, paused: false, stepIndex, mod, step, timerId: null };
+    _startBgm('lecture');
     _lectureRenderSlide();
   }
 
@@ -1796,6 +1936,7 @@ const App = (() => {
     TTS.stopQueue();
     if (lc.idx >= lc.slides.length - 1) {
       // 강의 완료
+      _stopBgm();
       Store.completeStep(_flow.moduleId, lc.stepIndex);
       Store.addXP(50);
       _flow.step = lc.stepIndex + 1;
@@ -2063,8 +2204,6 @@ const App = (() => {
     Store.addXP(50); // bonus for full completion
     confetti(40);
 
-    const nextItem = _getNextInModule(mod);
-
     document.getElementById('flowBody').innerHTML = `
       <div class="completion-screen">
         <div class="completion-emoji">✅</div>
@@ -2093,7 +2232,6 @@ const App = (() => {
   function _getMod(id) {
     return MODULES.find(m => m.id === id);
   }
-  function _getNextInModule() { return null; }
 
   // ── Flow Screen Control ───────────────────────────────────
   function _openFlowScreen() {
@@ -2102,6 +2240,7 @@ const App = (() => {
 
   function closeFlow() {
     clearTimeout(_autoNextTimer);
+    _stopBgm();
     document.getElementById('flowScreen').classList.remove('open');
     TTS.stop();
     _flow = null;
@@ -2233,6 +2372,99 @@ const App = (() => {
     }
   }
 
+  // ── 팡파레 (Web Audio — 다장조 상행 아르페지오) ──────────────
+  function _playFanfare(quality = 'good') {
+    try {
+      const ctx  = new (window.AudioContext || window.webkitAudioContext)();
+      const now  = ctx.currentTime;
+      // perfect(90%+): C5-E5-G5-C6 화음 → 파란 마무리
+      // good(70%+):    C5-E5-G5 상행
+      const noteFreqs = quality === 'perfect'
+        ? [523.25, 659.25, 783.99, 1046.5, 1318.5]  // C5 E5 G5 C6 E6
+        : [523.25, 659.25, 783.99, 1046.5];           // C5 E5 G5 C6
+
+      noteFreqs.forEach((freq, i) => {
+        const osc  = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.type = 'triangle';
+        osc.frequency.value = freq;
+        const start = now + i * 0.11;
+        const end   = start + (i === noteFreqs.length - 1 ? 0.55 : 0.18);
+        gain.gain.setValueAtTime(0, start);
+        gain.gain.linearRampToValueAtTime(0.22, start + 0.03);
+        gain.gain.exponentialRampToValueAtTime(0.001, end);
+        osc.start(start);
+        osc.stop(end + 0.05);
+      });
+
+      // 마지막 노트에 짧은 심벌즈(화이트 노이즈)
+      const bufSize  = ctx.sampleRate * 0.25;
+      const buf      = ctx.createBuffer(1, bufSize, ctx.sampleRate);
+      const data     = buf.getChannelData(0);
+      for (let i = 0; i < bufSize; i++) data[i] = (Math.random() * 2 - 1);
+      const noise    = ctx.createBufferSource();
+      const ngain    = ctx.createGain();
+      const bpf      = ctx.createBiquadFilter();
+      bpf.type       = 'highpass';
+      bpf.frequency.value = 8000;
+      noise.buffer   = buf;
+      noise.connect(bpf);
+      bpf.connect(ngain);
+      ngain.connect(ctx.destination);
+      const ns = now + (noteFreqs.length - 1) * 0.11;
+      ngain.gain.setValueAtTime(0.08, ns);
+      ngain.gain.exponentialRampToValueAtTime(0.001, ns + 0.25);
+      noise.start(ns);
+      noise.stop(ns + 0.25);
+    } catch(e) { /* ignore */ }
+  }
+
+  // ── BGM (실제 오디오 파일 재생) ────────────────────────────
+  // sounds/quiz/index.json  → 퀴즈 전용 트랙
+  // sounds/index.json       → 강의·대화 트랙 (랜덤)
+  const _BGM_QUIZ_LIST = [
+    'sounds/quiz/2019-03-17_-_Too_Crazy_-_David_Fesliyan.mp3',
+    'sounds/quiz/2019-05-01_-_Undercover_Spy_Agent_-_David_Fesliyan.mp3',
+    'sounds/quiz/2019-06-18_-_Creepy_Vibes_-_David_Fesliyan.mp3',
+  ];
+  const _BGM_AMBIENT_LIST = [
+    'sounds/penguinmusic-gardens-stylish-chill-303261.mp3',
+    'sounds/mfcc-vlog-music-beat-advertising-promo-podcast-background-intro-274290.mp3',
+    'sounds/soulprodmusic-movement-200697.mp3',
+    'sounds/syouki_takahashi-midnight-forest-184304.mp3',
+    'sounds/rockot-drive-breakbeat-173062.mp3',
+    'sounds/mfcc-showreel-music-promo-advertising-opener-vlog-background-intro-theme-261601.mp3',
+    'sounds/vasilyatsevich-in-slow-motion-inspiring-ambient-lounge-219592.mp3',
+    'sounds/loksii-no-copyright-music-211881.mp3',
+    'sounds/pumpupthemind-creative-technology-showreel-241274.mp3',
+    'sounds/moodmode-no-copyright-music-201745.mp3',
+  ];
+
+  function _startBgm(mode = 'quiz') {
+    _stopBgm();
+    const list = mode === 'quiz' ? _BGM_QUIZ_LIST : _BGM_AMBIENT_LIST;
+    const src  = list[Math.floor(Math.random() * list.length)];
+    const audio = new Audio(src);
+    audio.loop   = true;
+    audio.volume = mode === 'quiz' ? 0.125 : 0.09;
+    audio.play().catch(() => {});  // autoplay 정책 무시
+    _bgmNodes = [audio];           // _bgmNodes[0]에 Audio 저장
+  }
+
+  function _stopBgm() {
+    if (_bgmNodes.length) {
+      const audio = _bgmNodes[0];
+      if (audio instanceof Audio) {
+        audio.pause();
+        audio.src = '';
+      }
+      _bgmNodes = [];
+    }
+    _bgmCtx = null;
+  }
+
   function setQuizPassRate(rate) {
     Store.setSetting('quizPassRate', rate);
     _renderProfile(); // 설정 화면 새로고침
@@ -2242,171 +2474,615 @@ const App = (() => {
     const rect = el.getBoundingClientRect();
     const cx = rect.left + rect.width / 2;
     const cy = rect.top + rect.height / 2;
-    const colors = ['#10b981','#34d399','#f59e0b','#3b82f6','#a78bfa','#fbbf24','#f97316'];
-    for (let i = 0; i < 14; i++) {
-      const sp = document.createElement('div');
-      const angle = (Math.PI * 2 * i) / 14 + (Math.random() - 0.5) * 0.4;
-      const dist  = 45 + Math.random() * 55;
+    const colors = ['#10b981','#34d399','#f59e0b','#3b82f6','#a78bfa','#fbbf24','#f97316','#ec4899','#38bdf8','#fb7185'];
+    const shapes = ['50%', '3px', '0px', '50% 0 50% 0'];
+    const TOTAL  = 36;
+    // 1차 폭발 (즉시)
+    for (let i = 0; i < TOTAL; i++) {
+      const sp    = document.createElement('div');
+      const angle = (Math.PI * 2 * i) / TOTAL + (Math.random() - 0.5) * 0.5;
+      const dist  = 70 + Math.random() * 130;
+      const size  = 7 + Math.random() * 14;
+      const dur   = 0.85 + Math.random() * 0.4;
       sp.style.cssText = `
         position:fixed; z-index:9999; pointer-events:none;
-        width:${5 + Math.random() * 6}px; height:${5 + Math.random() * 6}px;
-        border-radius:${Math.random() > 0.5 ? '50%' : '3px'};
+        width:${size}px; height:${size * (Math.random() > 0.5 ? 1 : 0.5)}px;
+        border-radius:${shapes[Math.floor(Math.random() * shapes.length)]};
         background:${colors[Math.floor(Math.random() * colors.length)]};
         left:${cx}px; top:${cy}px;
         --tx:${Math.cos(angle) * dist}px; --ty:${Math.sin(angle) * dist}px;
-        animation: v2SparkFly 0.55s ease-out forwards;
-        animation-delay:${Math.random() * 0.07}s;
+        animation: v2SparkFly ${dur}s ease-out forwards;
+        animation-delay:${Math.random() * 0.1}s;
       `;
       document.body.appendChild(sp);
-      setTimeout(() => sp.remove(), 700);
+      setTimeout(() => sp.remove(), (dur + 0.15) * 1000);
     }
+    // 2차 별 모양 폭발 (150ms 후)
+    setTimeout(() => {
+      for (let i = 0; i < 16; i++) {
+        const sp    = document.createElement('div');
+        const angle = (Math.PI * 2 * i) / 16 + Math.random() * 0.3;
+        const dist  = 50 + Math.random() * 90;
+        const size  = 10 + Math.random() * 10;
+        sp.style.cssText = `
+          position:fixed; z-index:9999; pointer-events:none;
+          width:${size}px; height:${size}px;
+          border-radius:50%;
+          background:radial-gradient(circle, ${colors[Math.floor(Math.random()*colors.length)]} 40%, transparent 70%);
+          left:${cx}px; top:${cy}px;
+          --tx:${Math.cos(angle) * dist}px; --ty:${Math.sin(angle) * dist}px;
+          animation: v2SparkFly 0.7s ease-out forwards;
+        `;
+        document.body.appendChild(sp);
+        setTimeout(() => sp.remove(), 900);
+      }
+    }, 150);
   }
 
-  // ── 획순 애니메이션 ────────────────────────────────────────
-  let _strokeState = null; // { kana, strokes, stepIdx, timer }
+  // ── 획순 애니메이션 (KanjiVG 기반) ─────────────────────────
+  // state: { kana, total, stepIdx, paths[], activeGroup, ns, animTimer }
+  let _strokeState = null;
 
-  function _showStrokePanel(kana) {
-    const data = (typeof STROKE_DATA !== 'undefined') ? STROKE_DATA[kana] : null;
-    if (!data) { _toast('획순 데이터가 없습니다'); return; }
-
+  async function _showStrokePanel(kana) {
     // 기존 모달 제거
-    const existing = document.getElementById('strokeModal');
-    if (existing) existing.remove();
-    if (_strokeState && _strokeState.timer) clearInterval(_strokeState.timer);
+    document.getElementById('strokeModal')?.remove();
+    if (_strokeState?.animTimer) clearTimeout(_strokeState.animTimer);
+    _strokeState = null;
 
-    _strokeState = { kana, strokes: data.strokes, stepIdx: -1, timer: null };
+    const info   = (typeof KANA_MAP !== 'undefined') ? (KANA_MAP[kana] || {}) : {};
+    const romaji = info.romaji ?? '';
+    const korean = info.korean ?? '';
 
+    // ── 모달 생성 ──────────────────────────────────────────
     const overlay = document.createElement('div');
-    overlay.id = 'strokeModal';
-    overlay.style.cssText = `
-      position:fixed;inset:0;z-index:2000;
-      background:rgba(0,0,0,.75);
-      display:flex;align-items:center;justify-content:center;
-      padding:24px;
-    `;
+    overlay.id    = 'strokeModal';
+    overlay.className = 'hw-overlay';
     overlay.innerHTML = `
-      <div style="
-        background:var(--bg2);border-radius:24px;
-        border:1px solid var(--border);
-        padding:24px 20px 20px;
-        width:100%;max-width:340px;
-        display:flex;flex-direction:column;align-items:center;gap:14px;
-        position:relative;
-      ">
-        <button onclick="App._closeStrokePanel()"
-          style="position:absolute;top:12px;right:12px;
-            width:32px;height:32px;border-radius:50%;
-            border:none;background:var(--bg3);color:var(--text);
-            font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center">✕</button>
-        <div style="font-size:13px;color:var(--text3);letter-spacing:1px">✏️ 획순 애니메이션</div>
-        <div style="font-size:64px;font-family:'Noto Sans JP',serif;line-height:1;color:#fff;letter-spacing:0">${kana}</div>
-        <div class="stroke-svg-wrap" id="strokeSvgWrap">
-          ${_buildStrokeSVG(data.strokes, -1)}
+      <div class="hw-backdrop" onclick="App._closeStrokePanel()"></div>
+      <div class="hw-card">
+        <button class="hw-close-btn" onclick="App._closeStrokePanel()">✕</button>
+        <div class="hw-title-row">
+          <span class="hw-kana-label">${escHtml(kana)}</span>
+          <div class="hw-kana-meta">
+            <span class="hw-romaji">${escHtml(romaji)}</span>
+            <span class="hw-korean">${escHtml(korean)}</span>
+          </div>
         </div>
-        <div class="stroke-counter" id="strokeCounter">시작 전</div>
-        <div class="stroke-controls">
-          <button class="stroke-btn" onclick="App._strokeStep(-1)">◀ 이전</button>
-          <button class="stroke-btn primary" id="strokePlayBtn" onclick="App._strokePlay()">▶ 자동 재생</button>
-          <button class="stroke-btn" onclick="App._strokeStep(1)">다음 ▶</button>
+        <div class="hw-canvas-wrap"><div id="hwTarget"></div></div>
+        <div class="hw-stroke-counter" id="hwCounter">로딩 중…</div>
+        <div class="hw-controls">
+          <button class="hw-btn" id="hwPlayBtn" onclick="App._strokePlay()">▶ 처음부터</button>
+          <button class="hw-btn hw-btn-outline" onclick="App._strokeStep(-1)">◀ 이전</button>
+          <button class="hw-btn hw-btn-outline" onclick="App._strokeStep(1)">다음 ▶</button>
         </div>
-        <div style="font-size:11px;color:var(--text3)">총 ${data.strokes.length}획</div>
+        <div class="hw-hint">순서대로 획을 확인하거나 자동 재생하세요</div>
       </div>
     `;
     document.body.appendChild(overlay);
-    overlay.addEventListener('click', e => { if (e.target === overlay) App._closeStrokePanel(); });
+    requestAnimationFrame(() => overlay.classList.add('open'));
 
-    // 첫 획부터 자동 재생
-    _strokeAutoPlay();
+    // ── KanjiVG SVG 로드 ──────────────────────────────────
+    // KanjiVG GitHub raw: 5자리 유니코드 hex (예: あ→03042)
+    const hex = kana.codePointAt(0).toString(16).padStart(5, '0');
+    const url = `https://raw.githubusercontent.com/KanjiVG/kanjivg/master/kanji/${hex}.svg`;
+
+    try {
+      const res = await fetch(url);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const svgText = await res.text();
+      _renderKVGStrokes(svgText, kana);
+    } catch {
+      const el = document.getElementById('hwCounter');
+      if (el) el.textContent = '획순 데이터 없음';
+      const tgt = document.getElementById('hwTarget');
+      if (tgt) tgt.innerHTML = `
+        <div style="width:220px;height:220px;display:flex;align-items:center;
+                    justify-content:center;font-size:130px;
+                    font-family:'Noto Sans JP',serif;color:var(--text);opacity:.25">
+          ${escHtml(kana)}</div>`;
+    }
   }
 
-  function _buildStrokeSVG(strokes, activeIdx) {
-    // viewBox 109×109 → display 180×180
-    let paths = '';
-    // 십자 가이드선
-    paths += `<line class="stroke-guide-line" x1="54.5" y1="0" x2="54.5" y2="109"/>`;
-    paths += `<line class="stroke-guide-line" x1="0" y1="54.5" x2="109" y2="54.5"/>`;
+  function _renderKVGStrokes(svgText, kana) {
+    const parser = new DOMParser();
+    const doc    = parser.parseFromString(svgText, 'image/svg+xml');
 
-    strokes.forEach((d, i) => {
-      let cls = 'stroke-path';
-      if (i < activeIdx) cls += ' done';
-      else if (i === activeIdx) cls += ' active';
-      paths += `<path class="${cls}" d="${d}" id="sp${i}"/>`;
+    // KanjiVG path id 형식: "kvg:{hex5}-s{n}"  (예: kvg:03042-s1)
+    const strokePaths = [...doc.querySelectorAll('path[id]')]
+      .filter(p => /-s\d+$/.test(p.id))
+      .sort((a, b) => {
+        const na = parseInt(a.id.match(/-s(\d+)$/)[1]);
+        const nb = parseInt(b.id.match(/-s(\d+)$/)[1]);
+        return na - nb;
+      });
+
+    if (!strokePaths.length) {
+      const el = document.getElementById('hwCounter');
+      if (el) el.textContent = '획순 데이터 없음';
+      return;
+    }
+
+    const total = strokePaths.length;
+    const ns    = 'http://www.w3.org/2000/svg';
+    const tgt   = document.getElementById('hwTarget');
+    if (!tgt) return;
+    tgt.innerHTML = '';
+
+    // SVG 캔버스 (KanjiVG viewBox = 0 0 109 109)
+    const svg = document.createElementNS(ns, 'svg');
+    svg.setAttribute('viewBox', '0 0 109 109');
+    svg.setAttribute('width',  '220');
+    svg.setAttribute('height', '220');
+
+    // ── SVG defs: 붓 글로우 필터 ──────────────────────────
+    const defs = document.createElementNS(ns, 'defs');
+    defs.innerHTML = `
+      <!-- 붓끝 글로우 -->
+      <filter id="kvgTipGlow" x="-80%" y="-80%" width="260%" height="260%">
+        <feGaussianBlur in="SourceGraphic" stdDeviation="2.5" result="blur"/>
+        <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
+      <!-- 획 잉크 번짐 -->
+      <filter id="kvgInk" x="-10%" y="-10%" width="120%" height="120%">
+        <feGaussianBlur in="SourceGraphic" stdDeviation="0.6" result="blur"/>
+        <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
+    `;
+    svg.appendChild(defs);
+
+    // ① 가이드라인 (십자)
+    const guide = document.createElementNS(ns, 'g');
+    [[54.5,0,54.5,109],[0,54.5,109,54.5]].forEach(([x1,y1,x2,y2]) => {
+      const l = document.createElementNS(ns, 'line');
+      l.setAttribute('x1',x1); l.setAttribute('y1',y1);
+      l.setAttribute('x2',x2); l.setAttribute('y2',y2);
+      l.setAttribute('stroke','rgba(99,102,241,.1)');
+      l.setAttribute('stroke-width','1');
+      l.setAttribute('stroke-dasharray','3 4');
+      guide.appendChild(l);
     });
-    return `<svg viewBox="0 0 109 109" xmlns="http://www.w3.org/2000/svg">${paths}</svg>`;
+    svg.appendChild(guide);
+
+    // ② 회색 아웃라인 (전체 획, 연하게)
+    const outlineGroup = document.createElementNS(ns, 'g');
+    strokePaths.forEach(p => {
+      const o = document.createElementNS(ns, 'path');
+      o.setAttribute('d', p.getAttribute('d'));
+      o.setAttribute('stroke', 'rgba(148,163,184,.22)');
+      o.setAttribute('stroke-width', '3.5');
+      o.setAttribute('fill', 'none');
+      o.setAttribute('stroke-linecap', 'round');
+      o.setAttribute('stroke-linejoin', 'round');
+      outlineGroup.appendChild(o);
+    });
+    svg.appendChild(outlineGroup);
+
+    // ③ 활성 획 그룹 + 붓끝 그룹 (z-order: 획 아래, 붓끝 위)
+    const activeGroup = document.createElementNS(ns, 'g');
+    const tipGroup    = document.createElementNS(ns, 'g');
+    svg.appendChild(activeGroup);
+    svg.appendChild(tipGroup);
+
+    tgt.appendChild(svg);
+
+    _strokeState = { kana, total, stepIdx: -1, paths: strokePaths,
+                     activeGroup, tipGroup, ns, svg,
+                     animTimer: null, animFrame: null };
+    _updateHwCounter();
+    _strokeState.animTimer = setTimeout(() => _strokePlay(), 500);
   }
 
-  function _strokeUpdateSVG() {
-    const wrap = document.getElementById('strokeSvgWrap');
-    const counter = document.getElementById('strokeCounter');
-    if (!wrap || !_strokeState) return;
-    wrap.innerHTML = _buildStrokeSVG(_strokeState.strokes, _strokeState.stepIdx);
-    const total = _strokeState.strokes.length;
-    const idx = _strokeState.stepIdx;
-    if (idx < 0) {
-      counter.textContent = '시작 전';
-    } else if (idx >= total - 1) {
-      counter.textContent = `완료 (${total}획)`;
-    } else {
-      counter.textContent = `${idx + 1} / ${total} 획`;
+  // ── 이징 함수 (붓글씨 느낌) ──────────────────────────────
+  // 시작 빠름 → 끝에서 자연스럽게 감속 (붓이 종이에 닿아 올리는 느낌)
+  function _easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
+
+  function _strokePlay() {
+    if (!_strokeState?.paths) return;
+    const st  = _strokeState;
+    if (st.animTimer)  { clearTimeout(st.animTimer); st.animTimer = null; }
+    if (st.animFrame)  { cancelAnimationFrame(st.animFrame); st.animFrame = null; }
+
+    st.stepIdx = -1;
+    st.activeGroup.innerHTML = '';
+    st.tipGroup.innerHTML    = '';
+    _updateHwCounter();
+
+    const btn = document.getElementById('hwPlayBtn');
+    if (btn) btn.textContent = '■ 재생 중';
+
+    function drawStroke(i) {
+      if (!_strokeState || _strokeState !== st) return;
+      if (i >= st.total) {
+        if (btn) btn.textContent = '▶ 처음부터';
+        return;
+      }
+      st.stepIdx = i;
+      _updateHwCounter();
+
+      _kvgAddStroke(i, true, () => {
+        // 획 완료 → 다음 획까지 짧은 숨고르기
+        if (!_strokeState || _strokeState !== st) return;
+        st.animTimer = setTimeout(() => drawStroke(i + 1), 260);
+      });
     }
-    // 현재 활성 획에 dash 애니메이션
-    const activePath = document.getElementById(`sp${idx}`);
-    if (activePath) {
-      const len = activePath.getTotalLength ? activePath.getTotalLength() : 100;
-      activePath.style.strokeDasharray = len;
-      activePath.style.strokeDashoffset = len;
-      activePath.style.transition = 'none';
-      void activePath.getBoundingClientRect();
-      activePath.style.transition = 'stroke-dashoffset 0.45s ease';
-      activePath.style.strokeDashoffset = '0';
-    }
+    drawStroke(0);
   }
 
   function _strokeStep(dir) {
-    if (!_strokeState) return;
-    if (_strokeState.timer) { clearInterval(_strokeState.timer); _strokeState.timer = null; }
-    const btn = document.getElementById('strokePlayBtn');
-    if (btn) btn.textContent = '▶ 자동 재생';
-    _strokeState.stepIdx = Math.max(-1, Math.min(_strokeState.strokes.length - 1, _strokeState.stepIdx + dir));
-    _strokeUpdateSVG();
-  }
+    if (!_strokeState?.paths) return;
+    const st = _strokeState;
+    // 진행 중인 애니메이션 중단
+    if (st.animTimer)  { clearTimeout(st.animTimer);      st.animTimer = null; }
+    if (st.animFrame)  { cancelAnimationFrame(st.animFrame); st.animFrame = null; }
 
-  function _strokePlay() {
-    if (!_strokeState) return;
-    const btn = document.getElementById('strokePlayBtn');
-    if (_strokeState.timer) {
-      clearInterval(_strokeState.timer);
-      _strokeState.timer = null;
-      if (btn) btn.textContent = '▶ 자동 재생';
-      return;
+    const newIdx = Math.max(-1, Math.min(st.total - 1, st.stepIdx + dir));
+    if (newIdx === st.stepIdx && newIdx !== -1) return;
+
+    st.stepIdx = newIdx;
+    st.activeGroup.innerHTML = '';
+    st.tipGroup.innerHTML    = '';
+
+    if (newIdx >= 0) {
+      // 이전 획들은 즉시 표시 (애니 없음), 현재 획만 간단한 페이드인
+      for (let i = 0; i < newIdx; i++)  _kvgAddStroke(i, false, null);
+      _kvgAddStroke(newIdx, 'step', null); // 'step' = 짧은 애니
     }
-    // 처음부터 재생
-    _strokeState.stepIdx = -1;
-    _strokeUpdateSVG();
-    if (btn) btn.textContent = '⏸ 일시정지';
-    _strokeState.timer = setInterval(() => {
-      _strokeState.stepIdx++;
-      _strokeUpdateSVG();
-      if (_strokeState.stepIdx >= _strokeState.strokes.length - 1) {
-        clearInterval(_strokeState.timer);
-        _strokeState.timer = null;
-        if (btn) btn.textContent = '▶ 다시 재생';
-      }
-    }, 700);
+    _updateHwCounter();
+
+    const btn = document.getElementById('hwPlayBtn');
+    if (btn) btn.textContent = '▶ 처음부터';
   }
 
-  function _strokeAutoPlay() {
-    // 약간 딜레이 후 자동 시작
-    setTimeout(() => {
-      if (document.getElementById('strokeModal')) _strokePlay();
-    }, 300);
+  // ── 획 하나 렌더링 ────────────────────────────────────────
+  // animate: false = 즉시 표시 / true = 붓글씨 풀 애니 / 'step' = 빠른 드로우
+  function _kvgAddStroke(idx, animate, onComplete) {
+    if (!_strokeState) return;
+    const { paths, activeGroup, tipGroup, ns } = _strokeState;
+    const srcPath = paths[idx];
+    if (!srcPath) return;
+
+    const isActive = animate !== false;
+    const isFull   = animate === true;
+
+    // ── 메인 획 path ──────────────────────────────────────
+    const path = document.createElementNS(ns, 'path');
+    path.setAttribute('d', srcPath.getAttribute('d'));
+    path.setAttribute('stroke', isActive ? '#a78bfa' : '#6366f1');
+    path.setAttribute('stroke-width', isActive ? '5.5' : '3.8');
+    path.setAttribute('fill', 'none');
+    path.setAttribute('stroke-linecap', 'round');
+    path.setAttribute('stroke-linejoin', 'round');
+    path.style.opacity = isActive ? '1' : '0.55';
+    if (isActive) path.setAttribute('filter', 'url(#kvgInk)');
+    activeGroup.appendChild(path);
+
+    // 애니메이션 없음 → 즉시 완료
+    if (!animate) { if (onComplete) onComplete(); return; }
+
+    try {
+      const len = path.getTotalLength();
+      if (len <= 0) { if (onComplete) onComplete(); return; }
+
+      path.style.strokeDasharray  = len;
+      path.style.strokeDashoffset = len;
+
+      const DURATION = isFull ? Math.max(420, Math.min(len * 5.5, 780)) : 260;
+
+      // ── 붓끝 (이동하는 글로우 원) ─────────────────────
+      let tip = null;
+      if (isFull) {
+        tip = document.createElementNS(ns, 'circle');
+        tip.setAttribute('r', '4.5');
+        tip.setAttribute('fill', '#e9d5ff');
+        tip.setAttribute('filter', 'url(#kvgTipGlow)');
+        const sp = path.getPointAtLength(0);
+        tip.setAttribute('cx', sp.x);
+        tip.setAttribute('cy', sp.y);
+        tipGroup.appendChild(tip);
+      }
+
+      const startTime = performance.now();
+      const st = _strokeState;
+
+      function frame(now) {
+        if (!_strokeState || _strokeState !== st) return; // 패널 닫힘
+        const raw    = Math.min((now - startTime) / DURATION, 1);
+        const eased  = _easeOutCubic(raw);
+        const drawn  = len * eased;
+
+        path.style.strokeDashoffset = len - drawn;
+
+        // 붓끝 이동
+        if (tip) {
+          try {
+            const pt = path.getPointAtLength(Math.min(drawn, len - 0.1));
+            tip.setAttribute('cx', pt.x);
+            tip.setAttribute('cy', pt.y);
+          } catch { /* ignore */ }
+        }
+
+        if (raw < 1) {
+          st.animFrame = requestAnimationFrame(frame);
+        } else {
+          // 획 완료 처리
+          path.style.strokeDashoffset = '0';
+          st.animFrame = null;
+
+          if (tip) {
+            // 붓끝: 페이드 아웃 후 제거
+            tip.style.transition = 'opacity 0.25s';
+            tip.style.opacity    = '0';
+            setTimeout(() => { try { tip.remove(); } catch {} }, 260);
+          }
+          if (onComplete) onComplete();
+        }
+      }
+
+      st.animFrame = requestAnimationFrame(frame);
+
+    } catch {
+      // getTotalLength 미지원 fallback
+      path.style.strokeDasharray  = '';
+      path.style.strokeDashoffset = '';
+      if (onComplete) onComplete();
+    }
   }
+
+  function _updateHwCounter() {
+    const el = document.getElementById('hwCounter');
+    if (!el || !_strokeState) return;
+    const { total, stepIdx } = _strokeState;
+    el.textContent = stepIdx < 0
+      ? `총 ${total}획`
+      : `${stepIdx + 1} / ${total}획`;
+  }
+
+  function _strokeUpdateSVG() { /* KanjiVG 렌더러가 처리 */ }
+  function _strokeAutoPlay()  { /* KanjiVG 렌더러가 처리 */ }
 
   function _closeStrokePanel() {
-    if (_strokeState && _strokeState.timer) { clearInterval(_strokeState.timer); _strokeState.timer = null; }
+    if (_strokeState?.animTimer) clearTimeout(_strokeState.animTimer);
+    if (_strokeState?.animFrame) cancelAnimationFrame(_strokeState.animFrame);
     _strokeState = null;
     const m = document.getElementById('strokeModal');
-    if (m) m.remove();
+    if (m) {
+      m.classList.remove('open');
+      setTimeout(() => m.remove(), 250);
+    }
+  }
+
+  // ══════════════════════════════════════════════════════════
+  //  인라인 획순 — 카드 뒷면에 직접 표시 (팝업 없음)
+  // ══════════════════════════════════════════════════════════
+  let _inlineStrokeState = null;
+
+  async function _startInlineStroke(kana) {
+    _stopInlineStroke(); // 이전 상태 완전 초기화
+
+    const tgt = document.getElementById('kanaStrokeInline');
+    if (!tgt) return;
+
+    // AbortController: 카드 이동 시 진행 중인 fetch 취소
+    const ctrl = new AbortController();
+    _inlineStrokeState = { kana, ctrl, animTimer: null, animFrame: null };
+
+    const hex = kana.codePointAt(0).toString(16).padStart(5, '0');
+    const url = `https://raw.githubusercontent.com/KanjiVG/kanjivg/master/kanji/${hex}.svg`;
+
+    try {
+      const res = await fetch(url, { signal: ctrl.signal });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const svgText = await res.text();
+      // fetch 완료 시점에 여전히 같은 문자인지 확인
+      if (_inlineStrokeState?.kana !== kana) return;
+      _renderInlineKVG(svgText, kana);
+    } catch (e) {
+      if (e.name === 'AbortError') return; // 정상 취소 — 무시
+      // 데이터 없음 → 문자만 희미하게 표시
+      const el = document.getElementById('kanaStrokeInline');
+      if (el && _inlineStrokeState?.kana === kana) {
+        el.innerHTML = `<div style="font-size:52px;font-family:'Noto Sans JP',serif;
+          color:rgba(99,102,241,.2);line-height:1">${escHtml(kana)}</div>`;
+      }
+    }
+  }
+
+  function _renderInlineKVG(svgText, kana) {
+    const parser = new DOMParser();
+    const doc    = parser.parseFromString(svgText, 'image/svg+xml');
+
+    const strokePaths = [...doc.querySelectorAll('path[id]')]
+      .filter(p => /-s\d+$/.test(p.id))
+      .sort((a, b) =>
+        parseInt(a.id.match(/-s(\d+)$/)[1]) - parseInt(b.id.match(/-s(\d+)$/)[1]));
+
+    const tgt = document.getElementById('kanaStrokeInline');
+    if (!tgt || !strokePaths.length) return;
+    tgt.innerHTML = '';
+
+    const total = strokePaths.length;
+    const ns    = 'http://www.w3.org/2000/svg';
+
+    const svg = document.createElementNS(ns, 'svg');
+    svg.setAttribute('viewBox', '0 0 109 109');
+    svg.setAttribute('width',  '100%');
+    svg.setAttribute('height', '100%');
+    svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+
+    // ── SVG 필터 정의 ─────────────────────────────────────
+    const defs = document.createElementNS(ns, 'defs');
+    defs.innerHTML = `
+      <filter id="ilTipGlow" x="-80%" y="-80%" width="260%" height="260%">
+        <feGaussianBlur in="SourceGraphic" stdDeviation="2" result="b"/>
+        <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
+      <filter id="ilInk" x="-10%" y="-10%" width="120%" height="120%">
+        <feGaussianBlur in="SourceGraphic" stdDeviation="0.5" result="b"/>
+        <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>`;
+    svg.appendChild(defs);
+
+    // ── 가이드라인 (점선 십자) ─────────────────────────────
+    const guide = document.createElementNS(ns, 'g');
+    [[54.5,0,54.5,109],[0,54.5,109,54.5]].forEach(([x1,y1,x2,y2]) => {
+      const l = document.createElementNS(ns, 'line');
+      l.setAttribute('x1',x1); l.setAttribute('y1',y1);
+      l.setAttribute('x2',x2); l.setAttribute('y2',y2);
+      l.setAttribute('stroke','rgba(99,102,241,.12)');
+      l.setAttribute('stroke-width','1');
+      l.setAttribute('stroke-dasharray','3 4');
+      guide.appendChild(l);
+    });
+    svg.appendChild(guide);
+
+    // ── 회색 아웃라인 ────────────────────────────────────
+    const outlineG = document.createElementNS(ns, 'g');
+    strokePaths.forEach(p => {
+      const o = document.createElementNS(ns, 'path');
+      o.setAttribute('d', p.getAttribute('d'));
+      o.setAttribute('stroke', 'rgba(148,163,184,.2)');
+      o.setAttribute('stroke-width', '3.5');
+      o.setAttribute('fill', 'none');
+      o.setAttribute('stroke-linecap', 'round');
+      o.setAttribute('stroke-linejoin', 'round');
+      outlineG.appendChild(o);
+    });
+    svg.appendChild(outlineG);
+
+    // ── 활성 획 그룹 / 붓끝 그룹 ────────────────────────
+    const activeG = document.createElementNS(ns, 'g');
+    const tipG    = document.createElementNS(ns, 'g');
+    svg.appendChild(activeG);
+    svg.appendChild(tipG);
+    tgt.appendChild(svg);
+
+    // _inlineStrokeState 업데이트 (ctrl 유지)
+    Object.assign(_inlineStrokeState, {
+      total, stepIdx: -1,
+      paths: strokePaths, activeG, tipG, ns
+    });
+
+    // 자동 재생
+    _inlineStrokeState.animTimer = setTimeout(() => _inlinePlay(), 150);
+  }
+
+  // ── 자동/수동 재생 ──────────────────────────────────────
+  function _inlinePlay() {
+    if (!_inlineStrokeState?.paths) return;
+    const st = _inlineStrokeState;
+    if (st.animTimer) { clearTimeout(st.animTimer);       st.animTimer = null; }
+    if (st.animFrame) { cancelAnimationFrame(st.animFrame); st.animFrame = null; }
+
+    st.stepIdx = -1;
+    st.activeG.innerHTML = '';
+    st.tipG.innerHTML    = '';
+
+    function drawStroke(i) {
+      if (!_inlineStrokeState || _inlineStrokeState !== st) return;
+      if (i >= st.total) return; // 완료
+      st.stepIdx = i;
+      _inlineAddStroke(i, () => {
+        if (!_inlineStrokeState || _inlineStrokeState !== st) return;
+        st.animTimer = setTimeout(() => drawStroke(i + 1), 220);
+      });
+    }
+    drawStroke(0);
+  }
+
+  // 공개 — 🔄 버튼에서 호출
+  function _replayInlineStroke() { _inlinePlay(); }
+
+  // 카드 이동 / 앞면 복귀 시 호출
+  function _stopInlineStroke() {
+    if (_inlineStrokeState?.ctrl)      { try { _inlineStrokeState.ctrl.abort(); } catch {} }
+    if (_inlineStrokeState?.animTimer) clearTimeout(_inlineStrokeState.animTimer);
+    if (_inlineStrokeState?.animFrame) cancelAnimationFrame(_inlineStrokeState.animFrame);
+    _inlineStrokeState = null;
+  }
+
+  // ── 획 하나 그리기 (붓글씨 RAF 애니메이션) ──────────────
+  function _inlineAddStroke(idx, onComplete) {
+    if (!_inlineStrokeState) return;
+    const { paths, activeG, tipG, ns } = _inlineStrokeState;
+    const srcPath = paths[idx];
+    if (!srcPath) { if (onComplete) onComplete(); return; }
+
+    // 이전 획들 (완료된 것) — 연하게 남김
+    // 현재 획 — 진하게 + 붓글씨 애니
+    const path = document.createElementNS(ns, 'path');
+    path.setAttribute('d', srcPath.getAttribute('d'));
+    path.setAttribute('stroke', '#a78bfa');
+    path.setAttribute('stroke-width', '5.5');
+    path.setAttribute('fill', 'none');
+    path.setAttribute('stroke-linecap', 'round');
+    path.setAttribute('stroke-linejoin', 'round');
+    path.setAttribute('filter', 'url(#ilInk)');
+    activeG.appendChild(path);
+
+    // 이전 획들 색 낮추기
+    [...activeG.children].slice(0, -1).forEach(el => {
+      el.setAttribute('stroke', '#6366f1');
+      el.setAttribute('stroke-width', '4');
+      el.style.opacity = '0.55';
+      el.removeAttribute('filter');
+    });
+
+    try {
+      const len = path.getTotalLength();
+      if (len <= 0) { if (onComplete) onComplete(); return; }
+
+      path.style.strokeDasharray  = len;
+      path.style.strokeDashoffset = len;
+
+      // 획 길이에 비례한 재생 시간 (짧은 획은 빠르게, 긴 획은 느리게)
+      const DURATION = Math.max(350, Math.min(len * 5.2, 700));
+
+      // 붓끝 (이동하는 글로우 원)
+      const tip = document.createElementNS(ns, 'circle');
+      tip.setAttribute('r', '3.5');
+      tip.setAttribute('fill', '#e9d5ff');
+      tip.setAttribute('filter', 'url(#ilTipGlow)');
+      const sp = path.getPointAtLength(0);
+      tip.setAttribute('cx', sp.x);
+      tip.setAttribute('cy', sp.y);
+      tipG.appendChild(tip);
+
+      const startTime = performance.now();
+      const st = _inlineStrokeState;
+
+      function frame(now) {
+        if (!_inlineStrokeState || _inlineStrokeState !== st) return;
+        const raw   = Math.min((now - startTime) / DURATION, 1);
+        const eased = 1 - Math.pow(1 - raw, 3); // easeOutCubic
+        const drawn = len * eased;
+
+        path.style.strokeDashoffset = len - drawn;
+
+        try {
+          const pt = path.getPointAtLength(Math.min(drawn, len - 0.1));
+          tip.setAttribute('cx', pt.x);
+          tip.setAttribute('cy', pt.y);
+        } catch { /* ignore */ }
+
+        if (raw < 1) {
+          st.animFrame = requestAnimationFrame(frame);
+        } else {
+          path.style.strokeDashoffset = '0';
+          st.animFrame = null;
+          // 붓끝 페이드 아웃
+          tip.style.transition = 'opacity 0.2s';
+          tip.style.opacity    = '0';
+          setTimeout(() => { try { tip.remove(); } catch {} }, 220);
+          if (onComplete) onComplete();
+        }
+      }
+      st.animFrame = requestAnimationFrame(frame);
+
+    } catch {
+      path.style.strokeDasharray  = '';
+      path.style.strokeDashoffset = '';
+      if (onComplete) onComplete();
+    }
   }
 
   // ── TTS 설정 UI 빌더 ─────────────────────────────────────
@@ -2812,6 +3488,372 @@ const App = (() => {
     return rows.join('');
   }
 
+  // ════════════════════════════════════════════════════════
+  //  PLACEMENT TEST — 레벨 진단 테스트
+  // ════════════════════════════════════════════════════════
+
+  const _PT_SECTIONS = [
+    {
+      id: 'hiragana', title: '히라가나 읽기', icon: 'あ', color: '#6366f1',
+      desc: '아래 글자의 로마자 발음을 고르세요', stage: 1,
+      questions: [
+        { q: 'あ', correct: 'a',  wrong: ['i',  'ka', 'na']  },
+        { q: 'き', correct: 'ki', wrong: ['ka', 'ku', 'ke']  },
+        { q: 'さ', correct: 'sa', wrong: ['za', 'su', 'shi'] },
+        { q: 'て', correct: 'te', wrong: ['ta', 'to', 'tsu'] },
+        { q: 'の', correct: 'no', wrong: ['ne', 'ni', 'nu']  },
+        { q: 'ほ', correct: 'ho', wrong: ['hi', 'he', 'ha']  },
+        { q: 'む', correct: 'mu', wrong: ['mi', 'mo', 'ma']  },
+        { q: 'れ', correct: 're', wrong: ['ra', 'ro', 'ri']  },
+        { q: 'を', correct: 'wo', wrong: ['wa', 'wi', 'we']  },
+        { q: 'ん', correct: 'n',  wrong: ['nu', 'ne', 'ni']  },
+      ]
+    },
+    {
+      id: 'katakana', title: '가타카나 읽기', icon: 'ア', color: '#7c3aed',
+      desc: '아래 글자의 로마자 발음을 고르세요', stage: 1,
+      questions: [
+        { q: 'ア', correct: 'a',  wrong: ['i',  'ka', 'na']  },
+        { q: 'コ', correct: 'ko', wrong: ['ka', 'ki', 'ku']  },
+        { q: 'ス', correct: 'su', wrong: ['sa', 'si', 'se']  },
+        { q: 'テ', correct: 'te', wrong: ['ta', 'to', 'tsu'] },
+        { q: 'ン', correct: 'n',  wrong: ['nu', 'ne', 'ni']  },
+      ]
+    },
+    {
+      id: 'vocab_n5', title: 'N5 기초 어휘', icon: '📖', color: '#0891b2',
+      desc: '단어의 의미로 올바른 것을 고르세요', stage: 2,
+      questions: [
+        { q: 'ありがとう',   correct: '감사합니다',  wrong: ['죄송합니다', '안녕하세요',   '잘 부탁드립니다'] },
+        { q: 'すみません',   correct: '실례합니다',  wrong: ['잘했어요',   '좋아요',       '알겠어요']        },
+        { q: 'どこ',         correct: '어디',        wrong: ['언제',       '누구',         '무엇']            },
+        { q: 'おいしい',     correct: '맛있다',      wrong: ['크다',       '빠르다',       '예쁘다']          },
+        { q: 'でんしゃ',     correct: '전철',        wrong: ['버스',       '택시',         '비행기']          },
+      ]
+    },
+    {
+      id: 'expression_n4', title: 'N4 생활 표현', icon: '💬', color: '#059669',
+      desc: '표현의 의미로 올바른 것을 고르세요', stage: 3,
+      questions: [
+        { q: '〜ていただけますか',   correct: '~해 주시겠어요?',  wrong: ['~합시다',       '~했어요',        '~하고 싶어요']  },
+        { q: 'よろしければ',         correct: '괜찮으시다면',     wrong: ['왜냐하면',      '그런데',         '하지만']        },
+        { q: 'お先に失礼します',     correct: '먼저 실례합니다',  wrong: ['잠깐 기다려요', '천만에요',       '수고하셨어요']  },
+        { q: 'いかがですか',         correct: '어떠세요?',        wrong: ['왜 그래요?',    '어디에요?',      '어떻게 해요?']  },
+        { q: '〜てもいいですか',     correct: '~해도 될까요?',    wrong: ['~해야 합니까?', '~할 수 없어요',  '~하지 마세요']  },
+      ]
+    },
+    {
+      id: 'it_biz', title: 'IT·비즈니스', icon: '💼', color: '#d97706',
+      desc: '표현 또는 단어의 의미를 고르세요', stage: 4,
+      questions: [
+        { q: '報告・連絡・相談',             correct: '보고·연락·상담 (호렌소)',  wrong: ['회의·보고·결정',    '기획·설계·구현',    '요구·분석·테스트'] },
+        { q: '仕様(しよう)',                 correct: '스펙·요구사항',            wrong: ['회의록',            '진행 보고',         '버전 관리']        },
+        { q: '工数(こうすう)',               correct: '작업 공수',                wrong: ['회의 시간',         '배포 주기',         '코드 리뷰']        },
+        { q: 'ご確認よろしくお願いします',   correct: '확인 부탁드립니다',        wrong: ['시작합시다',         '수고하셨습니다',    '잘 부탁드립니다']  },
+        { q: '根回し(ねまわし)',             correct: '사전 조율',                wrong: ['야근',              '회식',              '프로젝트 킥오프']  },
+      ]
+    }
+  ];
+
+  const _PT_PASS = 0.6;
+  let _pt = null;
+
+  function openPlacementTest() {
+    _pt = {
+      sectionIdx: 0,
+      qIdx: 0,
+      answered: false,
+      sections: _PT_SECTIONS.map(s => ({
+        ...s,
+        questions: shuffle([...s.questions]),
+        correct: 0,
+        done: false
+      }))
+    };
+    _ptCreateOverlay();
+    _ptRenderSection();
+  }
+
+  function _ptCreateOverlay() {
+    let el = document.getElementById('ptOverlay');
+    if (el) el.remove();
+    el = document.createElement('div');
+    el.id = 'ptOverlay';
+    el.className = 'pt-overlay';
+    el.innerHTML = `
+      <div class="pt-header">
+        <button class="pt-close-btn" onclick="App._ptClose()">✕</button>
+        <div class="pt-header-title">📊 레벨 진단 테스트</div>
+        <div class="pt-section-badge" id="ptSectionBadge"></div>
+      </div>
+      <div class="pt-body" id="ptBody"></div>
+    `;
+    document.body.appendChild(el);
+    requestAnimationFrame(() => el.classList.add('open'));
+  }
+
+  function _ptRenderSection() {
+    const sec = _pt.sections[_pt.sectionIdx];
+    const qData = sec.questions[_pt.qIdx];
+    const badge = document.getElementById('ptSectionBadge');
+    const body  = document.getElementById('ptBody');
+    if (badge) badge.textContent = `${_pt.sectionIdx + 1} / ${_PT_SECTIONS.length}`;
+    const isKanaSection = sec.id === 'hiragana' || sec.id === 'katakana';
+    const choices = shuffle([qData.correct, ...qData.wrong]);
+
+    body.innerHTML = `
+      <div class="pt-section-header">
+        <div class="pt-section-icon" style="background:${sec.color}22;border:2px solid ${sec.color}55">
+          <span style="font-size:${isKanaSection ? '26px' : '20px'};font-family:${isKanaSection ? "'Noto Sans JP',serif" : 'inherit'}">${sec.icon}</span>
+        </div>
+        <div>
+          <div class="pt-section-title">${escHtml(sec.title)}</div>
+          <div class="pt-section-desc">${escHtml(sec.desc)}</div>
+        </div>
+      </div>
+
+      <div class="pt-progress-row">
+        <span class="pt-q-counter">${_pt.qIdx + 1} / ${sec.questions.length}</span>
+        <div class="pt-q-bar-wrap">
+          <div class="pt-q-bar" style="width:${(_pt.qIdx / sec.questions.length) * 100}%;background:${sec.color}"></div>
+        </div>
+        <span class="pt-q-score">${sec.correct}정답</span>
+      </div>
+
+      <div class="pt-question-card">
+        <div class="pt-question-char"
+             style="${isKanaSection ? "font-size:88px;font-family:'Noto Sans JP',serif" : 'font-size:20px;line-height:1.6;word-break:keep-all'}">
+          ${escHtml(qData.q)}
+        </div>
+        ${isKanaSection ? `<button class="pt-speak-btn" onclick="TTS.speak('${qData.q}')">🔊 듣기</button>` : ''}
+      </div>
+
+      <div class="pt-choices" id="ptChoices">
+        ${choices.map((c, i) => `
+          <button class="pt-choice" data-correct="${c === qData.correct}"
+                  onclick="App._ptAnswer(this, ${c === qData.correct})">
+            <span class="pt-choice-label">${'ABCD'[i]}</span>
+            <span class="pt-choice-text">${escHtml(c)}</span>
+          </button>
+        `).join('')}
+      </div>
+
+      <div class="pt-feedback" id="ptFeedback"></div>
+      <div class="pt-next-wrap" id="ptNextWrap" style="display:none">
+        <button class="btn btn-primary pt-next-btn" onclick="App._ptNext()">다음 →</button>
+      </div>
+    `;
+    _pt.answered = false;
+  }
+
+  function _ptAnswer(btn, isCorrect) {
+    if (_pt.answered) return;
+    _pt.answered = true;
+    const sec = _pt.sections[_pt.sectionIdx];
+    if (isCorrect) sec.correct++;
+
+    document.querySelectorAll('.pt-choice').forEach(b => {
+      b.disabled = true;
+      if (b.dataset.correct === 'true') b.classList.add('pt-correct');
+    });
+    btn.classList.add(isCorrect ? 'pt-correct' : 'pt-wrong');
+
+    const fb = document.getElementById('ptFeedback');
+    if (fb) {
+      fb.className = `pt-feedback show ${isCorrect ? 'correct' : 'wrong'}`;
+      const qData = sec.questions[_pt.qIdx];
+      const isKanaSection = sec.id === 'hiragana' || sec.id === 'katakana';
+      fb.innerHTML = isCorrect
+        ? `✅ 정답!${isKanaSection ? ` <strong>${escHtml(qData.q)}</strong> = ${escHtml(qData.correct)}` : ''}`
+        : `❌ 정답: <strong>${escHtml(qData.correct)}</strong>`;
+    }
+
+    _playQuizEffect(isCorrect);
+    const isKanaSection = sec.id === 'hiragana' || sec.id === 'katakana';
+    if (isKanaSection) TTS.speak(sec.questions[_pt.qIdx].q);
+
+    const nw = document.getElementById('ptNextWrap');
+    if (nw) nw.style.display = 'block';
+  }
+
+  function _ptNext() {
+    const sec = _pt.sections[_pt.sectionIdx];
+    _pt.qIdx++;
+
+    if (_pt.qIdx >= sec.questions.length) {
+      sec.done = true;
+      const pct = sec.correct / sec.questions.length;
+      if (pct < _PT_PASS) {
+        _ptShowResult(); // 이 섹션에서 탈락 → 즉시 결과
+      } else {
+        _pt.sectionIdx++;
+        _pt.qIdx = 0;
+        if (_pt.sectionIdx >= _pt.sections.length) {
+          _ptShowResult();
+        } else {
+          _ptRenderSectionIntro();
+        }
+      }
+    } else {
+      _ptRenderSection();
+    }
+  }
+
+  function _ptRenderSectionIntro() {
+    const sec     = _pt.sections[_pt.sectionIdx];
+    const prevSec = _pt.sections[_pt.sectionIdx - 1];
+    const prevPct = Math.round((prevSec.correct / prevSec.questions.length) * 100);
+    const emoji   = prevPct >= 80 ? '🎉' : prevPct >= 60 ? '👍' : '😊';
+
+    document.getElementById('ptBody').innerHTML = `
+      <div style="text-align:center;padding:36px 0">
+        <div style="font-size:52px;margin-bottom:12px">${emoji}</div>
+        <div style="font-size:20px;font-weight:800;margin-bottom:6px">${escHtml(prevSec.title)} 완료!</div>
+        <div style="font-size:14px;color:var(--text2);margin-bottom:28px">
+          ${prevSec.questions.length}문제 중 ${prevSec.correct}개 정답 (${prevPct}%)
+        </div>
+        <div style="font-size:12px;color:var(--text3);margin-bottom:6px">다음 섹션</div>
+        <div style="font-size:17px;font-weight:700;margin-bottom:4px">${escHtml(sec.icon)} ${escHtml(sec.title)}</div>
+        <div style="font-size:13px;color:var(--text2);margin-bottom:32px">${escHtml(sec.desc)}</div>
+        <button class="btn btn-primary" style="border-radius:20px;padding:14px 40px"
+                onclick="App._ptStartSection()">시작 →</button>
+      </div>
+    `;
+  }
+
+  function _ptStartSection() { _ptRenderSection(); }
+
+  function _ptShowResult() {
+    const secs    = _pt.sections;
+    const hiraOk  = secs[0].done && (secs[0].correct / secs[0].questions.length) >= _PT_PASS;
+    const kataOk  = secs[1].done && (secs[1].correct / secs[1].questions.length) >= _PT_PASS;
+    const n5Ok    = secs[2].done && (secs[2].correct / secs[2].questions.length) >= _PT_PASS;
+    const n4Ok    = secs[3].done && (secs[3].correct / secs[3].questions.length) >= _PT_PASS;
+    const bizOk   = secs[4].done && (secs[4].correct / secs[4].questions.length) >= _PT_PASS;
+
+    let icon, title, desc, stageLabel, firstModuleId, xpNeeded;
+    if (!hiraOk) {
+      icon = '🔤'; title = 'Stage 1 — 문자 마스터';
+      desc = '히라가나부터 차근차근 시작해요! 일본어의 기초를 완벽히 다질 수 있습니다.';
+      stageLabel = '히라가나부터 시작하기'; firstModuleId = 'kana_hira'; xpNeeded = 0;
+    } else if (!kataOk) {
+      icon = '🔤'; title = 'Stage 1 — 가타카나부터';
+      desc = '히라가나는 이미 잘 아시네요! 가타카나 마스터로 바로 넘어갑시다.';
+      stageLabel = '가타카나부터 시작하기'; firstModuleId = 'kana_kata'; xpNeeded = 0;
+    } else if (!n5Ok) {
+      icon = '🌱'; title = 'Stage 2 — 생존 일본어';
+      desc = '가나 문자를 이미 알고 계시네요! 생존 일본어 표현부터 시작해요.';
+      stageLabel = 'Stage 2에서 시작하기'; firstModuleId = 'survival_greet'; xpNeeded = 800;
+    } else if (!n4Ok) {
+      icon = '💬'; title = 'Stage 3 — 일상 대화';
+      desc = 'N5 수준의 기초를 갖추셨네요! 일상 대화 단계로 진입하세요.';
+      stageLabel = 'Stage 3에서 시작하기'; firstModuleId = 'daily_adjectives'; xpNeeded = 2800;
+    } else if (!bizOk) {
+      icon = '💼'; title = 'Stage 4 — IT·비즈니스';
+      desc = '일상 회화가 탄탄하시네요! IT·비즈니스 일본어에 도전해보세요.';
+      stageLabel = 'Stage 4에서 시작하기'; firstModuleId = 'it_tech_vocab'; xpNeeded = 6000;
+    } else {
+      icon = '🏆'; title = 'Stage 5 — 심화';
+      desc = '훌륭합니다! 최고 난이도 심화 과정에 도전할 준비가 되어 있습니다.';
+      stageLabel = 'Stage 5에서 시작하기'; firstModuleId = 'adv_keigo'; xpNeeded = 12000;
+    }
+
+    const scoreSummary = secs.map(s => {
+      if (!s.done) return `
+        <div class="pt-score-row skipped">
+          <span class="pt-score-icon">${s.icon}</span>
+          <span class="pt-score-name">${escHtml(s.title)}</span>
+          <span class="pt-score-val">-</span>
+        </div>`;
+      const pct    = Math.round((s.correct / s.questions.length) * 100);
+      const passed = pct >= 60;
+      return `
+        <div class="pt-score-row ${passed ? 'passed' : 'failed'}">
+          <span class="pt-score-icon">${s.icon}</span>
+          <span class="pt-score-name">${escHtml(s.title)}</span>
+          <span class="pt-score-val">${pct}% ${passed ? '✅' : '❌'}</span>
+        </div>`;
+    }).join('');
+
+    const badge = document.getElementById('ptSectionBadge');
+    if (badge) badge.textContent = '완료 🎯';
+
+    document.getElementById('ptBody').innerHTML = `
+      <div style="text-align:center;padding:24px 0 16px">
+        <div style="font-size:54px;margin-bottom:12px">${icon}</div>
+        <div style="font-size:20px;font-weight:900;margin-bottom:6px">진단 완료!</div>
+        <div style="font-size:15px;font-weight:700;color:var(--accent2);margin-bottom:8px">${title}</div>
+        <div style="font-size:13px;color:var(--text2);line-height:1.7;padding:0 4px;margin-bottom:20px">${desc}</div>
+      </div>
+
+      <div class="pt-score-card">
+        <div class="pt-score-card-title">섹션별 결과</div>
+        ${scoreSummary}
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:10px;margin-top:20px;padding-bottom:40px">
+        <button class="btn btn-primary" style="border-radius:16px;padding:16px;font-size:15px;font-weight:800"
+                onclick="App._ptSkipToStage('${firstModuleId}', ${xpNeeded})">
+          ${stageLabel} →
+        </button>
+        <button class="btn btn-outline" style="border-radius:16px;padding:12px;font-size:13px"
+                onclick="App._ptClose()">
+          처음(히라가나)부터 시작하기
+        </button>
+      </div>
+    `;
+  }
+
+  function _ptSkipToStage(firstModuleId, xpNeeded) {
+    const prog = Store.get(); // direct reference to internal _data
+
+    // XP 보장
+    if (xpNeeded > prog.xp) prog.xp = xpNeeded;
+
+    // 목표 모듈보다 앞선 모든 모듈 완료 처리
+    const targetMod = MODULES.find(m => m.id === firstModuleId);
+    if (targetMod) {
+      MODULES.forEach(mod => {
+        const isSameStageEarlier =
+          mod.stageId === targetMod.stageId &&
+          MODULES.indexOf(mod) < MODULES.indexOf(targetMod);
+        const isEarlierStage = mod.stageId < targetMod.stageId;
+
+        if (isEarlierStage || isSameStageEarlier) {
+          if (!prog.modules[mod.id]) {
+            prog.modules[mod.id] = { stepsCompleted: 0, stepResults: [], roleplayDone: false };
+          }
+          const mp = mod.steps.length;
+          prog.modules[mod.id].stepsCompleted = mp;
+          for (let i = 0; i < mp; i++) {
+            if (!prog.modules[mod.id].stepResults[i]) {
+              prog.modules[mod.id].stepResults[i] = { score: 100, ts: Date.now() };
+            }
+          }
+        }
+      });
+    }
+
+    Store.save();
+    _ptClose();
+    _renderHome();
+    _renderLesson();
+    setTimeout(() => showToast(`✅ ${title_of(firstModuleId)}에서 시작합니다!`), 400);
+  }
+
+  function title_of(moduleId) {
+    return MODULES.find(m => m.id === moduleId)?.name ?? moduleId;
+  }
+
+  function _ptClose() {
+    const el = document.getElementById('ptOverlay');
+    if (el) {
+      el.classList.remove('open');
+      setTimeout(() => el.remove(), 300);
+    }
+    _pt = null;
+  }
+
   // ── Public API ────────────────────────────────────────────
   return {
     init,
@@ -2872,11 +3914,20 @@ const App = (() => {
     _stopRoleplay,
     _startRoleplay,
     _getMod,
-    // 획순 애니메이션
+    // 진단 테스트
+    openPlacementTest,
+    _ptAnswer,
+    _ptNext,
+    _ptStartSection,
+    _ptSkipToStage,
+    _ptClose,
+    // 팝업 획순 (향후 한자용)
     _showStrokePanel,
     _closeStrokePanel,
     _strokeStep,
     _strokePlay,
+    // 인라인 획순 (카드 뒷면)
+    _replayInlineStroke,
   };
 })();
 

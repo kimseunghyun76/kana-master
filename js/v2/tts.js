@@ -76,17 +76,17 @@ const TTS = (() => {
           _vvSpeakerC = _vvSpeakers[2].id;
       }
     } catch { _vvAvailable = false; }
-    console.log(`[TTS] VOICEVOX: ${_vvAvailable ? '✅ ' + _vvSpeakers.length + '명' : '❌'}`);
   }
 
   async function _checkEdgeTts() {
     try {
       const ctrl = new AbortController();
       setTimeout(() => ctrl.abort(), TIMEOUT_MS);
-      const r = await fetch(`${EDGE_TTS_URL}/health`, { signal: ctrl.signal });
-      _edgeAvailable = r.ok;
+      // 서버 미실행 시 콘솔 에러를 억제하기 위해 no-cors 대신 직접 catch
+      const r = await fetch(`${EDGE_TTS_URL}/health`, { signal: ctrl.signal })
+                      .catch(() => null);
+      _edgeAvailable = !!(r && r.ok);
     } catch { _edgeAvailable = false; }
-    console.log(`[TTS] Edge TTS: ${_edgeAvailable ? '✅' : '❌'}`);
   }
 
   // ── 단일 발화 (Promise 반환 — 완료 시 resolve) ────────────
@@ -104,57 +104,54 @@ const TTS = (() => {
   }
 
   async function _vvSynth(text, speakerId) {
-    return new Promise(async resolve => {
-      try {
-        const c1 = new AbortController();
-        setTimeout(() => c1.abort(), TIMEOUT_MS);
-        const qRes = await fetch(
-          `${VOICEVOX_URL}/audio_query?text=${encodeURIComponent(text)}&speaker=${speakerId}`,
-          { method: 'POST', signal: c1.signal }
-        );
-        if (!qRes.ok) { resolve(false); return; }
-        const query = await qRes.json();
-        query.speedScale = _rate;
+    try {
+      const c1 = new AbortController();
+      setTimeout(() => c1.abort(), TIMEOUT_MS);
+      const qRes = await fetch(
+        `${VOICEVOX_URL}/audio_query?text=${encodeURIComponent(text)}&speaker=${speakerId}`,
+        { method: 'POST', signal: c1.signal }
+      );
+      if (!qRes.ok) return false;
+      const query = await qRes.json();
+      query.speedScale = _rate;
 
-        const c2 = new AbortController();
-        setTimeout(() => c2.abort(), TIMEOUT_MS * 4);
-        const sRes = await fetch(
-          `${VOICEVOX_URL}/synthesis?speaker=${speakerId}`,
-          { method: 'POST', headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(query), signal: c2.signal }
-        );
-        if (!sRes.ok) { resolve(false); return; }
+      const c2 = new AbortController();
+      setTimeout(() => c2.abort(), TIMEOUT_MS * 4);
+      const sRes = await fetch(
+        `${VOICEVOX_URL}/synthesis?speaker=${speakerId}`,
+        { method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(query), signal: c2.signal }
+      );
+      if (!sRes.ok) return false;
 
-        const blob = await sRes.blob();
-        const url  = URL.createObjectURL(blob);
-        _currentAudio = new Audio(url);
-        _currentAudio.onended  = () => { URL.revokeObjectURL(url); resolve(true); };
-        _currentAudio.onerror  = () => { URL.revokeObjectURL(url); resolve(false); };
-        await _currentAudio.play();
-      } catch(e) {
-        console.warn('[TTS] VV 실패:', e.message);
-        resolve(false);
-      }
-    });
+      const blob = await sRes.blob();
+      const url  = URL.createObjectURL(blob);
+      _currentAudio = new Audio(url);
+      return new Promise(resolve => {
+        _currentAudio.onended = () => { URL.revokeObjectURL(url); resolve(true); };
+        _currentAudio.onerror = () => { URL.revokeObjectURL(url); resolve(false); };
+        _currentAudio.play().catch(() => { URL.revokeObjectURL(url); resolve(false); });
+      });
+    } catch { return false; }
   }
 
   async function _edgeSynth(text) {
-    return new Promise(async resolve => {
-      try {
-        const rate = Math.round((_rate - 1) * 100);
-        const url  = `${EDGE_TTS_URL}/synthesize?text=${encodeURIComponent(text)}&voice=${_edgeVoice}&rate=${rate}`;
-        const c = new AbortController();
-        setTimeout(() => c.abort(), TIMEOUT_MS * 4);
-        const res = await fetch(url, { signal: c.signal });
-        if (!res.ok) { resolve(false); return; }
-        const blob = await res.blob();
-        const au   = URL.createObjectURL(blob);
-        _currentAudio = new Audio(au);
+    try {
+      const rate = Math.round((_rate - 1) * 100);
+      const url  = `${EDGE_TTS_URL}/synthesize?text=${encodeURIComponent(text)}&voice=${_edgeVoice}&rate=${rate}`;
+      const c = new AbortController();
+      setTimeout(() => c.abort(), TIMEOUT_MS * 4);
+      const res = await fetch(url, { signal: c.signal });
+      if (!res.ok) return false;
+      const blob = await res.blob();
+      const au   = URL.createObjectURL(blob);
+      _currentAudio = new Audio(au);
+      return new Promise(resolve => {
         _currentAudio.onended = () => { URL.revokeObjectURL(au); resolve(true); };
         _currentAudio.onerror = () => { URL.revokeObjectURL(au); resolve(false); };
-        await _currentAudio.play();
-      } catch { resolve(false); }
-    });
+        _currentAudio.play().catch(() => { URL.revokeObjectURL(au); resolve(false); });
+      });
+    } catch { return false; }
   }
 
   async function _wsSynth(text) {

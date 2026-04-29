@@ -43,7 +43,7 @@ var VOCAB_ITEMS_W9W10 = [
   { id:'it_spec',      japanese:'仕様書',         kanji:'仕様書(しようしょ)', korean:'사양서 / 명세서',   english:'Specification document',    tip:'「仕様書を確認してください」' },
   { id:'it_design',    japanese:'設計書',         kanji:'設計書(せっけいしょ)', korean:'설계서',          english:'Design document',           tip:'「設計書を書いてから実装します」' },
   { id:'it_standup',   japanese:'朝会',           kanji:'朝会(あさかい)',     korean:'아침 회의 / 조회',  english:'Morning standup meeting',   tip:'「朝会で共有します」毎日短いMTG' },
-  { id:'it_retrospec', japanese:'ふりかえり',     kanji:'振り返り',          korean:'회고',               english:'Retrospective',             tip:'スプリント終わりに行う改善会議' },
+  { id:'it_retrospec', japanese:'ふりかえり',     kanji:'振(ふ)り返(かえ)り',          korean:'회고',               english:'Retrospective',             tip:'スプリント終わりに行う改善会議' },
   { id:'it_kpt',       japanese:'KPT',                                       korean:'KPT',                english:'Keep/Problem/Try (retrospective)', tip:'「KPTでまとめます」회고 방식' },
   { id:'it_pipeline',  japanese:'パイプライン',                              korean:'파이프라인',         english:'CI/CD Pipeline',           tip:'「パイプラインが通らない」자동화 프로세스' },
 

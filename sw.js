@@ -25,9 +25,6 @@ const CORE_FILES = [
   '/js/v2/store.js',
   '/js/v2/curriculum.js',
   '/js/v2/app.js',
-  // v1 (legacy)
-  '/app.html',
-  '/app.css',
 ];
 
 // ── 설치: 핵심 파일 캐시 ──

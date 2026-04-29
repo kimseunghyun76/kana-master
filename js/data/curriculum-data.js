@@ -134,16 +134,16 @@ window.CURRICULUM_MODULES = [
   {
     id: 'first_phrases',
     stageId: 1,
-    name: '첫 인사 10',
+    name: '첫 인사 12',
     nameJp: '最初の挨拶',
     icon: '👋',
-    desc: '일본어 첫 10개 표현으로 바로 시작!',
+    desc: 'はじめまして부터 おやすみまで! 필수 인사 12개 표현으로 바로 시작!',
     xp: 200,
     unlockAfter: ['kana_hira'],
     steps: [
       { type: 'lecture',     title: '🎬 はじめまして의 비밀', lectureKey: 'slevel_1' },
-      { type: 'vocab_learn', title: '인사 필수 표현',          categoryId: 'basic_words', limit: 10 },
-      { type: 'vocab_quiz',  title: '인사 표현 퀴즈',          categoryId: 'basic_words', limit: 10 }
+      { type: 'vocab_learn', title: '인사 필수 표현',          categoryId: 'basic_words' },
+      { type: 'vocab_quiz',  title: '인사 표현 퀴즈',          categoryId: 'basic_words' }
     ],
     roleplay: null
   },
@@ -160,8 +160,7 @@ window.CURRICULUM_MODULES = [
     unlockAfter: ['kana_hira'],
     steps: [
       { type: 'lecture',     title: '🎬 인사의 나라',    lectureKey: 'wlevel_1' },
-      { type: 'vocab_learn', title: '인사·응답 어휘',    categoryId: 'basic_words' },
-      { type: 'vocab_learn', title: '필수 표현어',       categoryId: 'essential_phrases' },
+      { type: 'vocab_learn', title: '인사·필수 표현',    categoryIds: ['basic_words', 'essential_phrases'] },
       { type: 'vocab_quiz',  title: '인사 퀴즈',         categoryIds: ['basic_words', 'essential_phrases'] }
     ],
     roleplay: {
@@ -183,11 +182,9 @@ window.CURRICULUM_MODULES = [
     xp: 350,
     unlockAfter: ['survival_greet'],
     steps: [
-      { type: 'lecture',     title: '🎬 불길한 숫자의 비밀',     lectureKey: 'wlevel_2' },
-      { type: 'vocab_learn', title: '숫자 기본',                  categoryId: 'numbers_basic' },
-      { type: 'vocab_learn', title: '날짜·요일',                  categoryId: 'dates_days' },
-      { type: 'vocab_learn', title: '시각 표현',                  categoryId: 'time_expressions' },
-      { type: 'vocab_quiz',  title: '숫자·시간 퀴즈',             categoryIds: ['numbers_basic', 'dates_days', 'time_expressions'] }
+      { type: 'lecture',     title: '🎬 불길한 숫자의 비밀',  lectureKey: 'wlevel_2' },
+      { type: 'vocab_learn', title: '숫자·날짜·시간 표현',    categoryIds: ['numbers_basic', 'dates_days'], limit: 18 },
+      { type: 'vocab_quiz',  title: '숫자·시간 퀴즈',         categoryIds: ['numbers_basic', 'dates_days'], limit: 18 }
     ],
     roleplay: {
       id: 'rp_schedule',
@@ -208,10 +205,9 @@ window.CURRICULUM_MODULES = [
     xp: 380,
     unlockAfter: ['survival_numbers'],
     steps: [
-      { type: 'lecture',        title: '🎬 1초도 안 늦는 신칸센', lectureKey: 'slevel_4' },
-      { type: 'vocab_learn',    title: '교통 어휘',               categoryId: 'transport' },
-      { type: 'vocab_quiz',     title: '교통 어휘 퀴즈',          categoryId: 'transport' },
-      { type: 'dialogue_study', title: '대화 미리보기',           dialogueKey: 'transport' }
+      { type: 'lecture',     title: '🎬 1초도 안 늦는 신칸센', lectureKey: 'slevel_4' },
+      { type: 'vocab_learn', title: '교통 어휘',               categoryId: 'transport',  limit: 16 },
+      { type: 'vocab_quiz',  title: '교통 어휘 퀴즈',          categoryId: 'transport',  limit: 12 }
     ],
     roleplay: {
       id: 'rp_transport',
@@ -232,10 +228,9 @@ window.CURRICULUM_MODULES = [
     xp: 380,
     unlockAfter: ['survival_numbers'],
     steps: [
-      { type: 'lecture',        title: '🎬 いただきます의 의미', lectureKey: 'wlevel_7' },
-      { type: 'vocab_learn',    title: '음식·식당 어휘',         categoryId: 'food_restaurant' },
-      { type: 'vocab_quiz',     title: '음식 어휘 퀴즈',         categoryId: 'food_restaurant' },
-      { type: 'dialogue_study', title: '대화 미리보기',          dialogueKey: 'food' }
+      { type: 'lecture',     title: '🎬 いただきます의 의미', lectureKey: 'wlevel_7' },
+      { type: 'vocab_learn', title: '음식·식당 어휘',         categoryId: 'food_restaurant', limit: 16 },
+      { type: 'vocab_quiz',  title: '음식 어휘 퀴즈',         categoryId: 'food_restaurant', limit: 12 }
     ],
     roleplay: {
       id: 'rp_restaurant',
@@ -257,8 +252,8 @@ window.CURRICULUM_MODULES = [
     unlockAfter: ['survival_numbers'],
     steps: [
       { type: 'lecture',     title: '🎬 いらっしゃいませ!', lectureKey: 'slevel_3' },
-      { type: 'vocab_learn', title: '쇼핑 어휘',            categoryId: 'shopping' },
-      { type: 'vocab_quiz',  title: '쇼핑 퀴즈',            categoryId: 'shopping' }
+      { type: 'vocab_learn', title: '쇼핑 어휘',            categoryId: 'shopping', limit: 16 },
+      { type: 'vocab_quiz',  title: '쇼핑 퀴즈',            categoryId: 'shopping', limit: 12 }
     ],
     roleplay: {
       id: 'rp_shopping',
@@ -280,8 +275,8 @@ window.CURRICULUM_MODULES = [
     unlockAfter: ['survival_transport'],
     steps: [
       { type: 'lecture',     title: '🎬 료칸의 나라',  lectureKey: 'slevel_5' },
-      { type: 'vocab_learn', title: '숙박 어휘',       categoryId: 'hotel_accommodation' },
-      { type: 'vocab_quiz',  title: '숙박 퀴즈',       categoryId: 'hotel_accommodation' }
+      { type: 'vocab_learn', title: '숙박 어휘',       categoryId: 'hotel_accommodation', limit: 16 },
+      { type: 'vocab_quiz',  title: '숙박 퀴즈',       categoryId: 'hotel_accommodation', limit: 12 }
     ],
     roleplay: {
       id: 'rp_hotel',
@@ -304,9 +299,8 @@ window.CURRICULUM_MODULES = [
     xp: 500,
     steps: [
       { type: 'lecture',     title: '🎬 동사 3그룹의 비밀', lectureKey: 'wlevel_5' },
-      { type: 'vocab_learn', title: '기본 동사',             categoryId: 'basic_verbs' },
-      { type: 'vocab_learn', title: 'い·な 형용사',          categoryId: 'adjectives' },
-      { type: 'vocab_quiz',  title: '동사·형용사 퀴즈',      categoryIds: ['basic_verbs', 'adjectives'] }
+      { type: 'vocab_learn', title: '동사·형용사',           categoryIds: ['basic_verbs', 'adjectives'], limit: 16 },
+      { type: 'vocab_quiz',  title: '동사·형용사 퀴즈',      categoryIds: ['basic_verbs', 'adjectives'], limit: 12 }
     ],
     roleplay: null
   },
@@ -321,8 +315,8 @@ window.CURRICULUM_MODULES = [
     unlockAfter: ['daily_adjectives'],
     steps: [
       { type: 'lecture',     title: '🎬 일상·긴급 상황', lectureKey: 'slevel_6' },
-      { type: 'vocab_learn', title: '장소·음식 어휘',    categoryId: 'places_food' },
-      { type: 'vocab_quiz',  title: '장소 퀴즈',         categoryId: 'places_food' }
+      { type: 'vocab_learn', title: '장소·음식 어휘',    categoryId: 'places_food', limit: 16 },
+      { type: 'vocab_quiz',  title: '장소 퀴즈',         categoryId: 'places_food', limit: 12 }
     ],
     roleplay: {
       id: 'rp_sightseeing',
@@ -344,8 +338,8 @@ window.CURRICULUM_MODULES = [
     unlockAfter: ['daily_adjectives'],
     steps: [
       { type: 'lecture',     title: '🎬 お大事に — 건강 표현', lectureKey: 'wlevel_8' },
-      { type: 'vocab_learn', title: '신체·건강 어휘',           categoryId: 'body_health' },
-      { type: 'vocab_quiz',  title: '건강 퀴즈',                categoryId: 'body_health' }
+      { type: 'vocab_learn', title: '신체·건강 어휘',           categoryId: 'body_health', limit: 16 },
+      { type: 'vocab_quiz',  title: '건강 퀴즈',               categoryId: 'body_health', limit: 12 }
     ],
     roleplay: {
       id: 'rp_couple_travel',
@@ -368,9 +362,8 @@ window.CURRICULUM_MODULES = [
     xp: 600,
     steps: [
       { type: 'lecture',     title: '🎬 한일 IT 조직 문화 차이', lectureKey: 'b_level_1' },
-      { type: 'vocab_learn', title: 'IT 기초 용어',              categoryId: 'it_tech_basic' },
-      { type: 'vocab_learn', title: '개발 프로세스',             categoryId: 'it_dev_process' },
-      { type: 'vocab_quiz',  title: 'IT 어휘 퀴즈',              categoryIds: ['it_tech_basic', 'it_dev_process'] }
+      { type: 'vocab_learn', title: 'IT 기초·개발 용어',         categoryIds: ['it_tech_basic', 'it_dev_process'], limit: 16 },
+      { type: 'vocab_quiz',  title: 'IT 어휘 퀴즈',              categoryIds: ['it_tech_basic', 'it_dev_process'], limit: 12 }
     ],
     roleplay: null
   },
@@ -385,8 +378,8 @@ window.CURRICULUM_MODULES = [
     unlockAfter: ['it_tech_vocab'],
     steps: [
       { type: 'lecture',     title: '🎬 호렌소(報連相)의 모든 것', lectureKey: 'b_level_2' },
-      { type: 'vocab_learn', title: 'IT 직장·조직 어휘',           categoryId: 'it_workplace' },
-      { type: 'vocab_quiz',  title: 'IT 직장 퀴즈',                categoryId: 'it_workplace' }
+      { type: 'vocab_learn', title: 'IT 직장·조직 어휘',           categoryId: 'it_workplace', limit: 16 },
+      { type: 'vocab_quiz',  title: 'IT 직장 퀴즈',               categoryId: 'it_workplace', limit: 12 }
     ],
     roleplay: {
       id: 'rp_it_standup',
@@ -407,10 +400,9 @@ window.CURRICULUM_MODULES = [
     xp: 600,
     unlockAfter: ['it_workplace_vocab'],
     steps: [
-      { type: 'lecture',     title: '🎬 비즈니스 메일 작성법',     lectureKey: 'b_level_3' },
-      { type: 'vocab_learn', title: '비즈니스 기본 표현',           categoryId: 'biz_greetings' },
-      { type: 'vocab_learn', title: '보고·연락·상담',              categoryId: 'biz_hourensou' },
-      { type: 'vocab_quiz',  title: '비즈니스 표현 퀴즈',           categoryIds: ['biz_greetings', 'biz_hourensou'] }
+      { type: 'lecture',     title: '🎬 비즈니스 메일 작성법', lectureKey: 'b_level_3' },
+      { type: 'vocab_learn', title: '비즈니스·보고 표현',      categoryIds: ['biz_greetings', 'biz_hourensou'], limit: 16 },
+      { type: 'vocab_quiz',  title: '비즈니스 표현 퀴즈',      categoryIds: ['biz_greetings', 'biz_hourensou'], limit: 12 }
     ],
     roleplay: {
       id: 'rp_it_codereview',
@@ -432,8 +424,8 @@ window.CURRICULUM_MODULES = [
     unlockAfter: ['biz_basic'],
     steps: [
       { type: 'lecture',     title: '🎬 일본식 회의 진행하기', lectureKey: 'b_level_4' },
-      { type: 'vocab_learn', title: '회의·의견 어휘',          categoryId: 'biz_meeting' },
-      { type: 'vocab_quiz',  title: '회의 퀴즈',               categoryId: 'biz_meeting' }
+      { type: 'vocab_learn', title: '회의·의견 어휘',          categoryId: 'biz_meeting', limit: 16 },
+      { type: 'vocab_quiz',  title: '회의 퀴즈',               categoryId: 'biz_meeting', limit: 12 }
     ],
     roleplay: {
       id: 'rp_it_kickoff',
@@ -455,8 +447,8 @@ window.CURRICULUM_MODULES = [
     unlockAfter: ['biz_meeting'],
     steps: [
       { type: 'lecture',     title: '🎬 매니저와의 1on1',  lectureKey: 'b_level_5' },
-      { type: 'vocab_learn', title: '회의·의견 심화',      categoryId: 'biz_meeting' },
-      { type: 'vocab_quiz',  title: '심화 퀴즈',           categoryId: 'biz_meeting' }
+      { type: 'vocab_learn', title: '회의·의견 심화',      categoryId: 'biz_meeting', limit: 16 },
+      { type: 'vocab_quiz',  title: '심화 퀴즈',           categoryId: 'biz_meeting', limit: 12 }
     ],
     roleplay: {
       id: 'rp_it_1on1',
@@ -478,8 +470,8 @@ window.CURRICULUM_MODULES = [
     unlockAfter: ['biz_basic'],
     steps: [
       { type: 'lecture',     title: '🎬 완벽한 자기소개',        lectureKey: 'slevel_2' },
-      { type: 'vocab_learn', title: '비즈니스 기본 표현 복습',   categoryId: 'biz_greetings' },
-      { type: 'vocab_quiz',  title: '입사 표현 퀴즈',            categoryId: 'biz_greetings' }
+      { type: 'vocab_learn', title: '비즈니스 기본 표현 복습',   categoryId: 'biz_greetings', limit: 16 },
+      { type: 'vocab_quiz',  title: '입사 표현 퀴즈',            categoryId: 'biz_greetings', limit: 12 }
     ],
     roleplay: {
       id: 'rp_it_intro',
@@ -501,8 +493,8 @@ window.CURRICULUM_MODULES = [
     unlockAfter: ['biz_meeting'],
     steps: [
       { type: 'lecture',     title: '🎬 기획자와 사양 조율하기', lectureKey: 'b_level_6' },
-      { type: 'vocab_learn', title: 'IT 기초 복습',              categoryId: 'it_tech_basic' },
-      { type: 'vocab_quiz',  title: '사양 확인 퀴즈',            categoryId: 'it_tech_basic' }
+      { type: 'vocab_learn', title: 'IT 기초 복습',              categoryId: 'it_tech_basic', limit: 16 },
+      { type: 'vocab_quiz',  title: '사양 확인 퀴즈',            categoryId: 'it_tech_basic', limit: 12 }
     ],
     roleplay: {
       id: 'rp_it_spec',
@@ -525,8 +517,8 @@ window.CURRICULUM_MODULES = [
     xp: 800,
     steps: [
       { type: 'lecture',     title: '🎬 경어(敬語)의 체계', lectureKey: 'k_level_1' },
-      { type: 'vocab_learn', title: '경어 표현',             categoryId: 'keigo_basics' },
-      { type: 'vocab_quiz',  title: '경어 퀴즈',             categoryId: 'keigo_basics' }
+      { type: 'vocab_learn', title: '경어 표현',             categoryId: 'keigo_basics', limit: 16 },
+      { type: 'vocab_quiz',  title: '경어 퀴즈',             categoryId: 'keigo_basics', limit: 12 }
     ],
     roleplay: null
   }

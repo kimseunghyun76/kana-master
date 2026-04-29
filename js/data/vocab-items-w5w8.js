@@ -78,10 +78,10 @@ var VOCAB_ITEMS_W5W8 = [
   { id:'tr_ryokan',   japanese:'りょかん',  kanji:'旅館(りょかん)', korean:'료칸 (일본 여관)', english:'Ryokan (traditional Japanese inn)' },
   { id:'tr_konbini',  japanese:'コンビニ',                        korean:'편의점',             english:'Convenience store',      tip:'일본 편의점은 거의 모든 걸 해결 가능!' },
   { id:'tr_toilet',   japanese:'トイレ',                          korean:'화장실',             english:'Toilet / Restroom' },
-  { id:'tr_exit',     japanese:'でぐち',    kanji:'出口(でぐち)', korean:'출구',               english:'Exit' },
-  { id:'tr_enter',    japanese:'いりぐち',  kanji:'入口(いりぐち)', korean:'입구',             english:'Entrance' },
-  { id:'tr_right',    japanese:'みぎ',      kanji:'右(みぎ)',    korean:'오른쪽',              english:'Right' },
-  { id:'tr_left',     japanese:'ひだり',    kanji:'左(ひだり)',  korean:'왼쪽',                english:'Left' },
+  { id:'tr_exit',     japanese:'でぐち',    kanji:'出口(でぐち)',   korean:'출구',     english:'Exit',     groupId:'lr_direction', groupLabel:'방향·출입구' },
+  { id:'tr_enter',    japanese:'いりぐち',  kanji:'入口(いりぐち)', korean:'입구',     english:'Entrance', groupId:'lr_direction' },
+  { id:'tr_right',    japanese:'みぎ',      kanji:'右(みぎ)',        korean:'오른쪽',   english:'Right',    groupId:'lr_direction' },
+  { id:'tr_left',     japanese:'ひだり',    kanji:'左(ひだり)',      korean:'왼쪽',     english:'Left',     groupId:'lr_direction' },
   { id:'tr_straight', japanese:'まっすぐ',                        korean:'직진 / 곧장',        english:'Straight ahead' },
 
   // ── W7: 음식·음료 명사 (food_nouns) ─────────────────────
@@ -102,12 +102,12 @@ var VOCAB_ITEMS_W5W8 = [
   { id:'food_okane',   japanese:'おかいけい', kanji:'お会計(かいけい)', korean:'계산서', english:'Bill / Check (at restaurant)', example:'おかいけい、おねがいします' },
 
   // ── W8: 신체·건강 (body_health) ──────────────────────────
-  { id:'bh_atama',  japanese:'あたま',    kanji:'頭(あたま)',    korean:'머리',         english:'Head',           tip:'あたまがいたい = 머리가 아파요' },
-  { id:'bh_me',     japanese:'め',        kanji:'目(め)',        korean:'눈',            english:'Eye' },
-  { id:'bh_hana',   japanese:'はな',      kanji:'鼻(はな)',      korean:'코',            english:'Nose' },
-  { id:'bh_kuchi',  japanese:'くち',      kanji:'口(くち)',      korean:'입',            english:'Mouth' },
-  { id:'bh_te',     japanese:'て',        kanji:'手(て)',        korean:'손',            english:'Hand',           tip:'てをあらう = 손을 씻다' },
-  { id:'bh_ashi',   japanese:'あし',      kanji:'足(あし)',      korean:'발·다리',       english:'Foot / Leg' },
+  { id:'bh_atama',  japanese:'あたま',    kanji:'頭(あたま)',    korean:'머리',         english:'Head',           tip:'あたまがいたい = 머리가 아파요', groupId:'body_parts', groupLabel:'신체 부위' },
+  { id:'bh_me',     japanese:'め',        kanji:'目(め)',        korean:'눈',            english:'Eye',            groupId:'body_parts' },
+  { id:'bh_hana',   japanese:'はな',      kanji:'鼻(はな)',      korean:'코',            english:'Nose',           groupId:'body_parts' },
+  { id:'bh_kuchi',  japanese:'くち',      kanji:'口(くち)',      korean:'입',            english:'Mouth',          groupId:'body_parts' },
+  { id:'bh_te',     japanese:'て',        kanji:'手(て)',        korean:'손',            english:'Hand',           tip:'てをあらう = 손을 씻다', groupId:'body_parts' },
+  { id:'bh_ashi',   japanese:'あし',      kanji:'足(あし)',      korean:'발·다리',       english:'Foot / Leg',     groupId:'body_parts' },
   { id:'bh_onaka',  japanese:'おなか',    kanji:'お腹(なか)',    korean:'배 (복부)',     english:'Stomach / Belly', tip:'おなかがいたい = 배가 아파요' },
   { id:'bh_karada', japanese:'からだ',    kanji:'体(からだ)',    korean:'몸·신체',       english:'Body' },
   { id:'bh_byoki',  japanese:'びょうき',  kanji:'病気(びょうき)', korean:'병·아픔',     english:'Illness / Sickness', tip:'びょうきです = 아파요' },

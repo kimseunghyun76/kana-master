@@ -102,7 +102,19 @@
       "Bash(sort -k2)",
       "Bash(git checkout:*)",
       "Bash(node -e \"new Function\\(require\\(''fs''\\).readFileSync\\(''js/v2/app.js'',''utf8''\\)\\); console.log\\(''✅ syntax OK''\\);\")",
-      "Bash(node -e \"new Function\\(require\\(''fs''\\).readFileSync\\(''js/v2/app.js'',''utf8''\\)\\); console.log\\(''✅ app.js OK''\\);\")"
+      "Bash(node -e \"new Function\\(require\\(''fs''\\).readFileSync\\(''js/v2/app.js'',''utf8''\\)\\); console.log\\(''✅ app.js OK''\\);\")",
+      "Bash(git worktree:*)",
+      "Bash(git branch:*)",
+      "Bash(du -sh /c/Users/Sptek_emart/kana/js/data/* /c/Users/Sptek_emart/kana/js/v2/*)",
+      "Bash(grep -r \"vocab-categories\" js/v2/ --include=\"*.js\" -l)",
+      "Bash(grep -r \"gamification\\\\|vocab-data\\\\|examples-data\\\\|kanji-decomp\\\\|kana-data-diary\\\\|kana-data-drama\" js/v2/ --include=\"*.js\" -l)",
+      "Bash(cd C:\\\\\\\\Users\\\\\\\\Sptek_emart\\\\\\\\kana)",
+      "Bash(wc -l /c/Users/Sptek_emart/kana/js/data/lecture-data-v2/index.js /c/Users/Sptek_emart/kana/js/data/vocab-items*.js)",
+      "Bash(grep -n \"console\\\\.log\\\\|console\\\\.warn\\\\|console\\\\.error\\\\|debugger\\\\|TODO\\\\|FIXME\\\\|HACK\" /c/Users/Sptek_emart/kana/js/v2/*.js)",
+      "Bash(grep -B2 -A2 \"\\\\.innerHTML\\\\s*=\\\\s*\\\\`\" /c/Users/Sptek_emart/kana/js/v2/app.js)",
+      "Bash(grep -n \"localStorage\\\\|sessionStorage\\\\|indexedDB\" /c/Users/Sptek_emart/kana/js/v2/*.js)",
+      "Bash(grep -n \"function getNextModule\\\\|function isModuleUnlocked\\\\|function getModuleProgressPct\" /c/Users/Sptek_emart/kana/js/*.js /c/Users/Sptek_emart/kana/js/v2/*.js)",
+      "Bash(grep -n \"Store.completeStep\\\\|Store.addXP\\\\|function completeStep\\\\|function addXP\" /c/Users/Sptek_emart/kana/js/v2/*.js)"
     ]
   }
 }
