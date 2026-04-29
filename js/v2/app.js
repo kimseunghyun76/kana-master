@@ -2200,6 +2200,7 @@ window.App = (() => {
     const practiceLines = _getRoleplayPracticeLines(dialogues);
     if (!_flow?.roleplayState) {
       _flow.roleplayState = {
+        phase: 'preview',
         practiceLines,
         revealed: [],
         shadowDone: [],
@@ -2213,6 +2214,7 @@ window.App = (() => {
     const rp = mod.roleplay;
     const dialogues = _getDialogue(rp.dialogueKey);
     const state = _getRoleplayState(mod);
+    const phase = state.phase || 'preview';
     const practiceLines = state.practiceLines || [];
     const shadowDone = state.shadowDone || [];
     const outputDone = state.outputDone || [];
@@ -2223,10 +2225,18 @@ window.App = (() => {
     const activeLine = activeIndex >= 0 ? practiceLines[activeIndex] : null;
 
     document.getElementById('flowTitle').textContent = `🎭 ${rp.name}`;
-    document.getElementById('flowStep').textContent = practiceLines.length
-      ? `내 대사 ${readyCount}/${practiceLines.length}개 연습 완료`
-      : '';
-    document.getElementById('flowProgressFill').style.width = '100%';
+    if (phase === 'preview') {
+      document.getElementById('flowStep').textContent = '1 / 2 · 먼저 듣고 흐름 익히기';
+      document.getElementById('flowProgressFill').style.width = '35%';
+    } else {
+      const practicePct = practiceLines.length
+        ? 50 + Math.round((readyCount / practiceLines.length) * 50)
+        : 100;
+      document.getElementById('flowStep').textContent = practiceLines.length
+        ? `2 / 2 · 내 대사 ${readyCount}/${practiceLines.length}개 연습 완료`
+        : '2 / 2 · 말하기 마무리';
+      document.getElementById('flowProgressFill').style.width = `${practicePct}%`;
+    }
 
     const dialogueHtml = dialogues.map((line, i) => {
       if (line.speaker === 'N') {
@@ -2303,25 +2313,49 @@ window.App = (() => {
         <div class="roleplay-helper-text">전체 대화를 한 번 더 재생한 뒤 완료하면 마무리됩니다.</div>
       </div>
     `;
+    if (phase === 'preview') {
+      document.getElementById('flowBody').innerHTML = `
+        <div class="dialogue-scene">
+          <div class="scene-title">${rp.icon} ${escHtml(rp.name)}</div>
+          ${escHtml(rp.desc)}
+        </div>
+        <div class="roleplay-panel roleplay-mission-card">
+          <div class="roleplay-panel-title" style="margin-bottom:8px">이제 이렇게 진행합니다</div>
+          <div class="roleplay-helper-text">
+            1. 먼저 전체 대화를 들으며 흐름을 익힙니다.<br>
+            2. 다음 화면에서 내 대사를 따라 말합니다.<br>
+            3. 마지막으로 한국어 힌트만 보고 다시 말해 봅니다.
+          </div>
+        </div>
+        <div class="dialogue-list" id="dialogueList">${dialogueHtml}</div>
+      `;
+      document.getElementById('flowFooter').innerHTML = `
+        <div class="roleplay-actions">
+          <button class="btn btn-outline" id="btnReplayAll" onclick="App._replayAll('${mod.id}')">🔊 전체 재생</button>
+          <button class="btn btn-outline" id="btnStopPlay" style="display:none" onclick="App._stopRoleplay()">⏹ 정지</button>
+          <button class="btn btn-primary" onclick="App._beginRoleplayPractice()">이제 말하기 시작 →</button>
+        </div>
+      `;
+      return;
+    }
 
     document.getElementById('flowBody').innerHTML = `
       <div class="dialogue-scene">
         <div class="scene-title">${rp.icon} ${escHtml(rp.name)}</div>
-        ${escHtml(rp.desc)}
+        방금 들은 흐름을 바탕으로, 이제 내 대사를 직접 말해 보세요.
       </div>
       <div class="roleplay-panel roleplay-mission-card">
         <div class="roleplay-panel-title" style="margin-bottom:8px">말하기 미션</div>
         <div class="roleplay-helper-text">
-          1. 전체 대화를 듣고 흐름을 익힙니다.<br>
-          2. 내 대사를 따라 말합니다.<br>
-          3. 한국어 힌트만 보고 다시 말해 봅니다.
+          정답을 바로 보기 전에 먼저 입으로 말하고, 그 다음 체크해 주세요.<br>
+          한 대사씩 끝낼수록 아래 진행 상태가 채워집니다.
         </div>
       </div>
       ${currentTurnHtml}
       <div class="dialogue-list" id="dialogueList">${dialogueHtml}</div>
       <div style="height:12px"></div>
       <div class="scene-title">🗣️ 내 말하기 연습</div>
-      <div class="roleplay-helper-text" style="margin:6px 0 12px">정답을 바로 보기 전에 먼저 입으로 말해 본 뒤 체크해 주세요.</div>
+      <div class="roleplay-helper-text" style="margin:6px 0 12px">한 번 따라 말하고, 한 번은 힌트만 보고 다시 말해 보세요.</div>
       <div>${practiceHtml}</div>
     `;
 
@@ -2332,6 +2366,13 @@ window.App = (() => {
         <button class="btn ${allReady ? 'btn-success' : 'btn-outline'}" onclick="App._completeRoleplay('${mod.id}')">${allReady ? '완료 ✓' : `말하기 ${readyCount}/${practiceLines.length}`}</button>
       </div>
     `;
+  }
+
+  function _beginRoleplayPractice() {
+    if (!_flow?.roleplayState) return;
+    _stopRoleplay();
+    _flow.roleplayState.phase = 'practice';
+    _renderRoleplay(_getMod(_flow.moduleId));
   }
 
   function _toggleRoleplayReveal(index) {
@@ -2370,6 +2411,7 @@ window.App = (() => {
       step: -1,
       roleplay: true,
       roleplayState: {
+        phase: 'preview',
         practiceLines: _getRoleplayPracticeLines(dialogues),
         revealed: [],
         shadowDone: [],
@@ -2379,7 +2421,7 @@ window.App = (() => {
     _renderRoleplay(mod);
 
     // 자동 재생
-    setTimeout(() => _replayAll(mod.id), 600);
+    setTimeout(() => _replayAll(mod.id), 450);
   }
 
   function _replayAll(moduleId) {
@@ -2606,12 +2648,18 @@ window.App = (() => {
     const xp = mod?.xp || 200;
     Store.addXP(xp);
     confetti(60);
+    const next = getNextModule(Store.get());
+    const nextAction = next
+      ? `<button class="btn btn-primary" onclick="App.openModule('${next.mod.id}', ${next.roleplay ? 'true' : 'false'})">
+           ${next.roleplay ? '다음 롤플레이로 →' : `다음 레슨: ${escHtml(next.mod.name)} →`}
+         </button>`
+      : `<button class="btn btn-primary" onclick="App.closeFlow()">홈으로 →</button>`;
 
     document.getElementById('flowBody').innerHTML = `
       <div class="completion-screen">
         <div class="completion-emoji">🎭</div>
         <div class="completion-title">롤플레이 완료!</div>
-        <div class="completion-sub">${escHtml(mod?.roleplay?.name || '')} 마스터 완료!<br>다음 모듈로 진행하세요.</div>
+        <div class="completion-sub">${escHtml(mod?.roleplay?.name || '')} 마스터 완료!<br>이제 흐름을 이해하는 단계에서 직접 말하는 단계까지 잘 마쳤어요.</div>
         <div class="completion-unlocks">
           <div class="cu-title">✨ 획득</div>
           <div class="completion-unlock-item"><span class="cui-icon">⚡</span> +${xp} XP</div>
@@ -2620,7 +2668,10 @@ window.App = (() => {
       </div>
     `;
     document.getElementById('flowFooter').innerHTML = `
-      <button class="btn btn-primary" onclick="App.closeFlow()">홈으로 →</button>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        ${nextAction}
+        <button class="btn btn-outline" onclick="App.closeFlow()">홈으로</button>
+      </div>
     `;
   }
 
@@ -2649,8 +2700,8 @@ window.App = (() => {
 
     document.getElementById('flowFooter').innerHTML = `
       <div style="display:flex;gap:10px">
-        ${mod.roleplay ? `<button class="btn btn-outline" onclick="App._startRoleplay(App._getMod('${mod.id}'))">🎭 롤플레이 하기</button>` : ''}
-        <button class="btn btn-primary" onclick="App.closeFlow()">
+        ${mod.roleplay ? `<button class="btn btn-primary" onclick="App._startRoleplay(App._getMod('${mod.id}'))">이제 롤플레이 시작 →</button>` : ''}
+        <button class="btn ${mod.roleplay ? 'btn-outline' : 'btn-primary'}" onclick="App.closeFlow()">
           ${mod.roleplay ? '나중에' : '홈으로 →'}
         </button>
       </div>
@@ -3869,6 +3920,7 @@ window.App = (() => {
     _lecCapTab,
     setQuizPassRate,
     _completeRoleplay,
+    _beginRoleplayPractice,
     _replayAll,
     _stopRoleplay,
     _startRoleplay,
