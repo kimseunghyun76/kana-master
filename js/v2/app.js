@@ -72,6 +72,10 @@ window.App = (() => {
     return `<span class="ui-icon-wrap">${_uiIconSvg(name, cls)}</span>`;
   }
 
+  function _uiLabeledIcon(name, cls = 'btn-inline-icon') {
+    return `<span class="inline-icon-wrap">${_uiIconSvg(name, cls)}</span>`;
+  }
+
   async function _getSfxContext() {
     const AudioCtx = window.AudioContext || window.webkitAudioContext;
     if (!AudioCtx) return null;
@@ -702,12 +706,12 @@ window.App = (() => {
           <button onclick="App.devSkipCurrentStep()"
             style="flex:1;min-width:120px;padding:10px 8px;background:#1e293b;border:1px dashed var(--warning);
                    border-radius:10px;color:var(--warning);font-weight:700;font-size:12px;cursor:pointer">
-            ⏭ 현재 퀴즈 스킵 (100점)
+            현재 퀴즈 스킵 (100점)
           </button>
           <button onclick="App.devCompleteCurrentModule()"
             style="flex:1;min-width:120px;padding:10px 8px;background:#1e293b;border:1px dashed var(--success);
                    border-radius:10px;color:var(--success);font-weight:700;font-size:12px;cursor:pointer">
-            ✅ 현재 모듈 완료
+            현재 모듈 완료
           </button>
         </div>
 
@@ -749,10 +753,11 @@ window.App = (() => {
     const prog = Store.get();
     const stepsDone = prog.modules[mod.id]?.stepsCompleted || 0;
     const startStep = Math.min(stepsDone, mod.steps.length - 1);
+    const visual = _getModuleVisual(mod);
 
     const items = [
-      ...mod.steps.map(s => `<div class="intro-item"><span class="ii-check">📖</span> ${escHtml(s.title)}</div>`),
-      mod.roleplay ? `<div class="intro-item"><span class="ii-check">🎭</span> 롤플레이: ${escHtml(mod.roleplay.name)}</div>` : ''
+      ...mod.steps.map(s => `<div class="intro-item"><span class="ii-check">${_uiIconSvg('book', 'ii-icon')}</span> ${escHtml(s.title)}</div>`),
+      mod.roleplay ? `<div class="intro-item"><span class="ii-check">${_uiIconSvg('roleplay', 'ii-icon')}</span> 롤플레이: ${escHtml(mod.roleplay.name)}</div>` : ''
     ].join('');
 
     const flowEl = document.getElementById('flowScreen');
@@ -766,11 +771,11 @@ window.App = (() => {
       const slides = (typeof LECTURE_DATA !== 'undefined') && LECTURE_DATA[lectureStep.lectureKey];
       const firstSlide = slides?.[0];
       if (!firstSlide) return '';
-      const ts = { hook:'🎣', culture:'🗾', story:'📖', mnemonic:'💡', funfact:'🎯', practice:'✍️', summary:'✅' };
-      const icon = ts[firstSlide.type] || '🎬';
+      const ts = { hook:'target', culture:'grid', story:'book', mnemonic:'sparkle', funfact:'target', practice:'voice', summary:'check' };
+      const icon = ts[firstSlide.type] || 'book';
       return `
         <div class="lec-preview-card">
-          <div class="lec-preview-badge">${icon} 인앱 강의 포함</div>
+          <div class="lec-preview-badge">${_uiIconSvg(icon, 'lec-preview-icon')} 인앱 강의 포함</div>
           <div class="lec-preview-main">${ruby(firstSlide.main || '')}</div>
           <div class="lec-preview-sub">${escHtml(firstSlide.sub || '')}</div>
           <div class="lec-preview-slides">${slides.length}개 슬라이드 · 학습 시작 시 자동 재생</div>
@@ -780,7 +785,7 @@ window.App = (() => {
 
     document.getElementById('flowBody').innerHTML = `
       <div class="module-intro">
-        <div class="module-intro-icon">${escHtml(mod.icon)}</div>
+        <div class="module-intro-icon">${_uiIconSvg(visual.iconKey, 'module-intro-icon-svg')}</div>
         <div class="module-intro-title">${escHtml(mod.name)}</div>
         <div class="module-intro-sub">${escHtml(mod.desc)}<br>
           <span style="color:var(--text3);font-size:13px;margin-top:6px;display:block">
@@ -857,7 +862,7 @@ window.App = (() => {
   function _showPracticeComplete(mod) {
     document.getElementById('flowBody').innerHTML = `
       <div class="completion-screen">
-        <div class="completion-emoji">🎉</div>
+        <div class="completion-emoji">${_uiIconSvg('check', 'completion-main-icon')}</div>
         <div class="completion-title">연습 완료!</div>
         <div class="completion-sub">${escHtml(mod.name)} 세션 완료!<br>꾸준한 연습이 실력을 만들어요.</div>
       </div>
@@ -1017,7 +1022,7 @@ window.App = (() => {
           <div class="kana-card ${st.flipped ? 'flipped' : ''}" id="kanaCard" onclick="App._flipKana()">
             <div class="kana-card-inner">
               <div class="kana-face">
-                <button class="kana-sound-btn" onclick="event.stopPropagation();TTS.speak('${safeC}')" title="발음 듣기">🔊</button>
+                <button class="kana-sound-btn" onclick="event.stopPropagation();TTS.speak('${safeC}')" title="발음 듣기">${_uiIconSvg('audio', 'kana-sound-icon')}</button>
                 <div class="kana-type-label">${escHtml(typeLabel)}</div>
                 <div class="kana-char ${isSmallKana(c) ? 'is-small' : ''}">${ruby(c)}</div>
                 <div class="kana-tap-hint">탭해서 읽는 법 보기 👆</div>
@@ -1026,7 +1031,7 @@ window.App = (() => {
                 <!-- ① 읽기 정보 -->
                 <div class="kana-reading-row">
                   <button class="kana-back-sound"
-                          onclick="event.stopPropagation();TTS.speak('${safeC}')">🔊</button>
+                          onclick="event.stopPropagation();TTS.speak('${safeC}')">${_uiIconSvg('audio', 'kana-back-sound-icon')}</button>
                   <span class="kana-romaji-sm">${escHtml(info.romaji || '')}</span>
                   <span class="kana-reading-dot">·</span>
                   <span class="kana-korean-sm">${escHtml(info.korean || '')}</span>
@@ -1034,7 +1039,7 @@ window.App = (() => {
                 <!-- ② 기억법 (TIP) -->
                 ${info.tip ? `
                 <div class="kana-tip-main">
-                  <div class="kana-tip-label">💡 기억법</div>
+                  <div class="kana-tip-label">${_uiIconSvg('sparkle', 'kana-tip-icon')} 기억법</div>
                   <div class="kana-tip-body">${ruby(info.tip)}</div>
                 </div>` : ''}
                 <!-- ③ 획순 인라인 (전체 너비, 🔄 우상단 오버레이) -->
@@ -1177,7 +1182,7 @@ window.App = (() => {
         <div class="quiz-question">
           <div class="quiz-q-type">이 글자의 발음은?</div>
           <div class="quiz-q-text ${isSmallKana(c) ? 'is-small' : ''}">${ruby(c)}</div>
-          <button class="quiz-audio-btn" onclick="TTS.speak('${c.replace(/'/g,"\\'")}')">🔊</button>
+          <button class="quiz-audio-btn" onclick="TTS.speak('${c.replace(/'/g,"\\'")}')">${_uiLabeledIcon('audio', 'quiz-audio-icon')} 발음 듣기</button>
         </div>
         <div class="quiz-choices" id="quizChoices">
           ${choices.map((ch, i) => `
@@ -1238,8 +1243,8 @@ window.App = (() => {
       const info = KANA_MAP[c] || {};
       fb.className = `quiz-feedback show ${isCorrect ? 'correct' : 'wrong'}`;
       fb.innerHTML = isCorrect
-        ? `✅ 정답! <strong>${escHtml(c)}</strong> = ${escHtml(info.romaji)} (${escHtml(info.korean)})`
-        : `❌ 오답. 정답: <strong>${escHtml(c)}</strong> = ${escHtml(info.romaji)} (${escHtml(info.korean)})`;
+        ? `${_uiIconSvg('check', 'quiz-feedback-icon')} <span>정답! <strong>${escHtml(c)}</strong> = ${escHtml(info.romaji)} (${escHtml(info.korean)})</span>`
+        : `${_uiIconSvg('close', 'quiz-feedback-icon')} <span>오답. 정답: <strong>${escHtml(c)}</strong> = ${escHtml(info.romaji)} (${escHtml(info.korean)})</span>`;
     }
     const btnNext = document.getElementById('btnNextQ');
     show(btnNext);
@@ -1306,9 +1311,9 @@ window.App = (() => {
         ${_renderQuizHud(qIdx + 1, fq.chars.length, correct, wrong)}
         <div class="quiz-question">
           <div class="quiz-q-type">이 음성의 글자는?</div>
-          <div class="quiz-q-text" style="font-size:64px;line-height:1.1">🎧</div>
+          <div class="quiz-q-text" style="font-size:64px;line-height:1.1">${_uiIconSvg('headphones', 'quiz-listening-icon')}</div>
           <button class="quiz-audio-btn" id="btnPlayAudio"
-                  onclick="TTS.speak('${safeC}')">🔊</button>
+                  onclick="TTS.speak('${safeC}')">${_uiLabeledIcon('audio', 'quiz-audio-icon')} 다시 듣기</button>
         </div>
         <div class="quiz-choices">
           ${choices.map((ch, i) => `
@@ -1369,8 +1374,8 @@ window.App = (() => {
     if (fb) {
       fb.className = `quiz-feedback show ${isCorrect ? 'correct' : 'wrong'}`;
       fb.innerHTML = isCorrect
-        ? `✅ 정답! <strong>${escHtml(correctChar)}</strong> = ${escHtml(info.romaji)} (${escHtml(info.korean)})`
-        : `❌ 오답. 정답: <strong>${escHtml(correctChar)}</strong> = ${escHtml(info.romaji)} (${escHtml(info.korean)})`;
+        ? `${_uiIconSvg('check', 'quiz-feedback-icon')} <span>정답! <strong>${escHtml(correctChar)}</strong> = ${escHtml(info.romaji)} (${escHtml(info.korean)})</span>`
+        : `${_uiIconSvg('close', 'quiz-feedback-icon')} <span>오답. 정답: <strong>${escHtml(correctChar)}</strong> = ${escHtml(info.romaji)} (${escHtml(info.korean)})</span>`;
     }
     const btnNext = document.getElementById('btnNextQ');
     show(btnNext);
@@ -1437,8 +1442,8 @@ window.App = (() => {
           </div>
           <button onclick="TTS.speak('${safeJp}')"
             style="background:var(--bg3);border:1px solid var(--border);border-radius:20px;
-                   padding:10px 24px;color:var(--text);cursor:pointer;font-size:14px;font-weight:600">
-            🔊
+                   padding:10px 20px;color:var(--text);cursor:pointer;font-size:14px;font-weight:600;display:inline-flex;align-items:center;gap:8px">
+            ${_uiIconSvg('audio', 'shadowing-audio-icon')} 다시 듣기
           </button>
         </div>
         <div style="font-size:13px;color:var(--text3);text-align:center">
@@ -1448,7 +1453,7 @@ window.App = (() => {
 
       document.getElementById('flowFooter').innerHTML = `
         <button class="btn btn-primary" onclick="App._shadowingNext()" style="font-size:15px">
-          🗣️ 따라 말했어요 →
+          ${_uiLabeledIcon('voice')} 따라 말했어요 →
         </button>
       `;
 
@@ -1658,7 +1663,7 @@ window.App = (() => {
         <div class="quiz-question">
           <div class="quiz-q-type">뜻은 무엇인가요?</div>
           <div class="quiz-q-text">${formatJp(item)}</div>
-          <button class="quiz-audio-btn" onclick="TTS.speak('${(item.japanese||'').replace(/'/g,"\\'")}')">🔊</button>
+          <button class="quiz-audio-btn" onclick="TTS.speak('${(item.japanese||'').replace(/'/g,"\\'")}')">${_uiLabeledIcon('audio', 'quiz-audio-icon')} 발음 듣기</button>
         </div>
         <div class="quiz-choices">
           ${choices.map((ch, i) => `
@@ -1717,8 +1722,8 @@ window.App = (() => {
     if (fb) {
       fb.className = `quiz-feedback show ${isCorrect ? 'correct' : 'wrong'}`;
       fb.innerHTML = isCorrect
-        ? `✅ 정답! <strong>${ruby(jp)}</strong> = ${escHtml(ko)}`
-        : `❌ 오답. 정답: <strong>${ruby(jp)}</strong> = ${escHtml(ko)}`;
+        ? `${_uiIconSvg('check', 'quiz-feedback-icon')} <span>정답! <strong>${ruby(jp)}</strong> = ${escHtml(ko)}</span>`
+        : `${_uiIconSvg('close', 'quiz-feedback-icon')} <span>오답. 정답: <strong>${ruby(jp)}</strong> = ${escHtml(ko)}</span>`;
     }
     const btnNext = document.getElementById('btnNextQ');
     show(btnNext);
@@ -1750,11 +1755,11 @@ window.App = (() => {
   function _showRetryTransition(count, onStart) {
     document.getElementById('flowBody').innerHTML = `
       <div class="completion-screen">
-        <div class="completion-emoji">🔁</div>
+        <div class="completion-emoji">${_uiIconSvg('progress', 'completion-main-icon')}</div>
         <div class="completion-title">오답 다시 풀기</div>
         <div class="completion-sub">
           잠깐만요! 방금 틀렸던 <strong>${count}문제</strong>를<br>
-          제대로 익혔는지 다시 한번 확인해볼까요? 😊
+          제대로 익혔는지 다시 한번 확인해볼까요?
           <div style="font-size:11px;color:var(--text3);margin-top:12px;opacity:0.8">
             * 진도는 통과할 때만 반영되고, 점수는 첫 시도 기준으로 계산됩니다.
           </div>
@@ -1781,7 +1786,7 @@ window.App = (() => {
     const tiers = [
       {
         min: 90,
-        icon: '🏆',
+        icon: 'sparkle',
         title: '정말 인상적인 결과예요',
         jp: '最高(さいこう)です。この調子(ちょうし)でどんどん伸(の)びていけます！',
         ko: '최고예요. 이 흐름이면 다음 단계도 아주 좋게 이어질 거예요.',
@@ -1789,7 +1794,7 @@ window.App = (() => {
       },
       {
         min: 70,
-        icon: '🎉',
+        icon: 'check',
         title: '실력이 분명히 올라오고 있어요',
         jp: '立派(りっぱ)です。もう一歩(いっぽ)でぐっと自然(しぜん)になります！',
         ko: '아주 좋아요. 이제 조금만 더 다듬으면 훨씬 자연스러워질 거예요.',
@@ -1797,7 +1802,7 @@ window.App = (() => {
       },
       {
         min: 50,
-        icon: '😊',
+        icon: 'progress',
         title: '좋은 흐름으로 가고 있어요',
         jp: 'いいですね。今(いま)は土台(どだい)をしっかり作(つく)っているところです。',
         ko: '좋아요. 지금은 기초를 제대로 다지는 아주 중요한 구간이에요.',
@@ -1805,7 +1810,7 @@ window.App = (() => {
       },
       {
         min: 0,
-        icon: '💪',
+        icon: 'target',
         title: '지금부터가 진짜 실력이 붙는 구간이에요',
         jp: '頑張(がんば)りましょう。今日(きょう)の復習(ふくしゅう)が明日(あした)の自信(じしん)になります。',
         ko: '괜찮아요. 오늘의 복습이 내일의 자신감으로 이어질 거예요.',
@@ -1817,8 +1822,8 @@ window.App = (() => {
     const xpEarned = Math.round((pct / 100) * 100 + 20);
     const awardedXP = passed ? xpEarned : 0;
     const passBadge = passed
-      ? `<div class="v2-pass-badge v2-pass-ok">✅ 통과! (기준 ${passRate}%)</div>`
-      : `<div class="v2-pass-badge v2-pass-ng">❌ 재도전 필요 (기준 ${passRate}%, 현재 ${pct}%)<br><span style="font-size:12px;opacity:.8">통과 전에는 다음 단계로 넘어가지 않습니다.</span></div>`;
+      ? `<div class="v2-pass-badge v2-pass-ok">${_uiIconSvg('check', 'pass-badge-icon')} 통과! (기준 ${passRate}%)</div>`
+      : `<div class="v2-pass-badge v2-pass-ng">${_uiIconSvg('close', 'pass-badge-icon')} 재도전 필요 (기준 ${passRate}%, 현재 ${pct}%)<br><span style="font-size:12px;opacity:.8">통과 전에는 다음 단계로 넘어가지 않습니다.</span></div>`;
 
     Store.recordStepAttempt(_flow.moduleId, stepIndex, score, passed);
     if (passed) {
@@ -1834,7 +1839,7 @@ window.App = (() => {
 
     document.getElementById('flowBody').innerHTML = `
       <div class="score-screen fanfare-burst">
-        <div class="score-emoji">${res.icon}</div>
+        <div class="score-emoji">${_uiIconSvg(res.icon, 'score-tier-icon')}</div>
         <div class="score-title">${res.title}</div>
         <div class="score-exclamation">${ruby(res.jp)}</div>
         <div class="score-msg">${res.msg}</div>
@@ -1852,7 +1857,7 @@ window.App = (() => {
 
     document.getElementById('flowFooter').innerHTML = `
       <button class="btn btn-primary" onclick="App._afterQuiz(${passed})">
-        ${passed ? '다음 단계 →' : '다시 도전 🔁'}
+        ${passed ? '다음 단계 →' : '다시 도전'}
       </button>
     `;
   }
@@ -1869,16 +1874,16 @@ window.App = (() => {
 
   // ── Lecture Player ────────────────────────────────────────
   const _LEC_TYPE = {
-    hook:     { icon: '🎣', color: '#6366f1' },
-    culture:  { icon: '🗾', color: '#10b981' },
-    story:    { icon: '📖', color: '#8b5cf6' },
-    mnemonic: { icon: '💡', color: '#f59e0b' },
-    funfact:  { icon: '🎯', color: '#3b82f6' },
-    practice: { icon: '✍️', color: '#ef4444' },
-    summary:  { icon: '✅', color: '#10b981' },
-    grammar:  { icon: '🧩', color: '#f43f5e' },
-    table:    { icon: '📊', color: '#0ea5e9' },
-    dialog:   { icon: '💬', color: '#14b8a6' },
+    hook:     { icon: 'target', color: '#6366f1' },
+    culture:  { icon: 'grid', color: '#10b981' },
+    story:    { icon: 'book', color: '#8b5cf6' },
+    mnemonic: { icon: 'sparkle', color: '#f59e0b' },
+    funfact:  { icon: 'target', color: '#3b82f6' },
+    practice: { icon: 'voice', color: '#ef4444' },
+    summary:  { icon: 'check', color: '#10b981' },
+    grammar:  { icon: 'tools', color: '#f43f5e' },
+    table:    { icon: 'grid', color: '#0ea5e9' },
+    dialog:   { icon: 'roleplay', color: '#14b8a6' },
   };
 
   function _renderLecture(mod, step, stepIndex) {
@@ -1903,7 +1908,7 @@ window.App = (() => {
     document.getElementById('flowBody').innerHTML = `
       <div class="lecture-slide" id="lectureSlide">
         <div class="lec-header">
-          <div class="lec-badge" style="--lc:${ts.color}">${ts.icon} ${escHtml(slide.label || '')}</div>
+          <div class="lec-badge" style="--lc:${ts.color}">${_uiIconSvg(ts.icon, 'lec-type-icon')} ${escHtml(slide.label || '')}</div>
           <div class="lec-counter">${idx + 1} / ${slides.length}</div>
         </div>
 
@@ -2219,7 +2224,7 @@ window.App = (() => {
 
     document.getElementById('flowBody').innerHTML = `
       <div class="dialogue-scene">
-        <div class="scene-title">📖 대화 미리 보기</div>
+        <div class="scene-title">${_uiIconSvg('book', 'scene-title-icon')} 대화 미리 보기</div>
         실전 롤플레이 전에 전체 대화를 먼저 읽어보세요.
       </div>
       <div class="dialogue-list">${html}</div>
@@ -2275,7 +2280,7 @@ window.App = (() => {
     const activeIndex = practiceLines.findIndex((_, idx) => !(shadowDone[idx] && outputDone[idx]));
     const activeLine = activeIndex >= 0 ? practiceLines[activeIndex] : null;
 
-    document.getElementById('flowTitle').textContent = `🎭 ${rp.name}`;
+    document.getElementById('flowTitle').textContent = rp.name;
     if (phase === 'preview') {
       document.getElementById('flowStep').textContent = '1 / 2 · 먼저 듣고 흐름 익히기';
       document.getElementById('flowProgressFill').style.width = '35%';
@@ -2330,7 +2335,7 @@ window.App = (() => {
           </div>
           <div class="roleplay-actions">
             <button class="btn btn-outline" onclick="App._toggleRoleplayReveal(${idx})">${answerVisible ? '정답 가리기' : '정답 보기'}</button>
-            <button class="btn btn-outline" onclick="App._speakDialogueLine('${line.id}')">🔊 정답 듣기</button>
+            <button class="btn btn-outline" onclick="App._speakDialogueLine('${line.id}')">${_uiLabeledIcon('audio')} 정답 듣기</button>
             <button class="btn ${shadowOk ? 'btn-success' : 'btn-outline'}" onclick="App._markRoleplayShadow(${idx})">${shadowOk ? '따라 말하기 완료' : '따라 말했어요'}</button>
             <button class="btn ${outputOk ? 'btn-success' : 'btn-outline'}" onclick="App._markRoleplayOutput(${idx})">${outputOk ? '힌트 말하기 완료' : '힌트 보고 말했어요'}</button>
           </div>
@@ -2344,7 +2349,7 @@ window.App = (() => {
     `;
 
     const currentTurnHtml = activeLine ? `
-      <div class="roleplay-panel roleplay-panel-highlight">
+        <div class="roleplay-panel roleplay-panel-highlight">
         <div class="roleplay-section-heading">지금 내 차례</div>
         <div class="roleplay-progress-text">대사 ${activeIndex + 1} / ${practiceLines.length}</div>
         <div class="roleplay-prompt">${escHtml(activeLine.korean || '')}</div>
@@ -2352,7 +2357,7 @@ window.App = (() => {
           ${revealed[activeIndex] ? ruby(activeLine.japanese || '') : '먼저 스스로 말해 보고, 막히면 정답을 확인해 보세요.'}
         </div>
         <div class="roleplay-actions">
-          <button class="btn btn-outline" onclick="App._speakDialogueLine('${activeLine.id}')">🔊 정답 듣기</button>
+          <button class="btn btn-outline" onclick="App._speakDialogueLine('${activeLine.id}')">${_uiLabeledIcon('audio')} 정답 듣기</button>
           <button class="btn btn-outline" onclick="App._toggleRoleplayReveal(${activeIndex})">${revealed[activeIndex] ? '정답 가리기' : '정답 보기'}</button>
           <button class="btn ${shadowDone[activeIndex] ? 'btn-success' : 'btn-outline'}" onclick="App._markRoleplayShadow(${activeIndex})">${shadowDone[activeIndex] ? '따라 말하기 완료' : '따라 말했어요'}</button>
           <button class="btn ${outputDone[activeIndex] ? 'btn-success' : 'btn-outline'}" onclick="App._markRoleplayOutput(${activeIndex})">${outputDone[activeIndex] ? '힌트 말하기 완료' : '힌트 보고 말했어요'}</button>
@@ -2367,7 +2372,7 @@ window.App = (() => {
     if (phase === 'preview') {
       document.getElementById('flowBody').innerHTML = `
         <div class="dialogue-scene">
-          <div class="scene-title">${rp.icon} ${escHtml(rp.name)}</div>
+          <div class="scene-title">${_uiIconSvg('roleplay', 'scene-title-icon')} ${escHtml(rp.name)}</div>
           ${escHtml(rp.desc)}
         </div>
         <div class="roleplay-panel roleplay-mission-card">
@@ -2382,8 +2387,8 @@ window.App = (() => {
       `;
       document.getElementById('flowFooter').innerHTML = `
         <div class="roleplay-actions">
-          <button class="btn btn-outline" id="btnReplayAll" onclick="App._replayAll('${mod.id}')">🔊 전체 재생</button>
-          <button class="btn btn-outline" id="btnStopPlay" style="display:none" onclick="App._stopRoleplay()">⏹ 정지</button>
+          <button class="btn btn-outline" id="btnReplayAll" onclick="App._replayAll('${mod.id}')">${_uiLabeledIcon('audio')} 전체 재생</button>
+          <button class="btn btn-outline" id="btnStopPlay" style="display:none" onclick="App._stopRoleplay()">정지</button>
           <button class="btn btn-primary" onclick="App._beginRoleplayPractice()">이제 말하기 시작 →</button>
         </div>
       `;
@@ -2392,7 +2397,7 @@ window.App = (() => {
 
     document.getElementById('flowBody').innerHTML = `
       <div class="dialogue-scene">
-        <div class="scene-title">${rp.icon} ${escHtml(rp.name)}</div>
+        <div class="scene-title">${_uiIconSvg('roleplay', 'scene-title-icon')} ${escHtml(rp.name)}</div>
         방금 들은 흐름을 바탕으로, 이제 내 대사를 직접 말해 보세요.
       </div>
       <div class="roleplay-panel roleplay-mission-card">
@@ -2405,15 +2410,15 @@ window.App = (() => {
       ${currentTurnHtml}
       <div class="dialogue-list" id="dialogueList">${dialogueHtml}</div>
       <div style="height:12px"></div>
-      <div class="scene-title">🗣️ 내 말하기 연습</div>
+      <div class="scene-title">${_uiIconSvg('voice', 'scene-title-icon')} 내 말하기 연습</div>
       <div class="roleplay-helper-text" style="margin:6px 0 12px">한 번 따라 말하고, 한 번은 힌트만 보고 다시 말해 보세요.</div>
       <div>${practiceHtml}</div>
     `;
 
     document.getElementById('flowFooter').innerHTML = `
       <div class="roleplay-actions">
-        <button class="btn btn-outline" id="btnReplayAll" onclick="App._replayAll('${mod.id}')">🔊 전체 재생</button>
-        <button class="btn btn-outline" id="btnStopPlay" style="display:none" onclick="App._stopRoleplay()">⏹ 정지</button>
+        <button class="btn btn-outline" id="btnReplayAll" onclick="App._replayAll('${mod.id}')">${_uiLabeledIcon('audio')} 전체 재생</button>
+        <button class="btn btn-outline" id="btnStopPlay" style="display:none" onclick="App._stopRoleplay()">정지</button>
         <button class="btn ${allReady ? 'btn-success' : 'btn-outline'}" onclick="App._completeRoleplay('${mod.id}')">${allReady ? '완료 ✓' : `말하기 ${readyCount}/${practiceLines.length}`}</button>
       </div>
     `;
@@ -2708,13 +2713,13 @@ window.App = (() => {
 
     document.getElementById('flowBody').innerHTML = `
       <div class="completion-screen">
-        <div class="completion-emoji">🎭</div>
+        <div class="completion-emoji">${_uiIconSvg('roleplay', 'completion-main-icon')}</div>
         <div class="completion-title">롤플레이 완료!</div>
         <div class="completion-sub">${escHtml(mod?.roleplay?.name || '')} 마스터 완료!<br>이제 흐름을 이해하는 단계에서 직접 말하는 단계까지 잘 마쳤어요.</div>
         <div class="completion-unlocks">
-          <div class="cu-title">✨ 획득</div>
-          <div class="completion-unlock-item"><span class="cui-icon">⚡</span> +${xp} XP</div>
-          <div class="completion-unlock-item"><span class="cui-icon">🎭</span> 롤플레이 뱃지</div>
+          <div class="cu-title">획득</div>
+          <div class="completion-unlock-item"><span class="cui-icon">${_uiIconSvg('xp', 'completion-inline-icon')}</span> +${xp} XP</div>
+          <div class="completion-unlock-item"><span class="cui-icon">${_uiIconSvg('roleplay', 'completion-inline-icon')}</span> 롤플레이 뱃지</div>
         </div>
       </div>
     `;
@@ -2736,15 +2741,15 @@ window.App = (() => {
 
     document.getElementById('flowBody').innerHTML = `
       <div class="completion-screen">
-        <div class="completion-emoji">✅</div>
+        <div class="completion-emoji">${_uiIconSvg('check', 'completion-main-icon')}</div>
         <div class="completion-title">모듈 완료!</div>
         <div class="completion-sub">${escHtml(mod.name)} 모든 학습 단계 완료!<br>
-          ${mod.roleplay ? '🎭 롤플레이가 해금되었습니다!' : '다음 모듈로 진행하세요!'}
+          ${mod.roleplay ? '롤플레이가 해금되었습니다.' : '다음 모듈로 진행하세요!'}
         </div>
         <div class="completion-unlocks">
-          <div class="cu-title">✨ 획득</div>
-          <div class="completion-unlock-item"><span class="cui-icon">⚡</span> +50 XP 보너스</div>
-          ${mod.roleplay ? `<div class="completion-unlock-item"><span class="cui-icon">🔓</span> 🎭 ${escHtml(mod.roleplay.name)} 해금!</div>` : ''}
+          <div class="cu-title">획득</div>
+          <div class="completion-unlock-item"><span class="cui-icon">${_uiIconSvg('xp', 'completion-inline-icon')}</span> +50 XP 보너스</div>
+          ${mod.roleplay ? `<div class="completion-unlock-item"><span class="cui-icon">${_uiIconSvg('roleplay', 'completion-inline-icon')}</span> ${escHtml(mod.roleplay.name)} 해금</div>` : ''}
         </div>
       </div>
     `;
@@ -2816,7 +2821,7 @@ window.App = (() => {
     if (!items.length) { showToast('어휘 데이터를 불러올 수 없습니다'); return; }
     _startPracticeFlow({
       id: '_practice_vocab_review',
-      stageId: 1, name: '어휘 복습', icon: '📖',
+      stageId: 1, name: '어휘 복습', icon: 'review',
       steps: [{ type: 'vocab_learn', title: `어휘 플래시카드 (${items.length}개)`, items }],
       roleplay: null
     });
@@ -2830,7 +2835,7 @@ window.App = (() => {
       if (!items.length) { showToast('어휘 데이터를 불러올 수 없습니다'); return; }
       _startPracticeFlow({
         id: '_practice_vocab_quiz',
-        stageId: 1, name: '어휘 퀴즈', icon: '🎮',
+        stageId: 1, name: '어휘 퀴즈', icon: 'quiz',
         steps: [{ type: 'vocab_quiz', title: `랜덤 어휘 퀴즈 (${items.length}문제)`, items }],
         roleplay: null
       });
@@ -2843,7 +2848,7 @@ window.App = (() => {
     const chars = shuffle(allChars).slice(0, 15);
     _startPracticeFlow({
       id: '_practice_listening',
-      stageId: 1, name: '듣기 퀴즈', icon: '🎧',
+      stageId: 1, name: '듣기 퀴즈', icon: 'listen',
       steps: [{ type: 'kana_listening', title: `음성 듣고 글자 맞추기 (${chars.length}문제)`, chars }],
       roleplay: null
     });
@@ -2854,7 +2859,7 @@ window.App = (() => {
     if (!items.length) { showToast('어휘 데이터를 불러올 수 없습니다'); return; }
     _startPracticeFlow({
       id: '_practice_shadowing',
-      stageId: 1, name: '따라 말하기', icon: '🗣️',
+      stageId: 1, name: '따라 말하기', icon: 'speak',
       steps: [{ type: 'shadowing', title: `쉐도잉 연습 (${items.length}개)`, items }],
       roleplay: null
     });
@@ -3563,29 +3568,29 @@ window.App = (() => {
       html += `
         <div style="margin-bottom:12px">
           <div style="font-size:12px;color:var(--text2);margin-bottom:8px;font-weight:600">
-            🎙️ VOICEVOX 화자 (롤플레이 다화자)
+            VOICEVOX 화자 (롤플레이 다화자)
           </div>
           <div style="display:grid;gap:8px">
             <div>
-              <div style="font-size:11px;color:var(--accent2);margin-bottom:3px">🟣 화자 A — 나 (학습자)</div>
+              <div style="font-size:11px;color:var(--accent2);margin-bottom:3px">화자 A — 나 (학습자)</div>
               ${makeSelect('vvSpeakerA', 'App.setVoicevoxSpeakerA', curA)}
               <button onclick="TTS.speak('よろしくお願いします', {speakerId:${curA}})"
                 style="width:100%;padding:7px;background:var(--bg3);border:1px solid var(--border);
-                       border-radius:8px;color:var(--text);font-size:12px;cursor:pointer">🔊 테스트</button>
+                       border-radius:8px;color:var(--text);font-size:12px;cursor:pointer">테스트 재생</button>
             </div>
             <div>
-              <div style="font-size:11px;color:#34d399;margin-bottom:3px">🟢 화자 B — 상대방</div>
+              <div style="font-size:11px;color:#34d399;margin-bottom:3px">화자 B — 상대방</div>
               ${makeSelect('vvSpeakerB', 'App.setVoicevoxSpeakerB', curB)}
               <button onclick="TTS.speak('いらっしゃいませ。', {speakerId:${curB}})"
                 style="width:100%;padding:7px;background:var(--bg3);border:1px solid var(--border);
-                       border-radius:8px;color:var(--text);font-size:12px;cursor:pointer">🔊 테스트</button>
+                       border-radius:8px;color:var(--text);font-size:12px;cursor:pointer">테스트 재생</button>
             </div>
             <div>
-              <div style="font-size:11px;color:#fb923c;margin-bottom:3px">🟠 화자 C — 제3자/점원</div>
+              <div style="font-size:11px;color:#fb923c;margin-bottom:3px">화자 C — 제3자/점원</div>
               ${makeSelect('vvSpeakerC', 'App.setVoicevoxSpeakerC', curC)}
               <button onclick="TTS.speak('かしこまりました。', {speakerId:${curC}})"
                 style="width:100%;padding:7px;background:var(--bg3);border:1px solid var(--border);
-                       border-radius:8px;color:var(--text);font-size:12px;cursor:pointer">🔊 테스트</button>
+                       border-radius:8px;color:var(--text);font-size:12px;cursor:pointer">테스트 재생</button>
             </div>
           </div>
         </div>
@@ -3596,7 +3601,7 @@ window.App = (() => {
       html += `
         <div style="margin-bottom:12px">
           <div style="font-size:12px;color:var(--text2);margin-bottom:6px;font-weight:600">
-            🌐 Edge TTS 음성
+            Edge TTS 음성
           </div>
           <select id="edgeVoiceSelect" onchange="App.setEdgeTTSVoice(this.value)"
             style="width:100%;padding:10px 12px;background:var(--bg3);border:1px solid var(--border);
@@ -3609,14 +3614,14 @@ window.App = (() => {
             style="margin-top:8px;width:100%;padding:9px;background:var(--bg3);
                    border:1px solid var(--border);border-radius:10px;color:var(--text);
                    font-size:13px;cursor:pointer">
-            🔊 테스트 재생
+            테스트 재생
           </button>
         </div>
       `;
     } else {
       html += `
         <div style="font-size:13px;color:var(--text3);padding:10px 0">
-          🔊 브라우저 기본 음성: <strong>${escHtml(TTS.getWebSpeechVoiceName())}</strong><br>
+          브라우저 기본 음성: <strong>${escHtml(TTS.getWebSpeechVoiceName())}</strong><br>
           <span style="font-size:11px;margin-top:6px;display:block">
             더 좋은 음질을 원하면 VOICEVOX를 설치하세요.<br>
             <a href="https://voicevox.hiroshiba.jp" target="_blank"
@@ -3630,27 +3635,27 @@ window.App = (() => {
 
   function setVoicevoxSpeaker(id) {   // legacy alias
     TTS.setVoicevoxSpeaker(id);
-    showToast('🎙️ 화자 A 변경됨');
+    showToast('화자 A 변경됨');
   }
   function setVoicevoxSpeakerA(id) {
     TTS.setVoicevoxSpeaker(id);
-    showToast('🎙️ 화자 A 변경됨');
+    showToast('화자 A 변경됨');
     TTS.speak('よろしくお願いします', { speakerId: parseInt(id) });
   }
   function setVoicevoxSpeakerB(id) {
     TTS.setVoicevoxSpeakerB(id);
-    showToast('🎙️ 화자 B 변경됨');
+    showToast('화자 B 변경됨');
     TTS.speak('いらっしゃいませ。', { speakerId: parseInt(id) });
   }
   function setVoicevoxSpeakerC(id) {
     TTS.setVoicevoxSpeakerC(id);
-    showToast('🎙️ 화자 C 변경됨');
+    showToast('화자 C 변경됨');
     TTS.speak('かしこまりました。', { speakerId: parseInt(id) });
   }
 
   function setEdgeTTSVoice(v) {
     TTS.setEdgeVoice(v);
-    showToast('🌐 음성 변경됨');
+    showToast('음성 변경됨');
     TTS.speak('はじめまして。よろしくお願いします。');
   }
 
@@ -3689,7 +3694,7 @@ window.App = (() => {
 
   function devAddXP(amount) {
     Store.addXP(amount);
-    showToast(`⚡ +${amount} XP 추가! 현재: ${Store.get().xp} XP`);
+    showToast(`+${amount} XP 추가! 현재: ${Store.get().xp} XP`);
     _renderHome();
     _renderLesson();
     _renderProfile();
@@ -3697,27 +3702,27 @@ window.App = (() => {
 
   function devSkipCurrentStep() {
     if (!_flow || !_flow.moduleId) {
-      showToast('⚠️ 먼저 모듈을 열어주세요 (레슨 탭에서 모듈 선택)');
+      showToast('먼저 모듈을 열어주세요 (레슨 탭에서 모듈 선택)');
       return;
     }
     const mod = MODULES.find(m => m.id === _flow.moduleId);
     if (!mod) return;
     const stepIndex = _flow.step;
     if (stepIndex < 0 || stepIndex >= mod.steps.length) {
-      showToast('⚠️ 스킵할 단계가 없습니다');
+      showToast('스킵할 단계가 없습니다');
       return;
     }
     const step = mod.steps[stepIndex];
     Store.completeStep(_flow.moduleId, stepIndex, 100);
     Store.addXP(80);
-    showToast(`⏭ "${step.title}" 완료 처리 (100점)`);
+    showToast(`"${step.title}" 완료 처리 (100점)`);
     _flow.step = stepIndex + 1;
     _runCurrentStep();
   }
 
   function devCompleteCurrentModule() {
     if (!_flow || !_flow.moduleId) {
-      showToast('⚠️ 먼저 모듈을 열어주세요');
+      showToast('먼저 모듈을 열어주세요');
       return;
     }
     const mod = MODULES.find(m => m.id === _flow.moduleId);
@@ -3725,7 +3730,7 @@ window.App = (() => {
     // 모든 단계 완료 처리
     mod.steps.forEach((_, i) => Store.completeStep(_flow.moduleId, i, 100));
     Store.addXP(mod.xp || 200);
-    showToast(`✅ "${mod.name}" 모든 단계 완료 처리!`);
+    showToast(`"${mod.name}" 모든 단계 완료 처리!`);
     _flow.step = mod.steps.length;
     _runCurrentStep();
   }
@@ -3734,7 +3739,7 @@ window.App = (() => {
   function toggleFurigana() {
     const cur = Store.getSetting('furigana');
     Store.setSetting('furigana', !cur);
-    showToast((!cur) ? '후리가나 ON ✅' : '후리가나 OFF');
+    showToast((!cur) ? '후리가나 ON' : '후리가나 OFF');
     _renderProfile();
   }
 
@@ -3916,15 +3921,15 @@ window.App = (() => {
     return [...thresholds].reverse().find(t => t <= xp) || 0;
   }
   function _levelName(xp) {
-    if (xp < 500)   return '🌱 일본어 씨앗';
-    if (xp < 1500)  return '📖 입문자';
-    if (xp < 3000)  return '🗣️ 초보 여행자';
-    if (xp < 5000)  return '✈️ 여행 마스터';
-    if (xp < 8000)  return '💬 일상 대화자';
-    if (xp < 12000) return '👔 비즈니스 입문';
-    if (xp < 18000) return '💻 IT 커뮤니케이터';
-    if (xp < 25000) return '🏢 직장인 마스터';
-    return '🏆 일본어 마스터';
+    if (xp < 500)   return '일본어 씨앗';
+    if (xp < 1500)  return '입문자';
+    if (xp < 3000)  return '초보 여행자';
+    if (xp < 5000)  return '여행 마스터';
+    if (xp < 8000)  return '일상 대화자';
+    if (xp < 12000) return '비즈니스 입문';
+    if (xp < 18000) return 'IT 커뮤니케이터';
+    if (xp < 25000) return '직장인 마스터';
+    return '일본어 마스터';
   }
 
   function _buildCalDays(studyDays) {

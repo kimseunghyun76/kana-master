@@ -894,7 +894,6 @@ body {
   transform: translateY(0.05em); /* slight adjustment for alignment if needed */
 }
 
-/* 🔊 sound button — top-right of kana-face */
 .kana-sound-btn {
   position: absolute;
   top: 12px; right: 12px;
@@ -910,6 +909,31 @@ body {
   z-index: 2;
 }
 .kana-sound-btn:hover { background: rgba(255,255,255,.2); }
+.kana-sound-icon,
+.kana-back-sound-icon,
+.kana-tip-icon,
+.quiz-audio-icon,
+.quiz-feedback-icon,
+.shadowing-audio-icon,
+.btn-inline-icon,
+.ii-icon,
+.lec-preview-icon,
+.lec-type-icon,
+.scene-title-icon,
+.pass-badge-icon,
+.completion-inline-icon {
+  width: 16px;
+  height: 16px;
+  display: block;
+  flex-shrink: 0;
+}
+.quiz-listening-icon {
+  width: 54px;
+  height: 54px;
+  display: block;
+  margin: 0 auto;
+  color: var(--accent2);
+}
 .kana-type-label {
   font-size: 11px;
   font-weight: 600;
@@ -966,6 +990,9 @@ body {
   text-align: left;
 }
 .kana-tip-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   font-size: 10px; font-weight: 700;
   letter-spacing: 1.2px;
   color: var(--accent);
@@ -1083,7 +1110,7 @@ body {
   text-align: left;
   line-height: 1.5;
 }
-.vocab-card .vc-tip::before { content: '💡 '; }
+.vocab-card .vc-tip::before { content: ''; }
 
 /* Fanfare / completion effects */
 .fanfare-burst {
@@ -1377,7 +1404,9 @@ body {
 .v2-pass-badge {
   padding: 8px 18px; border-radius: 20px;
   font-size: 13px; font-weight: 700; margin: 4px 0 16px;
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
 }
 .v2-pass-ok { background: rgba(16,185,129,.15); color: #34d399; border: 1.5px solid rgba(16,185,129,.35); }
 .v2-pass-ng { background: rgba(239,68,68,.1); color: #f87171; border: 1.5px solid rgba(239,68,68,.25); }
@@ -1416,7 +1445,23 @@ body {
   padding: 24px;
   text-align: center;
 }
-.score-emoji { font-size: 80px; line-height: 1; margin-bottom: 20px; }
+.score-emoji {
+  width: 84px;
+  height: 84px;
+  margin-bottom: 20px;
+  border-radius: 28px;
+  background: linear-gradient(135deg, rgba(99,102,241,.16), rgba(14,165,233,.08));
+  border: 1px solid rgba(129,140,248,.32);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent2);
+}
+.score-tier-icon {
+  width: 40px;
+  height: 40px;
+  display: block;
+}
 .score-title { font-size: 28px; font-weight: 800; margin-bottom: 8px; }
 .score-subtitle { font-size: 16px; color: var(--text2); margin-bottom: 32px; }
 .score-ring {
@@ -1464,7 +1509,15 @@ body {
   color: var(--text2);
   line-height: 1.5;
 }
-.dialogue-scene .scene-title { font-weight: 700; color: var(--warning); margin-bottom: 6px; font-size: 14px; }
+.dialogue-scene .scene-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  color: var(--warning);
+  margin-bottom: 6px;
+  font-size: 14px;
+}
 
 .roleplay-panel {
   padding: 16px;
@@ -1536,6 +1589,11 @@ body {
 }
 .roleplay-actions .btn {
   flex: 1 1 160px;
+}
+.inline-icon-wrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .dialogue-list { display: flex; flex-direction: column; gap: 14px; }
@@ -1790,7 +1848,23 @@ body {
   text-align: center;
   padding: 16px;
 }
-.module-intro-icon { font-size: 72px; margin-bottom: 20px; }
+.module-intro-icon {
+  width: 96px;
+  height: 96px;
+  margin-bottom: 20px;
+  border-radius: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, rgba(99,102,241,.12), rgba(59,130,246,.08));
+  border: 1px solid rgba(129,140,248,.22);
+  color: var(--accent2);
+}
+.module-intro-icon-svg {
+  width: 48px;
+  height: 48px;
+  display: block;
+}
 .module-intro-title { font-size: 24px; font-weight: 800; margin-bottom: 8px; }
 .module-intro-sub { font-size: 15px; color: var(--text2); margin-bottom: 32px; line-height: 1.5; }
 .module-intro-items {
@@ -1804,7 +1878,12 @@ body {
   font-size: 12px; color: var(--text2);
   display: flex; align-items: center; gap: 6px;
 }
-.intro-item .ii-check { color: var(--success); }
+.intro-item .ii-check {
+  color: var(--success);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
 
 /* ── Module Intro — 인앱 강의 프리뷰 카드 ─────────────────── */
 .lec-preview-card {
@@ -1816,6 +1895,9 @@ body {
   display: flex; flex-direction: column; gap: 6px;
 }
 .lec-preview-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   font-size: 11px; font-weight: 700; color: var(--accent2);
   letter-spacing: .04em;
 }
@@ -1906,7 +1988,23 @@ body {
   text-align: center;
   padding: 24px;
 }
-.completion-emoji { font-size: 80px; margin-bottom: 20px; }
+.completion-emoji {
+  width: 88px;
+  height: 88px;
+  margin-bottom: 20px;
+  border-radius: 28px;
+  background: linear-gradient(135deg, rgba(16,185,129,.16), rgba(99,102,241,.08));
+  border: 1px solid rgba(16,185,129,.28);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--success);
+}
+.completion-main-icon {
+  width: 42px;
+  height: 42px;
+  display: block;
+}
 .completion-title { font-size: 28px; font-weight: 800; color: var(--success); margin-bottom: 8px; }
 .completion-sub { font-size: 15px; color: var(--text2); margin-bottom: 28px; line-height: 1.5; }
 .completion-unlocks {
@@ -1925,7 +2023,14 @@ body {
   font-size: 14px; color: var(--text);
   padding: 6px 0;
 }
-.completion-unlock-item .cui-icon { font-size: 18px; }
+.completion-unlock-item .cui-icon {
+  width: 18px;
+  height: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--success);
+}
 
 /* ── Buttons ──────────────────────────────────────────────── */
 .btn {
