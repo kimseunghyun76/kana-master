@@ -827,9 +827,30 @@ window.App = (() => {
                 <div class="kana-tap-hint">탭해서 읽는 법 보기 👆</div>
               </div>
               <div class="kana-back">
-                <div class="kana-romaji">${escHtml(info.romaji || '')}</div>
-                <div class="kana-korean">${escHtml(info.korean || '')}</div>
-                ${info.tip ? `<div class="kana-tip">${ruby(info.tip)}</div>` : ''}
+                <!-- ① 읽기 정보 -->
+                <div class="kana-reading-row">
+                  <button class="kana-back-sound"
+                          onclick="event.stopPropagation();TTS.speak('${safeC}')">🔊</button>
+                  <span class="kana-romaji-sm">${escHtml(info.romaji || '')}</span>
+                  <span class="kana-reading-dot">·</span>
+                  <span class="kana-korean-sm">${escHtml(info.korean || '')}</span>
+                </div>
+                <!-- ② 기억법 (TIP) -->
+                ${info.tip ? `
+                <div class="kana-tip-main">
+                  <div class="kana-tip-label">💡 기억법</div>
+                  <div class="kana-tip-body">${ruby(info.tip)}</div>
+                </div>` : ''}
+                <!-- ③ 획순 인라인 (전체 너비, 🔄 우상단 오버레이) -->
+                <div class="kana-stroke-row">
+                  <div class="kana-stroke-mini" id="kanaStrokeInline">
+                    <div class="kana-stroke-loading">…</div>
+                  </div>
+                  <button class="kana-stroke-replay-btn"
+                          onclick="event.stopPropagation();App._replayInlineStroke()"
+                          title="다시 그리기">🔄</button>
+                </div>
+                <!-- ④ 예문 -->
                 <div class="kana-examples">${examples}</div>
               </div>
             </div>
@@ -870,13 +891,17 @@ window.App = (() => {
       if (st.flipped) {
         card.classList.add('flipped');
         TTS.speak(st.chars[st.cardIdx]);
+        // 카드 플립 애니메이션(500ms) 완료 후 획순 자동 시작
+        setTimeout(() => _startInlineStroke(st.chars[st.cardIdx]), 520);
       } else {
         card.classList.remove('flipped');
+        _stopInlineStroke();
       }
     }
   }
 
   function _kanaLearnNext() {
+    _stopInlineStroke();
     const st = _flow._kanaState;
     if (!st) return;
     st.flipped = false;
@@ -894,6 +919,7 @@ window.App = (() => {
   }
 
   function _kanaLearnPrev() {
+    _stopInlineStroke();
     const st = _flow._kanaState;
     if (!st || st.cardIdx === 0) return;
     st.cardIdx--;
@@ -2621,151 +2647,570 @@ window.App = (() => {
     }
   }
 
-  // ── 획순 애니메이션 ────────────────────────────────────────
-  let _strokeState = null; // { kana, strokes, stepIdx, timer }
+  // ── 획순 애니메이션 (KanjiVG 기반) ─────────────────────────
+  // state: { kana, total, stepIdx, paths[], activeGroup, ns, animTimer }
+  let _strokeState = null;
 
-  function _showStrokePanel(kana) {
-    const data = (typeof STROKE_DATA !== 'undefined') ? STROKE_DATA[kana] : null;
-    if (!data) { _toast('획순 데이터가 없습니다'); return; }
-
+  async function _showStrokePanel(kana) {
     // 기존 모달 제거
-    const existing = document.getElementById('strokeModal');
-    if (existing) existing.remove();
-    if (_strokeState && _strokeState.timer) clearInterval(_strokeState.timer);
+    document.getElementById('strokeModal')?.remove();
+    if (_strokeState?.animTimer) clearTimeout(_strokeState.animTimer);
+    _strokeState = null;
 
-    _strokeState = { kana, strokes: data.strokes, stepIdx: -1, timer: null };
+    const info   = (typeof KANA_MAP !== 'undefined') ? (KANA_MAP[kana] || {}) : {};
+    const romaji = info.romaji ?? '';
+    const korean = info.korean ?? '';
 
+    // ── 모달 생성 ──────────────────────────────────────────
     const overlay = document.createElement('div');
-    overlay.id = 'strokeModal';
-    overlay.style.cssText = `
-      position:fixed;inset:0;z-index:2000;
-      background:rgba(0,0,0,.75);
-      display:flex;align-items:center;justify-content:center;
-      padding:24px;
-    `;
+    overlay.id    = 'strokeModal';
+    overlay.className = 'hw-overlay';
     overlay.innerHTML = `
-      <div style="
-        background:var(--bg2);border-radius:24px;
-        border:1px solid var(--border);
-        padding:24px 20px 20px;
-        width:100%;max-width:340px;
-        display:flex;flex-direction:column;align-items:center;gap:14px;
-        position:relative;
-      ">
-        <button onclick="App._closeStrokePanel()"
-          style="position:absolute;top:12px;right:12px;
-            width:32px;height:32px;border-radius:50%;
-            border:none;background:var(--bg3);color:var(--text);
-            font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center">✕</button>
-        <div style="font-size:13px;color:var(--text3);letter-spacing:1px">✏️ 획순 애니메이션</div>
-        <div style="font-size:64px;font-family:'Noto Sans JP',serif;line-height:1;color:#fff;letter-spacing:0">${kana}</div>
-        <div class="stroke-svg-wrap" id="strokeSvgWrap">
-          ${_buildStrokeSVG(data.strokes, -1)}
+      <div class="hw-backdrop" onclick="App._closeStrokePanel()"></div>
+      <div class="hw-card">
+        <button class="hw-close-btn" onclick="App._closeStrokePanel()">✕</button>
+        <div class="hw-title-row">
+          <span class="hw-kana-label">${escHtml(kana)}</span>
+          <div class="hw-kana-meta">
+            <span class="hw-romaji">${escHtml(romaji)}</span>
+            <span class="hw-korean">${escHtml(korean)}</span>
+          </div>
         </div>
-        <div class="stroke-counter" id="strokeCounter">시작 전</div>
-        <div class="stroke-controls">
-          <button class="stroke-btn" onclick="App._strokeStep(-1)">◀ 이전</button>
-          <button class="stroke-btn primary" id="strokePlayBtn" onclick="App._strokePlay()">▶ 자동 재생</button>
-          <button class="stroke-btn" onclick="App._strokeStep(1)">다음 ▶</button>
+        <div class="hw-canvas-wrap"><div id="hwTarget"></div></div>
+        <div class="hw-stroke-counter" id="hwCounter">로딩 중…</div>
+        <div class="hw-controls">
+          <button class="hw-btn" id="hwPlayBtn" onclick="App._strokePlay()">▶ 처음부터</button>
+          <button class="hw-btn hw-btn-outline" onclick="App._strokeStep(-1)">◀ 이전</button>
+          <button class="hw-btn hw-btn-outline" onclick="App._strokeStep(1)">다음 ▶</button>
         </div>
-        <div style="font-size:11px;color:var(--text3)">총 ${data.strokes.length}획</div>
+        <div class="hw-hint">순서대로 획을 확인하거나 자동 재생하세요</div>
       </div>
     `;
     document.body.appendChild(overlay);
-    overlay.addEventListener('click', e => { if (e.target === overlay) App._closeStrokePanel(); });
+    requestAnimationFrame(() => overlay.classList.add('open'));
 
-    // 첫 획부터 자동 재생
-    _strokeAutoPlay();
+    // ── KanjiVG SVG 로드 ──────────────────────────────────
+    // KanjiVG GitHub raw: 5자리 유니코드 hex (예: あ→03042)
+    const hex = kana.codePointAt(0).toString(16).padStart(5, '0');
+    const url = `https://raw.githubusercontent.com/KanjiVG/kanjivg/master/kanji/${hex}.svg`;
+
+    try {
+      const res = await fetch(url);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const svgText = await res.text();
+      _renderKVGStrokes(svgText, kana);
+    } catch {
+      const el = document.getElementById('hwCounter');
+      if (el) el.textContent = '획순 데이터 없음';
+      const tgt = document.getElementById('hwTarget');
+      if (tgt) tgt.innerHTML = `
+        <div style="width:220px;height:220px;display:flex;align-items:center;
+                    justify-content:center;font-size:130px;
+                    font-family:'Noto Sans JP',serif;color:var(--text);opacity:.25">
+          ${escHtml(kana)}</div>`;
+    }
   }
 
-  function _buildStrokeSVG(strokes, activeIdx) {
-    // viewBox 109×109 → display 180×180
-    let paths = '';
-    // 십자 가이드선
-    paths += `<line class="stroke-guide-line" x1="54.5" y1="0" x2="54.5" y2="109"/>`;
-    paths += `<line class="stroke-guide-line" x1="0" y1="54.5" x2="109" y2="54.5"/>`;
+  function _renderKVGStrokes(svgText, kana) {
+    const parser = new DOMParser();
+    const doc    = parser.parseFromString(svgText, 'image/svg+xml');
 
-    strokes.forEach((d, i) => {
-      let cls = 'stroke-path';
-      if (i < activeIdx) cls += ' done';
-      else if (i === activeIdx) cls += ' active';
-      paths += `<path class="${cls}" d="${d}" id="sp${i}"/>`;
+    // KanjiVG path id 형식: "kvg:{hex5}-s{n}"  (예: kvg:03042-s1)
+    const strokePaths = [...doc.querySelectorAll('path[id]')]
+      .filter(p => /-s\d+$/.test(p.id))
+      .sort((a, b) => {
+        const na = parseInt(a.id.match(/-s(\d+)$/)[1]);
+        const nb = parseInt(b.id.match(/-s(\d+)$/)[1]);
+        return na - nb;
+      });
+
+    if (!strokePaths.length) {
+      const el = document.getElementById('hwCounter');
+      if (el) el.textContent = '획순 데이터 없음';
+      return;
+    }
+
+    const total = strokePaths.length;
+    const ns    = 'http://www.w3.org/2000/svg';
+    const tgt   = document.getElementById('hwTarget');
+    if (!tgt) return;
+    tgt.innerHTML = '';
+
+    // SVG 캔버스 (KanjiVG viewBox = 0 0 109 109)
+    const svg = document.createElementNS(ns, 'svg');
+    svg.setAttribute('viewBox', '0 0 109 109');
+    svg.setAttribute('width',  '220');
+    svg.setAttribute('height', '220');
+
+    // ── SVG defs: 붓 글로우 필터 ──────────────────────────
+    const defs = document.createElementNS(ns, 'defs');
+    defs.innerHTML = `
+      <!-- 붓끝 글로우 -->
+      <filter id="kvgTipGlow" x="-80%" y="-80%" width="260%" height="260%">
+        <feGaussianBlur in="SourceGraphic" stdDeviation="2.5" result="blur"/>
+        <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
+      <!-- 획 잉크 번짐 -->
+      <filter id="kvgInk" x="-10%" y="-10%" width="120%" height="120%">
+        <feGaussianBlur in="SourceGraphic" stdDeviation="0.6" result="blur"/>
+        <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
+    `;
+    svg.appendChild(defs);
+
+    // ① 가이드라인 (십자)
+    const guide = document.createElementNS(ns, 'g');
+    [[54.5,0,54.5,109],[0,54.5,109,54.5]].forEach(([x1,y1,x2,y2]) => {
+      const l = document.createElementNS(ns, 'line');
+      l.setAttribute('x1',x1); l.setAttribute('y1',y1);
+      l.setAttribute('x2',x2); l.setAttribute('y2',y2);
+      l.setAttribute('stroke','rgba(99,102,241,.1)');
+      l.setAttribute('stroke-width','1');
+      l.setAttribute('stroke-dasharray','3 4');
+      guide.appendChild(l);
     });
-    return `<svg viewBox="0 0 109 109" xmlns="http://www.w3.org/2000/svg">${paths}</svg>`;
+    svg.appendChild(guide);
+
+    // ② 회색 아웃라인 (전체 획, 연하게)
+    const outlineGroup = document.createElementNS(ns, 'g');
+    strokePaths.forEach(p => {
+      const o = document.createElementNS(ns, 'path');
+      o.setAttribute('d', p.getAttribute('d'));
+      o.setAttribute('stroke', 'rgba(148,163,184,.22)');
+      o.setAttribute('stroke-width', '3.5');
+      o.setAttribute('fill', 'none');
+      o.setAttribute('stroke-linecap', 'round');
+      o.setAttribute('stroke-linejoin', 'round');
+      outlineGroup.appendChild(o);
+    });
+    svg.appendChild(outlineGroup);
+
+    // ③ 활성 획 그룹 + 붓끝 그룹 (z-order: 획 아래, 붓끝 위)
+    const activeGroup = document.createElementNS(ns, 'g');
+    const tipGroup    = document.createElementNS(ns, 'g');
+    svg.appendChild(activeGroup);
+    svg.appendChild(tipGroup);
+
+    tgt.appendChild(svg);
+
+    _strokeState = { kana, total, stepIdx: -1, paths: strokePaths,
+                     activeGroup, tipGroup, ns, svg,
+                     animTimer: null, animFrame: null };
+    _updateHwCounter();
+    _strokeState.animTimer = setTimeout(() => _strokePlay(), 500);
   }
 
-  function _strokeUpdateSVG() {
-    const wrap = document.getElementById('strokeSvgWrap');
-    const counter = document.getElementById('strokeCounter');
-    if (!wrap || !_strokeState) return;
-    wrap.innerHTML = _buildStrokeSVG(_strokeState.strokes, _strokeState.stepIdx);
-    const total = _strokeState.strokes.length;
-    const idx = _strokeState.stepIdx;
-    if (idx < 0) {
-      counter.textContent = '시작 전';
-    } else if (idx >= total - 1) {
-      counter.textContent = `완료 (${total}획)`;
-    } else {
-      counter.textContent = `${idx + 1} / ${total} 획`;
+  // ── 이징 함수 (붓글씨 느낌) ──────────────────────────────
+  // 시작 빠름 → 끝에서 자연스럽게 감속 (붓이 종이에 닿아 올리는 느낌)
+  function _easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
+
+  function _strokePlay() {
+    if (!_strokeState?.paths) return;
+    const st  = _strokeState;
+    if (st.animTimer)  { clearTimeout(st.animTimer); st.animTimer = null; }
+    if (st.animFrame)  { cancelAnimationFrame(st.animFrame); st.animFrame = null; }
+
+    st.stepIdx = -1;
+    st.activeGroup.innerHTML = '';
+    st.tipGroup.innerHTML    = '';
+    _updateHwCounter();
+
+    const btn = document.getElementById('hwPlayBtn');
+    if (btn) btn.textContent = '■ 재생 중';
+
+    function drawStroke(i) {
+      if (!_strokeState || _strokeState !== st) return;
+      if (i >= st.total) {
+        if (btn) btn.textContent = '▶ 처음부터';
+        return;
+      }
+      st.stepIdx = i;
+      _updateHwCounter();
+
+      _kvgAddStroke(i, true, () => {
+        // 획 완료 → 다음 획까지 짧은 숨고르기
+        if (!_strokeState || _strokeState !== st) return;
+        st.animTimer = setTimeout(() => drawStroke(i + 1), 260);
+      });
     }
-    // 현재 활성 획에 dash 애니메이션
-    const activePath = document.getElementById(`sp${idx}`);
-    if (activePath) {
-      const len = activePath.getTotalLength ? activePath.getTotalLength() : 100;
-      activePath.style.strokeDasharray = len;
-      activePath.style.strokeDashoffset = len;
-      activePath.style.transition = 'none';
-      void activePath.getBoundingClientRect();
-      activePath.style.transition = 'stroke-dashoffset 0.45s ease';
-      activePath.style.strokeDashoffset = '0';
-    }
+    drawStroke(0);
   }
 
   function _strokeStep(dir) {
-    if (!_strokeState) return;
-    if (_strokeState.timer) { clearInterval(_strokeState.timer); _strokeState.timer = null; }
-    const btn = document.getElementById('strokePlayBtn');
-    if (btn) btn.textContent = '▶ 자동 재생';
-    _strokeState.stepIdx = Math.max(-1, Math.min(_strokeState.strokes.length - 1, _strokeState.stepIdx + dir));
-    _strokeUpdateSVG();
-  }
+    if (!_strokeState?.paths) return;
+    const st = _strokeState;
+    // 진행 중인 애니메이션 중단
+    if (st.animTimer)  { clearTimeout(st.animTimer);      st.animTimer = null; }
+    if (st.animFrame)  { cancelAnimationFrame(st.animFrame); st.animFrame = null; }
 
-  function _strokePlay() {
-    if (!_strokeState) return;
-    const btn = document.getElementById('strokePlayBtn');
-    if (_strokeState.timer) {
-      clearInterval(_strokeState.timer);
-      _strokeState.timer = null;
-      if (btn) btn.textContent = '▶ 자동 재생';
-      return;
+    const newIdx = Math.max(-1, Math.min(st.total - 1, st.stepIdx + dir));
+    if (newIdx === st.stepIdx && newIdx !== -1) return;
+
+    st.stepIdx = newIdx;
+    st.activeGroup.innerHTML = '';
+    st.tipGroup.innerHTML    = '';
+
+    if (newIdx >= 0) {
+      // 이전 획들은 즉시 표시 (애니 없음), 현재 획만 간단한 페이드인
+      for (let i = 0; i < newIdx; i++)  _kvgAddStroke(i, false, null);
+      _kvgAddStroke(newIdx, 'step', null); // 'step' = 짧은 애니
     }
-    // 처음부터 재생
-    _strokeState.stepIdx = -1;
-    _strokeUpdateSVG();
-    if (btn) btn.textContent = '⏸ 일시정지';
-    _strokeState.timer = setInterval(() => {
-      _strokeState.stepIdx++;
-      _strokeUpdateSVG();
-      if (_strokeState.stepIdx >= _strokeState.strokes.length - 1) {
-        clearInterval(_strokeState.timer);
-        _strokeState.timer = null;
-        if (btn) btn.textContent = '▶ 다시 재생';
-      }
-    }, 700);
+    _updateHwCounter();
+
+    const btn = document.getElementById('hwPlayBtn');
+    if (btn) btn.textContent = '▶ 처음부터';
   }
 
-  function _strokeAutoPlay() {
-    // 약간 딜레이 후 자동 시작
-    setTimeout(() => {
-      if (document.getElementById('strokeModal')) _strokePlay();
-    }, 300);
+  // ── 획 하나 렌더링 ────────────────────────────────────────
+  // animate: false = 즉시 표시 / true = 붓글씨 풀 애니 / 'step' = 빠른 드로우
+  function _kvgAddStroke(idx, animate, onComplete) {
+    if (!_strokeState) return;
+    const { paths, activeGroup, tipGroup, ns } = _strokeState;
+    const srcPath = paths[idx];
+    if (!srcPath) return;
+
+    const isActive = animate !== false;
+    const isFull   = animate === true;
+
+    // ── 메인 획 path ──────────────────────────────────────
+    const path = document.createElementNS(ns, 'path');
+    path.setAttribute('d', srcPath.getAttribute('d'));
+    path.setAttribute('stroke', isActive ? '#a78bfa' : '#6366f1');
+    path.setAttribute('stroke-width', isActive ? '5.5' : '3.8');
+    path.setAttribute('fill', 'none');
+    path.setAttribute('stroke-linecap', 'round');
+    path.setAttribute('stroke-linejoin', 'round');
+    path.style.opacity = isActive ? '1' : '0.55';
+    if (isActive) path.setAttribute('filter', 'url(#kvgInk)');
+    activeGroup.appendChild(path);
+
+    // 애니메이션 없음 → 즉시 완료
+    if (!animate) { if (onComplete) onComplete(); return; }
+
+    try {
+      const len = path.getTotalLength();
+      if (len <= 0) { if (onComplete) onComplete(); return; }
+
+      path.style.strokeDasharray  = len;
+      path.style.strokeDashoffset = len;
+
+      const DURATION = isFull ? Math.max(420, Math.min(len * 5.5, 780)) : 260;
+
+      // ── 붓끝 (이동하는 글로우 원) ─────────────────────
+      let tip = null;
+      if (isFull) {
+        tip = document.createElementNS(ns, 'circle');
+        tip.setAttribute('r', '4.5');
+        tip.setAttribute('fill', '#e9d5ff');
+        tip.setAttribute('filter', 'url(#kvgTipGlow)');
+        const sp = path.getPointAtLength(0);
+        tip.setAttribute('cx', sp.x);
+        tip.setAttribute('cy', sp.y);
+        tipGroup.appendChild(tip);
+      }
+
+      const startTime = performance.now();
+      const st = _strokeState;
+
+      function frame(now) {
+        if (!_strokeState || _strokeState !== st) return; // 패널 닫힘
+        const raw    = Math.min((now - startTime) / DURATION, 1);
+        const eased  = _easeOutCubic(raw);
+        const drawn  = len * eased;
+
+        path.style.strokeDashoffset = len - drawn;
+
+        // 붓끝 이동
+        if (tip) {
+          try {
+            const pt = path.getPointAtLength(Math.min(drawn, len - 0.1));
+            tip.setAttribute('cx', pt.x);
+            tip.setAttribute('cy', pt.y);
+          } catch { /* ignore */ }
+        }
+
+        if (raw < 1) {
+          st.animFrame = requestAnimationFrame(frame);
+        } else {
+          // 획 완료 처리
+          path.style.strokeDashoffset = '0';
+          st.animFrame = null;
+
+          if (tip) {
+            // 붓끝: 페이드 아웃 후 제거
+            tip.style.transition = 'opacity 0.25s';
+            tip.style.opacity    = '0';
+            setTimeout(() => { try { tip.remove(); } catch {} }, 260);
+          }
+          if (onComplete) onComplete();
+        }
+      }
+
+      st.animFrame = requestAnimationFrame(frame);
+
+    } catch {
+      // getTotalLength 미지원 fallback
+      path.style.strokeDasharray  = '';
+      path.style.strokeDashoffset = '';
+      if (onComplete) onComplete();
+    }
   }
+
+  function _updateHwCounter() {
+    const el = document.getElementById('hwCounter');
+    if (!el || !_strokeState) return;
+    const { total, stepIdx } = _strokeState;
+    el.textContent = stepIdx < 0
+      ? `총 ${total}획`
+      : `${stepIdx + 1} / ${total}획`;
+  }
+
+  function _strokeUpdateSVG() { /* KanjiVG 렌더러가 처리 */ }
+  function _strokeAutoPlay()  { /* KanjiVG 렌더러가 처리 */ }
 
   function _closeStrokePanel() {
-    if (_strokeState && _strokeState.timer) { clearInterval(_strokeState.timer); _strokeState.timer = null; }
+    if (_strokeState?.animTimer) clearTimeout(_strokeState.animTimer);
+    if (_strokeState?.animFrame) cancelAnimationFrame(_strokeState.animFrame);
     _strokeState = null;
     const m = document.getElementById('strokeModal');
-    if (m) m.remove();
+    if (m) {
+      m.classList.remove('open');
+      setTimeout(() => m.remove(), 250);
+    }
+  }
+
+  // ══════════════════════════════════════════════════════════
+  //  인라인 획순 — 카드 뒷면에 직접 표시 (팝업 없음)
+  // ══════════════════════════════════════════════════════════
+  let _inlineStrokeState = null;
+
+  async function _startInlineStroke(kana) {
+    _stopInlineStroke(); // 이전 상태 완전 초기화
+
+    const tgt = document.getElementById('kanaStrokeInline');
+    if (!tgt) return;
+
+    // AbortController: 카드 이동 시 진행 중인 fetch 취소
+    const ctrl = new AbortController();
+    _inlineStrokeState = { kana, ctrl, animTimer: null, animFrame: null };
+
+    const hex = kana.codePointAt(0).toString(16).padStart(5, '0');
+    const url = `https://raw.githubusercontent.com/KanjiVG/kanjivg/master/kanji/${hex}.svg`;
+
+    try {
+      const res = await fetch(url, { signal: ctrl.signal });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const svgText = await res.text();
+      // fetch 완료 시점에 여전히 같은 문자인지 확인
+      if (_inlineStrokeState?.kana !== kana) return;
+      _renderInlineKVG(svgText, kana);
+    } catch (e) {
+      if (e.name === 'AbortError') return; // 정상 취소 — 무시
+      // 데이터 없음 → 문자만 희미하게 표시
+      const el = document.getElementById('kanaStrokeInline');
+      if (el && _inlineStrokeState?.kana === kana) {
+        el.innerHTML = `<div style="font-size:52px;font-family:'Noto Sans JP',serif;
+          color:rgba(99,102,241,.2);line-height:1">${escHtml(kana)}</div>`;
+      }
+    }
+  }
+
+  function _renderInlineKVG(svgText, kana) {
+    const parser = new DOMParser();
+    const doc    = parser.parseFromString(svgText, 'image/svg+xml');
+
+    const strokePaths = [...doc.querySelectorAll('path[id]')]
+      .filter(p => /-s\d+$/.test(p.id))
+      .sort((a, b) =>
+        parseInt(a.id.match(/-s(\d+)$/)[1]) - parseInt(b.id.match(/-s(\d+)$/)[1]));
+
+    const tgt = document.getElementById('kanaStrokeInline');
+    if (!tgt || !strokePaths.length) return;
+    tgt.innerHTML = '';
+
+    const total = strokePaths.length;
+    const ns    = 'http://www.w3.org/2000/svg';
+
+    const svg = document.createElementNS(ns, 'svg');
+    svg.setAttribute('viewBox', '0 0 109 109');
+    svg.setAttribute('width',  '100%');
+    svg.setAttribute('height', '100%');
+    svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+
+    // ── SVG 필터 정의 ─────────────────────────────────────
+    const defs = document.createElementNS(ns, 'defs');
+    defs.innerHTML = `
+      <filter id="ilTipGlow" x="-80%" y="-80%" width="260%" height="260%">
+        <feGaussianBlur in="SourceGraphic" stdDeviation="2" result="b"/>
+        <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
+      <filter id="ilInk" x="-10%" y="-10%" width="120%" height="120%">
+        <feGaussianBlur in="SourceGraphic" stdDeviation="0.5" result="b"/>
+        <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>`;
+    svg.appendChild(defs);
+
+    // ── 가이드라인 (점선 십자) ─────────────────────────────
+    const guide = document.createElementNS(ns, 'g');
+    [[54.5,0,54.5,109],[0,54.5,109,54.5]].forEach(([x1,y1,x2,y2]) => {
+      const l = document.createElementNS(ns, 'line');
+      l.setAttribute('x1',x1); l.setAttribute('y1',y1);
+      l.setAttribute('x2',x2); l.setAttribute('y2',y2);
+      l.setAttribute('stroke','rgba(99,102,241,.12)');
+      l.setAttribute('stroke-width','1');
+      l.setAttribute('stroke-dasharray','3 4');
+      guide.appendChild(l);
+    });
+    svg.appendChild(guide);
+
+    // ── 회색 아웃라인 ────────────────────────────────────
+    const outlineG = document.createElementNS(ns, 'g');
+    strokePaths.forEach(p => {
+      const o = document.createElementNS(ns, 'path');
+      o.setAttribute('d', p.getAttribute('d'));
+      o.setAttribute('stroke', 'rgba(148,163,184,.2)');
+      o.setAttribute('stroke-width', '3.5');
+      o.setAttribute('fill', 'none');
+      o.setAttribute('stroke-linecap', 'round');
+      o.setAttribute('stroke-linejoin', 'round');
+      outlineG.appendChild(o);
+    });
+    svg.appendChild(outlineG);
+
+    // ── 활성 획 그룹 / 붓끝 그룹 ────────────────────────
+    const activeG = document.createElementNS(ns, 'g');
+    const tipG    = document.createElementNS(ns, 'g');
+    svg.appendChild(activeG);
+    svg.appendChild(tipG);
+    tgt.appendChild(svg);
+
+    // _inlineStrokeState 업데이트 (ctrl 유지)
+    Object.assign(_inlineStrokeState, {
+      total, stepIdx: -1,
+      paths: strokePaths, activeG, tipG, ns
+    });
+
+    // 자동 재생
+    _inlineStrokeState.animTimer = setTimeout(() => _inlinePlay(), 150);
+  }
+
+  // ── 자동/수동 재생 ──────────────────────────────────────
+  function _inlinePlay() {
+    if (!_inlineStrokeState?.paths) return;
+    const st = _inlineStrokeState;
+    if (st.animTimer) { clearTimeout(st.animTimer);       st.animTimer = null; }
+    if (st.animFrame) { cancelAnimationFrame(st.animFrame); st.animFrame = null; }
+
+    st.stepIdx = -1;
+    st.activeG.innerHTML = '';
+    st.tipG.innerHTML    = '';
+
+    function drawStroke(i) {
+      if (!_inlineStrokeState || _inlineStrokeState !== st) return;
+      if (i >= st.total) return; // 완료
+      st.stepIdx = i;
+      _inlineAddStroke(i, () => {
+        if (!_inlineStrokeState || _inlineStrokeState !== st) return;
+        st.animTimer = setTimeout(() => drawStroke(i + 1), 220);
+      });
+    }
+    drawStroke(0);
+  }
+
+  // 공개 — 🔄 버튼에서 호출
+  function _replayInlineStroke() { _inlinePlay(); }
+
+  // 카드 이동 / 앞면 복귀 시 호출
+  function _stopInlineStroke() {
+    if (_inlineStrokeState?.ctrl)      { try { _inlineStrokeState.ctrl.abort(); } catch {} }
+    if (_inlineStrokeState?.animTimer) clearTimeout(_inlineStrokeState.animTimer);
+    if (_inlineStrokeState?.animFrame) cancelAnimationFrame(_inlineStrokeState.animFrame);
+    _inlineStrokeState = null;
+  }
+
+  // ── 획 하나 그리기 (붓글씨 RAF 애니메이션) ──────────────
+  function _inlineAddStroke(idx, onComplete) {
+    if (!_inlineStrokeState) return;
+    const { paths, activeG, tipG, ns } = _inlineStrokeState;
+    const srcPath = paths[idx];
+    if (!srcPath) { if (onComplete) onComplete(); return; }
+
+    // 이전 획들 (완료된 것) — 연하게 남김
+    // 현재 획 — 진하게 + 붓글씨 애니
+    const path = document.createElementNS(ns, 'path');
+    path.setAttribute('d', srcPath.getAttribute('d'));
+    path.setAttribute('stroke', '#a78bfa');
+    path.setAttribute('stroke-width', '5.5');
+    path.setAttribute('fill', 'none');
+    path.setAttribute('stroke-linecap', 'round');
+    path.setAttribute('stroke-linejoin', 'round');
+    path.setAttribute('filter', 'url(#ilInk)');
+    activeG.appendChild(path);
+
+    // 이전 획들 색 낮추기
+    [...activeG.children].slice(0, -1).forEach(el => {
+      el.setAttribute('stroke', '#6366f1');
+      el.setAttribute('stroke-width', '4');
+      el.style.opacity = '0.55';
+      el.removeAttribute('filter');
+    });
+
+    try {
+      const len = path.getTotalLength();
+      if (len <= 0) { if (onComplete) onComplete(); return; }
+
+      path.style.strokeDasharray  = len;
+      path.style.strokeDashoffset = len;
+
+      // 획 길이에 비례한 재생 시간 (짧은 획은 빠르게, 긴 획은 느리게)
+      const DURATION = Math.max(350, Math.min(len * 5.2, 700));
+
+      // 붓끝 (이동하는 글로우 원)
+      const tip = document.createElementNS(ns, 'circle');
+      tip.setAttribute('r', '3.5');
+      tip.setAttribute('fill', '#e9d5ff');
+      tip.setAttribute('filter', 'url(#ilTipGlow)');
+      const sp = path.getPointAtLength(0);
+      tip.setAttribute('cx', sp.x);
+      tip.setAttribute('cy', sp.y);
+      tipG.appendChild(tip);
+
+      const startTime = performance.now();
+      const st = _inlineStrokeState;
+
+      function frame(now) {
+        if (!_inlineStrokeState || _inlineStrokeState !== st) return;
+        const raw   = Math.min((now - startTime) / DURATION, 1);
+        const eased = 1 - Math.pow(1 - raw, 3); // easeOutCubic
+        const drawn = len * eased;
+
+        path.style.strokeDashoffset = len - drawn;
+
+        try {
+          const pt = path.getPointAtLength(Math.min(drawn, len - 0.1));
+          tip.setAttribute('cx', pt.x);
+          tip.setAttribute('cy', pt.y);
+        } catch { /* ignore */ }
+
+        if (raw < 1) {
+          st.animFrame = requestAnimationFrame(frame);
+        } else {
+          path.style.strokeDashoffset = '0';
+          st.animFrame = null;
+          // 붓끝 페이드 아웃
+          tip.style.transition = 'opacity 0.2s';
+          tip.style.opacity    = '0';
+          setTimeout(() => { try { tip.remove(); } catch {} }, 220);
+          if (onComplete) onComplete();
+        }
+      }
+      st.animFrame = requestAnimationFrame(frame);
+
+    } catch {
+      path.style.strokeDasharray  = '';
+      path.style.strokeDashoffset = '';
+      if (onComplete) onComplete();
+    }
   }
 
   // ── TTS 설정 UI 빌더 ─────────────────────────────────────
@@ -3247,6 +3692,7 @@ window.App = (() => {
     _closeStrokePanel,
     _strokeStep,
     _strokePlay,
+    _replayInlineStroke,
   };
 })();
 
