@@ -1470,11 +1470,29 @@ body {
 }
 .dialogue-bubble .db-tip ruby rt { font-size: 9px; color: var(--warning); }
 .dialogue-bubble .db-audio {
-  font-size: 12px; color: var(--text3); cursor: pointer;
-  margin-top: 4px; display: inline-block;
-  transition: color var(--dur);
+  width: 28px;
+  height: 28px;
+  color: var(--text3);
+  cursor: pointer;
+  margin-top: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: rgba(255,255,255,.05);
+  border: 1px solid rgba(148,163,184,.18);
+  transition: color var(--dur), border-color var(--dur), background var(--dur), transform var(--dur);
 }
-.dialogue-bubble .db-audio:hover { color: var(--text2); }
+.dialogue-bubble .db-audio:hover {
+  color: var(--text);
+  background: rgba(99,102,241,.12);
+  border-color: rgba(129,140,248,.35);
+  transform: translateY(-1px);
+}
+.audio-inline-icon {
+  width: 14px;
+  height: 14px;
+}
 .dialogue-narrator {
   background: rgba(245,158,11,.08);
   border: 1px solid rgba(245,158,11,.2);
@@ -2250,6 +2268,10 @@ rt {
 .btn-replay-sent {
   background: var(--bg3);
   color: var(--text);
+}
+.btn-audio-icon {
+  width: 16px;
+  height: 16px;
 }
 
 .btn-primary {

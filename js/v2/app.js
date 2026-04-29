@@ -35,6 +35,7 @@ window.App = (() => {
       settings: `<svg viewBox="0 0 24 24" class="${cls}" aria-hidden="true"><circle cx="12" cy="12" r="3.2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M19 12a7 7 0 0 0-.1-1l2-1.5-2-3.4-2.4.7a7.4 7.4 0 0 0-1.8-1L14.4 3h-4.8l-.3 2.8a7.4 7.4 0 0 0-1.8 1l-2.4-.7-2 3.4 2 1.5a7 7 0 0 0 0 2l-2 1.5 2 3.4 2.4-.7a7.4 7.4 0 0 0 1.8 1l.3 2.8h4.8l.3-2.8a7.4 7.4 0 0 0 1.8-1l2.4.7 2-3.4-2-1.5c.1-.3.1-.7.1-1Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>`,
       trash: `<svg viewBox="0 0 24 24" class="${cls}" aria-hidden="true"><path d="M5 7h14M9 7V5.5h6V7M7.5 7l.8 11a1.5 1.5 0 0 0 1.5 1.4h4.4a1.5 1.5 0 0 0 1.5-1.4l.8-11" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
       voice: `<svg viewBox="0 0 24 24" class="${cls}" aria-hidden="true"><path d="M12 5a3.5 3.5 0 0 1 3.5 3.5v2A3.5 3.5 0 0 1 12 14a3.5 3.5 0 0 1-3.5-3.5v-2A3.5 3.5 0 0 1 12 5Z" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M6.5 11.5a5.5 5.5 0 0 0 11 0M12 17v2.5M9.3 19.5h5.4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>`,
+      audio: `<svg viewBox="0 0 24 24" class="${cls}" aria-hidden="true"><path d="M5 14.5V9.5h3.7L13.5 6v12l-4.8-3.5H5Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M16 9.5a4.2 4.2 0 0 1 0 5M18.5 7.5a7 7 0 0 1 0 9" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>`,
       tools: `<svg viewBox="0 0 24 24" class="${cls}" aria-hidden="true"><path d="m14.5 6.5 3 3M5 19l5.5-5.5M13 4a4 4 0 0 0 5.2 5.2L13 14.4l-3.4-3.4 5.2-5.2A4 4 0 0 0 13 4Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
       roleplay: `<svg viewBox="0 0 24 24" class="${cls}" aria-hidden="true"><path d="M5 7a2 2 0 0 1 2-2h6.5a2 2 0 0 1 2 2v4.5a2 2 0 0 1-2 2H10l-3 2.2V13.5H7a2 2 0 0 1-2-2V7Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M15.5 10.5h1.5a2 2 0 0 1 2 2V17l-2.5-1.8H15a2 2 0 0 1-2-2v-.7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>`,
       'stage-kana': `<svg viewBox="0 0 24 24" class="${cls}" aria-hidden="true"><path d="M6 5h12v14H6z" fill="none" stroke="currentColor" stroke-width="1.8" rx="2"/><path d="M9 9h6M9 13h6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="9" cy="17" r="1.2" fill="currentColor"/><circle cx="15" cy="17" r="1.2" fill="currentColor"/></svg>`,
@@ -2160,7 +2161,7 @@ window.App = (() => {
             <div class="db-jp">${ruby(line.japanese || '')}</div>
             <div class="db-ko">${escHtml(line.korean || '')}</div>
             ${line.tip ? `<div class="db-tip">${ruby(line.tip)}</div>` : ''}
-            <span class="db-audio" onclick="event.stopPropagation(); TTS.speak('${(line.japanese||'').replace(/'/g,"\\'")}')">🔊</span>
+            <span class="db-audio" onclick="event.stopPropagation(); TTS.speak('${(line.japanese||'').replace(/'/g,"\\'")}')">${_uiIconSvg('audio', 'audio-inline-icon')}</span>
           </div>
         </div>
       `;
@@ -2255,7 +2256,7 @@ window.App = (() => {
             <div class="db-jp">${ruby(line.japanese || '')}</div>
             <div class="db-ko">${escHtml(line.korean || '')}</div>
             ${line.tip ? `<div class="db-tip">${ruby(line.tip)}</div>` : ''}
-            <span class="db-audio" onclick="event.stopPropagation(); App._speakDialogueLine('${line.id}')">🔊</span>
+            <span class="db-audio" onclick="event.stopPropagation(); App._speakDialogueLine('${line.id}')">${_uiIconSvg('audio', 'audio-inline-icon')}</span>
           </div>
         </div>
       `;
@@ -2541,7 +2542,7 @@ window.App = (() => {
 
         <div class="detail-actions">
           <button class="btn btn-replay-sent" onclick="TTS.speak('${line.japanese.replace(/'/g,"\\\\'")}')">
-            🔊 다시 듣기
+            ${_uiIconSvg('audio', 'btn-audio-icon')} 다시 듣기
           </button>
           <button class="btn btn-primary" onclick="App.closeDialogueDetail()">
             확인했어요
@@ -2811,33 +2812,40 @@ window.App = (() => {
 
   // ── 퀴즈 정답/오답 이펙트 ────────────────────────────────
   function _playQuizEffect(isCorrect) {
-    // 사운드 (Web Audio API — 짧은 비프음)
+    // 사운드 (Web Audio API — 짧고 세련된 합성 톤)
     try {
       const ctx = new (window.AudioContext || window.webkitAudioContext)();
-      const osc  = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.connect(gain);
-      gain.connect(ctx.destination);
+      const master = ctx.createGain();
+      master.gain.setValueAtTime(0.0001, ctx.currentTime);
+      master.gain.linearRampToValueAtTime(isCorrect ? 0.22 : 0.18, ctx.currentTime + 0.02);
+      master.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + (isCorrect ? 0.42 : 0.34));
+      master.connect(ctx.destination);
+
+      const playVoice = (type, startFreq, endFreq, startAt, duration, gainAmount) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(startFreq, startAt);
+        if (endFreq !== startFreq) {
+          osc.frequency.exponentialRampToValueAtTime(endFreq, startAt + duration);
+        }
+        gain.gain.setValueAtTime(0.0001, startAt);
+        gain.gain.linearRampToValueAtTime(gainAmount, startAt + 0.015);
+        gain.gain.exponentialRampToValueAtTime(0.0001, startAt + duration);
+        osc.connect(gain);
+        gain.connect(master);
+        osc.start(startAt);
+        osc.stop(startAt + duration + 0.02);
+      };
 
       if (isCorrect) {
-        // 정답: C5 → E5 상승 2음
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(523, ctx.currentTime);
-        osc.frequency.setValueAtTime(659, ctx.currentTime + 0.12);
-        gain.gain.setValueAtTime(0.25, ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
-        osc.start(ctx.currentTime);
-        osc.stop(ctx.currentTime + 0.4);
+        playVoice('triangle', 740, 988, ctx.currentTime, 0.18, 0.16);
+        playVoice('sine', 1110, 1320, ctx.currentTime + 0.09, 0.16, 0.08);
       } else {
-        // 오답: 낮은 감소음
-        osc.type = 'sawtooth';
-        osc.frequency.setValueAtTime(240, ctx.currentTime);
-        osc.frequency.linearRampToValueAtTime(160, ctx.currentTime + 0.25);
-        gain.gain.setValueAtTime(0.18, ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
-        osc.start(ctx.currentTime);
-        osc.stop(ctx.currentTime + 0.3);
+        playVoice('sine', 320, 220, ctx.currentTime, 0.2, 0.14);
+        playVoice('triangle', 210, 170, ctx.currentTime + 0.06, 0.18, 0.07);
       }
+      setTimeout(() => { try { ctx.close(); } catch {} }, 520);
     } catch(e) { /* AudioContext 미지원 무시 */ }
 
     // 애니메이션
