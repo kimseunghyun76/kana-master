@@ -14,6 +14,39 @@ window.App = (() => {
   let _flowEl = null;             // flow screen DOM element
   let _autoNextTimer = null;      // timer for automatic next question
 
+  function _uiIconSvg(name, cls = '') {
+    const icons = {
+      home: `<svg viewBox="0 0 24 24" class="${cls}" aria-hidden="true"><path d="M4 10.5L12 4l8 6.5V20a1 1 0 0 1-1 1h-4.5v-6h-5v6H5a1 1 0 0 1-1-1v-9.5Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>`,
+      lesson: `<svg viewBox="0 0 24 24" class="${cls}" aria-hidden="true"><path d="M6 5.5A2.5 2.5 0 0 1 8.5 3H19v16H8.5A2.5 2.5 0 0 0 6 21V5.5Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M9.5 7.5H15.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M9.5 11.5H15.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>`,
+      practice: `<svg viewBox="0 0 24 24" class="${cls}" aria-hidden="true"><path d="M12 3l2.6 5.3 5.9.9-4.2 4.1 1 5.7L12 16.2 6.7 19l1-5.7L3.5 9.2l5.9-.9L12 3Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>`,
+      profile: `<svg viewBox="0 0 24 24" class="${cls}" aria-hidden="true"><circle cx="12" cy="8" r="3.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M5 19c1.6-3.3 4.1-4.9 7-4.9S17.4 15.7 19 19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>`,
+      'stage-kana': `<svg viewBox="0 0 24 24" class="${cls}" aria-hidden="true"><path d="M6 5h12v14H6z" fill="none" stroke="currentColor" stroke-width="1.8" rx="2"/><path d="M9 9h6M9 13h6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="9" cy="17" r="1.2" fill="currentColor"/><circle cx="15" cy="17" r="1.2" fill="currentColor"/></svg>`,
+      'stage-sprout': `<svg viewBox="0 0 24 24" class="${cls}" aria-hidden="true"><path d="M12 20V11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M12 11c0-3 2.4-5.5 5.4-5.5 0 3-2.4 5.5-5.4 5.5Z" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 14c0-3-2.4-5.5-5.4-5.5 0 3 2.4 5.5 5.4 5.5Z" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>`,
+      'stage-chat': `<svg viewBox="0 0 24 24" class="${cls}" aria-hidden="true"><path d="M5 6.5A2.5 2.5 0 0 1 7.5 4H18a2 2 0 0 1 2 2v7.2a2 2 0 0 1-2 2H11l-4 3v-3H7.5A2.5 2.5 0 0 1 5 12.7V6.5Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M9 9.5H16M9 12.5H14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>`,
+      'stage-briefcase': `<svg viewBox="0 0 24 24" class="${cls}" aria-hidden="true"><path d="M8 7V6a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M4 9.5A1.5 1.5 0 0 1 5.5 8h13A1.5 1.5 0 0 1 20 9.5v8A1.5 1.5 0 0 1 18.5 19h-13A1.5 1.5 0 0 1 4 17.5v-8Z" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M10 12h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>`,
+      'stage-ribbon': `<svg viewBox="0 0 24 24" class="${cls}" aria-hidden="true"><circle cx="12" cy="9" r="4.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M10 13.5 8 20l4-2 4 2-2-6.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>`,
+      'module-kana': `<svg viewBox="0 0 24 24" class="${cls}" aria-hidden="true"><rect x="5" y="4.5" width="14" height="15" rx="3" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M8.5 9H15.5M8.5 13H12.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>`,
+      'module-talk': `<svg viewBox="0 0 24 24" class="${cls}" aria-hidden="true"><path d="M5 7a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2h-5l-4 3v-3H7a2 2 0 0 1-2-2V7Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>`,
+      'module-map': `<svg viewBox="0 0 24 24" class="${cls}" aria-hidden="true"><path d="M7 5.5 12 3l5 2.5v15L12 18l-5 2.5v-15Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="12" cy="10.5" r="2.2" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>`,
+      'module-time': `<svg viewBox="0 0 24 24" class="${cls}" aria-hidden="true"><circle cx="12" cy="12" r="7.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 8v4l2.8 1.8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+      'module-order': `<svg viewBox="0 0 24 24" class="${cls}" aria-hidden="true"><path d="M5 15.5h14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M7 15.5c.7-4 3-6 5-6s4.3 2 5 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M9 9V6.5M15 9V6.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>`,
+      'module-health': `<svg viewBox="0 0 24 24" class="${cls}" aria-hidden="true"><rect x="5" y="7.5" width="14" height="11" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M10 7.5v-1a2 2 0 0 1 2-2h0a2 2 0 0 1 2 2v1" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 10v6M9 13h6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>`,
+      'module-work': `<svg viewBox="0 0 24 24" class="${cls}" aria-hidden="true"><path d="M8 7V6a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1" fill="none" stroke="currentColor" stroke-width="1.8"/><rect x="4.5" y="7" width="15" height="12" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M10 12h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>`,
+      'module-advanced': `<svg viewBox="0 0 24 24" class="${cls}" aria-hidden="true"><path d="M12 4l2 4 4.5.6-3.2 3.1.8 4.4L12 14l-4.1 2.1.8-4.4L5.5 8.6 10 8l2-4Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>`
+    };
+    return icons[name] || icons.module-kana;
+  }
+
+  function _getStageIconKey(stageId) {
+    return {
+      1: 'stage-kana',
+      2: 'stage-sprout',
+      3: 'stage-chat',
+      4: 'stage-briefcase',
+      5: 'stage-ribbon'
+    }[stageId] || 'stage-kana';
+  }
+
   // ── Init ─────────────────────────────────────────────────
   async function init() {
     await Store.load();
@@ -38,23 +71,31 @@ window.App = (() => {
 
   function _getModuleVisual(mod) {
     const map = {
-      kana_hira:         { image: 'images/ohayou.png',   focus: '문자 자동화', tone: 'violet' },
-      kana_kata:         { image: 'images/lucky_eight.png', focus: '가타카나 읽기', tone: 'violet' },
-      first_phrases:     { image: 'images/ohayou.png',   focus: '첫 인사', tone: 'violet' },
-      survival_greet:    { image: 'images/ohayou.png',   focus: '자기소개', tone: 'blue' },
-      survival_pointing: { image: 'images/kosoado.png',  focus: '지시어 감각', tone: 'blue' },
-      survival_numbers:  { image: 'images/horse_clock.png', focus: '숫자·시간', tone: 'blue' },
-      survival_location: { image: 'images/kosoado.png',  focus: '위치·존재', tone: 'blue' },
-      survival_transport:{ image: null,                  focus: '길 묻기', tone: 'blue' },
-      survival_food:     { image: null,                  focus: '주문·부탁', tone: 'blue' },
-      survival_shopping: { image: null,                  focus: '가격·비교', tone: 'blue' },
-      survival_hotel:    { image: null,                  focus: '숙박 요청', tone: 'blue' },
-      daily_adjectives:  { image: 'images/shiba.png',    focus: '동사 활용', tone: 'emerald' },
-      daily_feelings:    { image: null,                  focus: '형용사 표현', tone: 'emerald' },
-      daily_places:      { image: 'images/kosoado.png',  focus: '장소 설명', tone: 'emerald' },
-      daily_health:      { image: 'images/bird_fire.png',focus: '증상 설명', tone: 'emerald' }
+      kana_hira:         { image: 'assets/visuals/kana-grid.svg',       focus: '행 단위 문자 자동화', tone: 'violet', iconKey: 'module-kana' },
+      kana_kata:         { image: 'assets/visuals/kana-grid.svg',       focus: '외래어 읽기 기반', tone: 'violet', iconKey: 'module-kana' },
+      first_phrases:     { image: 'assets/visuals/greeting-bridge.svg', focus: '첫 인사 패턴', tone: 'violet', iconKey: 'module-talk' },
+      survival_greet:    { image: 'assets/visuals/greeting-bridge.svg', focus: '자기소개', tone: 'blue', iconKey: 'module-talk' },
+      survival_pointing: { image: 'assets/visuals/pointer-map.svg',     focus: '지시어 감각', tone: 'blue', iconKey: 'module-map' },
+      survival_numbers:  { image: 'assets/visuals/time-route.svg',      focus: '숫자·시간', tone: 'blue', iconKey: 'module-time' },
+      survival_location: { image: 'assets/visuals/pointer-map.svg',     focus: '위치·존재', tone: 'blue', iconKey: 'module-map' },
+      survival_transport:{ image: 'assets/visuals/time-route.svg',      focus: '길 묻기', tone: 'blue', iconKey: 'module-map' },
+      survival_food:     { image: 'assets/visuals/order-tray.svg',      focus: '주문·부탁', tone: 'blue', iconKey: 'module-order' },
+      survival_shopping: { image: 'assets/visuals/pointer-map.svg',     focus: '가격·비교', tone: 'blue', iconKey: 'module-map' },
+      survival_hotel:    { image: 'assets/visuals/order-tray.svg',      focus: '숙박 요청', tone: 'blue', iconKey: 'module-talk' },
+      daily_adjectives:  { image: 'assets/visuals/business-board.svg',  focus: '동사 활용', tone: 'emerald', iconKey: 'module-talk' },
+      daily_feelings:    { image: 'assets/visuals/greeting-bridge.svg', focus: '형용사 표현', tone: 'emerald', iconKey: 'module-talk' },
+      daily_places:      { image: 'assets/visuals/pointer-map.svg',     focus: '장소 설명', tone: 'emerald', iconKey: 'module-map' },
+      daily_health:      { image: 'assets/visuals/health-kit.svg',      focus: '증상 설명', tone: 'emerald', iconKey: 'module-health' },
+      it_tech_vocab:     { image: 'assets/visuals/business-board.svg',  focus: 'IT 기초 어휘', tone: 'slate', iconKey: 'module-work' },
+      it_workplace_vocab:{ image: 'assets/visuals/business-board.svg',  focus: '조직·직장', tone: 'slate', iconKey: 'module-work' },
+      biz_basic:         { image: 'assets/visuals/business-board.svg',  focus: '비즈니스 표현', tone: 'slate', iconKey: 'module-work' },
+      biz_meeting:       { image: 'assets/visuals/business-board.svg',  focus: '회의·의견', tone: 'slate', iconKey: 'module-work' },
+      biz_1on1:          { image: 'assets/visuals/business-board.svg',  focus: '1on1 대화', tone: 'slate', iconKey: 'module-work' },
+      biz_intro:         { image: 'assets/visuals/greeting-bridge.svg', focus: '입사 소개', tone: 'slate', iconKey: 'module-work' },
+      biz_spec:          { image: 'assets/visuals/business-board.svg',  focus: '사양 확인', tone: 'slate', iconKey: 'module-work' },
+      adv_keigo:         { image: 'assets/visuals/advanced-ribbon.svg', focus: '경어 마스터', tone: 'slate', iconKey: 'module-advanced' }
     };
-    return map[mod?.id] || { image: null, focus: '실전 학습', tone: 'slate' };
+    return map[mod?.id] || { image: 'assets/visuals/advanced-ribbon.svg', focus: '실전 학습', tone: 'slate', iconKey: 'module-advanced' };
   }
 
   // ── Build Shell UI ────────────────────────────────────────
@@ -104,19 +145,19 @@ window.App = (() => {
       <!-- Bottom Nav -->
       <nav class="bottom-nav" id="bottomNav">
         <button class="nav-btn active" data-tab="home">
-          <span class="nav-icon">🏠</span>
+          <span class="nav-icon">${_uiIconSvg('home', 'nav-icon-svg')}</span>
           <span class="nav-label">홈</span>
         </button>
         <button class="nav-btn" data-tab="lesson">
-          <span class="nav-icon">📘</span>
+          <span class="nav-icon">${_uiIconSvg('lesson', 'nav-icon-svg')}</span>
           <span class="nav-label">레슨</span>
         </button>
         <button class="nav-btn" data-tab="practice">
-          <span class="nav-icon">🎯</span>
+          <span class="nav-icon">${_uiIconSvg('practice', 'nav-icon-svg')}</span>
           <span class="nav-label">연습</span>
         </button>
         <button class="nav-btn" data-tab="profile">
-          <span class="nav-icon">👤</span>
+          <span class="nav-icon">${_uiIconSvg('profile', 'nav-icon-svg')}</span>
           <span class="nav-label">나</span>
         </button>
       </nav>
@@ -205,6 +246,7 @@ window.App = (() => {
         <div class="continue-banner" onclick="App.openModule('${next.mod.id}', ${next.roleplay ? 'true' : 'false'})">
           <div class="continue-visual ${visual.tone}">
             ${visual.image ? `<img src="${visual.image}" alt="${escHtml(next.mod.name)}">` : `<span>${escHtml(next.mod.icon)}</span>`}
+            <div class="visual-badge">${_uiIconSvg(visual.iconKey, 'visual-badge-svg')}</div>
           </div>
           <div class="continue-label">계속 학습하기</div>
           <div class="continue-module">${escHtml(title)}</div>
@@ -291,7 +333,7 @@ window.App = (() => {
              onclick="${!locked ? `App.switchTab('lesson')` : ''}">
           <div class="stage-header">
             <div class="stage-icon-wrap">
-              <span style="font-size:26px">${stage.icon}</span>
+              ${_uiIconSvg(_getStageIconKey(stage.id), 'stage-icon-svg')}
             </div>
             <div class="stage-meta">
               <div class="stage-name">STAGE ${stage.id}: ${escHtml(stage.name)}</div>
@@ -364,9 +406,7 @@ window.App = (() => {
                onclick="${!modLocked ? `App.openModule('${mod.id}')` : ''}">
             <div class="module-visual ${visual.tone}">
               ${visual.image ? `<img src="${visual.image}" alt="${escHtml(mod.name)}">` : `<span class="module-visual-emoji">${escHtml(mod.icon)}</span>`}
-            </div>
-            <div class="module-icon" style="${mod.iconIsText ? 'font-size:24px;' : ''}">
-              ${escHtml(mod.icon)}
+              <div class="visual-badge">${_uiIconSvg(visual.iconKey, 'visual-badge-svg')}</div>
             </div>
             <div class="module-info">
               <div class="module-name">${escHtml(mod.name)}</div>
@@ -774,6 +814,55 @@ window.App = (() => {
     document.getElementById('flowProgressFill').style.width = pct + '%';
   }
 
+  function _isKanaBasicLevel(levelId) {
+    return [1, 2, 3, 4, 8, 9, 10, 11].includes(levelId);
+  }
+
+  function _isKanaReviewLevel(levelId) {
+    return [5, 15, 16].includes(levelId);
+  }
+
+  function _getKanaAllowedExampleChars(level) {
+    if (!level) return null;
+    if (level.type === 'hiragana' && level.id >= 1 && level.id <= 4) {
+      return new Set(LEVELS.filter(l => l.type === 'hiragana' && l.id >= 1 && l.id <= level.id).flatMap(l => l.chars));
+    }
+    if (level.type === 'katakana' && level.id >= 8 && level.id <= 11) {
+      return new Set(LEVELS.filter(l => l.type === 'katakana' && l.id >= 8 && l.id <= level.id).flatMap(l => l.chars));
+    }
+    return null;
+  }
+
+  function _isBeginnerSafeKanaWord(word, allowedChars) {
+    const clean = stripFuri(word || '');
+    if (!clean || clean.length > 3) return false;
+    if (/[っッゃゅょぁぃぅぇぉャュョァィゥェォー]/.test(clean)) return false;
+    return Array.from(clean).every(ch => allowedChars?.has(ch));
+  }
+
+  function _getKanaExamplesForCard(char, level) {
+    const info = KANA_MAP[char] || {};
+    const allExamples = info.examples || [];
+    if (!_isKanaBasicLevel(level?.id)) return allExamples.slice(0, 3);
+    const allowedChars = _getKanaAllowedExampleChars(level);
+    const filtered = allExamples.filter(ex => _isBeginnerSafeKanaWord(ex.word, allowedChars));
+    return (filtered.length ? filtered : allExamples.slice(0, 2)).slice(0, 3);
+  }
+
+  const _KANA_CONFUSION_GROUPS = [
+    ['あ','お'], ['き','さ'], ['ぬ','め'], ['れ','ね'], ['わ','れ'], ['は','ほ'], ['る','ろ'],
+    ['ア','マ'], ['シ','ツ'], ['ソ','ン'], ['ク','ケ'], ['コ','ユ'], ['フ','ワ'], ['ヌ','メ']
+  ];
+
+  function _getKanaDistractors(char, info, allChars, count = 3) {
+    const confusionPool = _KANA_CONFUSION_GROUPS
+      .filter(group => group.includes(char))
+      .flatMap(group => group.filter(item => item !== char));
+    const sameTypePool = allChars.filter(k => k !== char && KANA_MAP[k].type === info.type);
+    const merged = [...new Set([...confusionPool, ...shuffle(sameTypePool)])];
+    return merged.slice(0, count);
+  }
+
   // ── Kana Learn ────────────────────────────────────────────
   function _renderKanaLearn(mod, step, stepIndex) {
     const level = LEVELS.find(l => l.id === step.levelId);
@@ -796,7 +885,7 @@ window.App = (() => {
       const c = st.chars[st.cardIdx];
       const safeC = c.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
       const info = KANA_MAP[c] || {};
-      const examples = (info.examples || []).slice(0, 3)
+      const examples = _getKanaExamplesForCard(c, st.level)
         .map(ex => `<div class="kana-ex-pill">
           <span class="ex-word">${escHtml(ex.word)}</span>
           <span style="color:var(--text3)"> — </span>${escHtml(ex.meaning)}
@@ -806,9 +895,12 @@ window.App = (() => {
         .replace('hiragana_dakuten','히라가나 탁음')
         .replace('hiragana_yoon','히라가나 요음')
         .replace('hiragana','히라가나')
+        .replace('katakana_extended','확장 가타가나')
         .replace('katakana_dakuten','가타가나 탁음')
         .replace('katakana_yoon','가타가나 요음')
         .replace('katakana','가타가나')
+        .replace('special','특수 박자')
+        .replace('particle','조사 읽기')
         .replace('mixed_review','오늘의 복습');
 
       document.getElementById('flowBody').innerHTML = `
@@ -936,7 +1028,8 @@ window.App = (() => {
     const level = LEVELS.find(l => l.id === step.levelId);
     const sourceChars = step.chars?.length ? step.chars : level?.chars;
     if (!sourceChars?.length) { _advanceStep(); return; }
-    const chars = shuffle(sourceChars).slice(0, Math.min(20, sourceChars.length));
+    const maxQuestions = _isKanaReviewLevel(level?.id) ? Math.min(20, sourceChars.length) : sourceChars.length;
+    const chars = shuffle(sourceChars).slice(0, maxQuestions);
 
     // renderQ는 반드시 _flow._kanaQuiz에서 읽어야 다음 문제로 넘어감 (클로저 버그 방지)
     function renderQ() {
@@ -961,7 +1054,8 @@ window.App = (() => {
       const info = KANA_MAP[c] || {};
       // Build choices: 1 correct + 3 random distractors
       const allChars = Object.keys(KANA_MAP).filter(k => k !== c && KANA_MAP[k].type === info.type);
-      const distractors = sample(allChars, 3).map(k => ({ kana: k, korean: KANA_MAP[k].korean, romaji: KANA_MAP[k].romaji }));
+      const distractors = _getKanaDistractors(c, info, allChars, 3)
+        .map(k => ({ kana: k, korean: KANA_MAP[k].korean, romaji: KANA_MAP[k].romaji }));
       const choices = shuffle([
         { kana: c, korean: info.korean, romaji: info.romaji, correct: true },
         ...distractors.map(d => ({ ...d, correct: false }))
