@@ -104,7 +104,43 @@ body {
   align-items: center;
   gap: 4px;
 }
-.stat-pill .emoji { font-size: 15px; }
+.ui-icon-wrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.stat-pill-icon {
+  width: 16px;
+  height: 16px;
+}
+.section-title-row,
+.stat-name-row,
+.ps-name-row,
+.lesson-stage-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.section-title-icon,
+.mini-stat-icon,
+.lesson-stage-icon,
+.badge-icon,
+.stage-tag-icon,
+.mission-icon-svg,
+.mission-status-icon,
+.module-status-icon-svg,
+.rp-icon-svg,
+.rp-lock-icon,
+.pi-icon-svg,
+.pi-lock-icon,
+.profile-avatar-svg,
+.settings-row-icon,
+.settings-state-icon {
+  width: 16px;
+  height: 16px;
+}
+.mini-stat-icon { width: 14px; height: 14px; }
 
 /* ── Main Content Area ───────────────────────────────────── */
 .app-main {
@@ -185,6 +221,39 @@ body {
 }
 .continue-banner:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(99,102,241,.5); }
 .continue-banner:active { transform: scale(.97); }
+.welcome-card {
+  margin: 16px;
+  background: linear-gradient(135deg, #161b33, #232b4d);
+  border: 1px solid rgba(148, 163, 184, .18);
+  border-radius: 24px;
+  padding: 24px;
+  text-align: center;
+  box-shadow: 0 18px 48px rgba(15, 23, 42, .32);
+}
+.welcome-visual {
+  width: 112px;
+  height: 112px;
+  margin: 0 auto 16px;
+  position: relative;
+  border-radius: 28px;
+  background: linear-gradient(145deg, rgba(255,255,255,.98), rgba(241,245,249,.94));
+  border: 1px solid rgba(255,255,255,.28);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.welcome-visual img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 12px;
+}
+.welcome-title {
+  font-size: 20px;
+  font-weight: 800;
+  margin-bottom: 8px;
+}
 .continue-banner::before {
   content: '';
   position: absolute; inset: 0;
@@ -270,6 +339,23 @@ body {
   border-radius: 2px;
   transition: width .6s var(--ease);
 }
+.mission-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  background: rgba(255,255,255,.04);
+  border: 1px solid var(--border);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent2);
+}
+.mission-status {
+  color: var(--text3);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
 
 /* Stats Row */
 .stats-row {
@@ -299,6 +385,11 @@ body {
   color: var(--text3);
   text-transform: uppercase;
   padding: 0 16px 10px;
+}
+.stage-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .stage-map { padding: 0 16px; display: flex; flex-direction: column; gap: 12px; }
@@ -407,6 +498,9 @@ body {
   padding: 2px 8px;
   border-radius: 20px;
   margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .module-list { padding: 0 12px; display: flex; flex-direction: column; gap: 8px; }
@@ -485,6 +579,7 @@ body {
   display: flex; align-items: center; justify-content: center;
   font-size: 14px;
   flex-shrink: 0;
+  color: var(--text2);
 }
 .module-status.done { background: rgba(16,185,129,.15); }
 .module-status.lock { background: var(--bg3); }
@@ -505,11 +600,23 @@ body {
 }
 .roleplay-card.locked { opacity: .4; cursor: not-allowed; }
 .roleplay-card:not(.locked):hover { background: rgba(239,68,68,.1); border-color: rgba(239,68,68,.4); }
-.roleplay-card .rp-icon { font-size: 20px; }
+.roleplay-card .rp-icon,
+.roleplay-card .rp-lock {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.roleplay-card .rp-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  background: rgba(99,102,241,.12);
+  color: var(--accent2);
+}
 .roleplay-card .rp-info { flex: 1; }
 .roleplay-card .rp-name { font-size: 13px; font-weight: 700; }
 .roleplay-card .rp-hint { font-size: 11px; color: var(--text3); margin-top: 1px; }
-.roleplay-card .rp-lock { font-size: 14px; color: var(--text3); }
+.roleplay-card .rp-lock { color: var(--text3); }
 
 /* ============================================================
    PRACTICE VIEW
@@ -529,12 +636,28 @@ body {
 .practice-item.locked { opacity: .4; cursor: not-allowed; }
 .practice-item:not(.locked):hover { transform: translateY(-2px); border-color: var(--accent); }
 .practice-item:not(.locked):active { transform: scale(.95); }
-.practice-item .pi-icon { font-size: 32px; margin-bottom: 10px; }
+.practice-item .pi-icon {
+  width: 54px;
+  height: 54px;
+  margin: 0 auto 10px;
+  border-radius: 18px;
+  background: rgba(255,255,255,.04);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent2);
+}
+.practice-item .pi-icon-text {
+  font-size: 26px;
+  font-family: 'Noto Sans JP', serif;
+  font-weight: 700;
+}
 .practice-item .pi-name { font-size: 13px; font-weight: 700; }
 .practice-item .pi-stage { font-size: 10px; color: var(--text3); margin-top: 4px; }
 .practice-item .pi-lock {
   position: absolute; top: 10px; right: 10px;
-  font-size: 12px; color: var(--text3);
+  color: var(--text3);
 }
 .practice-section-title {
   padding: 16px 16px 8px;
@@ -558,7 +681,11 @@ body {
   border-radius: 50%;
   margin: 0 auto 12px;
   display: flex; align-items: center; justify-content: center;
-  font-size: 36px;
+  color: #fff;
+}
+.profile-avatar-svg {
+  width: 34px;
+  height: 34px;
 }
 .profile-name { font-size: 20px; font-weight: 700; }
 .profile-level { font-size: 13px; color: var(--text2); margin-top: 4px; }
@@ -587,6 +714,9 @@ body {
   letter-spacing: 1px; color: var(--text3);
   text-transform: uppercase;
   margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 /* Streak calendar */
@@ -623,9 +753,23 @@ body {
 }
 .settings-item:last-child { border-bottom: none; }
 .settings-item:hover { background: var(--bg3); }
-.settings-item .si-icon { font-size: 18px; width: 28px; }
+.settings-item .si-icon {
+  width: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text2);
+}
 .settings-item .si-label { flex: 1; font-size: 14px; }
-.settings-item .si-arrow { color: var(--text3); font-size: 12px; }
+.settings-item .si-arrow {
+  color: var(--text3);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.settings-state-icon.muted {
+  opacity: .45;
+}
 
 /* ============================================================
    LEARNING FLOW (Full-screen overlay)

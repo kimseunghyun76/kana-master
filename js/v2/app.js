@@ -20,6 +20,23 @@ window.App = (() => {
       lesson: `<svg viewBox="0 0 24 24" class="${cls}" aria-hidden="true"><path d="M6 5.5A2.5 2.5 0 0 1 8.5 3H19v16H8.5A2.5 2.5 0 0 0 6 21V5.5Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M9.5 7.5H15.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M9.5 11.5H15.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>`,
       practice: `<svg viewBox="0 0 24 24" class="${cls}" aria-hidden="true"><path d="M12 3l2.6 5.3 5.9.9-4.2 4.1 1 5.7L12 16.2 6.7 19l1-5.7L3.5 9.2l5.9-.9L12 3Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>`,
       profile: `<svg viewBox="0 0 24 24" class="${cls}" aria-hidden="true"><circle cx="12" cy="8" r="3.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M5 19c1.6-3.3 4.1-4.9 7-4.9S17.4 15.7 19 19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>`,
+      xp: `<svg viewBox="0 0 24 24" class="${cls}" aria-hidden="true"><path d="M13 2 5 13h5l-1 9 8-11h-5l1-9Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>`,
+      streak: `<svg viewBox="0 0 24 24" class="${cls}" aria-hidden="true"><path d="M13.2 2.8c.6 2.6-.2 4.7-2.5 6.5-2 1.6-2.9 3.4-2.9 5.5 0 3 2 5.2 5 5.2s5.2-2.4 5.2-5.6c0-2.8-1.4-5-4.2-6.9.1 1.6-.5 2.8-1.8 3.8.3-2.6-.5-4.9-2.4-7.1.1-.4.2-.9.2-1.4Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>`,
+      target: `<svg viewBox="0 0 24 24" class="${cls}" aria-hidden="true"><circle cx="12" cy="12" r="7.5" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="3.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 4v3M20 12h-3M12 20v-3M4 12h3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>`,
+      check: `<svg viewBox="0 0 24 24" class="${cls}" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="m8.5 12.2 2.4 2.4 4.7-5.1" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+      progress: `<svg viewBox="0 0 24 24" class="${cls}" aria-hidden="true"><path d="M5 12h14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="m13 7 5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+      lock: `<svg viewBox="0 0 24 24" class="${cls}" aria-hidden="true"><rect x="5" y="10" width="14" height="10" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M8 10V7.8A4 4 0 0 1 12 4a4 4 0 0 1 4 3.8V10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>`,
+      book: `<svg viewBox="0 0 24 24" class="${cls}" aria-hidden="true"><path d="M6 5.5A2.5 2.5 0 0 1 8.5 3H19v16H8.5A2.5 2.5 0 0 0 6 21V5.5Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M8.8 7.5h6M8.8 11h6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>`,
+      quiz: `<svg viewBox="0 0 24 24" class="${cls}" aria-hidden="true"><circle cx="12" cy="18" r="1.2" fill="currentColor"/><path d="M9.2 9a2.8 2.8 0 1 1 4.5 2.2c-.9.7-1.5 1.3-1.5 2.3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>`,
+      headphones: `<svg viewBox="0 0 24 24" class="${cls}" aria-hidden="true"><path d="M5 13a7 7 0 0 1 14 0" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><rect x="4.5" y="12" width="3.5" height="6.5" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.8"/><rect x="16" y="12" width="3.5" height="6.5" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>`,
+      mic: `<svg viewBox="0 0 24 24" class="${cls}" aria-hidden="true"><rect x="9" y="4" width="6" height="10" rx="3" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M6.5 10.5v.7A5.5 5.5 0 0 0 12 16.7a5.5 5.5 0 0 0 5.5-5.5v-.7M12 16.7V20M9.3 20h5.4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>`,
+      calendar: `<svg viewBox="0 0 24 24" class="${cls}" aria-hidden="true"><rect x="4" y="5.5" width="16" height="14.5" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M8 3.8v3.4M16 3.8v3.4M4 9.5h16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>`,
+      grid: `<svg viewBox="0 0 24 24" class="${cls}" aria-hidden="true"><rect x="4.5" y="4.5" width="6" height="6" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.8"/><rect x="13.5" y="4.5" width="6" height="6" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.8"/><rect x="4.5" y="13.5" width="6" height="6" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.8"/><rect x="13.5" y="13.5" width="6" height="6" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>`,
+      settings: `<svg viewBox="0 0 24 24" class="${cls}" aria-hidden="true"><circle cx="12" cy="12" r="3.2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M19 12a7 7 0 0 0-.1-1l2-1.5-2-3.4-2.4.7a7.4 7.4 0 0 0-1.8-1L14.4 3h-4.8l-.3 2.8a7.4 7.4 0 0 0-1.8 1l-2.4-.7-2 3.4 2 1.5a7 7 0 0 0 0 2l-2 1.5 2 3.4 2.4-.7a7.4 7.4 0 0 0 1.8 1l.3 2.8h4.8l.3-2.8a7.4 7.4 0 0 0 1.8-1l2.4.7 2-3.4-2-1.5c.1-.3.1-.7.1-1Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>`,
+      trash: `<svg viewBox="0 0 24 24" class="${cls}" aria-hidden="true"><path d="M5 7h14M9 7V5.5h6V7M7.5 7l.8 11a1.5 1.5 0 0 0 1.5 1.4h4.4a1.5 1.5 0 0 0 1.5-1.4l.8-11" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+      voice: `<svg viewBox="0 0 24 24" class="${cls}" aria-hidden="true"><path d="M12 5a3.5 3.5 0 0 1 3.5 3.5v2A3.5 3.5 0 0 1 12 14a3.5 3.5 0 0 1-3.5-3.5v-2A3.5 3.5 0 0 1 12 5Z" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M6.5 11.5a5.5 5.5 0 0 0 11 0M12 17v2.5M9.3 19.5h5.4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>`,
+      tools: `<svg viewBox="0 0 24 24" class="${cls}" aria-hidden="true"><path d="m14.5 6.5 3 3M5 19l5.5-5.5M13 4a4 4 0 0 0 5.2 5.2L13 14.4l-3.4-3.4 5.2-5.2A4 4 0 0 0 13 4Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+      roleplay: `<svg viewBox="0 0 24 24" class="${cls}" aria-hidden="true"><path d="M5 7a2 2 0 0 1 2-2h6.5a2 2 0 0 1 2 2v4.5a2 2 0 0 1-2 2H10l-3 2.2V13.5H7a2 2 0 0 1-2-2V7Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M15.5 10.5h1.5a2 2 0 0 1 2 2V17l-2.5-1.8H15a2 2 0 0 1-2-2v-.7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>`,
       'stage-kana': `<svg viewBox="0 0 24 24" class="${cls}" aria-hidden="true"><path d="M6 5h12v14H6z" fill="none" stroke="currentColor" stroke-width="1.8" rx="2"/><path d="M9 9h6M9 13h6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="9" cy="17" r="1.2" fill="currentColor"/><circle cx="15" cy="17" r="1.2" fill="currentColor"/></svg>`,
       'stage-sprout': `<svg viewBox="0 0 24 24" class="${cls}" aria-hidden="true"><path d="M12 20V11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M12 11c0-3 2.4-5.5 5.4-5.5 0 3-2.4 5.5-5.4 5.5Z" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 14c0-3-2.4-5.5-5.4-5.5 0 3 2.4 5.5 5.4 5.5Z" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>`,
       'stage-chat': `<svg viewBox="0 0 24 24" class="${cls}" aria-hidden="true"><path d="M5 6.5A2.5 2.5 0 0 1 7.5 4H18a2 2 0 0 1 2 2v7.2a2 2 0 0 1-2 2H11l-4 3v-3H7.5A2.5 2.5 0 0 1 5 12.7V6.5Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M9 9.5H16M9 12.5H14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>`,
@@ -45,6 +62,10 @@ window.App = (() => {
       4: 'stage-briefcase',
       5: 'stage-ribbon'
     }[stageId] || 'stage-kana';
+  }
+
+  function _uiIconWrap(name, cls = 'ui-icon') {
+    return `<span class="ui-icon-wrap">${_uiIconSvg(name, cls)}</span>`;
   }
 
   // ── Init ─────────────────────────────────────────────────
@@ -112,11 +133,11 @@ window.App = (() => {
         </div>
         <div class="header-right">
           <div class="stat-pill" id="xpPill">
-            <span class="emoji">⚡</span>
+            ${_uiIconWrap('xp', 'stat-pill-icon')}
             <span id="headerXP">0</span> XP
           </div>
           <div class="stat-pill" id="streakPill">
-            <span class="emoji">🔥</span>
+            ${_uiIconWrap('streak', 'stat-pill-icon')}
             <span id="headerStreak">0</span>
           </div>
         </div>
@@ -218,18 +239,20 @@ window.App = (() => {
     // ── First Visit Welcome ────────────────────────────────
     if (isFirstVisit) {
       html += `
-        <div style="margin:16px;background:linear-gradient(135deg,#1e1b4b,#312e81);
-                    border:1px solid rgba(139,92,246,.4);border-radius:20px;padding:24px;text-align:center">
-          <div style="font-size:56px;margin-bottom:12px">🇯🇵</div>
-          <div style="font-size:20px;font-weight:800;margin-bottom:8px">일본어 마스터에 오신걸 환영해요!</div>
+        <div class="welcome-card">
+          <div class="welcome-visual">
+            <img src="assets/visuals/kana-grid.svg" alt="히라가나 시작 안내">
+            <div class="visual-badge">${_uiIconSvg('module-kana', 'visual-badge-svg')}</div>
+          </div>
+          <div class="welcome-title">일본어 마스터에 오신 걸 환영합니다</div>
           <div style="font-size:14px;color:var(--text2);line-height:1.6;margin-bottom:20px">
             히라가나부터 IT 비즈니스 일본어까지<br>
-            단계별로 <b style="color:var(--accent2)">각개 격파</b>하는 학습 시스템이에요.<br>
-            먼저 히라가나부터 시작해 볼까요? 😊
+            단계별로 <b style="color:var(--accent2)">차근차근 쌓아 가는</b> 학습 시스템입니다.<br>
+            가장 중요한 첫걸음인 히라가나부터 시작해 볼까요?
           </div>
           <button class="btn btn-primary" onclick="App.openModule('kana_hira')"
                   style="border-radius:20px;padding:14px 32px;font-size:16px">
-            🔤 히라가나 시작하기
+            히라가나 시작하기
           </button>
         </div>
       `;
@@ -239,7 +262,7 @@ window.App = (() => {
     if (next && !isFirstVisit) {
       const stage = STAGES.find(s => s.id === next.mod.stageId);
       const pct = getModuleProgressPct(next.mod.id, prog);
-      const title = next.roleplay ? `🎭 ${next.mod.roleplay.name}` : next.mod.name;
+      const title = next.roleplay ? next.mod.roleplay.name : next.mod.name;
       const sub = `STAGE ${stage.id}: ${stage.name}`;
       const visual = _getModuleVisual(next.mod);
       html += `
@@ -262,7 +285,7 @@ window.App = (() => {
       html += `
         <div class="continue-banner" style="cursor:default;">
           <div class="continue-label">오늘의 학습</div>
-          <div class="continue-module">🎉 모든 레슨 완료!</div>
+          <div class="continue-module">오늘의 레슨을 모두 마쳤습니다</div>
           <div class="continue-stage">계속 연습하거나 심화 학습을 이어가세요</div>
         </div>
       `;
@@ -274,8 +297,9 @@ window.App = (() => {
       const completedMissions = missions.filter(m => m.done).length;
       html += `
         <div style="margin:0 16px 4px">
-          <div class="section-title" style="padding:0 0 10px">
-            🎯 오늘의 미션 · ${completedMissions}/${missions.length}
+          <div class="section-title section-title-row" style="padding:0 0 10px">
+            ${_uiIconWrap('target', 'section-title-icon')}
+            오늘의 미션 · ${completedMissions}/${missions.length}
           </div>
           <div style="display:flex;flex-direction:column;gap:8px">
             ${missions.map(m => `
@@ -283,12 +307,12 @@ window.App = (() => {
                            border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:12px;
                            cursor:${m.action ? 'pointer' : 'default'}"
                    onclick="${m.action || ''}">
-                <span style="font-size:22px">${m.icon}</span>
+                <span class="mission-icon">${_uiIconSvg(m.iconKey, 'mission-icon-svg')}</span>
                 <div style="flex:1">
                   <div style="font-size:13px;font-weight:700;${m.done ? 'text-decoration:line-through;color:var(--text3)' : ''}">${escHtml(m.title)}</div>
                   <div style="font-size:11px;color:var(--text3);margin-top:2px">${escHtml(m.desc)}</div>
                 </div>
-                <span style="font-size:18px">${m.done ? '✅' : '→'}</span>
+                <span class="mission-status">${_uiIconSvg(m.done ? 'check' : 'progress', 'mission-status-icon')}</span>
               </div>
             `).join('')}
           </div>
@@ -307,15 +331,15 @@ window.App = (() => {
         <div class="stats-row" style="margin-top:16px">
           <div class="stat-card streak">
             <div class="stat-num">${prog.streak}</div>
-            <div class="stat-name">🔥 연속 일수</div>
+            <div class="stat-name stat-name-row">${_uiIconWrap('streak', 'mini-stat-icon')}연속 일수</div>
           </div>
           <div class="stat-card xp">
             <div class="stat-num">${_formatNum(prog.xp)}</div>
-            <div class="stat-name">⚡ XP</div>
+            <div class="stat-name stat-name-row">${_uiIconWrap('xp', 'mini-stat-icon')}XP</div>
           </div>
           <div class="stat-card done">
             <div class="stat-num">${doneMods}</div>
-            <div class="stat-name">✅ 완료 모듈</div>
+            <div class="stat-name stat-name-row">${_uiIconWrap('check', 'mini-stat-icon')}완료 모듈</div>
           </div>
         </div>
       `;
@@ -339,7 +363,7 @@ window.App = (() => {
               <div class="stage-name">STAGE ${stage.id}: ${escHtml(stage.name)}</div>
               <div class="stage-sub">${stage.jlpt ? `JLPT ${stage.jlpt} · ` : ''}${modCount}개 모듈</div>
             </div>
-            <span class="stage-tag">${locked ? `🔒 ${_formatNum(stage.unlockXP)} XP` : (pct === 100 ? '✅' : `${pct}%`)}</span>
+            <span class="stage-tag">${locked ? `${_uiIconWrap('lock', 'stage-tag-icon')}${_formatNum(stage.unlockXP)} XP` : (pct === 100 ? _uiIconWrap('check', 'stage-tag-icon') : `${pct}%`)}</span>
           </div>
           <div class="stage-progress-wrap">
             <div class="stage-progress-bar-bg">
@@ -378,9 +402,9 @@ window.App = (() => {
         <div class="lesson-stage-section">
           <div class="lesson-stage-header">
             <div class="lesson-stage-dot" style="background:${locked ? '#475569' : dotColor}"></div>
-            <span class="lesson-stage-title">${stage.icon} STAGE ${stage.id}: ${escHtml(stage.name)}</span>
+            <span class="lesson-stage-title">${_uiIconWrap(_getStageIconKey(stage.id), 'lesson-stage-icon')}STAGE ${stage.id}: ${escHtml(stage.name)}</span>
             <span class="lesson-stage-badge" style="background:${badgeBg};color:${badgeColor};padding:3px 8px;border-radius:20px;font-size:10px;font-weight:700;">
-              ${locked ? `🔒 ${_formatNum(stage.unlockXP)} XP` : (stage.jlpt || '학습 중')}
+              ${locked ? `${_uiIconWrap('lock', 'badge-icon')}${_formatNum(stage.unlockXP)} XP` : (stage.jlpt || '심화 학습')}
             </span>
           </div>
           <div class="module-list">
@@ -396,10 +420,10 @@ window.App = (() => {
         const rpUnlocked = isRoleplayUnlocked(mod.id, prog);
         const visual = _getModuleVisual(mod);
 
-        let statusIcon = '▶';
+        let statusIcon = _uiIconSvg('progress', 'module-status-icon-svg');
         let statusClass = 'play';
-        if (modLocked)  { statusIcon = '🔒'; statusClass = 'lock'; }
-        else if (completed) { statusIcon = '✅'; statusClass = 'done'; }
+        if (modLocked)  { statusIcon = _uiIconSvg('lock', 'module-status-icon-svg'); statusClass = 'lock'; }
+        else if (completed) { statusIcon = _uiIconSvg('check', 'module-status-icon-svg'); statusClass = 'done'; }
 
         html += `
           <div class="module-card ${modLocked ? 'locked' : ''} ${completed ? 'completed' : ''}"
@@ -430,12 +454,12 @@ window.App = (() => {
           html += `
             <div class="roleplay-card ${!rpUnlocked ? 'locked' : ''}"
                  onclick="${rpUnlocked ? `App.openModule('${mod.id}', true)` : ''}">
-              <span class="rp-icon">${mod.roleplay.icon}</span>
+              <span class="rp-icon">${_uiIconSvg('roleplay', 'rp-icon-svg')}</span>
               <div class="rp-info">
-                <div class="rp-name">🎭 ${escHtml(mod.roleplay.name)}</div>
+                <div class="rp-name">${escHtml(mod.roleplay.name)}</div>
                 <div class="rp-hint">${rpUnlocked ? escHtml(mod.roleplay.desc) : `위 ${totalSteps}단계 완료 후 해금`}</div>
               </div>
-              <span class="rp-lock">${rpDone ? '✅' : (rpUnlocked ? '▶' : '🔒')}</span>
+              <span class="rp-lock">${rpDone ? _uiIconSvg('check', 'rp-lock-icon') : (rpUnlocked ? _uiIconSvg('progress', 'rp-lock-icon') : _uiIconSvg('lock', 'rp-lock-icon'))}</span>
             </div>
           `;
         }
@@ -464,30 +488,30 @@ window.App = (() => {
       <div class="practice-section-title">빠른 복습</div>
       <div class="practice-grid">
         <div class="practice-item" onclick="App.startKanaReview()">
-          <div class="pi-icon">あア</div>
+          <div class="pi-icon pi-icon-text">あア</div>
           <div class="pi-name">가나 플래시카드</div>
           <div class="pi-stage">${dueKanaCount > 0 ? `오늘 복습 ${dueKanaCount}개` : '히라가나 · 가타가나 전체'}</div>
         </div>
         <div class="practice-item ${!vocabUnlocked ? 'locked' : ''}"
              onclick="${vocabUnlocked ? "App.startVocabReview()" : ''}">
-          <div class="pi-icon">📖</div>
+          <div class="pi-icon">${_uiIconSvg('book', 'pi-icon-svg')}</div>
           <div class="pi-name">어휘 복습</div>
           <div class="pi-stage">${dueVocabCount > 0 ? `오늘 복습 ${dueVocabCount}개` : '학습한 단어 전체'}</div>
-          ${!vocabUnlocked ? '<div class="pi-lock">🔒</div>' : ''}
+          ${!vocabUnlocked ? `<div class="pi-lock">${_uiIconSvg('lock', 'pi-lock-icon')}</div>` : ''}
         </div>
         <div class="practice-item ${!quizUnlocked ? 'locked' : ''}"
              onclick="${quizUnlocked ? "App.startRandomQuiz('kana')" : ''}">
-          <div class="pi-icon">❓</div>
+          <div class="pi-icon">${_uiIconSvg('quiz', 'pi-icon-svg')}</div>
           <div class="pi-name">가나 퀴즈</div>
           <div class="pi-stage">랜덤 20문제</div>
-          ${!quizUnlocked ? '<div class="pi-lock">🔒</div>' : ''}
+          ${!quizUnlocked ? `<div class="pi-lock">${_uiIconSvg('lock', 'pi-lock-icon')}</div>` : ''}
         </div>
         <div class="practice-item ${!quizUnlocked ? 'locked' : ''}"
              onclick="${quizUnlocked ? "App.startRandomQuiz('vocab')" : ''}">
-          <div class="pi-icon">🎮</div>
+          <div class="pi-icon">${_uiIconSvg('practice', 'pi-icon-svg')}</div>
           <div class="pi-name">어휘 퀴즈</div>
           <div class="pi-stage">랜덤 20문제</div>
-          ${!quizUnlocked ? '<div class="pi-lock">🔒</div>' : ''}
+          ${!quizUnlocked ? `<div class="pi-lock">${_uiIconSvg('lock', 'pi-lock-icon')}</div>` : ''}
         </div>
       </div>
 
@@ -495,17 +519,17 @@ window.App = (() => {
       <div class="practice-grid">
         <div class="practice-item ${!quizUnlocked ? 'locked' : ''}"
              onclick="${quizUnlocked ? "App.startListeningQuiz()" : ''}">
-          <div class="pi-icon">🎧</div>
+          <div class="pi-icon">${_uiIconSvg('headphones', 'pi-icon-svg')}</div>
           <div class="pi-name">듣기 퀴즈</div>
           <div class="pi-stage">음성 → 글자 맞추기</div>
-          ${!quizUnlocked ? '<div class="pi-lock">🔒</div>' : ''}
+          ${!quizUnlocked ? `<div class="pi-lock">${_uiIconSvg('lock', 'pi-lock-icon')}</div>` : ''}
         </div>
         <div class="practice-item ${!quizUnlocked ? 'locked' : ''}"
              onclick="${quizUnlocked ? "App.startSpeakingPractice()" : ''}">
-          <div class="pi-icon">🗣️</div>
+          <div class="pi-icon">${_uiIconSvg('mic', 'pi-icon-svg')}</div>
           <div class="pi-name">따라 말하기</div>
           <div class="pi-stage">쉐도잉 연습</div>
-          ${!quizUnlocked ? '<div class="pi-lock">🔒</div>' : ''}
+          ${!quizUnlocked ? `<div class="pi-lock">${_uiIconSvg('lock', 'pi-lock-icon')}</div>` : ''}
         </div>
       </div>
     `;
@@ -536,7 +560,7 @@ window.App = (() => {
 
     let html = `
       <div class="profile-hero">
-        <div class="profile-avatar">🧑‍💻</div>
+        <div class="profile-avatar">${_uiIconSvg('profile', 'profile-avatar-svg')}</div>
         <div class="profile-name">${levelName}</div>
         <div class="profile-level">${totalXP} XP · 다음 레벨까지 ${_formatNum(nextLevelXP - totalXP)} XP</div>
         <div class="xp-bar-wrap">
@@ -550,15 +574,15 @@ window.App = (() => {
       <div class="profile-stats-grid">
         <div class="pstat">
           <div class="ps-num" style="color:var(--warning)">${prog.streak}</div>
-          <div class="ps-name">🔥 연속일</div>
+          <div class="ps-name ps-name-row">${_uiIconWrap('streak', 'mini-stat-icon')}연속일</div>
         </div>
         <div class="pstat">
           <div class="ps-num" style="color:var(--accent2)">${prog.totalDays || 0}</div>
-          <div class="ps-name">📅 총 학습일</div>
+          <div class="ps-name ps-name-row">${_uiIconWrap('calendar', 'mini-stat-icon')}총 학습일</div>
         </div>
         <div class="pstat">
           <div class="ps-num" style="color:var(--success)">${learnedKana + learnedVocab}</div>
-          <div class="ps-name">📝 학습 아이템</div>
+          <div class="ps-name ps-name-row">${_uiIconWrap('grid', 'mini-stat-icon')}학습 아이템</div>
         </div>
       </div>
 
@@ -570,23 +594,23 @@ window.App = (() => {
       </div>
 
       <div class="profile-section">
-        <div class="profile-section-title">설정</div>
+        <div class="profile-section-title">${_uiIconWrap('settings', 'section-title-icon')}설정</div>
         <div class="settings-list">
           <div class="settings-item" onclick="App.toggleFurigana()">
             <span class="si-icon">あ</span>
             <span class="si-label">후리가나 표시</span>
-            <span class="si-arrow">${prog.settings.furigana ? '✅' : '⬜'}</span>
+            <span class="si-arrow">${prog.settings.furigana ? _uiIconSvg('check', 'settings-state-icon') : _uiIconSvg('progress', 'settings-state-icon muted')}</span>
           </div>
           <div class="settings-item" onclick="App.resetProgress()">
-            <span class="si-icon">🗑️</span>
+            <span class="si-icon">${_uiIconSvg('trash', 'settings-row-icon')}</span>
             <span class="si-label">진도 초기화</span>
-            <span class="si-arrow">›</span>
+            <span class="si-arrow">${_uiIconSvg('progress', 'settings-state-icon')}</span>
           </div>
         </div>
       </div>
 
       <div class="profile-section">
-        <div class="profile-section-title">📝 퀴즈 설정</div>
+        <div class="profile-section-title">${_uiIconWrap('quiz', 'section-title-icon')}퀴즈 설정</div>
         <div style="font-size:12px;color:var(--text3);margin-bottom:10px">통과 기준 점수</div>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
           ${[50,60,70,80,90].map(r => {
@@ -607,12 +631,12 @@ window.App = (() => {
       </div>
 
       <div class="profile-section">
-        <div class="profile-section-title">🔊 음성(TTS) 설정</div>
+        <div class="profile-section-title">${_uiIconWrap('voice', 'section-title-icon')}음성(TTS) 설정</div>
         ${_buildTTSSettingsHtml()}
       </div>
 
       <div class="profile-section">
-        <div class="profile-section-title" style="color:var(--warning)">🛠️ 개발자 테스트 도구</div>
+        <div class="profile-section-title" style="color:var(--warning)">${_uiIconWrap('tools', 'section-title-icon')}개발자 테스트 도구</div>
         <div style="font-size:11px;color:var(--text3);padding:0 0 8px 2px">스테이지 해금·퀴즈 통과 테스트용</div>
 
         <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
@@ -3587,8 +3611,8 @@ window.App = (() => {
       const mp = prog.modules[mod.id] || {};
       const stepsDone = mp.stepsCompleted || 0;
       missions.push({
-        icon: '📖',
-        title: next.roleplay ? `🎭 롤플레이: ${mod.roleplay.name}` : `${mod.name} 학습`,
+        iconKey: next.roleplay ? 'roleplay' : 'book',
+        title: next.roleplay ? `롤플레이 · ${mod.roleplay.name}` : `${mod.name} 학습`,
         desc: next.roleplay ? '모든 단계 완료! 롤플레이를 시작하세요' : `${stepsDone}/${mod.steps.length} 단계 완료`,
         done: false,
         action: `App.openModule('${mod.id}', ${next.roleplay ? 'true' : 'false'})`
@@ -3599,7 +3623,7 @@ window.App = (() => {
     const todayXP = prog.todayXP || 0;
     const xpGoal = 100;
     missions.push({
-      icon: '⚡',
+      iconKey: 'xp',
       title: `오늘 ${xpGoal} XP 달성`,
       desc: `현재 오늘 ${todayXP} XP 획득 · 목표까지 ${Math.max(0, xpGoal - todayXP)} XP`,
       done: todayXP >= xpGoal,
@@ -3608,7 +3632,7 @@ window.App = (() => {
 
     // Mission 3: Streak check
     missions.push({
-      icon: '🔥',
+      iconKey: 'streak',
       title: studiedToday ? `연속 ${prog.streak}일 달성!` : '오늘 첫 학습하기',
       desc: studiedToday ? '오늘 학습 완료! 내일도 이어가세요' : '오늘 하나라도 학습하면 스트릭이 이어져요',
       done: studiedToday,

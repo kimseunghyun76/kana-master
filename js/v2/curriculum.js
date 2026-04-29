@@ -54,8 +54,8 @@ const STAGES = [
     nameJp: '上級',
     icon: '🏆',
     color: '#ef4444',
-    jlpt: 'N2',
-    desc: '자연스러운 일본어로 한 단계 업! 드라마·뉴스·경어 마스터.',
+    jlpt: null,
+    desc: '경어와 고급 표현 감각을 다듬는 심화 워크숍.',
     unlockXP: 12000
   }
 ];
