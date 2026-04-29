@@ -13,6 +13,7 @@ window.App = (() => {
   let _flow = null;               // current learning flow
   let _flowEl = null;             // flow screen DOM element
   let _autoNextTimer = null;      // timer for automatic next question
+  let _sfxCtx = null;             // shared Web Audio context for quiz SFX
 
   function _uiIconSvg(name, cls = '') {
     const icons = {
@@ -69,6 +70,18 @@ window.App = (() => {
 
   function _uiIconWrap(name, cls = 'ui-icon') {
     return `<span class="ui-icon-wrap">${_uiIconSvg(name, cls)}</span>`;
+  }
+
+  async function _getSfxContext() {
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (!AudioCtx) return null;
+    if (!_sfxCtx || _sfxCtx.state === 'closed') {
+      _sfxCtx = new AudioCtx();
+    }
+    if (_sfxCtx.state === 'suspended') {
+      try { await _sfxCtx.resume(); } catch {}
+    }
+    return _sfxCtx;
   }
 
   function _renderQuizHud(current, total, correct, wrong) {
@@ -2848,14 +2861,16 @@ window.App = (() => {
   }
 
   // ── 퀴즈 정답/오답 이펙트 ────────────────────────────────
-  function _playQuizEffect(isCorrect) {
+  async function _playQuizEffect(isCorrect) {
     // 사운드 (Web Audio API — 짧고 세련된 합성 톤)
     try {
-      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const ctx = await _getSfxContext();
+      if (!ctx) return;
+      const now = ctx.currentTime + 0.01;
       const master = ctx.createGain();
-      master.gain.setValueAtTime(0.0001, ctx.currentTime);
-      master.gain.linearRampToValueAtTime(isCorrect ? 0.22 : 0.18, ctx.currentTime + 0.02);
-      master.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + (isCorrect ? 0.42 : 0.34));
+      master.gain.setValueAtTime(0.0001, now);
+      master.gain.linearRampToValueAtTime(isCorrect ? 0.22 : 0.18, now + 0.02);
+      master.gain.exponentialRampToValueAtTime(0.0001, now + (isCorrect ? 0.42 : 0.34));
       master.connect(ctx.destination);
 
       const playVoice = (type, startFreq, endFreq, startAt, duration, gainAmount) => {
@@ -2881,14 +2896,13 @@ window.App = (() => {
       };
 
       if (isCorrect) {
-        playVoice('triangle', 784, 1046, ctx.currentTime, 0.16, 0.13);
-        playVoice('sine', 1174, 1396, ctx.currentTime + 0.07, 0.14, 0.075);
-        playVoice('triangle', 1568, 1760, ctx.currentTime + 0.12, 0.12, 0.045);
+        playVoice('triangle', 784, 1046, now, 0.16, 0.13);
+        playVoice('sine', 1174, 1396, now + 0.07, 0.14, 0.075);
+        playVoice('triangle', 1568, 1760, now + 0.12, 0.12, 0.045);
       } else {
-        playVoice('sine', 300, 232, ctx.currentTime, 0.18, 0.11);
-        playVoice('triangle', 220, 174, ctx.currentTime + 0.055, 0.16, 0.055);
+        playVoice('sine', 300, 232, now, 0.18, 0.11);
+        playVoice('triangle', 220, 174, now + 0.055, 0.16, 0.055);
       }
-      setTimeout(() => { try { ctx.close(); } catch {} }, 520);
     } catch(e) { /* AudioContext 미지원 무시 */ }
 
     // 애니메이션
