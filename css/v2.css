@@ -1151,23 +1151,23 @@ body {
 .self-eval {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
-  margin-top: 20px;
+  gap: 8px;
+  margin-top: 14px;
 }
 .eval-btn {
-  min-height: 96px;
-  padding: 14px 12px;
-  border-radius: 16px;
-  font-size: 14px;
+  min-height: 78px;
+  padding: 12px 10px;
+  border-radius: 14px;
+  font-size: 13px;
   font-weight: 700;
   cursor: pointer;
   transition: transform var(--dur), opacity var(--dur), border-color var(--dur), background var(--dur);
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
   justify-content: center;
-  gap: 6px;
-  text-align: left;
+  gap: 4px;
+  text-align: center;
 }
 .eval-btn:active { transform: scale(.95); }
 .eval-btn.again { background: rgba(239,68,68,.15); color: #f87171; border: 1px solid rgba(239,68,68,.3); }
@@ -1175,9 +1175,9 @@ body {
 .eval-btn.good  { background: rgba(99,102,241,.15); color: var(--accent2); border: 1px solid rgba(99,102,241,.3); }
 .eval-btn.easy  { background: rgba(16,185,129,.15); color: #34d399; border: 1px solid rgba(16,185,129,.3); }
 .eval-icon-wrap {
-  width: 34px;
-  height: 34px;
-  border-radius: 12px;
+  width: 28px;
+  height: 28px;
+  border-radius: 10px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -1185,18 +1185,20 @@ body {
   color: currentColor;
 }
 .eval-icon {
-  width: 16px;
-  height: 16px;
+  width: 14px;
+  height: 14px;
 }
 .eval-label {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 800;
   color: var(--text);
+  line-height: 1.1;
 }
 .eval-meta {
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 600;
   color: rgba(241,245,249,.62);
+  line-height: 1.1;
 }
 
 /* ── Quiz Component ───────────────────────────────────────── */
