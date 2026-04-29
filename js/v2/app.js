@@ -864,13 +864,46 @@ window.App = (() => {
     return Array.from(clean).every(ch => allowedChars?.has(ch));
   }
 
+  function _getKanaPatternExamples(char, allowedChars, existingWords = []) {
+    if (!allowedChars?.size) return [];
+    const isKatakana = /[ァ-ヺ]/.test(char);
+    const vowels = (isKatakana
+      ? ['ア', 'イ', 'ウ', 'エ', 'オ']
+      : ['あ', 'い', 'う', 'え', 'お']).filter(v => allowedChars.has(v));
+    const partners = Array.from(allowedChars).filter(ch => !['ん', 'ン', 'を', 'ヲ'].includes(ch) && ch !== char);
+    const candidates = [];
+
+    if (char === 'を' || char === 'ヲ') {
+      candidates.push(char);
+    } else if (char === 'ん' || char === 'ン') {
+      partners.slice(0, 4).forEach(p => candidates.push(`${p}${char}`));
+    } else {
+      vowels.filter(v => v !== char).forEach(v => {
+        candidates.push(`${char}${v}`);
+        candidates.push(`${v}${char}`);
+      });
+      partners.slice(0, 4).forEach(p => {
+        candidates.push(`${char}${p}`);
+        candidates.push(`${p}${char}`);
+      });
+    }
+
+    const used = new Set(existingWords.map(word => stripFuri(word)));
+    return [...new Set(candidates)]
+      .filter(word => word && word.length <= 3 && !used.has(word))
+      .slice(0, 3)
+      .map(word => ({ word, meaning: '배운 글자 조합' }));
+  }
+
   function _getKanaExamplesForCard(char, level) {
     const info = KANA_MAP[char] || {};
     const allExamples = info.examples || [];
     if (!_isKanaBasicLevel(level?.id)) return allExamples.slice(0, 3);
     const allowedChars = _getKanaAllowedExampleChars(level);
     const filtered = allExamples.filter(ex => _isBeginnerSafeKanaWord(ex.word, allowedChars));
-    return (filtered.length ? filtered : allExamples.slice(0, 2)).slice(0, 3);
+    const generated = _getKanaPatternExamples(char, allowedChars, filtered.map(ex => ex.word));
+    const merged = [...filtered, ...generated];
+    return (merged.length ? merged : allExamples.slice(0, 2)).slice(0, 3);
   }
 
   const _KANA_CONFUSION_GROUPS = [
