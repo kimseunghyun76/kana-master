@@ -2,7 +2,7 @@ window.LECTURE_DATA = window.LECTURE_DATA || {};
 window.LECTURE_DATA.wlevel_5 = [
   {
     type: 'hook', label: '오늘의 이야기', duration: 6000, audio: null,
-    image: 'images/shiba.png',
+    image: 'images/lecture-scenes/wlevel5-verb-dining-action.png',
     characterImage: 'images/lecture-characters/mina-host-portrait.png',
     characterName: 'Mina',
     main: '일본어 동사',

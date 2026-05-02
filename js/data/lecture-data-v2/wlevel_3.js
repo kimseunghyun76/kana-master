@@ -42,7 +42,7 @@ window.LECTURE_DATA.wlevel_3 = [
   },
   {
     type: 'story', label: '어원 이야기', duration: 7000, audio: '午前・午後',
-    image: 'images/horse_clock.png',
+    image: 'images/lecture-scenes/wlevel3-calendar-time-study.png',
     characterImage: 'images/lecture-characters/mina-host-portrait.png',
     characterName: 'Mina',
     main: '오전과 오후',

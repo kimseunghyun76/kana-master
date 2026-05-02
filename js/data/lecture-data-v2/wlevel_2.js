@@ -52,7 +52,7 @@ window.LECTURE_DATA.wlevel_2 = [
   },
   {
     type: 'kanji', label: '한자 파헤치기', duration: 8000, audio: null,
-    image: 'images/lucky_eight.png',
+    image: 'images/lecture-scenes/wlevel2-elevator-number-culture.png',
     characterImage: 'images/lecture-characters/mina-host-portrait.png',
     characterName: 'Mina',
     main: '八',

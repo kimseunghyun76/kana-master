@@ -2,7 +2,7 @@ window.LECTURE_DATA = window.LECTURE_DATA || {};
 window.LECTURE_DATA.wlevel_4 = [
   {
     type: 'hook', label: '오늘의 이야기', duration: 6000, audio: null,
-    image: 'images/kosoado.png',
+    image: 'images/lecture-scenes/wlevel4-kosoado-city-directions.png',
     characterImage: 'images/lecture-characters/mina-host-portrait.png',
     characterName: 'Mina',
     main: '지시어 (こそあど)',

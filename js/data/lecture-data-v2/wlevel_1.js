@@ -82,7 +82,7 @@ window.LECTURE_DATA.wlevel_1 = [
   },
   {
     type: 'kanji', label: '한자 파헤치기', duration: 8000, audio: null,
-    image: 'images/bird_fire.png',
+    image: 'images/lecture-scenes/wlevel1-arigatou-kindness-scene.png',
     characterImage: 'images/lecture-characters/mina-host-portrait.png',
     characterName: 'Mina',
     main: '難',

@@ -14,6 +14,7 @@ window.App = (() => {
   let _flowEl = null;             // flow screen DOM element
   let _autoNextTimer = null;      // timer for automatic next question
   let _sfxCtx = null;             // shared Web Audio context for quiz SFX
+  let _dialogueDetailResume = null;
 
   function _uiIconSvg(name, cls = '') {
     const icons = {
@@ -121,6 +122,21 @@ window.App = (() => {
     const value = String(src || '');
     const rooted = /^(?:[a-z]+:|\/)/i.test(value) ? value : `/${value}`;
     return rooted.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+  }
+
+  function _jsString(value) {
+    return String(value || '')
+      .replace(/\\/g, '\\\\')
+      .replace(/'/g, "\\'")
+      .replace(/\r/g, '\\r')
+      .replace(/\n/g, '\\n');
+  }
+
+  function _setFlowBodyMode(mode) {
+    const body = document.getElementById('flowBody');
+    if (!body) return;
+    body.classList.remove('quiz-mode', 'speaking-mode');
+    if (mode) body.classList.add(mode);
   }
 
   async function _getSfxContext() {
@@ -904,6 +920,7 @@ window.App = (() => {
 
     const s = mod.steps[step];
     const total = mod.steps.length;
+    _setFlowBodyMode('');
     document.getElementById('flowScreen')?.classList.remove('module-intro-mode');
     document.getElementById('flowScreen')?.classList.toggle('lecture-mode', s.type === 'lecture');
     _updateFlowProgress(step, total, s.title);
@@ -1199,6 +1216,7 @@ window.App = (() => {
 
   // ── Kana Quiz ─────────────────────────────────────────────
   function _renderKanaQuiz(mod, step, stepIndex) {
+    _setFlowBodyMode('quiz-mode');
     const level = LEVELS.find(l => l.id === step.levelId);
     const sourceChars = step.chars?.length ? step.chars : level?.chars;
     if (!sourceChars?.length) { _advanceStep(); return; }
@@ -1337,6 +1355,7 @@ window.App = (() => {
 
   // ── Kana Listening Quiz ───────────────────────────────────
   function _renderKanaListening(mod, step, stepIndex) {
+    _setFlowBodyMode('quiz-mode');
     const chars = step.chars || shuffle(Object.keys(KANA_MAP)).slice(0, 15);
 
     function renderQ() {
@@ -1467,6 +1486,7 @@ window.App = (() => {
 
   // ── Shadowing Practice ───────────────────────────────────
   function _renderShadowing(mod, step, stepIndex) {
+    _setFlowBodyMode('speaking-mode');
     const items = step.items || [];
     if (!items.length) { _showPracticeComplete(mod); return; }
 
@@ -1491,25 +1511,27 @@ window.App = (() => {
       document.getElementById('flowProgressFill').style.width = pct + '%';
 
       document.getElementById('flowBody').innerHTML = `
-        <div style="font-size:12px;color:var(--text3);text-align:center;margin-bottom:16px">
-          ${idx + 1} / ${its.length}
-        </div>
-        <div style="background:var(--bg2);border:1px solid var(--border);border-radius:20px;
-                    padding:32px 20px;text-align:center;margin-bottom:16px">
-          <div style="font-size:36px;font-weight:800;margin-bottom:12px;line-height:1.3">
-            ${jpHtml}
+        <div class="shadowing-screen">
+          <div class="shadowing-top">
+            <div class="shadowing-count">${idx + 1}<span>/ ${its.length}</span></div>
+            <div class="shadowing-progress">
+              <div class="shadowing-progress-fill" style="width:${pct}%"></div>
+            </div>
           </div>
-          <div style="font-size:16px;color:var(--text2);margin-bottom:20px">
-            ${escHtml(item.korean || '')}
+          <div class="shadowing-card">
+            <div class="shadowing-step-row">
+              <span class="shadowing-step active">${_uiIconSvg('audio', 'shadowing-step-icon')}듣기</span>
+              <span class="shadowing-step">${_uiIconSvg('mic', 'shadowing-step-icon')}따라 말하기</span>
+            </div>
+            <div class="shadowing-jp">${jpHtml}</div>
+            <div class="shadowing-ko">${escHtml(item.korean || '')}</div>
+            <button class="shadowing-audio-btn" onclick="TTS.speak('${safeJp}')">
+              ${_uiIconSvg('audio', 'shadowing-audio-icon')} 다시 듣기
+            </button>
           </div>
-          <button onclick="TTS.speak('${safeJp}')"
-            style="background:var(--bg3);border:1px solid var(--border);border-radius:20px;
-                   padding:10px 20px;color:var(--text);cursor:pointer;font-size:14px;font-weight:600;display:inline-flex;align-items:center;gap:8px">
-            ${_uiIconSvg('audio', 'shadowing-audio-icon')} 다시 듣기
-          </button>
-        </div>
-        <div style="font-size:13px;color:var(--text3);text-align:center">
-          소리를 듣고 따라 말해보세요!
+          <div class="shadowing-note">
+            음성을 듣고 같은 리듬으로 한 번 말한 뒤 완료하세요.
+          </div>
         </div>
       `;
 
@@ -1686,6 +1708,7 @@ window.App = (() => {
 
   // ── Vocab Quiz ────────────────────────────────────────────
   function _renderVocabQuiz(mod, step, stepIndex) {
+    _setFlowBodyMode('quiz-mode');
     const items = _getVocabItems(step);
     if (!items.length) { _advanceStep(); return; }
 
@@ -2594,6 +2617,30 @@ window.App = (() => {
     TTS.speak(stripFuri(line.japanese));
   }
 
+  function _getRoleplayPlaybackState() {
+    if (!_flow?.roleplayState) return null;
+    if (!_flow.roleplayState.playback) {
+      _flow.roleplayState.playback = {
+        isPlaying: false,
+        currentLineIndex: 0,
+        moduleId: _flow.moduleId
+      };
+    }
+    return _flow.roleplayState.playback;
+  }
+
+  function _setRoleplayPlaying(isPlaying) {
+    const playback = _getRoleplayPlaybackState();
+    if (playback) {
+      playback.isPlaying = !!isPlaying;
+      playback.moduleId = _flow?.moduleId || playback.moduleId;
+    }
+    const btnReplay = document.getElementById('btnReplayAll');
+    const btnStop   = document.getElementById('btnStopPlay');
+    if (btnReplay) btnReplay.style.display = isPlaying ? 'none' : '';
+    if (btnStop)   btnStop.style.display   = isPlaying ? '' : 'none';
+  }
+
   function _startRoleplay(mod) {
     const rp = mod.roleplay;
     const dialogues = _getDialogue(rp.dialogueKey);
@@ -2617,28 +2664,41 @@ window.App = (() => {
     setTimeout(() => _replayAll(mod.id), 450);
   }
 
-  function _replayAll(moduleId) {
+  function _replayAll(moduleId, startIndex = 0) {
     const mod = MODULES.find(m => m.id === moduleId);
     if (!mod?.roleplay) return;
     const dialogues = _getDialogue(mod.roleplay.dialogueKey);
-    if (!dialogues) return;
+    if (!dialogues?.length) return;
 
-    // 재생 버튼 ↔ 정지 버튼 전환
-    const btnReplay = document.getElementById('btnReplayAll');
-    const btnStop   = document.getElementById('btnStopPlay');
-    if (btnReplay) btnReplay.style.display = 'none';
-    if (btnStop)   btnStop.style.display   = '';
+    const playback = _getRoleplayPlaybackState();
+    const safeStartIndex = Math.max(0, Math.min(Number(startIndex) || 0, dialogues.length - 1));
+    if (playback) {
+      playback.currentLineIndex = safeStartIndex;
+      playback.moduleId = moduleId;
+    }
+
+    _setRoleplayPlaying(true);
 
     // 나레이터(N) 포함 모든 라인을 큐에 넣되,
     // N은 텍스트가 한국어 설명뿐이므로 TTS 스킵 (text 비워 _speakOne가 no-op)
-    const lines = dialogues.map((d, i) => ({
-      text:      d.speaker === 'N' ? '' : stripFuri(d.japanese || ''),
-      speaker:   d.speaker,
-      elementId: `dl-line-${i}`
-    }));
+    const lines = dialogues.slice(safeStartIndex).map((d, offset) => {
+      const i = safeStartIndex + offset;
+      return {
+        text:      d.speaker === 'N' ? '' : stripFuri(d.japanese || ''),
+        speaker:   d.speaker,
+        elementId: `dl-line-${i}`,
+        sourceIndex: i
+      };
+    });
 
     TTS.speakQueue(lines, {
       onLineStart: (idx, line) => {
+        const livePlayback = _getRoleplayPlaybackState();
+        if (livePlayback) {
+          livePlayback.isPlaying = true;
+          livePlayback.currentLineIndex = line.sourceIndex ?? idx;
+          livePlayback.moduleId = moduleId;
+        }
         // 이전 하이라이트 제거 후 현재 라인 하이라이트 + 스크롤
         document.querySelectorAll('.dialogue-line.playing')
                 .forEach(el => el.classList.remove('playing'));
@@ -2656,8 +2716,7 @@ window.App = (() => {
         }
       },
       onDone: () => {
-        if (btnReplay) btnReplay.style.display = '';
-        if (btnStop)   btnStop.style.display   = 'none';
+        _setRoleplayPlaying(false);
       }
     });
   }
@@ -2666,10 +2725,7 @@ window.App = (() => {
     TTS.stopQueue();
     document.querySelectorAll('.dialogue-line.playing')
             .forEach(el => el.classList.remove('playing'));
-    const btnReplay = document.getElementById('btnReplayAll');
-    const btnStop   = document.getElementById('btnStopPlay');
-    if (btnReplay) btnReplay.style.display = '';
-    if (btnStop)   btnStop.style.display   = 'none';
+    _setRoleplayPlaying(false);
   }
 
   function showDialogueDetail(lineId) {
@@ -2678,12 +2734,29 @@ window.App = (() => {
     const line = all.find(x => x.id === lineId);
     if (!line) return;
 
-    // TTS 중단
+    closeDialogueDetail(false);
+
+    const mod = _flow?.moduleId ? _getMod(_flow.moduleId) : null;
+    const dialogues = _getDialogue(mod?.roleplay?.dialogueKey);
+    const clickedIndex = dialogues?.findIndex(d => d.id === lineId) ?? -1;
+    const playback = _getRoleplayPlaybackState();
+    const wasPlaying = !!(playback?.isPlaying || TTS.isQueueRunning?.());
+    _dialogueDetailResume = wasPlaying && _flow?.moduleId
+      ? {
+          moduleId: _flow.moduleId,
+          lineIndex: playback?.currentLineIndex ?? Math.max(0, clickedIndex)
+        }
+      : null;
+
+    // 팝업을 읽는 동안 현재 전체 재생은 멈춘다.
     TTS.stopQueue();
     const btnReplay = document.getElementById('btnReplayAll');
     const btnStop   = document.getElementById('btnStopPlay');
     if (btnReplay) btnReplay.style.display = '';
     if (btnStop)   btnStop.style.display   = 'none';
+    if (playback) playback.isPlaying = false;
+    document.querySelectorAll('.dialogue-line.playing')
+            .forEach(el => el.classList.remove('playing'));
 
     // 상세 정보 파싱
     let breakdown = _parseBreakdown(line.japanese);
@@ -2692,31 +2765,36 @@ window.App = (() => {
     // [강력 조치] '문장 전체'라는 문구가 포함된 분석 결과는 무조건 제거
     breakdown = breakdown.filter(b => b.mean !== '문장 전체');
 
-    closeDialogueDetail();
     const overlay = document.createElement('div');
     overlay.className = 'detail-overlay';
     overlay.id = 'detailOverlay';
-    overlay.onclick = closeDialogueDetail;
+    overlay.onclick = () => closeDialogueDetail(true);
+    const sentenceText = stripFuri(line.japanese || '');
 
     overlay.innerHTML = `
       <div class="detail-popup" onclick="event.stopPropagation()">
         <button class="detail-close-btn" onclick="App.closeDialogueDetail()">✕</button>
         <div class="detail-header">
-          <div class="detail-jap">${ruby(line.japanese)}</div>
-          <div class="detail-kor">${escHtml(line.korean)}</div>
+          <button class="detail-speak-card" onclick="TTS.speak('${_jsString(sentenceText)}')" type="button">
+            <span class="detail-speak-icon">${_uiIconSvg('audio', 'detail-audio-icon')}</span>
+            <span>
+              <span class="detail-jap">${ruby(line.japanese)}</span>
+              <span class="detail-kor">${escHtml(line.korean)}</span>
+            </span>
+          </button>
         </div>
 
         <div class="detail-section">
           <div class="detail-section-title">단어별 분석</div>
           <div class="detail-breakdown">
             ${breakdown.length > 0 ? breakdown.map(b => `
-              <div class="breakdown-item">
+              <button class="breakdown-item" onclick="TTS.speak('${_jsString(stripFuri(b.word))}')" type="button">
                 <div class="breakdown-word-group">
                   <span class="breakdown-pos-tag" data-pos="${b.pos}">${b.pos}</span>
                   <span class="breakdown-word">${ruby(b.word)}</span>
                 </div>
-                <span class="breakdown-meaning">${b.mean}</span>
-              </div>
+                <span class="breakdown-meaning">${escHtml(b.mean)}</span>
+              </button>
             `).join('') : '<div style="font-size:13px;color:var(--text3);padding:10px;text-align:center">매칭된 핵심 단어가 없습니다.</div>'}
           </div>
         </div>
@@ -2726,14 +2804,14 @@ window.App = (() => {
           <div class="detail-grammar-list">
             ${grammar.map(g => `
               <div class="grammar-item">
-                <span class="grammar-tag">${g.tag}</span> ${g.desc}
+                <span class="grammar-tag">${escHtml(g.tag)}</span> ${escHtml(g.desc)}
               </div>
             `).join('')}
           </div>
         </div>
 
         <div class="detail-actions">
-          <button class="btn btn-replay-sent" onclick="TTS.speak('${line.japanese.replace(/'/g,"\\\\'")}')">
+          <button class="btn btn-replay-sent" onclick="TTS.speak('${_jsString(sentenceText)}')">
             ${_uiIconSvg('audio', 'btn-audio-icon')} 다시 듣기
           </button>
           <button class="btn btn-primary" onclick="App.closeDialogueDetail()">
@@ -2746,9 +2824,14 @@ window.App = (() => {
     document.body.appendChild(overlay);
   }
 
-  function closeDialogueDetail() {
+  function closeDialogueDetail(shouldResume = true) {
     const overlay = document.getElementById('detailOverlay');
     if (overlay) overlay.remove();
+    const resume = _dialogueDetailResume;
+    _dialogueDetailResume = null;
+    if (shouldResume !== false && resume?.moduleId) {
+      setTimeout(() => _replayAll(resume.moduleId, resume.lineIndex), 160);
+    }
   }
 
   function _parseBreakdown(jp) {
