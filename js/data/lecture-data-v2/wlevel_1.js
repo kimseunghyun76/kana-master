@@ -2,7 +2,9 @@ window.LECTURE_DATA = window.LECTURE_DATA || {};
 window.LECTURE_DATA.wlevel_1 = [
   {
     type: 'hook', label: '오늘의 이야기', duration: 6000, audio: null,
-    image: 'images/ohayou.png',
+    image: 'images/lecture-scenes/wlevel1-greeting-office-lobby.png',
+    characterImage: 'images/lecture-characters/mina-host-portrait.png',
+    characterName: 'Mina',
     main: '인사',
     sub: '일본인은 하루 평균 70번 인사를 나눌 정도로 인사를 중요하게 여깁니다.',
     captionJp: 'みなさん、こんにちは！突然ですが、日本人は一日に何回挨拶するか知っていますか？研究によると、なんと平均70回以上だそうです！日本では、挨拶が仕事や人間関係の半分を占めると言っても過言ではありません。',
@@ -10,6 +12,9 @@ window.LECTURE_DATA.wlevel_1 = [
   },
   {
     type: 'culture', label: '아침 인사', duration: 7000, audio: 'おはようございます',
+    image: 'images/lecture-scenes/wlevel1-greeting-office-lobby.png',
+    characterImage: 'images/lecture-characters/mina-host-portrait.png',
+    characterName: 'Mina',
     main: 'おはようございます',
     sub: '「오늘도 일찍 오셨네요!」라는 칭찬이 그대로 아침 인사가 된 표현입니다.',
     captionJp: '「おはよう」は「お早い(おはやい)」という言葉から来ています。「あなたは今日も早起きですね！」という、相手を褒める言葉がそのまま挨拶になったんですね。',
@@ -17,6 +22,9 @@ window.LECTURE_DATA.wlevel_1 = [
   },
   {
     type: 'grammar', label: '문법 노트: 정중체와 반말', duration: 8000, audio: null,
+    image: 'images/lecture-scenes/wlevel1-polite-greeting-mentor.png',
+    characterImage: 'images/lecture-characters/mina-host-portrait.png',
+    characterName: 'Mina',
     main: '~ございます',
     sub: '누구에게 말하느냐에 따라 꼬리말(존댓말)을 붙이는 것이 중요합니다.',
     captionJp: '日本語では会話をする相手によって「丁寧語(です/ます)」と「タメ口(カジュアル)」を使い分けます。家族や親しい友達には「おはよう！」だけで十分ですが、先生や先輩には必ず「ございます」をつけましょう。',
@@ -24,6 +32,9 @@ window.LECTURE_DATA.wlevel_1 = [
   },
   {
     type: 'kanji', label: '한자 파헤치기', duration: 8000, audio: null,
+    image: 'images/lecture-scenes/wlevel1-polite-greeting-mentor.png',
+    characterImage: 'images/lecture-characters/mina-host-portrait.png',
+    characterName: 'Mina',
     main: '早',
     sub: '해(日)가 십자가(十) 모양의 나무 위로 떠오르는 모습을 그린 한자입니다.',
     captionJp: '日本語の漢字には「音読み」と「訓読み」があります。『早』の訓読みは、意味を表す「はや(い)」です。一方、音読みは「ソウ」。例えば「早朝(そうちょう)」のように使います。',
@@ -31,6 +42,9 @@ window.LECTURE_DATA.wlevel_1 = [
   },
   {
     type: 'grammar', label: '문법 노트: 조사 は', duration: 7000, audio: 'こんにちは',
+    image: 'images/lecture-scenes/wlevel1-first-meeting-yoroshiku.png',
+    characterImage: 'images/lecture-characters/mina-host-portrait.png',
+    characterName: 'Mina',
     main: 'こんにちは',
     sub: '인사말의 『は』는 \'하\'가 아니라 \'와\'라고 발음해야 합니다.',
     captionJp: '「こんにちは」の「は」は文字通りには『ha』と読みますが、文章の中で助詞として使われる時は『wa』と発音します。元々は「今日は、ご機嫌いかがですか」という長い文章の一部だったからです！',
@@ -38,6 +52,9 @@ window.LECTURE_DATA.wlevel_1 = [
   },
   {
     type: 'story', label: '어원 이야기', duration: 7000, audio: 'すみません',
+    image: 'images/lecture-scenes/wlevel1-sumimasen-restaurant-call.png',
+    characterImage: 'images/lecture-characters/mina-host-portrait.png',
+    characterName: 'Mina',
     main: 'すみません',
     sub: '단순한 사과를 넘어 \'내 마음이 편치 않다\'는 깊은 미안함을 표현합니다.',
     captionJp: '「すみません」は漢字で「済みません」と書きます。つまり「まだ私の気持ちが解決していません」という意味です。あなたに迷惑をかけて本当に申し訳ない、という深い謝罪の心がこもっています。',
@@ -45,6 +62,9 @@ window.LECTURE_DATA.wlevel_1 = [
   },
   {
     type: 'culture', label: '실전 팁: 만능 단어', duration: 8000, audio: null,
+    image: 'images/lecture-scenes/wlevel1-sumimasen-restaurant-call.png',
+    characterImage: 'images/lecture-characters/mina-host-portrait.png',
+    characterName: 'Mina',
     main: 'すみません의 활용',
     sub: '사과할 때, 식당에서 종업원을 부를 때, 길을 비켜달라고 할 때 모두 쓰입니다!',
     captionJp: '「すみません」は謝る時だけではありません。①レストランで店員を呼ぶ時（あの、すみません！）、②軽く感謝する時（わざわざすみません！）にも使える、旅行に必須の超万能フレーズです！',
@@ -52,6 +72,9 @@ window.LECTURE_DATA.wlevel_1 = [
   },
   {
     type: 'mnemonic', label: '암기 꿀팁', duration: 7000, audio: 'ありがとうございます',
+    image: 'images/lecture-scenes/wlevel1-arigatou-kindness-scene.png',
+    characterImage: 'images/lecture-characters/mina-host-portrait.png',
+    characterName: 'Mina',
     main: 'ありがとうございます',
     sub: '있을 유(有) + 어려울 난(難) = 이런 친절은 세상에 있기 어렵다는 뜻입니다.',
     captionJp: '「ありがとう」は漢字で「有難い」と書きます。「有る+難い」、つまり「こんな親切は世の中にあるのが難しい！」という意味。本当に珍しくて素晴らしい親切に対して、深い感謝を表現しています。',
@@ -60,6 +83,8 @@ window.LECTURE_DATA.wlevel_1 = [
   {
     type: 'kanji', label: '한자 파헤치기', duration: 8000, audio: null,
     image: 'images/bird_fire.png',
+    characterImage: 'images/lecture-characters/mina-host-portrait.png',
+    characterName: 'Mina',
     main: '難',
     sub: '어려울 난(難) 한자 속에는 불을 피해 도망가는 \'새\'가 숨어 있습니다.',
     captionJp: '「難(むずかしい)」という漢字の中には「鳥(とり)」が隠れています！昔の人が、鳥が火事などの災難(さいなん)から一生懸命逃げる様子を見て「難しい・困難」という意味の漢字を作ったと言われています。',
@@ -67,6 +92,9 @@ window.LECTURE_DATA.wlevel_1 = [
   },
   {
     type: 'practice', label: '실전 응용!', duration: 7000, audio: 'よろしくお願いします',
+    image: 'images/lecture-scenes/wlevel1-first-meeting-yoroshiku.png',
+    characterImage: 'images/lecture-characters/mina-host-portrait.png',
+    characterName: 'Mina',
     main: 'よろしくお願いします',
     sub: '영어나 한국어로 1:1 번역이 불가능한 일본어만의 필수 마법 문장입니다.',
     captionJp: '「どうか私のことを、よろしく(良く)思ってください」というニュアンスです。自己紹介の後、仕事の依頼、メールの最後など、一日に何度も使う必須の表現！これを言えば一気に日本語らしくなります。',
@@ -74,6 +102,9 @@ window.LECTURE_DATA.wlevel_1 = [
   },
   {
     type: 'summary', label: '오늘의 정리', duration: 8000, audio: null,
+    image: 'images/lecture-scenes/wlevel1-greeting-office-lobby.png',
+    characterImage: 'images/lecture-characters/mina-host-portrait.png',
+    characterName: 'Mina',
     main: '요약 리뷰',
     sub: '정중체(존댓말)와 반말, 만능 단어 스미마셍, 조사 は 읽기만 알면 끝!',
     captionJp: '今日は挨拶の成り立ちから、助詞「は」の発音ルール、そして丁寧語とカジュアルの使い分けを学びました。日常でどんどん使ってみましょう！次のレッスンもこの調子で頑張りましょう。',

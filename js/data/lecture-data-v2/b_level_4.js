@@ -2,6 +2,9 @@ window.LECTURE_DATA = window.LECTURE_DATA || {};
 window.LECTURE_DATA.b_level_4 = [
   {
     type: 'hook', label: '오늘의 이야기', duration: 6000, audio: null,
+    image: 'images/lecture-scenes/blevel4-meeting-consensus-room.png',
+    characterImage: 'images/lecture-characters/mina-host-portrait.png',
+    characterName: 'Mina',
     main: '일본식 회의',
     sub: '회의는 의견 대결보다 합의 형성과 정리의 과정에 더 가깝습니다.',
     captionJp: '日本の会議では、場でいきなり結論をぶつけ合うよりも、参加者が納得しながら少しずつ合意を作っていく流れが多いです。空気を読みつつ論点を整える力が求められます。',
@@ -9,6 +12,9 @@ window.LECTURE_DATA.b_level_4 = [
   },
   {
     type: 'vocabulary', label: '핵심 어휘', duration: 7000, audio: '議題・結論・共有',
+    image: 'images/lecture-scenes/blevel4-meeting-consensus-room.png',
+    characterImage: 'images/lecture-characters/mina-host-portrait.png',
+    characterName: 'Mina',
     main: '회의에서 자주 쓰는 단어',
     sub: '議題, 結論, 認識合わせ, 宿題는 꼭 익혀야 합니다.',
     captionJp: '議題(의제), 結論(결론), 認識合わせ(인식 맞추기), 宿題(후속 과제)などは、会議の 흐름을 이해하는 데 핵심이 되는 단어들입니다。',
@@ -16,6 +22,9 @@ window.LECTURE_DATA.b_level_4 = [
   },
   {
     type: 'grammar', label: '문형 패턴', duration: 7000, audio: '〜と思います',
+    image: 'images/lecture-scenes/blevel4-meeting-consensus-room.png',
+    characterImage: 'images/lecture-characters/mina-host-portrait.png',
+    characterName: 'Mina',
     main: '의견을 부드럽게 말하기',
     sub: '断定보다 「〜と思います」「〜ではないでしょうか」를 자주 씁니다.',
     captionJp: '日本語の会議では「それは違います」보다も、「〜だと思います」「〜ではないでしょうか」のように、少し余白を持たせた言い方が自然です。',
@@ -23,6 +32,9 @@ window.LECTURE_DATA.b_level_4 = [
   },
   {
     type: 'culture', label: '문화 노트', duration: 7000, audio: null,
+    image: 'images/lecture-scenes/blevel4-meeting-consensus-room.png',
+    characterImage: 'images/lecture-characters/mina-host-portrait.png',
+    characterName: 'Mina',
     main: '반대 의견도 정리형으로',
     sub: '반박보다 우려 사항을 정리해서 제시하는 편이 자연스럽습니다.',
     captionJp: '反対意見を言う時も、「懸念としては」「一点気になるのは」のように、課題を整理して差し出す言い方が好まれます。相手を否定しないのがポイントです。',
@@ -30,6 +42,9 @@ window.LECTURE_DATA.b_level_4 = [
   },
   {
     type: 'practice', label: '실전 연습', duration: 7000, audio: '認識を合わせたいです',
+    image: 'images/lecture-scenes/blevel4-meeting-consensus-room.png',
+    characterImage: 'images/lecture-characters/mina-host-portrait.png',
+    characterName: 'Mina',
     main: '회의에서 자주 하는 말',
     sub: '정리하기, 확인하기, 다음 액션 제안하기를 연습합니다.',
     captionJp: '「認識を合わせたいです」「ここまでをまとめると」「次のアクションとしては」この辺りを言えるだけで、会議の参加感が大きく上がります。',
@@ -37,6 +52,9 @@ window.LECTURE_DATA.b_level_4 = [
   },
   {
     type: 'summary', label: '오늘의 정리', duration: 5000, audio: null,
+    image: 'images/lecture-scenes/blevel4-meeting-consensus-room.png',
+    characterImage: 'images/lecture-characters/mina-host-portrait.png',
+    characterName: 'Mina',
     main: '요약 리뷰',
     sub: '일본식 회의에서는 부드럽고 구조적인 발화가 핵심입니다.',
     captionJp: '会議で大切なのは、強く勝つこと보다、論点を整理して前に進めることです。今日の表現を使えば、かなり自然に参加できるはずです。',

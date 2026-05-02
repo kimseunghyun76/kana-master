@@ -2,6 +2,9 @@ window.LECTURE_DATA = window.LECTURE_DATA || {};
 window.LECTURE_DATA.wlevel_6 = [
   {
     type: 'hook', label: '오늘의 이야기', duration: 6000, audio: null,
+    image: 'images/lecture-scenes/wlevel6-adjective-cafe-comparison.png',
+    characterImage: 'images/lecture-characters/mina-host-portrait.png',
+    characterName: 'Mina',
     main: '형용사 2종류',
     sub: '일본어 형용사는 태생에 따라 「い형」과 「な형」으로 나뉩니다.',
     captionJp: '日本語には形容詞が2種類あります！「い形容詞」と「な形容詞」。なぜ2種類あるかというと、実は言葉のルーツが違うからなんです。',
@@ -9,6 +12,9 @@ window.LECTURE_DATA.wlevel_6 = [
   },
   {
     type: 'mnemonic', label: '암기 꿀팁', duration: 7000, audio: 'きれい・きらい',
+    image: 'images/lecture-scenes/wlevel6-adjective-cafe-comparison.png',
+    characterImage: 'images/lecture-characters/mina-host-portrait.png',
+    characterName: 'Mina',
     main: 'きれい (예쁘다)',
     sub: '끝이 \'い\'로 끝나서 헷갈리기 쉽지만, 사실은 「な형용사」 집안의 아이입니다.',
     captionJp: '「きれい(綺麗)」は最後が「い」で終わりますが、「な形容詞」なので注意が必要です！「きれいな人」と言うのが正解です。',
@@ -16,6 +22,9 @@ window.LECTURE_DATA.wlevel_6 = [
   },
   {
     type: 'funfact', label: '재미있는 사실', duration: 6000, audio: null,
+    image: 'images/lecture-scenes/wlevel6-adjective-cafe-comparison.png',
+    characterImage: 'images/lecture-characters/mina-host-portrait.png',
+    characterName: 'Mina',
     main: 'かわいい (귀엽다)',
     sub: '천 년 전에는 "불쌍하다"는 뜻으로 쓰였다는 사실, 알고 계셨나요?',
     captionJp: '「かわいい」は1000年前、実は「かわいそう」に近い意味でした。顔が赤くなるほど恥ずかしい、守ってあげたい、という気持ちから現在の「可愛い」になりました。',
@@ -23,6 +32,9 @@ window.LECTURE_DATA.wlevel_6 = [
   },
   {
     type: 'practice', label: '문법 연습', duration: 7000, audio: '高い・高くない・高かった・高くなかった',
+    image: 'images/lecture-scenes/wlevel6-adjective-cafe-comparison.png',
+    characterImage: 'images/lecture-characters/mina-host-portrait.png',
+    characterName: 'Mina',
     main: 'い형용사 활용',
     sub: '꼬리인 \'い\'를 \'~くない, ~かった\'로 바꾸기만 하면 부정과 과거 표현이 됩니다.',
     captionJp: 'い形容詞のルールは簡単です！最後を「～くない(否定)」や「～かった(過去)」に変えるだけ。「おいしい」なら「おいしくない」「おいしかった」になります。',
@@ -30,6 +42,9 @@ window.LECTURE_DATA.wlevel_6 = [
   },
   {
     type: 'mnemonic', label: '암기 꿀팁', duration: 7000, audio: 'きれいじゃない・きれいだった・きれいじゃなかった',
+    image: 'images/lecture-scenes/wlevel6-adjective-cafe-comparison.png',
+    characterImage: 'images/lecture-characters/mina-host-portrait.png',
+    characterName: 'Mina',
     main: 'な형용사 활용',
     sub: '나 형용사는 명사처럼 활용하세요! 부정은 \'~じゃない\', 과거는 \'~だった\'입니다.',
     captionJp: 'な形容詞は名詞と同じルールで動きます。「きれいだ(現在)」「きれいじゃない(否定)」「きれいだった(過去)」。명사와 형식을 공유하니까 외우기 훨씬 편해요!',
@@ -37,6 +52,9 @@ window.LECTURE_DATA.wlevel_6 = [
   },
   {
     type: 'summary', label: '오늘의 정리', duration: 5000, audio: null,
+    image: 'images/lecture-scenes/wlevel6-adjective-cafe-comparison.png',
+    characterImage: 'images/lecture-characters/mina-host-portrait.png',
+    characterName: 'Mina',
     main: '요약 리뷰',
     sub: '맛있고, 비싸고, 예쁜 감정을 표현하는 형용사 활용을 정복했습니다.',
     captionJp: '形容詞を使えば、自分の感情や物の状態を詳しく伝えられます。い型とな型の違いを意識しながら、今日からどんどん使ってみましょう！',

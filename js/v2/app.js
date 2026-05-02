@@ -41,6 +41,10 @@ window.App = (() => {
       sparkle: `<svg viewBox="0 0 24 24" class="${cls}" aria-hidden="true"><path d="m12 3 1.7 5 5.3 1.7-5.3 1.7L12 17l-1.7-5.3L5 10l5.3-1.7L12 3Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>`,
       tools: `<svg viewBox="0 0 24 24" class="${cls}" aria-hidden="true"><path d="m14.5 6.5 3 3M5 19l5.5-5.5M13 4a4 4 0 0 0 5.2 5.2L13 14.4l-3.4-3.4 5.2-5.2A4 4 0 0 0 13 4Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
       roleplay: `<svg viewBox="0 0 24 24" class="${cls}" aria-hidden="true"><path d="M5 7a2 2 0 0 1 2-2h6.5a2 2 0 0 1 2 2v4.5a2 2 0 0 1-2 2H10l-3 2.2V13.5H7a2 2 0 0 1-2-2V7Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M15.5 10.5h1.5a2 2 0 0 1 2 2V17l-2.5-1.8H15a2 2 0 0 1-2-2v-.7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>`,
+      play: `<svg viewBox="0 0 24 24" class="${cls}" aria-hidden="true"><path d="M8 6.5v11l8-5.5-8-5.5Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>`,
+      pause: `<svg viewBox="0 0 24 24" class="${cls}" aria-hidden="true"><path d="M8.5 6.5v11M15.5 6.5v11" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>`,
+      replay: `<svg viewBox="0 0 24 24" class="${cls}" aria-hidden="true"><path d="M6.5 8.5H11V4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M8.2 18a7 7 0 1 0-1.7-9.5L6.5 8.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+      film: `<svg viewBox="0 0 24 24" class="${cls}" aria-hidden="true"><rect x="4" y="5" width="16" height="14" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M8 5v14M16 5v14M4 9h4M4 15h4M16 9h4M16 15h4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>`,
       'stage-kana': `<svg viewBox="0 0 24 24" class="${cls}" aria-hidden="true"><path d="M6 5h12v14H6z" fill="none" stroke="currentColor" stroke-width="1.8" rx="2"/><path d="M9 9h6M9 13h6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="9" cy="17" r="1.2" fill="currentColor"/><circle cx="15" cy="17" r="1.2" fill="currentColor"/></svg>`,
       'stage-sprout': `<svg viewBox="0 0 24 24" class="${cls}" aria-hidden="true"><path d="M12 20V11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M12 11c0-3 2.4-5.5 5.4-5.5 0 3-2.4 5.5-5.4 5.5Z" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 14c0-3-2.4-5.5-5.4-5.5 0 3 2.4 5.5 5.4 5.5Z" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>`,
       'stage-chat': `<svg viewBox="0 0 24 24" class="${cls}" aria-hidden="true"><path d="M5 6.5A2.5 2.5 0 0 1 7.5 4H18a2 2 0 0 1 2 2v7.2a2 2 0 0 1-2 2H11l-4 3v-3H7.5A2.5 2.5 0 0 1 5 12.7V6.5Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M9 9.5H16M9 12.5H14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>`,
@@ -74,6 +78,47 @@ window.App = (() => {
 
   function _uiLabeledIcon(name, cls = 'btn-inline-icon') {
     return `<span class="inline-icon-wrap">${_uiIconSvg(name, cls)}</span>`;
+  }
+
+  function _lecturePauseButtonLabel(paused) {
+    return `${_uiLabeledIcon(paused ? 'play' : 'pause')} <span class="lecture-pause-text">${paused ? '재생' : '일시정지'}</span>`;
+  }
+
+  function _lectureCaptionEnabled(lang) {
+    return !!Store.getSetting(lang === 'jp' ? 'lectureCaptionJp' : 'lectureCaptionKo');
+  }
+
+  function _lectureCaptionToggleButton(lang) {
+    const enabled = _lectureCaptionEnabled(lang);
+    const label = lang === 'jp' ? 'JP' : 'KO';
+    return `
+      <button class="lec-display-toggle ${enabled ? 'active' : ''}"
+              onclick="App._lecToggleCaption('${lang}')"
+              type="button"
+              aria-pressed="${enabled ? 'true' : 'false'}">
+        <span class="lec-display-toggle-label">${label}</span>
+        <span class="lec-display-toggle-state">${enabled ? 'ON' : 'OFF'}</span>
+      </button>
+    `;
+  }
+
+  function _lectureVisualSource(mod, slide) {
+    if (slide?.image) return slide.image;
+    return _getModuleVisual(mod).image;
+  }
+
+  function _getModuleCoverAsset(mod) {
+    const visual = _getModuleVisual(mod);
+    return visual.coverImage || visual.image || '';
+  }
+
+  function _getRoleplayCoverAsset(mod) {
+    const visual = _getModuleVisual(mod);
+    return visual.roleplayImage || visual.coverImage || visual.image || '';
+  }
+
+  function _cssUrlValue(src) {
+    return String(src || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
   }
 
   async function _getSfxContext() {
@@ -139,27 +184,27 @@ window.App = (() => {
     const map = {
       kana_hira:         { image: 'assets/visuals/kana-grid.svg',       focus: '행 단위 문자 자동화', tone: 'violet', iconKey: 'module-kana' },
       kana_kata:         { image: 'assets/visuals/kana-grid.svg',       focus: '외래어 읽기 기반', tone: 'violet', iconKey: 'module-kana' },
-      first_phrases:     { image: 'assets/visuals/greeting-bridge.svg', focus: '첫 인사 패턴', tone: 'violet', iconKey: 'module-talk' },
-      survival_greet:    { image: 'assets/visuals/greeting-bridge.svg', focus: '자기소개', tone: 'blue', iconKey: 'module-talk' },
-      survival_pointing: { image: 'assets/visuals/pointer-map.svg',     focus: '지시어 감각', tone: 'blue', iconKey: 'module-map' },
-      survival_numbers:  { image: 'assets/visuals/time-route.svg',      focus: '숫자·시간', tone: 'blue', iconKey: 'module-time' },
-      survival_location: { image: 'assets/visuals/pointer-map.svg',     focus: '위치·존재', tone: 'blue', iconKey: 'module-map' },
-      survival_transport:{ image: 'assets/visuals/time-route.svg',      focus: '길 묻기', tone: 'blue', iconKey: 'module-map' },
-      survival_food:     { image: 'assets/visuals/order-tray.svg',      focus: '주문·부탁', tone: 'blue', iconKey: 'module-order' },
-      survival_shopping: { image: 'assets/visuals/pointer-map.svg',     focus: '가격·비교', tone: 'blue', iconKey: 'module-map' },
-      survival_hotel:    { image: 'assets/visuals/order-tray.svg',      focus: '숙박 요청', tone: 'blue', iconKey: 'module-talk' },
-      daily_adjectives:  { image: 'assets/visuals/business-board.svg',  focus: '동사 활용', tone: 'emerald', iconKey: 'module-talk' },
-      daily_feelings:    { image: 'assets/visuals/greeting-bridge.svg', focus: '형용사 표현', tone: 'emerald', iconKey: 'module-talk' },
-      daily_places:      { image: 'assets/visuals/pointer-map.svg',     focus: '장소 설명', tone: 'emerald', iconKey: 'module-map' },
-      daily_health:      { image: 'assets/visuals/health-kit.svg',      focus: '증상 설명', tone: 'emerald', iconKey: 'module-health' },
-      it_tech_vocab:     { image: 'assets/visuals/business-board.svg',  focus: 'IT 기초 어휘', tone: 'slate', iconKey: 'module-work' },
-      it_workplace_vocab:{ image: 'assets/visuals/business-board.svg',  focus: '조직·직장', tone: 'slate', iconKey: 'module-work' },
-      biz_basic:         { image: 'assets/visuals/business-board.svg',  focus: '비즈니스 표현', tone: 'slate', iconKey: 'module-work' },
-      biz_meeting:       { image: 'assets/visuals/business-board.svg',  focus: '회의·의견', tone: 'slate', iconKey: 'module-work' },
-      biz_1on1:          { image: 'assets/visuals/business-board.svg',  focus: '1on1 대화', tone: 'slate', iconKey: 'module-work' },
-      biz_intro:         { image: 'assets/visuals/greeting-bridge.svg', focus: '입사 소개', tone: 'slate', iconKey: 'module-work' },
-      biz_spec:          { image: 'assets/visuals/business-board.svg',  focus: '사양 확인', tone: 'slate', iconKey: 'module-work' },
-      adv_keigo:         { image: 'assets/visuals/advanced-ribbon.svg', focus: '경어 마스터', tone: 'slate', iconKey: 'module-advanced' }
+      first_phrases:     { image: 'images/lecture-scenes/slevel1-first-phrases-classroom-greeting.png', focus: '첫 인사 패턴', tone: 'violet', iconKey: 'module-talk', coverImage: 'images/lecture-scenes/slevel1-first-phrases-classroom-greeting.png' },
+      survival_greet:    { image: 'images/lecture-scenes/slevel2-self-introduction-office-lobby.png', focus: '자기소개', tone: 'blue', iconKey: 'module-talk', coverImage: 'images/lecture-scenes/slevel2-self-introduction-office-lobby.png', roleplayImage: 'images/lecture-scenes/slevel2-self-introduction-office-lobby.png' },
+      survival_pointing: { image: 'images/lecture-scenes/wlevel4-kosoado-city-directions.png', focus: '지시어 감각', tone: 'blue', iconKey: 'module-map', coverImage: 'images/lecture-scenes/wlevel4-kosoado-city-directions.png', roleplayImage: 'images/lecture-scenes/wlevel4-kosoado-city-directions.png' },
+      survival_numbers:  { image: 'images/lecture-scenes/wlevel2-elevator-number-culture.png', focus: '숫자·시간', tone: 'blue', iconKey: 'module-time', coverImage: 'images/lecture-scenes/wlevel2-elevator-number-culture.png', roleplayImage: 'images/lecture-scenes/wlevel2-elevator-number-culture.png' },
+      survival_location: { image: 'images/lecture-scenes/wlevel4b-station-location-help.png', focus: '위치·존재', tone: 'blue', iconKey: 'module-map', coverImage: 'images/lecture-scenes/wlevel4b-station-location-help.png', roleplayImage: 'images/lecture-scenes/wlevel4b-station-location-help.png' },
+      survival_transport:{ image: 'images/lecture-scenes/slevel4-train-station-transfer.png', focus: '길 묻기', tone: 'blue', iconKey: 'module-map', coverImage: 'images/lecture-scenes/slevel4-train-station-transfer.png', roleplayImage: 'images/lecture-scenes/slevel4-train-station-transfer.png' },
+      survival_food:     { image: 'images/lecture-scenes/wlevel7b-cafe-order-counter.png', focus: '주문·부탁', tone: 'blue', iconKey: 'module-order', coverImage: 'images/lecture-scenes/wlevel7b-cafe-order-counter.png', roleplayImage: 'images/lecture-scenes/wlevel7b-cafe-order-counter.png' },
+      survival_shopping: { image: 'images/lecture-scenes/slevel3-convenience-store-checkout.png', focus: '가격·비교', tone: 'blue', iconKey: 'module-map', coverImage: 'images/lecture-scenes/slevel3-convenience-store-checkout.png', roleplayImage: 'images/lecture-scenes/slevel3-convenience-store-checkout.png' },
+      survival_hotel:    { image: 'images/lecture-scenes/slevel5-ryokan-checkin-lobby.png', focus: '숙박 요청', tone: 'blue', iconKey: 'module-talk', coverImage: 'images/lecture-scenes/slevel5-ryokan-checkin-lobby.png', roleplayImage: 'images/lecture-scenes/slevel5-ryokan-checkin-lobby.png' },
+      daily_adjectives:  { image: 'images/lecture-scenes/wlevel5-verb-dining-action.png', focus: '동사 활용', tone: 'emerald', iconKey: 'module-talk', coverImage: 'images/lecture-scenes/wlevel5-verb-dining-action.png' },
+      daily_feelings:    { image: 'images/lecture-scenes/wlevel6-adjective-cafe-comparison.png', focus: '형용사 표현', tone: 'emerald', iconKey: 'module-talk', coverImage: 'images/lecture-scenes/wlevel6-adjective-cafe-comparison.png' },
+      daily_places:      { image: 'images/lecture-scenes/slevel6-koban-lost-item-help.png', focus: '장소 설명', tone: 'emerald', iconKey: 'module-map', coverImage: 'images/lecture-scenes/slevel6-koban-lost-item-help.png', roleplayImage: 'images/lecture-scenes/slevel6-koban-lost-item-help.png' },
+      daily_health:      { image: 'images/lecture-scenes/wlevel8-clinic-health-help.png', focus: '증상 설명', tone: 'emerald', iconKey: 'module-health', coverImage: 'images/lecture-scenes/wlevel8-clinic-health-help.png', roleplayImage: 'images/lecture-scenes/wlevel8-clinic-health-help.png' },
+      it_tech_vocab:     { image: 'images/lecture-scenes/blevel1-it-team-communication.png', focus: 'IT 기초 어휘', tone: 'slate', iconKey: 'module-work', coverImage: 'images/lecture-scenes/blevel1-it-team-communication.png' },
+      it_workplace_vocab:{ image: 'images/lecture-scenes/blevel2-horenso-standup-update.png', focus: '조직·직장', tone: 'slate', iconKey: 'module-work', coverImage: 'images/lecture-scenes/blevel2-horenso-standup-update.png', roleplayImage: 'images/lecture-scenes/blevel2-horenso-standup-update.png' },
+      biz_basic:         { image: 'images/lecture-scenes/blevel3-business-email-review.png', focus: '비즈니스 표현', tone: 'slate', iconKey: 'module-work', coverImage: 'images/lecture-scenes/blevel3-business-email-review.png', roleplayImage: 'images/lecture-scenes/blevel3-business-email-review.png' },
+      biz_meeting:       { image: 'images/lecture-scenes/blevel4-meeting-consensus-room.png', focus: '회의·의견', tone: 'slate', iconKey: 'module-work', coverImage: 'images/lecture-scenes/blevel4-meeting-consensus-room.png', roleplayImage: 'images/lecture-scenes/blevel4-meeting-consensus-room.png' },
+      biz_1on1:          { image: 'images/lecture-scenes/blevel5-manager-one-on-one.png', focus: '1on1 대화', tone: 'slate', iconKey: 'module-work', coverImage: 'images/lecture-scenes/blevel5-manager-one-on-one.png', roleplayImage: 'images/lecture-scenes/blevel5-manager-one-on-one.png' },
+      biz_intro:         { image: 'images/lecture-scenes/slevel2-self-introduction-office-lobby.png', focus: '입사 소개', tone: 'slate', iconKey: 'module-work', coverImage: 'images/lecture-scenes/slevel2-self-introduction-office-lobby.png', roleplayImage: 'images/lecture-scenes/slevel2-self-introduction-office-lobby.png' },
+      biz_spec:          { image: 'images/lecture-scenes/blevel6-requirements-planning-board.png', focus: '사양 확인', tone: 'slate', iconKey: 'module-work', coverImage: 'images/lecture-scenes/blevel6-requirements-planning-board.png', roleplayImage: 'images/lecture-scenes/blevel6-requirements-planning-board.png' },
+      adv_keigo:         { image: 'images/lecture-scenes/klevel1-keigo-service-counter.png', focus: '경어 마스터', tone: 'slate', iconKey: 'module-advanced', coverImage: 'images/lecture-scenes/klevel1-keigo-service-counter.png' }
     };
     return map[mod?.id] || { image: 'assets/visuals/advanced-ribbon.svg', focus: '실전 학습', tone: 'slate', iconKey: 'module-advanced' };
   }
@@ -474,7 +519,7 @@ window.App = (() => {
           <div class="module-card ${modLocked ? 'locked' : ''} ${completed ? 'completed' : ''}"
                onclick="${!modLocked ? `App.openModule('${mod.id}')` : ''}">
             <div class="module-visual ${visual.tone}">
-              ${visual.image ? `<img src="${visual.image}" alt="${escHtml(mod.name)}">` : `<span class="module-visual-emoji">${escHtml(mod.icon)}</span>`}
+              <div class="module-visual-main">${_uiIconSvg(visual.iconKey, 'module-visual-main-svg')}</div>
               <div class="visual-badge">${_uiIconSvg(visual.iconKey, 'visual-badge-svg')}</div>
             </div>
             <div class="module-info">
@@ -749,11 +794,14 @@ window.App = (() => {
   }
 
   function _showModuleIntro(mod) {
+    document.getElementById('flowScreen')?.classList.remove('lecture-mode');
+    document.getElementById('flowScreen')?.classList.add('module-intro-mode');
     const stage = STAGES.find(s => s.id === mod.stageId);
     const prog = Store.get();
     const stepsDone = prog.modules[mod.id]?.stepsCompleted || 0;
     const startStep = Math.min(stepsDone, mod.steps.length - 1);
     const visual = _getModuleVisual(mod);
+    const coverImage = _getModuleCoverAsset(mod);
 
     const items = [
       ...mod.steps.map(s => `<div class="intro-item"><span class="ii-check">${_uiIconSvg('book', 'ii-icon')}</span> ${escHtml(s.title)}</div>`),
@@ -784,17 +832,20 @@ window.App = (() => {
     })() : '';
 
     document.getElementById('flowBody').innerHTML = `
-      <div class="module-intro">
-        <div class="module-intro-icon">${_uiIconSvg(visual.iconKey, 'module-intro-icon-svg')}</div>
-        <div class="module-intro-title">${escHtml(mod.name)}</div>
-        <div class="module-intro-sub">${escHtml(mod.desc)}<br>
-          <span style="color:var(--text3);font-size:13px;margin-top:6px;display:block">
-            STAGE ${stage.id}: ${escHtml(stage.name)}
-          </span>
+      <div class="module-intro ${coverImage ? 'has-bg' : ''}" ${coverImage ? `style="--module-intro-bg:url('${_cssUrlValue(coverImage)}')"` : ''}>
+        ${coverImage ? '<div class="module-intro-bg" aria-hidden="true"></div>' : ''}
+        <div class="module-intro-content">
+          <div class="module-intro-icon">${_uiIconSvg(visual.iconKey, 'module-intro-icon-svg')}</div>
+          <div class="module-intro-title">${escHtml(mod.name)}</div>
+          <div class="module-intro-sub">${escHtml(mod.desc)}<br>
+            <span>
+              STAGE ${stage.id}: ${escHtml(stage.name)}
+            </span>
+          </div>
+          <div class="module-intro-items">${items}</div>
+          ${lecPreviewHtml}
         </div>
-        <div class="module-intro-items">${items}</div>
       </div>
-      ${lecPreviewHtml}
     `;
 
     const allDone = stepsDone >= mod.steps.length;
@@ -844,6 +895,8 @@ window.App = (() => {
 
     const s = mod.steps[step];
     const total = mod.steps.length;
+    document.getElementById('flowScreen')?.classList.remove('module-intro-mode');
+    document.getElementById('flowScreen')?.classList.toggle('lecture-mode', s.type === 'lecture');
     _updateFlowProgress(step, total, s.title);
 
     switch (s.type) {
@@ -1884,6 +1937,8 @@ window.App = (() => {
     grammar:  { icon: 'tools', color: '#f43f5e' },
     table:    { icon: 'grid', color: '#0ea5e9' },
     dialog:   { icon: 'roleplay', color: '#14b8a6' },
+    kanji:    { icon: 'module-kana', color: '#f97316' },
+    vocabulary:{ icon: 'book', color: '#22c55e' },
   };
 
   function _renderLecture(mod, step, stepIndex) {
@@ -1900,50 +1955,92 @@ window.App = (() => {
     const slide = slides[idx];
     const ts = _LEC_TYPE[slide.type] || _LEC_TYPE.hook;
     const isLast = idx === slides.length - 1;
+    const visualSrc = _lectureVisualSource(mod, slide);
+    const characterSrc = slide.characterImage || '';
+    const shotClass = `shot-${(idx % 4) + 1}`;
+    const nextSlide = slides[idx + 1];
+    const prevSlide = slides[idx - 1];
+    const showJpCaption = _lectureCaptionEnabled('jp');
+    const showKoCaption = _lectureCaptionEnabled('ko');
+    const hasAnyCaption = !!(slide.captionJp || slide.captionKo);
+    const hasVisibleCaption = (slide.captionJp && showJpCaption) || (slide.captionKo && showKoCaption);
+    const slideSegments = slides.map((_, slideIndex) => `
+      <div class="lec-segment ${slideIndex < idx ? 'done' : ''} ${slideIndex === idx ? 'active' : ''}">
+        <div class="lec-segment-fill"></div>
+      </div>
+    `).join('');
 
     _updateFlowProgress(stepIndex, mod.steps.length, step.title);
     const overallPct = Math.round((idx / slides.length) * 100);
     document.getElementById('flowProgressFill').style.width = overallPct + '%';
 
     document.getElementById('flowBody').innerHTML = `
-      <div class="lecture-slide" id="lectureSlide">
-        <div class="lec-header">
-          <div class="lec-badge" style="--lc:${ts.color}">${_uiIconSvg(ts.icon, 'lec-type-icon')} ${escHtml(slide.label || '')}</div>
-          <div class="lec-counter">${idx + 1} / ${slides.length}</div>
-        </div>
+      <div class="lecture-slide lecture-slide-enter" id="lectureSlide">
+        <div class="lec-segments">${slideSegments}</div>
 
-        <!-- 칠판 영역 — 애니메이션 여기서 발생 -->
-        <div class="lec-board" id="lecBoard">
-          ${slide.image ? `<img src="${slide.image}" style="max-width:100%; max-height:140px; border-radius:12px; margin-bottom:10px; object-fit:contain;" />` : ''}
-          <div class="lec-board-text" id="lecBoardText" style="font-weight:bold; font-size:28px;"></div>
-          ${slide.sub ? `<div class="lec-board-sub" style="margin-top:8px;">${escHtml(slide.sub)}</div>` : ''}
-        </div>
+        <div class="lec-reel ${hasVisibleCaption ? 'has-caption' : 'no-caption'}" style="--lc:${ts.color}">
+          <div class="lec-reel-backdrop ${shotClass}">
+            ${visualSrc ? `<img class="lec-scene-img" src="${escHtml(visualSrc)}" alt="">` : ''}
+            <div class="lec-reel-pattern">${_uiIconSvg(ts.icon, 'lec-reel-icon')}</div>
+            <div class="lec-reel-sheen"></div>
+          </div>
 
-        <!-- 설명: 일본어 메인 + 한국어 번역 하단 -->
-        ${(slide.captionJp || slide.captionKo) ? `
-        <div class="lec-caption-box">
-          ${slide.captionJp ? `<div class="lec-cap-jp" id="lecCapJp">${ruby(slide.captionJp)}</div>` : ''}
-          ${slide.captionKo ? `<div class="lec-cap-ko">${escHtml(slide.captionKo)}</div>` : ''}
-        </div>` : ''}
+          <div class="lec-scene-topline">
+            <span class="lec-live-dot"></span>
+            <span>${escHtml(mod.name)}</span>
+            <span class="lec-shot-count">${idx + 1}/${slides.length}</span>
+          </div>
+
+          ${characterSrc ? `
+            <div class="lec-host-card">
+              <img src="${escHtml(characterSrc)}" alt="${escHtml(slide.characterName || 'host')}">
+              <span>${escHtml(slide.characterName || 'Guide')}</span>
+            </div>
+          ` : ''}
+
+          <div class="lec-board" id="lecBoard">
+            <div class="lec-board-kicker">${escHtml(slide.label || 'Lecture')}</div>
+            <div class="lec-board-text" id="lecBoardText"></div>
+            ${slide.sub ? `<div class="lec-board-sub">${escHtml(slide.sub)}</div>` : ''}
+            ${slide.audio ? `<div class="lec-board-reading">${escHtml(slide.audio)}</div>` : ''}
+          </div>
+
+          ${hasAnyCaption ? `
+          <div class="lec-caption-box ${hasVisibleCaption ? '' : 'hidden'}">
+            ${slide.captionJp ? `<div class="lec-cap-jp ${showJpCaption ? '' : 'hidden'}" id="lecCapJp">${ruby(slide.captionJp)}</div>` : ''}
+            ${slide.captionKo ? `<div class="lec-cap-ko ${showKoCaption ? '' : 'hidden'}" id="lecCapKo">${escHtml(slide.captionKo)}</div>` : ''}
+          </div>` : ''}
+        </div>
 
         <!-- 타이머 바 -->
-        <div class="lec-timer-track">
+        <div class="lec-timer-track lec-timer-track-wide">
           <div class="lec-timer-bar" id="lecTimerBar"
                style="animation-duration:2000ms;animation-play-state:paused"></div>
         </div>
       </div>
     `;
 
+    const prevLabel = prevSlide?.main ? stripFuri(prevSlide.main) : '이전';
+    const nextLabel = isLast ? '완료' : stripFuri(nextSlide?.main || '다음');
     document.getElementById('flowFooter').innerHTML = `
-      <div style="display:flex;gap:8px">
-        <button class="btn btn-outline" style="flex:1" id="btnLecPrev"
-                onclick="App._lecPrev()" ${idx === 0 ? 'disabled' : ''}>← 이전</button>
-        <button class="btn btn-outline" style="flex:1" id="btnLecPause"
-                onclick="App._lecPauseToggle()">⏸</button>
-        ${isLast ? `<button class="btn btn-outline" style="flex:1" onclick="App._lecRestart()" title="처음부터 다시 보기">↩</button>` : ''}
-        <button class="btn btn-primary" style="flex:2" id="btnLecNext"
+      <div class="lec-footer-tools lec-footer-tools-unified">
+        ${_lectureCaptionToggleButton('jp')}
+        ${_lectureCaptionToggleButton('ko')}
+        <button class="lec-display-toggle lec-display-action" id="btnLecPause"
+                aria-label="일시정지"
+                onclick="App._lecPauseToggle()">${_lecturePauseButtonLabel(false)}</button>
+        ${isLast ? `<button class="lec-display-toggle lec-display-replay" onclick="App._lecRestart()" title="처음부터 다시 보기">${_uiLabeledIcon('replay')} 다시 보기</button>` : ''}
+      </div>
+      <div class="lec-controls lec-controls-compact">
+        <button class="btn btn-outline lec-nav-button" id="btnLecPrev"
+                onclick="App._lecPrev()" ${idx === 0 ? 'disabled' : ''}>
+          <span class="lec-nav-arrow">←</span>
+          <span class="lec-nav-label">${escHtml(prevLabel)}</span>
+        </button>
+        <button class="btn btn-primary lec-nav-button lec-nav-button-next" id="btnLecNext"
                 onclick="App._lecNext()">
-          ${isLast ? '완료 ✓' : '다음 →'}
+          <span class="lec-nav-label">${escHtml(nextLabel)}</span>
+          <span class="lec-nav-arrow">→</span>
         </button>
       </div>
     `;
@@ -2158,13 +2255,15 @@ window.App = (() => {
     if (lc.paused) {
       _lecStopTimer();
       TTS.stopQueue();
-      if (btn) btn.textContent = '▶ 재생';
+      if (btn) btn.innerHTML = _lecturePauseButtonLabel(true);
+      if (btn) btn.setAttribute('aria-label', '재생');
     } else {
-      if (btn) btn.textContent = '⏸';
+      if (btn) btn.innerHTML = _lecturePauseButtonLabel(false);
+      if (btn) btn.setAttribute('aria-label', '일시정지');
       const slide = lc.slides[lc.idx];
       if (slide.captionJp) {
         // 일시정지 후 재개 → captionJp 처음부터 다시 읽기
-        _lecReadCaptionJp(slide.captionJp, slide.captionKo, () => {
+        _lecReadCaptionJp(slide.captionJp, slide.captionKo, lc.idx, () => {
           if (!_flow._lecture || _flow._lecture.paused || _flow._lecture.idx !== lc.idx) return;
           const bar = document.getElementById('lecTimerBar');
           if (bar) { bar.style.animationDuration = '2000ms'; bar.style.animationPlayState = 'running'; }
@@ -2191,6 +2290,30 @@ window.App = (() => {
     } else {
       jp?.classList.remove('hidden'); ko?.classList.add('hidden');
       tJp?.classList.add('active'); tKo?.classList.remove('active');
+    }
+  }
+
+  function _lecToggleCaption(lang) {
+    const key = lang === 'jp' ? 'lectureCaptionJp' : 'lectureCaptionKo';
+    const next = !Store.getSetting(key);
+    Store.setSetting(key, next);
+    const box = document.querySelector(lang === 'jp' ? '.lec-cap-jp' : '.lec-cap-ko');
+    if (box) box.classList.toggle('hidden', !next);
+    document.querySelectorAll('.lec-display-toggle').forEach(btn => {
+      const isLangBtn = btn.getAttribute('onclick')?.includes(`'${lang}'`);
+      if (!isLangBtn) return;
+      btn.classList.toggle('active', next);
+      btn.setAttribute('aria-pressed', next ? 'true' : 'false');
+      const stateEl = btn.querySelector('.lec-display-toggle-state');
+      if (stateEl) stateEl.textContent = next ? 'ON' : 'OFF';
+    });
+    const hasVisibleCaption = !!document.querySelector('.lec-cap-jp:not(.hidden), .lec-cap-ko:not(.hidden)');
+    const capBox = document.querySelector('.lec-caption-box');
+    if (capBox) capBox.classList.toggle('hidden', !hasVisibleCaption);
+    const reel = document.querySelector('.lec-reel');
+    if (reel) {
+      reel.classList.toggle('has-caption', hasVisibleCaption);
+      reel.classList.toggle('no-caption', !hasVisibleCaption);
     }
   }
 
@@ -2271,6 +2394,7 @@ window.App = (() => {
     const dialogues = _getDialogue(rp.dialogueKey);
     const state = _getRoleplayState(mod);
     const phase = state.phase || 'preview';
+    const roleplayCover = _getRoleplayCoverAsset(mod);
     const practiceLines = state.practiceLines || [];
     const shadowDone = state.shadowDone || [];
     const outputDone = state.outputDone || [];
@@ -2371,6 +2495,10 @@ window.App = (() => {
     `;
     if (phase === 'preview') {
       document.getElementById('flowBody').innerHTML = `
+        ${roleplayCover ? `
+        <div class="roleplay-cover">
+          <img src="${roleplayCover}" alt="${escHtml(rp.name)}">
+        </div>` : ''}
         <div class="dialogue-scene">
           <div class="scene-title">${_uiIconSvg('roleplay', 'scene-title-icon')} ${escHtml(rp.name)}</div>
           ${escHtml(rp.desc)}
@@ -4005,6 +4133,7 @@ window.App = (() => {
     _lecPrev,
     _lecRestart,
     _lecPauseToggle,
+    _lecToggleCaption,
     _lecCapTab,
     setQuizPassRate,
     _completeRoleplay,

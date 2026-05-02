@@ -2,6 +2,9 @@ window.LECTURE_DATA = window.LECTURE_DATA || {};
 window.LECTURE_DATA.wlevel_8 = [
   {
     type: 'hook', label: '오늘의 이야기', duration: 6000, audio: null,
+    image: 'images/lecture-scenes/wlevel8-clinic-health-help.png',
+    characterImage: 'images/lecture-characters/mina-host-portrait.png',
+    characterName: 'Mina',
     main: '신체와 마음',
     sub: '신체 부위를 활용해 감정을 표현하는 일본어의 독특한 비유를 알아봅시다.',
     captionJp: '日本語では体の部位で感情を表すことがよくあります！例えば「腹が立つ(배가 서다)」は「怒る(화나다)」という意味。体と心は繋がっているんですね。',
@@ -9,6 +12,9 @@ window.LECTURE_DATA.wlevel_8 = [
   },
   {
     type: 'culture', label: '문화 노트', duration: 7000, audio: 'お大事に',
+    image: 'images/lecture-scenes/wlevel8-clinic-health-help.png',
+    characterImage: 'images/lecture-characters/mina-host-portrait.png',
+    characterName: 'Mina',
     main: 'お大事に',
     sub: '아픈 사람에게 건네는 따뜻한 한마디, "몸조리 잘 하세요"라는 뜻입니다.',
     captionJp: '「お大事(だいじ)に」は病院や薬局で必ず聞く言葉です。「どうかお体を大切にしてください」という思いやりが詰まった魔法の挨拶なんですよ。',
@@ -16,6 +22,9 @@ window.LECTURE_DATA.wlevel_8 = [
   },
   {
     type: 'mnemonic', label: '암기 꿀팁', duration: 6000, audio: '頭・目・耳・口',
+    image: 'images/lecture-scenes/wlevel8-clinic-health-help.png',
+    characterImage: 'images/lecture-characters/mina-host-portrait.png',
+    characterName: 'Mina',
     main: '얼굴 부위 외우기',
     sub: '위에서 아래로 내려오며 머리, 눈, 귀, 입 순서로 외워볼까요?',
     captionJp: '「頭(머리)・目(눈)・耳(귀)・口(입)」！顔のパーツは毎日鏡を見るたびに唱えれば、すぐ覚えられますよ。上から順番にリズムに乗せて言ってみましょう！',
@@ -23,6 +32,9 @@ window.LECTURE_DATA.wlevel_8 = [
   },
   {
     type: 'vocabulary', label: '필수 어휘', duration: 7000, audio: null,
+    image: 'images/lecture-scenes/wlevel8-clinic-health-help.png',
+    characterImage: 'images/lecture-characters/mina-host-portrait.png',
+    characterName: 'Mina',
     main: '신체 부위 명칭',
     sub: '머리부터 발끝까지! 한자와 함께 내 몸의 명칭들을 익혀봅시다.',
     captionJp: '首(목)・肩(어깨)・胸(가슴)・腕(팔)・手(손)・足(발)！漢字で見ると、その部位の形に似ているものもあって面白いですよ。',
@@ -30,6 +42,9 @@ window.LECTURE_DATA.wlevel_8 = [
   },
   {
     type: 'practice', label: '실전 연습', duration: 7000, audio: '頭가 痛いです・お腹가 痛いです',
+    image: 'images/lecture-scenes/wlevel8-clinic-health-help.png',
+    characterImage: 'images/lecture-characters/mina-host-portrait.png',
+    characterName: 'Mina',
     main: '어디가 아픈가요?',
     sub: '병원이나 약국에서 내 컨디션을 정확히 전달하는 법을 배워봅니다.',
     captionJp: '「～が痛いです」と言えば、どこが悪いか伝えられます。「頭が痛いです」「お腹が痛いです」。これだけ知っていれば、緊急のときも安心ですね！',
@@ -37,6 +52,9 @@ window.LECTURE_DATA.wlevel_8 = [
   },
   {
     type: 'summary', label: '오늘의 정리', duration: 5000, audio: null,
+    image: 'images/lecture-scenes/wlevel8-clinic-health-help.png',
+    characterImage: 'images/lecture-characters/mina-host-portrait.png',
+    characterName: 'Mina',
     main: '요약 리뷰',
     sub: '신체 부위와 건강 상태를 표현하는 법을 배우며 초급 과정을 잘 마무리했습니다.',
     captionJp: '体の言葉は、自分の健康を守るためにとても大切です。今日で基礎的なレベルは修了ですが、ここからが本当のスタート！これからも一緒に頑張りましょう。',

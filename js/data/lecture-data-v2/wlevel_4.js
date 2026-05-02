@@ -3,6 +3,8 @@ window.LECTURE_DATA.wlevel_4 = [
   {
     type: 'hook', label: '오늘의 이야기', duration: 6000, audio: null,
     image: 'images/kosoado.png',
+    characterImage: 'images/lecture-characters/mina-host-portrait.png',
+    characterName: 'Mina',
     main: '지시어 (こそあど)',
     sub: '한국어보다 더 정교한 일본어만의 거리 감각을 배워봅시다.',
     captionJp: '日本語には「こ・そ・あ・ど」という魔法의 법칙이 있습니다! これ(이것)・それ(그것)・あれ(저것)・どれ(어느 것). 이 법칙만 알면 장소나 방향도 똑같은 패턴으로 말할 수 있어요.',
@@ -10,6 +12,9 @@ window.LECTURE_DATA.wlevel_4 = [
   },
   {
     type: 'mnemonic', label: '암기 꿀팁', duration: 7000, audio: 'わたし・あなた・かれ・かのじょ',
+    image: 'images/lecture-scenes/wlevel4-kosoado-city-directions.png',
+    characterImage: 'images/lecture-characters/mina-host-portrait.png',
+    characterName: 'Mina',
     main: '사람을 부르는 말',
     sub: '일본어에서는 \'당신(あなた)\'이라는 표현을 거의 쓰지 않는다는 사실, 알고 계셨나요?',
     captionJp: '実は日本語では「あなた」をあまり使いません！知らない人に「あなた」と言うと失礼に聞こえることもあります。名前を知っているなら「名前＋さん」を使うのが一番自然で丁寧ですよ。',
@@ -17,6 +22,9 @@ window.LECTURE_DATA.wlevel_4 = [
   },
   {
     type: 'practice', label: '실전 연습', duration: 7000, audio: 'これ・それ・あれ・どれ',
+    image: 'images/lecture-scenes/wlevel4-kosoado-city-directions.png',
+    characterImage: 'images/lecture-characters/mina-host-portrait.png',
+    characterName: 'Mina',
     main: '지시어 확장표',
     sub: '물건, 장소, 방향까지 패턴 하나로 전부 해결할 수 있습니다.',
     captionJp: '【物】これ・それ・あれ・どれ / 【場所】ここ・そこ・あそこ・どこ / 【方向】こちら・そちら・あちら・どちら。たった4つの 패턴으로 수백 개 표현을 만들 수 있습니다!',
@@ -24,6 +32,9 @@ window.LECTURE_DATA.wlevel_4 = [
   },
   {
     type: 'vocabulary', label: '필수 어휘', duration: 7000, audio: null,
+    image: 'images/lecture-scenes/wlevel4-kosoado-city-directions.png',
+    characterImage: 'images/lecture-characters/mina-host-portrait.png',
+    characterName: 'Mina',
     main: '위치와 방향',
     sub: '오른쪽, 왼쪽, 위, 아래... 길 찾기에 꼭 필요한 단어들입니다.',
     captionJp: '右(みぎ)・左(ひだり)・前(まえ)・後ろ(うしろ)・上(うえ)・下(した)。これを「〜にあります」と組み合わせれば場所の説明が完璧にできます！',
@@ -31,6 +42,9 @@ window.LECTURE_DATA.wlevel_4 = [
   },
   {
     type: 'funfact', label: '재미있는 사실', duration: 6000, audio: null,
+    image: 'images/lecture-scenes/wlevel4-kosoado-city-directions.png',
+    characterImage: 'images/lecture-characters/mina-host-portrait.png',
+    characterName: 'Mina',
     main: 'ここ vs こちら',
     sub: '단순히 장소를 말할 때와 예의를 갖추어 방향을 말할 때의 차이점!',
     captionJp: '「ここ」は場所を指しますが、「こちら」は方向や「丁寧な場所」を表します。お店の人が「こちらへどうぞ！」と言うのは、お客様を丁寧に案内するためなんですよ。',
@@ -38,6 +52,9 @@ window.LECTURE_DATA.wlevel_4 = [
   },
   {
     type: 'summary', label: '오늘의 정리', duration: 5000, audio: null,
+    image: 'images/lecture-scenes/wlevel4-kosoado-city-directions.png',
+    characterImage: 'images/lecture-characters/mina-host-portrait.png',
+    characterName: 'Mina',
     main: '요약 리뷰',
     sub: '지시어 사총사 코·소·아·도와 위치 단어를 정복했습니다.',
     captionJp: '「こそあど」の法則を覚えれば、日本語の指示語はもう怖くありません！今日学んだ位置の言葉も一緒に使ってみてくださいね。',

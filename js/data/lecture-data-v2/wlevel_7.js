@@ -2,6 +2,9 @@ window.LECTURE_DATA = window.LECTURE_DATA || {};
 window.LECTURE_DATA.wlevel_7 = [
   {
     type: 'hook', label: '오늘의 이야기', duration: 6000, audio: null,
+    image: 'images/lecture-scenes/wlevel7-izakaya-ordering-table.png',
+    characterImage: 'images/lecture-characters/mina-host-portrait.png',
+    characterName: 'Mina',
     main: '이자카야 (居酒屋)',
     sub: '일본 직장인들의 피로를 풀어주는 진짜 휴식처, 이자카야 문화를 알아봅시다.',
     captionJp: '日本には「居酒屋文化」があります！仕事が終わった後、同僚と飲みながら本音を話す場所。日本特유의 "노미니케이션"이 이루어지는 아주 역동적인 곳이죠.',
@@ -9,6 +12,9 @@ window.LECTURE_DATA.wlevel_7 = [
   },
   {
     type: 'culture', label: '문화 노트', duration: 7000, audio: 'いただきます',
+    image: 'images/lecture-scenes/wlevel7-izakaya-ordering-table.png',
+    characterImage: 'images/lecture-characters/mina-host-portrait.png',
+    characterName: 'Mina',
     main: 'いただきます',
     sub: '"잘 먹겠습니다"는 사실 식재료의 생명에 대한 감사의 작별인사입니다.',
     captionJp: '「いただきます」は「食材の命」に感謝して、その命を頂くという意味。だから食べ始める前に、手を合わせて心を込めて言うのが日本のマ너입니다.',
@@ -16,6 +22,9 @@ window.LECTURE_DATA.wlevel_7 = [
   },
   {
     type: 'funfact', label: '재미있는 사실', duration: 6000, audio: null,
+    image: 'images/lecture-scenes/wlevel7-izakaya-ordering-table.png',
+    characterImage: 'images/lecture-characters/mina-host-portrait.png',
+    characterName: 'Mina',
     main: '편의점 도시락 (벤또)',
     sub: '일본 편의점 도시락이 유독 맛있는 이유는 에도시대 때부터 내려온 정성 때문입니다.',
     captionJp: '日本のコンビニのお弁当は世界最高水準と言われています！色鮮やかで栄養バランスも考えられていて、旅行者にとっても強い味方ですよね。',
@@ -23,6 +32,9 @@ window.LECTURE_DATA.wlevel_7 = [
   },
   {
     type: 'vocabulary', label: '필수 어휘', duration: 7000, audio: null,
+    image: 'images/lecture-scenes/wlevel7-izakaya-ordering-table.png',
+    characterImage: 'images/lecture-characters/mina-host-portrait.png',
+    characterName: 'Mina',
     main: '음식 메뉴',
     sub: '라멘, 스시, 돈부리... 이름만 들어도 배고파지는 필수 음식 단어들을 익혀봅시다.',
     captionJp: 'ラーメン、寿司(すし)、天ぷら、焼肉(やきにく)！これらはもう世界共通語ですね。正しい発音で注文すれば、もっと美味しく感じられるはずです。',
@@ -30,6 +42,9 @@ window.LECTURE_DATA.wlevel_7 = [
   },
   {
     type: 'practice', label: '실전 연습', duration: 7000, audio: '〜를 주세요・〜는 있나요',
+    image: 'images/lecture-scenes/wlevel7-izakaya-ordering-table.png',
+    characterImage: 'images/lecture-characters/mina-host-portrait.png',
+    characterName: 'Mina',
     main: '식당 주문 마스터',
     sub: '벨이 없는 식당에서 점원을 부르는 법부터 계산까지! 실전 대화를 배워봅니다.',
     captionJp: '①「すみません！」で店員を呼ぶ。②「これをください」で注文。③「お会計(かいけい)をお願いします」で計算。이 순서만 기억하면 무서운 식당도 혼자 갈 수 있습니다!',
@@ -37,6 +52,9 @@ window.LECTURE_DATA.wlevel_7 = [
   },
   {
     type: 'summary', label: '오늘의 정리', duration: 5000, audio: null,
+    image: 'images/lecture-scenes/wlevel7-izakaya-ordering-table.png',
+    characterImage: 'images/lecture-characters/mina-host-portrait.png',
+    characterName: 'Mina',
     main: '요약 리뷰',
     sub: '일본의 식사 예절과 실전 식당 주문법을 완벽하게 익혔습니다.',
     captionJp: '場所と食べ物の言葉を知ると、日本旅行がもっと自由になります。おいしいものをたくさん食べて, 日本語ももっと上達しましょう！',

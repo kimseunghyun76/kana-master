@@ -26,7 +26,7 @@ const STAGES = [
     color: '#3b82f6',
     jlpt: 'N5',
     desc: '여행 · 일상에서 살아남기! 인사, 숫자, 쇼핑, 식사 등 필수 표현.',
-    unlockXP: 800
+    unlockXP: 0
   },
   {
     id: 3, key: 's3',
@@ -36,7 +36,7 @@ const STAGES = [
     color: '#10b981',
     jlpt: 'N4',
     desc: '일본인 친구와 자유롭게 대화! 감정·취미·약속 등 생생한 표현.',
-    unlockXP: 2800
+    unlockXP: 0
   },
   {
     id: 4, key: 's4',
@@ -46,7 +46,7 @@ const STAGES = [
     color: '#f59e0b',
     jlpt: 'N3',
     desc: 'IT 회사에서 일본인 동료와 소통! 업무·회의·개발 현장 표현.',
-    unlockXP: 6000
+    unlockXP: 0
   },
   {
     id: 5, key: 's5',
@@ -56,7 +56,7 @@ const STAGES = [
     color: '#ef4444',
     jlpt: null,
     desc: '경어와 고급 표현 감각을 다듬는 심화 워크숍.',
-    unlockXP: 12000
+    unlockXP: 0
   }
 ];
 
@@ -134,7 +134,7 @@ const MODULES = [
     icon: '👋',
     desc: '일본어 첫 10개 표현으로 바로 시작!',
     xp: 200,
-    unlockAfter: ['kana_hira', 'kana_kata'],
+    unlockAfter: ['kana_hira'],
     steps: [
       { type: 'lecture',    title: '🎬 はじめまして의 비밀', lectureKey: 'slevel_1' },
       { type: 'vocab_learn', title: '인사 필수 표현', categoryId: 'basic_words', limit: 10 },
@@ -152,7 +152,7 @@ const MODULES = [
     icon: '🙏',
     desc: 'AはBです, 인사, 이름, 출신 소개의 기초 문형',
     xp: 300,
-    unlockAfter: ['kana_hira', 'kana_kata', 'first_phrases'],
+    unlockAfter: ['first_phrases'],
     steps: [
       { type: 'lecture',    title: '🎬 완벽한 자기소개', lectureKey: 'slevel_2' },
       { type: 'vocab_learn', title: '인사·응답 어휘', categoryId: 'basic_words' },
@@ -614,11 +614,7 @@ function getModulesByStage(stageId) {
 function isModuleUnlocked(moduleId, progress) {
   const mod = MODULES.find(m => m.id === moduleId);
   if (!mod) return false;
-  if (!mod.unlockAfter || mod.unlockAfter.length === 0) return true;
-  return mod.unlockAfter.every(depId => {
-    const dep = progress.modules[depId];
-    return dep && dep.stepsCompleted >= (MODULES.find(m => m.id === depId)?.steps.length || 0);
-  });
+  return true;
 }
 
 // ── Helper: check if roleplay is unlocked ─────────────────

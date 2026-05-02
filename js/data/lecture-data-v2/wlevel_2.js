@@ -2,6 +2,9 @@ window.LECTURE_DATA = window.LECTURE_DATA || {};
 window.LECTURE_DATA.wlevel_2 = [
   {
     type: 'hook', label: '오늘의 이야기', duration: 6000, audio: null,
+    image: 'images/lecture-scenes/wlevel2-elevator-number-culture.png',
+    characterImage: 'images/lecture-characters/mina-host-portrait.png',
+    characterName: 'Mina',
     main: '일본의 엘리베이터',
     sub: '병원의 엘리베이터에는 종종 4층과 9층이 없습니다.',
     captionJp: '日本の古い病院やマンションのエレベーターには「4」や「9」のフロアがないことがよくあります。なぜだか分かりますか？実はこれ、数字の発音が理由なんです！韓国にも「4階(F)」がない建物がありますよね。',
@@ -9,6 +12,9 @@ window.LECTURE_DATA.wlevel_2 = [
   },
   {
     type: 'kanji', label: '한자 파헤치기', duration: 8000, audio: null,
+    image: 'images/lecture-scenes/wlevel2-elevator-number-culture.png',
+    characterImage: 'images/lecture-characters/mina-host-portrait.png',
+    characterName: 'Mina',
     main: '四(4) 와 九(9)',
     sub: '4의 발음은 \'죽음\'과, 9의 발음은 \'고통\'과 같기 때문입니다.',
     captionJp: '日本語で「4」は「し」と発音します。これは「死(し)」と同じ発音です。そして「9」は「く」と読みますが、これは「苦しみ(苦・く)」と同じ発音になります。だから昔から避けられてきたんです。',
@@ -16,6 +22,9 @@ window.LECTURE_DATA.wlevel_2 = [
   },
   {
     type: 'grammar', label: '문법 노트: 숫자 세기', duration: 8000, audio: null,
+    image: 'images/lecture-scenes/wlevel2-elevator-number-culture.png',
+    characterImage: 'images/lecture-characters/mina-host-portrait.png',
+    characterName: 'Mina',
     main: '두 가지 숫자 시스템',
     sub: '일본어 숫자는 한자어(\'일, 이, 삼\')와 고유어(\'하나, 둘, 셋\') 두 가지가 있습니다.',
     captionJp: '日本語には数の数え方が2種類あります。「いち、に、さん」は中国語から来た読み方。「ひとつ、ふたつ、みっつ」は日本に昔からある固有の読み方です。韓国語の「イル、イ、サム」と「ハナ、ドゥル、セッ」と同じですね！',
@@ -23,6 +32,9 @@ window.LECTURE_DATA.wlevel_2 = [
   },
   {
     type: 'culture', label: '실전 팁: 물건 주문하기', duration: 7000, audio: '一つください',
+    image: 'images/lecture-scenes/wlevel2-elevator-number-culture.png',
+    characterImage: 'images/lecture-characters/mina-host-portrait.png',
+    characterName: 'Mina',
     main: '고유어 사용하기',
     sub: '식당에서 물건을 가리키며 개수를 말할 때는 반드시 고유어를 씁니다.',
     captionJp: 'レストランで何か注文する時、指をさして「これ、ひとつください」と言ってみましょう！「いち、ください」と言うと少し不自然に聞こえてしまいます。',
@@ -30,6 +42,9 @@ window.LECTURE_DATA.wlevel_2 = [
   },
   {
     type: 'practice', label: '실전 응용!', duration: 7000, audio: null,
+    image: 'images/lecture-scenes/wlevel2-elevator-number-culture.png',
+    characterImage: 'images/lecture-characters/mina-host-portrait.png',
+    characterName: 'Mina',
     main: '한자어 사용하기',
     sub: '돈의 액수나 전화번호, 단위를 말할 때는 한자어를 사용합니다.',
     captionJp: '逆に「いち、に、さん」は単位と一緒に使います。例えば「100円」や「3階」、そして電話番号などです。「ひとつ円」とは絶対に言いませんので注意しましょう！',
@@ -38,6 +53,8 @@ window.LECTURE_DATA.wlevel_2 = [
   {
     type: 'kanji', label: '한자 파헤치기', duration: 8000, audio: null,
     image: 'images/lucky_eight.png',
+    characterImage: 'images/lecture-characters/mina-host-portrait.png',
+    characterName: 'Mina',
     main: '八',
     sub: '아래로 갈수록 넓어지는 한자 모양 때문에 8은 행운을 상징합니다.',
     captionJp: '漢字の「八」の下に向かって広がる形を「末広がり」と呼びます。「未来に向かってどんどん発展していく」という意味が込められていて、結婚式のお祝い金などに好まれるとてもラッキーな数字なんです。',
@@ -45,6 +62,9 @@ window.LECTURE_DATA.wlevel_2 = [
   },
   {
     type: 'funfact', label: '재미있는 사실', duration: 6000, audio: null,
+    image: 'images/lecture-scenes/wlevel2-elevator-number-culture.png',
+    characterImage: 'images/lecture-characters/mina-host-portrait.png',
+    characterName: 'Mina',
     main: '7과 8',
     sub: '마트나 빠찡꼬에서는 항상 7과 8을 유난히 좋아합니다.',
     captionJp: '日本で縁起が良いとされる数字は「7」と「8」です。7は「七福神(7人の幸運の神様)」から来ています。スーパーの特売でも「888円」や「777円」という値段をよく見かけますよ。',
@@ -52,6 +72,9 @@ window.LECTURE_DATA.wlevel_2 = [
   },
   {
     type: 'culture', label: '생활 밀착형 정보', duration: 7000, audio: null,
+    image: 'images/lecture-scenes/wlevel2-elevator-number-culture.png',
+    characterImage: 'images/lecture-characters/mina-host-portrait.png',
+    characterName: 'Mina',
     main: '소비세 10%',
     sub: '100엔 숍에서 물건을 살 때는 계산대에서 항상 세금을 더 내야 합니다.',
     captionJp: '日本の100円ショップで買い物をする時の注意点です！レジに行くと「110円」を求められます。これは消費税が10%かかるからです。数字の計算をする時はいつも10%を頭に入れておきましょう！',
@@ -59,6 +82,9 @@ window.LECTURE_DATA.wlevel_2 = [
   },
   {
     type: 'summary', label: '오늘의 정리', duration: 8000, audio: null,
+    image: 'images/lecture-scenes/wlevel2-elevator-number-culture.png',
+    characterImage: 'images/lecture-characters/mina-host-portrait.png',
+    characterName: 'Mina',
     main: '요약 리뷰',
     sub: '고유어와 한자어의 구분, 4와 9의 금기, 8의 축복을 배웠습니다.',
     captionJp: '今日は数字の読み方の違い（和語と音読み）と、その裏にある文化（4と9のタブー、末広がりの8）を楽しく学びました。次に買い物をする時は「ひとつください」を使ってみてくださいね！',

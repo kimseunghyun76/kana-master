@@ -2,6 +2,9 @@ window.LECTURE_DATA = window.LECTURE_DATA || {};
 window.LECTURE_DATA.wlevel_3 = [
   {
     type: 'hook', label: '오늘의 이야기', duration: 6000, audio: null,
+    image: 'images/lecture-scenes/wlevel3-calendar-time-study.png',
+    characterImage: 'images/lecture-characters/mina-host-portrait.png',
+    characterName: 'Mina',
     main: '연호 (元号)',
     sub: '일본은 서양식 연도(202X년)와 함께 자기들만의 독특한 연도를 섞어 씁니다.',
     captionJp: '日本には「元号」という独自の年の数え方があります！今は「令和(れいわ)」という時代で、2019年から始まりました。役所の書類には西暦と元号、両方使うことが多いので少しややこしいですよ。',
@@ -9,6 +12,9 @@ window.LECTURE_DATA.wlevel_3 = [
   },
   {
     type: 'kanji', label: '한자 파헤치기', duration: 8000, audio: null,
+    image: 'images/lecture-scenes/wlevel3-calendar-time-study.png',
+    characterImage: 'images/lecture-characters/mina-host-portrait.png',
+    characterName: 'Mina',
     main: '年과 月',
     sub: '해 년(年)과 달 월(月)은 시간의 가장 기본이 되는 한자입니다.',
     captionJp: '「年(ねん)」という漢字は、実った稲を人が背負う姿から「一年(収穫のサイクル)」の意味になりました。「月(つき/げつ)」は空に浮かぶ三日月の形から生まれた漢字です！',
@@ -16,6 +22,9 @@ window.LECTURE_DATA.wlevel_3 = [
   },
   {
     type: 'culture', label: '문화 노트: 요일', duration: 7000, audio: '月曜日',
+    image: 'images/lecture-scenes/wlevel3-calendar-time-study.png',
+    characterImage: 'images/lecture-characters/mina-host-portrait.png',
+    characterName: 'Mina',
     main: '요일의 이름',
     sub: '월, 화, 수, 목, 금, 토, 일은 우주의 천체에서 이름을 따왔습니다.',
     captionJp: '日本語の曜日は実は天体から来ています。月・火星・水星・木星・金星・土星・太陽の順番です！これは韓国語とも英語とも全く同じ発想なんですよ。',
@@ -23,6 +32,9 @@ window.LECTURE_DATA.wlevel_3 = [
   },
   {
     type: 'grammar', label: '문법 노트: 요일 묻기', duration: 7000, audio: null,
+    image: 'images/lecture-scenes/wlevel3-calendar-time-study.png',
+    characterImage: 'images/lecture-characters/mina-host-portrait.png',
+    characterName: 'Mina',
     main: '何',
     sub: '무엇을 뜻하는 마법의 의문사 何(난)을 쓰면 요일을 물어볼 수 있습니다.',
     captionJp: '「何」は「何(What)」という意味です。「今日は何曜日ですか？」と聞かれたら、「月曜日です」のように答えてみましょう。',
@@ -31,6 +43,8 @@ window.LECTURE_DATA.wlevel_3 = [
   {
     type: 'story', label: '어원 이야기', duration: 7000, audio: '午前・午後',
     image: 'images/horse_clock.png',
+    characterImage: 'images/lecture-characters/mina-host-portrait.png',
+    characterName: 'Mina',
     main: '오전과 오후',
     sub: '낮 12시를 기준으로 왜 한자 午(말 오)를 사용하는 걸까요?',
     captionJp: '「午前」「午後」の「午」は十二支の「馬」のことなんです！昔は正午(12時)のことを一番太陽が高い「馬の刻」と言いました。',
@@ -38,6 +52,9 @@ window.LECTURE_DATA.wlevel_3 = [
   },
   {
     type: 'kanji', label: '한자 파헤치기', duration: 8000, audio: null,
+    image: 'images/lecture-scenes/wlevel3-calendar-time-study.png',
+    characterImage: 'images/lecture-characters/mina-host-portrait.png',
+    characterName: 'Mina',
     main: '今',
     sub: '지금 이 순간을 덮어 가둬버린다는 뜻의 이제 금(今) 입니다.',
     captionJp: '「今(いま)」という漢字は、蓋(ふた)で物を覆うように「現在の時間を区切る」ところから出来たと言われています。今日(きょう)、今週(こんしゅう)、今年(ことし)などによく使いますよ。',
@@ -45,6 +62,9 @@ window.LECTURE_DATA.wlevel_3 = [
   },
   {
     type: 'practice', label: '실전 응용: 날짜 읽기', duration: 8000, audio: null,
+    image: 'images/lecture-scenes/wlevel3-calendar-time-study.png',
+    characterImage: 'images/lecture-characters/mina-host-portrait.png',
+    characterName: 'Mina',
     main: '1일 ~ 10일',
     sub: '달력의 1일에서 10일까지는 완전히 불규칙한 일본어 전통 방식으로 읽습니다.',
     captionJp: '日本のカレンダーの1日から10日は、特別な読み方をします。ついたち、ふつか、みっか、よっか、いつか、むいか、なのか、ようか、ここのか、とおか！呪文みたいですね。',
@@ -52,6 +72,9 @@ window.LECTURE_DATA.wlevel_3 = [
   },
   {
     type: 'mnemonic', label: '암기 꿀팁', duration: 7000, audio: null,
+    image: 'images/lecture-scenes/wlevel3-calendar-time-study.png',
+    characterImage: 'images/lecture-characters/mina-host-portrait.png',
+    characterName: 'Mina',
     main: '8일과 20일',
     sub: '8일은 길게 늘여서 발음하고, 20일은 성인식처럼 특별하게 읽습니다.',
     captionJp: '「よっか(4日)」と「ようか(8日)」は間違いやすいです！8は長いから「よーか」と伸ばすと覚えましょう。そして20日は特別に「はつか」と読みます！',
@@ -59,6 +82,9 @@ window.LECTURE_DATA.wlevel_3 = [
   },
   {
     type: 'summary', label: '오늘의 정리', duration: 8000, audio: null,
+    image: 'images/lecture-scenes/wlevel3-calendar-time-study.png',
+    characterImage: 'images/lecture-characters/mina-host-portrait.png',
+    characterName: 'Mina',
     main: '요약 리뷰',
     sub: '연호의 개념, 요일, 오전/오후 어원, 그리고 1~10일 읽기를 배웠습니다.',
     captionJp: '今日はカレンダーと時間の裏に隠された秘密を学びました！天体から来た曜日や、馬が由来の午前・午後など、面白かったですね！明日はもっと楽しいですよ。',

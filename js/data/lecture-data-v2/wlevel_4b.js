@@ -2,6 +2,9 @@ window.LECTURE_DATA = window.LECTURE_DATA || {};
 window.LECTURE_DATA.wlevel_4b = [
   {
     type: 'hook', label: '오늘의 이야기', duration: 6000, audio: null,
+    image: 'images/lecture-scenes/wlevel4b-station-location-help.png',
+    characterImage: 'images/lecture-characters/mina-host-portrait.png',
+    characterName: 'Mina',
     main: 'あります · います',
     sub: '일본어에서는 "있다"도 사람인지 사물인지에 따라 다르게 말합니다.',
     captionJp: '日本語では「ある」と「いる」を使い分けます。物や場所には「あります」、人や動物には「います」。とても基本的ですが、会話で何度も出てくる大切なルールです。',
@@ -9,6 +12,9 @@ window.LECTURE_DATA.wlevel_4b = [
   },
   {
     type: 'grammar', label: '문법 노트', duration: 7000, audio: 'ここにあります・あそこにいます',
+    image: 'images/lecture-scenes/wlevel4b-station-location-help.png',
+    characterImage: 'images/lecture-characters/mina-host-portrait.png',
+    characterName: 'Mina',
     main: '장소 + に + 있습니다',
     sub: '어디에 있는지 말할 때는 장소 뒤에 「に」를 붙이는 것이 기본입니다.',
     captionJp: '「トイレはあそこにあります」「駅員さんはそこにいます」のように、場所を表す言葉のあとに「に」を入れると、存在する場所を自然に言えます。',
@@ -16,6 +22,9 @@ window.LECTURE_DATA.wlevel_4b = [
   },
   {
     type: 'culture', label: '문화 노트', duration: 7000, audio: null,
+    image: 'images/lecture-scenes/wlevel4b-station-location-help.png',
+    characterImage: 'images/lecture-characters/mina-host-portrait.png',
+    characterName: 'Mina',
     main: '없을 때의 대답',
     sub: '없으면 「ありません」「いません」이라고 또렷하게 말해 주는 편이 친절합니다.',
     captionJp: 'お店や駅で何かを聞いた時、日本では「ありません」「今はおりません」とはっきり伝えてくれることが多いです。曖昧にせず、状況をきちんと共有する文化ですね。',
@@ -23,6 +32,9 @@ window.LECTURE_DATA.wlevel_4b = [
   },
   {
     type: 'vocabulary', label: '필수 어휘', duration: 7000, audio: null,
+    image: 'images/lecture-scenes/wlevel4b-station-location-help.png',
+    characterImage: 'images/lecture-characters/mina-host-portrait.png',
+    characterName: 'Mina',
     main: '위치 안내 표현',
     sub: 'ここ, そこ, あそこ, 右, 左, 隣 같은 단어들이 존재문과 잘 붙습니다.',
     captionJp: 'ここ・そこ・あそこ・右・左・隣・近く。この辺りの言葉と「あります」「います」を組み合わせるだけで、場所案内のかなり多くをカバーできます。',
@@ -30,6 +42,9 @@ window.LECTURE_DATA.wlevel_4b = [
   },
   {
     type: 'practice', label: '실전 연습', duration: 7000, audio: 'トイレはどこにありますか',
+    image: 'images/lecture-scenes/wlevel4b-station-location-help.png',
+    characterImage: 'images/lecture-characters/mina-host-portrait.png',
+    characterName: 'Mina',
     main: '어디에 있나요?',
     sub: '화장실, 역, 카운터, 직원이 어디 있는지 묻고 답하는 연습입니다.',
     captionJp: '「トイレはどこにありますか」「改札はどこですか」「店員さんはいますか」。旅行でも日常でも、そのまま使える質問ばかりです。',
@@ -37,6 +52,9 @@ window.LECTURE_DATA.wlevel_4b = [
   },
   {
     type: 'summary', label: '오늘의 정리', duration: 5000, audio: null,
+    image: 'images/lecture-scenes/wlevel4b-station-location-help.png',
+    characterImage: 'images/lecture-characters/mina-host-portrait.png',
+    characterName: 'Mina',
     main: '요약 리뷰',
     sub: '사물은 あります, 사람은 います. 그리고 장소를 말할 때는 に를 붙입니다.',
     captionJp: '今日は存在表現の基本を学びました。「あります」「います」は短いですが、本当に使用頻度の高い表現です。何度も口に出して慣れていきましょう。',

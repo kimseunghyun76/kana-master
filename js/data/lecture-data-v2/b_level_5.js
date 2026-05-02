@@ -2,6 +2,9 @@ window.LECTURE_DATA = window.LECTURE_DATA || {};
 window.LECTURE_DATA.b_level_5 = [
   {
     type: 'hook', label: '오늘의 이야기', duration: 6000, audio: null,
+    image: 'images/lecture-scenes/blevel5-manager-one-on-one.png',
+    characterImage: 'images/lecture-characters/mina-host-portrait.png',
+    characterName: 'Mina',
     main: '매니저와의 1on1',
     sub: '업무 보고가 아니라 상태 공유와 성장 대화를 하는 시간입니다.',
     captionJp: '1on1では、単なる進捗確認だけでなく、困りごとやキャリアの話まで含めて対話することがあります。遠慮しすぎず、でも整理して話すことが大切です。',
@@ -9,6 +12,9 @@ window.LECTURE_DATA.b_level_5 = [
   },
   {
     type: 'vocabulary', label: '핵심 표현', duration: 7000, audio: '困っていること',
+    image: 'images/lecture-scenes/blevel5-manager-one-on-one.png',
+    characterImage: 'images/lecture-characters/mina-host-portrait.png',
+    characterName: 'Mina',
     main: '상태 설명하기',
     sub: '困っていること, 課題, 相談したいこと 같은 표현이 중요합니다.',
     captionJp: '1on1では「困っていることがあります」「相談したいことがあります」のように、自分の状態を丁寧に言語化することが求められます。曖昧な沈黙보다短い言葉の方が役立ちます。',
@@ -16,6 +22,9 @@ window.LECTURE_DATA.b_level_5 = [
   },
   {
     type: 'grammar', label: '문형 패턴', duration: 7000, audio: '〜ようにしたいです',
+    image: 'images/lecture-scenes/blevel5-manager-one-on-one.png',
+    characterImage: 'images/lecture-characters/mina-host-portrait.png',
+    characterName: 'Mina',
     main: '희망과 개선 표현',
     sub: '앞으로 어떻게 하고 싶은지 말할 때는 「〜ようにしたいです」가 유용합니다.',
     captionJp: '「今後はもっと早めに共有できるようにしたいです」「設計の理解を深められるようにしたいです」のように、改善意欲を丁寧に示せる便利な形です。',
@@ -23,6 +32,9 @@ window.LECTURE_DATA.b_level_5 = [
   },
   {
     type: 'culture', label: '문화 노트', duration: 7000, audio: null,
+    image: 'images/lecture-scenes/blevel5-manager-one-on-one.png',
+    characterImage: 'images/lecture-characters/mina-host-portrait.png',
+    characterName: 'Mina',
     main: '잘 모르겠습니다의 가치',
     sub: '모르는 것을 말하는 건 위험 신호가 아니라 관리 가능한 신호입니다.',
     captionJp: '日本の職場では、分からないことを黙って抱えるより、「まだ理解が浅いです」と共有してくれる方が、マネージャーとしてもサポートしやすいです。',
@@ -30,6 +42,9 @@ window.LECTURE_DATA.b_level_5 = [
   },
   {
     type: 'practice', label: '실전 연습', duration: 7000, audio: '相談したいことがあります',
+    image: 'images/lecture-scenes/blevel5-manager-one-on-one.png',
+    characterImage: 'images/lecture-characters/mina-host-portrait.png',
+    characterName: 'Mina',
     main: '1on1 시작 문장',
     sub: '현재 상태, 고민, 다음 행동을 짧게 정리해 말해봅니다.',
     captionJp: '「今の状況を共有します」「一つ相談したいことがあります」「次はこう進めたいです」。この流れで話せると、とても分かりやすい1on1になります。',
@@ -37,6 +52,9 @@ window.LECTURE_DATA.b_level_5 = [
   },
   {
     type: 'summary', label: '오늘의 정리', duration: 5000, audio: null,
+    image: 'images/lecture-scenes/blevel5-manager-one-on-one.png',
+    characterImage: 'images/lecture-characters/mina-host-portrait.png',
+    characterName: 'Mina',
     main: '요약 리뷰',
     sub: '1on1은 완벽함을 보여주는 시간이 아니라, 함께 더 잘 일하기 위한 대화입니다.',
     captionJp: '1on1は評価の場であると同時に、支援を受ける場でもあります。自分の状態を整理して伝える力が、そのまま仕事の安定感につながっていきます。',

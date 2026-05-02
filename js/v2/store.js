@@ -26,6 +26,8 @@ function defaultProgress() {
       ttsLang: 'ja-JP',
       ttsRate: 1.0,
       furigana: true,
+      lectureCaptionJp: true,
+      lectureCaptionKo: true,
       darkMode: true,
       notifyStreak: true
     }

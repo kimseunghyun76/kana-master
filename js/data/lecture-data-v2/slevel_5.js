@@ -2,6 +2,9 @@ window.LECTURE_DATA = window.LECTURE_DATA || {};
 window.LECTURE_DATA.slevel_5 = [
   {
     type: 'hook', label: '오늘의 이야기', duration: 6000, audio: null,
+    image: 'images/lecture-scenes/slevel5-ryokan-checkin-lobby.png',
+    characterImage: 'images/lecture-characters/mina-host-portrait.png',
+    characterName: 'Mina',
     main: '료칸 (旅館)',
     sub: '일본 전통 숙소인 료칸에서 느끼는 정성 가득한 환대, 오모테나시를 알아봅시다.',
     captionJp: '日本の旅館は、ただ泊まる場所ではなく、最高のおもてなしを体験する場所です。美味しい料理と温泉、温かいサービスを楽しみましょう。',
@@ -9,6 +12,9 @@ window.LECTURE_DATA.slevel_5 = [
   },
   {
     type: 'culture', label: '문화 노트', duration: 7000, audio: '체크인을 부탁합니다',
+    image: 'images/lecture-scenes/slevel5-ryokan-checkin-lobby.png',
+    characterImage: 'images/lecture-characters/mina-host-portrait.png',
+    characterName: 'Mina',
     main: '체크인',
     sub: '호텔 로비에 도착했을 때 가장 먼저 말하는 한마디, "체크인 부탁합니다."',
     captionJp: '「チェックインをお願いします」と笑顔で言いましょう。予約の確認書やスマートフォンの画面を見せるとスムーズですよ。',
@@ -16,6 +22,9 @@ window.LECTURE_DATA.slevel_5 = [
   },
   {
     type: 'story', label: '어원 이야기', duration: 7000, audio: '료칸',
+    image: 'images/lecture-scenes/slevel5-ryokan-checkin-lobby.png',
+    characterImage: 'images/lecture-characters/mina-host-portrait.png',
+    characterName: 'Mina',
     main: '료칸 vs 호텔',
     sub: '잠만 자는 호텔과 삼시세끼 정성이 담긴 료칸의 차이점을 아시나요?',
     captionJp: '旅館は「一泊二食(夕食と朝食)」が付くのが基本です。ホテルは素泊まりが多いですが、どちらもそれぞれの良さがあります。',
@@ -23,6 +32,9 @@ window.LECTURE_DATA.slevel_5 = [
   },
   {
     type: 'funfact', label: '재미있는 사실', duration: 6000, audio: null,
+    image: 'images/lecture-scenes/slevel5-ryokan-checkin-lobby.png',
+    characterImage: 'images/lecture-characters/mina-host-portrait.png',
+    characterName: 'Mina',
     main: '온천의 규칙',
     sub: '일본 온천에 들어가기 전, 수영복을 입지 않는 것 외에도 몇 가지 매너가 있습니다.',
     captionJp: '温泉に入る前には必ず体を洗いましょう。また、タオルを湯船に入れないのが日本の大切なマナーなんですよ。',
@@ -30,6 +42,9 @@ window.LECTURE_DATA.slevel_5 = [
   },
   {
     type: 'practice', label: '실전 연습', duration: 7000, audio: '구경할 곳을 알려주세요',
+    image: 'images/lecture-scenes/slevel5-ryokan-checkin-lobby.png',
+    characterImage: 'images/lecture-characters/mina-host-portrait.png',
+    characterName: 'Mina',
     main: '현지인 추천 받기',
     sub: '"어디 구경할 만한 곳 있나요?"라고 물어 숨겨진 맛집을 찾아보세요.',
     captionJp: '「観光スポットを教えてください」と聞いてみましょう。ガイドブックには載っていない素敵なお店に出会えるかもしれませんよ。',
@@ -37,6 +52,9 @@ window.LECTURE_DATA.slevel_5 = [
   },
   {
     type: 'summary', label: '오늘의 정리', duration: 5000, audio: null,
+    image: 'images/lecture-scenes/slevel5-ryokan-checkin-lobby.png',
+    characterImage: 'images/lecture-characters/mina-host-portrait.png',
+    characterName: 'Mina',
     main: '요약 리뷰',
     sub: '일본의 숙소 문화를 이해하고 편안하게 이용하는 실전 회화를 익혔습니다.',
     captionJp: '今日学んだ言葉があれば、ホテルのチェックインも怖くありません。存分におもてなしを楽しんで、いい夢を見てくださいね！',

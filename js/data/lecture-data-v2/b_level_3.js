@@ -2,6 +2,9 @@ window.LECTURE_DATA = window.LECTURE_DATA || {};
 window.LECTURE_DATA.b_level_3 = [
   {
     type: 'hook', label: '오늘의 이야기', duration: 6000, audio: null,
+    image: 'images/lecture-scenes/blevel3-business-email-review.png',
+    characterImage: 'images/lecture-characters/mina-host-portrait.png',
+    characterName: 'Mina',
     main: '비즈니스 메일',
     sub: '메일 한 통에도 관계와 예절이 담기는 것이 일본식 비즈니스 커뮤니케이션입니다.',
     captionJp: '日本のビジネスメールは、情報 전달だけでなく、相手への配慮を形にする文化でもあります。冒頭の挨拶や締めの一文で印象が大きく変わります。',
@@ -9,6 +12,9 @@ window.LECTURE_DATA.b_level_3 = [
   },
   {
     type: 'vocabulary', label: '필수 표현', duration: 7000, audio: 'お世話になっております',
+    image: 'images/lecture-scenes/blevel3-business-email-review.png',
+    characterImage: 'images/lecture-characters/mina-host-portrait.png',
+    characterName: 'Mina',
     main: '메일 첫 문장',
     sub: '「お世話になっております」는 일본 비즈니스 메일의 대표적인 시작 표현입니다.',
     captionJp: '「お世話になっております」は直訳しにくいですが、「いつもありがとうございます。日頃から関わっていただき感謝しています」という空気を一度に伝えられる定番表現です。',
@@ -16,6 +22,9 @@ window.LECTURE_DATA.b_level_3 = [
   },
   {
     type: 'grammar', label: '문형 패턴', duration: 7000, audio: 'ご確認のほどよろしくお願いします',
+    image: 'images/lecture-scenes/blevel3-business-email-review.png',
+    characterImage: 'images/lecture-characters/mina-host-portrait.png',
+    characterName: 'Mina',
     main: '부탁의 완충 표현',
     sub: '확인해 주세요를 더 부드럽게 만들 때 「〜のほど」를 많이 씁니다.',
     captionJp: '「ご確認ください」でも通じますが、「ご確認のほどよろしくお願いします」とすると、ぐっと柔らかく丁寧な印象になります。依頼メールの基本ですね。',
@@ -23,6 +32,9 @@ window.LECTURE_DATA.b_level_3 = [
   },
   {
     type: 'culture', label: '문화 노트', duration: 7000, audio: null,
+    image: 'images/lecture-scenes/blevel3-business-email-review.png',
+    characterImage: 'images/lecture-characters/mina-host-portrait.png',
+    characterName: 'Mina',
     main: '결론을 먼저',
     sub: '정중함은 길게 쓰는 것과 다르고, 메일은 목적이 먼저 보여야 합니다.',
     captionJp: '丁寧に書こうとして前置きが長くなりすぎると、かえって読みにくくなります。用件・背景・依頼の順で、相手がすぐ判断できるように書くのが大切です。',
@@ -30,6 +42,9 @@ window.LECTURE_DATA.b_level_3 = [
   },
   {
     type: 'practice', label: '실전 연습', duration: 7000, audio: '添付いたします',
+    image: 'images/lecture-scenes/blevel3-business-email-review.png',
+    characterImage: 'images/lecture-characters/mina-host-portrait.png',
+    characterName: 'Mina',
     main: '자주 쓰는 메일 패턴',
     sub: '자료 첨부, 확인 요청, 감사 인사를 묶어서 연습합니다.',
     captionJp: '「資料を添付いたします」「ご確認をお願いします」「ご対応ありがとうございます」。この3本柱だけでも、かなり多くの業務メールに対応できます。',
@@ -37,6 +52,9 @@ window.LECTURE_DATA.b_level_3 = [
   },
   {
     type: 'summary', label: '오늘의 정리', duration: 5000, audio: null,
+    image: 'images/lecture-scenes/blevel3-business-email-review.png',
+    characterImage: 'images/lecture-characters/mina-host-portrait.png',
+    characterName: 'Mina',
     main: '요약 리뷰',
     sub: '비즈니스 메일은 공손함과 명확함을 함께 담아야 합니다.',
     captionJp: '今日は日本式のメールの骨組みを学びました。長く書くことより、読みやすく・失礼なく・目的が明確であることを意識しましょう。',
