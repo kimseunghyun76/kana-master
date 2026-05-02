@@ -1030,4 +1030,24 @@ var VOCAB_CATEGORIES = [
     desc:'일본 IT 회사 첫날 — 팀원 앞 자기소개부터 개발 환경 구축 시작까지 완전한 시나리오',
     items:['iti_n','iti_1','iti_2','iti_3','iti_4','iti_5','iti_6','iti_7','iti_8']
   },
+
+  // ══════════════════════════════════════════════════════════
+  //  Curriculum support categories — exact item lists for v2 modules
+  // ══════════════════════════════════════════════════════════
+  {
+    id:'food_restaurant', phase:7, type:'word', wlevel:7,
+    name:'음식·식당 어휘', icon:'🍜',
+    title:'W7 음식·식당 어휘',
+    subtitle:'ラーメン·寿司·お会計',
+    desc:'주문과 계산에 바로 쓰는 음식·식당 핵심 어휘',
+    items:['food_ramen','food_sushi','food_tempura','food_udon','food_soba','food_onigiri','food_miso','food_sake','food_biru','food_mizu','food_ocha','food_menu','food_teishoku','food_ikura','food_okane','food_irashai','food_toriaezu','food_yakitori','food_moriawase','food_otsumami','food_edamame','food_izakaya']
+  },
+  {
+    id:'keigo_basics', phase:13, type:'word', wlevel:11,
+    name:'경어 핵심 표현', icon:'🎌',
+    title:'심화 경어 핵심 표현',
+    subtitle:'承知しました·かしこまりました·ご確認ください',
+    desc:'업무·서비스 상황에서 바로 쓰는 존중 표현과 격식 표현',
+    items:['biz_shochi','biz_kashiko','biz_osewa','biz_confirm','biz_kakunin','biz_renraku','biz_ossharu','biz_ikaga','biz_iken','biz_wakarima','biz_kansha','gr_namae']
+  },
 ];

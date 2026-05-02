@@ -1356,7 +1356,7 @@ window.App = (() => {
   // ── Kana Listening Quiz ───────────────────────────────────
   function _renderKanaListening(mod, step, stepIndex) {
     _setFlowBodyMode('quiz-mode');
-    const chars = step.chars || shuffle(Object.keys(KANA_MAP)).slice(0, 15);
+    const chars = shuffle(step.chars || Object.keys(KANA_MAP)).slice(0, step.limit || 20);
 
     function renderQ() {
       const fq = _flow._listeningQuiz;
@@ -1988,7 +1988,6 @@ window.App = (() => {
     const ts = _LEC_TYPE[slide.type] || _LEC_TYPE.hook;
     const isLast = idx === slides.length - 1;
     const visualSrc = _lectureVisualSource(mod, slide);
-    const characterSrc = slide.characterImage || '';
     const shotClass = `shot-${(idx % 4) + 1}`;
     const nextSlide = slides[idx + 1];
     const prevSlide = slides[idx - 1];
@@ -2022,13 +2021,6 @@ window.App = (() => {
             <span>${escHtml(mod.name)}</span>
             <span class="lec-shot-count">${idx + 1}/${slides.length}</span>
           </div>
-
-          ${characterSrc ? `
-            <div class="lec-host-card">
-              <img src="${escHtml(characterSrc)}" alt="${escHtml(slide.characterName || 'host')}">
-              <span>${escHtml(slide.characterName || 'Guide')}</span>
-            </div>
-          ` : ''}
 
           <div class="lec-board" id="lecBoard">
             <div class="lec-board-kicker">${escHtml(slide.label || 'Lecture')}</div>
@@ -2536,11 +2528,11 @@ window.App = (() => {
           ${escHtml(rp.desc)}
         </div>
         <div class="roleplay-panel roleplay-mission-card">
-          <div class="roleplay-panel-title" style="margin-bottom:8px">이제 이렇게 진행합니다</div>
+          <div class="roleplay-panel-title" style="margin-bottom:8px">이렇게 사용합니다</div>
           <div class="roleplay-helper-text">
-            1. 먼저 전체 대화를 들으며 흐름을 익힙니다.<br>
-            2. 다음 화면에서 내 대사를 따라 말합니다.<br>
-            3. 마지막으로 한국어 힌트만 보고 다시 말해 봅니다.
+            1. 전체 대화를 재생해 상황 흐름을 익힙니다.<br>
+            2. 궁금한 대사를 눌러 단어와 문장 소리를 확인합니다.<br>
+            3. 필요한 만큼 다시 듣고 완료하면 다음 학습으로 넘어갑니다.
           </div>
         </div>
         <div class="dialogue-list" id="dialogueList">${dialogueHtml}</div>
@@ -2549,7 +2541,7 @@ window.App = (() => {
         <div class="roleplay-actions">
           <button class="btn btn-outline" id="btnReplayAll" onclick="App._replayAll('${mod.id}')">${_uiLabeledIcon('audio')} 전체 재생</button>
           <button class="btn btn-outline" id="btnStopPlay" style="display:none" onclick="App._stopRoleplay()">정지</button>
-          <button class="btn btn-primary" onclick="App._beginRoleplayPractice()">이제 말하기 시작 →</button>
+          <button class="btn btn-primary" onclick="App._completeRoleplay('${mod.id}')">완료 ✓</button>
         </div>
       `;
       return;
@@ -2911,14 +2903,7 @@ window.App = (() => {
     return points;
   }
   function _completeRoleplay(moduleId) {
-    const state = _flow?.roleplayState;
-    const practiceLines = state?.practiceLines || [];
-    const readyCount = practiceLines.filter((_, idx) => state?.shadowDone?.[idx] && state?.outputDone?.[idx]).length;
-    if (practiceLines.length && readyCount < practiceLines.length) {
-      showToast('내 대사를 먼저 끝까지 연습해 주세요');
-      return;
-    }
-
+    _stopRoleplay();
     Store.completeRoleplay(moduleId);
     const mod = MODULES.find(m => m.id === moduleId);
     const xp = mod?.xp || 200;
@@ -3981,17 +3966,41 @@ window.App = (() => {
     // 연습 플로우처럼 items를 직접 주입한 경우
     if (step.items) return step.items;
     const all = _getAllVocabItems();
+    const byId = new Map(all.map(item => [item.id, item]));
     if (step.categoryId) {
-      return all.filter(item => item.categoryId === step.categoryId
-                             || _itemMatchesCat(item, step.categoryId))
-                .slice(0, step.limit || 999);
+      const direct = _getVocabItemsByCategory(step.categoryId, byId);
+      const items = direct.length
+        ? direct
+        : all.filter(item => item.categoryId === step.categoryId || _itemMatchesCat(item, step.categoryId));
+      return _uniqueVocabItems(items).slice(0, step.limit || 999);
     }
     if (step.categoryIds) {
-      return all.filter(item =>
-        step.categoryIds.some(cid => item.categoryId === cid || _itemMatchesCat(item, cid))
-      ).slice(0, step.limit || 999);
+      const items = step.categoryIds.flatMap(cid => {
+        const direct = _getVocabItemsByCategory(cid, byId);
+        return direct.length
+          ? direct
+          : all.filter(item => item.categoryId === cid || _itemMatchesCat(item, cid));
+      });
+      return _uniqueVocabItems(items).slice(0, step.limit || 999);
     }
     return [];
+  }
+
+  function _getVocabItemsByCategory(categoryId, byId) {
+    const cats = typeof VOCAB_CATEGORIES !== 'undefined' ? VOCAB_CATEGORIES : [];
+    const cat = cats.find(c => c.id === categoryId);
+    if (!cat?.items?.length) return [];
+    return cat.items.map(id => byId.get(id)).filter(Boolean);
+  }
+
+  function _uniqueVocabItems(items) {
+    const seen = new Set();
+    return (items || []).filter(item => {
+      const key = item?.id || item?.japanese;
+      if (!key || seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
   }
 
   function _itemMatchesCat(item, catId) {

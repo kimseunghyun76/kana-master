@@ -994,7 +994,8 @@ body {
 }
 .kana-card {
   width: 100%; max-width: 360px;
-  height: 544px;          /* fixed height — no aspect-ratio so it works on any screen */
+  height: min(544px, calc(100dvh - 194px));
+  min-height: 420px;
   perspective: 1000px;
   cursor: pointer;
   touch-action: manipulation;
@@ -1030,7 +1031,7 @@ body {
   overflow: hidden;
 }
 .kana-char {
-  font-size: 150px;
+  font-size: clamp(96px, 24vh, 150px);
   font-family: 'Noto Sans JP', serif;
   font-weight: 400;
   line-height: 1;
@@ -1040,7 +1041,7 @@ body {
 
 /* Small kana (yoon/sokuon) specific sizing for flashcards */
 .kana-char.is-small {
-  font-size: 110px;
+  font-size: clamp(78px, 18vh, 110px);
   opacity: 0.9;
 }
 
@@ -1402,7 +1403,7 @@ body {
   border-radius: 16px;
 }
 .flow-body.quiz-mode .quiz-hud-main {
-  margin-bottom: 7px;
+  margin-bottom: 8px;
 }
 .flow-body.quiz-mode .quiz-hud-label {
   font-size: 9px;
@@ -1411,9 +1412,7 @@ body {
   font-size: 22px;
 }
 .flow-body.quiz-mode .quiz-hud-stats {
-  position: absolute;
-  top: 9px;
-  right: 10px;
+  position: static;
   margin: 0;
 }
 .flow-body.quiz-mode .quiz-hud-chip {
@@ -1461,6 +1460,7 @@ body {
   display: flex;
   gap: 8px;
   margin-bottom: 12px;
+  flex-wrap: wrap;
 }
 .quiz-hud-chip {
   min-width: 74px;
@@ -1587,6 +1587,12 @@ body {
   font-size: 14px;
   line-height: 1.25;
   align-items: center;
+  min-width: 0;
+}
+.flow-body.quiz-mode .quiz-choice span:last-child {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .flow-body.quiz-mode .quiz-choice .qc-label {
   width: 24px;

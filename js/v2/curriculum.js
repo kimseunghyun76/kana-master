@@ -91,6 +91,7 @@ const MODULES = [
       { type: 'kana_quiz',  title: '히라가나 탁음 퀴즈', kanaType: 'hiragana_dakuten', levelId: 6 },
       { type: 'kana_learn', title: '히라가나 요음', kanaType: 'hiragana_yoon', levelId: 7 },
       { type: 'kana_quiz',  title: '히라가나 요음 퀴즈', kanaType: 'hiragana_yoon', levelId: 7 },
+      { type: 'kana_listening', title: '히라가나 듣고 고르기', chars: ['あ','い','う','え','お','か','き','く','け','こ','さ','し','す','せ','そ','た','ち','つ','て','と','な','に','ぬ','ね','の','は','ひ','ふ','へ','ほ','ま','み','む','め','も','や','ゆ','よ','ら','り','る','れ','ろ','わ','を','ん'] },
     ],
     roleplay: null
   },
@@ -123,6 +124,7 @@ const MODULES = [
       { type: 'kana_quiz',  title: '특수 박자 퀴즈', kanaType: 'special', levelId: 15 },
       { type: 'kana_learn', title: '조사 읽기 예외', kanaType: 'particle', levelId: 16, customLabel: '조사 읽기 예외' },
       { type: 'kana_quiz',  title: '조사 읽기 퀴즈', kanaType: 'particle', levelId: 16 },
+      { type: 'kana_listening', title: '가타가나 듣고 고르기', chars: ['ア','イ','ウ','エ','オ','カ','キ','ク','ケ','コ','サ','シ','ス','セ','ソ','タ','チ','ツ','テ','ト','ナ','ニ','ヌ','ネ','ノ','ハ','ヒ','フ','ヘ','ホ','マ','ミ','ム','メ','モ','ヤ','ユ','ヨ','ラ','リ','ル','レ','ロ','ワ','ヲ','ン'] },
     ],
     roleplay: null
   },
@@ -138,7 +140,8 @@ const MODULES = [
     steps: [
       { type: 'lecture',    title: '🎬 はじめまして의 비밀', lectureKey: 'slevel_1' },
       { type: 'vocab_learn', title: '인사 필수 표현', categoryId: 'basic_words', limit: 10 },
-      { type: 'vocab_quiz',  title: '인사 표현 퀴즈', categoryId: 'basic_words', limit: 10 },
+      { type: 'vocab_learn', title: '첫 회화·맞장구', categoryIds: ['first_expressions', 'w1_reactions'], limit: 12 },
+      { type: 'vocab_quiz',  title: '첫 표현 퀴즈', categoryIds: ['basic_words', 'first_expressions', 'w1_reactions'], limit: 20 },
     ],
     roleplay: null
   },
@@ -155,9 +158,10 @@ const MODULES = [
     unlockAfter: ['first_phrases'],
     steps: [
       { type: 'lecture',    title: '🎬 완벽한 자기소개', lectureKey: 'slevel_2' },
-      { type: 'vocab_learn', title: '인사·응답 어휘', categoryId: 'basic_words' },
-      { type: 'vocab_learn', title: '필수 표현어', categoryId: 'essential_phrases' },
-      { type: 'vocab_quiz',  title: '인사 퀴즈', categoryIds: ['basic_words', 'essential_phrases'] },
+      { type: 'vocab_learn', title: '자기소개 핵심', categoryId: 'self_intro' },
+      { type: 'vocab_learn', title: '기초 질문 패턴', categoryId: 'basic_questions' },
+      { type: 'vocab_learn', title: '취미·관심사', categoryId: 's2_hobbies' },
+      { type: 'vocab_quiz',  title: '자기소개 퀴즈', categoryIds: ['self_intro', 'basic_questions', 's2_hobbies'], limit: 24 },
     ],
     roleplay: {
       id: 'rp_first_meeting',
@@ -204,9 +208,9 @@ const MODULES = [
     steps: [
       { type: 'lecture',    title: '🎬 불길한 숫자의 비밀', lectureKey: 'wlevel_2' },
       { type: 'vocab_learn', title: '숫자 기본', categoryId: 'numbers_basic' },
-      { type: 'vocab_learn', title: '날짜·요일', categoryId: 'dates_days' },
-      { type: 'vocab_learn', title: '시각 표현', categoryId: 'time_expressions' },
-      { type: 'vocab_quiz',  title: '숫자·시간 퀴즈', categoryIds: ['numbers_basic','dates_days','time_expressions'] },
+      { type: 'vocab_learn', title: '숫자 응용·월일', categoryIds: ['numbers_applied', 'num_dates'], limit: 16 },
+      { type: 'vocab_learn', title: '날짜·요일·시각', categoryIds: ['date_basic', 'time_clock', 'days_of_week'], limit: 18 },
+      { type: 'vocab_quiz',  title: '숫자·시간 퀴즈', categoryIds: ['numbers_basic','numbers_applied','num_dates','date_basic','time_clock','days_of_week'], limit: 30 },
     ],
     roleplay: {
       id: 'rp_schedule',
@@ -229,8 +233,8 @@ const MODULES = [
     steps: [
       { type: 'lecture',    title: '🎬 あります · います', lectureKey: 'wlevel_4b' },
       { type: 'vocab_learn', title: '장소 지시어', categoryId: 'pronouns_place' },
-      { type: 'vocab_learn', title: '위치·교통 어휘', categoryId: 'transport' },
-      { type: 'vocab_quiz',  title: '위치 표현 퀴즈', categoryIds: ['pronouns_place', 'transport'] },
+      { type: 'vocab_learn', title: '길 찾기·방향', categoryId: 'directions' },
+      { type: 'vocab_quiz',  title: '위치 표현 퀴즈', categoryIds: ['pronouns_place', 'directions', 'basic_questions'], limit: 24 },
       { type: 'dialogue_study', title: '시설 위치 미리보기', dialogueKey: 'facility_help' },
     ],
     roleplay: {
@@ -253,8 +257,9 @@ const MODULES = [
     unlockAfter: ['survival_location'],
     steps: [
       { type: 'lecture',    title: '🎬 1초도 안 늦는 신칸센', lectureKey: 'slevel_4' },
-      { type: 'vocab_learn', title: '교통 어휘', categoryId: 'transport' },
-      { type: 'vocab_quiz',  title: '교통 어휘 퀴즈', categoryId: 'transport' },
+      { type: 'vocab_learn', title: '교통·이동 표현', categoryId: 'transport_phrases' },
+      { type: 'vocab_learn', title: '시각·소요시간 묻기', categoryId: 's4_time_asking' },
+      { type: 'vocab_quiz',  title: '교통 표현 퀴즈', categoryIds: ['transport_phrases', 's4_time_asking'], limit: 22 },
       { type: 'dialogue_study', title: '대화 미리보기', dialogueKey: 'transport' },
     ],
     roleplay: {
@@ -278,9 +283,10 @@ const MODULES = [
     steps: [
       { type: 'lecture',    title: '🎬 주세요 · 부탁합니다', lectureKey: 'wlevel_7b' },
       { type: 'lecture',    title: '🍱 식사 문화 노트', lectureKey: 'wlevel_7' },
-      { type: 'vocab_learn', title: '필수 부탁 표현', categoryId: 'essential_phrases' },
+      { type: 'vocab_learn', title: '식당 주문 표현', categoryId: 'food_ordering' },
       { type: 'vocab_learn', title: '음식·식당 어휘', categoryId: 'food_restaurant' },
-      { type: 'vocab_quiz',  title: '주문·부탁 퀴즈', categoryIds: ['essential_phrases', 'food_restaurant'] },
+      { type: 'vocab_learn', title: '카페·음료 주문', categoryId: 's3_cafe' },
+      { type: 'vocab_quiz',  title: '주문·부탁 퀴즈', categoryIds: ['food_ordering', 'food_restaurant', 's3_cafe'], limit: 24 },
       { type: 'dialogue_study', title: '대화 미리보기', dialogueKey: 'food' },
     ],
     roleplay: {
@@ -303,8 +309,8 @@ const MODULES = [
     unlockAfter: ['survival_food'],
     steps: [
       { type: 'lecture',    title: '🎬 いらっしゃいませ!', lectureKey: 'slevel_3' },
-      { type: 'vocab_learn', title: '쇼핑 어휘', categoryId: 'shopping' },
-      { type: 'vocab_quiz',  title: '쇼핑 퀴즈', categoryId: 'shopping' },
+      { type: 'vocab_learn', title: '쇼핑 표현', categoryId: 'shopping_phrases' },
+      { type: 'vocab_quiz',  title: '쇼핑 퀴즈', categoryId: 'shopping_phrases', limit: 18 },
       { type: 'dialogue_study', title: '대화 미리보기', dialogueKey: 'shopping' },
     ],
     roleplay: {
@@ -327,8 +333,8 @@ const MODULES = [
     unlockAfter: ['survival_transport', 'survival_food'],
     steps: [
       { type: 'lecture',    title: '🎬 료칸의 나라', lectureKey: 'slevel_5' },
-      { type: 'vocab_learn', title: '숙박 어휘', categoryId: 'hotel_accommodation' },
-      { type: 'vocab_quiz',  title: '숙박 퀴즈', categoryId: 'hotel_accommodation' },
+      { type: 'vocab_learn', title: '호텔·숙박 표현', categoryId: 'hotel_phrases' },
+      { type: 'vocab_quiz',  title: '숙박 퀴즈', categoryId: 'hotel_phrases', limit: 18 },
       { type: 'dialogue_study', title: '대화 미리보기', dialogueKey: 'hotel' },
     ],
     roleplay: {
@@ -390,8 +396,9 @@ const MODULES = [
       { type: 'lecture',    title: '🎬 여행지에서 설명하기', lectureKey: 'slevel_6' },
       { type: 'vocab_learn', title: '장소·교통 명사', categoryId: 'place_transport' },
       { type: 'vocab_learn', title: '음식·식문화', categoryId: 'food_nouns' },
-      { type: 'vocab_learn', title: '관광·쇼핑 장소', categoryId: 'place_sightseeing' },
-      { type: 'vocab_quiz',  title: '장소·관광 퀴즈', categoryIds: ['place_transport','food_nouns','place_sightseeing'] },
+      { type: 'vocab_learn', title: '관광·사진 표현', categoryIds: ['place_sightseeing', 's5_sightseeing'], limit: 16 },
+      { type: 'vocab_learn', title: '날씨·스몰토크', categoryIds: ['s5_weather', 'small_talk'], limit: 18 },
+      { type: 'vocab_quiz',  title: '장소·관광 퀴즈', categoryIds: ['place_transport','food_nouns','place_sightseeing','s5_sightseeing','s5_weather','small_talk'], limit: 32 },
       { type: 'dialogue_study', title: '대화 미리보기', dialogueKey: 'sightseeing' },
     ],
     roleplay: {
@@ -415,9 +422,9 @@ const MODULES = [
     steps: [
       { type: 'lecture',    title: '🎬 お大事に — 건강 표현', lectureKey: 'wlevel_8' },
       { type: 'vocab_learn', title: '신체 부위', categoryId: 'body_parts' },
-      { type: 'vocab_learn', title: '증상·건강 상태', categoryId: 'health_symptoms' },
-      { type: 'vocab_learn', title: '의료·병원', categoryId: 'medical_care' },
-      { type: 'vocab_quiz',  title: '건강·증상 퀴즈', categoryIds: ['body_parts','health_symptoms','medical_care'] },
+      { type: 'vocab_learn', title: '증상·건강 상태', categoryIds: ['health_symptoms', 's6_health'], limit: 14 },
+      { type: 'vocab_learn', title: '의료·긴급 도움', categoryIds: ['medical_care', 'emergency_sos'], limit: 14 },
+      { type: 'vocab_quiz',  title: '건강·증상 퀴즈', categoryIds: ['body_parts','health_symptoms','s6_health','medical_care','emergency_sos'], limit: 28 },
       { type: 'dialogue_study', title: '대화 미리보기', dialogueKey: 'couple_travel' },
     ],
     roleplay: {
@@ -551,8 +558,8 @@ const MODULES = [
     unlockAfter: ['biz_basic'],
     steps: [
       { type: 'lecture',    title: '🎬 완벽한 자기소개', lectureKey: 'slevel_2' },
-      { type: 'vocab_learn', title: '비즈니스 기본 표현 복습', categoryId: 'biz_greetings' },
-      { type: 'vocab_quiz',  title: '입사 표현 퀴즈', categoryId: 'biz_greetings' },
+      { type: 'vocab_learn', title: '입사 자기소개', categoryIds: ['self_intro', 'biz_greetings'], limit: 18 },
+      { type: 'vocab_quiz',  title: '입사 표현 퀴즈', categoryIds: ['self_intro', 'biz_greetings'], limit: 22 },
     ],
     roleplay: {
       id: 'rp_it_intro',
