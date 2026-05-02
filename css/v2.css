@@ -221,6 +221,38 @@ body {
 }
 .continue-banner:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(99,102,241,.5); }
 .continue-banner:active { transform: scale(.97); }
+.continue-banner-visual {
+  min-height: 172px;
+  padding: 0;
+  display: flex;
+  align-items: flex-end;
+  border: 1px solid rgba(255,255,255,.14);
+  background: #020617;
+}
+.continue-bg {
+  position: absolute;
+  inset: 0;
+  background-image: var(--continue-bg);
+  background-size: cover;
+  background-position: center;
+  transform: scale(1.02);
+  filter: saturate(1.05) contrast(1.03);
+}
+.continue-banner-visual::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(2,6,23,.08), rgba(2,6,23,.44) 44%, rgba(2,6,23,.92)),
+    linear-gradient(90deg, rgba(2,6,23,.76), rgba(2,6,23,.16) 54%, rgba(2,6,23,.42));
+  z-index: 1;
+}
+.continue-content {
+  position: relative;
+  z-index: 2;
+  width: calc(100% - 48px);
+  padding: 20px;
+}
 .welcome-card {
   margin: 16px;
   background: linear-gradient(135deg, #161b33, #232b4d);
@@ -254,7 +286,7 @@ body {
   font-weight: 800;
   margin-bottom: 8px;
 }
-.continue-banner::before {
+.continue-banner:not(.continue-banner-visual)::before {
   content: '';
   position: absolute; inset: 0;
   background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
@@ -265,6 +297,7 @@ body {
 .continue-focus {
   display: inline-flex;
   align-items: center;
+  gap: 6px;
   margin-top: 10px;
   padding: 5px 10px;
   border-radius: 999px;
@@ -272,6 +305,10 @@ body {
   font-size: 11px;
   font-weight: 700;
   letter-spacing: .3px;
+}
+.continue-focus-icon {
+  width: 13px;
+  height: 13px;
 }
 .continue-visual {
   position: absolute;
@@ -326,6 +363,7 @@ body {
 }
 .continue-arrow {
   position: absolute; right: 20px; top: 50%;
+  z-index: 2;
   transform: translateY(-50%);
   font-size: 28px; opacity: .6;
 }
@@ -666,6 +704,39 @@ body {
   transition: transform var(--dur), border-color var(--dur);
   position: relative;
 }
+.practice-visual-card {
+  min-height: 154px;
+  padding: 0;
+  overflow: hidden;
+  display: flex;
+  align-items: flex-end;
+  text-align: left;
+  background: #020617;
+  border-color: rgba(148,163,184,.16);
+}
+.practice-card-bg {
+  position: absolute;
+  inset: 0;
+  background-image: var(--practice-bg);
+  background-size: cover;
+  background-position: center;
+  transform: scale(1.03);
+  filter: saturate(1.04) contrast(1.03);
+}
+.practice-card-bg::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(2,6,23,.08), rgba(2,6,23,.4) 45%, rgba(2,6,23,.92)),
+    radial-gradient(circle at top right, rgba(99,102,241,.26), transparent 44%);
+}
+.practice-card-content {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  padding: 14px;
+}
 .practice-item.locked { opacity: .4; cursor: not-allowed; }
 .practice-item:not(.locked):hover { transform: translateY(-2px); border-color: var(--accent); }
 .practice-item:not(.locked):active { transform: scale(.95); }
@@ -681,6 +752,18 @@ body {
   justify-content: center;
   color: var(--accent2);
 }
+.practice-visual-card .pi-icon {
+  width: 42px;
+  height: 42px;
+  margin: 0 0 10px;
+  border-radius: 14px;
+  background: rgba(15,23,42,.64);
+  border-color: rgba(255,255,255,.16);
+  color: #f8fafc;
+  box-shadow: 0 10px 22px rgba(2,6,23,.24);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
 .practice-item .pi-icon-text {
   font-size: 26px;
   font-family: 'Noto Sans JP', serif;
@@ -688,8 +771,20 @@ body {
 }
 .practice-item .pi-name { font-size: 13px; font-weight: 700; }
 .practice-item .pi-stage { font-size: 10px; color: var(--text3); margin-top: 4px; }
+.practice-visual-card .pi-name {
+  color: #f8fafc;
+  font-size: 14px;
+  line-height: 1.25;
+  text-shadow: 0 2px 12px rgba(2,6,23,.55);
+}
+.practice-visual-card .pi-stage {
+  color: #cbd5e1;
+  font-size: 11px;
+  line-height: 1.35;
+}
 .practice-item .pi-lock {
   position: absolute; top: 10px; right: 10px;
+  z-index: 2;
   color: var(--text3);
 }
 .practice-section-title {
