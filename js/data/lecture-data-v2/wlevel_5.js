@@ -3,8 +3,6 @@ window.LECTURE_DATA.wlevel_5 = [
   {
     type: 'hook', label: '오늘의 이야기', duration: 6000, audio: null,
     image: 'images/lecture-scenes/wlevel5-verb-dining-action.png',
-    characterImage: 'images/lecture-characters/mina-host-portrait.png',
-    characterName: 'Mina',
     main: '일본어 동사',
     sub: '가다, 오다, 돌아가다! 움직임을 나타내는 동사의 기본을 배워봅시다.',
     captionJp: '日本語の動詞には3つのグループがあります！行く(가다)・来る(오다)・帰る(돌아가다) 등 일상의 움직임을 표현하는 가장 기초적인 동사들을 먼저 알아볼까요?',
@@ -13,8 +11,6 @@ window.LECTURE_DATA.wlevel_5 = [
   {
     type: 'culture', label: '문화 노트', duration: 7000, audio: '食べます・飲みます',
     image: 'images/lecture-scenes/wlevel5-verb-dining-action.png',
-    characterImage: 'images/lecture-characters/mina-host-portrait.png',
-    characterName: 'Mina',
     main: '먹다 vs 드시다',
     sub: '상황에 맞게 동사의 꼬리말을 바꾸는 매너를 배워봅니다.',
     captionJp: '日本語には「食べる(먹다)」と「食べます(먹습니다)」のように、丁寧さが違います。初めて会う人や目上の人には、語尾に「ます」をつけて話すのがマナーです。',
@@ -23,8 +19,6 @@ window.LECTURE_DATA.wlevel_5 = [
   {
     type: 'mnemonic', label: '암기 꿀팁', duration: 6000, audio: 'する',
     image: 'images/lecture-scenes/wlevel5-verb-dining-action.png',
-    characterImage: 'images/lecture-characters/mina-host-portrait.png',
-    characterName: 'Mina',
     main: '하는 동사 (する)',
     sub: '명사 뒤에 「する」만 붙이면 마법처럼 동사가 됩니다.',
     captionJp: '「する」は最強の動詞です！「勉強(공부)＋する」「料理(요리)＋する」のように、名詞につけるだけで何でも動詞になります。英語の「드라이브(Drive)＋する」もOKですよ！',
@@ -33,8 +27,6 @@ window.LECTURE_DATA.wlevel_5 = [
   {
     type: 'practice', label: '문법 연습', duration: 7000, audio: '食べます・食べません・食べました',
     image: 'images/lecture-scenes/wlevel5-verb-dining-action.png',
-    characterImage: 'images/lecture-characters/mina-host-portrait.png',
-    characterName: 'Mina',
     main: '꼬리말 삼총사',
     sub: '합니다(~ます), 안 합니다(~ません), 했습니다(~ました)를 한 번에 익혀봅시다.',
     captionJp: '否定の「～ません」、過去の「～ました」を覚えましょう！「食べます」「食べません」「食べました」。このセットを言えるようになれば、会話の幅がグッと広がります。',
@@ -43,8 +35,6 @@ window.LECTURE_DATA.wlevel_5 = [
   {
     type: 'story', label: '문법 이야기', duration: 7000, audio: '食べて・飲んで・行って',
     image: 'images/lecture-scenes/wlevel5-verb-dining-action.png',
-    characterImage: 'images/lecture-characters/mina-host-portrait.png',
-    characterName: 'Mina',
     main: '연결하는 ~て형',
     sub: '문장을 길게 이어서 말할 때 쓰는 아주 중요한 형태입니다.',
     captionJp: '「～て」は、文章を繋ぐときに使います。「食べて寝ます(먹고 잡니다)」や「～てください(해주세요)」など、本当によく使う便利な形なんです。',
@@ -53,8 +43,6 @@ window.LECTURE_DATA.wlevel_5 = [
   {
     type: 'summary', label: '오늘의 정리', duration: 5000, audio: null,
     image: 'images/lecture-scenes/wlevel5-verb-dining-action.png',
-    characterImage: 'images/lecture-characters/mina-host-portrait.png',
-    characterName: 'Mina',
     main: '요약 리뷰',
     sub: '가장 많이 쓰이는 필수 동사와 기본 활용을 정복했습니다.',
     captionJp: '今日は動詞の基本を学びました！「食べる・飲む・行く・来る」などは毎日使いますので、少しずつ口に出して練習してみましょう。',

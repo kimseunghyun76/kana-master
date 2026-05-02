@@ -3,8 +3,6 @@ window.LECTURE_DATA.slevel_4 = [
   {
     type: 'hook', label: '오늘의 이야기', duration: 6000, audio: null,
     image: 'images/lecture-scenes/slevel4-train-station-transfer.png',
-    characterImage: 'images/lecture-characters/mina-host-portrait.png',
-    characterName: 'Mina',
     main: '신칸센 (新幹線)',
     sub: '세상에서 가장 정확한 열차, 일본 신칸센의 놀라운 비밀을 알아봅시다.',
     captionJp: '日本の新幹線は、1秒の狂いもなく到着することで世界的に有名です。時間通りに乗ることは、日本の大切なマナーの一つなんですよ。',
@@ -13,8 +11,6 @@ window.LECTURE_DATA.slevel_4 = [
   {
     type: 'culture', label: '문화 노트', duration: 7000, audio: '환승',
     image: 'images/lecture-scenes/slevel4-train-station-transfer.png',
-    characterImage: 'images/lecture-characters/mina-host-portrait.png',
-    characterName: 'Mina',
     main: '환승 (乗り換え)',
     sub: '복잡한 도쿄 지하철도 "노리카에" 한마디면 어디든 찾아갈 수 있습니다.',
     captionJp: '東京の地下鉄はとても複雑ですが、「乗り換え」という言葉を知っていれば安心です。看板の「乗換」という文字を探しながら歩いてみましょう。',
@@ -23,8 +19,6 @@ window.LECTURE_DATA.slevel_4 = [
   {
     type: 'mnemonic', label: '암기 꿀팁', duration: 6000, audio: '〜까지 가주세요',
     image: 'images/lecture-scenes/slevel4-train-station-transfer.png',
-    characterImage: 'images/lecture-characters/mina-host-portrait.png',
-    characterName: 'Mina',
     main: '택시에서 말하기',
     sub: '목적지 이름 뒤에 "~마데 잇테 구다사이"만 붙이면 택시 타기도 끝!',
     captionJp: 'タクシーに乗ったら「～まで行ってください」と言いましょう。短いフレーズですが、運転手さんに目的地を正確に伝えることができます。',
@@ -33,8 +27,6 @@ window.LECTURE_DATA.slevel_4 = [
   {
     type: 'vocabulary', label: '필수 어휘', duration: 7000, audio: null,
     image: 'images/lecture-scenes/slevel4-train-station-transfer.png',
-    characterImage: 'images/lecture-characters/mina-host-portrait.png',
-    characterName: 'Mina',
     main: '역에서 쓰는 단어',
     sub: '표, 승강장, 첫차, 막차... 전철 여행의 필수 단어들을 모았습니다.',
     captionJp: '「切符(きっぷ)」「ホーム」「終電(しゅうでん)」！これらの言葉は駅で必ず見かけます。特に「終電」は忘れないようにしましょうね。',
@@ -43,8 +35,6 @@ window.LECTURE_DATA.slevel_4 = [
   {
     type: 'practice', label: '실전 연습', duration: 7000, audio: '표를 한 장 주세요',
     image: 'images/lecture-scenes/slevel4-train-station-transfer.png',
-    characterImage: 'images/lecture-characters/mina-host-portrait.png',
-    characterName: 'Mina',
     main: '표 사기',
     sub: '직원에게 표를 사거나 IC카드를 충전하는 실전 대화를 연습해 봅니다.',
     captionJp: '「～まで一枚ください」と窓口で言ってみましょう。ICカードを使う場合は「チャージ」という言葉も覚えておくととても便利です。',
@@ -53,8 +43,6 @@ window.LECTURE_DATA.slevel_4 = [
   {
     type: 'summary', label: '오늘의 정리', duration: 5000, audio: null,
     image: 'images/lecture-scenes/slevel4-train-station-transfer.png',
-    characterImage: 'images/lecture-characters/mina-host-portrait.png',
-    characterName: 'Mina',
     main: '요약 리뷰',
     sub: '일본의 전철과 택시를 능숙하게 이용하는 기초 이동 회화를 정복했습니다.',
     captionJp: '交通機関を自由に使えるようになると、旅行の楽しさが何倍にもなります！次の目的地まで、今日学んだ言葉で行ってみませんか？',

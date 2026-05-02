@@ -3,8 +3,6 @@ window.LECTURE_DATA.b_level_1 = [
   {
     type: 'hook', label: '오늘의 이야기', duration: 6000, audio: null,
     image: 'images/lecture-scenes/blevel1-it-team-communication.png',
-    characterImage: 'images/lecture-characters/mina-host-portrait.png',
-    characterName: 'Mina',
     main: '한일 IT 조직 문화',
     sub: '같은 개발자여도 일하는 방식과 기대하는 커뮤니케이션은 꽤 다릅니다.',
     captionJp: '日本のITチームでは、技術力だけでなく「周囲とどう連携するか」がとても重視されます。コードが書けるだけでなく、安心して一緒に働ける人かどうかも見られているんですね。',
@@ -13,8 +11,6 @@ window.LECTURE_DATA.b_level_1 = [
   {
     type: 'culture', label: '문화 노트', duration: 7000, audio: 'お願いします',
     image: 'images/lecture-scenes/blevel1-it-team-communication.png',
-    characterImage: 'images/lecture-characters/mina-host-portrait.png',
-    characterName: 'Mina',
     main: '부탁의 기본 톤',
     sub: '명령이 아니라 협조 요청처럼 들리게 말하는 것이 중요합니다.',
     captionJp: '日本の職場では「これやってください」よりも、「こちら、お願いできますか」「ご対応をお願いします」のように、相手の都合を尊重する言い方が好まれます。',
@@ -23,8 +19,6 @@ window.LECTURE_DATA.b_level_1 = [
   {
     type: 'grammar', label: '문법 노트', duration: 7000, audio: '確認します',
     image: 'images/lecture-scenes/blevel1-it-team-communication.png',
-    characterImage: 'images/lecture-characters/mina-host-portrait.png',
-    characterName: 'Mina',
     main: '즉답보다 확인',
     sub: '모를 때는 성급히 답하지 말고 확인 후 회신하는 것이 기본입니다.',
     captionJp: '分からないことがあった時、すぐに「できます」と言うより、「確認してご連絡します」と言える方が評価されることもあります。正確さと信頼の方が大切だからです。',
@@ -33,8 +27,6 @@ window.LECTURE_DATA.b_level_1 = [
   {
     type: 'vocabulary', label: '핵심 어휘', duration: 7000, audio: null,
     image: 'images/lecture-scenes/blevel1-it-team-communication.png',
-    characterImage: 'images/lecture-characters/mina-host-portrait.png',
-    characterName: 'Mina',
     main: '현장에서 자주 듣는 말',
     sub: '仕様, 確認, 対応, 共有 같은 단어는 매일 등장합니다.',
     captionJp: '仕様(사양), 対応(대응), 確認(확인), 共有(공유), 進捗(진척)などは、日本のIT現場で毎日聞くキーワードです。意味보다도 "언제 어떤 뉘앙스로 쓰이는지"까지 익히는 게 중요합니다.',
@@ -43,8 +35,6 @@ window.LECTURE_DATA.b_level_1 = [
   {
     type: 'practice', label: '실전 연습', duration: 7000, audio: '確認してご連絡します',
     image: 'images/lecture-scenes/blevel1-it-team-communication.png',
-    characterImage: 'images/lecture-characters/mina-host-portrait.png',
-    characterName: 'Mina',
     main: '가장 안전한 한 문장',
     sub: '불확실할 때는 "확인 후 연락드리겠습니다"를 먼저 꺼내세요.',
     captionJp: '「確認してご連絡します」は、分からない時の逃げではなく、信頼を守るための正しい対応です。特に入社直後は、この一言を丁寧に使えるととても安心感があります。',
@@ -53,8 +43,6 @@ window.LECTURE_DATA.b_level_1 = [
   {
     type: 'summary', label: '오늘의 정리', duration: 5000, audio: null,
     image: 'images/lecture-scenes/blevel1-it-team-communication.png',
-    characterImage: 'images/lecture-characters/mina-host-portrait.png',
-    characterName: 'Mina',
     main: '요약 리뷰',
     sub: '일본 IT 조직에서는 정확한 공유와 부드러운 요청이 기본 체력입니다.',
     captionJp: '今日は日本のIT現場で大切なコミュニケーションの土台を学びました。技術用語だけでなく、どう伝えるかまで意識すると、ぐっと自然な職場日本語になりますよ。',

@@ -3,8 +3,6 @@ window.LECTURE_DATA.slevel_3 = [
   {
     type: 'hook', label: '오늘의 이야기', duration: 6000, audio: null,
     image: 'images/lecture-scenes/slevel3-convenience-store-checkout.png',
-    characterImage: 'images/lecture-characters/mina-host-portrait.png',
-    characterName: 'Mina',
     main: '이랏샤이마세!',
     sub: '일본 상점에 발을 들이는 순간 들려오는 환영의 인사말입니다.',
     captionJp: '「いらっしゃいませ！」は、お店に来てくれたお客様を歓迎する言葉です。もともとは「よくいらっしゃいました」という丁寧な表現だったんですよ。',
@@ -13,8 +11,6 @@ window.LECTURE_DATA.slevel_3 = [
   {
     type: 'culture', label: '문화 노트', duration: 7000, audio: ' 하나만 주세요',
     image: 'images/lecture-scenes/slevel3-convenience-store-checkout.png',
-    characterImage: 'images/lecture-characters/mina-host-portrait.png',
-    characterName: 'Mina',
     main: '하나만 주세요 (ひとつください)',
     sub: '손가락으로 가리키며 이 한마디만 하세요! 어디서든 주문이 가능해집니다.',
     captionJp: '「～をひとつください」は買い物で最強のフレー즈です！指をさして「これ」と言えば、日本語が完璧じゃなくても何でも買えますよ。',
@@ -23,8 +19,6 @@ window.LECTURE_DATA.slevel_3 = [
   {
     type: 'funfact', label: '재미있는 사실', duration: 6000, audio: null,
     image: 'images/lecture-scenes/slevel3-convenience-store-checkout.png',
-    characterImage: 'images/lecture-characters/mina-host-portrait.png',
-    characterName: 'Mina',
     main: '현금 왕국 일본',
     sub: '대도시에서도 작은 가게나 라멘집은 현금만 받는 경우가 많으니 주의하세요!',
     captionJp: '日本はまだ現金をよく使う国です。最近はカードも増えましたが、小さなお店では現金しか使えないこともあるので、小銭を用意しておくと安心ですよ。',
@@ -33,8 +27,6 @@ window.LECTURE_DATA.slevel_3 = [
   {
     type: 'practice', label: '실전 연습', duration: 7000, audio: '이거 얼마예요?',
     image: 'images/lecture-scenes/slevel3-convenience-store-checkout.png',
-    characterImage: 'images/lecture-characters/mina-host-portrait.png',
-    characterName: 'Mina',
     main: '가격 묻기',
     sub: '"이거 얼마예요?"라고 묻고 가격을 확인하는 여행 필수 회화를 배워봅시다.',
     captionJp: '「これはいくらですか？」とお金を確認しましょう。店員さんが「～円(えん)」と言ったら、お財布からお金を出して「お願いします」と渡せば完璧です。',
@@ -43,8 +35,6 @@ window.LECTURE_DATA.slevel_3 = [
   {
     type: 'vocabulary', label: '필수 어휘', duration: 7000, audio: null,
     image: 'images/lecture-scenes/slevel3-convenience-store-checkout.png',
-    characterImage: 'images/lecture-characters/mina-host-portrait.png',
-    characterName: 'Mina',
     main: '편의점 마스터',
     sub: '봉투가 필요한지, 도시락을 데워줄지 묻는 질문에 당황하지 않고 대답해 봅시다.',
     captionJp: '「袋(ふくろ)はいりますか？」と聞かれたら、必要なら「はい」、いらないなら「大丈夫です」と言いましょう。お弁当を「温めますか？」と聞かれることも多いですよ。',
@@ -53,8 +43,6 @@ window.LECTURE_DATA.slevel_3 = [
   {
     type: 'summary', label: '오늘의 정리', duration: 5000, audio: null,
     image: 'images/lecture-scenes/slevel3-convenience-store-checkout.png',
-    characterImage: 'images/lecture-characters/mina-host-portrait.png',
-    characterName: 'Mina',
     main: '요약 리뷰',
     sub: '일본에서 즐겁게 쇼핑하고 주문하는 실전 회화의 기초를 다졌습니다.',
     captionJp: 'これでお買い物とレストランの準備は万端です！勇気を出して、自分でお店の人に話しかけてみてくださいね。',

@@ -3,8 +3,6 @@ window.LECTURE_DATA.b_level_2 = [
   {
     type: 'hook', label: '오늘의 이야기', duration: 6000, audio: null,
     image: 'images/lecture-scenes/blevel2-horenso-standup-update.png',
-    characterImage: 'images/lecture-characters/mina-host-portrait.png',
-    characterName: 'Mina',
     main: '호렌소(報連相)',
     sub: '보고, 연락, 상담. 일본 직장 커뮤니케이션의 핵심 3단어입니다.',
     captionJp: '報告・連絡・相談、略して「報連相」。日本では新人研修でも何度も出てくるほど重要な考え方です。問題が起きてからではなく、起きる前に共有する文化なんですね。',
@@ -13,8 +11,6 @@ window.LECTURE_DATA.b_level_2 = [
   {
     type: 'vocabulary', label: '단어 정리', duration: 7000, audio: '報告・連絡・相談',
     image: 'images/lecture-scenes/blevel2-horenso-standup-update.png',
-    characterImage: 'images/lecture-characters/mina-host-portrait.png',
-    characterName: 'Mina',
     main: '세 단어의 차이',
     sub: '報告은 결과, 連絡은 사실 전달, 相談은 판단 전 의논에 가깝습니다.',
     captionJp: '報告は「結果や進捗を伝えること」、連絡は「必要な事実を知らせること」、相談は「迷いや判断ポイントを一緒に考えてもらうこと」です。似て見えて役割が違います。',
@@ -23,8 +19,6 @@ window.LECTURE_DATA.b_level_2 = [
   {
     type: 'grammar', label: '문형 패턴', duration: 7000, audio: '共有いたします',
     image: 'images/lecture-scenes/blevel2-horenso-standup-update.png',
-    characterImage: 'images/lecture-characters/mina-host-portrait.png',
-    characterName: 'Mina',
     main: '공유의 정중 표현',
     sub: '共有します, ご連絡します, 相談させてください는 정말 자주 씁니다.',
     captionJp: '「共有します」「ご連絡します」「ご相談させてください」は、Slackやミーティングで何度も使います。短くても、場の空気を整えてくれる便利な 표현들입니다.',
@@ -33,8 +27,6 @@ window.LECTURE_DATA.b_level_2 = [
   {
     type: 'culture', label: '문화 노트', duration: 7000, audio: null,
     image: 'images/lecture-scenes/blevel2-horenso-standup-update.png',
-    characterImage: 'images/lecture-characters/mina-host-portrait.png',
-    characterName: 'Mina',
     main: '문제가 없을 때도 공유',
     sub: '"특이사항 없음"도 중요한 보고가 될 수 있습니다.',
     captionJp: '日本の現場では、何も問題がない時でも「現時点では問題ありません」と一言あるだけで安心感が生まれます。沈黙보다도 작은共有が評価されることがあります。',
@@ -43,8 +35,6 @@ window.LECTURE_DATA.b_level_2 = [
   {
     type: 'practice', label: '실전 연습', duration: 7000, audio: '進捗をご共有します',
     image: 'images/lecture-scenes/blevel2-horenso-standup-update.png',
-    characterImage: 'images/lecture-characters/mina-host-portrait.png',
-    characterName: 'Mina',
     main: '진행 상황 말하기',
     sub: '작업 완료, 지연, 확인 필요를 짧게 정리해서 말하는 연습입니다.',
     captionJp: '「Aは完了しました」「Bは確認中です」「Cは少し遅れそうです」この3つの型を言えるだけで、スタンドアップや朝会がかなり楽になります。',
@@ -53,8 +43,6 @@ window.LECTURE_DATA.b_level_2 = [
   {
     type: 'summary', label: '오늘의 정리', duration: 5000, audio: null,
     image: 'images/lecture-scenes/blevel2-horenso-standup-update.png',
-    characterImage: 'images/lecture-characters/mina-host-portrait.png',
-    characterName: 'Mina',
     main: '요약 리뷰',
     sub: '호렌소는 말을 많이 하는 기술이 아니라, 타이밍 좋게 안심을 주는 기술입니다.',
     captionJp: '報連相はおしゃべりではなく、チームに安心を届ける技術です。今日の内容を意識するだけで、職場での信頼感がぐっと変わります。',

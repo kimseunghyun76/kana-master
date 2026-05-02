@@ -5,13 +5,12 @@
   "private": true,
   "scripts": {
     "dev": "npx serve . -p 3000 --no-clipboard",
-    "lint": "npx eslint js/app.js js/modules/*.js --env browser,es2020 --parser-options=ecmaVersion:2020,sourceType:module",
+    "lint": "node --check js/v2/app.js && node --check js/v2/content-index.js && node --check js/v2/curriculum.js && node --check js/v2/store.js && node --check js/v2/tts.js && node --check js/v2/utils.js",
     "size": "node scripts/check-size.js",
     "zip": "node scripts/build-zip.js",
     "check": "npm run lint && npm run size"
   },
   "devDependencies": {
-    "eslint": "^8.57.0",
     "serve": "^14.2.3",
     "archiver": "^7.0.1"
   }

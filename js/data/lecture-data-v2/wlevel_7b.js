@@ -3,8 +3,6 @@ window.LECTURE_DATA.wlevel_7b = [
   {
     type: 'hook', label: '오늘의 이야기', duration: 6000, audio: null,
     image: 'images/lecture-scenes/wlevel7b-cafe-order-counter.png',
-    characterImage: 'images/lecture-characters/mina-host-portrait.png',
-    characterName: 'Mina',
     main: '주세요 · 부탁합니다',
     sub: '초급 일본어에서 가장 빨리 입에 붙여야 하는 서비스 표현들입니다.',
     captionJp: 'レストランでもホテルでも、お店でも、まず使えるようになると便利なのが「ください」「お願いします」です。短いですが、会話の入口になる大切な表現です。',
@@ -13,8 +11,6 @@ window.LECTURE_DATA.wlevel_7b = [
   {
     type: 'grammar', label: '문형 패턴', duration: 7000, audio: 'これをください',
     image: 'images/lecture-scenes/wlevel7b-cafe-order-counter.png',
-    characterImage: 'images/lecture-characters/mina-host-portrait.png',
-    characterName: 'Mina',
     main: '명사 + を + ください',
     sub: '눈앞의 물건이나 메뉴를 가리키며 정중하게 요청할 때 가장 기본이 되는 형태입니다.',
     captionJp: '「水をください」「コーヒーをください」「これをください」。商品や飲み物、目の前の物をそのまま頼む時の一番基本の形です。',
@@ -23,8 +19,6 @@ window.LECTURE_DATA.wlevel_7b = [
   {
     type: 'grammar', label: '문형 확장', duration: 7000, audio: 'お願いします・ありますか',
     image: 'images/lecture-scenes/wlevel7b-hotel-front-request.png',
-    characterImage: 'images/lecture-characters/mina-host-portrait.png',
-    characterName: 'Mina',
     main: 'お願いします · ありますか',
     sub: '서비스를 부탁하거나, 메뉴·재고가 있는지 물을 때 자주 붙는 표현입니다.',
     captionJp: '「チェックインお願いします」「お会計お願いします」「英語のメニューはありますか」。動作をお願いしたり、あるかどうかを確認したりする時にとても便利です。',
@@ -33,8 +27,6 @@ window.LECTURE_DATA.wlevel_7b = [
   {
     type: 'vocabulary', label: '필수 표현', duration: 7000, audio: null,
     image: 'images/lecture-scenes/wlevel7b-menu-availability-check.png',
-    characterImage: 'images/lecture-characters/mina-host-portrait.png',
-    characterName: 'Mina',
     main: '짧고 강한 만능 표현',
     sub: 'すみません, もう一度, 大丈夫です 같은 짧은 표현이 서비스 회화를 살려 줍니다.',
     captionJp: '長い文が作れなくても大丈夫です。「すみません」「お願いします」「ありますか」だけで会話はかなり前に進みます。短い表現ほど、実は一番大切です。',
@@ -43,8 +35,6 @@ window.LECTURE_DATA.wlevel_7b = [
   {
     type: 'practice', label: '실전 연습', duration: 7000, audio: 'お水をください',
     image: 'images/lecture-scenes/wlevel7b-hotel-front-request.png',
-    characterImage: 'images/lecture-characters/mina-host-portrait.png',
-    characterName: 'Mina',
     main: '주문과 요청의 차이',
     sub: '물건은 주세요, 행동은 부탁합니다 쪽으로 감각을 나눠서 익혀 봅니다.',
     captionJp: '「お水をください」は物を頼む言い方、「お会計お願いします」は行動をお願いする言い方です。両方の感覚を分けて覚えると自然になります。',
@@ -53,8 +43,6 @@ window.LECTURE_DATA.wlevel_7b = [
   {
     type: 'summary', label: '오늘의 정리', duration: 5000, audio: null,
     image: 'images/lecture-scenes/wlevel7b-cafe-order-counter.png',
-    characterImage: 'images/lecture-characters/mina-host-portrait.png',
-    characterName: 'Mina',
     main: '요약 리뷰',
     sub: '物はください, 부탁은お願いします, 준비 여부는ありますか로 기억하세요.',
     captionJp: '今日は「ください」「お願いします」「ありますか」を学びました。この3つが口から自然に出るだけで、旅行でも生活でもかなり動きやすくなります。',

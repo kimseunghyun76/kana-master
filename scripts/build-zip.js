@@ -23,11 +23,14 @@ archive.pipe(output);
 
 const root = path.resolve(__dirname, '..');
 const include = [
-  'app.html', 'app.css',
-  'manifest.json', 'manifest.webapp.json',
+  'index.html',
+  'server.js',
+  'package.json',
   'js/**/*.js',
-  'icons/**',
-  'audio/**',
+  'css/**',
+  'assets/**',
+  'images/**',
+  'docs/content-management.md',
 ];
 
 include.forEach(pattern => {

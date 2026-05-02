@@ -3,8 +3,6 @@ window.LECTURE_DATA.slevel_1 = [
   {
     type: 'hook', label: '오늘의 이야기', duration: 6000, audio: null,
     image: 'images/lecture-scenes/slevel1-first-phrases-classroom-greeting.png',
-    characterImage: 'images/lecture-characters/mina-host-portrait.png',
-    characterName: 'Mina',
     main: 'はじめまして',
     sub: '처음 뵙겠습니다! 일본에서 가장 설레는 첫 만남의 인사말입니다.',
     captionJp: '「はじめまして」は「初めてお目にかかります」という言葉が短くなったものです。相手に初めて会えて嬉しい、という敬意が込められた素敵な挨拶なんですよ。',
@@ -13,8 +11,6 @@ window.LECTURE_DATA.slevel_1 = [
   {
     type: 'culture', label: '문화 노트', duration: 7000, audio: 'よろしくお願いします',
     image: 'images/lecture-scenes/slevel1-first-phrases-classroom-greeting.png',
-    characterImage: 'images/lecture-characters/mina-host-portrait.png',
-    characterName: 'Mina',
     main: 'よろしくお願いします',
     sub: '영어로 번역 불가능한 일본인들의 만능 인사말, "잘 부탁드립니다."',
     captionJp: '「よろしくお願いします」は英語に訳すのがとても難しい言葉です。「仲良くしてください」「助けてください」など、たくさんの意味が含まれている万能な表現なんですよ。',
@@ -23,8 +19,6 @@ window.LECTURE_DATA.slevel_1 = [
   {
     type: 'mnemonic', label: '암기 꿀팁', duration: 6000, audio: 'どうぞよろしく',
     image: 'images/lecture-scenes/slevel1-first-phrases-classroom-greeting.png',
-    characterImage: 'images/lecture-characters/mina-host-portrait.png',
-    characterName: 'Mina',
     main: 'どうぞ (도-조)',
     sub: '"자 드세요", "어서 오세요", "아무쪼록"까지! 무엇이든 권할 때 쓰는 만능 열쇠입니다.',
     captionJp: '「どうぞ」は日本語でとても便利な言葉です。何かをあげるとき、席を譲るとき、そして「どうぞよろしく」のように強調したいときなど、笑顔で使いましょう！',
@@ -33,8 +27,6 @@ window.LECTURE_DATA.slevel_1 = [
   {
     type: 'practice', label: '실전 연습', duration: 7000, audio: 'おはようございます・こんにちは・こんばんは',
     image: 'images/lecture-scenes/slevel1-first-phrases-classroom-greeting.png',
-    characterImage: 'images/lecture-characters/mina-host-portrait.png',
-    characterName: 'Mina',
     main: '시간대별 인사',
     sub: '아침, 점심, 저녁! 해의 위치에 따라 바뀌는 세 가지 인사법을 익혀봅시다.',
     captionJp: '朝は「おはようございます」、昼は「こんにちは」、夜は「こんばんは」。時間を守って挨拶するのが、日本人と仲良くなる近道です！',
@@ -43,8 +35,6 @@ window.LECTURE_DATA.slevel_1 = [
   {
     type: 'vocabulary', label: '필수 어휘', duration: 7000, audio: null,
     image: 'images/lecture-scenes/slevel1-first-phrases-classroom-greeting.png',
-    characterImage: 'images/lecture-characters/mina-host-portrait.png',
-    characterName: 'Mina',
     main: '작별 인사',
     sub: '"안녕히 계세요"부터 "내일 봐"까지! 기분 좋게 헤어지는 표현들을 배웁니다.',
     captionJp: '「さようなら」は少し寂しい響きがするので、友達には「またね」や「じゃあね」を使うのが一般的ですよ。「お先に失礼します」は仕事で使います。',
@@ -53,8 +43,6 @@ window.LECTURE_DATA.slevel_1 = [
   {
     type: 'story', label: '문화 이야기', duration: 6000, audio: 'お疲れ様です',
     image: 'images/lecture-scenes/slevel1-first-phrases-classroom-greeting.png',
-    characterImage: 'images/lecture-characters/mina-host-portrait.png',
-    characterName: 'Mina',
     main: '수고하셨습니다',
     sub: '동료에게 건네는 「お疲れ様」와 아랫사람에게 건네는 「ご苦労様」를 구분해서 써야 합니다.',
     captionJp: '「お疲れ様です」は誰にでも使えますが、「ご苦労様です」は目上の人が使う言葉です。間違えると失礼になるので、まずは「お疲れ様です」だけ覚えれば安心です！',
@@ -63,8 +51,6 @@ window.LECTURE_DATA.slevel_1 = [
   {
     type: 'summary', label: '오늘의 정리', duration: 5000, audio: null,
     image: 'images/lecture-scenes/slevel1-first-phrases-classroom-greeting.png',
-    characterImage: 'images/lecture-characters/mina-host-portrait.png',
-    characterName: 'Mina',
     main: '요약 리뷰',
     sub: '기초 회화의 핵심인 인사말과 만남·헤어짐의 표현을 마스터했습니다.',
     captionJp: '今日学んだ基本的な挨拶を使いこなせれば、日本での生活がずっと楽しくなります。自信を持って、元気に挨拶してみましょう！',

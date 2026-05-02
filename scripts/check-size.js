@@ -7,16 +7,16 @@ const WARN_KB = 500;
 const root = path.resolve(__dirname, '..');
 
 const targets = [
-  'app.html',
-  'app.css',
-  'js/app.js',
+  'index.html',
+  'css/v2.css',
   'js/kana-data.js',
-  'js/gamification.js',
-  'js/modules/tts.js',
-  'js/modules/state.js',
-  'js/modules/srs.js',
-  'js/modules/utils.js',
-  'js/modules/stroke-data.js',
+  'js/v2/app.js',
+  'js/v2/content-index.js',
+  'js/v2/curriculum.js',
+  'js/v2/store.js',
+  'js/v2/tts.js',
+  'js/v2/utils.js',
+  'js/v2/module-visuals.js',
 ];
 
 let anyWarn = false;

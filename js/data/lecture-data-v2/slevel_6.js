@@ -3,8 +3,6 @@ window.LECTURE_DATA.slevel_6 = [
   {
     type: 'hook', label: '오늘의 이야기', duration: 6000, audio: null,
     image: 'images/lecture-scenes/slevel6-koban-lost-item-help.png',
-    characterImage: 'images/lecture-characters/mina-host-portrait.png',
-    characterName: 'Mina',
     main: '다이죠-부!',
     sub: '세상에서 가장 편리한 일본어, "다이죠-부"의 마법 같은 쓰임새를 알아봅시다.',
     captionJp: '「大丈夫(だいじょうぶ)」は、OKという意味だけでなく「いりません」という意味でも使われます。状況によって意味が変わる魔法の言葉ですね。',
@@ -13,8 +11,6 @@ window.LECTURE_DATA.slevel_6 = [
   {
     type: 'culture', label: '문화 노트', duration: 7000, audio: '도와주세요',
     image: 'images/lecture-scenes/slevel6-koban-lost-item-help.png',
-    characterImage: 'images/lecture-characters/mina-host-portrait.png',
-    characterName: 'Mina',
     main: '도와주세요 (助けて)',
     sub: '긴급한 상황에서 내 생명을 지켜줄 가장 중요한 한마디입니다.',
     captionJp: '本当に困ったときは「助けてください！」と叫びましょう。日本の警察(110)や救急車(119)の番号も覚えておくと安心です。',
@@ -23,8 +19,6 @@ window.LECTURE_DATA.slevel_6 = [
   {
     type: 'funfact', label: '재미있는 사실', duration: 6000, audio: null,
     image: 'images/lecture-scenes/slevel6-koban-lost-item-help.png',
-    characterImage: 'images/lecture-characters/mina-host-portrait.png',
-    characterName: 'Mina',
     main: '파출소 (교번)',
     sub: '일본 거리를 걷다 보면 자주 마주치는 소형 파출소, 교번의 역할을 알아봅시다.',
     captionJp: '日本の「交番(こうばん)」は、困ったときにいつでも相談できる頼もしい場所です。道を教えてくれたり、落とし物を届けてくれたりします。',
@@ -33,8 +27,6 @@ window.LECTURE_DATA.slevel_6 = [
   {
     type: 'vocabulary', label: '필수 어휘', duration: 7000, audio: null,
     image: 'images/lecture-scenes/slevel6-koban-lost-item-help.png',
-    characterImage: 'images/lecture-characters/mina-host-portrait.png',
-    characterName: 'Mina',
     main: '일상 서바이벌',
     sub: '"잠깐만요", "모르겠어요", "천천히 말해주세요" 등 소통에 꼭 필요한 표현들입니다.',
     captionJp: '「ちょっと待ってください」「わかりません」「ゆっくりお願いします」。これらを言えれば、会話のトラブルがぐっと減りますよ。',
@@ -43,8 +35,6 @@ window.LECTURE_DATA.slevel_6 = [
   {
     type: 'practice', label: '실전 연습', duration: 7000, audio: '지갑을 잃어버렸어요',
     image: 'images/lecture-scenes/slevel6-koban-lost-item-help.png',
-    characterImage: 'images/lecture-characters/mina-host-portrait.png',
-    characterName: 'Mina',
     main: '분실 신고',
     sub: '지갑이나 휴대폰을 잃어버렸을 때 파출소에서 신고하는 대화를 연습해 봅니다.',
     captionJp: '「～をなくしました。交番はどこですか？」と聞いてみましょう。日本の警察はとても親切に、あなたの落とし物を探してくれますよ。',
@@ -53,8 +43,6 @@ window.LECTURE_DATA.slevel_6 = [
   {
     type: 'summary', label: '오늘의 정리', duration: 5000, audio: null,
     image: 'images/lecture-scenes/slevel6-koban-lost-item-help.png',
-    characterImage: 'images/lecture-characters/mina-host-portrait.png',
-    characterName: 'Mina',
     main: '요약 리뷰',
     sub: '자신 있게 거절하고, 용기 있게 도움을 요청하는 생존 회화를 마스터했습니다.',
     captionJp: 'お疲れ様でした！これで基本的な日常英会話…ではなく日本語の会話は完璧です。自信を持って、どんどん外の世界へ飛び出してください！',
