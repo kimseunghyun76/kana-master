@@ -66,9 +66,10 @@ window.App = (() => {
     const pct = total > 0 ? Math.round((current / total) * 100) : 0;
     return `
       <div class="quiz-hud">
-        <div class="quiz-hud-main">
-          <div class="quiz-hud-label">진행 현황</div>
-          <div class="quiz-hud-value">${current} <span>/ ${total}</span></div>
+        <div class="quiz-hud-label">진행</div>
+        <div class="quiz-hud-value">${current}<span>/${total}</span></div>
+        <div class="quiz-hud-bar">
+          <div class="quiz-hud-bar-fill" style="width:${pct}%"></div>
         </div>
         <div class="quiz-hud-stats">
           <div class="quiz-hud-chip quiz-hud-chip-ok">
@@ -79,9 +80,6 @@ window.App = (() => {
             ${_uiIconSvg('close', 'quiz-hud-icon')}
             <span>${wrong}</span>
           </div>
-        </div>
-        <div class="quiz-hud-bar">
-          <div class="quiz-hud-bar-fill" style="width:${pct}%"></div>
         </div>
       </div>
     `;
@@ -1177,6 +1175,7 @@ window.App = (() => {
     uiLabeledIcon: _uiLabeledIcon,
     uiIconSvg: _uiIconSvg,
     playQuizEffect: _playQuizEffect,
+    playQuizFanfare: _playQuizFanfare,
     getVocabItems: _getVocabItems,
     getAllVocabItems: _getAllVocabItems,
     runCurrentStep: _runCurrentStep,
@@ -1475,15 +1474,15 @@ window.App = (() => {
 
   // ── 퀴즈 정답/오답 이펙트 ────────────────────────────────
   async function _playQuizEffect(isCorrect) {
-    // 사운드 (Web Audio API — 짧고 세련된 합성 톤)
+    // 사운드 (Web Audio API — 짧고 또렷한 합성 톤)
     try {
       const ctx = await _getSfxContext();
       if (!ctx) return;
       const now = ctx.currentTime + 0.01;
       const master = ctx.createGain();
       master.gain.setValueAtTime(0.0001, now);
-      master.gain.linearRampToValueAtTime(isCorrect ? 0.22 : 0.18, now + 0.02);
-      master.gain.exponentialRampToValueAtTime(0.0001, now + (isCorrect ? 0.42 : 0.34));
+      master.gain.linearRampToValueAtTime(isCorrect ? 0.42 : 0.36, now + 0.012);
+      master.gain.exponentialRampToValueAtTime(0.0001, now + (isCorrect ? 0.48 : 0.4));
       master.connect(ctx.destination);
 
       const playVoice = (type, startFreq, endFreq, startAt, duration, gainAmount) => {
@@ -1496,8 +1495,8 @@ window.App = (() => {
           osc.frequency.exponentialRampToValueAtTime(endFreq, startAt + duration);
         }
         filter.type = 'lowpass';
-        filter.frequency.setValueAtTime(isCorrect ? 4200 : 1800, startAt);
-        filter.Q.value = 0.9;
+        filter.frequency.setValueAtTime(isCorrect ? 5600 : 2100, startAt);
+        filter.Q.value = isCorrect ? 0.7 : 1.2;
         gain.gain.setValueAtTime(0.0001, startAt);
         gain.gain.linearRampToValueAtTime(gainAmount, startAt + 0.015);
         gain.gain.exponentialRampToValueAtTime(0.0001, startAt + duration);
@@ -1509,12 +1508,12 @@ window.App = (() => {
       };
 
       if (isCorrect) {
-        playVoice('triangle', 784, 1046, now, 0.16, 0.13);
-        playVoice('sine', 1174, 1396, now + 0.07, 0.14, 0.075);
-        playVoice('triangle', 1568, 1760, now + 0.12, 0.12, 0.045);
+        playVoice('triangle', 880, 1318, now, 0.15, 0.2);
+        playVoice('sine', 1320, 1760, now + 0.06, 0.16, 0.13);
+        playVoice('triangle', 1760, 2349, now + 0.13, 0.15, 0.08);
       } else {
-        playVoice('sine', 300, 232, now, 0.18, 0.11);
-        playVoice('triangle', 220, 174, now + 0.055, 0.16, 0.055);
+        playVoice('sawtooth', 220, 164, now, 0.18, 0.16);
+        playVoice('triangle', 196, 146, now + 0.07, 0.2, 0.1);
       }
     } catch(e) { /* AudioContext 미지원 무시 */ }
 
@@ -1536,6 +1535,55 @@ window.App = (() => {
         setTimeout(() => body.classList.remove('quiz-wrong-shake'), 600);
       }
     }
+  }
+
+  async function _playQuizFanfare(level = 'pass') {
+    try {
+      const ctx = await _getSfxContext();
+      if (!ctx) return;
+      const now = ctx.currentTime + 0.02;
+      const master = ctx.createGain();
+      master.gain.setValueAtTime(0.0001, now);
+      master.gain.linearRampToValueAtTime(level === 'excellent' ? 0.5 : 0.42, now + 0.03);
+      master.gain.exponentialRampToValueAtTime(0.0001, now + 1.25);
+      master.connect(ctx.destination);
+
+      const notes = level === 'excellent'
+        ? [523.25, 659.25, 783.99, 1046.5, 1318.51]
+        : [440, 554.37, 659.25, 880];
+
+      notes.forEach((freq, i) => {
+        const start = now + i * 0.11;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        const filter = ctx.createBiquadFilter();
+        osc.type = i % 2 ? 'triangle' : 'sine';
+        osc.frequency.setValueAtTime(freq, start);
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(6200, start);
+        gain.gain.setValueAtTime(0.0001, start);
+        gain.gain.linearRampToValueAtTime(0.16 - i * 0.014, start + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.34);
+        osc.connect(filter);
+        filter.connect(gain);
+        gain.connect(master);
+        osc.start(start);
+        osc.stop(start + 0.38);
+      });
+
+      const bass = ctx.createOscillator();
+      const bassGain = ctx.createGain();
+      bass.type = 'triangle';
+      bass.frequency.setValueAtTime(level === 'excellent' ? 130.81 : 110, now);
+      bass.frequency.exponentialRampToValueAtTime(level === 'excellent' ? 196 : 164.81, now + 0.56);
+      bassGain.gain.setValueAtTime(0.0001, now);
+      bassGain.gain.linearRampToValueAtTime(0.1, now + 0.04);
+      bassGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.72);
+      bass.connect(bassGain);
+      bassGain.connect(master);
+      bass.start(now);
+      bass.stop(now + 0.78);
+    } catch(e) { /* AudioContext 미지원 무시 */ }
   }
 
   function setQuizPassRate(rate) {

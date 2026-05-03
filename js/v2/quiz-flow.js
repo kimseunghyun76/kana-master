@@ -711,12 +711,15 @@ window.createQuizFlow = (ctx) => {
 
     // 팡파레 효과 (Confetti + TTS)
     if (passed && pct >= 50) {
-      confetti(pct >= 90 ? 100 : 50);
+      const excellent = pct >= 90;
+      ctx.playQuizFanfare?.(excellent ? 'excellent' : 'pass');
+      confetti(excellent ? 16 : 8);
       setTimeout(() => TTS.speak(stripFuri(res.jp)), 600);
     }
 
     document.getElementById('flowBody').innerHTML = `
-      <div class="score-screen fanfare-burst">
+      <div class="score-screen fanfare-burst ${passed ? 'score-screen-passed' : ''}">
+        ${passed ? '<div class="score-fanfare-ring score-fanfare-ring-a"></div><div class="score-fanfare-ring score-fanfare-ring-b"></div>' : ''}
         <div class="score-emoji">${ctx.uiIconSvg(res.icon, 'score-tier-icon')}</div>
         <div class="score-title">${res.title}</div>
         <div class="score-exclamation">${ruby(res.jp)}</div>

@@ -94,8 +94,8 @@
 }
 .kana-card {
   width: 100%; max-width: 360px;
-  height: min(460px, calc(100dvh - 248px));
-  min-height: 340px;
+  height: min(500px, calc(100dvh - 220px));
+  min-height: 370px;
   perspective: 1000px;
   cursor: pointer;
   touch-action: manipulation;
@@ -324,8 +324,8 @@
 @media (max-height: 740px) {
   .kana-card-stack { padding-top: 0; }
   .kana-card {
-    height: min(410px, calc(100dvh - 236px));
-    min-height: 318px;
+    height: min(440px, calc(100dvh - 226px));
+    min-height: 336px;
   }
   .kana-stroke-mini { height: 136px; }
   .kana-tip-main { padding: 8px 11px; }
