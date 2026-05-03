@@ -70,7 +70,22 @@ test('loads v2 app data and primary screens', async ({ page }) => {
   await page.getByRole('button', { name: /히라가나 시작하기/ }).click();
   await expect(page.locator('#flowScreen')).toHaveClass(/open/);
   await expect(page.locator('.module-intro-title')).toBeVisible();
+  const introItems = await page.locator('.module-intro-items').evaluate(el => ({
+    clientWidth: el.clientWidth,
+    scrollWidth: el.scrollWidth,
+  }));
+  expect(introItems.scrollWidth).toBeGreaterThan(introItems.clientWidth);
   await expect(page.getByRole('button', { name: /학습 시작/ })).toBeVisible();
+  await page.evaluate(() => {
+    window.TTS.speak = async () => {};
+  });
+  await page.getByRole('button', { name: /학습 시작/ }).click();
+  await expect(page.locator('.kana-card')).toBeVisible();
+  const kanaFit = await page.locator('#flowBody').evaluate(el => ({
+    clientHeight: el.clientHeight,
+    scrollHeight: el.scrollHeight,
+  }));
+  expect(kanaFit.scrollHeight).toBeLessThanOrEqual(kanaFit.clientHeight + 2);
 });
 
 test('serves current assets and rejects removed v1 paths', async ({ request }) => {

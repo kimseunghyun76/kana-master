@@ -88,13 +88,14 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 8px 16px 16px;
+  padding: 4px 16px 10px;
   width: 100%;
+  min-height: 100%;
 }
 .kana-card {
   width: 100%; max-width: 360px;
-  height: min(544px, calc(100dvh - 194px));
-  min-height: 420px;
+  height: min(460px, calc(100dvh - 248px));
+  min-height: 340px;
   perspective: 1000px;
   cursor: pointer;
   touch-action: manipulation;
@@ -117,7 +118,7 @@
   align-items: center;
   justify-content: center;
   gap: 6px;
-  padding: 16px;
+  padding: 14px;
 }
 .kana-face {
   background: linear-gradient(135deg, var(--bg2) 0%, var(--bg3) 100%);
@@ -128,9 +129,10 @@
   border: 1px solid rgba(99,102,241,.4);
   transform: rotateY(180deg);
   overflow: hidden;
+  justify-content: flex-start;
 }
 .kana-char {
-  font-size: clamp(96px, 24vh, 150px);
+  font-size: clamp(86px, 20vh, 128px);
   font-family: 'Noto Sans JP', serif;
   font-weight: 400;
   line-height: 1;
@@ -140,7 +142,7 @@
 
 /* Small kana (yoon/sokuon) specific sizing for flashcards */
 .kana-char.is-small {
-  font-size: clamp(78px, 18vh, 110px);
+  font-size: clamp(68px, 16vh, 96px);
   opacity: 0.9;
 }
 
@@ -266,7 +268,7 @@
 }
 .kana-stroke-mini {
   width: 100%;
-  height: 220px;
+  height: 164px;
   background: linear-gradient(145deg, #fefcf8, #f8f4ee);
   border-radius: 18px;
   box-shadow: inset 0 1px 3px rgba(0,0,0,.06), 0 3px 16px rgba(0,0,0,.22);
@@ -306,7 +308,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
-  padding: 0 16px;
+  padding: 0 8px;
   justify-content: center;
   margin-top: 6px;
 }
@@ -315,8 +317,21 @@
   border: 1px solid rgba(99,102,241,.2);
   border-radius: 20px;
   padding: 4px 10px;
-  font-size: 12px;
+  font-size: 11px;
   color: var(--text2);
+}
+
+@media (max-height: 740px) {
+  .kana-card-stack { padding-top: 0; }
+  .kana-card {
+    height: min(410px, calc(100dvh - 236px));
+    min-height: 318px;
+  }
+  .kana-stroke-mini { height: 136px; }
+  .kana-tip-main { padding: 8px 11px; }
+  .kana-tip-body { font-size: 13px; line-height: 1.55; }
+  .kana-romaji-sm { font-size: 24px; }
+  .kana-korean-sm { font-size: 16px; }
 }
 .kana-ex-pill .ex-word { font-family: 'Noto Sans JP', serif; }
 
@@ -483,4 +498,3 @@
   color: rgba(241,245,249,.62);
   line-height: 1.1;
 }
-
