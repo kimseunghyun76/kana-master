@@ -8,6 +8,7 @@ const root = path.resolve(__dirname, '..');
 
 const targets = [
   'index.html',
+  'css/shell.css',
   'css/v2.css',
   'js/kana-data.js',
   'js/v2/app.js',
