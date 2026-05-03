@@ -6,10 +6,15 @@
 'use strict';
 
 const STORAGE_KEY = 'jp_master_v2';
+const STORE_SCHEMA_VERSION = 2;
 
 // ── Default progress structure ─────────────────────────────
 function defaultProgress() {
   return {
+    schemaVersion: STORE_SCHEMA_VERSION,
+    deviceId: _getOrCreateDeviceId(),
+    updatedAt: null,
+    pendingEvents: [],
     xp: 0,
     todayXP: 0,
     lastXPUpdateDate: null,
@@ -48,6 +53,7 @@ window.Store = (() => {
             if (result[STORAGE_KEY]) {
               _data = deepMerge(defaultProgress(), result[STORAGE_KEY]);
             }
+            _migrateProgress();
             _updateStreak();
             resolve(_data);
           });
@@ -55,6 +61,7 @@ window.Store = (() => {
       } else {
         const raw = localStorage.getItem(STORAGE_KEY);
         if (raw) _data = deepMerge(defaultProgress(), JSON.parse(raw));
+        _migrateProgress();
         _updateStreak();
         return _data;
       }
@@ -66,6 +73,7 @@ window.Store = (() => {
 
   async function save() {
     try {
+      _touch();
       const serialized = JSON.parse(JSON.stringify(_data));
       if (typeof chrome !== 'undefined' && chrome.storage) {
         chrome.storage.local.set({ [STORAGE_KEY]: serialized });
@@ -94,7 +102,7 @@ window.Store = (() => {
 
   function _ensureModule(moduleId) {
     if (!_data.modules[moduleId]) {
-      _data.modules[moduleId] = { stepsCompleted: 0, stepResults: [], roleplayDone: false };
+      _data.modules[moduleId] = { stepsCompleted: 0, stepResults: [], roleplayDone: false, updatedAt: null };
     }
     return _data.modules[moduleId];
   }
@@ -138,6 +146,7 @@ window.Store = (() => {
     if (stepIndex >= mp.stepsCompleted) {
       mp.stepsCompleted = stepIndex + 1;
     }
+    mp.updatedAt = Date.now();
     const prev = mp.stepResults[stepIndex] || {};
     const score = quizScore ?? prev.lastScore ?? prev.score ?? 100;
     mp.stepResults[stepIndex] = {
@@ -149,7 +158,8 @@ window.Store = (() => {
       lastScore: score,
       bestScore: Math.max(prev.bestScore ?? 0, score),
       completedAt: Date.now(),
-      ts: Date.now()
+      ts: Date.now(),
+      updatedAt: Date.now()
     };
     _recordStudy();
     _notify('module', moduleId);
@@ -160,6 +170,7 @@ window.Store = (() => {
     const mp = _ensureModule(moduleId);
     const prev = mp.stepResults[stepIndex] || {};
     const score = quizScore ?? 0;
+    mp.updatedAt = Date.now();
     mp.stepResults[stepIndex] = {
       ...prev,
       score: prev.completed ? (prev.score ?? score) : score,
@@ -169,7 +180,8 @@ window.Store = (() => {
       passed: !!passed,
       passedEver: (prev.passedEver ?? false) || !!passed,
       lastAttemptAt: Date.now(),
-      ts: Date.now()
+      ts: Date.now(),
+      updatedAt: Date.now()
     };
     _recordStudy();
     _notify('module', moduleId);
@@ -177,14 +189,16 @@ window.Store = (() => {
   }
 
   function completeRoleplay(moduleId) {
-    _ensureModule(moduleId).roleplayDone = true;
+    const mp = _ensureModule(moduleId);
+    mp.roleplayDone = true;
+    mp.updatedAt = Date.now();
     _recordStudy();
     _notify('roleplay', moduleId);
     save();
   }
 
   function completeKanaLevel(levelId, score) {
-    _data.kanaProgress[levelId] = { learned: true, quizScore: score ?? 100, ts: Date.now() };
+    _data.kanaProgress[levelId] = { learned: true, quizScore: score ?? 100, ts: Date.now(), updatedAt: Date.now() };
     _recordStudy();
     save();
   }
@@ -267,6 +281,7 @@ window.Store = (() => {
     if (!id) return;
     const progress = _data.vocabProgress[id] || {};
     _data.vocabProgress[id] = _applySrs(progress, _gradeFromRating(rating));
+    _data.vocabProgress[id].updatedAt = Date.now();
     save();
   }
 
@@ -274,6 +289,7 @@ window.Store = (() => {
     if (!char) return;
     const progress = _data.kanaItemProgress[char] || {};
     _data.kanaItemProgress[char] = _applySrs(progress, _gradeFromRating(rating));
+    _data.kanaItemProgress[char].updatedAt = Date.now();
     save();
   }
 
@@ -296,8 +312,30 @@ window.Store = (() => {
   function getSetting(key) { return _data.settings[key]; }
   function setSetting(key, val) {
     _data.settings[key] = val;
+    _data.settingsUpdatedAt = Date.now();
     save();
     _notify('setting', { key, val });
+  }
+
+  function exportProgress() {
+    return {
+      app: 'kana-master',
+      exportedAt: new Date().toISOString(),
+      schemaVersion: STORE_SCHEMA_VERSION,
+      progress: JSON.parse(JSON.stringify(_data))
+    };
+  }
+
+  async function importProgress(payload) {
+    const progress = payload?.progress || payload;
+    if (!progress || typeof progress !== 'object') {
+      throw new Error('Invalid progress payload');
+    }
+    _data = deepMerge(defaultProgress(), progress);
+    _migrateProgress();
+    await save();
+    _notify('import', _data);
+    return _data;
   }
 
   function subscribe(fn) {
@@ -308,11 +346,29 @@ window.Store = (() => {
     _listeners.forEach(fn => fn(type, payload));
   }
 
+  function _touch() {
+    _data.schemaVersion = STORE_SCHEMA_VERSION;
+    _data.deviceId = _data.deviceId || _getOrCreateDeviceId();
+    _data.updatedAt = Date.now();
+  }
+
+  function _migrateProgress() {
+    _data.schemaVersion = STORE_SCHEMA_VERSION;
+    _data.deviceId = _data.deviceId || _getOrCreateDeviceId();
+    _data.pendingEvents = Array.isArray(_data.pendingEvents) ? _data.pendingEvents : [];
+    _data.modules = _data.modules || {};
+    Object.values(_data.modules).forEach(mp => {
+      if (mp && typeof mp === 'object' && !mp.updatedAt) {
+        mp.updatedAt = mp.stepResults?.findLast?.(r => r?.updatedAt || r?.ts)?.updatedAt || mp.stepResults?.findLast?.(r => r?.ts)?.ts || null;
+      }
+    });
+  }
+
   return { load, save, get, getXP, getStreak, addXP,
            completeStep, recordStepAttempt, completeRoleplay, completeKanaLevel,
            reviewVocabItem, reviewKanaItem, countDueVocab, countDueKana,
            getVocabReviewQueue, getKanaReviewQueue,
-           getSetting, setSetting, subscribe };
+           getSetting, setSetting, exportProgress, importProgress, subscribe };
 })();
 
 // ── Helpers ────────────────────────────────────────────────
@@ -332,4 +388,18 @@ function deepMerge(target, source) {
     }
   }
   return out;
+}
+
+function _getOrCreateDeviceId() {
+  const key = 'jp_master_device_id';
+  try {
+    let id = localStorage.getItem(key);
+    if (!id) {
+      id = `dev_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 10)}`;
+      localStorage.setItem(key, id);
+    }
+    return id;
+  } catch {
+    return 'dev_unknown';
+  }
 }

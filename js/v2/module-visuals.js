@@ -6,8 +6,8 @@
 
 window.ModuleVisuals = (() => {
   const VISUALS = {
-    kana_hira:         { image: 'assets/visuals/kana-grid.svg',       focus: '행 단위 문자 자동화', tone: 'violet', iconKey: 'module-kana' },
-    kana_kata:         { image: 'assets/visuals/kana-grid.svg',       focus: '외래어 읽기 기반', tone: 'violet', iconKey: 'module-kana' },
+    kana_hira:         { image: 'images/lecture-scenes/slevel1-first-phrases-classroom-greeting.png', focus: '행 단위 문자 자동화', tone: 'violet', iconKey: 'module-kana', coverImage: 'images/lecture-scenes/slevel1-first-phrases-classroom-greeting.png' },
+    kana_kata:         { image: 'images/lecture-scenes/wlevel2-elevator-number-culture.png', focus: '외래어 읽기 기반', tone: 'violet', iconKey: 'module-kana', coverImage: 'images/lecture-scenes/wlevel2-elevator-number-culture.png' },
     first_phrases:     { image: 'images/lecture-scenes/slevel1-first-phrases-classroom-greeting.png', focus: '첫 인사 패턴', tone: 'violet', iconKey: 'module-talk', coverImage: 'images/lecture-scenes/slevel1-first-phrases-classroom-greeting.png' },
     survival_greet:    { image: 'images/lecture-scenes/slevel2-self-introduction-office-lobby.png', focus: '자기소개', tone: 'blue', iconKey: 'module-talk', coverImage: 'images/lecture-scenes/slevel2-self-introduction-office-lobby.png', roleplayImage: 'images/lecture-scenes/slevel2-self-introduction-office-lobby.png' },
     survival_pointing: { image: 'images/lecture-scenes/wlevel4-kosoado-city-directions.png', focus: '지시어 감각', tone: 'blue', iconKey: 'module-map', coverImage: 'images/lecture-scenes/wlevel4-kosoado-city-directions.png', roleplayImage: 'images/lecture-scenes/wlevel4-kosoado-city-directions.png' },

@@ -70,6 +70,7 @@ const MODULES = [
   {
     id: 'kana_hira',
     stageId: 1,
+    accessTier: 'free',
     name: '히라가나',
     nameJp: 'ひらがな',
     icon: 'あ',
@@ -98,6 +99,7 @@ const MODULES = [
   {
     id: 'kana_kata',
     stageId: 1,
+    accessTier: 'free',
     name: '가타가나',
     nameJp: 'カタカナ',
     icon: 'ア',
@@ -131,6 +133,7 @@ const MODULES = [
   {
     id: 'first_phrases',
     stageId: 1,
+    accessTier: 'free',
     name: '첫 인사 10',
     nameJp: '最初の挨拶',
     icon: '👋',
@@ -150,6 +153,7 @@ const MODULES = [
   {
     id: 'survival_greet',
     stageId: 2,
+    accessTier: 'plus',
     name: '자기소개 · です',
     nameJp: '自己紹介・です',
     icon: '🙏',
@@ -175,6 +179,7 @@ const MODULES = [
   {
     id: 'survival_pointing',
     stageId: 2,
+    accessTier: 'plus',
     name: '이것 · 저것 · 여기',
     nameJp: 'これ・それ・ここ',
     icon: '📍',
@@ -199,6 +204,7 @@ const MODULES = [
   {
     id: 'survival_numbers',
     stageId: 2,
+    accessTier: 'plus',
     name: '숫자·날짜·시간',
     nameJp: '数字・日付・時間',
     icon: '🔢',
@@ -224,6 +230,7 @@ const MODULES = [
   {
     id: 'survival_location',
     stageId: 2,
+    accessTier: 'plus',
     name: '어디에 있어요?',
     nameJp: 'どこにありますか',
     icon: '🧭',
@@ -249,6 +256,7 @@ const MODULES = [
   {
     id: 'survival_transport',
     stageId: 2,
+    accessTier: 'plus',
     name: '위치·이동',
     nameJp: '場所・移動',
     icon: '🚆',
@@ -274,6 +282,7 @@ const MODULES = [
   {
     id: 'survival_food',
     stageId: 2,
+    accessTier: 'plus',
     name: '주문·부탁',
     nameJp: '注文・お願い',
     icon: '🍣',
@@ -301,6 +310,7 @@ const MODULES = [
   {
     id: 'survival_shopping',
     stageId: 2,
+    accessTier: 'plus',
     name: '가격·비교·쇼핑',
     nameJp: '買い物・比較',
     icon: '🛍️',
@@ -325,6 +335,7 @@ const MODULES = [
   {
     id: 'survival_hotel',
     stageId: 2,
+    accessTier: 'plus',
     name: '숙박·요청',
     nameJp: '宿泊・依頼',
     icon: '🏨',
@@ -351,6 +362,7 @@ const MODULES = [
   {
     id: 'daily_adjectives',
     stageId: 3,
+    accessTier: 'plus',
     name: '동사 정중형·기본 활용',
     nameJp: '動詞ます形・基本活用',
     icon: '📝',
@@ -368,6 +380,7 @@ const MODULES = [
   {
     id: 'daily_feelings',
     stageId: 3,
+    accessTier: 'plus',
     name: '형용사·상태 표현',
     nameJp: '形容詞・状態表現',
     icon: '🌈',
@@ -386,6 +399,7 @@ const MODULES = [
   {
     id: 'daily_places',
     stageId: 3,
+    accessTier: 'plus',
     name: '장소·상태 설명',
     nameJp: '場所・状態説明',
     icon: '🗺️',
@@ -413,6 +427,7 @@ const MODULES = [
   {
     id: 'daily_health',
     stageId: 3,
+    accessTier: 'plus',
     name: '건강·증상·도움 요청',
     nameJp: '健康・症状・助け',
     icon: '🏥',
@@ -441,6 +456,7 @@ const MODULES = [
   {
     id: 'it_tech_vocab',
     stageId: 4,
+    accessTier: 'pro',
     name: 'IT 기초 용어',
     nameJp: 'IT基礎用語',
     icon: '💻',
@@ -457,6 +473,7 @@ const MODULES = [
   {
     id: 'it_workplace_vocab',
     stageId: 4,
+    accessTier: 'pro',
     name: 'IT 직장·조직',
     nameJp: 'IT職場・組織',
     icon: '🏢',
@@ -480,6 +497,7 @@ const MODULES = [
   {
     id: 'biz_basic',
     stageId: 4,
+    accessTier: 'pro',
     name: '비즈니스 기본',
     nameJp: 'ビジネス基本',
     icon: '🤝',
@@ -504,6 +522,7 @@ const MODULES = [
   {
     id: 'biz_meeting',
     stageId: 4,
+    accessTier: 'pro',
     name: '회의·의견 표현',
     nameJp: '会議・意見',
     icon: '💡',
@@ -527,6 +546,7 @@ const MODULES = [
   {
     id: 'biz_1on1',
     stageId: 4,
+    accessTier: 'pro',
     name: '1on1 · 사양 확인',
     nameJp: '1on1・仕様確認',
     icon: '🎯',
@@ -550,6 +570,7 @@ const MODULES = [
   {
     id: 'biz_intro',
     stageId: 4,
+    accessTier: 'pro',
     name: '입사·자기소개',
     nameJp: '入社・自己紹介',
     icon: '🆕',
@@ -573,6 +594,7 @@ const MODULES = [
   {
     id: 'biz_spec',
     stageId: 4,
+    accessTier: 'pro',
     name: '사양·요구 확인',
     nameJp: '仕様・要件確認',
     icon: '📋',
@@ -598,6 +620,7 @@ const MODULES = [
   {
     id: 'adv_keigo',
     stageId: 5,
+    accessTier: 'pro',
     name: '경어 마스터',
     nameJp: '敬語マスター',
     icon: '🎌',

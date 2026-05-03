@@ -237,10 +237,6 @@ window.App = (() => {
         <div class="welcome-card welcome-card-cinematic" style="--welcome-bg:url('${welcomeBg}')">
           <div class="welcome-bg" aria-hidden="true"></div>
           <div class="welcome-content">
-          <div class="welcome-visual">
-            <img src="assets/visuals/kana-grid.svg" alt="히라가나 시작 안내">
-            <div class="visual-badge">${_uiIconSvg('module-kana', 'visual-badge-svg')}</div>
-          </div>
           <div class="welcome-title">일본어 마스터에 오신 걸 환영합니다</div>
           <div class="welcome-copy">
             히라가나부터 IT 비즈니스 일본어까지<br>
@@ -418,7 +414,8 @@ window.App = (() => {
       `;
 
       mods.forEach(mod => {
-        const modLocked = locked || !isModuleUnlocked(mod.id, prog);
+        const accessLocked = !Entitlements.canAccess(mod);
+        const modLocked = locked || accessLocked || !isModuleUnlocked(mod.id, prog);
         const mp = prog.modules[mod.id] || {};
         const totalSteps = mod.steps.length;
         const done = mp.stepsCompleted || 0;
@@ -444,7 +441,7 @@ window.App = (() => {
             </div>
             <div class="module-info">
               <div class="module-name">${escHtml(mod.name)}</div>
-              <div class="module-sub">${escHtml(mod.nameJp || '')} · ${totalSteps}단계</div>
+              <div class="module-sub">${escHtml(mod.nameJp || '')} · ${totalSteps}단계${accessLocked ? ` · ${Entitlements.requiredTier(mod).toUpperCase()}` : ''}</div>
               <div class="module-focus-tag">${escHtml(visual.focus)}</div>
               ${!modLocked ? `
               <div class="module-prog">
@@ -645,6 +642,16 @@ window.App = (() => {
             <span class="si-label">후리가나 표시</span>
             <span class="si-arrow">${prog.settings.furigana ? _uiIconSvg('check', 'settings-state-icon') : _uiIconSvg('progress', 'settings-state-icon muted')}</span>
           </div>
+          <div class="settings-item" onclick="App.exportProgress()">
+            <span class="si-icon">${_uiIconSvg('download', 'settings-row-icon')}</span>
+            <span class="si-label">진도 내보내기</span>
+            <span class="si-arrow">${_uiIconSvg('progress', 'settings-state-icon')}</span>
+          </div>
+          <div class="settings-item" onclick="App.importProgress()">
+            <span class="si-icon">${_uiIconSvg('upload', 'settings-row-icon')}</span>
+            <span class="si-label">진도 가져오기</span>
+            <span class="si-arrow">${_uiIconSvg('progress', 'settings-state-icon')}</span>
+          </div>
           <div class="settings-item" onclick="App.resetProgress()">
             <span class="si-icon">${_uiIconSvg('trash', 'settings-row-icon')}</span>
             <span class="si-label">진도 초기화</span>
@@ -731,6 +738,10 @@ window.App = (() => {
     const mod = MODULES.find(m => m.id === moduleId);
     if (!mod) return;
     const prog = Store.get();
+    if (!Entitlements.canAccess(mod)) {
+      showToast(`${Entitlements.requiredTier(mod).toUpperCase()} 콘텐츠입니다`);
+      return;
+    }
     if (!isModuleUnlocked(moduleId, prog)) {
       showToast('🔒 이전 모듈을 먼저 완료하세요!');
       return;
@@ -2341,6 +2352,44 @@ window.App = (() => {
     location.reload();
   }
 
+  function exportProgress() {
+    const payload = Store.exportProgress();
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `kana-master-progress-${new Date().toISOString().slice(0, 10)}.json`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+    showToast('진도 파일을 내보냈습니다');
+  }
+
+  function importProgress() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'application/json,.json';
+    input.onchange = async () => {
+      const file = input.files?.[0];
+      if (!file) return;
+      try {
+        const payload = JSON.parse(await file.text());
+        if (!confirm('현재 진도를 가져온 파일로 바꿀까요?')) return;
+        await Store.importProgress(payload);
+        showToast('진도를 가져왔습니다');
+        _renderHome();
+        _renderLesson();
+        _renderPractice();
+        _renderProfile();
+      } catch (err) {
+        console.warn('importProgress error:', err);
+        showToast('진도 파일을 읽지 못했습니다');
+      }
+    };
+    input.click();
+  }
+
   // ── Data Helpers ──────────────────────────────────────────
   function _getVocabItems(step) {
     return ContentIndex.getVocabItems(step);
@@ -2464,6 +2513,8 @@ window.App = (() => {
     toggleFurigana,
     toggleTTS,
     resetProgress,
+    exportProgress,
+    importProgress,
     // TTS 설정
     setVoicevoxSpeaker,
     setVoicevoxSpeakerA,
