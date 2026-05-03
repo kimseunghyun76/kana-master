@@ -57,7 +57,7 @@ var VOCAB_ITEMS_S1S5 = [
   { id:'par_imi',       japanese:'どういういみですか',            kanji:'どういう意味(いみ)ですか',    korean:'무슨 뜻이에요?',            english:'What does that mean?',              tip:'모르는 단어를 만났을 때' },
   { id:'par_kaite',     japanese:'かいてもらえますか',            kanji:'書(か)いてもらえますか',      korean:'써 주실 수 있어요?',         english:'Could you write it down?',          tip:'발음을 몰라도 글자로 확인' },
   { id:'par_eigo2',     japanese:'えいごでいえますか',            kanji:'英語(えいご)で言(い)えますか', korean:'영어로 말해주실 수 있어요?', english:'Can you say it in English?',        tip:'언어 장벽 돌파 최후 수단' },
-  { id:'par_wakatta',   japanese:'わかりました',                                                       korean:'알겠습니다',                english:'I understand / I got it',           tip:'상대방 말을 이해했을 때' },
+  { id:'par_wakatta',   japanese:'りょうかいしました',           kanji:'了解(りょうかい)しました',       korean:'알겠습니다 (확인했습니다)', english:'Got it / Understood',              tip:'가벼운 확인. 더 정중하게는 承知しました' },
   { id:'par_wakaranai', japanese:'わかりません',                                                       korean:'모르겠어요',                english:'I don\'t understand / I don\'t know', tip:'솔직하게 모른다고 할 때' },
   { id:'par_hon',       japanese:'ほんとうですか',                                                     korean:'정말이요?',                 english:'Really? / Is that true?',           tip:'놀람·확인할 때' },
 

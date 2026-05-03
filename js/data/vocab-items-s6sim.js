@@ -61,10 +61,10 @@ var VOCAB_ITEMS_S6SIM = [
 
   // ── S10: 긴급·SOS (emergency_sos) ───────────────────────
   { id:'emg_tasuke',  japanese:'たすけてください',  kanji:'助(たす)けてください',  korean:'도와주세요!',           english:'Help me! / Help!',                      tip:'위급상황 시 큰 소리로' },
-  { id:'emg_byouin',  japanese:'びょういん',         kanji:'病院(びょういん)',        korean:'병원',                  english:'Hospital' },
+  { id:'emg_byouin',  japanese:'びょういんにいきたいです', kanji:'病院(びょういん)に行(い)きたいです', korean:'병원에 가고 싶어요', english:'I want to go to a hospital' },
   { id:'emg_keisatsu',japanese:'けいさつ',           kanji:'警察(けいさつ)',          korean:'경찰',                  english:'Police' },
   { id:'emg_guai',    japanese:'きぶんがわるいです', kanji:'気分(きぶん)が悪(わる)いです', korean:'몸이 안 좋아요',   english:'I feel sick / I don\'t feel well' },
-  { id:'emg_kusuri',  japanese:'くすり',             kanji:'薬(くすり)',              korean:'약',                    english:'Medicine',                              example:'くすりはありますか = 약 있나요?' },
+  { id:'emg_kusuri',  japanese:'くすりはありますか', kanji:'薬(くすり)はありますか',  korean:'약이 있나요?',          english:'Do you have medicine?',                  example:'긴급 상황에서 약을 찾을 때' },
   { id:'emg_nakushi', japanese:'〜をなくしました',   kanji:'〜をなくしました',        korean:'〜을 잃어버렸어요',     english:'I lost my ~',                           example:'パスポートをなくしました' },
   { id:'emg_taishi',  japanese:'たいしかん',         kanji:'大使館(たいしかん)',      korean:'대사관 (한국대사관)',   english:'Embassy' },
   { id:'emg_hoken',   japanese:'りょこうほけん',     kanji:'旅行保険(りょこうほけん)', korean:'여행 보험',            english:'Travel insurance',                      tip:'해외여행 필수! 여행 전 가입 권장' },
@@ -234,7 +234,7 @@ var VOCAB_ITEMS_S6SIM = [
   { id:'hlth_netsu',    japanese:'ねつがあります',               kanji:'熱(ねつ)があります',          korean:'열이 있어요',             english:'I have a fever' },
   { id:'hlth_kaze',     japanese:'かぜをひきました',             kanji:'風邪(かぜ)を引(ひ)きました', korean:'감기에 걸렸어요',         english:'I caught a cold' },
   { id:'hlth_isha',     japanese:'いしゃにみてもらいたいです',   kanji:'医者(いしゃ)に見(み)てもらいたいです', korean:'의사에게 진찰받고 싶어요', english:'I\'d like to see a doctor' },
-  { id:'hlth_daijob',   japanese:'だいじょうぶです',             kanji:'大丈夫(だいじょうぶ)です',   korean:'괜찮아요',               english:'I\'m okay / It\'s alright',             tip:'だいじょうぶですか = 괜찮으세요?' },
+  { id:'hlth_daijob',   japanese:'だいじょうぶですか',           kanji:'大丈夫(だいじょうぶ)ですか', korean:'괜찮으세요?',             english:'Are you okay?',                         tip:'상대방 상태를 확인할 때' },
   { id:'hlth_suimin',   japanese:'よくねられません',             kanji:'よく眠(ね)られません',        korean:'잘 못자겠어요',          english:'I can\'t sleep well',                   tip:'시차 적응 중일 때 유용' },
   { id:'hlth_kyuu',     japanese:'きゅうきゅうしゃをよんでください', kanji:'救急車(きゅうきゅうしゃ)を呼(よ)んでください', korean:'구급차를 불러주세요', english:'Please call an ambulance', tip:'일본 응급번호 119' },
 

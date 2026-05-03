@@ -49,7 +49,7 @@ test('loads v2 app data and primary screens', async ({ page }) => {
   expect(dataSummary).toEqual({
     lectures: 23,
     kana: 239,
-    vocab: 678,
+    vocab: 681,
   });
 
   await expect(page.locator('.stage-card')).toHaveCount(5);

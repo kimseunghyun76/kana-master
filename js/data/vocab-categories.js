@@ -76,9 +76,9 @@ var VOCAB_CATEGORIES = [
     id:'time_clock', phase:3, type:'word', wlevel:3,
     name:'시각 표현', icon:'🕐',
     title:'W3 시각 표현 (時刻)',
-    subtitle:'〜時·〜分·半·何時ですか',
+    subtitle:'〜時·〜分·半·午前·午後',
     desc:'몇 시? 몇 분? — 시각을 읽고 말하는 핵심 표현',
-    items:['dt_ji','dt_fun','dt_han','dt_nan']
+    items:['dt_ji','dt_fun','dt_han','dt_nan','dt_am','dt_pm']
   },
   {
     id:'days_of_week', phase:3, type:'word', wlevel:3,
@@ -110,9 +110,9 @@ var VOCAB_CATEGORIES = [
     id:'pronouns_place', phase:4, type:'word', wlevel:4,
     name:'지시어 (장소)', icon:'📍',
     title:'W4 장소 지시어 (場所指示語)',
-    subtitle:'ここ·そこ·あそこ',
+    subtitle:'ここ·そこ·あそこ·こちら',
     desc:'여기·거기·저기 — 장소를 손가락으로 가리키며 말하는 방법',
-    items:['prn_9','prn_10','prn_11']
+    items:['prn_9','prn_10','prn_11','prn_15','prn_16','prn_17']
   },
 
   // ── W5 ①②③ ───────────────────────────────────────────────
@@ -164,7 +164,7 @@ var VOCAB_CATEGORIES = [
     title:'W6 N5 핵심 형용사 (形容詞)',
     subtitle:'おいしい·かわいい·いい·だめ',
     desc:'감탄·평가 표현 — 쇼핑·식사에서 쓰는 핵심 형용사',
-    items:['adj_oishi','adj_karai','adj_amai','adj_takai','adj_yasui','adj_okii','adj_chiisai','adj_kawaii','adj_ii','adj_dame']
+    items:['adj_oishi','adj1_9','adj1_10','adj_takai','adj_yasui','adj1_7','adj1_8','adj_kawaii','adj_ii','adj_dame']
   },
 
   // ── W7 ①②③ ───────────────────────────────────────────────
@@ -206,17 +206,17 @@ var VOCAB_CATEGORIES = [
     id:'health_symptoms', phase:8, type:'word', wlevel:8,
     name:'증상·건강 상태', icon:'🤒',
     title:'W8 증상·건강 상태 (症状)',
-    subtitle:'病気·熱·痛い·風邪',
+    subtitle:'病気·熱·痛い·風邪·咳',
     desc:'몸이 좋지 않을 때 쓰는 증상 표현',
-    items:['bh_byoki','bh_netsu','bh_itai','bh_kaze']
+    items:['bh_byoki','bh_netsu','bh_itai','bh_kaze','bh_seki','bh_hakike']
   },
   {
     id:'medical_care', phase:8, type:'word', wlevel:8,
     name:'의료·병원', icon:'🏥',
     title:'W8 의료·병원 (医療)',
-    subtitle:'薬·病院·お医者さん·救急車',
+    subtitle:'薬·病院·お医者さん·救急車·薬局',
     desc:'약·병원·의사·구급차 — 긴급 상황에서 필요한 의료 단어',
-    items:['bh_kusuri','bh_byoin','bh_isha','bh_kyuukyuu']
+    items:['bh_kusuri','bh_byoin','bh_isha','bh_kyuukyuu','bh_yakkyoku','bh_hoken']
   },
 
   // ── W9 ①②③ — IT·테크 어휘 ──────────────────────────────

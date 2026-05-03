@@ -57,12 +57,8 @@ var VOCAB_ITEMS_W5W8 = [
 
   // ── W6: N5 핵심 형용사 (adjectives_n5) ──────────────────
   { id:'adj_oishi',   japanese:'おいしい',  kanji:'美味(おい)しい', korean:'맛있다',       english:'Delicious / Tasty',       tip:'食べ物の最高の褒め言葉' },
-  { id:'adj_karai',   japanese:'からい',    kanji:'辛(から)い',     korean:'맵다',         english:'Spicy',                   example:'からくないですか = 맵지 않나요?' },
-  { id:'adj_amai',    japanese:'あまい',    kanji:'甘(あま)い',     korean:'달다',         english:'Sweet' },
   { id:'adj_takai',   japanese:'たかい',    kanji:'高(たか)い',     korean:'비싸다 / 높다', english:'Expensive / High / Tall' },
   { id:'adj_yasui',   japanese:'やすい',    kanji:'安(やす)い',     korean:'싸다 / 저렴하다', english:'Cheap / Affordable' },
-  { id:'adj_okii',    japanese:'おおきい',  kanji:'大(おお)きい',   korean:'크다',         english:'Big' },
-  { id:'adj_chiisai', japanese:'ちいさい',  kanji:'小(ちい)さい',   korean:'작다',         english:'Small' },
   { id:'adj_kawaii',  japanese:'かわいい',  kanji:'可愛(かわい)い', korean:'귀엽다',        english:'Cute / Adorable',         tip:'쇼핑할 때 가장 많이 쓰는 형용사' },
   { id:'adj_ii',      japanese:'いい',                              korean:'좋다',         english:'Good / Fine',             example:'いい！ = 좋아요!' },
   { id:'adj_dame',    japanese:'だめ',      kanji:'駄目(だめ)',      korean:'안 된다 / 불가', english:'No good / Not allowed',   tip:'だめですか = 안 되나요?' },
@@ -116,6 +112,10 @@ var VOCAB_ITEMS_W5W8 = [
   { id:'bh_kusuri', japanese:'くすり',    kanji:'薬(くすり)',    korean:'약',            english:'Medicine',       tip:'くすりをください = 약 주세요' },
   { id:'bh_byoin',  japanese:'びょういん', kanji:'病院(びょういん)', korean:'병원',       english:'Hospital',       tip:'びょういんにいきたいです = 병원에 가고 싶어요' },
   { id:'bh_kaze',   japanese:'かぜ',      kanji:'風邪(かぜ)',    korean:'감기',          english:'Cold (illness)',  tip:'かぜをひきました = 감기 걸렸어요' },
+  { id:'bh_seki',   japanese:'せき',      kanji:'咳(せき)',      korean:'기침',          english:'Cough',           tip:'せきがでます = 기침이 나요' },
+  { id:'bh_hakike', japanese:'はきけ',    kanji:'吐(は)き気(け)', korean:'메스꺼움',     english:'Nausea',          tip:'はきけがします = 메스꺼워요' },
+  { id:'bh_yakkyoku', japanese:'やっきょく', kanji:'薬局(やっきょく)', korean:'약국 / 조제 약국', english:'Pharmacy', tip:'薬(くすり)を買(か)う場所(ばしょ)' },
+  { id:'bh_hoken',  japanese:'ほけんしょう', kanji:'保険証(ほけんしょう)', korean:'보험증', english:'Health insurance card', tip:'旅行者(りょこうしゃ)なら旅行保険(りょこうほけん)も確認' },
 
   // ── W5: 능력·가능 동사 (verbs_ability) ──────────────────
   { id:'vb3_1', japanese:'できる',                      korean:'할 수 있다',       english:'Can do / Is possible',       tip:'「日本語できる？」「少しだけ！」범용 가능 표현' },

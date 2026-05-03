@@ -483,6 +483,7 @@ const MODULES = [
     steps: [
       { type: 'lecture',    title: '🎬 호렌소(報連相)의 모든 것', lectureKey: 'b_level_2' },
       { type: 'vocab_learn', title: 'IT 직장·조직 어휘', categoryId: 'it_workplace' },
+      { type: 'vocab_learn', title: '일정·환경·협업 어휘', categoryIds: ['it_workplace', 'it_dev_process'], limit: 18 },
       { type: 'vocab_quiz',  title: 'IT 직장 퀴즈', categoryId: 'it_workplace' },
     ],
     roleplay: {
@@ -532,6 +533,7 @@ const MODULES = [
     steps: [
       { type: 'lecture',    title: '🎬 일본식 회의 진행하기', lectureKey: 'b_level_4' },
       { type: 'vocab_learn', title: '회의·의견 어휘', categoryId: 'biz_meeting' },
+      { type: 'vocab_learn', title: '회의 전 공유·보고', categoryId: 'biz_hourensou' },
       { type: 'vocab_quiz',  title: '회의 퀴즈', categoryId: 'biz_meeting' },
     ],
     roleplay: {
@@ -556,6 +558,7 @@ const MODULES = [
     steps: [
       { type: 'lecture',    title: '🎬 매니저와의 1on1', lectureKey: 'b_level_5' },
       { type: 'vocab_learn', title: '회의·의견 심화', categoryId: 'biz_meeting' },
+      { type: 'vocab_learn', title: '상담·피드백 표현', categoryId: 'biz_hourensou' },
       { type: 'vocab_quiz',  title: '심화 퀴즈', categoryId: 'biz_meeting' },
     ],
     roleplay: {
@@ -580,6 +583,7 @@ const MODULES = [
     steps: [
       { type: 'lecture',    title: '🎬 완벽한 자기소개', lectureKey: 'slevel_2' },
       { type: 'vocab_learn', title: '입사 자기소개', categoryIds: ['self_intro', 'biz_greetings'], limit: 18 },
+      { type: 'vocab_learn', title: '팀·직장 역할 어휘', categoryId: 'it_workplace' },
       { type: 'vocab_quiz',  title: '입사 표현 퀴즈', categoryIds: ['self_intro', 'biz_greetings'], limit: 22 },
     ],
     roleplay: {
@@ -604,6 +608,7 @@ const MODULES = [
     steps: [
       { type: 'lecture',    title: '🎬 기획자와 사양 조율하기', lectureKey: 'b_level_6' },
       { type: 'vocab_learn', title: 'IT 기초 복습', categoryId: 'it_tech_basic' },
+      { type: 'vocab_learn', title: '요구·개발 프로세스', categoryId: 'it_dev_process' },
       { type: 'vocab_quiz',  title: '사양 확인 퀴즈', categoryId: 'it_tech_basic' },
     ],
     roleplay: {
@@ -629,6 +634,7 @@ const MODULES = [
     steps: [
       { type: 'lecture',    title: '🎬 경어(敬語)의 체계', lectureKey: 'k_level_1' },
       { type: 'vocab_learn', title: '경어 표현', categoryId: 'keigo_basics' },
+      { type: 'vocab_learn', title: '비즈니스 경어 확장', categoryId: 'biz_greetings' },
       { type: 'vocab_quiz',  title: '경어 퀴즈', categoryId: 'keigo_basics' },
     ],
     roleplay: null

@@ -57,7 +57,7 @@ var VOCAB_ITEMS_DIALOGUE = [
 
   // ── 씬4: 이자카야 (sim_izakaya) ──
   { id:'iz_n1', speaker:'N', japanese:'', romaji:'', korean:'📍 이자카야 — 저녁 식사 겸 음주', english:'📍 Izakaya — dinner and drinks', tip:'' },
-  { id:'iz_1',  speaker:'B', japanese:'いらっしゃいませ！何名様ですか？',          romaji:'irasshaimase! nannmei sama desu ka', korean:'어서 오세요! 몇 분이세요?', english:'Welcome! How many people?' },
+  { id:'iz_1',  speaker:'B', japanese:'いらっしゃいませ！ご予約はありますか？',  romaji:'irasshaimase! goyoyaku wa arimasu ka', korean:'어서 오세요! 예약하셨나요?', english:'Welcome! Do you have a reservation?' },
   { id:'iz_2',  speaker:'A', japanese:'二人です。',                               romaji:'futari desu', korean:'두 명이요.', english:'Two of us.' },
   { id:'iz_3',  speaker:'B', japanese:'禁煙と喫煙、どちらがよろしいですか？',      romaji:'kinen to kitsuen, dochira ga yoroshii desu ka', korean:'금연석과 흡연석 중 어느 쪽으로 드릴까요?', english:'Would you prefer non-smoking or smoking?' },
   { id:'iz_4',  speaker:'A', japanese:'禁煙でお願いします。',                      romaji:'kinen de onegai shimasu', korean:'금연으로 주세요.', english:'Non-smoking, please.' },
@@ -81,7 +81,7 @@ var VOCAB_ITEMS_DIALOGUE = [
   { id:'kd_7',  speaker:'B', japanese:'レジ袋はご利用ですか？3円になります。',     romaji:'rejibukuro wa goriyou desu ka? san en ni narimasu', korean:'봉투 사용하시겠어요? 3엔이에요.', english:'Would you like a bag? That\'s 3 yen.' },
   { id:'kd_8',  speaker:'A', japanese:'いりません。Suicaで払えますか？',           romaji:'irimasen. suika de haraemasu ka', korean:'필요 없어요. 스이카로 낼 수 있나요?', english:'No thanks. Can I pay with Suica?' },
   { id:'kd_9',  speaker:'B', japanese:'はい、こちらへタッチしてください。820円です。', romaji:'hai, kochira e tatchi shite kudasai. happyaku nijuu en desu', korean:'네, 여기 터치해 주세요. 820엔이에요.', english:'Yes, just tap here. That\'s 820 yen.' },
-  { id:'kd_10', speaker:'B', japanese:'ありがとうございました！またどうぞ。',      romaji:'arigatou gozaimashita! mata douzo', korean:'감사합니다! 또 오세요.', english:'Thank you! Come again!' },
+  { id:'kd_10', speaker:'B', japanese:'ご利用ありがとうございました！お気をつけて。', romaji:'goriyou arigatou gozaimashita! oki wo tsukete', korean:'이용해 주셔서 감사합니다! 조심히 가세요.', english:'Thank you for using our service. Take care!' },
 
   // ── 씬6: 쇼핑 (sim_shopping_dlg) ──
   { id:'sd_n1', speaker:'N', japanese:'', romaji:'', korean:'📍 옷가게 — 가격 문의·시착·결제', english:'📍 Clothing store — asking about prices, trying on, and paying', tip:'' },
@@ -174,7 +174,7 @@ var VOCAB_ITEMS_DIALOGUE = [
   { id:'elv_7',  speaker:'A', japanese:'屋上はありますか？',                   romaji:'okujou wa arimasu ka',                korean:'옥상 있나요?', english:'Is there a rooftop?' },
   { id:'elv_8',  speaker:'B', japanese:'申し訳ありません、屋上は立入禁止です。', romaji:'moushiwake arimasen, okujou wa tachiiri kinshi desu', korean:'죄송합니다, 옥상은 출입금지입니다.', english:'I\'m sorry, the rooftop is off-limits.' },
   { id:'elv_9',  speaker:'A', japanese:'すみません、降ります。',               romaji:'sumimasen, orimasu',                  korean:'실례합니다, 내립니다.', english:'Excuse me, getting off.' },
-  { id:'elv_10', speaker:'B', japanese:'ありがとうございました！',              romaji:'arigatou gozaimashita',               korean:'감사합니다!', english:'Thank you!' },
+  { id:'elv_10', speaker:'B', japanese:'どういたしまして。お気をつけて。',      romaji:'dou itashimashite. oki wo tsukete',    korean:'천만에요. 조심히 가세요.', english:'You are welcome. Take care.' },
 
   // ── 화장실 (sim_toilet) ──────────────────────────────────
   { id:'tlt_n1', speaker:'N', japanese:'', romaji:'', korean:'📍 관광지·가게에서 — 화장실 찾기', english:'📍 At a tourist spot or store — finding the bathroom' },
@@ -297,7 +297,7 @@ var VOCAB_ITEMS_DIALOGUE = [
   { id:'rd3_5',  speaker:'A', japanese:'じゃあ、醤油ラーメンにします。食券をどうぞ。', romaji:'jaa, shouyu raamen ni shimasu. shokken wo douzo', korean:'그럼 간장 라멘으로 할게요. 식권 여기요.', english:'Then I\'ll go with the soy sauce ramen. Here\'s my ticket.' },
   { id:'rd3_6',  speaker:'B', japanese:'カウンターへお座りください。麺の固さはいかがですか？', romaji:'kauntaa e osuwari kudasai. men no katasa wa ikaga desu ka', korean:'카운터에 앉으세요. 면 굳기는 어떻게 하시겠어요?', english:'Please have a seat at the counter. How would you like your noodles?' },
   { id:'rd3_7',  speaker:'A', japanese:'普通でお願いします。ネギは多めにできますか？', romaji:'futsuu de onegai shimasu. negi wa oome ni dekimasu ka', korean:'보통으로 해주세요. 파는 많이 넣어주실 수 있나요?', english:'Regular firmness, please. Can I get extra green onions?' },
-  { id:'rd3_8',  speaker:'B', japanese:'かしこまりました。少々お待ちください。', romaji:'kashikomarimashita. shoushou omachi kudasai', korean:'알겠습니다. 잠시만요.', english:'Sure. Please wait a moment.' },
+  { id:'rd3_8',  speaker:'B', japanese:'承知しました。すぐお持ちします。',       romaji:'shouchi shimashita. sugu omochi shimasu', korean:'알겠습니다. 바로 가져다드릴게요.', english:'Understood. I will bring it right away.' },
   { id:'rd3_9',  speaker:'A', japanese:'ごちそうさまでした！とてもおいしかったです。', romaji:'gochisousama deshita! totemo oishikatta desu', korean:'잘 먹었습니다! 정말 맛있었어요.', english:'That was great! It was really delicious.' },
   { id:'rd3_10', speaker:'B', japanese:'ありがとうございます！またお越しください。', romaji:'arigatou gozaimasu! mata okoshi kudasai', korean:'감사합니다! 또 오세요.', english:'Thank you! Please come again.' },
 
@@ -339,7 +339,7 @@ var VOCAB_ITEMS_DIALOGUE = [
   { id:'kd2_7',  speaker:'A', japanese:'はい、お願いします。', romaji:'hai, onegai shimasu', korean:'네, 부탁드려요.', english:'Yes please.' },
   { id:'kd2_8',  speaker:'B', japanese:'コピー代込みで350円になります。', romaji:'kopii dai komi de sanbyaku gojuuen ni narimasu', korean:'복사 비용 포함해서 350엔이에요.', english:'Including the copying, that\'s 350 yen.' },
   { id:'kd2_9',  speaker:'A', japanese:'Suicaで払います。ありがとうございました。', romaji:'suika de haraimasu. arigatou gozaimashita', korean:'스이카로 낼게요. 감사합니다.', english:'I\'ll pay with Suica. Thank you.' },
-  { id:'kd2_10', speaker:'B', japanese:'ありがとうございました！またどうぞ。', romaji:'arigatou gozaimashita! mata douzo', korean:'감사합니다! 또 오세요.', english:'Thank you! Come again!' },
+  { id:'kd2_10', speaker:'B', japanese:'本日はありがとうございました。またお待ちしています。', romaji:'honjitsu wa arigatou gozaimashita. mata omachi shiteimasu', korean:'오늘 감사합니다. 또 기다리고 있겠습니다.', english:'Thank you for today. We look forward to seeing you again.' },
 
   // ── 편의점 변형 ③: 심야 공과금 납부 + 우산 ──────────────
   { id:'kd3_n1', speaker:'N', japanese:'', romaji:'', korean:'📍 편의점 (심야) — 공과금 납부 + 우산 구매', english:'📍 Convenience store (late night) — paying a utility bill and buying an umbrella' },
@@ -351,12 +351,12 @@ var VOCAB_ITEMS_DIALOGUE = [
   { id:'kd3_6',  speaker:'B', japanese:'はい、入口の横にビニール傘がございます。500円です。', romaji:'hai, iriguchi no yoko ni biniru gasa ga gozaimasu. gohyaku en desu', korean:'네, 입구 옆에 비닐우산이 있어요. 500엔이에요.', english:'Yes, there are clear vinyl umbrellas next to the entrance. 500 yen.' },
   { id:'kd3_7',  speaker:'A', japanese:'一本ください。合計でいくらになりますか？', romaji:'ippon kudasai. goukei de ikura ni narimasu ka', korean:'한 개 주세요. 합계 얼마예요?', english:'One please. What\'s the total?' },
   { id:'kd3_8',  speaker:'B', japanese:'6,300円でございます。お釣りは200円です。', romaji:'rokusen sanbyaku en de gozaimasu. otsuri wa nihyaku en desu', korean:'6,300엔이에요. 거스름돈은 200엔이에요.', english:'6,300 yen. Your change is 200 yen.' },
-  { id:'kd3_9',  speaker:'A', japanese:'ありがとうございます。', romaji:'arigatou gozaimasu', korean:'감사합니다.', english:'Thank you.' },
+  { id:'kd3_9',  speaker:'A', japanese:'助かります。ありがとうございます。', romaji:'tasukarimasu. arigatou gozaimasu', korean:'도움이 됩니다. 감사합니다.', english:'That helps. Thank you.' },
   { id:'kd3_10', speaker:'B', japanese:'お気をつけてどうぞ。', romaji:'okiotskete douzo', korean:'조심히 가세요.', english:'Take care on your way home.' },
 
   // ── 쇼핑 변형 ②: 전자제품 가게 ─────────────────────────
   { id:'sd2_n1', speaker:'N', japanese:'', romaji:'', korean:'📍 전자제품 가게 — 이어폰 청음·보증·면세', english:'📍 Electronics store — listening demo, warranty, and tax-free shopping' },
-  { id:'sd2_1',  speaker:'B', japanese:'いらっしゃいませ！何かお探しですか？', romaji:'irasshaimase! nanika osagashi desu ka', korean:'어서 오세요! 찾으시는 게 있나요?', english:'Welcome! Can I help you find something?' },
+  { id:'sd2_1',  speaker:'B', japanese:'いらっしゃいませ！ご試着なさいますか？', romaji:'irasshaimase! goshichaku nasaimasu ka', korean:'어서 오세요! 입어보시겠어요?', english:'Welcome! Would you like to try it on?' },
   { id:'sd2_2',  speaker:'A', japanese:'ワイヤレスイヤホンを探しています。おすすめはありますか？', romaji:'waiyaresu iyahon wo sagashite imasu. osusume wa arimasu ka', korean:'무선 이어폰을 찾고 있어요. 추천 있나요?', english:'I\'m looking for wireless earbuds. Any recommendations?' },
   { id:'sd2_3',  speaker:'B', japanese:'こちらのモデルが今一番売れています。試聴もできますよ。', romaji:'kochira no moderu ga ima ichiban urete imasu. shichou mo dekimasu yo', korean:'이 모델이 지금 제일 잘 팔려요. 청음도 할 수 있어요.', english:'This model is our bestseller right now. You can try it out too.' },
   { id:'sd2_4',  speaker:'A', japanese:'試してもいいですか？', romaji:'tameshite mo ii desu ka', korean:'해봐도 되나요?', english:'May I try them?' },
@@ -451,7 +451,7 @@ var VOCAB_ITEMS_DIALOGUE = [
   { id:'cf_7',   speaker:'B', japanese:'{F}さん、全部で980円になります。',                 romaji:'{F} san, zenbu de kyuuhyaku hachijuu en ni narimasu', korean:'{F}씨, 전부 980엔이에요.', english:'{F}, that\'ll be 980 yen in total.' },
   { id:'cf_8',   speaker:'A', japanese:'PayPayで払えますか？',                              romaji:'peipei de haraemasu ka',                           korean:'페이페이로 결제할 수 있나요?', english:'Can I pay with PayPay?' },
   { id:'cf_9',   speaker:'B', japanese:'はい、こちらにかざしてください。',                   romaji:'hai, kochira ni kazashite kudasai',                 korean:'네, 여기에 갖다 대세요.', english:'Yes, please hold it over here.' },
-  { id:'cf_10',  speaker:'A', japanese:'ありがとうございます。',                             romaji:'arigatou gozaimasu',                               korean:'감사합니다.', english:'Thank you.' },
+  { id:'cf_10',  speaker:'A', japanese:'ありがとうございます。いただきます。',               romaji:'arigatou gozaimasu. itadakimasu',                  korean:'감사합니다. 잘 먹겠습니다.', english:'Thank you. I will enjoy it.' },
 
   // ── 카페 변형 ②: 스타벅스풍 커스텀 주문 ───────────────
   { id:'cf2_n1', speaker:'N', japanese:'', romaji:'', korean:'📍 스타벅스풍 카페 — 사이즈·옵션 커스텀', english:'📍 Starbucks-style café — customizing size & options' },
@@ -490,7 +490,7 @@ var VOCAB_ITEMS_DIALOGUE = [
   { id:'pk_7',   speaker:'A', japanese:'子供も飲めますか？8歳です。',                         romaji:'kodomo mo nomemasu ka? hachisai desu',              korean:'아이도 먹을 수 있나요? 8살이에요.', english:'Can my child take it too? They\'re 8 years old.' },
   { id:'pk_8',   speaker:'B', japanese:'こちらの小児用をお使いください。580円です。',           romaji:'kochira no shouniiyou wo otsukai kudasai. gohyaku hachijuu en desu', korean:'이 소아용을 쓰세요. 580엔이에요.', english:'Please use this children\'s version. It\'s 580 yen.' },
   { id:'pk_9',   speaker:'A', japanese:'クレジットカードは使えますか？',                      romaji:'kurejitto kaado wa tsukaemasu ka',                  korean:'신용카드 사용할 수 있나요?', english:'Can I pay by credit card?' },
-  { id:'pk_10',  speaker:'B', japanese:'もちろんです。こちらへどうぞ。',                      romaji:'mochiron desu. kochira e douzo',                    korean:'물론이죠. 이쪽으로 오세요.', english:'Of course. Right this way.' },
+  { id:'pk_10',  speaker:'B', japanese:'はい、奥の席をご利用ください。',                      romaji:'hai, oku no seki wo goriyou kudasai',               korean:'네, 안쪽 좌석을 이용해 주세요.', english:'Yes, please use the seats in the back.' },
 
   // ── 약국·병원 변형 ②: 내과 진찰 ─────────────────────
   { id:'hp_n1',  speaker:'N', japanese:'', romaji:'', korean:'📍 내과 — 복통으로 진찰 받기', english:'📍 Internal medicine clinic — seeing a doctor for a stomachache' },
@@ -1039,7 +1039,7 @@ var VOCAB_ITEMS_DIALOGUE = [
   { id:'sh2_n', speaker:'N', japanese:'銀座のスシローに到着。回転ずしは久しぶりのスヒョン、目がキラキラしている。', romaji:'', korean:'📍 긴자 스시로 도착. 회전초밥이 오랜만인 승현, 눈이 반짝반짝하고 있다.' },
   { id:'sh2_a1', speaker:'A', japanese:'やった！スシローだ！何皿食べようかな。20皿は余裕だよね。', romaji:'', korean:'야호! 스시로다! 몇 접시 먹을까. 20접시는 여유지?', tip:'何皿(なんさら) = 몇 접시 / 余裕(よゆう) = 여유' },
   { id:'sh2_b1', speaker:'B', japanese:'20皿？！恥ずかしいから控えて！ほどほどにしなさい。', romaji:'', korean:'20접시?! 창피하니까 자중해! 적당히 해.', tip:'恥ずかしい(はずかしい) = 창피하다 / ほどほどに = 적당히' },
-  { id:'sh2_c1', speaker:'C', japanese:'いらっしゃいませ！何名様ですか？', romaji:'', korean:'어서 오세요! 몇 분이세요?', tip:'何名様(なんめいさま) = 몇 분 (정중한 표현)' },
+  { id:'sh2_c1', speaker:'C', japanese:'いらっしゃいませ！店内でお召し上がりですか？', romaji:'', korean:'어서 오세요! 매장에서 드시나요?', tip:'店内(てんない) = 매장 안, お召し上がり = 드심 (정중)' },
   { id:'sh2_a2', speaker:'A', japanese:'2名です。カウンター席でもいいですか？レーンが近い方がいいので。', romaji:'', korean:'2명입니다. 카운터 자리도 괜찮나요? 레인 가까운 게 좋아서요.', tip:'カウンター席(かうんたーせき) = 카운터 자리 / レーン = 레인, 레일' },
   { id:'sh2_c2', speaker:'C', japanese:'かしこまりました。こちらへどうぞ。タッチパネルで追加注文もできます。', romaji:'', korean:'알겠습니다. 이쪽으로 오세요. 터치패널로 추가 주문도 하실 수 있어요.', tip:'タッチパネル = 터치패널 / 追加注文(ついかちゅうもん) = 추가 주문' },
   { id:'sh2_a3', speaker:'A', japanese:'（目をキラキラさせて）まずサーモン！マグロ！えび！全部頼んでいい？', romaji:'', korean:'(눈을 반짝이며) 먼저 연어! 참치! 새우! 다 시켜도 돼?', tip:'サーモン = 연어 / マグロ = 참치 / えび = 새우' },
@@ -1213,7 +1213,7 @@ var VOCAB_ITEMS_DIALOGUE = [
   { id:'iza2_a2', speaker:'A', japanese:'（Cに）串カツはどんな料理ですか？', korean:'(C에게) 꼬치튀김은 어떤 요리예요?', tip:'どんな料理(どんなりょうり) = 어떤 요리' },
   { id:'iza2_c2', speaker:'C', japanese:'肉や野菜に衣をつけて揚げたものです。ソースにつけて食べます。', korean:'고기나 채소에 튀김옷을 입혀 튀긴 거예요. 소스에 찍어 먹어요.', tip:'衣(ころも) = 튀김옷 / ソース = 소스' },
   { id:'iza2_b2', speaker:'B', japanese:'おいしそう！それにしよう！あと、生ビール2つお願いします！', korean:'맛있겠다! 그걸로 하자! 그리고 생맥주 2잔 부탁드려요!', tip:'生ビール(なまビール) = 생맥주' },
-  { id:'iza2_c3', speaker:'C', japanese:'かしこまりました。少々お待ちください。', korean:'알겠습니다. 잠시만 기다려 주세요.', tip:'かしこまりました = 알겠습니다 (정중한 표현)' },
+  { id:'iza2_c3', speaker:'C', japanese:'承知しました。焼き上がりまで少しお時間をいただきます。', korean:'알겠습니다. 다 구워질 때까지 시간이 조금 걸립니다.', tip:'焼き上がり(やきあがり) = 구워져 완성됨' },
   { id:'iza2_a3', speaker:'A', japanese:'（Bに）居酒屋って最高だね。雰囲気もいいし。', korean:'(B에게) 이자카야 최고네. 분위기도 좋고.', tip:'雰囲気(ふんいき) = 분위기' },
   { id:'iza2_b3', speaker:'B', japanese:'ほんと！次から日本来たら毎晩居酒屋にしよう！', korean:'정말! 다음부터 일본 오면 매일 저녁 이자카야 가자!', tip:'毎晩(まいばん) = 매일 저녁' },
 
@@ -1264,7 +1264,7 @@ var VOCAB_ITEMS_DIALOGUE = [
   { id:'ci2_b2', speaker:'B', japanese:'（Aに）加湿器も借りられるか聞いて。乾燥するから。', korean:'(A에게) 가습기도 빌릴 수 있는지 물어봐. 건조하니까.', tip:'加湿器(かしつき) = 가습기 / 乾燥(かんそう) = 건조' },
   { id:'ci2_a3', speaker:'A', japanese:'（Cに）加湿器のレンタルもお願いできますか？', korean:'(C에게) 가습기 렌탈도 부탁드릴 수 있나요?', tip:'レンタル = 렌탈, 대여' },
   { id:'ci2_c3', speaker:'C', japanese:'加湿器は数に限りがございますが、只今持参いたします。少々お待ちください。', korean:'가습기는 수량이 한정되어 있지만, 지금 바로 가져다 드릴게요. 잠시만요.', tip:'数に限りがある(かずにかぎりがある) = 수량이 한정되다' },
-  { id:'ci2_a4', speaker:'A', japanese:'ありがとうございます。助かりました！', korean:'감사합니다. 살았어요!', tip:'助かりました(たすかりました) = 살았어요, 도움됐어요' },
+  { id:'ci2_a4', speaker:'A', japanese:'ありがとうございます。これで安心しました！', korean:'감사합니다. 이제 안심됐어요!', tip:'安心(あんしん)しました = 안심했습니다' },
 
   // ── 체크아웃 3인: 연장 체크아웃 + 짐 배송 ───────────────
   { id:'cout2_n', speaker:'N', japanese:'チェックアウト当日。二人はまだ観光したいと思っている。', korean:'📍 체크아웃 당일. 두 사람은 아직 더 관광하고 싶다고 생각하고 있다.' },
