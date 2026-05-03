@@ -30,7 +30,7 @@ const include = [
   'css/**',
   'assets/**',
   'images/**',
-  'docs/content-management.md',
+  'docs/**',
 ];
 
 include.forEach(pattern => {

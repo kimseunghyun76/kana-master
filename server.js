@@ -5,6 +5,7 @@ const fs   = require('fs');
 const path = require('path');
 
 const PORT = process.env.PORT || 3000;
+const HOST = process.env.HOST || '0.0.0.0';
 const BASE = path.join(__dirname);
 
 const MIME = {
@@ -70,13 +71,15 @@ const server = http.createServer((req, res) => {
   });
 });
 
-server.listen(PORT, '0.0.0.0', () => {
+server.listen(PORT, HOST, () => {
   const localIP = getLocalIP();
   console.log('');
   console.log('  🎌 Kana Master 웹서버 시작');
   console.log('  ─────────────────────────────────');
   console.log(`  PC 브라우저:   http://localhost:${PORT}`);
-  console.log(`  모바일 (같은 WiFi): http://${localIP}:${PORT}`);
+  if (HOST === '0.0.0.0') {
+    console.log(`  모바일 (같은 WiFi): http://${localIP}:${PORT}`);
+  }
   console.log('');
   console.log('  지원 브라우저: Chrome · Safari · Firefox · Edge');
   console.log('  종료: Ctrl+C');

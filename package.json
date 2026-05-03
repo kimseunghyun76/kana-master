@@ -8,10 +8,12 @@
     "lint": "node --check js/v2/app.js && node --check js/v2/content-index.js && node --check js/v2/curriculum.js && node --check js/v2/store.js && node --check js/v2/tts.js && node --check js/v2/utils.js",
     "size": "node scripts/check-size.js",
     "zip": "node scripts/build-zip.js",
-    "check": "npm run lint && npm run size"
+    "test:smoke": "playwright test",
+    "check": "npm run lint && npm run size && npm run test:smoke"
   },
   "devDependencies": {
-    "serve": "^14.2.3",
-    "archiver": "^7.0.1"
+    "@playwright/test": "^1.52.0",
+    "archiver": "^7.0.1",
+    "serve": "^14.2.3"
   }
 }

@@ -11,3 +11,11 @@ node_modules/
 
 # Logs
 *.log
+
+# Local design/import scratch
+.tmp_design/
+
+# Generated artifacts
+dist/
+test-results/
+playwright-report/
