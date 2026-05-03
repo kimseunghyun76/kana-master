@@ -163,19 +163,6 @@ var VOCAB_ITEMS_DIALOGUE = [
   { id:'pt_10',  speaker:'B', japanese:'はい、こちらへどうぞ。ありがとうございました！', romaji:'hai, kochira e douzo. arigatou gozaimashita', korean:'네, 여기요. 감사합니다!', english:'Yes, right here. Thank you!' },
   { id:'pt_n2',  speaker:'N', japanese:'', romaji:'', korean:'💡 말이 안 통할 때 これ・それ・あれ + ください만 알면 OK!', english:'💡 When words fail, just know これ・それ・あれ + ください and you\'re good!' },
 
-  // ── 지하철 (sim_subway) ──────────────────────────────────
-  { id:'sub_n1', speaker:'N', japanese:'', romaji:'', korean:'📍 지하철역에서 — 역무원에게 길 찾기', english:'📍 At the subway station — asking a staff member for directions' },
-  { id:'sub_1',  speaker:'A', japanese:'すみません、〜線はどこですか？',       romaji:'sumimasen, ~ sen wa doko desu ka',    korean:'저기요, ~호선은 어디예요?',     english:'Excuse me, where is the ~ line?', tip:'〜에 노선명을 넣으세요' },
-  { id:'sub_2',  speaker:'B', japanese:'あちらの階段を降りてください。',       romaji:'achira no kaidan wo kudasai',         korean:'저쪽 계단으로 내려가세요.', english:'Go down the stairs over there.' },
-  { id:'sub_3',  speaker:'A', japanese:'乗り換えはどこですか？',               romaji:'norikae wa doko desu ka',             korean:'환승은 어디서 하나요?', english:'Where do I transfer?' },
-  { id:'sub_4',  speaker:'B', japanese:'２番出口の方向です。',                 romaji:'niban deguchi no houkou desu',        korean:'2번 출구 방향입니다.', english:'It\'s in the direction of exit 2.' },
-  { id:'sub_5',  speaker:'A', japanese:'切符を買いたいのですが。',             romaji:'kippu wo kaitai no desu ga',          korean:'표를 사고 싶은데요.', english:'I\'d like to buy a ticket.' },
-  { id:'sub_6',  speaker:'B', japanese:'あの自動券売機でお買い求めください。', romaji:'ano jidou kenbaiki de okaimotome kudasai', korean:'저 자동발매기에서 구입해 주세요.', english:'Please buy one at that ticket machine over there.' },
-  { id:'sub_7',  speaker:'A', japanese:'この電車は渋谷に止まりますか？',      romaji:'kono densha wa shibuya ni tomarimasu ka', korean:'이 전철 시부야에 서나요?', english:'Does this train stop at Shibuya?' },
-  { id:'sub_8',  speaker:'B', japanese:'はい、次は渋谷です。',                romaji:'hai, tsugi wa shibuya desu',          korean:'네, 다음은 시부야입니다.', english:'Yes, next stop is Shibuya.' },
-  { id:'sub_9',  speaker:'A', japanese:'終電は何時ですか？',                  romaji:'shuuden wa nanji desu ka',            korean:'막차가 몇 시예요?', english:'What time is the last train?' },
-  { id:'sub_10', speaker:'B', japanese:'終電は０時３０分です。お気をつけて。', romaji:'shuuden wa reiji sanjuppun desu. okitsukete', korean:'막차는 0시 30분입니다. 조심히 가세요.', english:'The last train is at 12:30 AM. Take care.' },
-
   // ── 엘리베이터 (sim_elevator) ────────────────────────────
   { id:'elv_n1', speaker:'N', japanese:'', romaji:'', korean:'📍 백화점 엘리베이터에서 — 층수 안내 받기', english:'📍 In a department store elevator — getting floor information' },
   { id:'elv_1',  speaker:'A', japanese:'すみません、何階ですか？',             romaji:'sumimasen, nankai desu ka',           korean:'저기요, 몇 층이에요?', english:'Excuse me, what floor is this?' },
