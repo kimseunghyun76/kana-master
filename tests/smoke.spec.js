@@ -58,6 +58,7 @@ test('loads v2 app data and primary screens', async ({ page }) => {
   await expect(page.locator('#viewLesson')).toHaveClass(/active/);
   await expect(page.locator('.module-card').first()).toBeVisible();
   await expect(page.locator('.module-card')).toHaveCount(23);
+  await expect(page.locator('.module-card.has-image').first()).toBeVisible();
 
   await page.getByRole('button', { name: /연습/ }).click();
   await expect(page.locator('#viewPractice')).toHaveClass(/active/);
@@ -109,6 +110,30 @@ test('opens and answers a vocab quiz flow', async ({ page }) => {
   await correct.click();
   await expect(page.locator('#quizFeedback')).toHaveClass(/show/);
   await expect(page.locator('#btnNextQ')).toBeVisible();
+});
+
+test('opens lecture player and toggles playback controls', async ({ page }) => {
+  await page.goto('/');
+
+  await page.evaluate(() => {
+    window.TTS.speak = async () => {};
+    window.TTS.stop = () => {};
+    window.TTS.stopQueue = () => {};
+    window.TTS.isQueueRunning = () => false;
+    window.TTS.speakQueue = async (_lines, handlers = {}) => {
+      handlers.onDone?.();
+    };
+    window.App.openModule('first_phrases');
+  });
+
+  await expect(page.locator('#flowScreen')).toHaveClass(/open/);
+  await page.getByRole('button', { name: /학습 시작/ }).click();
+  await expect(page.locator('.lecture-slide')).toBeVisible();
+  await expect(page.locator('.lec-reel')).toBeVisible();
+  await expect(page.locator('.lec-display-toggle').filter({ hasText: 'JP' })).toBeVisible();
+
+  await page.locator('#btnLecPause').click();
+  await expect(page.locator('#btnLecPause')).toHaveText(/재생/);
 });
 
 test('opens roleplay and dialogue detail popup', async ({ page }) => {
