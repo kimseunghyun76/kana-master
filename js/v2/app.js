@@ -12,7 +12,6 @@ window.App = (() => {
   let _currentTab = 'home';       // home | lesson | practice | profile
   let _flow = null;               // current learning flow
   let _flowEl = null;             // flow screen DOM element
-  let _autoNextTimer = null;      // timer for automatic next question
   let _sfxCtx = null;             // shared Web Audio context for quiz SFX
   let _dialogueDetailResume = null;
 
@@ -1154,747 +1153,79 @@ window.App = (() => {
     TTS.speak(char);
   }
 
-  // ── Kana Quiz ─────────────────────────────────────────────
+  const _quizFlow = createQuizFlow({
+    getFlow: () => _flow,
+    setFlowBodyMode: _setFlowBodyMode,
+    advanceStep: _advanceStep,
+    isKanaReviewLevel: _isKanaReviewLevel,
+    getKanaDistractors: _getKanaDistractors,
+    updateFlowProgress: _updateFlowProgress,
+    renderQuizHud: _renderQuizHud,
+    uiLabeledIcon: _uiLabeledIcon,
+    uiIconSvg: _uiIconSvg,
+    playQuizEffect: _playQuizEffect,
+    getVocabItems: _getVocabItems,
+    getAllVocabItems: _getAllVocabItems,
+    runCurrentStep: _runCurrentStep,
+    showPracticeComplete: _showPracticeComplete,
+  });
+
   function _renderKanaQuiz(mod, step, stepIndex) {
-    _setFlowBodyMode('quiz-mode');
-    const level = LEVELS.find(l => l.id === step.levelId);
-    const sourceChars = step.chars?.length ? step.chars : level?.chars;
-    if (!sourceChars?.length) { _advanceStep(); return; }
-    const maxQuestions = _isKanaReviewLevel(level?.id) ? Math.min(20, sourceChars.length) : sourceChars.length;
-    const chars = shuffle(sourceChars).slice(0, maxQuestions);
-
-    // renderQ는 반드시 _flow._kanaQuiz에서 읽어야 다음 문제로 넘어감 (클로저 버그 방지)
-    function renderQ() {
-      const fq = _flow._kanaQuiz;
-      if (!fq) return;
-      const { qIdx, correct, wrong } = fq;
-
-      if (qIdx >= fq.chars.length) {
-        // [Retry Logic] 틀린 문제가 있으면 다시 풀기 페이즈로 전환 (단, 최종 점수는 첫 시도 기준)
-        if (!fq.isReview && fq.missed.length > 0) {
-          fq.isReview = true;
-          fq.originalChars = fq.chars; // 원래 문제들 보관 (혹시 필요할까봐)
-          fq.chars = shuffle([...fq.missed]);
-          fq.qIdx = 0;
-          _showRetryTransition(fq.missed.length, fq.renderQ);
-          return;
-        }
-        _showQuizResult(correct, fq.totalCount, stepIndex, Math.round((correct / fq.totalCount) * 100));
-        return;
-      }
-      const c = fq.chars[qIdx];
-      const info = KANA_MAP[c] || {};
-      // Build choices: 1 correct + 3 random distractors
-      const allChars = Object.keys(KANA_MAP).filter(k => k !== c && KANA_MAP[k].type === info.type);
-      const distractors = _getKanaDistractors(c, info, allChars, 3)
-        .map(k => ({ kana: k, korean: KANA_MAP[k].korean, romaji: KANA_MAP[k].romaji }));
-      const choices = shuffle([
-        { kana: c, korean: info.korean, romaji: info.romaji, correct: true },
-        ...distractors.map(d => ({ ...d, correct: false }))
-      ]);
-
-      const pct = Math.round((qIdx / fq.chars.length) * 100);
-      _updateFlowProgress(stepIndex, mod.steps.length, step.title);
-      document.getElementById('flowProgressFill').style.width = pct + '%';
-
-      document.getElementById('flowBody').innerHTML = `
-        ${_renderQuizHud(qIdx + 1, fq.chars.length, correct, wrong)}
-        <div class="quiz-question">
-          <div class="quiz-q-type">이 글자의 발음은?</div>
-          <div class="quiz-q-text ${isSmallKana(c) ? 'is-small' : ''}">${ruby(c)}</div>
-          <button class="quiz-audio-btn" onclick="TTS.speak('${c.replace(/'/g,"\\'")}')">${_uiLabeledIcon('audio', 'quiz-audio-icon')} 발음 듣기</button>
-        </div>
-        <div class="quiz-choices" id="quizChoices">
-          ${choices.map((ch, i) => `
-            <button class="quiz-choice" data-correct="${ch.correct}"
-                    onclick="App._kanaQuizAnswer(this, ${ch.correct})">
-              <span class="qc-label">${['A','B','C','D'][i]}</span>
-              <span>${escHtml(ch.romaji)} · ${escHtml(ch.korean)}</span>
-            </button>
-          `).join('')}
-        </div>
-        <div class="quiz-feedback" id="quizFeedback"></div>
-      `;
-      document.getElementById('flowFooter').innerHTML = `
-        <button class="btn btn-primary hidden" id="btnNextQ" onclick="App._kanaQuizNext()">
-          다음 →
-        </button>
-      `;
-    }
-
-    _flow._kanaQuiz = {
-      chars,
-      qIdx: 0,
-      correct: 0,
-      wrong: 0,
-      missed: [],
-      isReview: false,
-      totalCount: chars.length,
-      stepIndex,
-      renderQ
-    };
-    renderQ();
+    return _quizFlow.renderKanaQuiz(mod, step, stepIndex);
   }
-
   function _kanaQuizAnswer(btn, isCorrect) {
-    const fq = _flow._kanaQuiz;
-    if (!fq) return;
-    document.querySelectorAll('.quiz-choice').forEach(b => {
-      b.classList.add('answered');
-      b.onclick = null;
-      if (b.dataset.correct === 'true') b.classList.add('correct');
-    });
-    btn.classList.add(isCorrect ? 'correct' : 'wrong');
-    if (isCorrect) {
-      fq.correct++;
-    } else {
-      fq.wrong++;
-      // 첫 풀이(not review)에서만 오답 목록에 추가
-      if (!fq.isReview) fq.missed.push(fq.chars[fq.qIdx]);
-    }
-    Store.reviewKanaItem(fq.chars[fq.qIdx], isCorrect ? 'good' : 'again');
-    // 정답·오답 모두 음성 재생
-    TTS.speak(fq.chars[fq.qIdx]);
-    _playQuizEffect(isCorrect);
-
-    const fb = document.getElementById('quizFeedback');
-    if (fb) {
-      const c = fq.chars[fq.qIdx];
-      const info = KANA_MAP[c] || {};
-      fb.className = `quiz-feedback show ${isCorrect ? 'correct' : 'wrong'}`;
-      fb.innerHTML = isCorrect
-        ? `${_uiIconSvg('check', 'quiz-feedback-icon')} <span>정답! <strong>${escHtml(c)}</strong> = ${escHtml(info.romaji)} (${escHtml(info.korean)})</span>`
-        : `${_uiIconSvg('close', 'quiz-feedback-icon')} <span>오답. 정답: <strong>${escHtml(c)}</strong> = ${escHtml(info.romaji)} (${escHtml(info.korean)})</span>`;
-    }
-    const btnNext = document.getElementById('btnNextQ');
-    show(btnNext);
-    // 5초 후 자동 다음 (정답일 때만)
-    if (isCorrect) {
-      if (btnNext) {
-        btnNext.innerHTML = '다음 → <div class="auto-next-bar"></div>';
-      }
-      clearTimeout(_autoNextTimer);
-      _autoNextTimer = setTimeout(() => {
-        const btn = document.getElementById('btnNextQ');
-        if (btn && !btn.classList.contains('hidden')) _kanaQuizNext();
-      }, 5000);
-    } else {
-      if (btnNext) btnNext.innerHTML = '다음 →';
-    }
+    return _quizFlow.kanaQuizAnswer(btn, isCorrect);
   }
-
   function _kanaQuizNext() {
-    clearTimeout(_autoNextTimer);
-    const btn = document.getElementById('btnNextQ');
-    if (btn) btn.innerHTML = '다음 →';
-    const fq = _flow._kanaQuiz;
-    if (!fq) return;
-    fq.qIdx++;
-    fq.renderQ();
+    return _quizFlow.kanaQuizNext();
   }
-
-  // ── Kana Listening Quiz ───────────────────────────────────
   function _renderKanaListening(mod, step, stepIndex) {
-    _setFlowBodyMode('quiz-mode');
-    const chars = shuffle(step.chars || Object.keys(KANA_MAP)).slice(0, step.limit || 20);
-
-    function renderQ() {
-      const fq = _flow._listeningQuiz;
-      if (!fq) return;
-      const { qIdx, correct, wrong } = fq;
-
-      if (qIdx >= fq.chars.length) {
-        if (!fq.isReview && fq.missed.length > 0) {
-          fq.isReview = true;
-          fq.originalChars = fq.chars;
-          fq.chars = shuffle([...fq.missed]);
-          fq.qIdx = 0;
-          _showRetryTransition(fq.missed.length, fq.renderQ);
-          return;
-        }
-        _showQuizResult(correct, fq.totalCount, stepIndex,
-          Math.round((correct / fq.totalCount) * 100));
-        return;
-      }
-
-      const c = fq.chars[qIdx];
-      const info = KANA_MAP[c] || {};
-      // 같은 타입의 글자 3개를 오답 선지로
-      const pool = Object.keys(KANA_MAP).filter(k => k !== c && KANA_MAP[k]?.type === info.type);
-      const choices = shuffle([c, ...sample(pool, 3)]);
-
-      const pct = Math.round((qIdx / fq.chars.length) * 100);
-      _updateFlowProgress(stepIndex, mod.steps.length, step.title);
-      document.getElementById('flowProgressFill').style.width = pct + '%';
-
-      const safeC = c.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
-      document.getElementById('flowBody').innerHTML = `
-        ${_renderQuizHud(qIdx + 1, fq.chars.length, correct, wrong)}
-        <div class="quiz-question">
-          <div class="quiz-q-type">이 음성의 글자는?</div>
-          <div class="quiz-q-text" style="font-size:64px;line-height:1.1">${_uiIconSvg('headphones', 'quiz-listening-icon')}</div>
-          <button class="quiz-audio-btn" id="btnPlayAudio"
-                  onclick="TTS.speak('${safeC}')">${_uiLabeledIcon('audio', 'quiz-audio-icon')} 다시 듣기</button>
-        </div>
-        <div class="quiz-choices">
-          ${choices.map((ch, i) => `
-            <button class="quiz-choice" data-correct="${ch === c}"
-                    onclick="App._listeningQuizAnswer(this, ${ch === c}, '${safeC}')">
-              <span class="qc-label">${['A','B','C','D'][i]}</span>
-              <span style="font-size:22px;font-weight:700">${escHtml(ch)}</span>
-            </button>
-          `).join('')}
-        </div>
-        <div class="quiz-feedback" id="quizFeedback"></div>
-      `;
-      document.getElementById('flowFooter').innerHTML = `
-        <button class="btn btn-primary hidden" id="btnNextQ" onclick="App._listeningQuizNext()">
-          다음 →
-        </button>
-      `;
-
-      // 자동 재생 (300ms 딜레이)
-      setTimeout(() => TTS.speak(c), 300);
-    }
-
-    _flow._listeningQuiz = {
-      chars,
-      qIdx: 0,
-      correct: 0,
-      wrong: 0,
-      missed: [],
-      isReview: false,
-      totalCount: chars.length,
-      stepIndex,
-      renderQ
-    };
-    renderQ();
+    return _quizFlow.renderKanaListening(mod, step, stepIndex);
   }
-
   function _listeningQuizAnswer(btn, isCorrect, correctChar) {
-    const fq = _flow._listeningQuiz;
-    if (!fq) return;
-    document.querySelectorAll('.quiz-choice').forEach(b => {
-      b.classList.add('answered');
-      b.onclick = null;
-      if (b.dataset.correct === 'true') b.classList.add('correct');
-    });
-    btn.classList.add(isCorrect ? 'correct' : 'wrong');
-    if (isCorrect) {
-      fq.correct++;
-    } else {
-      fq.wrong++;
-      if (!fq.isReview) fq.missed.push(fq.chars[fq.qIdx]);
-    }
-    Store.reviewKanaItem(correctChar, isCorrect ? 'good' : 'again');
-    TTS.speak(correctChar);
-    _playQuizEffect(isCorrect);
-
-    const info = KANA_MAP[correctChar] || {};
-    const fb = document.getElementById('quizFeedback');
-    if (fb) {
-      fb.className = `quiz-feedback show ${isCorrect ? 'correct' : 'wrong'}`;
-      fb.innerHTML = isCorrect
-        ? `${_uiIconSvg('check', 'quiz-feedback-icon')} <span>정답! <strong>${escHtml(correctChar)}</strong> = ${escHtml(info.romaji)} (${escHtml(info.korean)})</span>`
-        : `${_uiIconSvg('close', 'quiz-feedback-icon')} <span>오답. 정답: <strong>${escHtml(correctChar)}</strong> = ${escHtml(info.romaji)} (${escHtml(info.korean)})</span>`;
-    }
-    const btnNext = document.getElementById('btnNextQ');
-    show(btnNext);
-    if (isCorrect) {
-      if (btnNext) {
-        btnNext.innerHTML = '다음 → <div class="auto-next-bar"></div>';
-      }
-      clearTimeout(_autoNextTimer);
-      _autoNextTimer = setTimeout(() => {
-        const btn = document.getElementById('btnNextQ');
-        if (btn && !btn.classList.contains('hidden')) _listeningQuizNext();
-      }, 5000);
-    } else {
-      if (btnNext) btnNext.innerHTML = '다음 →';
-    }
+    return _quizFlow.listeningQuizAnswer(btn, isCorrect, correctChar);
   }
-
   function _listeningQuizNext() {
-    clearTimeout(_autoNextTimer);
-    const btn = document.getElementById('btnNextQ');
-    if (btn) btn.innerHTML = '다음 →';
-    const fq = _flow._listeningQuiz;
-    if (!fq) return;
-    fq.qIdx++;
-    fq.renderQ();
+    return _quizFlow.listeningQuizNext();
   }
-
-  // ── Shadowing Practice ───────────────────────────────────
   function _renderShadowing(mod, step, stepIndex) {
-    _setFlowBodyMode('speaking-mode');
-    const items = step.items || [];
-    if (!items.length) { _showPracticeComplete(mod); return; }
-
-    function renderItem() {
-      const sh = _flow._shadowing;
-      if (!sh) return;
-      const { items: its, idx } = sh;
-
-      if (idx >= its.length) {
-        _showPracticeComplete(mod);
-        return;
-      }
-
-      const item = its[idx];
-      const showFuri = Store.getSetting('furigana');
-      const jpHtml = showFuri ? formatJp(item) : escHtml(stripFuri(item.kanji || item.japanese || ''));
-      const jpText = item.japanese || item.kanji || '';
-      const safeJp = jpText.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
-      const pct = Math.round((idx / its.length) * 100);
-
-      _updateFlowProgress(stepIndex, mod.steps.length, step.title);
-      document.getElementById('flowProgressFill').style.width = pct + '%';
-
-      document.getElementById('flowBody').innerHTML = `
-        <div class="shadowing-screen">
-          <div class="shadowing-top">
-            <div class="shadowing-count">${idx + 1}<span>/ ${its.length}</span></div>
-            <div class="shadowing-progress">
-              <div class="shadowing-progress-fill" style="width:${pct}%"></div>
-            </div>
-          </div>
-          <div class="shadowing-card">
-            <div class="shadowing-step-row">
-              <span class="shadowing-step active">${_uiIconSvg('audio', 'shadowing-step-icon')}듣기</span>
-              <span class="shadowing-step">${_uiIconSvg('mic', 'shadowing-step-icon')}따라 말하기</span>
-            </div>
-            <div class="shadowing-jp">${jpHtml}</div>
-            <div class="shadowing-ko">${escHtml(item.korean || '')}</div>
-            <button class="shadowing-audio-btn" onclick="TTS.speak('${safeJp}')">
-              ${_uiIconSvg('audio', 'shadowing-audio-icon')} 다시 듣기
-            </button>
-          </div>
-          <div class="shadowing-note">
-            음성을 듣고 같은 리듬으로 한 번 말한 뒤 완료하세요.
-          </div>
-        </div>
-      `;
-
-      document.getElementById('flowFooter').innerHTML = `
-        <button class="btn btn-primary" onclick="App._shadowingNext()" style="font-size:15px">
-          ${_uiLabeledIcon('voice')} 따라 말했어요 →
-        </button>
-      `;
-
-      // 자동 재생
-      setTimeout(() => TTS.speak(jpText), 300);
-    }
-
-    _flow._shadowing = { items, idx: 0, stepIndex, renderItem };
-    renderItem();
+    return _quizFlow.renderShadowing(mod, step, stepIndex);
   }
-
   function _shadowingNext() {
-    const sh = _flow._shadowing;
-    if (!sh) return;
-    sh.idx++;
-    sh.renderItem();
+    return _quizFlow.shadowingNext();
   }
-
-  // ── Vocab Learn ───────────────────────────────────────────
   function _renderVocabLearn(mod, step, stepIndex) {
-    const items = _getVocabItems(step);
-    if (!items.length) { Store.completeStep(_flow.moduleId, stepIndex); _advanceStep(); return; }
-
-    // Store ALL state on _flow._vocab so render() always reads fresh values
-    _flow._vocab = { items, idx: 0, showMeaning: false, stepIndex, mod, step };
-
-    _vocabRender();
+    return _quizFlow.renderVocabLearn(mod, step, stepIndex);
   }
-
-  function _vocabRender() {
-    const st = _flow._vocab;
-    if (!st) return;
-
-    const { items, idx, showMeaning, stepIndex, mod, step } = st;
-
-    if (idx >= items.length) {
-      Store.completeStep(_flow.moduleId, stepIndex);
-      Store.addXP(30 + items.length * 2);
-      _flow.step = stepIndex + 1;
-      _runCurrentStep();
-      return;
-    }
-
-    const item = items[idx];
-    const showFuri = Store.getSetting('furigana');
-    const jpHtml = showFuri ? formatJp(item) : escHtml(stripFuri(item.kanji || item.japanese || ''));
-
-    _updateFlowProgress(stepIndex, mod.steps.length, step.title);
-      document.getElementById('flowBody').innerHTML = `
-      <div style="font-size:12px;color:var(--text3);text-align:center;margin-bottom:16px">
-        ${idx + 1} / ${items.length}
-      </div>
-      <div class="vocab-card" onclick="App._vocabFlip()">
-        <button class="vc-audio-btn"
-          onclick="event.stopPropagation();App._vocabSpeak()">${_uiIconSvg('audio', 'vc-audio-icon')}</button>
-        <div class="vc-num">어휘 ${idx + 1}</div>
-        <div class="vc-jp">${jpHtml}</div>
-        ${item.kanji && item.kanji !== item.japanese
-          ? `<div class="vc-kanji">${ruby(item.kanji)}</div>` : ''}
-        ${showMeaning ? `
-          <div class="vc-divider"></div>
-          <div class="vc-meaning">${escHtml(item.korean || '')}</div>
-          <div class="vc-english">${escHtml(item.english || '')}</div>
-          ${item.tip ? `<div class="vc-tip">${ruby(item.tip)}</div>` : ''}
-        ` : `<div class="vc-flip-hint">탭해서 의미 보기 👆</div>`}
-      </div>
-      <div class="vocab-nav">
-        <button class="vocab-nav-btn" onclick="App._vocabPrev()" ${idx === 0 ? 'disabled' : ''}>←</button>
-        <div class="vocab-nav-dots">
-          ${items.slice(0, 20).map((_,i) =>
-            `<div class="vocab-nav-dot ${i===idx?'active':i<idx?'done':''}"></div>`).join('')}
-        </div>
-        <button class="vocab-nav-btn" onclick="App._vocabNext()">→</button>
-      </div>
-    `;
-
-    if (showMeaning) {
-      document.getElementById('flowFooter').innerHTML = `
-        <div class="self-eval">
-          <button class="eval-btn again" onclick="App._vocabEval('again')">
-            <span class="eval-icon-wrap">${_uiIconSvg('close', 'eval-icon')}</span>
-            <span class="eval-label">모름</span>
-            <span class="eval-meta">다시 보기</span>
-          </button>
-          <button class="eval-btn hard" onclick="App._vocabEval('hard')">
-            <span class="eval-icon-wrap">${_uiIconSvg('progress', 'eval-icon')}</span>
-            <span class="eval-label">어려움</span>
-            <span class="eval-meta">한 번 더</span>
-          </button>
-          <button class="eval-btn good" onclick="App._vocabEval('good')">
-            <span class="eval-icon-wrap">${_uiIconSvg('check', 'eval-icon')}</span>
-            <span class="eval-label">알겠음</span>
-            <span class="eval-meta">기억남</span>
-          </button>
-          <button class="eval-btn easy" onclick="App._vocabEval('easy')">
-            <span class="eval-icon-wrap">${_uiIconSvg('sparkle', 'eval-icon')}</span>
-            <span class="eval-label">완벽</span>
-            <span class="eval-meta">바로 떠오름</span>
-          </button>
-        </div>
-      `;
-    } else {
-      document.getElementById('flowFooter').innerHTML = `
-        <button class="btn btn-outline" onclick="App._vocabFlip()">의미 확인하기</button>
-      `;
-    }
-
-    TTS.speak(item.japanese || '');
-  }
-
   function _vocabSpeak() {
-    const st = _flow._vocab;
-    if (!st || !st.items[st.idx]) return;
-    TTS.speak(stripFuri(st.items[st.idx].japanese));
+    return _quizFlow.vocabSpeak();
   }
-
   function _vocabFlip() {
-    if (!_flow._vocab) return;
-    _flow._vocab.showMeaning = true;
-    _vocabRender();
+    return _quizFlow.vocabFlip();
   }
-
   function _vocabNext() {
-    if (!_flow._vocab) return;
-    _flow._vocab.showMeaning = false;
-    const st = _flow._vocab;
-    if (st.idx < st.items.length - 1) {
-      st.idx++;
-      _vocabRender();
-    } else {
-      Store.completeStep(_flow.moduleId, st.stepIndex);
-      Store.addXP(30 + st.items.length * 2);
-      _flow.step = st.stepIndex + 1;
-      _runCurrentStep();
-    }
+    return _quizFlow.vocabNext();
   }
-
   function _vocabPrev() {
-    if (!_flow._vocab || _flow._vocab.idx === 0) return;
-    _flow._vocab.showMeaning = false;
-    _flow._vocab.idx--;
-    _vocabRender();
+    return _quizFlow.vocabPrev();
   }
-
   function _vocabEval(rating) {
-    const st = _flow._vocab;
-    if (!st) return;
-    const item = st.items[st.idx];
-    if (item?.id) {
-      Store.reviewVocabItem(item.id, rating);
-    }
-    st.showMeaning = false;
-    if (rating === 'again') {
-      const currentItem = st.items.splice(st.idx, 1)[0];
-      st.items.push(currentItem);
-    } else {
-      st.idx++;
-    }
-    if (st.idx >= st.items.length) {
-      Store.completeStep(_flow.moduleId, st.stepIndex);
-      Store.addXP(30 + st.items.length * 2);
-      _flow.step = st.stepIndex + 1;
-      _runCurrentStep();
-    } else {
-      _vocabRender();
-    }
+    return _quizFlow.vocabEval(rating);
   }
-
-  // ── Vocab Quiz ────────────────────────────────────────────
   function _renderVocabQuiz(mod, step, stepIndex) {
-    _setFlowBodyMode('quiz-mode');
-    const items = _getVocabItems(step);
-    if (!items.length) { _advanceStep(); return; }
-
-    const questions = shuffle(items).slice(0, Math.min(15, items.length));
-
-    // Build all-items pool for distractors
-    const allItems = _getAllVocabItems();
-
-    // renderQ는 반드시 _flow._vocabQuiz에서 읽어야 다음 문제로 넘어감 (클로저 버그 방지)
-    function renderQ() {
-      const fq = _flow._vocabQuiz;
-      if (!fq) return;
-      const { qIdx, correct, wrong } = fq;
-
-      if (qIdx >= fq.questions.length) {
-        if (!fq.isReview && fq.missed.length > 0) {
-          fq.isReview = true;
-          fq.originalQuestions = fq.questions;
-          fq.questions = shuffle([...fq.missed]);
-          fq.qIdx = 0;
-          _showRetryTransition(fq.missed.length, fq.renderQ);
-          return;
-        }
-        _showQuizResult(correct, fq.totalCount, stepIndex, Math.round((correct / fq.totalCount) * 100));
-        return;
-      }
-      const item = fq.questions[qIdx];
-      const distractors = sample(allItems.filter(x => x.id !== item.id), 3);
-      const choices = shuffle([
-        { text: item.korean, correct: true },
-        ...distractors.map(d => ({ text: d.korean, correct: false }))
-      ]);
-
-      _updateFlowProgress(stepIndex, mod.steps.length, step.title);
-      document.getElementById('flowBody').innerHTML = `
-        ${_renderQuizHud(qIdx + 1, fq.questions.length, correct, wrong)}
-        <div class="quiz-question">
-          <div class="quiz-q-type">뜻은 무엇인가요?</div>
-          <div class="quiz-q-text">${formatJp(item)}</div>
-          <button class="quiz-audio-btn" onclick="TTS.speak('${(item.japanese||'').replace(/'/g,"\\'")}')">${_uiLabeledIcon('audio', 'quiz-audio-icon')} 발음 듣기</button>
-        </div>
-        <div class="quiz-choices">
-          ${choices.map((ch, i) => `
-            <button class="quiz-choice" data-correct="${ch.correct}"
-                    onclick="App._vocabQuizAnswer(this, ${ch.correct}, '${(item.japanese||'').replace(/'/g,"\\'")}', '${(item.korean||'').replace(/'/g,"\\'")}')">
-              <span class="qc-label">${['A','B','C','D'][i]}</span>
-              <span>${escHtml(ch.text || '')}</span>
-            </button>
-          `).join('')}
-        </div>
-        <div class="quiz-feedback" id="quizFeedback"></div>
-      `;
-      document.getElementById('flowFooter').innerHTML = `
-        <button class="btn btn-primary hidden" id="btnNextQ" onclick="App._vocabQuizNext()">
-          다음 →
-        </button>
-      `;
-    }
-
-    _flow._vocabQuiz = {
-      questions,
-      qIdx: 0,
-      correct: 0,
-      wrong: 0,
-      missed: [],
-      isReview: false,
-      totalCount: questions.length,
-      stepIndex,
-      renderQ
-    };
-    renderQ();
+    return _quizFlow.renderVocabQuiz(mod, step, stepIndex);
   }
-
   function _vocabQuizAnswer(btn, isCorrect, jp, ko) {
-    const fq = _flow._vocabQuiz;
-    if (!fq) return;
-    document.querySelectorAll('.quiz-choice').forEach(b => {
-      b.classList.add('answered');
-      b.onclick = null;
-      if (b.dataset.correct === 'true') b.classList.add('correct');
-    });
-    btn.classList.add(isCorrect ? 'correct' : 'wrong');
-    if (isCorrect) {
-      fq.correct++;
-    } else {
-      fq.wrong++;
-      if (!fq.isReview) fq.missed.push(fq.questions[fq.qIdx]);
-    }
-    if (fq.questions[fq.qIdx]?.id) {
-      Store.reviewVocabItem(fq.questions[fq.qIdx].id, isCorrect ? 'good' : 'again');
-    }
-    TTS.speak(stripFuri(jp));
-    _playQuizEffect(isCorrect);
-
-    const fb = document.getElementById('quizFeedback');
-    if (fb) {
-      fb.className = `quiz-feedback show ${isCorrect ? 'correct' : 'wrong'}`;
-      fb.innerHTML = isCorrect
-        ? `${_uiIconSvg('check', 'quiz-feedback-icon')} <span>정답! <strong>${ruby(jp)}</strong> = ${escHtml(ko)}</span>`
-        : `${_uiIconSvg('close', 'quiz-feedback-icon')} <span>오답. 정답: <strong>${ruby(jp)}</strong> = ${escHtml(ko)}</span>`;
-    }
-    const btnNext = document.getElementById('btnNextQ');
-    show(btnNext);
-    if (isCorrect) {
-      if (btnNext) {
-        btnNext.innerHTML = '다음 → <div class="auto-next-bar"></div>';
-      }
-      clearTimeout(_autoNextTimer);
-      _autoNextTimer = setTimeout(() => {
-        const btn = document.getElementById('btnNextQ');
-        if (btn && !btn.classList.contains('hidden')) _vocabQuizNext();
-      }, 5000);
-    } else {
-      if (btnNext) btnNext.innerHTML = '다음 →';
-    }
+    return _quizFlow.vocabQuizAnswer(btn, isCorrect, jp, ko);
   }
-
   function _vocabQuizNext() {
-    clearTimeout(_autoNextTimer);
-    const btn = document.getElementById('btnNextQ');
-    if (btn) btn.innerHTML = '다음 →';
-    const fq = _flow._vocabQuiz;
-    if (!fq) return;
-    fq.qIdx++;
-    fq.renderQ();
+    return _quizFlow.vocabQuizNext();
   }
-
-  // ── Retry Transition ─────────────────────────────────────
-  function _showRetryTransition(count, onStart) {
-    document.getElementById('flowBody').innerHTML = `
-      <div class="completion-screen">
-        <div class="completion-emoji">${_uiIconSvg('progress', 'completion-main-icon')}</div>
-        <div class="completion-title">오답 다시 풀기</div>
-        <div class="completion-sub">
-          잠깐만요! 방금 틀렸던 <strong>${count}문제</strong>를<br>
-          제대로 익혔는지 다시 한번 확인해볼까요?
-          <div style="font-size:11px;color:var(--text3);margin-top:12px;opacity:0.8">
-            * 진도는 통과할 때만 반영되고, 점수는 첫 시도 기준으로 계산됩니다.
-          </div>
-        </div>
-      </div>
-    `;
-    document.getElementById('flowFooter').innerHTML = `
-      <button class="btn btn-primary" onclick="App._startRetryPhase()">시작하기 →</button>
-    `;
-    _flow._onRetryStart = onStart;
-  }
-
   function _startRetryPhase() {
-    if (_flow._onRetryStart) _flow._onRetryStart();
+    return _quizFlow.startRetryPhase();
   }
-
-  // ── Quiz Result ───────────────────────────────────────────
-  function _showQuizResult(correct, total, stepIndex, score) {
-    const pct = score;
-    const passRate = parseInt(Store.getSetting('quizPassRate')) || 60;
-    const passed = pct >= passRate;
-    
-    // 티어별 일본어 감탄사 및 메시지
-    const tiers = [
-      {
-        min: 90,
-        icon: 'sparkle',
-        title: '정말 인상적인 결과예요',
-        jp: '最高(さいこう)です。この調子(ちょうし)でどんどん伸(の)びていけます！',
-        ko: '최고예요. 이 흐름이면 다음 단계도 아주 좋게 이어질 거예요.',
-        msg: '이번 점수는 단순히 많이 맞춘 결과가 아니라, 보고 바로 떠올리는 힘이 분명히 자라고 있다는 증거예요. 지금처럼 차분하게 쌓아 가면 읽기와 말하기 모두 훨씬 더 자연스럽게 붙기 시작할 거예요.'
-      },
-      {
-        min: 70,
-        icon: 'check',
-        title: '실력이 분명히 올라오고 있어요',
-        jp: '立派(りっぱ)です。もう一歩(いっぽ)でぐっと自然(しぜん)になります！',
-        ko: '아주 좋아요. 이제 조금만 더 다듬으면 훨씬 자연스러워질 거예요.',
-        msg: '핵심은 이미 잘 잡혀 있고, 헷갈린 부분도 다시 보면 금방 메울 수 있는 상태예요. 오늘 맞힌 문제들로 자신감을 얻고, 틀린 몇 가지만 다시 정리하면 다음 도전에서는 훨씬 단단하게 통과할 수 있어요.'
-      },
-      {
-        min: 50,
-        icon: 'progress',
-        title: '좋은 흐름으로 가고 있어요',
-        jp: 'いいですね。今(いま)は土台(どだい)をしっかり作(つく)っているところです。',
-        ko: '좋아요. 지금은 기초를 제대로 다지는 아주 중요한 구간이에요.',
-        msg: '점수 하나로 실력을 판단할 필요는 없어요. 지금 단계에서는 서두르기보다 자주 헷갈리는 부분을 익숙하게 만드는 것이 더 중요합니다. 한 번 더 천천히 보면 머리에 훨씬 오래 남을 거예요.'
-      },
-      {
-        min: 0,
-        icon: 'target',
-        title: '지금부터가 진짜 실력이 붙는 구간이에요',
-        jp: '頑張(がんば)りましょう。今日(きょう)の復習(ふくしゅう)が明日(あした)の自信(じしん)になります。',
-        ko: '괜찮아요. 오늘의 복습이 내일의 자신감으로 이어질 거예요.',
-        msg: '틀린 문제는 부족함의 증거가 아니라, 다음에 훨씬 쉽게 떠올리게 될 힌트예요. 너무 조급해하지 말고 이번에 헷갈린 부분만 한 번 더 보면, 바로 다음 도전에서 체감이 달라질 거예요.'
-      }
-    ];
-    const res = tiers.find(t => pct >= t.min);
-
-    const xpEarned = Math.round((pct / 100) * 100 + 20);
-    const awardedXP = passed ? xpEarned : 0;
-    const passBadge = passed
-      ? `<div class="v2-pass-badge v2-pass-ok">${_uiIconSvg('check', 'pass-badge-icon')} 통과! (기준 ${passRate}%)</div>`
-      : `<div class="v2-pass-badge v2-pass-ng">${_uiIconSvg('close', 'pass-badge-icon')} 재도전 필요 (기준 ${passRate}%, 현재 ${pct}%)<br><span style="font-size:12px;opacity:.8">통과 전에는 다음 단계로 넘어가지 않습니다.</span></div>`;
-
-    Store.recordStepAttempt(_flow.moduleId, stepIndex, score, passed);
-    if (passed) {
-      Store.completeStep(_flow.moduleId, stepIndex, score);
-      Store.addXP(awardedXP);
-    }
-
-    // 팡파레 효과 (Confetti + TTS)
-    if (passed && pct >= 50) {
-      confetti(pct >= 90 ? 100 : 50);
-      setTimeout(() => TTS.speak(stripFuri(res.jp)), 600);
-    }
-
-    document.getElementById('flowBody').innerHTML = `
-      <div class="score-screen fanfare-burst">
-        <div class="score-emoji">${_uiIconSvg(res.icon, 'score-tier-icon')}</div>
-        <div class="score-title">${res.title}</div>
-        <div class="score-exclamation">${ruby(res.jp)}</div>
-        <div class="score-msg">${res.msg}</div>
-        
-        <div class="score-ring" id="scoreRing">
-          <div class="score-pct">${pct}%</div>
-        </div>
-        
-        <div class="score-subtitle" style="margin-top:20px">${correct} / ${total} 정답</div>
-        ${passBadge}
-        <div class="xp-earned">${passed ? `+<span class="xp-num">${awardedXP}</span> XP 획득!` : '이번에는 XP 획득 없이 재도전합니다.'}</div>
-      </div>
-    `;
-    updateScoreRing(document.getElementById('scoreRing'), pct);
-
-    document.getElementById('flowFooter').innerHTML = `
-      <button class="btn btn-primary" onclick="App._afterQuiz(${passed})">
-        ${passed ? '다음 단계 →' : '다시 도전'}
-      </button>
-    `;
-  }
-
   function _afterQuiz(passed) {
-    if (passed) {
-      _flow.step++;
-      _runCurrentStep();
-    } else {
-      // 퀴즈만 다시 도전 (learn 단계로 돌아가지 않음)
-      _runCurrentStep();
-    }
+    return _quizFlow.afterQuiz(passed);
   }
 
   // ── Lecture Player ────────────────────────────────────────
@@ -2920,7 +2251,7 @@ window.App = (() => {
   }
 
   function closeFlow() {
-    clearTimeout(_autoNextTimer);
+    _quizFlow.clearTimers();
     document.getElementById('flowScreen').classList.remove('open');
     TTS.stop();
     _flow = null;

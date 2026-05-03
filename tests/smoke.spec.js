@@ -1,6 +1,9 @@
 const { test, expect } = require('@playwright/test');
 
 test.beforeEach(async ({ page }) => {
+  await page.route('**/favicon.ico', async route => {
+    await route.fulfill({ status: 204, body: '' });
+  });
   await page.route('http://localhost:50021/**', async route => {
     if (route.request().url().endsWith('/speakers')) {
       await route.fulfill({ status: 200, contentType: 'application/json', body: '[]' });
@@ -89,4 +92,21 @@ test('serves current assets and rejects removed v1 paths', async ({ request }) =
     const response = await request.get(path);
     expect(response.status(), path).toBe(404);
   }
+});
+
+test('opens and answers a vocab quiz flow', async ({ page }) => {
+  await page.goto('/');
+
+  await page.evaluate(() => {
+    window.TTS.speak = async () => {};
+    window.App.startRandomQuiz('vocab');
+  });
+  await expect(page.locator('#flowScreen')).toHaveClass(/open/);
+  await expect(page.locator('.quiz-question')).toBeVisible();
+  await expect(page.locator('.quiz-choice')).toHaveCount(4);
+
+  const correct = page.locator('.quiz-choice[data-correct="true"]').first();
+  await correct.click();
+  await expect(page.locator('#quizFeedback')).toHaveClass(/show/);
+  await expect(page.locator('#btnNextQ')).toBeVisible();
 });

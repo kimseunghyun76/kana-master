@@ -19,6 +19,7 @@ const targets = [
   'js/v2/utils.js',
   'js/v2/module-visuals.js',
   'js/v2/ui-icons.js',
+  'js/v2/quiz-flow.js',
 ];
 
 let anyWarn = false;
