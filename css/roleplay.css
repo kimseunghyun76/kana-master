@@ -1,0 +1,229 @@
+/* ── Dialogue/Roleplay ────────────────────────────────────── */
+.dialogue-scene {
+  background: var(--card2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-bottom: 20px;
+  font-size: 13px;
+  color: var(--text2);
+  line-height: 1.5;
+}
+.roleplay-cover {
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  border-radius: 22px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,.14);
+  box-shadow: 0 16px 36px rgba(2,6,23,.22);
+  margin-bottom: 14px;
+}
+.roleplay-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.dialogue-scene .scene-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  color: var(--warning);
+  margin-bottom: 6px;
+  font-size: 14px;
+}
+
+.roleplay-panel {
+  padding: 16px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  border-radius: 16px;
+  margin-bottom: 14px;
+}
+.roleplay-panel-highlight {
+  border-color: rgba(99,102,241,.45);
+  background: linear-gradient(180deg, rgba(99,102,241,.12), rgba(30,41,59,.96));
+  box-shadow: 0 14px 30px rgba(30,41,59,.22);
+}
+.roleplay-panel-success {
+  border-color: rgba(16,185,129,.4);
+  background: rgba(16,185,129,.08);
+}
+.roleplay-mission-card {
+  background: linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.01));
+}
+.roleplay-panel-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+  margin-bottom: 10px;
+}
+.roleplay-panel-title,
+.roleplay-section-heading {
+  font-weight: 800;
+  font-size: 14px;
+  color: var(--text);
+}
+.roleplay-panel-subtitle,
+.roleplay-helper-text,
+.roleplay-progress-text,
+.roleplay-panel-status {
+  font-size: 13px;
+  color: var(--text2);
+  line-height: 1.6;
+}
+.roleplay-progress-text,
+.roleplay-panel-status {
+  font-size: 12px;
+  color: var(--text3);
+}
+.roleplay-prompt {
+  font-size: 14px;
+  color: var(--text);
+  margin-bottom: 10px;
+}
+.roleplay-answer-box {
+  padding: 12px;
+  border-radius: 12px;
+  background: var(--bg2);
+  border: 1px solid rgba(148,163,184,.16);
+  font-size: 14px;
+  color: var(--text);
+  margin-bottom: 10px;
+}
+.roleplay-answer-box ruby rt {
+  font-size: 10px;
+  color: var(--accent2);
+}
+.roleplay-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.roleplay-actions .btn {
+  flex: 1 1 160px;
+}
+.inline-icon-wrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dialogue-list { display: flex; flex-direction: column; gap: 14px; }
+.dialogue-line { display: flex; gap: 12px; }
+.dialogue-line.speaker-A { flex-direction: row-reverse; }
+.dialogue-line.speaker-N {
+  justify-content: center;
+}
+.dialogue-avatar {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: var(--bg3);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+  font-weight: 700;
+  font-size: 13px;
+}
+.dialogue-line.speaker-A .dialogue-avatar { background: rgba(99,102,241,.2); color: var(--accent2); }
+.dialogue-line.speaker-B .dialogue-avatar { background: rgba(16,185,129,.2); color: #34d399; }
+.dialogue-line.speaker-C .dialogue-avatar { background: rgba(251,146,60,.2); color: #fb923c; }
+.dialogue-bubble {
+  max-width: 75%;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 10px 14px;
+}
+.dialogue-line.speaker-A .dialogue-bubble { background: rgba(99,102,241,.12); border-color: rgba(99,102,241,.3); }
+.dialogue-line.speaker-C .dialogue-bubble { background: rgba(251,146,60,.08); border-color: rgba(251,146,60,.3); }
+
+/* ── 현재 재생 중인 라인 하이라이트 ── */
+@keyframes dl-playing-pulse {
+  0%, 100% { box-shadow: 0 0 0 2px transparent; }
+  50%       { box-shadow: 0 0 0 3px rgba(99,102,241,.6); }
+}
+.dialogue-line.playing .dialogue-bubble,
+.dialogue-line.playing .dialogue-narrator {
+  animation: dl-playing-pulse 0.9s ease-in-out infinite;
+  border-color: rgba(99,102,241,.6) !important;
+  background: rgba(99,102,241,.18) !important;
+  transition: background 0.2s;
+}
+.dialogue-line.speaker-B.playing .dialogue-bubble {
+  border-color: rgba(16,185,129,.6) !important;
+  background: rgba(16,185,129,.18) !important;
+  animation: none;
+  box-shadow: 0 0 0 3px rgba(16,185,129,.4);
+}
+.dialogue-line.speaker-C.playing .dialogue-bubble {
+  border-color: rgba(251,146,60,.6) !important;
+  background: rgba(251,146,60,.18) !important;
+  animation: none;
+  box-shadow: 0 0 0 3px rgba(251,146,60,.4);
+}
+.dialogue-line.playing .dialogue-avatar {
+  transform: scale(1.15);
+  transition: transform 0.2s;
+}
+.dialogue-bubble .db-jp {
+  font-family: 'Noto Sans JP', serif;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 2;
+  ruby rt { font-size: 10px; color: var(--accent2); }
+}
+.dialogue-bubble .db-ko { font-size: 12px; color: var(--text2); margin-top: 4px; line-height: 1.4; }
+.dialogue-bubble .db-tip {
+  font-size: 11px; color: var(--text3); margin-top: 5px; line-height: 1.4;
+  background: rgba(245,158,11,.07); border-radius: 6px;
+  padding: 3px 7px; border-left: 2px solid rgba(245,158,11,.4);
+}
+.dialogue-bubble .db-tip ruby rt { font-size: 9px; color: var(--warning); }
+.dialogue-bubble .db-audio {
+  width: 28px;
+  height: 28px;
+  color: var(--text3);
+  cursor: pointer;
+  margin-top: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: rgba(255,255,255,.05);
+  border: 1px solid rgba(148,163,184,.18);
+  transition: color var(--dur), border-color var(--dur), background var(--dur), transform var(--dur);
+}
+.dialogue-bubble .db-audio:hover {
+  color: var(--text);
+  background: rgba(99,102,241,.12);
+  border-color: rgba(129,140,248,.35);
+  transform: translateY(-1px);
+}
+.audio-inline-icon {
+  width: 14px;
+  height: 14px;
+}
+.dialogue-narrator {
+  background: rgba(245,158,11,.08);
+  border: 1px solid rgba(245,158,11,.2);
+  border-radius: 10px;
+  padding: 6px 12px;
+  font-size: 12px;
+  color: #fcd34d;
+  text-align: center;
+  max-width: 80%;
+}
+
+@media (max-width: 420px) {
+  .roleplay-panel-head {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .roleplay-actions .btn {
+    flex-basis: 100%;
+  }
+}
+

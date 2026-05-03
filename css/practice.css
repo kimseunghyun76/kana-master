@@ -1,0 +1,105 @@
+/* ============================================================
+   PRACTICE VIEW
+   ============================================================ */
+.practice-view { padding: 0 0 24px; }
+.practice-grid { padding: 12px 16px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.practice-item {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px 16px;
+  text-align: center;
+  cursor: pointer;
+  transition: transform var(--dur), border-color var(--dur);
+  position: relative;
+}
+.practice-visual-card {
+  min-height: 154px;
+  padding: 0;
+  overflow: hidden;
+  display: flex;
+  align-items: flex-end;
+  text-align: left;
+  background: #020617;
+  border-color: rgba(148,163,184,.16);
+}
+.practice-card-bg {
+  position: absolute;
+  inset: 0;
+  background-image: var(--practice-bg);
+  background-size: cover;
+  background-position: center;
+  transform: scale(1.03);
+  filter: saturate(1.04) contrast(1.03);
+}
+.practice-card-bg::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(2,6,23,.08), rgba(2,6,23,.4) 45%, rgba(2,6,23,.92)),
+    radial-gradient(circle at top right, rgba(99,102,241,.26), transparent 44%);
+}
+.practice-card-content {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  padding: 14px;
+}
+.practice-item.locked { opacity: .4; cursor: not-allowed; }
+.practice-item:not(.locked):hover { transform: translateY(-2px); border-color: var(--accent); }
+.practice-item:not(.locked):active { transform: scale(.95); }
+.practice-item .pi-icon {
+  width: 54px;
+  height: 54px;
+  margin: 0 auto 10px;
+  border-radius: 18px;
+  background: rgba(255,255,255,.04);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent2);
+}
+.practice-visual-card .pi-icon {
+  width: 42px;
+  height: 42px;
+  margin: 0 0 10px;
+  border-radius: 14px;
+  background: rgba(15,23,42,.64);
+  border-color: rgba(255,255,255,.16);
+  color: #f8fafc;
+  box-shadow: 0 10px 22px rgba(2,6,23,.24);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+.practice-item .pi-icon-text {
+  font-size: 26px;
+  font-family: 'Noto Sans JP', serif;
+  font-weight: 700;
+}
+.practice-item .pi-name { font-size: 13px; font-weight: 700; }
+.practice-item .pi-stage { font-size: 10px; color: var(--text3); margin-top: 4px; }
+.practice-visual-card .pi-name {
+  color: #f8fafc;
+  font-size: 14px;
+  line-height: 1.25;
+  text-shadow: 0 2px 12px rgba(2,6,23,.55);
+}
+.practice-visual-card .pi-stage {
+  color: #cbd5e1;
+  font-size: 11px;
+  line-height: 1.35;
+}
+.practice-item .pi-lock {
+  position: absolute; top: 10px; right: 10px;
+  z-index: 2;
+  color: var(--text3);
+}
+.practice-section-title {
+  padding: 16px 16px 8px;
+  font-size: 12px; font-weight: 700;
+  letter-spacing: 1px; color: var(--text3);
+  text-transform: uppercase;
+}
+
