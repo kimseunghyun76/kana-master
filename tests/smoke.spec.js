@@ -129,6 +129,33 @@ test('opens and answers a vocab quiz flow', async ({ page }) => {
   await expect(page.locator('#btnNextQ')).toBeVisible();
 });
 
+test('enforces access tiers on lesson modules', async ({ page }) => {
+  await page.goto('/');
+
+  await page.evaluate(() => {
+    window.Entitlements.setTier('free');
+  });
+  await page.getByRole('button', { name: /레슨/ }).click();
+
+  await expect(page.locator('.module-card[data-access-tier="free"]').first()).toBeVisible();
+  await expect(page.locator('.module-card[data-access-tier="plus"].locked').first()).toBeVisible();
+  await expect(page.locator('.module-card[data-access-tier="pro"].locked').first()).toBeVisible();
+  await expect(page.locator('.access-tier-badge.plus').first()).toHaveText('PLUS');
+  await expect(page.locator('.access-tier-badge.pro').first()).toHaveText('PRO');
+
+  await page.evaluate(() => {
+    window.App.openModule('survival_greet');
+  });
+  await expect(page.locator('#flowScreen')).not.toHaveClass(/open/);
+  await expect(page.locator('#toast')).toHaveText('PLUS 콘텐츠입니다');
+
+  await page.evaluate(() => {
+    window.Entitlements.setTier('pro');
+  });
+  await expect(page.locator('.module-card[data-access-tier="plus"]').first()).toBeVisible();
+  await expect(page.locator('.module-card[data-access-tier="plus"]').first()).not.toHaveClass(/locked/);
+});
+
 test('opens lecture player and toggles playback controls', async ({ page }) => {
   await page.goto('/');
 

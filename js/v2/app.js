@@ -99,6 +99,7 @@ window.App = (() => {
     _renderProfile();
     // Subscribe to store changes
     Store.subscribe(_onStoreChange);
+    window.addEventListener('entitlements:change', _onEntitlementsChange);
   }
 
   function _onStoreChange(type) {
@@ -107,6 +108,12 @@ window.App = (() => {
       _renderLesson();
       _renderProfile();
     }
+  }
+
+  function _onEntitlementsChange() {
+    _renderHome();
+    _renderLesson();
+    _renderProfile();
   }
 
   function _getModuleVisual(mod) {
@@ -414,6 +421,7 @@ window.App = (() => {
       `;
 
       mods.forEach(mod => {
+        const requiredTier = Entitlements.requiredTier(mod);
         const accessLocked = !Entitlements.canAccess(mod);
         const modLocked = locked || accessLocked || !isModuleUnlocked(mod.id, prog);
         const mp = prog.modules[mod.id] || {};
@@ -432,6 +440,7 @@ window.App = (() => {
 
         html += `
           <div class="module-card ${moduleBg ? 'has-image' : ''} ${modLocked ? 'locked' : ''} ${completed ? 'completed' : ''}"
+               data-access-tier="${requiredTier}"
                ${moduleBg ? `style="--module-bg:url('${_cssUrlValue(moduleBg)}')"` : ''}
                onclick="${!modLocked ? `App.openModule('${mod.id}')` : ''}">
             ${moduleBg ? '<div class="module-card-bg" aria-hidden="true"></div>' : ''}
@@ -440,8 +449,11 @@ window.App = (() => {
               <div class="visual-badge">${_uiIconSvg(visual.iconKey, 'visual-badge-svg')}</div>
             </div>
             <div class="module-info">
-              <div class="module-name">${escHtml(mod.name)}</div>
-              <div class="module-sub">${escHtml(mod.nameJp || '')} · ${totalSteps}단계${accessLocked ? ` · ${Entitlements.requiredTier(mod).toUpperCase()}` : ''}</div>
+              <div class="module-name-row">
+                <div class="module-name">${escHtml(mod.name)}</div>
+                <span class="access-tier-badge ${requiredTier}">${requiredTier.toUpperCase()}</span>
+              </div>
+              <div class="module-sub">${escHtml(mod.nameJp || '')} · ${totalSteps}단계</div>
               <div class="module-focus-tag">${escHtml(visual.focus)}</div>
               ${!modLocked ? `
               <div class="module-prog">

@@ -165,7 +165,45 @@
 .continue-visual.slate { box-shadow: 0 14px 30px rgba(51,65,85,.18); }
 .module-visual.slate { background: radial-gradient(circle at 28% 24%, rgba(255,255,255,.22), transparent 34%), linear-gradient(145deg, rgba(71,85,105,.42), rgba(99,102,241,.14)); }
 .module-info { flex: 1; min-width: 0; }
-.module-name { font-size: 14px; font-weight: 700; }
+.module-name-row {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+}
+.module-name {
+  min-width: 0;
+  font-size: 14px;
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.access-tier-badge {
+  flex: 0 0 auto;
+  min-width: 42px;
+  padding: 3px 7px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(255,255,255,.07);
+  color: rgba(226,232,240,.86);
+  font-size: 9px;
+  font-weight: 800;
+  line-height: 1;
+  text-align: center;
+}
+.access-tier-badge.free {
+  background: rgba(16,185,129,.14);
+  color: #a7f3d0;
+}
+.access-tier-badge.plus {
+  background: rgba(14,165,233,.16);
+  color: #bae6fd;
+}
+.access-tier-badge.pro {
+  background: rgba(245,158,11,.18);
+  color: #fde68a;
+}
 .module-sub { font-size: 11px; color: var(--text2); margin-top: 2px; }
 .module-focus-tag {
   display: inline-flex;
