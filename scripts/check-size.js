@@ -20,6 +20,7 @@ const targets = [
   'js/v2/module-visuals.js',
   'js/v2/ui-icons.js',
   'js/v2/quiz-flow.js',
+  'js/v2/roleplay-flow.js',
 ];
 
 let anyWarn = false;

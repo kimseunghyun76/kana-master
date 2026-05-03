@@ -110,3 +110,29 @@ test('opens and answers a vocab quiz flow', async ({ page }) => {
   await expect(page.locator('#quizFeedback')).toHaveClass(/show/);
   await expect(page.locator('#btnNextQ')).toBeVisible();
 });
+
+test('opens roleplay and dialogue detail popup', async ({ page }) => {
+  await page.goto('/');
+
+  await page.evaluate(() => {
+    window.TTS.speak = async () => {};
+    window.TTS.stop = () => {};
+    window.TTS.stopQueue = () => {};
+    window.TTS.isQueueRunning = () => false;
+    window.TTS.speakQueue = async (_lines, handlers = {}) => {
+      handlers.onDone?.();
+    };
+    window.App._startRoleplay(window.App._getMod('survival_greet'));
+  });
+
+  await expect(page.locator('#flowScreen')).toHaveClass(/open/);
+  await expect(page.locator('.roleplay-cover')).toBeVisible();
+  await expect(page.locator('.dialogue-bubble').first()).toBeVisible();
+
+  await page.locator('.dialogue-bubble').first().click();
+  await expect(page.locator('#detailOverlay')).toBeVisible();
+  await expect(page.locator('.detail-popup')).toBeVisible();
+
+  await page.getByRole('button', { name: /확인했어요/ }).click();
+  await expect(page.locator('#detailOverlay')).toHaveCount(0);
+});
