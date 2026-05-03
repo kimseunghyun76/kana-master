@@ -53,12 +53,14 @@ test('loads v2 app data and primary screens', async ({ page }) => {
   });
 
   await expect(page.locator('.stage-card')).toHaveCount(5);
+  await expect(page.locator('.stage-card.has-image').first()).toBeVisible();
 
   await page.getByRole('button', { name: /레슨/ }).click();
   await expect(page.locator('#viewLesson')).toHaveClass(/active/);
   await expect(page.locator('.module-card').first()).toBeVisible();
   await expect(page.locator('.module-card')).toHaveCount(23);
   await expect(page.locator('.module-card.has-image').first()).toBeVisible();
+  await expect(page.locator('.roleplay-card.has-image').first()).toBeVisible();
 
   await page.getByRole('button', { name: /연습/ }).click();
   await expect(page.locator('#viewPractice')).toHaveClass(/active/);
@@ -151,7 +153,7 @@ test('opens roleplay and dialogue detail popup', async ({ page }) => {
   });
 
   await expect(page.locator('#flowScreen')).toHaveClass(/open/);
-  await expect(page.locator('.roleplay-cover')).toBeVisible();
+  await expect(page.locator('.roleplay-hero')).toBeVisible();
   await expect(page.locator('.dialogue-bubble').first()).toBeVisible();
 
   await page.locator('.dialogue-bubble').first().click();

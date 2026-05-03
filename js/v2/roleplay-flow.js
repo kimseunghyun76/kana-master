@@ -39,9 +39,9 @@ window.createRoleplayFlow = (ctx) => {
     const shadowDone = state.shadowDone || [];
     const outputDone = state.outputDone || [];
     const revealed = state.revealed || [];
-    const readyCount = practiceLines.filter((_, idx) => shadowDone[idx] && outputDone[idx]).length;
+    const readyCount = practiceLines.filter((_, idx) => outputDone[idx]).length;
     const allReady = practiceLines.length === 0 || readyCount === practiceLines.length;
-    const activeIndex = practiceLines.findIndex((_, idx) => !(shadowDone[idx] && outputDone[idx]));
+    const activeIndex = practiceLines.findIndex((_, idx) => !outputDone[idx]);
     const activeLine = activeIndex >= 0 ? practiceLines[activeIndex] : null;
 
     document.getElementById('flowTitle').textContent = rp.name;
@@ -83,7 +83,6 @@ window.createRoleplayFlow = (ctx) => {
 
     const practiceHtml = practiceLines.length ? practiceLines.map((line, idx) => {
       const answerVisible = !!revealed[idx];
-      const shadowOk = !!shadowDone[idx];
       const outputOk = !!outputDone[idx];
       return `
         <div class="roleplay-panel">
@@ -92,7 +91,7 @@ window.createRoleplayFlow = (ctx) => {
               <div class="roleplay-panel-title">내 대사 ${idx + 1}</div>
               <div class="roleplay-panel-subtitle">${escHtml(line.korean || '')}</div>
             </div>
-            <div class="roleplay-panel-status">${shadowOk && outputOk ? '완료' : '연습 중'}</div>
+            <div class="roleplay-panel-status">${outputOk ? '완료' : '연습 중'}</div>
           </div>
           <div class="roleplay-answer-box">
             ${answerVisible ? ruby(line.japanese || '') : '먼저 한국어 힌트를 보고 일본어로 말해보세요.'}
@@ -100,8 +99,7 @@ window.createRoleplayFlow = (ctx) => {
           <div class="roleplay-actions">
             <button class="btn btn-outline" onclick="App._toggleRoleplayReveal(${idx})">${answerVisible ? '정답 가리기' : '정답 보기'}</button>
             <button class="btn btn-outline" onclick="App._speakDialogueLine('${line.id}')">${ctx.uiLabeledIcon('audio')} 정답 듣기</button>
-            <button class="btn ${shadowOk ? 'btn-success' : 'btn-outline'}" onclick="App._markRoleplayShadow(${idx})">${shadowOk ? '따라 말하기 완료' : '따라 말했어요'}</button>
-            <button class="btn ${outputOk ? 'btn-success' : 'btn-outline'}" onclick="App._markRoleplayOutput(${idx})">${outputOk ? '힌트 말하기 완료' : '힌트 보고 말했어요'}</button>
+            <button class="btn ${outputOk ? 'btn-success' : 'btn-outline'}" onclick="App._markRoleplayOutput(${idx})">${outputOk ? '말하기 완료' : '힌트 보고 말했어요'}</button>
           </div>
         </div>
       `;
@@ -123,8 +121,7 @@ window.createRoleplayFlow = (ctx) => {
         <div class="roleplay-actions">
           <button class="btn btn-outline" onclick="App._speakDialogueLine('${activeLine.id}')">${ctx.uiLabeledIcon('audio')} 정답 듣기</button>
           <button class="btn btn-outline" onclick="App._toggleRoleplayReveal(${activeIndex})">${revealed[activeIndex] ? '정답 가리기' : '정답 보기'}</button>
-          <button class="btn ${shadowDone[activeIndex] ? 'btn-success' : 'btn-outline'}" onclick="App._markRoleplayShadow(${activeIndex})">${shadowDone[activeIndex] ? '따라 말하기 완료' : '따라 말했어요'}</button>
-          <button class="btn ${outputDone[activeIndex] ? 'btn-success' : 'btn-outline'}" onclick="App._markRoleplayOutput(${activeIndex})">${outputDone[activeIndex] ? '힌트 말하기 완료' : '힌트 보고 말했어요'}</button>
+          <button class="btn ${outputDone[activeIndex] ? 'btn-success' : 'btn-outline'}" onclick="App._markRoleplayOutput(${activeIndex})">${outputDone[activeIndex] ? '말하기 완료' : '힌트 보고 말했어요'}</button>
         </div>
       </div>
     ` : `
@@ -136,10 +133,20 @@ window.createRoleplayFlow = (ctx) => {
     if (phase === 'preview') {
       document.getElementById('flowBody').innerHTML = `
         ${roleplayCover ? `
-        <div class="roleplay-cover">
-          <img src="${roleplayCover}" alt="${escHtml(rp.name)}">
+        <div class="roleplay-hero" style="--roleplay-hero-bg:url('${ctx.cssUrlValue(roleplayCover)}')">
+          <div class="roleplay-hero-bg" aria-hidden="true"></div>
+          <div class="roleplay-hero-content">
+            <div class="roleplay-hero-kicker">${ctx.uiIconSvg('roleplay', 'scene-title-icon')} 롤플레이 장면</div>
+            <div class="roleplay-hero-title">${escHtml(rp.name)}</div>
+            <div class="roleplay-hero-desc">${escHtml(rp.desc)}</div>
+            <div class="roleplay-hero-chips">
+              <span>${dialogues.length}개 대화</span>
+              <span>${practiceLines.length || '자동'} 미션</span>
+              <span>대사 탭 분석</span>
+            </div>
+          </div>
         </div>` : ''}
-        <div class="dialogue-scene">
+        <div class="dialogue-scene ${roleplayCover ? 'compact' : ''}">
           <div class="scene-title">${ctx.uiIconSvg('roleplay', 'scene-title-icon')} ${escHtml(rp.name)}</div>
           ${escHtml(rp.desc)}
         </div>
@@ -171,7 +178,7 @@ window.createRoleplayFlow = (ctx) => {
       <div class="roleplay-panel roleplay-mission-card">
         <div class="roleplay-panel-title" style="margin-bottom:8px">말하기 미션</div>
         <div class="roleplay-helper-text">
-          정답을 바로 보기 전에 먼저 입으로 말하고, 그 다음 체크해 주세요.<br>
+          정답을 바로 보기 전에 먼저 입으로 말하고, 필요할 때만 듣거나 확인해 주세요.<br>
           한 대사씩 끝낼수록 아래 진행 상태가 채워집니다.
         </div>
       </div>
@@ -179,7 +186,7 @@ window.createRoleplayFlow = (ctx) => {
       <div class="dialogue-list" id="dialogueList">${dialogueHtml}</div>
       <div style="height:12px"></div>
       <div class="scene-title">${ctx.uiIconSvg('voice', 'scene-title-icon')} 내 말하기 연습</div>
-      <div class="roleplay-helper-text" style="margin:6px 0 12px">한 번 따라 말하고, 한 번은 힌트만 보고 다시 말해 보세요.</div>
+      <div class="roleplay-helper-text" style="margin:6px 0 12px">힌트를 보고 먼저 말한 뒤, 필요하면 정답을 열어 확인하세요.</div>
       <div>${practiceHtml}</div>
     `;
 

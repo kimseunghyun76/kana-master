@@ -295,10 +295,47 @@
   overflow: hidden;
   cursor: pointer;
   transition: transform var(--dur) var(--ease), border-color var(--dur) var(--ease);
+  position: relative;
 }
 .stage-card.locked { opacity: .5; cursor: not-allowed; }
 .stage-card:not(.locked):hover { transform: translateY(-2px); }
 .stage-card:not(.locked):active { transform: scale(.98); }
+.stage-card.has-image {
+  background: #020617;
+  border-color: rgba(255,255,255,.12);
+  box-shadow: 0 14px 34px rgba(2,6,23,.18);
+}
+.stage-card.has-image::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgba(2,6,23,.88), rgba(2,6,23,.58) 58%, rgba(2,6,23,.78)),
+    linear-gradient(180deg, rgba(2,6,23,.16), rgba(2,6,23,.72));
+  z-index: 1;
+}
+.stage-card-bg {
+  position: absolute;
+  inset: 0;
+  background-image: var(--stage-bg);
+  background-size: cover;
+  background-position: center;
+  opacity: .5;
+  filter: saturate(1.08) contrast(1.02);
+  transform: scale(1.04);
+}
+.stage-card.has-image > :not(.stage-card-bg) {
+  position: relative;
+  z-index: 2;
+}
+.stage-card.has-image .stage-icon-wrap,
+.stage-card.has-image .stage-tag {
+  border: 1px solid rgba(255,255,255,.12);
+  backdrop-filter: blur(8px);
+}
+.stage-card.has-image .stage-progress-bar-bg {
+  background: rgba(255,255,255,.18);
+}
 
 .stage-header {
   padding: 16px;
@@ -369,4 +406,3 @@
 .stage-card[data-stage="5"] .stage-icon-wrap { background: rgba(239,68,68,.2); }
 .stage-card[data-stage="5"] .stage-progress-bar-fill { background: var(--s5); }
 .stage-card[data-stage="5"]:not(.locked) { border-color: rgba(239,68,68,.3); }
-

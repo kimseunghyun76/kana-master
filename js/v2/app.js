@@ -353,10 +353,15 @@ window.App = (() => {
     STAGES.forEach(stage => {
       const pct = getStageProgressPct(stage.id, prog);
       const locked = prog.xp < stage.unlockXP;
-      const modCount = getModulesByStage(stage.id).length;
+      const stageMods = getModulesByStage(stage.id);
+      const modCount = stageMods.length;
+      const stageVisual = stageMods.map(mod => _getModuleVisual(mod)).find(visual => visual.coverImage || visual.image);
+      const stageBg = stageVisual ? (stageVisual.coverImage || stageVisual.image) : '';
       html += `
-        <div class="stage-card ${locked ? 'locked' : ''}" data-stage="${stage.id}"
+        <div class="stage-card ${stageBg ? 'has-image' : ''} ${locked ? 'locked' : ''}" data-stage="${stage.id}"
+             ${stageBg ? `style="--stage-bg:url('${_cssUrlValue(stageBg)}')"` : ''}
              onclick="${!locked ? `App.switchTab('lesson')` : ''}">
+          ${stageBg ? '<div class="stage-card-bg" aria-hidden="true"></div>' : ''}
           <div class="stage-header">
             <div class="stage-icon-wrap">
               ${_uiIconSvg(_getStageIconKey(stage.id), 'stage-icon-svg')}
@@ -456,9 +461,12 @@ window.App = (() => {
         // Roleplay entry (shown below module when steps complete)
         if (mod.roleplay && !modLocked) {
           const rpDone = mp.roleplayDone;
+          const roleplayBg = visual.roleplayImage || visual.coverImage || visual.image || '';
           html += `
-            <div class="roleplay-card ${!rpUnlocked ? 'locked' : ''}"
+            <div class="roleplay-card ${roleplayBg ? 'has-image' : ''} ${!rpUnlocked ? 'locked' : ''}"
+                 ${roleplayBg ? `style="--roleplay-card-bg:url('${_cssUrlValue(roleplayBg)}')"` : ''}
                  onclick="${rpUnlocked ? `App.openModule('${mod.id}', true)` : ''}">
+              ${roleplayBg ? '<div class="roleplay-card-bg" aria-hidden="true"></div>' : ''}
               <span class="rp-icon">${_uiIconSvg('roleplay', 'rp-icon-svg')}</span>
               <div class="rp-info">
                 <div class="rp-name">${escHtml(mod.roleplay.name)}</div>
@@ -1287,6 +1295,7 @@ window.App = (() => {
     uiLabeledIcon: _uiLabeledIcon,
     uiIconSvg: _uiIconSvg,
     jsString: _jsString,
+    cssUrlValue: _cssUrlValue,
     getMod: _getMod,
     openFlowScreen: _openFlowScreen,
     showToast,
