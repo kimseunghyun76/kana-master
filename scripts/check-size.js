@@ -17,6 +17,7 @@ const targets = [
   'js/v2/tts.js',
   'js/v2/utils.js',
   'js/v2/module-visuals.js',
+  'js/v2/ui-icons.js',
 ];
 
 let anyWarn = false;
