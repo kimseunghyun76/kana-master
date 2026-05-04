@@ -14,6 +14,7 @@ window.App = (() => {
   let _flowEl = null;             // flow screen DOM element
   let _homeView = null;
   let _lessonView = null;
+  let _practiceView = null;
 
   function _uiIconSvg(name, cls = '') { return UIIcons.svg(name, cls); }
   function _getStageIconKey(stageId) { return UIIcons.stageIconKey(stageId); }
@@ -245,97 +246,15 @@ window.App = (() => {
   //  PRACTICE VIEW
   // ════════════════════════════════════════════════════════
   function _renderPractice() {
-    const prog = Store.get();
-    const kanaUnlocked = (prog.kanaProgress[1]?.learned) || true;
-    const vocabUnlocked = prog.xp >= 400;
-    const quizUnlocked  = prog.xp >= 800;
-    const allKanaChars = Object.keys(KANA_MAP || {});
-    const allVocabIds = _getAllVocabItems().map(item => item.id).filter(Boolean);
-    const dueKanaCount = Store.countDueKana(allKanaChars);
-    const dueVocabCount = Store.countDueVocab(allVocabIds);
-    const practiceBg = {
-      kana: 'images/lecture-scenes/slevel1-first-phrases-classroom-greeting.png',
-      vocab: 'images/lecture-scenes/wlevel3-calendar-time-study.png',
-      kanaQuiz: 'images/lecture-scenes/wlevel2-elevator-number-culture.png',
-      vocabQuiz: 'images/lecture-scenes/slevel3-convenience-store-checkout.png',
-      listening: 'images/lecture-scenes/slevel4-train-station-transfer.png',
-      speaking: 'images/lecture-scenes/slevel2-self-introduction-office-lobby.png'
-    };
-
-    let html = `
-      <div class="practice-section-title">빠른 복습</div>
-      <div class="practice-grid">
-        <div class="practice-item practice-visual-card" style="--practice-bg:url('${_cssUrlValue(practiceBg.kana)}')" onclick="App.startKanaReview()">
-          <div class="practice-card-bg" aria-hidden="true"></div>
-          <div class="practice-card-content">
-            <div class="pi-icon pi-icon-text">あア</div>
-            <div class="pi-name">가나 플래시카드</div>
-            <div class="pi-stage">${dueKanaCount > 0 ? `오늘 복습 ${dueKanaCount}개` : '히라가나 · 가타가나 전체'}</div>
-          </div>
-        </div>
-        <div class="practice-item practice-visual-card ${!vocabUnlocked ? 'locked' : ''}"
-             style="--practice-bg:url('${_cssUrlValue(practiceBg.vocab)}')"
-             onclick="${vocabUnlocked ? "App.startVocabReview()" : ''}">
-          <div class="practice-card-bg" aria-hidden="true"></div>
-          <div class="practice-card-content">
-            <div class="pi-icon">${_uiIconSvg('book', 'pi-icon-svg')}</div>
-            <div class="pi-name">어휘 복습</div>
-            <div class="pi-stage">${dueVocabCount > 0 ? `오늘 복습 ${dueVocabCount}개` : '학습한 단어 전체'}</div>
-          </div>
-          ${!vocabUnlocked ? `<div class="pi-lock">${_uiIconSvg('lock', 'pi-lock-icon')}</div>` : ''}
-        </div>
-        <div class="practice-item practice-visual-card ${!quizUnlocked ? 'locked' : ''}"
-             style="--practice-bg:url('${_cssUrlValue(practiceBg.kanaQuiz)}')"
-             onclick="${quizUnlocked ? "App.startRandomQuiz('kana')" : ''}">
-          <div class="practice-card-bg" aria-hidden="true"></div>
-          <div class="practice-card-content">
-            <div class="pi-icon">${_uiIconSvg('quiz', 'pi-icon-svg')}</div>
-            <div class="pi-name">가나 퀴즈</div>
-            <div class="pi-stage">랜덤 20문제</div>
-          </div>
-          ${!quizUnlocked ? `<div class="pi-lock">${_uiIconSvg('lock', 'pi-lock-icon')}</div>` : ''}
-        </div>
-        <div class="practice-item practice-visual-card ${!quizUnlocked ? 'locked' : ''}"
-             style="--practice-bg:url('${_cssUrlValue(practiceBg.vocabQuiz)}')"
-             onclick="${quizUnlocked ? "App.startRandomQuiz('vocab')" : ''}">
-          <div class="practice-card-bg" aria-hidden="true"></div>
-          <div class="practice-card-content">
-            <div class="pi-icon">${_uiIconSvg('practice', 'pi-icon-svg')}</div>
-            <div class="pi-name">어휘 퀴즈</div>
-            <div class="pi-stage">랜덤 20문제</div>
-          </div>
-          ${!quizUnlocked ? `<div class="pi-lock">${_uiIconSvg('lock', 'pi-lock-icon')}</div>` : ''}
-        </div>
-      </div>
-
-      <div class="practice-section-title" style="margin-top:8px">청취 연습</div>
-      <div class="practice-grid">
-        <div class="practice-item practice-visual-card ${!quizUnlocked ? 'locked' : ''}"
-             style="--practice-bg:url('${_cssUrlValue(practiceBg.listening)}')"
-             onclick="${quizUnlocked ? "App.startListeningQuiz()" : ''}">
-          <div class="practice-card-bg" aria-hidden="true"></div>
-          <div class="practice-card-content">
-            <div class="pi-icon">${_uiIconSvg('headphones', 'pi-icon-svg')}</div>
-            <div class="pi-name">듣기 퀴즈</div>
-            <div class="pi-stage">음성 → 글자 맞추기</div>
-          </div>
-          ${!quizUnlocked ? `<div class="pi-lock">${_uiIconSvg('lock', 'pi-lock-icon')}</div>` : ''}
-        </div>
-        <div class="practice-item practice-visual-card ${!quizUnlocked ? 'locked' : ''}"
-             style="--practice-bg:url('${_cssUrlValue(practiceBg.speaking)}')"
-             onclick="${quizUnlocked ? "App.startSpeakingPractice()" : ''}">
-          <div class="practice-card-bg" aria-hidden="true"></div>
-          <div class="practice-card-content">
-            <div class="pi-icon">${_uiIconSvg('mic', 'pi-icon-svg')}</div>
-            <div class="pi-name">따라 말하기</div>
-            <div class="pi-stage">쉐도잉 연습</div>
-          </div>
-          ${!quizUnlocked ? `<div class="pi-lock">${_uiIconSvg('lock', 'pi-lock-icon')}</div>` : ''}
-        </div>
-      </div>
-    `;
-
-    document.getElementById('practiceContent').innerHTML = html;
+    if (!_practiceView) {
+      _practiceView = createPracticeView({
+        Store,
+        getAllVocabItems: _getAllVocabItems,
+        cssUrlValue: _cssUrlValue,
+        uiIconSvg: _uiIconSvg,
+      });
+    }
+    _practiceView.render();
   }
 
   // ════════════════════════════════════════════════════════

@@ -105,9 +105,11 @@ test('serves current assets and rejects removed v1 paths', async ({ request }) =
   for (const path of [
     '/index.html',
     '/css/v2.css',
+    '/js/kana-helpers.js',
     '/js/v2/app.js',
     '/js/v2/home-view.js',
     '/js/v2/lesson-view.js',
+    '/js/v2/practice-view.js',
     '/js/v2/programs.js',
     '/js/v2/stroke-renderer.js',
     '/js/data/lecture-data-v2/wlevel_1.js',
