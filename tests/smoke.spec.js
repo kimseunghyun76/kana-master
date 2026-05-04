@@ -40,6 +40,7 @@ test('loads v2 app data and primary screens', async ({ page }) => {
   await expect(page.locator('.app-title')).toHaveText('일본어 마스터');
   await expect(page.locator('.welcome-card')).toBeVisible();
   await expect(page.getByRole('button', { name: /히라가나 시작하기/ })).toBeVisible();
+  await expect(page.locator('.program-card')).toHaveCount(3);
 
   const dataSummary = await page.evaluate(() => ({
     lectures: Object.keys(window.LECTURE_DATA || {}).length,
@@ -100,6 +101,8 @@ test('serves current assets and rejects removed v1 paths', async ({ request }) =
     '/index.html',
     '/css/v2.css',
     '/js/v2/app.js',
+    '/js/v2/home-view.js',
+    '/js/v2/programs.js',
     '/js/v2/stroke-renderer.js',
     '/js/data/lecture-data-v2/wlevel_1.js',
     '/images/lecture-scenes/wlevel2-elevator-number-culture.png',
