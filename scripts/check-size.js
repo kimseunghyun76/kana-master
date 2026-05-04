@@ -20,7 +20,9 @@ const targets = [
   'css/lecture.css',
   'css/components.css',
   'css/detail-popup.css',
+  'js/kana-levels.js',
   'js/kana-data.js',
+  'js/kana-helpers.js',
   'js/v2/app.js',
   'js/v2/content-index.js',
   'js/v2/curriculum.js',
@@ -30,9 +32,16 @@ const targets = [
   'js/v2/module-visuals.js',
   'js/v2/ui-icons.js',
   'js/v2/entitlements.js',
+  'js/v2/home-view.js',
   'js/v2/lecture-flow.js',
+  'js/v2/lesson-view.js',
+  'js/v2/practice-view.js',
+  'js/v2/profile-view.js',
+  'js/v2/programs.js',
+  'js/v2/quiz-effects.js',
   'js/v2/quiz-flow.js',
   'js/v2/roleplay-flow.js',
+  'js/v2/stroke-renderer.js',
 ];
 
 let anyWarn = false;
