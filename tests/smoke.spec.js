@@ -41,6 +41,11 @@ test('loads v2 app data and primary screens', async ({ page }) => {
   await expect(page.locator('.welcome-card')).toBeVisible();
   await expect(page.getByRole('button', { name: /히라가나 시작하기/ })).toBeVisible();
   await expect(page.locator('.program-card')).toHaveCount(3);
+  await page.locator('.program-card').first().click();
+  await expect(page.locator('.program-panel')).toBeVisible();
+  await expect(page.locator('.program-day')).toHaveCount(7);
+  await page.locator('.program-close').click();
+  await expect(page.locator('.program-panel')).toHaveCount(0);
 
   const dataSummary = await page.evaluate(() => ({
     lectures: Object.keys(window.LECTURE_DATA || {}).length,
@@ -102,6 +107,7 @@ test('serves current assets and rejects removed v1 paths', async ({ request }) =
     '/css/v2.css',
     '/js/v2/app.js',
     '/js/v2/home-view.js',
+    '/js/v2/lesson-view.js',
     '/js/v2/programs.js',
     '/js/v2/stroke-renderer.js',
     '/js/data/lecture-data-v2/wlevel_1.js',

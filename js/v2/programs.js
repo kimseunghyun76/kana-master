@@ -11,6 +11,7 @@ const LEARNING_PROGRAMS = [
     label: '7 DAYS',
     desc: '히라가나와 가타가나를 빠르게 끝내는 집중 루트',
     tone: 'violet',
+    days: 7,
     moduleIds: ['kana_hira', 'kana_kata', 'first_phrases'],
   },
   {
@@ -19,6 +20,7 @@ const LEARNING_PROGRAMS = [
     label: '14 DAYS',
     desc: '인사, 숫자, 위치, 쇼핑, 식당까지 여행 필수 표현',
     tone: 'blue',
+    days: 14,
     moduleIds: ['first_phrases', 'survival_greet', 'survival_pointing', 'survival_numbers', 'survival_where', 'survival_shop', 'survival_food'],
   },
   {
@@ -27,6 +29,7 @@ const LEARNING_PROGRAMS = [
     label: '21 DAYS',
     desc: '회의, 일정, 요청, 장애 보고까지 업무 일본어 루트',
     tone: 'amber',
+    days: 21,
     moduleIds: ['office_intro', 'office_schedule', 'it_meeting', 'it_requirement', 'it_status', 'it_issue', 'it_review'],
   },
 ];
@@ -53,5 +56,32 @@ window.LearningPrograms = (() => {
     };
   }
 
-  return { list: LEARNING_PROGRAMS, getProgress };
+  function getById(programId) {
+    return LEARNING_PROGRAMS.find(program => program.id === programId) || null;
+  }
+
+  function getDayPlan(program) {
+    const modules = (program.moduleIds || [])
+      .map(moduleId => MODULES.find(mod => mod.id === moduleId))
+      .filter(Boolean);
+    const days = Math.max(program.days || modules.length || 1, 1);
+
+    return Array.from({ length: days }, (_, idx) => {
+      const moduleIndex = Math.min(Math.floor((idx / days) * modules.length), modules.length - 1);
+      const mod = modules[moduleIndex];
+      const phase = idx === 0 ? '시작'
+        : idx === days - 1 ? '최종 점검'
+        : idx % 3 === 2 ? '퀴즈 강화'
+        : '학습';
+      return {
+        day: idx + 1,
+        phase,
+        module: mod,
+        title: mod ? mod.name : '복습',
+        desc: mod ? `${mod.steps.length}단계 · ${mod.desc || mod.nameJp || ''}` : '오늘 배운 내용을 다시 확인합니다',
+      };
+    });
+  }
+
+  return { list: LEARNING_PROGRAMS, getById, getProgress, getDayPlan };
 })();

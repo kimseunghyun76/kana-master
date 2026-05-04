@@ -13,6 +13,7 @@ window.App = (() => {
   let _flow = null;               // current learning flow
   let _flowEl = null;             // flow screen DOM element
   let _homeView = null;
+  let _lessonView = null;
 
   function _uiIconSvg(name, cls = '') { return UIIcons.svg(name, cls); }
   function _getStageIconKey(stageId) { return UIIcons.stageIconKey(stageId); }
@@ -214,101 +215,30 @@ window.App = (() => {
   //  LESSON VIEW
   // ════════════════════════════════════════════════════════
   function _renderLesson() {
-    const prog = Store.get();
-    let html = '';
-
-    STAGES.forEach(stage => {
-      const locked = prog.xp < stage.unlockXP;
-      const mods = getModulesByStage(stage.id);
-      if (!mods.length) return;
-
-      const dotColor = stage.color;
-      const badgeBg = locked ? 'rgba(100,116,139,.2)' : `rgba(${_hexToRgb(stage.color)},.15)`;
-      const badgeColor = locked ? 'var(--text3)' : stage.color;
-
-      html += `
-        <div class="lesson-stage-section">
-          <div class="lesson-stage-header">
-            <div class="lesson-stage-dot" style="background:${locked ? '#475569' : dotColor}"></div>
-            <span class="lesson-stage-title">${_uiIconWrap(_getStageIconKey(stage.id), 'lesson-stage-icon')}STAGE ${stage.id}: ${escHtml(stage.name)}</span>
-            <span class="lesson-stage-badge" style="background:${badgeBg};color:${badgeColor};padding:3px 8px;border-radius:20px;font-size:10px;font-weight:700;">
-              ${locked ? `${_uiIconWrap('lock', 'badge-icon')}${_formatNum(stage.unlockXP)} XP` : (stage.jlpt || '심화 학습')}
-            </span>
-          </div>
-          <div class="module-list">
-      `;
-
-      mods.forEach(mod => {
-        const requiredTier = Entitlements.requiredTier(mod);
-        const accessLocked = !Entitlements.canAccess(mod);
-        const modLocked = locked || accessLocked || !isModuleUnlocked(mod.id, prog);
-        const mp = prog.modules[mod.id] || {};
-        const totalSteps = mod.steps.length;
-        const done = mp.stepsCompleted || 0;
-        const pct = Math.round((done / totalSteps) * 100);
-        const completed = done >= totalSteps;
-        const rpUnlocked = isRoleplayUnlocked(mod.id, prog);
-        const visual = _getModuleVisual(mod);
-        const moduleBg = visual.coverImage || visual.image || '';
-
-        let statusIcon = _uiIconSvg('progress', 'module-status-icon-svg');
-        let statusClass = 'play';
-        if (modLocked)  { statusIcon = _uiIconSvg('lock', 'module-status-icon-svg'); statusClass = 'lock'; }
-        else if (completed) { statusIcon = _uiIconSvg('check', 'module-status-icon-svg'); statusClass = 'done'; }
-
-        html += `
-          <div class="module-card ${moduleBg ? 'has-image' : ''} ${modLocked ? 'locked' : ''} ${completed ? 'completed' : ''}"
-               data-access-tier="${requiredTier}"
-               ${moduleBg ? `style="--module-bg:url('${_cssUrlValue(moduleBg)}')"` : ''}
-               onclick="${!modLocked ? `App.openModule('${mod.id}')` : ''}">
-            ${moduleBg ? '<div class="module-card-bg" aria-hidden="true"></div>' : ''}
-            <div class="module-visual ${visual.tone}">
-              <div class="module-visual-main">${_uiIconSvg(visual.iconKey, 'module-visual-main-svg')}</div>
-              <div class="visual-badge">${_uiIconSvg(visual.iconKey, 'visual-badge-svg')}</div>
-            </div>
-            <div class="module-info">
-              <div class="module-name-row">
-                <div class="module-name">${escHtml(mod.name)}</div>
-                <span class="access-tier-badge ${requiredTier}">${requiredTier.toUpperCase()}</span>
-              </div>
-              <div class="module-sub">${escHtml(mod.nameJp || '')} · ${totalSteps}단계</div>
-              <div class="module-focus-tag">${escHtml(visual.focus)}</div>
-              ${!modLocked ? `
-              <div class="module-prog">
-                <div class="module-prog-bar">
-                  <div class="module-prog-fill" style="width:${pct}%;background:${stage.color}"></div>
-                </div>
-                <span class="module-prog-pct">${done}/${totalSteps}</span>
-              </div>` : ''}
-            </div>
-            <div class="module-status ${statusClass}">${statusIcon}</div>
-          </div>
-        `;
-
-        // Roleplay entry (shown below module when steps complete)
-        if (mod.roleplay && !modLocked) {
-          const rpDone = mp.roleplayDone;
-          const roleplayBg = visual.roleplayImage || visual.coverImage || visual.image || '';
-          html += `
-            <div class="roleplay-card ${roleplayBg ? 'has-image' : ''} ${!rpUnlocked ? 'locked' : ''}"
-                 ${roleplayBg ? `style="--roleplay-card-bg:url('${_cssUrlValue(roleplayBg)}')"` : ''}
-                 onclick="${rpUnlocked ? `App.openModule('${mod.id}', true)` : ''}">
-              ${roleplayBg ? '<div class="roleplay-card-bg" aria-hidden="true"></div>' : ''}
-              <span class="rp-icon">${_uiIconSvg('roleplay', 'rp-icon-svg')}</span>
-              <div class="rp-info">
-                <div class="rp-name">${escHtml(mod.roleplay.name)}</div>
-                <div class="rp-hint">${rpUnlocked ? escHtml(mod.roleplay.desc) : `위 ${totalSteps}단계 완료 후 해금`}</div>
-              </div>
-              <span class="rp-lock">${rpDone ? _uiIconSvg('check', 'rp-lock-icon') : (rpUnlocked ? _uiIconSvg('progress', 'rp-lock-icon') : _uiIconSvg('lock', 'rp-lock-icon'))}</span>
-            </div>
-          `;
-        }
+    if (!_lessonView) {
+      _lessonView = createLessonView({
+        Store,
+        Entitlements,
+        escHtml,
+        cssUrlValue: _cssUrlValue,
+        formatNum: _formatNum,
+        hexToRgb: _hexToRgb,
+        getModuleVisual: _getModuleVisual,
+        getStageIconKey: _getStageIconKey,
+        uiIconSvg: _uiIconSvg,
+        uiIconWrap: _uiIconWrap,
       });
+    }
+    _lessonView.render();
+  }
 
-      html += `</div></div>`;
-    });
+  function openProgram(programId) {
+    if (!_homeView) _renderHome();
+    _homeView?.openProgram(programId);
+  }
 
-    document.getElementById('lessonContent').innerHTML = html;
+  function closeProgram() {
+    _homeView?.closeProgram();
   }
 
   // ════════════════════════════════════════════════════════
@@ -1624,6 +1554,8 @@ window.App = (() => {
     switchTab,
     goBack,
     closeFlow,
+    openProgram,
+    closeProgram,
     openModule,
     startKanaReview,
     startVocabReview,

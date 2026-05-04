@@ -100,11 +100,10 @@ window.createHomeView = (ctx) => {
       const mod = progress.currentModule;
       const visual = mod ? getModuleVisual(mod) : null;
       const image = visual ? (visual.coverImage || visual.image || '') : '';
-      const action = mod ? `App.openModule('${mod.id}')` : '';
       return `
         <button class="program-card ${program.tone} ${image ? 'has-image' : ''}"
                 ${image ? `style="--program-bg:url('${cssUrlValue(image)}')"` : ''}
-                onclick="${action}">
+                onclick="App.openProgram('${program.id}')">
           ${image ? '<span class="program-bg" aria-hidden="true"></span>' : ''}
           <span class="program-topline">${escHtml(program.label)}</span>
           <span class="program-title">${escHtml(program.title)}</span>
@@ -260,5 +259,62 @@ window.createHomeView = (ctx) => {
     return missions;
   }
 
-  return { render };
+  function openProgram(programId) {
+    const program = LearningPrograms.getById(programId);
+    if (!program) return;
+
+    const prog = Store.get();
+    const progress = LearningPrograms.getProgress(program, prog);
+    const plan = LearningPrograms.getDayPlan(program);
+    document.getElementById('programOverlay')?.remove();
+
+    const overlay = document.createElement('div');
+    overlay.id = 'programOverlay';
+    overlay.className = `program-overlay ${program.tone}`;
+    overlay.innerHTML = `
+      <div class="program-backdrop" onclick="App.closeProgram()"></div>
+      <section class="program-panel" role="dialog" aria-modal="true">
+        <button class="program-close" onclick="App.closeProgram()">✕</button>
+        <div class="program-panel-head">
+          <span class="program-topline">${escHtml(program.label)}</span>
+          <h2>${escHtml(program.title)}</h2>
+          <p>${escHtml(program.desc)}</p>
+          <div class="program-panel-progress">
+            <span>${progress.completed}/${progress.total} 모듈 완료</span>
+            <span>${progress.pct}%</span>
+          </div>
+          <span class="program-bar"><span style="width:${progress.pct}%"></span></span>
+        </div>
+        <div class="program-days">
+          ${plan.map(item => {
+            const isCurrent = progress.currentModule?.id === item.module?.id;
+            const moduleProgress = prog.modules?.[item.module?.id] || {};
+            const done = item.module && (moduleProgress.stepsCompleted || 0) >= item.module.steps.length;
+            return `
+              <button class="program-day ${done ? 'done' : ''} ${isCurrent ? 'current' : ''}"
+                      onclick="${item.module ? `App.closeProgram();App.openModule('${item.module.id}')` : ''}">
+                <span class="program-day-num">DAY ${item.day}</span>
+                <span class="program-day-main">
+                  <span class="program-day-title">${escHtml(item.title)}</span>
+                  <span class="program-day-desc">${escHtml(item.desc)}</span>
+                </span>
+                <span class="program-day-phase">${done ? '완료' : item.phase}</span>
+              </button>
+            `;
+          }).join('')}
+        </div>
+      </section>
+    `;
+    document.body.appendChild(overlay);
+    requestAnimationFrame(() => overlay.classList.add('open'));
+  }
+
+  function closeProgram() {
+    const overlay = document.getElementById('programOverlay');
+    if (!overlay) return;
+    overlay.classList.remove('open');
+    setTimeout(() => overlay.remove(), 220);
+  }
+
+  return { render, openProgram, closeProgram };
 };
