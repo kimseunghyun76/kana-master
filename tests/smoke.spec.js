@@ -79,6 +79,11 @@ test('loads v2 app data and primary screens', async ({ page }) => {
   await expect(page.locator('#viewPractice')).toHaveClass(/active/);
   await expect(page.locator('.practice-item').first()).toBeVisible();
 
+  await page.getByRole('button', { name: /나/ }).click();
+  await expect(page.locator('#viewProfile')).toHaveClass(/active/);
+  await expect(page.locator('.profile-hero')).toBeVisible();
+  await expect(page.locator('.profile-section').filter({ hasText: '음성(TTS) 설정' })).toBeVisible();
+
   await page.getByRole('button', { name: /홈/ }).click();
   await page.getByRole('button', { name: /히라가나 시작하기/ }).click();
   await expect(page.locator('#flowScreen')).toHaveClass(/open/);
@@ -110,6 +115,7 @@ test('serves current assets and rejects removed v1 paths', async ({ request }) =
     '/js/v2/home-view.js',
     '/js/v2/lesson-view.js',
     '/js/v2/practice-view.js',
+    '/js/v2/profile-view.js',
     '/js/v2/programs.js',
     '/js/v2/stroke-renderer.js',
     '/js/data/lecture-data-v2/wlevel_1.js',
