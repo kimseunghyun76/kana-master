@@ -4,6 +4,13 @@ test.beforeEach(async ({ page }) => {
   await page.route('**/favicon.ico', async route => {
     await route.fulfill({ status: 204, body: '' });
   });
+  await page.route('https://raw.githubusercontent.com/KanjiVG/kanjivg/**', async route => {
+    await route.fulfill({
+      status: 404,
+      contentType: 'text/plain',
+      body: 'stroke data unavailable in smoke tests',
+    });
+  });
   await page.route('http://localhost:50021/**', async route => {
     if (route.request().url().endsWith('/speakers')) {
       await route.fulfill({ status: 200, contentType: 'application/json', body: '[]' });
@@ -93,6 +100,7 @@ test('serves current assets and rejects removed v1 paths', async ({ request }) =
     '/index.html',
     '/css/v2.css',
     '/js/v2/app.js',
+    '/js/v2/stroke-renderer.js',
     '/js/data/lecture-data-v2/wlevel_1.js',
     '/images/lecture-scenes/wlevel2-elevator-number-culture.png',
   ]) {
