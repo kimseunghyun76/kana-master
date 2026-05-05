@@ -125,6 +125,10 @@ test('serves current assets and rejects removed v1 paths', async ({ request }) =
     '/js/v2/programs.js',
     '/js/v2/quiz-result-flow.js',
     '/js/v2/stroke-renderer.js',
+    '/images/lecture-scenes/kana-hiragana-study-desk.webp',
+    '/images/lecture-scenes/kana-katakana-loanword-cafe.webp',
+    '/images/lecture-scenes/blevel7-onboarding-self-introduction.webp',
+    '/images/lecture-scenes/slevel7-sightseeing-cultural-directions.webp',
     '/js/data/lecture-data-v2/wlevel_1.js',
     '/images/lecture-scenes/wlevel2-elevator-number-culture.png',
   ]) {
