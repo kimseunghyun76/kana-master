@@ -43,6 +43,7 @@ const targets = [
   'js/v2/profile-view.js',
   'js/v2/programs.js',
   'js/v2/quiz-effects.js',
+  'js/v2/quiz-result-flow.js',
   'js/v2/quiz-flow.js',
   'js/v2/roleplay-flow.js',
   'js/v2/stroke-renderer.js',

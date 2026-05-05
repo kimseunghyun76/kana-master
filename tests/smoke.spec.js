@@ -123,6 +123,7 @@ test('serves current assets and rejects removed v1 paths', async ({ request }) =
     '/js/v2/practice-view.js',
     '/js/v2/profile-view.js',
     '/js/v2/programs.js',
+    '/js/v2/quiz-result-flow.js',
     '/js/v2/stroke-renderer.js',
     '/js/data/lecture-data-v2/wlevel_1.js',
     '/images/lecture-scenes/wlevel2-elevator-number-culture.png',
