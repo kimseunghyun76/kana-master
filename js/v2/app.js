@@ -631,11 +631,14 @@ window.App = (() => {
   function _renderRoleplay(mod) { return _roleplayFlow.renderRoleplay(mod); }
   function _beginRoleplayPractice() { return _roleplayFlow.beginPractice(); }
   function _toggleRoleplayReveal(index) { return _roleplayFlow.toggleReveal(index); }
+  function _setRoleplayPracticeSpeaker(speaker) { return _roleplayFlow.setPracticeSpeaker(speaker); }
   function _markRoleplayShadow(index) { return _roleplayFlow.markShadow(index); }
   function _markRoleplayOutput(index) { return _roleplayFlow.markOutput(index); }
   function _speakDialogueLine(lineId) { return _roleplayFlow.speakLine(lineId); }
+  function _speakDialogueLineSlow(lineId) { return _roleplayFlow.speakLineSlow(lineId); }
   function _startRoleplay(mod) { return _roleplayFlow.startRoleplay(mod); }
   function _replayAll(moduleId, startIndex = 0) { return _roleplayFlow.replayAll(moduleId, startIndex); }
+  function _replayRoleplayCurrentTurn() { return _roleplayFlow.replayCurrentTurn(); }
   function _stopRoleplay() { return _roleplayFlow.stopRoleplay(); }
   function showDialogueDetail(lineId) { return _roleplayFlow.showDialogueDetail(lineId); }
   function closeDialogueDetail(shouldResume = true) { return _roleplayFlow.closeDialogueDetail(shouldResume); }
@@ -879,9 +882,12 @@ window.App = (() => {
     _stopRoleplay,
     _startRoleplay,
     _toggleRoleplayReveal,
+    _setRoleplayPracticeSpeaker,
     _markRoleplayShadow,
     _markRoleplayOutput,
     _speakDialogueLine,
+    _speakDialogueLineSlow,
+    _replayRoleplayCurrentTurn,
     showDialogueDetail,
     closeDialogueDetail,
     _getMod,

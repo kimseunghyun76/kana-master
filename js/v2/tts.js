@@ -230,6 +230,7 @@ window.TTS = (() => {
   }
 
   function setRate(r) { _rate = Math.max(0.5, Math.min(2.0, r)); }
+  function getRate() { return _rate; }
 
   // ── Speaker Settings ──────────────────────────────────────
   function getVoicevoxSpeakers()   { return _vvSpeakers; }
@@ -278,7 +279,7 @@ window.TTS = (() => {
   function _delay(ms) { return new Promise(r => setTimeout(r, ms)); }
 
   return {
-    init, speak, stop, setRate,
+    init, speak, stop, setRate, getRate,
     speakQueue, stopQueue, isQueueRunning,
     isEnabled, isVoicevox, isEdgeTts, getEngineName,
     getVoicevoxSpeakers,

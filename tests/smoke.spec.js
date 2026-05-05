@@ -124,6 +124,7 @@ test('serves current assets and rejects removed v1 paths', async ({ request }) =
     '/js/v2/profile-view.js',
     '/js/v2/programs.js',
     '/js/v2/quiz-result-flow.js',
+    '/js/v2/roleplay-detail-flow.js',
     '/js/v2/stroke-renderer.js',
     '/images/lecture-scenes/kana-hiragana-study-desk.webp',
     '/images/lecture-scenes/kana-katakana-loanword-cafe.webp',
