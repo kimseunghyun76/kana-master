@@ -25,6 +25,7 @@ const targets = [
   'js/kana-data.js',
   'js/kana-data-extra.js',
   'js/kana-helpers.js',
+  'js/v2/app-settings.js',
   'js/v2/app.js',
   'js/v2/content-index.js',
   'js/v2/curriculum.js',
