@@ -118,6 +118,7 @@ test('serves current assets and rejects removed v1 paths', async ({ request }) =
     '/js/v2/app-settings.js',
     '/js/v2/app.js',
     '/js/v2/home-view.js',
+    '/js/v2/kana-learn-flow.js',
     '/js/v2/lesson-view.js',
     '/js/v2/practice-view.js',
     '/js/v2/profile-view.js',

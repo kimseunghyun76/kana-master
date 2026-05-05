@@ -36,6 +36,7 @@ const targets = [
   'js/v2/ui-icons.js',
   'js/v2/entitlements.js',
   'js/v2/home-view.js',
+  'js/v2/kana-learn-flow.js',
   'js/v2/lecture-flow.js',
   'js/v2/lesson-view.js',
   'js/v2/practice-view.js',
