@@ -21,6 +21,7 @@ const targets = [
   'css/components.css',
   'css/detail-popup.css',
   'js/kana-levels.js',
+  'js/kana-data-hiragana.js',
   'js/kana-data.js',
   'js/kana-data-extra.js',
   'js/kana-helpers.js',

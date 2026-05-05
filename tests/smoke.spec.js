@@ -111,6 +111,8 @@ test('serves current assets and rejects removed v1 paths', async ({ request }) =
     '/index.html',
     '/css/v2.css',
     '/js/kana-levels.js',
+    '/js/kana-data-hiragana.js',
+    '/js/kana-data.js',
     '/js/kana-data-extra.js',
     '/js/kana-helpers.js',
     '/js/v2/app.js',
