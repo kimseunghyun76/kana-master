@@ -23,8 +23,7 @@ window.createHomeView = (ctx) => {
     const isFirstVisit = prog.xp === 0 && Object.keys(prog.modules).length === 0;
     let html = '';
 
-    if (isFirstVisit) html += _renderWelcome();
-    html += _renderContinue(next, prog, isFirstVisit);
+    html += _renderDashboardHero(next, prog, isFirstVisit);
     html += _renderPrograms(prog);
     if (!isFirstVisit) html += _renderMissions(prog);
     if (!isFirstVisit) html += _renderStats(prog);
@@ -33,65 +32,64 @@ window.createHomeView = (ctx) => {
     document.getElementById('homeContent').innerHTML = html;
   }
 
+  function _renderDashboardHero(next, prog, isFirstVisit) {
+    if (isFirstVisit) return _renderWelcome();
+    if (next) {
+      const stage = STAGES.find(s => s.id === next.mod.stageId);
+      const pct = getModuleProgressPct(next.mod.id, prog);
+      const title = next.roleplay ? next.mod.roleplay.name : next.mod.name;
+      const visual = getModuleVisual(next.mod);
+      const todayXP = prog.todayXP || 0;
+      return `
+        <section class="home-dashboard welcome-card">
+          <div class="dashboard-main">
+            <div class="dashboard-kicker">오늘의 다음 행동</div>
+            <h1>${escHtml(title)}</h1>
+            <p>${escHtml(stage.name)} · ${escHtml(visual.focus)} · ${pct}% 진행</p>
+            <button class="dashboard-primary" onclick="App.openModule('${next.mod.id}', ${next.roleplay ? 'true' : 'false'})">
+              ${next.roleplay ? '롤플레이 시작' : '계속 학습하기'}
+            </button>
+          </div>
+          <div class="dashboard-side">
+            <div class="dashboard-metric"><span>${formatNum(prog.xp)}</span><b>누적 XP</b></div>
+            <div class="dashboard-metric"><span>${prog.streak}</span><b>연속 학습</b></div>
+            <div class="dashboard-metric"><span>${Math.min(todayXP, 100)}%</span><b>오늘 목표</b></div>
+          </div>
+        </section>
+      `;
+    }
+    return `
+      <section class="home-dashboard welcome-card">
+        <div class="dashboard-main">
+          <div class="dashboard-kicker">오늘의 학습</div>
+          <h1>오늘의 레슨 완료</h1>
+          <p>복습, 묶음 학습, 롤플레이로 유지 학습을 이어가세요.</p>
+          <button class="dashboard-primary" onclick="App.switchTab('practice')">연습으로 이동</button>
+        </div>
+      </section>
+    `;
+  }
+
   function _renderWelcome() {
     const welcomeBg = cssUrlValue('images/lecture-scenes/slevel1-first-phrases-classroom-greeting.png');
     return `
       <div class="welcome-card welcome-card-cinematic" style="--welcome-bg:url('${welcomeBg}')">
         <div class="welcome-bg" aria-hidden="true"></div>
         <div class="welcome-content">
-          <div class="welcome-title">일본어 마스터에 오신 걸 환영합니다</div>
+          <div class="welcome-eyebrow">처음 시작하는 학습자용 루트</div>
+          <div class="welcome-title">오늘은 문자부터 시작하세요</div>
           <div class="welcome-copy">
-            히라가나부터 IT 비즈니스 일본어까지<br>
-            단계별로 <b style="color:var(--accent2)">차근차근 쌓아 가는</b> 학습 시스템입니다.<br>
-            가장 중요한 첫걸음인 히라가나부터 시작해 볼까요?
+            히라가나를 먼저 끝내면 여행 표현, 롤플레이, 업무 일본어가 순서대로 열립니다.
           </div>
-          <div class="welcome-micro-track">
-            <span>문자</span><span>여행</span><span>대화</span><span>업무</span>
+          <div class="welcome-plan-row">
+            <span><b>15분</b>오늘 분량</span>
+            <span><b>7일</b>문자 완성</span>
+            <span><b>무료</b>첫 단계</span>
           </div>
-          <button class="btn btn-primary" onclick="App.openModule('kana_hira')"
-                  style="border-radius:20px;padding:14px 32px;font-size:16px">
-            히라가나 시작하기
-          </button>
+          <button class="dashboard-primary" onclick="App.openModule('kana_hira')">히라가나 시작하기</button>
         </div>
       </div>
     `;
-  }
-
-  function _renderContinue(next, prog, isFirstVisit) {
-    if (next && !isFirstVisit) {
-      const stage = STAGES.find(s => s.id === next.mod.stageId);
-      const pct = getModuleProgressPct(next.mod.id, prog);
-      const title = next.roleplay ? next.mod.roleplay.name : next.mod.name;
-      const sub = `STAGE ${stage.id}: ${stage.name}`;
-      const visual = getModuleVisual(next.mod);
-      return `
-        <div class="continue-banner continue-banner-visual ${visual.tone}"
-             style="${visual.image ? `--continue-bg:url('${cssUrlValue(visual.coverImage || visual.image)}')` : ''}"
-             onclick="App.openModule('${next.mod.id}', ${next.roleplay ? 'true' : 'false'})">
-          ${visual.image ? '<div class="continue-bg" aria-hidden="true"></div>' : ''}
-          <div class="continue-content">
-            <div class="continue-label">계속 학습하기</div>
-            <div class="continue-module">${escHtml(title)}</div>
-            <div class="continue-stage">${escHtml(sub)}</div>
-            <div class="continue-focus">${uiIconSvg(visual.iconKey, 'continue-focus-icon')} ${escHtml(visual.focus)}</div>
-            <div class="continue-progress">
-              <div class="continue-progress-bar" style="width:${pct}%"></div>
-            </div>
-          </div>
-          <div class="continue-arrow">›</div>
-        </div>
-      `;
-    }
-    if (!isFirstVisit) {
-      return `
-        <div class="continue-banner" style="cursor:default;">
-          <div class="continue-label">오늘의 학습</div>
-          <div class="continue-module">오늘의 레슨을 모두 마쳤습니다</div>
-          <div class="continue-stage">계속 연습하거나 심화 학습을 이어가세요</div>
-        </div>
-      `;
-    }
-    return '';
   }
 
   function _renderPrograms(prog) {
@@ -102,10 +100,11 @@ window.createHomeView = (ctx) => {
                 onclick="App.openProgram('${program.id}')">
           <span class="program-card-head">
             <span class="program-topline">${escHtml(program.label)}</span>
-            <span class="program-day-count">${program.days}일</span>
+            <span class="program-day-count">하루 ${program.dailyMinutes}분</span>
           </span>
           <span class="program-title">${escHtml(program.title)}</span>
           <span class="program-desc">${escHtml(program.desc)}</span>
+          <span class="program-outcome">${escHtml(program.outcome)}</span>
           <span class="program-foot">
             <span>${progress.completed}/${progress.total} 모듈</span>
             <span>${progress.pct}%</span>
@@ -117,7 +116,7 @@ window.createHomeView = (ctx) => {
 
     return `
       <div class="program-section">
-        <div class="section-title">완성 프로그램</div>
+        <div class="section-title">완성 프로그램 · 목표별 플랜</div>
         <div class="program-strip">${cards}</div>
       </div>
     `;
@@ -252,6 +251,7 @@ window.createHomeView = (ctx) => {
     const prog = Store.get();
     const progress = LearningPrograms.getProgress(program, prog);
     const plan = LearningPrograms.getDayPlan(program);
+    const actionLabel = progress.pct > 0 ? '이어 하기' : '이 프로그램 시작';
     document.getElementById('programOverlay')?.remove();
 
     const overlay = document.createElement('div');
@@ -265,11 +265,22 @@ window.createHomeView = (ctx) => {
           <span class="program-topline">${escHtml(program.label)}</span>
           <h2>${escHtml(program.title)}</h2>
           <p>${escHtml(program.desc)}</p>
+          <div class="program-value-grid">
+            <span><b>${program.days}일</b>완성 기간</span>
+            <span><b>${program.dailyMinutes}분</b>하루 분량</span>
+            <span><b>${escHtml(program.audience)}</b>추천 대상</span>
+          </div>
+          <div class="program-outcome-panel">${escHtml(program.outcome)}</div>
           <div class="program-panel-progress">
             <span>${progress.completed}/${progress.total} 모듈 완료</span>
             <span>${progress.pct}%</span>
           </div>
           <span class="program-bar"><span style="width:${progress.pct}%"></span></span>
+          ${progress.currentModule ? `
+            <button class="program-start-btn" onclick="App.closeProgram();App.openModule('${progress.currentModule.id}')">
+              ${actionLabel}
+            </button>
+          ` : ''}
         </div>
         <div class="program-days">
           ${plan.map(item => {
