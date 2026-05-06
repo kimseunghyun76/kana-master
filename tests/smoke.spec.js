@@ -62,11 +62,11 @@ test('loads v2 app data and primary screens', async ({ page }) => {
   expect(dataSummary).toEqual({
     lectures: 23,
     kana: 239,
-    vocab: 681,
+    vocab: 689,
   });
 
   await expect(page.locator('.stage-card')).toHaveCount(5);
-  await expect(page.locator('.stage-card.has-image').first()).toBeVisible();
+  await expect(page.locator('.stage-index').first()).toBeVisible();
 
   await page.getByRole('button', { name: /레슨/ }).click();
   await expect(page.locator('#viewLesson')).toHaveClass(/active/);

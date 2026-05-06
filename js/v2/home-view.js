@@ -97,15 +97,13 @@ window.createHomeView = (ctx) => {
   function _renderPrograms(prog) {
     const cards = LearningPrograms.list.map(program => {
       const progress = LearningPrograms.getProgress(program, prog);
-      const mod = progress.currentModule;
-      const visual = mod ? getModuleVisual(mod) : null;
-      const image = visual ? (visual.coverImage || visual.image || '') : '';
       return `
-        <button class="program-card ${program.tone} ${image ? 'has-image' : ''}"
-                ${image ? `style="--program-bg:url('${cssUrlValue(image)}')"` : ''}
+        <button class="program-card ${program.tone}"
                 onclick="App.openProgram('${program.id}')">
-          ${image ? '<span class="program-bg" aria-hidden="true"></span>' : ''}
-          <span class="program-topline">${escHtml(program.label)}</span>
+          <span class="program-card-head">
+            <span class="program-topline">${escHtml(program.label)}</span>
+            <span class="program-day-count">${program.days}일</span>
+          </span>
           <span class="program-title">${escHtml(program.title)}</span>
           <span class="program-desc">${escHtml(program.desc)}</span>
           <span class="program-foot">
@@ -119,10 +117,7 @@ window.createHomeView = (ctx) => {
 
     return `
       <div class="program-section">
-        <div class="section-title section-title-row">
-          ${uiIconWrap('target', 'section-title-icon')}
-          완성 프로그램
-        </div>
+        <div class="section-title">완성 프로그램</div>
         <div class="program-strip">${cards}</div>
       </div>
     `;
@@ -133,10 +128,7 @@ window.createHomeView = (ctx) => {
     const completedMissions = missions.filter(m => m.done).length;
     return `
       <div style="margin:0 16px 4px">
-        <div class="section-title section-title-row" style="padding:0 0 10px">
-          ${uiIconWrap('target', 'section-title-icon')}
-          오늘의 미션 · ${completedMissions}/${missions.length}
-        </div>
+        <div class="section-title" style="padding:0 0 10px">오늘의 미션 · ${completedMissions}/${missions.length}</div>
         <div style="display:flex;flex-direction:column;gap:8px">
           ${missions.map(m => `
             <div style="background:var(--card);border:1px solid ${m.done ? 'rgba(16,185,129,.3)' : 'var(--border)'};
@@ -187,19 +179,13 @@ window.createHomeView = (ctx) => {
       const locked = prog.xp < stage.unlockXP;
       const stageMods = getModulesByStage(stage.id);
       const modCount = stageMods.length;
-      const stageVisual = stageMods.map(mod => getModuleVisual(mod)).find(visual => visual.coverImage || visual.image);
-      const stageBg = stageVisual ? (stageVisual.coverImage || stageVisual.image) : '';
       html += `
-        <div class="stage-card ${stageBg ? 'has-image' : ''} ${locked ? 'locked' : ''}" data-stage="${stage.id}"
-             ${stageBg ? `style="--stage-bg:url('${cssUrlValue(stageBg)}')"` : ''}
+        <div class="stage-card ${locked ? 'locked' : ''}" data-stage="${stage.id}"
              onclick="${!locked ? `App.switchTab('lesson')` : ''}">
-          ${stageBg ? '<div class="stage-card-bg" aria-hidden="true"></div>' : ''}
           <div class="stage-header">
-            <div class="stage-icon-wrap">
-              ${uiIconSvg(getStageIconKey(stage.id), 'stage-icon-svg')}
-            </div>
+            <div class="stage-index">STAGE<br><b>${stage.id}</b></div>
             <div class="stage-meta">
-              <div class="stage-name">STAGE ${stage.id}: ${escHtml(stage.name)}</div>
+              <div class="stage-name">${escHtml(stage.name)}</div>
               <div class="stage-sub">${stage.jlpt ? `JLPT ${stage.jlpt} · ` : ''}${modCount}개 모듈</div>
             </div>
             <span class="stage-tag">${locked ? `${uiIconWrap('lock', 'stage-tag-icon')}${formatNum(stage.unlockXP)} XP` : (pct === 100 ? uiIconWrap('check', 'stage-tag-icon') : `${pct}%`)}</span>

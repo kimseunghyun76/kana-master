@@ -66,6 +66,14 @@ var VOCAB_ITEMS_W1W4 = [
   { id:'dt_pm',     japanese:'ごご',        kanji:'午後(ごご)',    korean:'오후 (PM)', english:'PM / Afternoon' },
   { id:'dt_nan',    japanese:'なんじですか', kanji:'何時(なんじ)ですか', korean:'몇 시예요?', english:'What time is it?', tip:'시간 물어볼 때 핵심 표현' },
   { id:'dt_open',   japanese:'えいぎょうちゅう', kanji:'営業中(えいぎょうちゅう)', korean:'영업 중 (OPEN)', english:'Open for business', tip:'가게/식당 문 앞에서 자주 봄' },
+  { id:'tm_cancel', japanese:'キャンセル',  kanji:'キャンセル',       korean:'취소',          english:'Cancellation',       example:'キャンセルしたいです' },
+  { id:'tm_henkou', japanese:'へんこう',    kanji:'変更(へんこう)',   korean:'변경',          english:'Change',             example:'時間(じかん)を変更(へんこう)したいです' },
+  { id:'tm_raishu', japanese:'らいしゅう',  kanji:'来週(らいしゅう)', korean:'다음 주',        english:'Next week' },
+  { id:'tm_senshu', japanese:'せんしゅう',  kanji:'先週(せんしゅう)', korean:'지난주',         english:'Last week' },
+  { id:'tm_maiasa', japanese:'まいあさ',    kanji:'毎朝(まいあさ)',   korean:'매일 아침',      english:'Every morning' },
+  { id:'tm_maiban', japanese:'まいばん',    kanji:'毎晩(まいばん)',   korean:'매일 밤',        english:'Every night' },
+  { id:'tm_yotei',  japanese:'よてい',      kanji:'予定(よてい)',     korean:'예정 / 일정',    english:'Plan / schedule' },
+  { id:'tm_aiteiru', japanese:'あいています', kanji:'空(あ)いています', korean:'비어 있어요', english:'Available / open', example:'この時間(じかん)、空いていますか？' },
 
   // ── W4: 대명사·지시어 (pronouns_basic) ──────────────────
   { id:'prn_1',  japanese:'わたし',   kanji:'私',   korean:'나/저',          english:'I / Me (polite, gender-neutral)', tip:'남녀 공용 정중 표현. 「私、これにします」' },

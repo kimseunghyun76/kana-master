@@ -88,6 +88,14 @@ var VOCAB_CATEGORIES = [
     desc:'요일 7일 + 영업 중 표지판 — 일정 확인의 완성',
     items:['dt_mon','dt_tue','dt_wed','dt_thu','dt_fri','dt_sat','dt_sun','dt_open']
   },
+  {
+    id:'schedule_practical', phase:3, type:'word', wlevel:3,
+    name:'일정 실전 표현', icon:'📝',
+    title:'W3 일정·예약 실전 표현',
+    subtitle:'予定·変更·来週·空いています',
+    desc:'요일표 암기보다 먼저 쓰는 약속·예약·반복 일정 표현',
+    items:['tm_cancel','tm_henkou','tm_raishu','tm_senshu','tm_maiasa','tm_maiban','tm_yotei','tm_aiteiru']
+  },
 
   // ── W4 ①②③ ───────────────────────────────────────────────
   {
