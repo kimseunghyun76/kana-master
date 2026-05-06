@@ -15,6 +15,7 @@ window.App = (() => {
   let _homeView = null;
   let _lessonView = null;
   let _practiceView = null;
+  let _groupLearningView = null;
   let _profileView = null;
 
   const _appSettings = createAppSettings({
@@ -268,14 +269,41 @@ window.App = (() => {
   // ════════════════════════════════════════════════════════
   function _renderPractice() {
     if (!_practiceView) {
+      if (!_groupLearningView) {
+        _groupLearningView = createGroupLearningView({
+          TTS,
+          cssUrlValue: _cssUrlValue,
+          jsString: _jsString,
+          uiIconSvg: _uiIconSvg,
+        });
+      }
       _practiceView = createPracticeView({
         Store,
         getAllVocabItems: _getAllVocabItems,
         cssUrlValue: _cssUrlValue,
         uiIconSvg: _uiIconSvg,
+        renderGroupLearningSection: () => _groupLearningView.renderSection(),
       });
     }
     _practiceView.render();
+  }
+
+  function openGroupLearning(setId) {
+    if (!_groupLearningView) _renderPractice();
+    _groupLearningView?.open(setId);
+  }
+
+  function closeGroupLearning() {
+    _groupLearningView?.close();
+  }
+
+  function speakGroupItem(setId, index) {
+    _groupLearningView?.speakItem(setId, index);
+  }
+
+  function playGroupLearning(setId) {
+    if (!_groupLearningView) _renderPractice();
+    _groupLearningView?.playSet(setId);
   }
 
   // ════════════════════════════════════════════════════════
@@ -830,6 +858,10 @@ window.App = (() => {
     startRandomQuiz,
     startListeningQuiz,
     startSpeakingPractice,
+    openGroupLearning,
+    closeGroupLearning,
+    speakGroupItem,
+    playGroupLearning,
     toggleFurigana: _appSettings.toggleFurigana,
     toggleTTS: _appSettings.toggleTTS,
     resetProgress: _appSettings.resetProgress,

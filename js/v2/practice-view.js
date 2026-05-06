@@ -10,6 +10,7 @@ window.createPracticeView = (ctx) => {
     getAllVocabItems,
     cssUrlValue,
     uiIconSvg,
+    renderGroupLearningSection,
   } = ctx;
 
   const PRACTICE_BG = {
@@ -65,6 +66,8 @@ window.createPracticeView = (ctx) => {
           stage: '랜덤 20문제',
         })}
       </div>
+
+      ${renderGroupLearningSection ? renderGroupLearningSection() : ''}
 
       <div class="practice-section-title" style="margin-top:8px">청취 연습</div>
       <div class="practice-grid">

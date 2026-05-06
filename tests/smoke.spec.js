@@ -78,13 +78,20 @@ test('loads v2 app data and primary screens', async ({ page }) => {
   await page.getByRole('button', { name: /연습/ }).click();
   await expect(page.locator('#viewPractice')).toHaveClass(/active/);
   await expect(page.locator('.practice-item').first()).toBeVisible();
+  await expect(page.locator('.group-learning-band')).toBeVisible();
+  await expect(page.locator('.group-set-card')).toHaveCount(5);
+  await page.locator('.group-set-card').first().click();
+  await expect(page.locator('#groupLearningOverlay')).toBeVisible();
+  await expect(page.locator('.group-item')).toHaveCount(14);
+  await page.locator('.group-detail-actions .btn-outline').click();
+  await expect(page.locator('#groupLearningOverlay')).toHaveCount(0);
 
-  await page.getByRole('button', { name: /나/ }).click();
+  await page.locator('.bottom-nav .nav-btn[data-tab="profile"]').click();
   await expect(page.locator('#viewProfile')).toHaveClass(/active/);
   await expect(page.locator('.profile-hero')).toBeVisible();
   await expect(page.locator('.profile-section').filter({ hasText: '음성(TTS) 설정' })).toBeVisible();
 
-  await page.getByRole('button', { name: /홈/ }).click();
+  await page.locator('.bottom-nav .nav-btn[data-tab="home"]').click();
   await page.getByRole('button', { name: /히라가나 시작하기/ }).click();
   await expect(page.locator('#flowScreen')).toHaveClass(/open/);
   await expect(page.locator('.module-intro-title')).toBeVisible();
@@ -117,6 +124,8 @@ test('serves current assets and rejects removed v1 paths', async ({ request }) =
     '/js/kana-helpers.js',
     '/js/v2/app-settings.js',
     '/js/v2/app.js',
+    '/js/v2/group-learning-data.js',
+    '/js/v2/group-learning-view.js',
     '/js/v2/home-view.js',
     '/js/v2/kana-learn-flow.js',
     '/js/v2/lesson-view.js',
