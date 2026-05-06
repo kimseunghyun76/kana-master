@@ -72,8 +72,8 @@ test('loads v2 app data and primary screens', async ({ page }) => {
   await expect(page.locator('#viewLesson')).toHaveClass(/active/);
   await expect(page.locator('.module-card').first()).toBeVisible();
   await expect(page.locator('.module-card')).toHaveCount(23);
-  await expect(page.locator('.module-card.has-image').first()).toBeVisible();
-  await expect(page.locator('.roleplay-card.has-image').first()).toBeVisible();
+  await expect(page.locator('.module-cover-thumb').first()).toBeVisible();
+  await expect(page.locator('.roleplay-card.has-cover').first()).toBeVisible();
 
   await page.getByRole('button', { name: /연습/ }).click();
   await expect(page.locator('#viewPractice')).toHaveClass(/active/);

@@ -3,6 +3,57 @@
    ============================================================ */
 .lesson-view { padding: 0 0 24px; }
 
+.lesson-overview {
+  margin: 16px 16px 6px;
+  padding: 16px;
+  border: 1px solid rgba(148,163,184,.16);
+  border-radius: 8px;
+  background:
+    linear-gradient(135deg, rgba(99,102,241,.14), rgba(14,165,233,.08)),
+    rgba(15,23,42,.84);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 14px;
+}
+.lesson-overview-kicker {
+  color: #67e8f9;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+.lesson-overview h2 {
+  margin: 5px 0 4px;
+  font-size: 22px;
+  line-height: 1.16;
+}
+.lesson-overview p {
+  margin: 0;
+  color: var(--text2);
+  font-size: 12px;
+}
+.lesson-overview-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(54px, 1fr));
+  gap: 8px;
+}
+.lesson-overview-stats span {
+  padding: 9px 8px;
+  border: 1px solid rgba(148,163,184,.16);
+  border-radius: 8px;
+  background: rgba(15,23,42,.58);
+  color: var(--text3);
+  font-size: 10px;
+  font-weight: 800;
+  text-align: center;
+}
+.lesson-overview-stats b {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--text);
+  font-size: 16px;
+}
+
 .lesson-stage-section { margin-bottom: 8px; }
 .lesson-stage-header {
   padding: 20px 16px 10px;
@@ -24,6 +75,25 @@
   align-items: center;
   gap: 6px;
 }
+.lesson-stage-progress {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 16px 9px 36px;
+  color: var(--text3);
+  font-size: 11px;
+  line-height: 1.35;
+}
+.lesson-stage-progress span {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.lesson-stage-progress b {
+  color: var(--text2);
+  font-size: 11px;
+}
 
 .module-list { padding: 0 12px; display: flex; flex-direction: column; gap: 8px; }
 
@@ -32,7 +102,7 @@
     linear-gradient(135deg, rgba(255,255,255,.055), rgba(255,255,255,.015)),
     var(--card);
   border: 1px solid rgba(148,163,184,.14);
-  border-radius: 14px;
+  border-radius: 8px;
   padding: 13px 14px;
   display: flex;
   align-items: center;
@@ -53,73 +123,26 @@
 }
 .module-card:not(.locked):active { transform: scale(.97); }
 .module-card.completed { border-color: rgba(16,185,129,.3); }
-.module-card.has-image {
-  min-height: 104px;
-  padding: 14px;
-  background: #020617;
-  border-color: rgba(255,255,255,.12);
-  box-shadow: 0 12px 30px rgba(2,6,23,.18);
+.module-card.has-cover {
+  min-height: 94px;
 }
-.module-card.has-image::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background:
-    linear-gradient(90deg, rgba(2,6,23,.9), rgba(2,6,23,.46) 58%, rgba(2,6,23,.74)),
-    linear-gradient(180deg, rgba(2,6,23,.18), rgba(2,6,23,.72));
-  z-index: 1;
-}
-.module-card.has-image:not(.locked):hover {
-  border-color: rgba(125,211,252,.42);
-  box-shadow: 0 18px 42px rgba(2,6,23,.32);
-}
-.module-card-bg {
-  position: absolute;
-  inset: 0;
-  background-image: var(--module-bg);
+.module-cover-thumb {
+  width: 72px;
+  height: 72px;
+  flex-shrink: 0;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,.12);
+  background-image: var(--module-cover);
   background-size: cover;
   background-position: center;
-  transform: scale(1.04);
-  opacity: .76;
-  filter: saturate(1.06) contrast(1.03);
-}
-.module-card.has-image > :not(.module-card-bg) {
-  position: relative;
-  z-index: 2;
-}
-.module-card.has-image .module-visual {
-  background: rgba(15,23,42,.54);
-  border-color: rgba(255,255,255,.18);
-  backdrop-filter: blur(10px);
-}
-.module-card.has-image .module-name {
-  color: #f8fafc;
-  text-shadow: 0 1px 8px rgba(2,6,23,.5);
-}
-.module-card.has-image .module-sub,
-.module-card.has-image .module-prog-pct {
-  color: rgba(226,232,240,.82);
-}
-.module-card.has-image .module-focus-tag {
-  background: rgba(15,23,42,.58);
-  border: 1px solid rgba(255,255,255,.12);
-  color: rgba(248,250,252,.9);
-}
-.module-card.has-image .module-prog-bar {
-  background: rgba(255,255,255,.18);
-}
-.module-card.has-image .module-status {
-  background: rgba(15,23,42,.58);
-  border: 1px solid rgba(255,255,255,.12);
-  color: rgba(248,250,252,.9);
-  backdrop-filter: blur(8px);
+  box-shadow: inset 0 0 0 999px rgba(2,6,23,.18);
 }
 
 .module-visual {
   position: relative;
   width: 58px;
   height: 58px;
-  border-radius: 15px;
+  border-radius: 8px;
   overflow: hidden;
   flex-shrink: 0;
   border: 1px solid rgba(255,255,255,.12);
@@ -241,7 +264,7 @@
 .roleplay-card {
   background: rgba(239,68,68,.05);
   border: 1px solid rgba(239,68,68,.2);
-  border-radius: 16px;
+  border-radius: 8px;
   padding: 12px 14px;
   display: flex;
   align-items: center;
@@ -254,34 +277,21 @@
 }
 .roleplay-card.locked { opacity: .4; cursor: not-allowed; }
 .roleplay-card:not(.locked):hover { background: rgba(239,68,68,.1); border-color: rgba(239,68,68,.4); }
-.roleplay-card.has-image {
-  min-height: 74px;
-  background: #020617;
-  border-color: rgba(255,255,255,.12);
-  box-shadow: 0 12px 28px rgba(2,6,23,.16);
+.roleplay-card.has-cover {
+  min-height: 72px;
+  background: rgba(30,41,59,.72);
+  border-color: rgba(148,163,184,.16);
 }
-.roleplay-card.has-image::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background:
-    linear-gradient(90deg, rgba(2,6,23,.88), rgba(2,6,23,.5) 60%, rgba(2,6,23,.78)),
-    linear-gradient(180deg, rgba(2,6,23,.1), rgba(2,6,23,.68));
-  z-index: 1;
-}
-.roleplay-card-bg {
-  position: absolute;
-  inset: 0;
-  background-image: var(--roleplay-card-bg);
+.roleplay-thumb {
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,.12);
+  background-image: var(--roleplay-thumb);
   background-size: cover;
   background-position: center;
-  opacity: .64;
-  filter: saturate(1.06) contrast(1.03);
-  transform: scale(1.04);
-}
-.roleplay-card.has-image > :not(.roleplay-card-bg) {
-  position: relative;
-  z-index: 2;
+  box-shadow: inset 0 0 0 999px rgba(2,6,23,.16);
 }
 .roleplay-card .rp-icon,
 .roleplay-card .rp-lock {
@@ -296,19 +306,20 @@
   background: rgba(99,102,241,.12);
   color: var(--accent2);
 }
-.roleplay-card.has-image .rp-icon,
-.roleplay-card.has-image .rp-lock {
-  background: rgba(15,23,42,.58);
-  border: 1px solid rgba(255,255,255,.12);
-  color: rgba(248,250,252,.9);
-  backdrop-filter: blur(8px);
-}
 .roleplay-card .rp-info { flex: 1; min-width: 0; }
 .roleplay-card .rp-name { font-size: 13px; font-weight: 700; }
 .roleplay-card .rp-hint { font-size: 11px; color: var(--text3); margin-top: 1px; }
-.roleplay-card.has-image .rp-name {
-  color: #f8fafc;
-  text-shadow: 0 1px 8px rgba(2,6,23,.5);
-}
-.roleplay-card.has-image .rp-hint { color: rgba(226,232,240,.82); }
 .roleplay-card .rp-lock { color: var(--text3); }
+
+@media (max-width: 560px) {
+  .lesson-overview {
+    grid-template-columns: 1fr;
+  }
+  .lesson-overview-stats {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .module-cover-thumb {
+    width: 64px;
+    height: 64px;
+  }
+}
