@@ -32,6 +32,18 @@ window.createPracticeView = (ctx) => {
     const dueVocabCount = Store.countDueVocab(allVocabIds);
 
     document.getElementById('practiceContent').innerHTML = `
+      <section class="practice-overview">
+        <div>
+          <div class="practice-overview-kicker">연습 센터</div>
+          <h2>오늘 필요한 복습을 바로 실행</h2>
+          <p>카드, 퀴즈, 듣기, 쉐도잉을 학습 상태에 맞게 선택하세요.</p>
+        </div>
+        <div class="practice-overview-stats">
+          <span><b>${dueKanaCount}</b>가나 복습</span>
+          <span><b>${dueVocabCount}</b>어휘 복습</span>
+          <span><b>${prog.xp}</b>XP</span>
+        </div>
+      </section>
       <div class="practice-section-title">빠른 복습</div>
       <div class="practice-grid">
         ${_renderCard({
@@ -94,16 +106,17 @@ window.createPracticeView = (ctx) => {
   function _renderCard({ bg, locked = false, action, iconHtml, iconKey, name, stage }) {
     const icon = iconHtml || `<div class="pi-icon">${uiIconSvg(iconKey, 'pi-icon-svg')}</div>`;
     return `
-      <div class="practice-item practice-visual-card ${locked ? 'locked' : ''}"
-           style="--practice-bg:url('${cssUrlValue(bg)}')"
+      <div class="practice-item practice-tool-card ${locked ? 'locked' : ''}"
            onclick="${locked ? '' : action}">
-        <div class="practice-card-bg" aria-hidden="true"></div>
+        <div class="practice-thumb" style="--practice-bg:url('${cssUrlValue(bg)}')" aria-hidden="true"></div>
         <div class="practice-card-content">
-          ${icon}
+          <div class="practice-card-head">
+            ${icon}
+            ${locked ? `<span class="pi-lock">${uiIconSvg('lock', 'pi-lock-icon')}</span>` : ''}
+          </div>
           <div class="pi-name">${name}</div>
           <div class="pi-stage">${stage}</div>
         </div>
-        ${locked ? `<div class="pi-lock">${uiIconSvg('lock', 'pi-lock-icon')}</div>` : ''}
       </div>
     `;
   }

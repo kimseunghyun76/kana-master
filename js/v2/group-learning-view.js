@@ -40,7 +40,7 @@ window.createGroupLearningView = (ctx) => {
     `).join('');
     return `
       <button class="group-set-card" onclick="App.openGroupLearning('${jsString(set.id)}')">
-        <span class="group-set-bg" style="--group-bg:url('${cssUrlValue(set.image)}')" aria-hidden="true"></span>
+        <span class="group-set-thumb" style="--group-bg:url('${cssUrlValue(set.image)}')" aria-hidden="true"></span>
         <span class="group-set-content">
           <span class="group-set-top">
             <span class="group-set-icon">${escHtml(set.icon)}</span>
