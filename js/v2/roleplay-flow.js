@@ -90,8 +90,9 @@ window.createRoleplayFlow = (ctx) => {
 
     const dialogueHtml = dialogues.map((line, i) => {
       if (line.speaker === 'N') {
+        const narratorText = line.japanese || line.korean || '';
         return `<div class="dialogue-line speaker-N" id="dl-line-${i}">
-          <div class="dialogue-narrator">${ruby(line.japanese || '')}</div>
+          <div class="dialogue-narrator">${ruby(narratorText)}</div>
         </div>`;
       }
       const sideMap = { A: 'speaker-A', B: 'speaker-B', C: 'speaker-C' };
@@ -105,7 +106,10 @@ window.createRoleplayFlow = (ctx) => {
             <div class="db-jp">${ruby(line.japanese || '')}</div>
             <div class="db-ko">${escHtml(line.korean || '')}</div>
             ${line.tip ? `<div class="db-tip">${ruby(line.tip)}</div>` : ''}
-            <span class="db-audio" onclick="event.stopPropagation(); App._speakDialogueLine('${line.id}')">${ctx.uiIconSvg('audio', 'audio-inline-icon')}</span>
+            <div class="db-tools">
+              <span class="dialogue-tap-hint">탭해서 분석</span>
+              <span class="db-audio" onclick="event.stopPropagation(); App._speakDialogueLine('${line.id}')">${ctx.uiIconSvg('audio', 'audio-inline-icon')}</span>
+            </div>
           </div>
         </div>
       `;
@@ -176,7 +180,7 @@ window.createRoleplayFlow = (ctx) => {
               <span>${dialogues.length}개 대화</span>
               <span>${practiceLines.length || '자동'} 미션</span>
               <span>${escHtml(speakerLabels[practiceSpeaker] || practiceSpeaker)} 역할</span>
-              <span>대사 탭 분석</span>
+              <span>말풍선 분석</span>
             </div>
           </div>
         </div>` : ''}
@@ -187,13 +191,19 @@ window.createRoleplayFlow = (ctx) => {
         <div class="roleplay-panel roleplay-mission-card">
           <div class="roleplay-panel-title" style="margin-bottom:8px">이렇게 사용합니다</div>
           ${roleSelectorHtml}
-          <div class="roleplay-helper-text">
-            1. 전체 대화를 재생해 상황 흐름을 익힙니다.<br>
-            2. 역할을 고르고, 궁금한 대사를 눌러 단어와 문장 소리를 확인합니다.<br>
-            3. 현재 차례부터 재생하거나 한 줄씩 느리게 들으며 말하기를 준비합니다.
+          <div class="roleplay-guide-grid">
+            <span><b>1</b>전체 흐름 듣기</span>
+            <span><b>2</b>말풍선 눌러 분석</span>
+            <span><b>3</b>내 역할로 말하기</span>
           </div>
         </div>
-        <div class="dialogue-list" id="dialogueList">${dialogueHtml}</div>
+        <div class="roleplay-conversation">
+          <div class="roleplay-conversation-head">
+            <span>대화 장면</span>
+            <b>말풍선을 누르면 단어·문장 소리를 확인할 수 있습니다</b>
+          </div>
+          <div class="dialogue-list roleplay-comic-list" id="dialogueList">${dialogueHtml}</div>
+        </div>
       `;
       document.getElementById('flowFooter').innerHTML = `
         <div class="roleplay-actions">
@@ -219,7 +229,13 @@ window.createRoleplayFlow = (ctx) => {
         </div>
       </div>
       ${currentTurnHtml}
-      <div class="dialogue-list" id="dialogueList">${dialogueHtml}</div>
+      <div class="roleplay-conversation">
+        <div class="roleplay-conversation-head">
+          <span>대화 장면</span>
+          <b>현재 차례부터 듣거나 한 줄씩 분석할 수 있습니다</b>
+        </div>
+        <div class="dialogue-list roleplay-comic-list" id="dialogueList">${dialogueHtml}</div>
+      </div>
       <div style="height:12px"></div>
       <div class="scene-title">${ctx.uiIconSvg('voice', 'scene-title-icon')} 내 말하기 연습</div>
       <div class="roleplay-helper-text" style="margin:6px 0 12px">힌트를 보고 먼저 말한 뒤, 필요하면 정답을 열어 확인하세요.</div>

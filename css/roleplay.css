@@ -25,8 +25,8 @@
   display: block;
 }
 .roleplay-hero {
-  min-height: 330px;
-  border-radius: 24px;
+  min-height: 300px;
+  border-radius: 8px;
   overflow: hidden;
   border: 1px solid rgba(255,255,255,.14);
   box-shadow: 0 18px 42px rgba(2,6,23,.26);
@@ -95,7 +95,7 @@
 }
 .roleplay-hero-chips span {
   padding: 7px 10px;
-  border-radius: 999px;
+  border-radius: 8px;
   background: rgba(255,255,255,.1);
   border: 1px solid rgba(255,255,255,.14);
   color: rgba(248,250,252,.92);
@@ -122,7 +122,7 @@
   padding: 16px;
   border: 1px solid var(--border);
   background: var(--card);
-  border-radius: 16px;
+  border-radius: 8px;
   margin-bottom: 14px;
 }
 .roleplay-panel-highlight {
@@ -189,6 +189,33 @@
 .roleplay-actions .btn {
   flex: 1 1 160px;
 }
+.roleplay-guide-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+.roleplay-guide-grid span {
+  min-height: 58px;
+  padding: 10px;
+  border: 1px solid rgba(148,163,184,.16);
+  border-radius: 8px;
+  background: rgba(15,23,42,.54);
+  color: var(--text2);
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.35;
+}
+.roleplay-guide-grid b {
+  display: inline-flex;
+  width: 22px;
+  height: 22px;
+  align-items: center;
+  justify-content: center;
+  margin-right: 6px;
+  border-radius: 999px;
+  background: rgba(99,102,241,.22);
+  color: #c7d2fe;
+}
 .roleplay-role-selector {
   display: flex;
   align-items: center;
@@ -228,7 +255,38 @@
   justify-content: center;
 }
 
+.roleplay-conversation {
+  margin-bottom: 16px;
+  padding: 12px;
+  border: 1px solid rgba(148,163,184,.16);
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.025), rgba(255,255,255,.01)),
+    rgba(15,23,42,.52);
+}
+.roleplay-conversation-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.roleplay-conversation-head span {
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 900;
+}
+.roleplay-conversation-head b {
+  min-width: 0;
+  color: var(--text3);
+  font-size: 11px;
+  font-weight: 700;
+  text-align: right;
+}
 .dialogue-list { display: flex; flex-direction: column; gap: 14px; }
+.roleplay-comic-list {
+  gap: 16px;
+}
 .dialogue-line { display: flex; gap: 12px; }
 .dialogue-line.speaker-A { flex-direction: row-reverse; }
 .dialogue-line.speaker-N {
@@ -236,7 +294,7 @@
 }
 .dialogue-avatar {
   width: 36px; height: 36px;
-  border-radius: 50%;
+  border-radius: 12px;
   background: var(--bg3);
   display: flex; align-items: center; justify-content: center;
   font-size: 16px;
@@ -252,7 +310,29 @@
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: 16px;
-  padding: 10px 14px;
+  padding: 11px 14px 10px;
+  position: relative;
+  box-shadow: 0 10px 24px rgba(2,6,23,.16);
+}
+.dialogue-bubble::before {
+  content: '';
+  position: absolute;
+  top: 15px;
+  left: -7px;
+  width: 12px;
+  height: 12px;
+  background: inherit;
+  border-left: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  transform: rotate(45deg);
+}
+.dialogue-line.speaker-A .dialogue-bubble::before {
+  left: auto;
+  right: -7px;
+  border-left: 0;
+  border-bottom: 0;
+  border-right: 1px solid rgba(99,102,241,.3);
+  border-top: 1px solid rgba(99,102,241,.3);
 }
 .dialogue-line.speaker-A .dialogue-bubble { background: rgba(99,102,241,.12); border-color: rgba(99,102,241,.3); }
 .dialogue-line.speaker-C .dialogue-bubble { background: rgba(251,146,60,.08); border-color: rgba(251,146,60,.3); }
@@ -299,12 +379,24 @@
   padding: 3px 7px; border-left: 2px solid rgba(245,158,11,.4);
 }
 .dialogue-bubble .db-tip ruby rt { font-size: 9px; color: var(--warning); }
+.db-tools {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 7px;
+}
+.dialogue-tap-hint {
+  color: var(--text3);
+  font-size: 10px;
+  font-weight: 800;
+}
 .dialogue-bubble .db-audio {
   width: 28px;
   height: 28px;
   color: var(--text3);
   cursor: pointer;
-  margin-top: 6px;
+  margin-top: 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -335,6 +427,22 @@
 }
 
 @media (max-width: 420px) {
+  .roleplay-hero {
+    min-height: 260px;
+  }
+  .roleplay-hero-content {
+    padding: 16px;
+  }
+  .roleplay-guide-grid {
+    grid-template-columns: 1fr;
+  }
+  .roleplay-conversation-head {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .roleplay-conversation-head b {
+    text-align: left;
+  }
   .roleplay-panel-head {
     flex-direction: column;
     align-items: flex-start;
