@@ -110,9 +110,10 @@ function createAppSettings(deps = {}) {
 
   function setVoiceRoleB(key) {
     TTS.setRoleVoice('B', key);
-    TTS.setRoleVoice('C', key); // 2화자라 C도 동일
+    TTS.setRoleVoice('C', key); // C도 동일
     showToast('상대방(B) 화자 변경');
-    TTS.speak('いらっしゃいませ。', { voice: key });
+    // 매니페스트 정확 일치 (마침표 없는 어휘 형태)
+    TTS.speak('いらっしゃいませ', { voice: key });
     refreshProfile();
   }
 
