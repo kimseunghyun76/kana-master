@@ -87,10 +87,13 @@ window.TTS = (() => {
   }
 
   // ── 텍스트 정제 (서버 cleanForTTS와 동일 로직) ─────────────
+  // ・는 짧은 어휘(し・よん)에서만 분리 — 긴 문장의 나열(こ・そ・あ・ど)은 보존
   function _cleanText(text) {
     if (!text) return '';
     let t = String(text);
-    t = t.split('・')[0];
+    if (t.includes('・') && t.length < 12 && !/[「」。！？]/.test(t)) {
+      t = t.split('・')[0];
+    }
     t = t.replace(/[〜~]/g, '');
     t = t.replace(/\([^)]*\)/g, '');
     t = t.replace(/\s+/g, ' ').trim();
