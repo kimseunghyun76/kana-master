@@ -614,7 +614,7 @@ window.App = (() => {
             <div class="db-jp">${ruby(line.japanese || '')}</div>
             <div class="db-ko">${escHtml(line.korean || '')}</div>
             ${line.tip ? `<div class="db-tip">${ruby(line.tip)}</div>` : ''}
-            <span class="db-audio" onclick="event.stopPropagation(); TTS.speak('${(line.japanese||'').replace(/'/g,"\\'")}')">${_uiIconSvg('audio', 'audio-inline-icon')}</span>
+            <span class="db-audio" onclick="event.stopPropagation(); TTS.speak('${(line.japanese||'').replace(/'/g,"\\'")}', {voice: TTS.getRoleVoice('${line.speaker || 'A'}')})">${_uiIconSvg('audio', 'audio-inline-icon')}</span>
           </div>
         </div>
       `;
