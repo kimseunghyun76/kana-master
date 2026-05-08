@@ -38,12 +38,19 @@ window.createLectureFlow = (ctx) => {
   function _lectureSetVoice(key) {
     localStorage.setItem('lecture_voice', key);
     TTS.stopQueue();
-    // 현재 슬라이드 다시 읽기
+    // 현재 슬라이드 다시 읽기 + 자동 진행 콜백 유지
     const lc = _lectureState();
     if (lc && !lc.paused) {
       const slide = lc.slides[lc.idx];
+      const idx = lc.idx;
+      // 진행 중이던 타이머 정지 (재읽기 후 onDone에서 새로 스케줄)
+      if (lc.timerId) { clearTimeout(lc.timerId); lc.timerId = null; }
+      const bar = document.getElementById('lecTimerBar');
+      if (bar) bar.style.animationPlayState = 'paused';
       if (slide?.captionJp) {
-        _lecReadCaptionJp(slide.captionJp, slide.captionKo, lc.idx, () => {});
+        _lecReadCaptionJp(slide.captionJp, slide.captionKo, idx, () => _lecAfterCaptionRead(idx));
+      } else {
+        _lecStartTimer();
       }
     }
     // 셀렉트 wrap의 성별 색상/마커 갱신
@@ -207,22 +214,25 @@ window.createLectureFlow = (ctx) => {
       const current = _lectureState();
       if (!current || current.idx !== idx) return;
       if (slide.captionJp) {
-        _lecReadCaptionJp(slide.captionJp, slide.captionKo, idx, () => {
-          // TTS 완료 → 2초 후 자동 진행
-          const latest = _lectureState();
-          if (!latest || latest.paused || latest.idx !== idx) return;
-          const bar = document.getElementById('lecTimerBar');
-          if (bar) bar.style.animationPlayState = 'running';
-          lc.timerId = setTimeout(() => {
-            const active = _lectureState();
-            if (active && !active.paused && active.idx === idx) _lecNext();
-          }, 2000);
-        });
+        _lecReadCaptionJp(slide.captionJp, slide.captionKo, idx, () => _lecAfterCaptionRead(idx));
       } else {
         // captionJp 없으면 기존 타이머로 자동 진행
         _lecStartTimer();
       }
     }, animDur + 300);
+  }
+
+  // 캡션 TTS가 끝났을 때 자동 진행을 스케줄
+  function _lecAfterCaptionRead(idx) {
+    const lc = _lectureState();
+    if (!lc || lc.paused || lc.idx !== idx) return;
+    const bar = document.getElementById('lecTimerBar');
+    if (bar) bar.style.animationPlayState = 'running';
+    if (lc.timerId) clearTimeout(lc.timerId);
+    lc.timerId = setTimeout(() => {
+      const active = _lectureState();
+      if (active && !active.paused && active.idx === idx) _lecNext();
+    }, 2000);
   }
 
   // ── 칠판 한 글자씩 필기 애니메이션 ─────────────────────────
@@ -441,16 +451,8 @@ window.createLectureFlow = (ctx) => {
       const slide = lc.slides[lc.idx];
       if (slide.captionJp) {
         // 일시정지 후 재개 → captionJp 처음부터 다시 읽기
-        _lecReadCaptionJp(slide.captionJp, slide.captionKo, lc.idx, () => {
-          const current = _lectureState();
-          if (!current || current.paused || current.idx !== lc.idx) return;
-          const bar = document.getElementById('lecTimerBar');
-          if (bar) { bar.style.animationDuration = '2000ms'; bar.style.animationPlayState = 'running'; }
-          lc.timerId = setTimeout(() => {
-            const active = _lectureState();
-            if (active && !active.paused) _lecNext();
-          }, 2000);
-        });
+        const idx = lc.idx;
+        _lecReadCaptionJp(slide.captionJp, slide.captionKo, idx, () => _lecAfterCaptionRead(idx));
       } else {
         const bar = document.getElementById('lecTimerBar');
         if (bar) bar.style.animationPlayState = 'running';
