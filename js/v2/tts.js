@@ -73,6 +73,7 @@ window.TTS = (() => {
         voices:    data.voices    || FALLBACK_VOICES,
         items:     data.items     || {},
         textIndex: data.textIndex || {},
+        lectures:  data.lectures  || {},
       };
       _manifestLoaded = true;
       const itemCount = Object.keys(_manifest.items).length;
