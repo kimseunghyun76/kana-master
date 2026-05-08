@@ -395,13 +395,15 @@ window.createQuizFlow = (ctx) => {
               <div class="vc-jp">${jpHtml}</div>
             </div>
             <div class="vc-back">
-              <div class="vc-back-jp">${jpHtml}</div>
-              <div class="vc-back-meaning">${escHtml(item.korean || '')}</div>
-              ${item.english ? `<div class="vc-back-english">${escHtml(item.english)}</div>` : ''}
+              <div class="vc-back-head">
+                <div class="vc-back-jp">${jpHtml}</div>
+                <div class="vc-back-meaning">${escHtml(item.korean || '')}</div>
+                ${item.english ? `<div class="vc-back-english">${escHtml(item.english)}</div>` : ''}
+              </div>
               ${tipText ? `
-              <div class="vc-tip-block">
-                <div class="vc-tip-label">${ctx.uiIconSvg('sparkle', 'vc-tip-icon')} 팁</div>
-                <div class="vc-tip-body">${ruby(tipText)}</div>
+              <div class="vc-explain-block">
+                <div class="vc-explain-label">${ctx.uiIconSvg('sparkle', 'vc-tip-icon')} 설명</div>
+                <div class="vc-explain-body">${ruby(tipText)}</div>
               </div>` : ''}
               ${exampleText ? `
               <div class="vc-ex-block">
