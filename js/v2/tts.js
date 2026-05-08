@@ -64,8 +64,9 @@ window.TTS = (() => {
 
   async function _loadManifest() {
     try {
-      // no-cache: 브라우저 캐시는 사용하되 매번 If-Modified-Since로 검증 (304 빠름)
-      const r = await fetch(MANIFEST_URL, { cache: 'no-cache' });
+      // 캐시 우회 — 매니페스트는 콘텐츠/화자 변경 시 즉시 반영되어야 함 (~50KB gz, 1회/세션)
+      const bust = `?v=${Date.now()}`;
+      const r = await fetch(MANIFEST_URL + bust, { cache: 'no-store' });
       if (!r.ok) throw new Error(`HTTP ${r.status}`);
       const data = await r.json();
       _manifest = {
@@ -112,11 +113,12 @@ window.TTS = (() => {
   async function _speakOne(text, voiceKey) {
     if (!_enabled || !text) return;
     const id = _findId(text);
-    if (id && _manifest.voices[voiceKey]) {
+    // voiceKey가 매니페스트에 없어도 일단 mp3 URL 시도 (옛 매니페스트 캐시 대비)
+    if (id && voiceKey) {
       const ok = await _playMp3(id, voiceKey);
       if (ok) return;
     }
-    // 폴백: Web Speech
+    // 폴백: Web Speech (사전 mp3 미존재 또는 재생 실패)
     await _wsSynth(text);
   }
 
