@@ -498,8 +498,12 @@
 }
 .vc-jp {
   font-family: 'Noto Sans JP', serif;
-  /* 단어 길이에 따라 자동 — 더 크게, 짧으면 시원하게 */
-  font-size: clamp(40px, 9.5vh, 76px);
+  /* 글자수 기반 자동 축소 — 짧으면 76px, 길면 (뷰포트 너비 / 글자수)로 줄어 한 줄 유지 */
+  font-size: clamp(
+    28px,
+    min(9.5vh, calc((100vw - 60px) / var(--vc-len, 5))),
+    76px
+  );
   font-weight: 700;
   line-height: 1.25;
   color: #fff;
@@ -523,7 +527,11 @@
 }
 .vc-back-jp {
   font-family: 'Noto Sans JP', serif;
-  font-size: clamp(28px, 6.5vh, 48px);
+  font-size: clamp(
+    20px,
+    min(6.5vh, calc((100vw - 80px) / var(--vc-len, 5))),
+    48px
+  );
   font-weight: 700;
   color: #fff;
   text-align: center;

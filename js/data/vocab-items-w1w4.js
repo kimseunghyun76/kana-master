@@ -4,13 +4,20 @@
 var VOCAB_ITEMS_W1W4 = [
 
   // ── W1: 인사 단어 (basic_words) ─────────────────────────
-  { id:'w1_ohayo',      japanese:'おはようございます',   korean:'안녕하세요 (아침)',      english:'Good morning',              tip:'おはよう = 친한 사이 가벼운 표현' },
-  { id:'w1_konnichiwa', japanese:'こんにちは',           korean:'안녕하세요 (낮)',         english:'Hello / Good afternoon' },
-  { id:'w1_konbanwa',   japanese:'こんばんは',           korean:'안녕하세요 (저녁)',       english:'Good evening' },
-  { id:'w1_oyasumi',    japanese:'おやすみなさい',       korean:'잘 자요 / 안녕히 주무세요', english:'Good night',             tip:'친한 사이: おやすみ' },
-  { id:'w1_sayonara',   japanese:'さようなら',           korean:'안녕히 가세요 (작별)',   english:'Goodbye (formal farewell)', tip:'またね = 또 봐요 (가벼운 표현)' },
-  { id:'gr_hai',        japanese:'はい',                 korean:'네 / 예',               english:'Yes',                       tip:'いいえ = 아니요' },
-  { id:'gr_iie',        japanese:'いいえ',               korean:'아니요',                 english:'No' },
+  { id:'w1_ohayo',      japanese:'おはようございます',   korean:'안녕하세요 (아침)',      english:'Good morning',
+    tip:'아침에 만났을 때 쓰는 가장 정중한 인사예요. 「ございます」를 빼고 「おはよう」만 쓰면 친구·가족·연인 같은 가까운 사이의 가벼운 인사가 됩니다. 「오늘 일찍 오셨네요(お早う)」를 길게 늘인 표현이라, 회사·학교 같은 격식 있는 자리에서는 끝까지 정중하게 말하는 편이 안전합니다.' },
+  { id:'w1_konnichiwa', japanese:'こんにちは',           korean:'안녕하세요 (낮)',         english:'Hello / Good afternoon',
+    tip:'낮(대략 오전 11시~오후 5시) 시간대에 두루 쓰는 만능 인사예요. 끝의 「は」는 글자 그대로는 「하」지만 인사말 끝에서는 조사처럼 「와」로 발음합니다. 격식·일상 어디서나 통하지만, 정말 친한 친구끼리는 잘 안 쓰고 「やっほー」나 이름을 부르는 쪽이 더 자연스럽습니다.' },
+  { id:'w1_konbanwa',   japanese:'こんばんは',           korean:'안녕하세요 (저녁)',       english:'Good evening',
+    tip:'해가 진 뒤(대략 오후 5시 이후) 쓰는 저녁 인사입니다. 「こんにちは」와 마찬가지로 끝의 「は」는 「와」로 발음해요. 식당·편의점·이웃 등 누구에게나 무난하지만, 정말 늦은 밤(자정 무렵)에 누군가에게 말을 걸어야 한다면 「夜分(やぶん)に失礼します」 같은 더 조심스러운 표현으로 바꾸는 편이 좋습니다.' },
+  { id:'w1_oyasumi',    japanese:'おやすみなさい',       korean:'잘 자요 / 안녕히 주무세요', english:'Good night',
+    tip:'자기 전이나 늦은 밤에 헤어질 때 쓰는 인사예요. 가족·친구 사이에서는 「おやすみ」만으로도 충분하지만, 손윗사람·연인의 부모님 등에게는 「なさい」까지 붙여 정중하게 말합니다. 통화나 메신저의 끝맺음 인사로도 자주 등장하기 때문에, 밤 시간대 작별 표현으로 기억해 두면 편합니다.' },
+  { id:'w1_sayonara',   japanese:'さようなら',           korean:'안녕히 가세요 (작별)',   english:'Goodbye (formal farewell)',
+    tip:'꽤 격식 있고 무거운 작별 인사예요. 일상에서는 「오랫동안 못 볼 것 같다」는 느낌이 강해서 친구끼리는 거의 쓰지 않고, 학생이 선생님께·환자가 의사에게 같은 정중한 자리에서 더 자연스럽습니다. 일상에서는 「またね(또 봐)」 「じゃあね(잘 가)」 「バイバイ」가 압도적으로 많이 쓰여요.' },
+  { id:'gr_hai',        japanese:'はい',                 korean:'네 / 예',               english:'Yes',
+    tip:'동의·대답·허락을 모두 포함하는 가장 기본 「네」예요. 호명되었을 때 「はい！」, 부탁받았을 때 「はい、わかりました」, 통화에서 「はい、もしもし」처럼 어디서나 첫마디로 등장합니다. 짧은 「うん」은 친한 사이에서만 쓰고, 공식 자리에서는 반드시 「はい」로 답하는 것이 매너입니다.' },
+  { id:'gr_iie',        japanese:'いいえ',               korean:'아니요',                 english:'No',
+    tip:'정중한 부정 표현이에요. 칭찬이나 감사를 들었을 때 「いいえ、こちらこそ(아닙니다, 저야말로)」처럼 겸손의 의미로도 자주 씁니다. 친한 사이에서는 「ううん」을 더 많이 쓰지만, 처음 만난 사람이나 일터에서는 「いいえ」 또는 「いえ、違います」 형태가 안전합니다.' },
 
   // ── W1: 필수 표현어 (essential_phrases) ─────────────────
   { id:'gr_arigatou',   japanese:'ありがとうございます',  korean:'감사합니다 (정중)',              english:'Thank you very much',            tip:'ありがとう만도 OK (가벼운 감사)' },
