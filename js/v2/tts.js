@@ -31,8 +31,9 @@ window.TTS = (() => {
   // ── 상태 ─────────────────────────────────────────────────
   let _enabled        = true;
   let _rate           = 1.0;
-  let _manifest       = { voices: FALLBACK_VOICES, items: {}, textIndex: {} };
+  let _manifest       = { voices: FALLBACK_VOICES, items: {}, textIndex: {}, lectures: {} };
   let _manifestLoaded = false;
+  let _normIndex      = null; // 구두점 제거 인덱스 (lazy)
   let _wsVoice        = null;
   let _currentAudio   = null;
   let _queueRunning   = false;
@@ -75,6 +76,7 @@ window.TTS = (() => {
         textIndex: data.textIndex || {},
         lectures:  data.lectures  || {},
       };
+      _normIndex = null; // lazy 재빌드
       _manifestLoaded = true;
       const itemCount = Object.keys(_manifest.items).length;
       const voiceCount = Object.keys(_manifest.voices).length;
@@ -95,6 +97,11 @@ window.TTS = (() => {
     return t;
   }
 
+  // 일본어 문장끝/구두점 제거 (매니페스트 매칭 폴백용)
+  function _stripPunct(s) {
+    return String(s || '').replace(/[。、！？!?,.…〜~・「」『』（）()【】\s]+/g, '').trim();
+  }
+
   function _findId(text) {
     if (!_manifestLoaded) return null;
     // 1) 원본 그대로
@@ -107,6 +114,19 @@ window.TTS = (() => {
     // 3) 서버와 동일한 정제 후
     const cleaned = _cleanText(text);
     if (cleaned && _manifest.textIndex[cleaned]) return _manifest.textIndex[cleaned];
+    // 4) 구두점·공백 모두 제거하여 textIndex의 어떤 키와 매치하는지 검사 (느슨한 매칭)
+    const noPunct = _stripPunct(cleaned || text);
+    if (noPunct) {
+      // 캐시된 정규화 인덱스 사용
+      if (!_normIndex) {
+        _normIndex = {};
+        for (const [k, v] of Object.entries(_manifest.textIndex)) {
+          const nk = _stripPunct(k);
+          if (nk && !_normIndex[nk]) _normIndex[nk] = v;
+        }
+      }
+      if (_normIndex[noPunct]) return _normIndex[noPunct];
+    }
     return null;
   }
 
