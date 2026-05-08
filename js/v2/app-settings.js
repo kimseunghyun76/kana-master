@@ -21,120 +21,101 @@ function createAppSettings(deps = {}) {
   }
 
   function buildTTSSettingsHtml() {
-    const engine = TTS.getEngineName();
-    let html = `
-      <div style="font-size:12px;color:var(--text3);margin-bottom:10px">
-        현재 엔진: <strong style="color:var(--accent2)">${escHtml(engine)}</strong>
-      </div>
+    const engine  = TTS.getEngineName();
+    const voices  = TTS.getAvailableVoices();
+    const curDef  = TTS.getDefaultVoice();
+    const curA    = TTS.getRoleVoice('A');
+    const curB    = TTS.getRoleVoice('B');
+    const stats   = TTS.getStats();
+
+    // 화자 버튼 (성별별 색상, active 상태 강조)
+    const btnStyle = (active, gender) => `
+      flex:1 1 auto;min-width:0;padding:9px 8px;border-radius:9px;cursor:pointer;
+      font-size:12px;font-weight:600;line-height:1.2;
+      background:${active ? (gender==='F' ? '#ec4899' : '#3b82f6') : 'var(--bg3)'};
+      color:${active ? '#fff' : 'var(--text)'};
+      border:1px solid ${active ? (gender==='F' ? '#ec4899' : '#3b82f6') : 'var(--border)'};
+      transition:background .15s, border-color .15s;
     `;
 
-    if (TTS.isVoicevox()) {
-      const speakers = TTS.getVoicevoxSpeakers();
-      const curA = TTS.getVoicevoxSpeakerId();
-      const curB = TTS.getVoicevoxSpeakerBId();
-      const curC = TTS.getVoicevoxSpeakerCId();
-      const opts = speakers.map(s => ({ id: s.id, name: s.name }));
-      const makeSelect = (id, onChange, cur) =>
-        `<select id="${id}" onchange="${onChange}(this.value)"
-           style="width:100%;padding:8px 10px;background:var(--bg3);border:1px solid var(--border);
-                  border-radius:10px;color:var(--text);font-size:12px;cursor:pointer;margin-bottom:4px">
-           ${opts.map(s => `<option value="${s.id}" ${s.id === cur ? 'selected' : ''}>${escHtml(s.name)}</option>`).join('')}
-         </select>`;
-      html += `
-        <div style="margin-bottom:12px">
-          <div style="font-size:12px;color:var(--text2);margin-bottom:8px;font-weight:600">
-            VOICEVOX 화자 (롤플레이 다화자)
-          </div>
-          <div style="display:grid;gap:8px">
-            <div>
-              <div style="font-size:11px;color:var(--accent2);margin-bottom:3px">화자 A — 나 (학습자)</div>
-              ${makeSelect('vvSpeakerA', 'App.setVoicevoxSpeakerA', curA)}
-              <button onclick="TTS.speak('よろしくお願いします', {speakerId:${curA}})"
-                style="width:100%;padding:7px;background:var(--bg3);border:1px solid var(--border);
-                       border-radius:8px;color:var(--text);font-size:12px;cursor:pointer">테스트 재생</button>
+    // 한 행: 라벨 + (여성 그룹 + 남성 그룹) + 테스트 재생
+    const makeRow = (label, color, currentKey, setterFn, testText) => {
+      const females = voices.filter(v => v.gender === 'F');
+      const males   = voices.filter(v => v.gender === 'M');
+      if (!females.length && !males.length) return '';
+      const renderGroup = (list, genderTag, genderLabel) => {
+        if (!list.length) return '';
+        return `
+          <div style="display:flex;flex-direction:column;gap:4px;flex:${list.length};min-width:0">
+            <div style="font-size:10px;color:var(--text3);font-weight:700;letter-spacing:1px;padding:0 2px">
+              ${genderLabel}
             </div>
-            <div>
-              <div style="font-size:11px;color:#34d399;margin-bottom:3px">화자 B — 상대방</div>
-              ${makeSelect('vvSpeakerB', 'App.setVoicevoxSpeakerB', curB)}
-              <button onclick="TTS.speak('いらっしゃいませ。', {speakerId:${curB}})"
-                style="width:100%;padding:7px;background:var(--bg3);border:1px solid var(--border);
-                       border-radius:8px;color:var(--text);font-size:12px;cursor:pointer">테스트 재생</button>
-            </div>
-            <div>
-              <div style="font-size:11px;color:#fb923c;margin-bottom:3px">화자 C — 제3자/점원</div>
-              ${makeSelect('vvSpeakerC', 'App.setVoicevoxSpeakerC', curC)}
-              <button onclick="TTS.speak('かしこまりました。', {speakerId:${curC}})"
-                style="width:100%;padding:7px;background:var(--bg3);border:1px solid var(--border);
-                       border-radius:8px;color:var(--text);font-size:12px;cursor:pointer">테스트 재생</button>
+            <div style="display:flex;gap:5px">
+              ${list.map(v =>
+                `<button onclick="${setterFn}('${v.key}')" style="${btnStyle(currentKey === v.key, genderTag)}" title="${escHtml(v.label)}">
+                   ${escHtml(v.label.split(' ')[0])}
+                 </button>`
+              ).join('')}
             </div>
           </div>
-        </div>
-      `;
-    } else if (TTS.isEdgeTts()) {
-      const voices = TTS.getEdgeVoices();
-      const curV = TTS.getEdgeVoice();
-      html += `
-        <div style="margin-bottom:12px">
-          <div style="font-size:12px;color:var(--text2);margin-bottom:6px;font-weight:600">
-            Edge TTS 음성
+        `;
+      };
+      return `
+        <div style="margin-bottom:14px">
+          <div style="font-size:12px;color:${color};margin-bottom:6px;font-weight:600">${escHtml(label)}</div>
+          <div style="display:flex;gap:8px;align-items:flex-end;margin-bottom:6px">
+            ${renderGroup(females, 'F', '여성')}
+            ${renderGroup(males,   'M', '남성')}
           </div>
-          <select id="edgeVoiceSelect" onchange="App.setEdgeTTSVoice(this.value)"
-            style="width:100%;padding:10px 12px;background:var(--bg3);border:1px solid var(--border);
-                   border-radius:10px;color:var(--text);font-size:13px;cursor:pointer">
-            ${voices.map(v =>
-              `<option value="${v.id}" ${v.id === curV ? 'selected' : ''}>${escHtml(v.name)}</option>`
-            ).join('')}
-          </select>
-          <button onclick="TTS.speak('おはようございます')"
-            style="margin-top:8px;width:100%;padding:9px;background:var(--bg3);
-                   border:1px solid var(--border);border-radius:10px;color:var(--text);
-                   font-size:13px;cursor:pointer">
-            테스트 재생
+          <button onclick="TTS.speak('${testText}', {voice:'${currentKey}'})"
+            style="width:100%;padding:7px;background:var(--bg3);border:1px solid var(--border);
+                   border-radius:8px;color:var(--text2);font-size:12px;cursor:pointer">
+            🔊 테스트 재생
           </button>
         </div>
       `;
-    } else {
+    };
+
+    let html = `
+      <div style="font-size:12px;color:var(--text3);margin-bottom:12px">
+        엔진: <strong style="color:var(--accent2)">${escHtml(engine)}</strong>
+        ${stats.manifestLoaded ? ` · 사전생성 ${stats.itemCount}개 단어` : ''}
+      </div>
+      ${makeRow('🎯 기본 발음 (단어/문장 듣기)',  'var(--accent2)', curDef, 'App.setVoiceDefault', 'おはようございます')}
+      ${makeRow('🧑‍🎓 롤플레이 — 나 (학습자)',     '#34d399',         curA,   'App.setVoiceRoleA',  'よろしくお願いします')}
+      ${makeRow('💬 롤플레이 — 상대방 (점원·친구)', '#fb923c',         curB,   'App.setVoiceRoleB',  'いらっしゃいませ。')}
+    `;
+
+    if (!stats.manifestLoaded) {
       html += `
-        <div style="font-size:13px;color:var(--text3);padding:10px 0">
-          브라우저 기본 음성: <strong>${escHtml(TTS.getWebSpeechVoiceName())}</strong><br>
-          <span style="font-size:11px;margin-top:6px;display:block">
-            더 좋은 음질을 원하면 VOICEVOX를 설치하세요.<br>
-            <a href="https://voicevox.hiroshiba.jp" target="_blank"
-               style="color:var(--accent)">voicevox.hiroshiba.jp</a>
-          </span>
+        <div style="font-size:11px;color:var(--text3);padding:8px;background:var(--bg3);border-radius:8px;margin-top:8px">
+          ⚠️ 사전 생성된 음성을 불러오지 못했습니다. 브라우저 기본(${escHtml(TTS.getWebSpeechVoiceName())})으로 재생됩니다.
         </div>
       `;
     }
     return html;
   }
 
-  function setVoicevoxSpeaker(id) {
-    TTS.setVoicevoxSpeaker(id);
-    showToast('화자 A 변경됨');
+  function setVoiceDefault(key) {
+    TTS.setDefaultVoice(key);
+    showToast('기본 발음 화자 변경');
+    TTS.speak('おはようございます', { voice: key });
+    refreshProfile();
   }
 
-  function setVoicevoxSpeakerA(id) {
-    TTS.setVoicevoxSpeaker(id);
-    showToast('화자 A 변경됨');
-    TTS.speak('よろしくお願いします', { speakerId: parseInt(id) });
+  function setVoiceRoleA(key) {
+    TTS.setRoleVoice('A', key);
+    showToast('나(A) 화자 변경');
+    TTS.speak('よろしくお願いします', { voice: key });
+    refreshProfile();
   }
 
-  function setVoicevoxSpeakerB(id) {
-    TTS.setVoicevoxSpeakerB(id);
-    showToast('화자 B 변경됨');
-    TTS.speak('いらっしゃいませ。', { speakerId: parseInt(id) });
-  }
-
-  function setVoicevoxSpeakerC(id) {
-    TTS.setVoicevoxSpeakerC(id);
-    showToast('화자 C 변경됨');
-    TTS.speak('かしこまりました。', { speakerId: parseInt(id) });
-  }
-
-  function setEdgeTTSVoice(v) {
-    TTS.setEdgeVoice(v);
-    showToast('음성 변경됨');
-    TTS.speak('はじめまして。よろしくお願いします。');
+  function setVoiceRoleB(key) {
+    TTS.setRoleVoice('B', key);
+    TTS.setRoleVoice('C', key); // 2화자라 C도 동일
+    showToast('상대방(B) 화자 변경');
+    TTS.speak('いらっしゃいませ。', { voice: key });
+    refreshProfile();
   }
 
   function devMenu() {
@@ -269,11 +250,9 @@ function createAppSettings(deps = {}) {
 
   return {
     buildTTSSettingsHtml,
-    setVoicevoxSpeaker,
-    setVoicevoxSpeakerA,
-    setVoicevoxSpeakerB,
-    setVoicevoxSpeakerC,
-    setEdgeTTSVoice,
+    setVoiceDefault,
+    setVoiceRoleA,
+    setVoiceRoleB,
     devMenu,
     devAddXP,
     devSkipCurrentStep,

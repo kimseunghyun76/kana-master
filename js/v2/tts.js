@@ -1,48 +1,57 @@
 /* ============================================================
-   TTS — 3-Stage Text-to-Speech
-   1단계: VOICEVOX  (localhost:50021) — 최고 품질
-   2단계: Edge TTS  (localhost:5050)  — Microsoft 신경망 TTS
-   3단계: Web Speech API             — 브라우저 폴백
-   + speakQueue(): 롤플레이 다중 화자 순차 재생
+   TTS v2 — 사전생성 mp3 우선, Web Speech 폴백
+   ─────────────────────────────────────────────────────────────
+   1순위: /public/audio/{voice}/{id}.mp3 (Azure Neural TTS 프리렌더)
+   2순위: Web Speech API (가나/임의 텍스트용)
+   ─────────────────────────────────────────────────────────────
+   화자 7종: 여 nanami/aoi/mayu/shiori, 남 keita/daichi/naoki
+   롤플레이 라인 speaker: 'A' 학습자 / 'B' 상대방 / 'C' 제3자 / 'N' 나레이터→A
    ============================================================ */
 
 'use strict';
 
 window.TTS = (() => {
-  // ── Config ──────────────────────────────────────────────
-  const VOICEVOX_URL  = 'http://localhost:50021';
-  const EDGE_TTS_URL  = 'http://localhost:5050';
-  const TIMEOUT_MS    = 3000;
-  const VV_SPEAKER_DEFAULT_A = 3;   // ずんだもん ノーマル
-  const VV_SPEAKER_DEFAULT_B = 8;   // 春日部つむぎ ノーマル
-  const VV_SPEAKER_DEFAULT_C = 2;   // 四国めたん ノーマル
-  const EDGE_VOICE_DEFAULT   = 'ja-JP-NanamiNeural';
+  // ── 설정 ─────────────────────────────────────────────────
+  const MANIFEST_URL = 'public/audio/manifest.json';
+  const AUDIO_BASE   = 'public/audio';
 
-  // ── State ────────────────────────────────────────────────
-  let _enabled       = true;
-  let _rate          = 1.0;
-  let _vvAvailable   = false;
-  let _edgeAvailable = false;
-  let _wsVoice       = null;
-  let _currentAudio  = null;
-  let _queueRunning  = false;   // speakQueue 실행 중 플래그
-  let _queueStop     = false;   // 큐 중단 신호
+  const FALLBACK_VOICES = {
+    nanami: { name: 'ja-JP-NanamiNeural', label: '나나미', gender: 'F' },
+    aoi:    { name: 'ja-JP-AoiNeural',    label: '아오이', gender: 'F' },
+    mayu:   { name: 'ja-JP-MayuNeural',   label: '마유',   gender: 'F' },
+    keita:  { name: 'ja-JP-KeitaNeural',  label: '케이타', gender: 'M' },
+  };
 
-  let _vvSpeakers  = [];
-  let _vvSpeakerA  = parseInt(localStorage.getItem('tts_vv_speaker')   ?? String(VV_SPEAKER_DEFAULT_A));
-  let _vvSpeakerB  = parseInt(localStorage.getItem('tts_vv_speaker_b') ?? String(VV_SPEAKER_DEFAULT_B));
-  let _vvSpeakerC  = parseInt(localStorage.getItem('tts_vv_speaker_c') ?? String(VV_SPEAKER_DEFAULT_C));
-  let _edgeVoice   = localStorage.getItem('tts_edge_voice') ?? EDGE_VOICE_DEFAULT;
+  // 기본값
+  const DEFAULT_VOICE = 'nanami';
+  const DEFAULT_A     = 'nanami';   // 학습자 (여)
+  const DEFAULT_B     = 'keita';    // 상대방 (남)
+  const DEFAULT_C     = 'keita';    // 제3자/점원 (남)
 
-  // ── Init ─────────────────────────────────────────────────
+  // ── 상태 ─────────────────────────────────────────────────
+  let _enabled        = true;
+  let _rate           = 1.0;
+  let _manifest       = { voices: FALLBACK_VOICES, items: {}, textIndex: {} };
+  let _manifestLoaded = false;
+  let _wsVoice        = null;
+  let _currentAudio   = null;
+  let _queueRunning   = false;
+  let _queueStop      = false;
+
+  let _voiceDefault = localStorage.getItem('tts_voice_default') || DEFAULT_VOICE;
+  let _voiceA       = localStorage.getItem('tts_voice_a')       || DEFAULT_A;
+  let _voiceB       = localStorage.getItem('tts_voice_b')       || DEFAULT_B;
+  let _voiceC       = localStorage.getItem('tts_voice_c')       || DEFAULT_C;
+
+  // ── 초기화 ────────────────────────────────────────────────
   async function init() {
     if (window.speechSynthesis) {
       _loadWsVoice();
       window.speechSynthesis.onvoiceschanged = _loadWsVoice;
     } else {
-      _enabled = false;
+      console.warn('[TTS] speechSynthesis 없음 — 폴백 불가');
     }
-    await Promise.all([_checkVoicevox(), _checkEdgeTts()]);
+    await _loadManifest();
   }
 
   function _loadWsVoice() {
@@ -53,111 +62,87 @@ window.TTS = (() => {
             || null;
   }
 
-  async function _checkVoicevox() {
+  async function _loadManifest() {
     try {
-      const ctrl = new AbortController();
-      setTimeout(() => ctrl.abort(), TIMEOUT_MS);
-      const r = await fetch(`${VOICEVOX_URL}/speakers`, { signal: ctrl.signal });
-      if (r.ok) {
-        _vvAvailable = true;
-        const data = await r.json();
-        _vvSpeakers = [];
-        data.forEach(sp => {
-          (sp.styles || []).forEach(style => {
-            _vvSpeakers.push({ id: style.id, name: `${sp.name} (${style.name})` });
-          });
-        });
-        // 저장된 화자가 없으면 기본값
-        if (!_vvSpeakers.find(s => s.id === _vvSpeakerA) && _vvSpeakers.length)
-          _vvSpeakerA = _vvSpeakers[0].id;
-        if (!_vvSpeakers.find(s => s.id === _vvSpeakerB) && _vvSpeakers.length > 1)
-          _vvSpeakerB = _vvSpeakers[1].id;
-        if (!_vvSpeakers.find(s => s.id === _vvSpeakerC) && _vvSpeakers.length > 2)
-          _vvSpeakerC = _vvSpeakers[2].id;
-      }
-    } catch { _vvAvailable = false; }
-    console.log(`[TTS] VOICEVOX: ${_vvAvailable ? '✅ ' + _vvSpeakers.length + '명' : '❌'}`);
+      // no-cache: 브라우저 캐시는 사용하되 매번 If-Modified-Since로 검증 (304 빠름)
+      const r = await fetch(MANIFEST_URL, { cache: 'no-cache' });
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      const data = await r.json();
+      _manifest = {
+        voices:    data.voices    || FALLBACK_VOICES,
+        items:     data.items     || {},
+        textIndex: data.textIndex || {},
+      };
+      _manifestLoaded = true;
+      const itemCount = Object.keys(_manifest.items).length;
+      const voiceCount = Object.keys(_manifest.voices).length;
+      console.log(`[TTS] 매니페스트 로드: ${itemCount}개 아이템 × ${voiceCount}화자`);
+    } catch (e) {
+      console.warn('[TTS] 매니페스트 로드 실패, Web Speech 폴백 사용:', e.message);
+    }
   }
 
-  async function _checkEdgeTts() {
-    try {
-      const ctrl = new AbortController();
-      setTimeout(() => ctrl.abort(), TIMEOUT_MS);
-      const r = await fetch(`${EDGE_TTS_URL}/health`, { signal: ctrl.signal });
-      _edgeAvailable = r.ok;
-    } catch { _edgeAvailable = false; }
-    console.log(`[TTS] Edge TTS: ${_edgeAvailable ? '✅' : '❌'}`);
+  // ── 텍스트 정제 (서버 cleanForTTS와 동일 로직) ─────────────
+  function _cleanText(text) {
+    if (!text) return '';
+    let t = String(text);
+    t = t.split('・')[0];
+    t = t.replace(/[〜~]/g, '');
+    t = t.replace(/\([^)]*\)/g, '');
+    t = t.replace(/\s+/g, ' ').trim();
+    return t;
   }
 
-  // ── 단일 발화 (Promise 반환 — 완료 시 resolve) ────────────
-  async function _speakOne(text, speakerId) {
+  function _findId(text) {
+    if (!_manifestLoaded) return null;
+    // 1) 원본 그대로
+    if (_manifest.textIndex[text]) return _manifest.textIndex[text];
+    // 2) 후리가나 제거 후
+    if (typeof window.stripFuri === 'function') {
+      const stripped = window.stripFuri(text);
+      if (stripped && _manifest.textIndex[stripped]) return _manifest.textIndex[stripped];
+    }
+    // 3) 서버와 동일한 정제 후
+    const cleaned = _cleanText(text);
+    if (cleaned && _manifest.textIndex[cleaned]) return _manifest.textIndex[cleaned];
+    return null;
+  }
+
+  // ── 단일 발화 (Promise 반환) ─────────────────────────────
+  async function _speakOne(text, voiceKey) {
     if (!_enabled || !text) return;
-    if (_vvAvailable) {
-      const ok = await _vvSynth(text, speakerId ?? _vvSpeakerA);
+    const id = _findId(text);
+    if (id && _manifest.voices[voiceKey]) {
+      const ok = await _playMp3(id, voiceKey);
       if (ok) return;
     }
-    if (_edgeAvailable) {
-      const ok = await _edgeSynth(text);
-      if (ok) return;
-    }
+    // 폴백: Web Speech
     await _wsSynth(text);
   }
 
-  async function _vvSynth(text, speakerId) {
-    return new Promise(async resolve => {
+  function _playMp3(id, voiceKey) {
+    return new Promise(resolve => {
       try {
-        const c1 = new AbortController();
-        setTimeout(() => c1.abort(), TIMEOUT_MS);
-        const qRes = await fetch(
-          `${VOICEVOX_URL}/audio_query?text=${encodeURIComponent(text)}&speaker=${speakerId}`,
-          { method: 'POST', signal: c1.signal }
-        );
-        if (!qRes.ok) { resolve(false); return; }
-        const query = await qRes.json();
-        query.speedScale = _rate;
-
-        const c2 = new AbortController();
-        setTimeout(() => c2.abort(), TIMEOUT_MS * 4);
-        const sRes = await fetch(
-          `${VOICEVOX_URL}/synthesis?speaker=${speakerId}`,
-          { method: 'POST', headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(query), signal: c2.signal }
-        );
-        if (!sRes.ok) { resolve(false); return; }
-
-        const blob = await sRes.blob();
-        const url  = URL.createObjectURL(blob);
-        _currentAudio = new Audio(url);
-        _currentAudio.onended  = () => { URL.revokeObjectURL(url); resolve(true); };
-        _currentAudio.onerror  = () => { URL.revokeObjectURL(url); resolve(false); };
-        await _currentAudio.play();
-      } catch(e) {
-        console.warn('[TTS] VV 실패:', e.message);
+        const url = `${AUDIO_BASE}/${voiceKey}/${encodeURIComponent(id)}.mp3`;
+        const audio = new Audio(url);
+        audio.playbackRate = _rate;
+        _currentAudio = audio;
+        audio.onended = () => resolve(true);
+        audio.onerror = () => {
+          console.warn(`[TTS] mp3 재생 실패: ${url}`);
+          resolve(false);
+        };
+        audio.play().catch(e => {
+          console.warn('[TTS] play() 거부:', e.message);
+          resolve(false);
+        });
+      } catch (e) {
         resolve(false);
       }
     });
   }
 
-  async function _edgeSynth(text) {
-    return new Promise(async resolve => {
-      try {
-        const rate = Math.round((_rate - 1) * 100);
-        const url  = `${EDGE_TTS_URL}/synthesize?text=${encodeURIComponent(text)}&voice=${_edgeVoice}&rate=${rate}`;
-        const c = new AbortController();
-        setTimeout(() => c.abort(), TIMEOUT_MS * 4);
-        const res = await fetch(url, { signal: c.signal });
-        if (!res.ok) { resolve(false); return; }
-        const blob = await res.blob();
-        const au   = URL.createObjectURL(blob);
-        _currentAudio = new Audio(au);
-        _currentAudio.onended = () => { URL.revokeObjectURL(au); resolve(true); };
-        _currentAudio.onerror = () => { URL.revokeObjectURL(au); resolve(false); };
-        await _currentAudio.play();
-      } catch { resolve(false); }
-    });
-  }
-
-  async function _wsSynth(text) {
+  function _wsSynth(text) {
     return new Promise(resolve => {
       if (!window.speechSynthesis) { resolve(); return; }
       const utter = new SpeechSynthesisUtterance(text);
@@ -171,19 +156,19 @@ window.TTS = (() => {
   }
 
   // ── 공개 speak() ─────────────────────────────────────────
+  // options.voice = 'nanami'|'keita'|...  (없으면 기본 화자)
+  // options.speakerId = (legacy, 무시)
   async function speak(text, options = {}) {
     if (!_enabled || !text) return;
     stopQueue();
     stop();
-    // Strip furigana if the utility is available
     const cleanText = typeof window.stripFuri === 'function' ? window.stripFuri(text) : text;
-    const sid = options.speakerId ?? _vvSpeakerA;
-    await _speakOne(cleanText, sid);
+    const voiceKey = options.voice || _voiceDefault;
+    await _speakOne(cleanText, voiceKey);
   }
 
-  // ── 순차 큐 재생 (롤플레이용) ─────────────────────────────
-  // lines: [{ text, speaker:'A'|'B'|'N', elementId }]
-  // callbacks: { onLineStart(idx, line), onLineEnd(idx, line), onDone() }
+  // ── 순차 큐 (롤플레이/렉처) ─────────────────────────────
+  // lines: [{ text, speaker:'A'|'B'|'C'|'N', elementId? }]
   async function speakQueue(lines, callbacks = {}) {
     stopQueue();
     _queueRunning = true;
@@ -194,21 +179,30 @@ window.TTS = (() => {
       const line = lines[i];
       if (!line.text) continue;
 
-      // 화자 ID 결정 (A=학습자, B=상대방, C=제3자/점원 등, N=나레이터→A목소리)
-      const sid = line.speaker === 'B' ? _vvSpeakerB
-                : line.speaker === 'C' ? _vvSpeakerC
-                : _vvSpeakerA;
+      // line.voice가 있으면 우선, 없으면 speaker 역할로 매핑
+      const voiceKey = line.voice || _resolveRoleVoice(line.speaker);
 
       if (callbacks.onLineStart) callbacks.onLineStart(i, line);
-      const cleanLineText = typeof window.stripFuri === 'function' ? window.stripFuri(line.text) : line.text;
-      await _speakOne(cleanLineText, sid);
+      const cleanLineText = typeof window.stripFuri === 'function'
+        ? window.stripFuri(line.text) : line.text;
+      await _speakOne(cleanLineText, voiceKey);
       if (callbacks.onLineEnd) callbacks.onLineEnd(i, line);
 
-      if (!_queueStop) await _delay(250); // 라인 사이 짧은 쉬어가기
+      if (!_queueStop) await _delay(80);
     }
 
     _queueRunning = false;
     if (!_queueStop && callbacks.onDone) callbacks.onDone();
+  }
+
+  function _resolveRoleVoice(speaker) {
+    switch (speaker) {
+      case 'B': return _voiceB;
+      case 'C': return _voiceC;
+      case 'A':
+      case 'N':
+      default:  return _voiceA;
+    }
   }
 
   function stopQueue() {
@@ -219,72 +213,107 @@ window.TTS = (() => {
 
   function isQueueRunning() { return _queueRunning; }
 
-  // ── Controls ──────────────────────────────────────────────
+  // ── 컨트롤 ──────────────────────────────────────────────
   function stop() {
     if (_currentAudio) {
-      _currentAudio.pause();
-      _currentAudio.currentTime = 0;
+      try { _currentAudio.pause(); _currentAudio.currentTime = 0; } catch(_) {}
       _currentAudio = null;
     }
     window.speechSynthesis?.cancel();
   }
 
   function setRate(r) { _rate = Math.max(0.5, Math.min(2.0, r)); }
-  function getRate() { return _rate; }
+  function getRate()  { return _rate; }
 
-  // ── Speaker Settings ──────────────────────────────────────
-  function getVoicevoxSpeakers()   { return _vvSpeakers; }
-  function getVoicevoxSpeakerId()  { return _vvSpeakerA; }
-  function getVoicevoxSpeakerBId() { return _vvSpeakerB; }
-  function getVoicevoxSpeakerCId() { return _vvSpeakerC; }
-
-  function setVoicevoxSpeaker(id) {
-    _vvSpeakerA = parseInt(id);
-    localStorage.setItem('tts_vv_speaker', String(_vvSpeakerA));
-  }
-  function setVoicevoxSpeakerB(id) {
-    _vvSpeakerB = parseInt(id);
-    localStorage.setItem('tts_vv_speaker_b', String(_vvSpeakerB));
-  }
-  function setVoicevoxSpeakerC(id) {
-    _vvSpeakerC = parseInt(id);
-    localStorage.setItem('tts_vv_speaker_c', String(_vvSpeakerC));
+  // ── 화자 설정 API ───────────────────────────────────────
+  function getAvailableVoices() {
+    // [{ key, name, label, gender }]
+    return Object.entries(_manifest.voices).map(([key, v]) => ({
+      key, name: v.name, label: v.label, gender: v.gender || 'F',
+    }));
   }
 
-  const EDGE_VOICES = [
-    { id: 'ja-JP-NanamiNeural', name: 'Nanami (여성, 권장)' },
-    { id: 'ja-JP-KeitaNeural',  name: 'Keita (남성)' },
-    { id: 'ja-JP-AoiNeural',    name: 'Aoi (여성)' },
-    { id: 'ja-JP-MayuNeural',   name: 'Mayu (여성)' },
-    { id: 'ja-JP-NaokiNeural',  name: 'Naoki (남성)' },
-  ];
-  function getEdgeVoices() { return EDGE_VOICES; }
-  function getEdgeVoice()  { return _edgeVoice; }
-  function setEdgeVoice(v) {
-    _edgeVoice = v;
-    localStorage.setItem('tts_edge_voice', v);
+  function getDefaultVoice() { return _voiceDefault; }
+  function setDefaultVoice(key) {
+    if (!_manifest.voices[key]) return;
+    _voiceDefault = key;
+    localStorage.setItem('tts_voice_default', key);
+  }
+
+  function getRoleVoice(role) {
+    return role === 'B' ? _voiceB
+         : role === 'C' ? _voiceC
+         : _voiceA;
+  }
+  function setRoleVoice(role, key) {
+    if (!_manifest.voices[key]) return;
+    if (role === 'A') { _voiceA = key; localStorage.setItem('tts_voice_a', key); }
+    else if (role === 'B') { _voiceB = key; localStorage.setItem('tts_voice_b', key); }
+    else if (role === 'C') { _voiceC = key; localStorage.setItem('tts_voice_c', key); }
+  }
+
+  // ── 상태 조회 ───────────────────────────────────────────
+  function isEnabled()         { return _enabled; }
+  function isManifestLoaded()  { return _manifestLoaded; }
+  function getEngineName() {
+    return _manifestLoaded ? 'Azure Neural (프리렌더) 🎙️' : 'Web Speech 🔊';
   }
   function getWebSpeechVoiceName() { return _wsVoice?.name ?? '브라우저 기본'; }
 
-  function isEnabled()    { return _enabled; }
-  function isVoicevox()   { return _vvAvailable; }
-  function isEdgeTts()    { return _edgeAvailable; }
-  function getEngineName() {
-    if (_vvAvailable)   return 'VOICEVOX 🎙️';
-    if (_edgeAvailable) return 'Edge TTS 🌐';
-    return 'Web Speech 🔊';
+  // ── 강의 단일 mp3 재생 (가갭리스) ────────────────────────
+  function hasLectureAudio(lectureKey, slideIdx) {
+    if (!_manifestLoaded || !_manifest.lectures) return false;
+    return !!_manifest.lectures[`${lectureKey}_${slideIdx}`];
   }
 
-  // ── Util ─────────────────────────────────────────────────
+  function playLectureAudio(lectureKey, slideIdx, voiceKey, callbacks = {}) {
+    stopQueue();
+    stop();
+    const id = _manifest.lectures?.[`${lectureKey}_${slideIdx}`];
+    if (!id) { callbacks.onDone?.(); return; }
+    const url = `${AUDIO_BASE}/${voiceKey}/${encodeURIComponent(id)}.mp3`;
+    const audio = new Audio(url);
+    audio.playbackRate = _rate;
+    _currentAudio = audio;
+    let raf = 0;
+    const tick = () => {
+      if (audio.duration && !audio.paused && !audio.ended) {
+        callbacks.onProgress?.(audio.currentTime / audio.duration);
+        raf = requestAnimationFrame(tick);
+      }
+    };
+    audio.onplay  = () => { raf = requestAnimationFrame(tick); };
+    audio.onended = () => { cancelAnimationFrame(raf); callbacks.onDone?.(); };
+    audio.onerror = () => { cancelAnimationFrame(raf); console.warn('[TTS] 강의 mp3 실패:', url); callbacks.onDone?.(); };
+    audio.play().catch(e => {
+      console.warn('[TTS] 강의 play() 거부:', e.message);
+      callbacks.onDone?.();
+    });
+  }
+
+  // ── 매니페스트 통계 (디버깅) ─────────────────────────────
+  function getStats() {
+    return {
+      manifestLoaded: _manifestLoaded,
+      itemCount: Object.keys(_manifest.items).length,
+      voiceCount: Object.keys(_manifest.voices).length,
+    };
+  }
+
+  // ── Util ────────────────────────────────────────────────
   function _delay(ms) { return new Promise(r => setTimeout(r, ms)); }
 
   return {
+    // 핵심
     init, speak, stop, setRate, getRate,
     speakQueue, stopQueue, isQueueRunning,
-    isEnabled, isVoicevox, isEdgeTts, getEngineName,
-    getVoicevoxSpeakers,
-    getVoicevoxSpeakerId, getVoicevoxSpeakerBId, getVoicevoxSpeakerCId,
-    setVoicevoxSpeaker, setVoicevoxSpeakerB, setVoicevoxSpeakerC,
-    getEdgeVoices, getEdgeVoice, setEdgeVoice, getWebSpeechVoiceName
+    // 상태
+    isEnabled, isManifestLoaded, getEngineName, getWebSpeechVoiceName, getStats,
+    // 화자 설정
+    getAvailableVoices,
+    getDefaultVoice, setDefaultVoice,
+    getRoleVoice, setRoleVoice,
+    // 강의 단일 mp3
+    hasLectureAudio, playLectureAudio,
   };
 })();

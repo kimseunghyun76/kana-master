@@ -9,6 +9,13 @@ Thumbs.db
 # Node (dev server only)
 node_modules/
 
+# Secrets
+.env
+.env.local
+
+# Claude scheduling state
+.claude/scheduled_tasks.lock
+
 # Logs
 *.log
 
