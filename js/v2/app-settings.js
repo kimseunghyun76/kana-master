@@ -28,44 +28,42 @@ function createAppSettings(deps = {}) {
     const curB    = TTS.getRoleVoice('B');
     const stats   = TTS.getStats();
 
-    // 화자 버튼 (성별별 색상, active 상태 강조)
+    // 화자 버튼 — 균등 폭, 성별 표시(♀/♂)와 active 색상으로 구분
     const btnStyle = (active, gender) => `
-      flex:1 1 auto;min-width:0;padding:9px 8px;border-radius:9px;cursor:pointer;
-      font-size:12px;font-weight:600;line-height:1.2;
+      flex:1 1 0;min-width:0;padding:9px 6px;border-radius:9px;cursor:pointer;
+      font-size:12px;font-weight:600;line-height:1.25;
+      display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
       background:${active ? (gender==='F' ? '#ec4899' : '#3b82f6') : 'var(--bg3)'};
       color:${active ? '#fff' : 'var(--text)'};
       border:1px solid ${active ? (gender==='F' ? '#ec4899' : '#3b82f6') : 'var(--border)'};
       transition:background .15s, border-color .15s;
     `;
+    const markerStyle = (active, gender) => `
+      font-size:10px;line-height:1;opacity:${active ? '.95' : '.55'};
+      color:${active ? '#fff' : (gender==='F' ? '#ec4899' : '#3b82f6')};
+    `;
 
-    // 한 행: 라벨 + (여성 그룹 + 남성 그룹) + 테스트 재생
+    // 한 행: 라벨 + 균등 화자 버튼 N개 + 테스트 재생
     const makeRow = (label, color, currentKey, setterFn, testText) => {
-      const females = voices.filter(v => v.gender === 'F');
-      const males   = voices.filter(v => v.gender === 'M');
-      if (!females.length && !males.length) return '';
-      const renderGroup = (list, genderTag, genderLabel) => {
-        if (!list.length) return '';
-        return `
-          <div style="display:flex;flex-direction:column;gap:4px;flex:${list.length};min-width:0">
-            <div style="font-size:10px;color:var(--text3);font-weight:700;letter-spacing:1px;padding:0 2px">
-              ${genderLabel}
-            </div>
-            <div style="display:flex;gap:5px">
-              ${list.map(v =>
-                `<button onclick="${setterFn}('${v.key}')" style="${btnStyle(currentKey === v.key, genderTag)}" title="${escHtml(v.label)}">
-                   ${escHtml(v.label.split(' ')[0])}
-                 </button>`
-              ).join('')}
-            </div>
-          </div>
-        `;
-      };
+      if (!voices.length) return '';
+      // 여성 먼저 → 남성 정렬
+      const sorted = [...voices].sort((a, b) => (a.gender === 'F' ? -1 : 1) - (b.gender === 'F' ? -1 : 1));
       return `
         <div style="margin-bottom:14px">
           <div style="font-size:12px;color:${color};margin-bottom:6px;font-weight:600">${escHtml(label)}</div>
-          <div style="display:flex;gap:8px;align-items:flex-end;margin-bottom:6px">
-            ${renderGroup(females, 'F', '여성')}
-            ${renderGroup(males,   'M', '남성')}
+          <div style="display:flex;gap:6px;margin-bottom:6px">
+            ${sorted.map(v => {
+              const active = currentKey === v.key;
+              const marker = v.gender === 'F' ? '♀' : '♂';
+              const name = v.label.split(' ')[0];
+              return `
+                <button onclick="${setterFn}('${v.key}')"
+                        style="${btnStyle(active, v.gender)}"
+                        title="${escHtml(v.label)}">
+                  <span style="${markerStyle(active, v.gender)}">${marker}</span>
+                  <span>${escHtml(name)}</span>
+                </button>`;
+            }).join('')}
           </div>
           <button onclick="TTS.speak('${testText}', {voice:'${currentKey}'})"
             style="width:100%;padding:7px;background:var(--bg3);border:1px solid var(--border);
