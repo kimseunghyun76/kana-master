@@ -8,6 +8,21 @@ window.StrokeRenderer = (() => {
   let _strokeState = null;
   let _inlineStrokeState = null;
 
+  // 로컬 사전 다운로드 폴더 우선, 실패 시 GitHub 원본 폴백
+  const LOCAL_BASE = 'public/strokes';
+  const REMOTE_BASE = 'https://raw.githubusercontent.com/KanjiVG/kanjivg/master/kanji';
+
+  async function _fetchSvg(hex, signal) {
+    const localUrl = `${LOCAL_BASE}/${hex}.svg`;
+    try {
+      const r = await fetch(localUrl, { signal });
+      if (r.ok) return await r.text();
+    } catch (_) { /* 폴백으로 */ }
+    const r = await fetch(`${REMOTE_BASE}/${hex}.svg`, { signal });
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    return await r.text();
+  }
+
   function supports(kana) {
     const clean = stripFuri(kana || '');
     return Array.from(clean).length === 1;
@@ -50,12 +65,9 @@ window.StrokeRenderer = (() => {
     requestAnimationFrame(() => overlay.classList.add('open'));
 
     const hex = kana.codePointAt(0).toString(16).padStart(5, '0');
-    const url = `https://raw.githubusercontent.com/KanjiVG/kanjivg/master/kanji/${hex}.svg`;
 
     try {
-      const res = await fetch(url);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const svgText = await res.text();
+      const svgText = await _fetchSvg(hex);
       _renderKVGStrokes(svgText, kana);
     } catch {
       const el = document.getElementById('hwCounter');
@@ -209,12 +221,9 @@ window.StrokeRenderer = (() => {
     const ctrl = new AbortController();
     _inlineStrokeState = { kana, ctrl, animTimer: null, animFrame: null };
     const hex = kana.codePointAt(0).toString(16).padStart(5, '0');
-    const url = `https://raw.githubusercontent.com/KanjiVG/kanjivg/master/kanji/${hex}.svg`;
 
     try {
-      const res = await fetch(url, { signal: ctrl.signal });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const svgText = await res.text();
+      const svgText = await _fetchSvg(hex, ctrl.signal);
       if (_inlineStrokeState?.kana !== kana) return;
       _renderInlineKVG(svgText, kana);
     } catch (e) {

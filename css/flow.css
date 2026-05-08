@@ -132,7 +132,7 @@
   justify-content: flex-start;
 }
 .kana-char {
-  font-size: clamp(86px, 20vh, 128px);
+  font-size: clamp(140px, 32vh, 220px);
   font-family: 'Noto Sans JP', serif;
   font-weight: 400;
   line-height: 1;
@@ -142,7 +142,7 @@
 
 /* Small kana (yoon/sokuon) specific sizing for flashcards */
 .kana-char.is-small {
-  font-size: clamp(68px, 16vh, 96px);
+  font-size: clamp(110px, 26vh, 180px);
   opacity: 0.9;
 }
 
@@ -214,64 +214,119 @@
   line-height: 1.5;
 }
 
-/* ── 카드 뒷면 새 레이아웃 (읽기 + 기억법 + 인라인 획순) ─── */
-.kana-reading-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  width: 100%;
+/* ── 카드 뒷면 새 레이아웃 (헤더 그리드 + flex 획순 + 예시) ─── */
+.kana-back {
+  gap: 10px;
+  padding: 12px 12px 10px;
+  justify-content: flex-start;
 }
-.kana-back-sound {
-  width: 32px; height: 32px;
-  background: rgba(255,255,255,.08);
-  border: 1px solid rgba(255,255,255,.1);
-  border-radius: 50%;
-  color: #fff; font-size: 15px;
-  cursor: pointer; flex-shrink: 0;
-  display: flex; align-items: center; justify-content: center;
-  transition: background .18s;
-}
-.kana-back-sound:hover { background: rgba(255,255,255,.18); }
-.kana-romaji-sm {
-  font-size: 28px; font-weight: 800;
-  color: var(--accent2); letter-spacing: .3px;
-}
-.kana-reading-dot { color: var(--text3); font-size: 16px; }
-.kana-korean-sm  { font-size: 18px; font-weight: 700; color: var(--text2); }
 
-.kana-tip-main {
+/* 헤더 그리드: [글자 + 발음] | [기억법] */
+.kana-back-head {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 12px;
+  align-items: stretch;
   width: 100%;
-  background: rgba(99,102,241,.1);
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+}
+.kana-back-id {
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 2px;
+  padding: 4px 8px 4px 2px;
+  border-right: 1px solid rgba(255,255,255,.06);
+}
+.kana-back-char {
+  font-family: 'Noto Sans JP', serif;
+  font-size: 38px; line-height: 1;
+  font-weight: 500;
+  color: #fff;
+}
+.kana-back-reading {
+  display: flex; flex-direction: column;
+  align-items: center; gap: 0;
+}
+.kana-romaji-sm {
+  font-size: 16px; font-weight: 800;
+  color: var(--accent2); letter-spacing: .2px;
+  line-height: 1.15;
+}
+.kana-korean-sm {
+  font-size: 11px; font-weight: 600;
+  color: var(--text2);
+  line-height: 1.2;
+}
+
+/* 기억법 (헤더 우측) */
+.kana-tip-main {
+  background: linear-gradient(135deg, rgba(99,102,241,.14), rgba(168,85,247,.08));
   border-left: 3px solid var(--accent);
-  border-radius: 0 12px 12px 0;
-  padding: 10px 14px;
+  border-radius: 0 10px 10px 0;
+  padding: 8px 10px;
   text-align: left;
+  display: flex; flex-direction: column;
+  justify-content: center;
+  min-width: 0;
 }
 .kana-tip-label {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  font-size: 10px; font-weight: 700;
-  letter-spacing: 1.2px;
+  gap: 4px;
+  font-size: 9px; font-weight: 700;
+  letter-spacing: 1.1px;
   color: var(--accent);
   text-transform: uppercase;
-  margin-bottom: 5px;
+  margin-bottom: 3px;
 }
 .kana-tip-body {
-  font-size: 14px; line-height: 1.7;
+  font-size: 11.5px; line-height: 1.45;
   color: var(--text); font-weight: 500;
+  word-break: keep-all;
 }
 
-.kana-stroke-row {
+/* 획순 블록 — flex grow로 남은 공간 채움 */
+.kana-stroke-block {
   width: 100%;
-  position: relative;
+  display: flex; flex-direction: column; gap: 5px;
+  flex: 1; min-height: 0;
 }
+.kana-stroke-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 2px;
+}
+.kana-stroke-title {
+  font-size: 10px; font-weight: 700; letter-spacing: 1.2px;
+  text-transform: uppercase; color: var(--text3);
+}
+.kana-stroke-actions {
+  display: flex; gap: 6px;
+}
+.kana-icon-btn {
+  width: 28px; height: 28px;
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 50%;
+  color: var(--text2);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .15s, color .15s;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+.kana-icon-btn:hover {
+  background: rgba(99,102,241,.2);
+  color: var(--accent2);
+}
+.kana-icon-btn-svg { width: 15px; height: 15px; display: block; }
+
 .kana-stroke-mini {
   width: 100%;
-  height: 164px;
+  flex: 1; min-height: 100px;
   background: linear-gradient(145deg, #fefcf8, #f8f4ee);
-  border-radius: 18px;
-  box-shadow: inset 0 1px 3px rgba(0,0,0,.06), 0 3px 16px rgba(0,0,0,.22);
+  border-radius: 14px;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,.06), 0 3px 12px rgba(0,0,0,.18);
   display: flex; align-items: center; justify-content: center;
   overflow: hidden; position: relative;
 }
@@ -283,42 +338,91 @@
     repeating-linear-gradient(90deg, transparent, transparent 17px, rgba(0,0,0,.018) 18px);
   pointer-events: none; z-index: 0;
 }
-.kana-stroke-mini svg  { display: block; width: 100%; height: 100%; position: relative; z-index: 1; }
-
-.kana-stroke-replay-btn {
-  position: absolute;
-  top: 8px; right: 8px;
-  z-index: 20;
-  width: 28px; height: 28px;
-  background: rgba(255,255,255,.82);
-  border: 1px solid rgba(129,140,248,.38);
-  border-radius: 50%;
-  color: var(--accent); font-size: 13px;
-  cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  transition: background .15s, transform .28s;
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-  box-shadow: 0 1px 6px rgba(0,0,0,.14);
-}
-.kana-stroke-replay-btn:hover  { background: #fff; transform: rotate(200deg); }
-.kana-stroke-replay-btn:active { transform: rotate(200deg) scale(.88); }
+.kana-stroke-mini svg { display: block; width: 100%; height: 100%; position: relative; z-index: 1; }
 .kana-stroke-loading { font-size: 11px; color: rgba(148,163,184,.5); position: relative; z-index: 1; }
-.kana-examples {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  padding: 0 8px;
-  justify-content: center;
-  margin-top: 6px;
+
+/* 예시 단어 (flash 없음) */
+.kana-examples-block {
+  width: 100%;
+  display: flex; flex-direction: column; gap: 4px;
 }
-.kana-ex-pill {
-  background: rgba(99,102,241,.12);
-  border: 1px solid rgba(99,102,241,.2);
-  border-radius: 20px;
-  padding: 4px 10px;
-  font-size: 11px;
+.kana-examples-title {
+  font-size: 10px; font-weight: 700; letter-spacing: 1.2px;
+  text-transform: uppercase; color: var(--text3);
+  padding: 0 2px;
+}
+.kana-examples {
+  display: flex; flex-direction: column; gap: 3px;
+}
+.kana-ex-row {
+  display: flex; align-items: center; gap: 8px;
+  padding: 6px 9px;
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(255,255,255,.07);
+  border-radius: 9px;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: none;
+}
+/* hover/active 효과 제거 — 깜빡임 방지 */
+.kana-ex-row:focus,
+.kana-ex-row:focus-visible,
+.kana-ex-row:active {
+  outline: none;
+  background: rgba(255,255,255,.04);
+  border-color: rgba(255,255,255,.07);
+  transform: none;
+}
+.kana-ex-row:hover {
+  background: rgba(255,255,255,.06);
+}
+.kana-ex-word {
+  font-family: 'Noto Sans JP', serif;
+  font-size: 14px; font-weight: 600;
+  color: #fff;
+  flex-shrink: 0;
+  min-width: 50px;
+}
+.kana-ex-meaning {
+  font-size: 11.5px;
   color: var(--text2);
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.kana-ex-icon {
+  width: 13px; height: 13px;
+  color: var(--accent2);
+  flex-shrink: 0;
+  opacity: .55;
+}
+.kana-ex-empty {
+  font-size: 12px; color: var(--text3);
+  text-align: center; padding: 6px;
+}
+
+/* 푸터 네비게이션 (이전/다음, 가나 미리보기) */
+.kana-nav {
+  display: flex; gap: 10px;
+}
+.kana-nav-btn {
+  flex: 1;
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: 6px;
+  min-height: 46px;
+  padding: 0 14px;
+}
+.kana-nav-btn-next { flex: 1.4; }
+.kana-nav-arrow { font-size: 16px; opacity: .85; }
+.kana-nav-label {
+  font-family: 'Noto Sans JP', 'Noto Sans KR', serif;
+  font-size: 15px; font-weight: 600;
+  max-width: 140px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 
 @media (max-height: 740px) {
@@ -327,13 +431,19 @@
     height: min(440px, calc(100dvh - 226px));
     min-height: 336px;
   }
-  .kana-stroke-mini { height: 136px; }
-  .kana-tip-main { padding: 8px 11px; }
-  .kana-tip-body { font-size: 13px; line-height: 1.55; }
-  .kana-romaji-sm { font-size: 24px; }
-  .kana-korean-sm { font-size: 16px; }
+  .kana-back { gap: 7px; padding: 9px 10px; }
+  .kana-back-char { font-size: 32px; }
+  .kana-romaji-sm { font-size: 14px; }
+  .kana-korean-sm { font-size: 10px; }
+  .kana-tip-main { padding: 6px 9px; }
+  .kana-tip-body { font-size: 10.5px; line-height: 1.4; }
+  .kana-icon-btn { width: 26px; height: 26px; }
+  .kana-icon-btn-svg { width: 13px; height: 13px; }
+  .kana-stroke-mini { min-height: 80px; }
+  .kana-ex-row { padding: 4px 8px; }
+  .kana-ex-word { font-size: 13px; min-width: 46px; }
+  .kana-ex-meaning { font-size: 10.5px; }
 }
-.kana-ex-pill .ex-word { font-family: 'Noto Sans JP', serif; }
 
 /* ── Vocab Card ───────────────────────────────────────────── */
 .vocab-card {

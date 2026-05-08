@@ -44,46 +44,19 @@ function createKanaLearnFlow(deps = {}) {
     return StrokeRenderer.supports(kana);
   }
 
-  function getKanaPatternExamples(char, allowedChars, existingWords = []) {
-    if (!allowedChars?.size) return [];
-    const isKatakana = /[ァ-ヺ]/.test(char);
-    const vowels = (isKatakana
-      ? ['ア', 'イ', 'ウ', 'エ', 'オ']
-      : ['あ', 'い', 'う', 'え', 'お']).filter(v => allowedChars.has(v));
-    const partners = Array.from(allowedChars).filter(ch => !['ん', 'ン', 'を', 'ヲ'].includes(ch) && ch !== char);
-    const candidates = [];
-
-    if (char === 'を' || char === 'ヲ') {
-      candidates.push(char);
-    } else if (char === 'ん' || char === 'ン') {
-      partners.slice(0, 4).forEach(p => candidates.push(`${p}${char}`));
-    } else {
-      vowels.filter(v => v !== char).forEach(v => {
-        candidates.push(`${char}${v}`);
-        candidates.push(`${v}${char}`);
-      });
-      partners.slice(0, 4).forEach(p => {
-        candidates.push(`${char}${p}`);
-        candidates.push(`${p}${char}`);
-      });
-    }
-
-    const used = new Set(existingWords.map(word => stripFuri(word)));
-    return [...new Set(candidates)]
-      .filter(word => word && word.length <= 3 && !used.has(word))
-      .slice(0, 3)
-      .map(word => ({ word, meaning: '배운 글자 조합' }));
-  }
-
+  // 실제 KANA_MAP 예시 단어만 사용 — 가짜 글자 조합은 보여주지 않음
+  // 배운 글자만으로 만들 수 있는 단어를 우선, 부족하면 전체에서 채움
   function getKanaExamplesForCard(char, level) {
     const info = KANA_MAP[char] || {};
     const allExamples = info.examples || [];
     if (!isKanaBasicLevel(level?.id)) return allExamples.slice(0, 3);
     const allowedChars = getKanaAllowedExampleChars(level);
     const filtered = allExamples.filter(ex => isBeginnerSafeKanaWord(ex.word, allowedChars));
-    const generated = getKanaPatternExamples(char, allowedChars, filtered.map(ex => ex.word));
-    const merged = [...filtered, ...generated];
-    return (merged.length ? merged : allExamples.slice(0, 2)).slice(0, 3);
+    if (filtered.length >= 3) return filtered.slice(0, 3);
+    // 모자라면 전체 예시에서 채움 (배운 글자 우선 + 그 외)
+    const seen = new Set(filtered.map(ex => ex.word));
+    const extra = allExamples.filter(ex => !seen.has(ex.word));
+    return [...filtered, ...extra].slice(0, 3);
   }
 
   const kanaConfusionGroups = [
@@ -122,11 +95,15 @@ function createKanaLearnFlow(deps = {}) {
       const safeC = c.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
       const info = KANA_MAP[c] || {};
       const canShowStroke = supportsKanaStrokePreview(c);
-      const examples = getKanaExamplesForCard(c, st.level)
-        .map(ex => `<div class="kana-ex-pill">
-          <span class="ex-word">${escHtml(ex.word)}</span>
-          <span style="color:var(--text3)"> — </span>${escHtml(ex.meaning)}
-        </div>`).join('');
+      const exItems = getKanaExamplesForCard(c, st.level);
+      const examples = exItems.length
+        ? exItems.map(ex => `
+            <button class="kana-ex-row" onclick="event.stopPropagation();TTS.speak('${ex.word.replace(/'/g,"\\'")}')" type="button">
+              <span class="kana-ex-word">${escHtml(ex.word)}</span>
+              <span class="kana-ex-meaning">${escHtml(ex.meaning)}</span>
+              <span class="kana-ex-icon">${uiIconSvg('audio', 'kana-ex-audio')}</span>
+            </button>`).join('')
+        : `<div class="kana-ex-empty">예시 단어 없음</div>`;
 
       const typeLabel = st.customLabel || st.level.type
         .replace('hiragana_dakuten','히라가나 탁음')
@@ -147,37 +124,49 @@ function createKanaLearnFlow(deps = {}) {
             <span style="margin:0 6px">·</span>
             <span style="color:var(--accent2)">${escHtml(typeLabel)}</span>
           </div>
-          <div class="kana-card ${st.flipped ? 'flipped' : ''}" id="kanaCard" onclick="App._flipKana()">
+          <div class="kana-card ${st.flipped ? 'flipped' : ''}" id="kanaCard" onclick="App._kanaSpeakCurrent()">
             <div class="kana-card-inner">
               <div class="kana-face">
-                <button class="kana-sound-btn" onclick="event.stopPropagation();TTS.speak('${safeC}')" title="발음 듣기">${uiIconSvg('audio', 'kana-sound-icon')}</button>
                 <div class="kana-type-label">${escHtml(typeLabel)}</div>
                 <div class="kana-char ${isSmallKana(c) ? 'is-small' : ''}">${ruby(c)}</div>
-                <div class="kana-tap-hint">탭해서 읽는 법 보기 👆</div>
               </div>
               <div class="kana-back">
-                <div class="kana-reading-row">
-                  <button class="kana-back-sound"
-                          onclick="event.stopPropagation();TTS.speak('${safeC}')">${uiIconSvg('audio', 'kana-back-sound-icon')}</button>
-                  <span class="kana-romaji-sm">${escHtml(info.romaji || '')}</span>
-                  <span class="kana-reading-dot">·</span>
-                  <span class="kana-korean-sm">${escHtml(info.korean || '')}</span>
+                <!-- 헤더: 좌측 글자/발음 + 우측 기억법 -->
+                <div class="kana-back-head">
+                  <div class="kana-back-id">
+                    <span class="kana-back-char">${escHtml(c)}</span>
+                    <div class="kana-back-reading">
+                      <span class="kana-romaji-sm">${escHtml(info.romaji || '')}</span>
+                      <span class="kana-korean-sm">${escHtml(info.korean || '')}</span>
+                    </div>
+                  </div>
+                  ${info.tip ? `
+                  <div class="kana-tip-main">
+                    <div class="kana-tip-label">${uiIconSvg('sparkle', 'kana-tip-icon')} 기억법</div>
+                    <div class="kana-tip-body">${ruby(info.tip)}</div>
+                  </div>` : '<div></div>'}
                 </div>
-                ${info.tip ? `
-                <div class="kana-tip-main">
-                  <div class="kana-tip-label">${uiIconSvg('sparkle', 'kana-tip-icon')} 기억법</div>
-                  <div class="kana-tip-body">${ruby(info.tip)}</div>
-                </div>` : ''}
                 ${canShowStroke ? `
-                <div class="kana-stroke-row">
+                <div class="kana-stroke-block">
+                  <div class="kana-stroke-head">
+                    <span class="kana-stroke-title">획순</span>
+                    <div class="kana-stroke-actions">
+                      <button class="kana-icon-btn" type="button"
+                              onclick="event.stopPropagation();TTS.speak('${safeC}')"
+                              aria-label="발음 듣기" title="발음 듣기">${uiIconSvg('audio', 'kana-icon-btn-svg')}</button>
+                      <button class="kana-icon-btn" type="button"
+                              onclick="event.stopPropagation();App._replayInlineStroke()"
+                              aria-label="다시 그리기" title="다시 그리기">${uiIconSvg('replay', 'kana-icon-btn-svg')}</button>
+                    </div>
+                  </div>
                   <div class="kana-stroke-mini" id="kanaStrokeInline">
                     <div class="kana-stroke-loading">…</div>
                   </div>
-                  <button class="kana-stroke-replay-btn"
-                          onclick="event.stopPropagation();App._replayInlineStroke()"
-                          title="다시 그리기">🔄</button>
                 </div>` : ''}
-                <div class="kana-examples">${examples}</div>
+                <div class="kana-examples-block">
+                  <div class="kana-examples-title">예시 단어</div>
+                  <div class="kana-examples">${examples}</div>
+                </div>
               </div>
             </div>
           </div>
@@ -191,12 +180,21 @@ function createKanaLearnFlow(deps = {}) {
       `;
 
       const isLast = st.cardIdx === st.chars.length - 1;
+      const prevChar = st.cardIdx > 0 ? st.chars[st.cardIdx - 1] : '';
+      const nextChar = st.cardIdx < st.chars.length - 1 ? st.chars[st.cardIdx + 1] : '';
+      // 앞면: 다음 = 카드 뒤집기 / 뒷면: 다음 = 다음 가나
+      const prevLabel = st.flipped ? '다시 보기' : (prevChar || '이전');
+      const nextLabel = st.flipped ? (isLast ? '완료 ✓' : nextChar) : '읽는 법';
+      const prevDisabled = !st.flipped && st.cardIdx === 0;
       document.getElementById('flowFooter').innerHTML = `
-        <div style="display:flex;gap:10px">
-          <button class="btn btn-outline" onclick="App._kanaLearnPrev()"
-                  style="flex:1" ${st.cardIdx === 0 ? 'disabled' : ''}>← 이전</button>
-          <button class="btn btn-primary" onclick="App._kanaLearnNext()" style="flex:2">
-            ${isLast ? '완료 ✓' : '다음 →'}
+        <div class="kana-nav">
+          <button class="btn btn-outline kana-nav-btn" onclick="App._kanaLearnPrev()" ${prevDisabled ? 'disabled' : ''}>
+            <span class="kana-nav-arrow">←</span>
+            <span class="kana-nav-label">${escHtml(prevLabel)}</span>
+          </button>
+          <button class="btn btn-primary kana-nav-btn kana-nav-btn-next" onclick="App._kanaLearnNext()">
+            <span class="kana-nav-label">${escHtml(nextLabel)}</span>
+            <span class="kana-nav-arrow">→</span>
           </button>
         </div>
       `;
@@ -208,6 +206,7 @@ function createKanaLearnFlow(deps = {}) {
   }
 
   function flipKana() {
+    // 호환 유지 — 외부에서 호출 가능 (예: 카드 강제 뒤집기)
     const flow = getFlow();
     if (!flow?._kanaState) return;
     const st = flow._kanaState;
@@ -216,7 +215,6 @@ function createKanaLearnFlow(deps = {}) {
     if (!card) return;
     if (st.flipped) {
       card.classList.add('flipped');
-      TTS.speak(st.chars[st.cardIdx]);
       if (supportsKanaStrokePreview(st.chars[st.cardIdx])) {
         setTimeout(() => startInlineStroke(st.chars[st.cardIdx]), 520);
       }
@@ -224,13 +222,29 @@ function createKanaLearnFlow(deps = {}) {
       card.classList.remove('flipped');
       stopInlineStroke();
     }
+    // 푸터 라벨도 갱신
+    if (typeof flow._kanaRender === 'function') flow._kanaRender();
   }
 
-  function kanaLearnNext() {
-    stopInlineStroke();
+  // 카드 탭 = 현재 가나 발음만 재생
+  function kanaSpeakCurrent() {
     const flow = getFlow();
     const st = flow?._kanaState;
     if (!st) return;
+    TTS.speak(st.chars[st.cardIdx]);
+  }
+
+  // 다음 버튼: 앞면이면 뒤집기, 뒷면이면 다음 카드로
+  function kanaLearnNext() {
+    const flow = getFlow();
+    const st = flow?._kanaState;
+    if (!st) return;
+    if (!st.flipped) {
+      flipKana();
+      return;
+    }
+    // 뒷면 → 다음 카드
+    stopInlineStroke();
     st.flipped = false;
     if (st.cardIdx < st.chars.length - 1) {
       st.cardIdx++;
@@ -244,14 +258,21 @@ function createKanaLearnFlow(deps = {}) {
     }
   }
 
+  // 이전 버튼: 뒷면이면 앞면으로, 앞면이면 이전 카드로
   function kanaLearnPrev() {
-    stopInlineStroke();
     const flow = getFlow();
     const st = flow?._kanaState;
-    if (!st || st.cardIdx === 0) return;
+    if (!st) return;
+    if (st.flipped) {
+      flipKana();
+      return;
+    }
+    if (st.cardIdx === 0) return;
+    stopInlineStroke();
     st.cardIdx--;
     st.flipped = false;
     flow._kanaRender();
+    TTS.speak(st.chars[st.cardIdx]);
   }
 
   function kanaSpeak(char) {
@@ -261,6 +282,7 @@ function createKanaLearnFlow(deps = {}) {
   return {
     renderKanaLearn,
     flipKana,
+    kanaSpeakCurrent,
     kanaLearnNext,
     kanaLearnPrev,
     kanaSpeak,

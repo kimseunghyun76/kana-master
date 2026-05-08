@@ -31,6 +31,44 @@ window.createLectureFlow = (ctx) => {
     `;
   }
 
+  // ── 강의 화자 토글 (여/남) ───────────────────────────────
+  function _lectureGetVoice() {
+    return localStorage.getItem('lecture_voice') || TTS.getDefaultVoice();
+  }
+  function _lectureSetVoice(key) {
+    localStorage.setItem('lecture_voice', key);
+    // 현재 슬라이드 다시 읽기
+    TTS.stopQueue();
+    const lc = _lectureState();
+    if (lc && !lc.paused) {
+      const slide = lc.slides[lc.idx];
+      if (slide?.captionJp) {
+        _lecReadCaptionJp(slide.captionJp, slide.captionKo, lc.idx, () => {});
+      }
+    }
+    // 푸터 버튼 상태 갱신
+    document.querySelectorAll('.lec-voice-btn').forEach(btn => {
+      const k = btn.getAttribute('data-voice');
+      btn.classList.toggle('active', k === key);
+      btn.setAttribute('aria-pressed', k === key ? 'true' : 'false');
+    });
+  }
+  function _lectureVoiceButton(voiceKey, label, emoji) {
+    const cur = _lectureGetVoice();
+    const active = cur === voiceKey;
+    return `
+      <button class="lec-display-toggle lec-voice-btn ${active ? 'active' : ''}"
+              data-voice="${voiceKey}"
+              onclick="App._lecSetVoice('${voiceKey}')"
+              type="button"
+              aria-pressed="${active ? 'true' : 'false'}"
+              title="강의 화자: ${label}">
+        <span class="lec-display-toggle-label">${emoji}</span>
+        <span class="lec-display-toggle-state">${label}</span>
+      </button>
+    `;
+  }
+
   function _lectureVisualSource(mod, slide) {
     if (slide?.image) return slide.image;
     return ctx.getModuleVisual(mod).image;
@@ -134,6 +172,8 @@ window.createLectureFlow = (ctx) => {
         <button class="lec-display-toggle lec-display-action" id="btnLecPause"
                 aria-label="일시정지"
                 onclick="App._lecPauseToggle()">${_lecturePauseButtonLabel(false)}</button>
+        ${_lectureVoiceButton('nanami', '여', '👩')}
+        ${_lectureVoiceButton('keita',  '남', '👨')}
         ${isLast ? `<button class="lec-display-toggle lec-display-replay" onclick="App._lecRestart()" title="처음부터 다시 보기">${ctx.uiLabeledIcon('replay')} 다시 보기</button>` : ''}
       </div>
       <div class="lec-controls lec-controls-compact">
@@ -228,24 +268,20 @@ window.createLectureFlow = (ctx) => {
       .match(/[^。！？…]+[。！？…]*/g)?.map(s => s.trim()).filter(Boolean);
     if (!jpSentences?.length) { if (onDone) onDone(); return; }
 
-    // ② TTS용 텍스트: 한글 근사 변환만 추가 진행
-    const ttsSentences = jpSentences.map(s => _koToKatakana(s).trim());
-
-    // ③ 한국어 문장 분리
+    // ② 한국어 문장 분리
     const koSentences = captionKo
       ? (captionKo.match(/[^.!?…！？]+[.!?…！？]*/g) || [captionKo])
           .map(s => s.trim()).filter(Boolean)
       : [];
 
-    // ④ JP 문장 spans 재구성
+    // ③ JP 문장 spans 재구성
     const capJpEl = document.getElementById('lecCapJp');
     if (capJpEl) {
       capJpEl.innerHTML = jpSentences.map((s, i) =>
         `<span class="lec-sentence" id="lecSent${i}">${ruby(s)}</span>`
       ).join('');
     }
-
-    // ⑤ KO 문장 spans 재구성 (비례 하이라이트용)
+    // ④ KO 문장 spans 재구성
     const capKoEl = document.querySelector('.lec-cap-ko');
     if (capKoEl && koSentences.length) {
       capKoEl.innerHTML = koSentences.map((s, i) =>
@@ -255,21 +291,43 @@ window.createLectureFlow = (ctx) => {
 
     const jpLen = jpSentences.length;
     const koLen = koSentences.length;
+    const lectureVoice = _lectureGetVoice();
 
-    // ⑥ 슬라이드 인덱스에 따라 A, B, C 화자 교대
-    const speakerId = ['A', 'B', 'C'][slideIdx % 3];
-    const lines = ttsSentences.map((text, i) => ({
-      text,
-      speaker: speakerId,
-    }));
+    // ⑤ 사전 생성 강의 mp3가 있으면 단일 파일 재생 (가갭리스, 자연스러움)
+    const lc = _lectureState();
+    const lectureKey = lc?.step?.lectureKey;
+    if (lectureKey && TTS.hasLectureAudio(lectureKey, slideIdx)) {
+      TTS.playLectureAudio(lectureKey, slideIdx, lectureVoice, {
+        onProgress: (ratio) => {
+          // 시간 비례로 JP/KO 문장 하이라이트 진행
+          const ji = Math.min(Math.floor(ratio * jpLen), jpLen - 1);
+          document.querySelectorAll('.lec-sentence').forEach((el, idx) => {
+            el.classList.toggle('reading', idx === ji);
+          });
+          if (koLen) {
+            const ki = Math.min(Math.floor(ratio * koLen), koLen - 1);
+            document.querySelectorAll('.lec-sentence-ko').forEach((el, idx) => {
+              el.classList.toggle('reading', idx === ki);
+            });
+          }
+          document.getElementById(`lecSent${ji}`)?.scrollIntoView?.({ block: 'nearest', behavior: 'smooth' });
+        },
+        onDone: () => {
+          document.querySelectorAll('.lec-sentence,.lec-sentence-ko').forEach(el => el.classList.remove('reading'));
+          if (onDone) onDone();
+        },
+      });
+      return;
+    }
 
+    // ⑥ 폴백: 문장별 TTS 큐 (Web Speech 사용 시)
+    const ttsSentences = jpSentences.map(s => _koToKatakana(s).trim());
+    const lines = ttsSentences.map((text) => ({ text, voice: lectureVoice }));
     TTS.speakQueue(lines, {
       onLineStart: (i) => {
-        // JP 하이라이트
         document.querySelectorAll('.lec-sentence').forEach(el => el.classList.remove('reading'));
         document.getElementById(`lecSent${i}`)?.classList.add('reading');
         document.getElementById(`lecSent${i}`)?.scrollIntoView?.({ block: 'nearest', behavior: 'smooth' });
-        // KO 비례 하이라이트
         if (koLen > 0) {
           document.querySelectorAll('.lec-sentence-ko').forEach(el => el.classList.remove('reading'));
           const ki = Math.min(Math.floor(i * koLen / jpLen), koLen - 1);
@@ -445,6 +503,7 @@ window.createLectureFlow = (ctx) => {
     pauseToggle: _lecPauseToggle,
     toggleCaption: _lecToggleCaption,
     capTab: _lecCapTab,
+    setVoice: _lectureSetVoice,
     stopLecture,
   };
 };

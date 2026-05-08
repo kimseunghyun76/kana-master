@@ -77,7 +77,7 @@ window.App = (() => {
   // ── Init ─────────────────────────────────────────────────
   async function init() {
     await Store.load();
-    await TTS.init();  // VOICEVOX/Edge TTS 체크 완료 후 진행
+    await TTS.init();  // 사전생성 매니페스트 로드
     _buildUI();
     _bindNav();
     _renderHome();
@@ -590,6 +590,7 @@ window.App = (() => {
   function _lecPauseToggle() { return _lectureFlow.pauseToggle(); }
   function _lecToggleCaption(lang) { return _lectureFlow.toggleCaption(lang); }
   function _lecCapTab(lang) { return _lectureFlow.capTab(lang); }
+  function _lecSetVoice(key) { return _lectureFlow.setVoice(key); }
 
   // ── Dialogue Study ────────────────────────────────────────
   function _renderDialogueStudy(mod, step, stepIndex) {
@@ -868,11 +869,9 @@ window.App = (() => {
     exportProgress: _appSettings.exportProgress,
     importProgress: _appSettings.importProgress,
     // TTS 설정
-    setVoicevoxSpeaker: _appSettings.setVoicevoxSpeaker,
-    setVoicevoxSpeakerA: _appSettings.setVoicevoxSpeakerA,
-    setVoicevoxSpeakerB: _appSettings.setVoicevoxSpeakerB,
-    setVoicevoxSpeakerC: _appSettings.setVoicevoxSpeakerC,
-    setEdgeTTSVoice: _appSettings.setEdgeTTSVoice,
+    setVoiceDefault: _appSettings.setVoiceDefault,
+    setVoiceRoleA:   _appSettings.setVoiceRoleA,
+    setVoiceRoleB:   _appSettings.setVoiceRoleB,
     // 쉐도잉
     _shadowingNext,
     // 개발자 테스트 도구
@@ -882,6 +881,7 @@ window.App = (() => {
     devCompleteCurrentModule: _appSettings.devCompleteCurrentModule,
     // Internal but called from HTML
     _flipKana: _kanaLearnFlow.flipKana,
+    _kanaSpeakCurrent: _kanaLearnFlow.kanaSpeakCurrent,
     _kanaLearnNext: _kanaLearnFlow.kanaLearnNext,
     _kanaLearnPrev: _kanaLearnFlow.kanaLearnPrev,
     _kanaSpeak: _kanaLearnFlow.kanaSpeak,
@@ -907,6 +907,7 @@ window.App = (() => {
     _lecPauseToggle,
     _lecToggleCaption,
     _lecCapTab,
+    _lecSetVoice,
     setQuizPassRate,
     _completeRoleplay,
     _beginRoleplayPractice,
