@@ -255,6 +255,39 @@
 .lec-display-replay {
   flex: 0 0 auto;
 }
+
+/* 화자 버튼 (4명+) — 컴팩트, 성별 색상 active */
+.lec-voice-btn {
+  padding: 6px 9px;
+  gap: 4px;
+}
+.lec-voice-btn .lec-display-toggle-label {
+  font-size: 11px;
+  opacity: .55;
+}
+.lec-voice-btn .lec-display-toggle-state {
+  color: #cbd5e1;
+  font-size: 11px;
+  font-weight: 700;
+}
+.lec-voice-btn-F.active {
+  background: rgba(236,72,153,.18);
+  border-color: rgba(236,72,153,.55);
+}
+.lec-voice-btn-F.active .lec-display-toggle-label,
+.lec-voice-btn-F.active .lec-display-toggle-state {
+  color: #fbcfe8;
+  opacity: 1;
+}
+.lec-voice-btn-M.active {
+  background: rgba(59,130,246,.18);
+  border-color: rgba(96,165,250,.55);
+}
+.lec-voice-btn-M.active .lec-display-toggle-label,
+.lec-voice-btn-M.active .lec-display-toggle-state {
+  color: #bfdbfe;
+  opacity: 1;
+}
 /* ── Chalkboard (칠판) ─────────────────────────────────────── */
 .lec-board {
   position: absolute;
