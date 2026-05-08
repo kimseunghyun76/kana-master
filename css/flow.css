@@ -93,13 +93,16 @@
   min-height: 100%;
 }
 .kana-card {
-  width: 100%; max-width: 360px;
-  height: min(500px, calc(100dvh - 220px));
-  min-height: 370px;
-  perspective: 1000px;
+  width: 100%;
+  /* 화면 폭에 따라 카드도 함께 커짐 */
+  max-width: clamp(320px, 70vw, 720px);
+  height: clamp(370px, calc(100dvh - 220px), 760px);
+  perspective: 1200px;
   cursor: pointer;
   touch-action: manipulation;
   flex-shrink: 0;
+  /* 카드 폭 기준 자동 폰트 — 큰 화면에서 글자도 더 크게 */
+  container-type: inline-size;
 }
 .kana-card-inner {
   width: 100%; height: 100%;
@@ -132,7 +135,8 @@
   justify-content: flex-start;
 }
 .kana-char {
-  font-size: clamp(140px, 32vh, 220px);
+  /* 카드 폭의 ~50% — 큰 카드에선 더 크게 */
+  font-size: clamp(120px, 50cqw, 360px);
   font-family: 'Noto Sans JP', serif;
   font-weight: 400;
   line-height: 1;
@@ -142,7 +146,7 @@
 
 /* Small kana (yoon/sokuon) specific sizing for flashcards */
 .kana-char.is-small {
-  font-size: clamp(110px, 26vh, 180px);
+  font-size: clamp(96px, 38cqw, 280px);
   opacity: 0.9;
 }
 
@@ -449,18 +453,21 @@
 /* ── 어휘 카드 — 회전 플립 카드 ─────────────────────────── */
 .vc-stack {
   display: flex; flex-direction: column;
-  width: 100%; max-width: 380px;
+  width: 100%;
+  /* 화면 폭에 따라 카드 컨테이너도 함께 커짐 */
+  max-width: clamp(340px, 70vw, 720px);
   margin: 0 auto;
   padding-top: 8px;
 }
 .vc-flip-card {
   width: 100%;
-  height: min(520px, calc(100dvh - 230px));
-  min-height: 360px;
+  height: clamp(360px, calc(100dvh - 230px), 760px);
   perspective: 1200px;
   cursor: pointer;
   touch-action: manipulation;
   flex-shrink: 0;
+  /* 카드 너비 기준으로 내부 폰트 자동 산출 (container queries) */
+  container-type: inline-size;
 }
 .vc-card-inner {
   width: 100%; height: 100%;
@@ -498,11 +505,11 @@
 }
 .vc-jp {
   font-family: 'Noto Sans JP', serif;
-  /* 글자수 기반 자동 축소 — 짧으면 76px, 길면 (뷰포트 너비 / 글자수)로 줄어 한 줄 유지 */
+  /* 카드 너비 기준 자동 산출 — 카드가 커지면 폰트도 같이 커짐, 글자수 길면 줄어들어 한 줄 유지 */
   font-size: clamp(
-    28px,
-    min(9.5vh, calc((100vw - 60px) / var(--vc-len, 5))),
-    76px
+    32px,
+    calc((100cqw - 50px) / var(--vc-len, 5)),
+    120px
   );
   font-weight: 700;
   line-height: 1.25;
@@ -527,10 +534,11 @@
 }
 .vc-back-jp {
   font-family: 'Noto Sans JP', serif;
+  /* 카드 너비 기준 — 뒷면도 카드와 함께 커짐 */
   font-size: clamp(
-    20px,
-    min(6.5vh, calc((100vw - 80px) / var(--vc-len, 5))),
-    48px
+    22px,
+    calc((100cqw - 70px) / var(--vc-len, 5)),
+    72px
   );
   font-weight: 700;
   color: #fff;
