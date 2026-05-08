@@ -378,6 +378,9 @@ window.createQuizFlow = (ctx) => {
     const item = items[idx];
     const showFuri = Store.getSetting('furigana');
     const jpHtml = showFuri ? formatJp(item) : escHtml(stripFuri(item.kanji || item.japanese || ''));
+    // 글자수 기반 자동 축소용 (긴 단어 잘림 방지)
+    const visualText = stripFuri(item.kanji || item.japanese || '');
+    const charLen = Math.max(1, Array.from(visualText).length);
     const exampleText = item.example || '';
     const tipText = item.tip || '';
 
@@ -388,7 +391,7 @@ window.createQuizFlow = (ctx) => {
           ${idx + 1} / ${items.length}
         </div>
         <div class="vc-flip-card ${showMeaning ? 'flipped' : ''}" id="vcCard"
-             onclick="App._vocabSpeak()">
+             onclick="App._vocabSpeak()" style="--vc-len:${charLen}">
           <div class="vc-card-inner">
             <div class="vc-face">
               <div class="vc-type-label">어휘</div>
