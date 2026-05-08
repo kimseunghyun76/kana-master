@@ -53,20 +53,28 @@ window.createLectureFlow = (ctx) => {
       btn.setAttribute('aria-pressed', k === key ? 'true' : 'false');
     });
   }
-  function _lectureVoiceButton(voiceKey, label, emoji) {
+  function _lectureVoiceButtons() {
     const cur = _lectureGetVoice();
-    const active = cur === voiceKey;
-    return `
-      <button class="lec-display-toggle lec-voice-btn ${active ? 'active' : ''}"
-              data-voice="${voiceKey}"
-              onclick="App._lecSetVoice('${voiceKey}')"
-              type="button"
-              aria-pressed="${active ? 'true' : 'false'}"
-              title="강의 화자: ${label}">
-        <span class="lec-display-toggle-label">${emoji}</span>
-        <span class="lec-display-toggle-state">${label}</span>
-      </button>
-    `;
+    const voices = (typeof TTS.getAvailableVoices === 'function') ? TTS.getAvailableVoices() : [];
+    if (!voices.length) return '';
+    // 여성 먼저 → 남성 정렬
+    const sorted = [...voices].sort((a, b) => (a.gender === 'F' ? -1 : 1) - (b.gender === 'F' ? -1 : 1));
+    return sorted.map(v => {
+      const active = cur === v.key;
+      const marker = v.gender === 'F' ? '♀' : '♂';
+      const name = (v.label || v.key).split(' ')[0];
+      return `
+        <button class="lec-display-toggle lec-voice-btn lec-voice-btn-${v.gender} ${active ? 'active' : ''}"
+                data-voice="${v.key}"
+                onclick="App._lecSetVoice('${v.key}')"
+                type="button"
+                aria-pressed="${active ? 'true' : 'false'}"
+                title="강의 화자: ${escHtml(v.label || v.key)}">
+          <span class="lec-display-toggle-label">${marker}</span>
+          <span class="lec-display-toggle-state">${escHtml(name)}</span>
+        </button>
+      `;
+    }).join('');
   }
 
   function _lectureVisualSource(mod, slide) {
@@ -172,8 +180,7 @@ window.createLectureFlow = (ctx) => {
         <button class="lec-display-toggle lec-display-action" id="btnLecPause"
                 aria-label="일시정지"
                 onclick="App._lecPauseToggle()">${_lecturePauseButtonLabel(false)}</button>
-        ${_lectureVoiceButton('nanami', '여', '👩')}
-        ${_lectureVoiceButton('keita',  '남', '👨')}
+        ${_lectureVoiceButtons()}
         ${isLast ? `<button class="lec-display-toggle lec-display-replay" onclick="App._lecRestart()" title="처음부터 다시 보기">${ctx.uiLabeledIcon('replay')} 다시 보기</button>` : ''}
       </div>
       <div class="lec-controls lec-controls-compact">
