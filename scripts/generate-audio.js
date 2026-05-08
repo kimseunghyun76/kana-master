@@ -282,7 +282,8 @@ async function main() {
                    lectures: old.lectures || {} };
     } catch (_) {}
   }
-  // 화자 메타 갱신
+  // 화자 메타 — 현재 VOICES로 완전 교체 (옛 화자 제거)
+  manifest.voices = {};
   for (const [k, v] of Object.entries(VOICES)) {
     manifest.voices[k] = { name: v.name, label: v.label, gender: v.gender };
   }
