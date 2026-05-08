@@ -378,38 +378,77 @@ window.createQuizFlow = (ctx) => {
     const item = items[idx];
     const showFuri = Store.getSetting('furigana');
     const jpHtml = showFuri ? formatJp(item) : escHtml(stripFuri(item.kanji || item.japanese || ''));
+    const exampleText = item.example || '';
+    const tipText = item.tip || '';
 
     ctx.updateFlowProgress(stepIndex, mod.steps.length, step.title);
-      document.getElementById('flowBody').innerHTML = `
-      <div style="font-size:12px;color:var(--text3);text-align:center;margin-bottom:16px">
-        ${idx + 1} / ${items.length}
-      </div>
-      <div class="vocab-card" onclick="App._vocabFlip()">
-        <button class="vc-audio-btn"
-          onclick="event.stopPropagation();App._vocabSpeak()">${ctx.uiIconSvg('audio', 'vc-audio-icon')}</button>
-        <div class="vc-num">어휘 ${idx + 1}</div>
-        <div class="vc-jp">${jpHtml}</div>
-        ${item.kanji && item.kanji !== item.japanese
-          ? `<div class="vc-kanji">${ruby(item.kanji)}</div>` : ''}
-        ${showMeaning ? `
-          <div class="vc-divider"></div>
-          <div class="vc-meaning">${escHtml(item.korean || '')}</div>
-          <div class="vc-english">${escHtml(item.english || '')}</div>
-          ${item.tip ? `<div class="vc-tip">${ruby(item.tip)}</div>` : ''}
-        ` : `<div class="vc-flip-hint">탭해서 의미 보기 👆</div>`}
-      </div>
-      <div class="vocab-nav">
-        <button class="vocab-nav-btn" onclick="App._vocabPrev()" ${idx === 0 ? 'disabled' : ''}>←</button>
-        <div class="vocab-nav-dots">
-          ${items.slice(0, 20).map((_,i) =>
-            `<div class="vocab-nav-dot ${i===idx?'active':i<idx?'done':''}"></div>`).join('')}
+    document.getElementById('flowBody').innerHTML = `
+      <div class="vc-stack">
+        <div style="font-size:12px;color:var(--text3);text-align:center;margin-bottom:10px">
+          ${idx + 1} / ${items.length}
         </div>
-        <button class="vocab-nav-btn" onclick="App._vocabNext()">→</button>
+        <div class="vc-flip-card ${showMeaning ? 'flipped' : ''}" id="vcCard"
+             onclick="App._vocabSpeak()">
+          <div class="vc-card-inner">
+            <div class="vc-face">
+              <div class="vc-type-label">어휘</div>
+              <div class="vc-jp">${jpHtml}</div>
+            </div>
+            <div class="vc-back">
+              <div class="vc-back-jp">${jpHtml}</div>
+              <div class="vc-back-meaning">${escHtml(item.korean || '')}</div>
+              ${item.english ? `<div class="vc-back-english">${escHtml(item.english)}</div>` : ''}
+              ${tipText ? `
+              <div class="vc-tip-block">
+                <div class="vc-tip-label">${ctx.uiIconSvg('sparkle', 'vc-tip-icon')} 팁</div>
+                <div class="vc-tip-body">${ruby(tipText)}</div>
+              </div>` : ''}
+              ${exampleText ? `
+              <div class="vc-ex-block">
+                <div class="vc-ex-label">예시</div>
+                <div class="vc-ex-body">${ruby(exampleText)}</div>
+              </div>` : ''}
+            </div>
+          </div>
+        </div>
+        <div class="vocab-nav">
+          <button class="vocab-nav-btn" onclick="App._vocabPrev()" ${idx === 0 ? 'disabled' : ''}>←</button>
+          <div class="vocab-nav-dots">
+            ${items.slice(0, 20).map((_,i) =>
+              `<div class="vocab-nav-dot ${i===idx?'active':i<idx?'done':''}"></div>`).join('')}
+          </div>
+          <button class="vocab-nav-btn" onclick="App._vocabNext()">→</button>
+        </div>
       </div>
     `;
 
-    if (showMeaning) {
-      document.getElementById('flowFooter').innerHTML = `
+    _vocabUpdateFooter();
+    TTS.speak(item.japanese || '');
+  }
+
+  function _vocabSpeak() {
+    const st = ctx.getFlow()._vocab;
+    if (!st || !st.items[st.idx]) return;
+    TTS.speak(stripFuri(st.items[st.idx].japanese));
+  }
+
+  function _vocabFlip() {
+    if (!ctx.getFlow()._vocab) return;
+    ctx.getFlow()._vocab.showMeaning = true;
+    // 카드는 클래스만 토글 (재렌더 시 애니메이션이 끊김)
+    const card = document.getElementById('vcCard');
+    if (card) card.classList.add('flipped');
+    // 푸터만 갱신 — self-eval 버튼으로 교체
+    _vocabUpdateFooter();
+  }
+
+  function _vocabUpdateFooter() {
+    const st = ctx.getFlow()._vocab;
+    if (!st) return;
+    const footer = document.getElementById('flowFooter');
+    if (!footer) return;
+    if (st.showMeaning) {
+      footer.innerHTML = `
         <div class="self-eval">
           <button class="eval-btn again" onclick="App._vocabEval('again')">
             <span class="eval-icon-wrap">${ctx.uiIconSvg('close', 'eval-icon')}</span>
@@ -434,24 +473,10 @@ window.createQuizFlow = (ctx) => {
         </div>
       `;
     } else {
-      document.getElementById('flowFooter').innerHTML = `
+      footer.innerHTML = `
         <button class="btn btn-outline" onclick="App._vocabFlip()">의미 확인하기</button>
       `;
     }
-
-    TTS.speak(item.japanese || '');
-  }
-
-  function _vocabSpeak() {
-    const st = ctx.getFlow()._vocab;
-    if (!st || !st.items[st.idx]) return;
-    TTS.speak(stripFuri(st.items[st.idx].japanese));
-  }
-
-  function _vocabFlip() {
-    if (!ctx.getFlow()._vocab) return;
-    ctx.getFlow()._vocab.showMeaning = true;
-    _vocabRender();
   }
 
   function _vocabNext() {

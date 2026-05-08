@@ -256,37 +256,58 @@
   flex: 0 0 auto;
 }
 
-/* 화자 버튼 (4명+) — 컴팩트, 성별 색상 active */
-.lec-voice-btn {
-  padding: 6px 9px;
-  gap: 4px;
-}
-.lec-voice-btn .lec-display-toggle-label {
-  font-size: 11px;
-  opacity: .55;
-}
-.lec-voice-btn .lec-display-toggle-state {
-  color: #cbd5e1;
+/* 강의 화자 선택 — SELECT 박스 */
+.lec-voice-select-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 9px 0 11px;
+  height: 32px;
+  border-radius: 999px;
+  border: 1px solid rgba(148,163,184,.28);
+  background: rgba(15,23,42,.54);
+  color: #f8fafc;
   font-size: 11px;
   font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  transition: border-color var(--dur), background var(--dur);
 }
-.lec-voice-btn-F.active {
+.lec-voice-select-wrap:hover { border-color: rgba(129,140,248,.5); }
+.lec-voice-select-wrap.lec-voice-F {
   background: rgba(236,72,153,.18);
   border-color: rgba(236,72,153,.55);
 }
-.lec-voice-btn-F.active .lec-display-toggle-label,
-.lec-voice-btn-F.active .lec-display-toggle-state {
-  color: #fbcfe8;
-  opacity: 1;
-}
-.lec-voice-btn-M.active {
+.lec-voice-select-wrap.lec-voice-M {
   background: rgba(59,130,246,.18);
   border-color: rgba(96,165,250,.55);
 }
-.lec-voice-btn-M.active .lec-display-toggle-label,
-.lec-voice-btn-M.active .lec-display-toggle-state {
-  color: #bfdbfe;
-  opacity: 1;
+.lec-voice-marker {
+  font-size: 12px;
+  pointer-events: none;
+}
+.lec-voice-select-wrap.lec-voice-F .lec-voice-marker { color: #fbcfe8; }
+.lec-voice-select-wrap.lec-voice-M .lec-voice-marker { color: #bfdbfe; }
+.lec-voice-select {
+  appearance: none;
+  -webkit-appearance: none;
+  background: transparent;
+  border: 0;
+  color: inherit;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  padding-right: 16px;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'><path d='M3 4.5L6 8 9 4.5' fill='none' stroke='%23cbd5e1' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right center;
+  background-size: 12px 12px;
+  outline: none;
+}
+.lec-voice-select option {
+  background: #0f172a;
+  color: #f8fafc;
 }
 /* ── Chalkboard (칠판) ─────────────────────────────────────── */
 .lec-board {
