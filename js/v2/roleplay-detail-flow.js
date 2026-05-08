@@ -42,11 +42,16 @@ function createRoleplayDetailFlow(ctx) {
     overlay.onclick = () => closeDialogueDetail(true);
     const sentenceText = stripFuri(line.japanese || '');
 
+    // 화자 매핑: 이 라인의 speaker(A/B/C)에 해당하는 화자로 재생
+    const lineVoice = (line.speaker && typeof TTS.getRoleVoice === 'function')
+      ? TTS.getRoleVoice(line.speaker) : '';
+    const voiceOpt = lineVoice ? `, {voice:'${lineVoice}'}` : '';
+
     overlay.innerHTML = `
       <div class="detail-popup" onclick="event.stopPropagation()">
         <button class="detail-close-btn" onclick="App.closeDialogueDetail()">✕</button>
         <div class="detail-header">
-          <button class="detail-speak-card" onclick="TTS.speak('${ctx.jsString(sentenceText)}')" type="button">
+          <button class="detail-speak-card" onclick="TTS.speak('${ctx.jsString(sentenceText)}'${voiceOpt})" type="button">
             <span class="detail-speak-icon">${ctx.uiIconSvg('audio', 'detail-audio-icon')}</span>
             <span>
               <span class="detail-jap">${ruby(line.japanese)}</span>
@@ -59,7 +64,7 @@ function createRoleplayDetailFlow(ctx) {
           <div class="detail-section-title">단어별 분석</div>
           <div class="detail-breakdown">
             ${breakdown.length > 0 ? breakdown.map(b => `
-              <button class="breakdown-item" onclick="TTS.speak('${ctx.jsString(stripFuri(b.word))}')" type="button">
+              <button class="breakdown-item" onclick="TTS.speak('${ctx.jsString(stripFuri(b.word))}'${voiceOpt})" type="button">
                 <div class="breakdown-word-group">
                   <span class="breakdown-pos-tag" data-pos="${b.pos}">${b.pos}</span>
                   <span class="breakdown-word">${ruby(b.word)}</span>
@@ -82,7 +87,7 @@ function createRoleplayDetailFlow(ctx) {
         </div>
 
         <div class="detail-actions">
-          <button class="btn btn-replay-sent" onclick="TTS.speak('${ctx.jsString(sentenceText)}')">
+          <button class="btn btn-replay-sent" onclick="TTS.speak('${ctx.jsString(sentenceText)}'${voiceOpt})">
             ${ctx.uiIconSvg('audio', 'btn-audio-icon')} 다시 듣기
           </button>
           <button class="btn btn-primary" onclick="App.closeDialogueDetail()">

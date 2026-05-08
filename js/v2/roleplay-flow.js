@@ -288,11 +288,16 @@ window.createRoleplayFlow = (ctx) => {
     _renderRoleplay(ctx.getMod(ctx.getFlow().moduleId));
   }
 
+  function _voiceForSpeaker(speaker) {
+    if (!speaker || typeof TTS.getRoleVoice !== 'function') return undefined;
+    return TTS.getRoleVoice(speaker);
+  }
+
   function _speakDialogueLine(lineId) {
     const all = typeof VOCAB_ITEMS_DIALOGUE !== 'undefined' ? VOCAB_ITEMS_DIALOGUE : [];
     const line = all.find(x => x.id === lineId);
     if (!line?.japanese) return;
-    TTS.speak(stripFuri(line.japanese));
+    TTS.speak(stripFuri(line.japanese), { voice: _voiceForSpeaker(line.speaker) });
   }
 
   async function _speakDialogueLineSlow(lineId) {
@@ -301,7 +306,7 @@ window.createRoleplayFlow = (ctx) => {
     if (!line?.japanese) return;
     const prevRate = TTS.getRate?.() || 1;
     TTS.setRate(0.72);
-    await TTS.speak(stripFuri(line.japanese));
+    await TTS.speak(stripFuri(line.japanese), { voice: _voiceForSpeaker(line.speaker) });
     TTS.setRate(prevRate);
   }
 
