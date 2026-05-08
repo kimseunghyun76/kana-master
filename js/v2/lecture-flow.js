@@ -37,8 +37,8 @@ window.createLectureFlow = (ctx) => {
   }
   function _lectureSetVoice(key) {
     localStorage.setItem('lecture_voice', key);
-    // 현재 슬라이드 다시 읽기
     TTS.stopQueue();
+    // 현재 슬라이드 다시 읽기
     const lc = _lectureState();
     if (lc && !lc.paused) {
       const slide = lc.slides[lc.idx];
@@ -46,35 +46,37 @@ window.createLectureFlow = (ctx) => {
         _lecReadCaptionJp(slide.captionJp, slide.captionKo, lc.idx, () => {});
       }
     }
-    // 푸터 버튼 상태 갱신
-    document.querySelectorAll('.lec-voice-btn').forEach(btn => {
-      const k = btn.getAttribute('data-voice');
-      btn.classList.toggle('active', k === key);
-      btn.setAttribute('aria-pressed', k === key ? 'true' : 'false');
-    });
+    // 셀렉트 wrap의 성별 색상/마커 갱신
+    const voices = (typeof TTS.getAvailableVoices === 'function') ? TTS.getAvailableVoices() : [];
+    const meta = voices.find(v => v.key === key);
+    const wrap = document.getElementById('lecVoiceWrap');
+    if (wrap && meta) {
+      wrap.classList.toggle('lec-voice-F', meta.gender === 'F');
+      wrap.classList.toggle('lec-voice-M', meta.gender === 'M');
+      const marker = wrap.querySelector('.lec-voice-marker');
+      if (marker) marker.textContent = meta.gender === 'F' ? '♀' : '♂';
+    }
   }
-  function _lectureVoiceButtons() {
+  function _lectureVoiceSelect() {
     const cur = _lectureGetVoice();
     const voices = (typeof TTS.getAvailableVoices === 'function') ? TTS.getAvailableVoices() : [];
     if (!voices.length) return '';
-    // 여성 먼저 → 남성 정렬
     const sorted = [...voices].sort((a, b) => (a.gender === 'F' ? -1 : 1) - (b.gender === 'F' ? -1 : 1));
-    return sorted.map(v => {
-      const active = cur === v.key;
-      const marker = v.gender === 'F' ? '♀' : '♂';
-      const name = (v.label || v.key).split(' ')[0];
-      return `
-        <button class="lec-display-toggle lec-voice-btn lec-voice-btn-${v.gender} ${active ? 'active' : ''}"
-                data-voice="${v.key}"
-                onclick="App._lecSetVoice('${v.key}')"
-                type="button"
-                aria-pressed="${active ? 'true' : 'false'}"
-                title="강의 화자: ${escHtml(v.label || v.key)}">
-          <span class="lec-display-toggle-label">${marker}</span>
-          <span class="lec-display-toggle-state">${escHtml(name)}</span>
-        </button>
-      `;
-    }).join('');
+    const curMeta = sorted.find(v => v.key === cur) || sorted[0];
+    const curGender = curMeta?.gender || 'F';
+    return `
+      <label class="lec-voice-select-wrap lec-voice-${curGender}" id="lecVoiceWrap" title="강의 화자">
+        <span class="lec-voice-marker">${curGender === 'F' ? '♀' : '♂'}</span>
+        <select class="lec-voice-select" id="lecVoiceSelect"
+                onchange="App._lecSetVoice(this.value)" aria-label="강의 화자 선택">
+          ${sorted.map(v => {
+            const name = (v.label || v.key).split(' ')[0];
+            const tag = v.gender === 'F' ? '♀' : '♂';
+            return `<option value="${v.key}" ${v.key === cur ? 'selected' : ''}>${tag} ${escHtml(name)}</option>`;
+          }).join('')}
+        </select>
+      </label>
+    `;
   }
 
   function _lectureVisualSource(mod, slide) {
@@ -180,7 +182,7 @@ window.createLectureFlow = (ctx) => {
         <button class="lec-display-toggle lec-display-action" id="btnLecPause"
                 aria-label="일시정지"
                 onclick="App._lecPauseToggle()">${_lecturePauseButtonLabel(false)}</button>
-        ${_lectureVoiceButtons()}
+        ${_lectureVoiceSelect()}
         ${isLast ? `<button class="lec-display-toggle lec-display-replay" onclick="App._lecRestart()" title="처음부터 다시 보기">${ctx.uiLabeledIcon('replay')} 다시 보기</button>` : ''}
       </div>
       <div class="lec-controls lec-controls-compact">
