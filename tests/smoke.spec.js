@@ -95,11 +95,9 @@ test('loads v2 app data and primary screens', async ({ page }) => {
   await page.getByRole('button', { name: /히라가나 시작하기/ }).click();
   await expect(page.locator('#flowScreen')).toHaveClass(/open/);
   await expect(page.locator('.module-intro-title')).toBeVisible();
-  const introItems = await page.locator('.module-intro-items').evaluate(el => ({
-    clientWidth: el.clientWidth,
-    scrollWidth: el.scrollWidth,
-  }));
-  expect(introItems.scrollWidth).toBeGreaterThan(introItems.clientWidth);
+  await expect(page.locator('.module-intro-image')).toBeVisible();
+  await expect(page.locator('.intro-item').first()).toBeVisible();
+  await expect(page.locator('.intro-item').last()).toBeVisible();
   await expect(page.getByRole('button', { name: /학습 시작/ })).toBeVisible();
   await page.evaluate(() => {
     window.TTS.speak = async () => {};
@@ -242,9 +240,12 @@ test('opens roleplay and dialogue detail popup', async ({ page }) => {
 
   await expect(page.locator('#flowScreen')).toHaveClass(/open/);
   await expect(page.locator('.roleplay-hero')).toBeVisible();
-  await expect(page.locator('.dialogue-bubble').first()).toBeVisible();
+  await expect(page.locator('.dialogue-bubble')).toHaveCount(0);
 
-  await page.locator('.dialogue-bubble').first().click();
+  await page.getByRole('button', { name: /영상 재생 시작/ }).click();
+  await page.getByRole('button', { name: /다음/ }).click();
+  await expect(page.locator('.comic-script-line:not(.narrator)').first()).toBeVisible();
+  await page.locator('.comic-script-line:not(.narrator)').first().click();
   await expect(page.locator('#detailOverlay')).toBeVisible();
   await expect(page.locator('.detail-popup')).toBeVisible();
 

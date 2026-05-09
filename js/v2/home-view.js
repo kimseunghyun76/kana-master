@@ -40,12 +40,14 @@ window.createHomeView = (ctx) => {
       const title = next.roleplay ? next.mod.roleplay.name : next.mod.name;
       const visual = getModuleVisual(next.mod);
       const todayXP = prog.todayXP || 0;
+      const guideHtml = !next.roleplay ? _renderStepGuide(next.mod, prog) : '';
       return `
         <section class="home-dashboard welcome-card">
           <div class="dashboard-main">
             <div class="dashboard-kicker">오늘의 다음 행동</div>
             <h1>${escHtml(title)}</h1>
             <p>${escHtml(stage.name)} · ${escHtml(visual.focus)} · ${pct}% 진행</p>
+            ${guideHtml}
             <button class="dashboard-primary" onclick="App.openModule('${next.mod.id}', ${next.roleplay ? 'true' : 'false'})">
               ${next.roleplay ? '롤플레이 시작' : '계속 학습하기'}
             </button>
@@ -72,6 +74,7 @@ window.createHomeView = (ctx) => {
 
   function _renderWelcome() {
     const welcomeBg = cssUrlValue('images/lecture-scenes/slevel1-first-phrases-classroom-greeting.png');
+    const firstMod = MODULES.find(m => m.id === 'kana_hira');
     return `
       <div class="welcome-card welcome-card-cinematic" style="--welcome-bg:url('${welcomeBg}')">
         <div class="welcome-bg" aria-hidden="true"></div>
@@ -86,10 +89,60 @@ window.createHomeView = (ctx) => {
             <span><b>7일</b>문자 완성</span>
             <span><b>무료</b>첫 단계</span>
           </div>
+          ${firstMod ? _renderStepGuide(firstMod, Store.get(), true) : ''}
           <button class="dashboard-primary" onclick="App.openModule('kana_hira')">히라가나 시작하기</button>
         </div>
       </div>
     `;
+  }
+
+  function _renderStepGuide(mod, prog, compact = false) {
+    const stepMap = _getGuideSteps(mod);
+    if (!stepMap.length) return '';
+    const completed = prog.modules[mod.id]?.stepsCompleted || 0;
+    const cards = stepMap.map(item => {
+      const done = completed > item.index;
+      return `
+        <button class="home-step-guide-btn ${done ? 'done' : ''}" type="button"
+                onclick="event.stopPropagation(); App.openModuleStep('${mod.id}', ${item.index})">
+          <span class="home-step-guide-icon">${uiIconSvg(item.iconKey, 'home-step-guide-svg')}</span>
+          <span class="home-step-guide-copy">
+            <b>${escHtml(item.label)}</b>
+            <em>${escHtml(item.desc)}</em>
+          </span>
+        </button>
+      `;
+    }).join('');
+    return `
+      <div class="home-step-guide ${compact ? 'compact' : ''}">
+        <div class="home-step-guide-title">원하는 방식으로 바로 시작</div>
+        <div class="home-step-guide-grid">${cards}</div>
+      </div>
+    `;
+  }
+
+  function _getGuideSteps(mod) {
+    const wanted = [
+      { key: 'lecture', label: '강의 보기', desc: '핵심 설명부터', iconKey: 'book' },
+      { key: 'learn', label: '카드 강의', desc: '표현만 바로 보기', iconKey: 'grid' },
+      { key: 'quiz', label: '퀴즈 풀기', desc: '바로 점검하기', iconKey: 'quiz' },
+    ];
+    return wanted.map(w => {
+      const index = mod.steps.findIndex(step => {
+        if (w.key === 'lecture') return step.type === 'lecture';
+        if (w.key === 'learn') return ['vocab_learn', 'kana_learn', 'dialogue_study'].includes(step.type);
+        if (w.key === 'quiz') return ['vocab_quiz', 'kana_quiz', 'kana_listening'].includes(step.type);
+        return false;
+      });
+      if (index < 0) return null;
+      const step = mod.steps[index];
+      return {
+        index,
+        label: w.key === 'learn' && step.type === 'kana_learn' ? '문자 카드' : w.label,
+        desc: w.key === 'quiz' && step.type === 'kana_listening' ? '듣고 고르기' : w.desc,
+        iconKey: w.iconKey,
+      };
+    }).filter(Boolean);
   }
 
   function _renderPrograms(prog) {

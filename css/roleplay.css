@@ -25,7 +25,7 @@
   display: block;
 }
 .roleplay-hero {
-  min-height: 300px;
+  min-height: 260px;
   border-radius: 8px;
   overflow: hidden;
   border: 1px solid rgba(255,255,255,.14);
@@ -195,7 +195,7 @@
   gap: 8px;
 }
 .roleplay-guide-grid span {
-  min-height: 58px;
+  min-height: 52px;
   padding: 10px;
   border: 1px solid rgba(148,163,184,.16);
   border-radius: 8px;
@@ -284,8 +284,905 @@
   text-align: right;
 }
 .dialogue-list { display: flex; flex-direction: column; gap: 14px; }
-.roleplay-comic-list {
-  gap: 16px;
+.flow-screen.roleplay-comic-mode .flow-body {
+  padding: 0 8px 8px;
+  scroll-snap-type: y proximity;
+}
+.flow-screen.roleplay-comic-mode .dialogue-scene,
+.flow-screen.roleplay-comic-mode .roleplay-mission-card,
+.flow-screen.roleplay-comic-mode .roleplay-conversation-head {
+  display: none;
+}
+.flow-screen.roleplay-comic-mode .roleplay-hero {
+  min-height: 84px;
+  margin: 0 0 8px;
+}
+.flow-screen.roleplay-comic-mode .roleplay-hero-content {
+  padding: 12px 14px;
+}
+.flow-screen.roleplay-comic-mode .roleplay-hero-title {
+  font-size: 18px;
+}
+.flow-screen.roleplay-comic-mode .roleplay-hero-desc,
+.flow-screen.roleplay-comic-mode .roleplay-hero-chips {
+  display: none;
+}
+.flow-screen.roleplay-comic-mode .roleplay-conversation {
+  margin: 0;
+}
+.flow-screen.roleplay-comic-mode .flow-footer {
+  padding: 8px 12px;
+}
+.flow-screen.roleplay-comic-mode .flow-footer .roleplay-actions {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.08fr);
+  gap: 8px;
+}
+.flow-screen.roleplay-comic-mode .flow-footer .btn {
+  min-width: 0;
+  min-height: 50px;
+  padding-inline: 10px;
+}
+.comic-intro-shell {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.flow-screen.roleplay-comic-mode .comic-intro-hero {
+  min-height: min(430px, 50dvh);
+  margin: 0;
+  align-items: flex-end;
+}
+.flow-screen.roleplay-comic-mode .comic-intro-hero .roleplay-hero-bg {
+  background-size: cover;
+  background-position: center 62%;
+  transform: none;
+  opacity: .78;
+}
+.flow-screen.roleplay-comic-mode .comic-intro-hero::before {
+  background:
+    linear-gradient(180deg, rgba(2,6,23,.02), rgba(2,6,23,.16) 48%, rgba(2,6,23,.9)),
+    linear-gradient(90deg, rgba(2,6,23,.72), rgba(2,6,23,.08) 50%, rgba(2,6,23,.62));
+}
+.flow-screen.roleplay-comic-mode .comic-intro-hero .roleplay-hero-title {
+  font-size: 24px;
+}
+.flow-screen.roleplay-comic-mode .comic-intro-hero .roleplay-hero-desc {
+  display: block;
+}
+.comic-intro-panel {
+  padding: 14px;
+  border: 1px solid rgba(148,163,184,.16);
+  border-radius: 8px;
+  background: rgba(15,23,42,.62);
+}
+.comic-intro-label {
+  margin-bottom: 10px;
+  color: var(--text2);
+  font-size: 12px;
+  font-weight: 900;
+}
+.comic-practice-role-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+.comic-voice-section {
+  padding: 10px 0 12px;
+  border-top: 1px solid rgba(148,163,184,.12);
+}
+.comic-voice-section:last-child {
+  padding-bottom: 0;
+}
+.comic-voice-select-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.comic-voice-select-card {
+  display: grid;
+  grid-template-columns: 58px minmax(0, 1fr);
+  gap: 10px;
+  align-items: center;
+  padding: 9px;
+  border: 1px solid rgba(148,163,184,.16);
+  border-radius: 8px;
+  background: rgba(2,6,23,.32);
+}
+.comic-role-avatar {
+  width: 58px;
+  height: 58px;
+  display: block;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,.16);
+  background-color: rgba(15,23,42,.76);
+  background-repeat: no-repeat;
+  background-size: auto 142%;
+  background-position: center 18%;
+  box-shadow: 0 10px 22px rgba(2,6,23,.24);
+}
+.comic-voice-select-main {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.comic-voice-select-main span {
+  color: var(--text2);
+  font-size: 11px;
+  font-weight: 900;
+}
+.comic-voice-select {
+  width: 100%;
+  min-height: 36px;
+  padding: 0 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(148,163,184,.2);
+  background: var(--bg2);
+  color: var(--text);
+  font-weight: 800;
+}
+.comic-voice-section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.comic-voice-section-head span {
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 900;
+}
+.comic-voice-section-head b {
+  min-width: 0;
+  color: var(--text3);
+  font-size: 11px;
+  font-weight: 800;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.comic-role-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+.comic-role-card {
+  min-width: 0;
+  min-height: 70px;
+  padding: 10px 8px;
+  border: 1px solid rgba(148,163,184,.2);
+  border-radius: 8px;
+  background: rgba(2,6,23,.36);
+  color: var(--text2);
+  cursor: pointer;
+  text-align: left;
+}
+.comic-role-card.active {
+  border-color: rgba(129,140,248,.62);
+  background: rgba(99,102,241,.18);
+  color: var(--text);
+}
+.comic-role-name,
+.comic-role-voice {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.comic-role-name {
+  font-size: 13px;
+  font-weight: 900;
+}
+.comic-role-voice {
+  margin-top: 5px;
+  color: var(--text3);
+  font-size: 11px;
+  font-weight: 800;
+}
+.comic-intro-sample {
+  max-width: none;
+  width: 100%;
+  margin-top: 12px;
+  cursor: pointer;
+}
+.comic-intro-actions {
+  display: grid;
+  grid-template-columns: .8fr 1.2fr;
+}
+.comic-intro-characters {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: clamp(8px, 4vw, 34px);
+  padding: 16px 12px 118px;
+  pointer-events: none;
+}
+.comic-intro-character {
+  min-width: 0;
+  max-width: 46%;
+  max-height: 100%;
+  object-fit: contain;
+  object-position: center bottom;
+  filter: drop-shadow(0 18px 30px rgba(2,6,23,.48));
+}
+.comic-intro-character-A {
+  transform: translateX(7%) scale(.98);
+}
+.comic-intro-character-B {
+  transform: translateX(-7%) scale(.98);
+}
+.flow-screen.roleplay-comic-player-mode .flow-body {
+  overflow: hidden;
+}
+.flow-screen.roleplay-comic-player-mode .flow-footer {
+  padding: 8px 12px;
+}
+.comic-player-shell {
+  box-sizing: border-box;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  padding-bottom: 10px;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  place-items: center;
+  gap: 8px;
+}
+.comic-practice-shell {
+  width: 100%;
+  grid-template-rows: minmax(0, 1fr);
+}
+.comic-practice-shell .comic-player-visual.comic-video-scene {
+  width: 100%;
+}
+.comic-practice-prompt {
+  position: absolute;
+  z-index: 8;
+  top: 58px;
+  left: 12px;
+  right: 12px;
+  width: auto;
+  padding: 10px 12px;
+  border: 1px solid rgba(196,181,253,.42);
+  border-radius: 8px;
+  background: linear-gradient(180deg, rgba(17,24,39,.92), rgba(2,6,23,.88));
+  box-shadow: 0 18px 38px rgba(2,6,23,.5), inset 0 1px 0 rgba(255,255,255,.08);
+  backdrop-filter: blur(14px);
+}
+.comic-practice-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.comic-practice-head span,
+.comic-practice-head b {
+  min-width: 0;
+}
+.comic-practice-head span {
+  color: #c4b5fd;
+  font-size: 11px;
+  font-weight: 900;
+}
+.comic-practice-head b {
+  color: var(--text3);
+  font-size: 11px;
+  font-weight: 900;
+}
+.comic-practice-steps {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+  margin-bottom: 8px;
+}
+.comic-practice-steps i {
+  min-width: 0;
+  padding: 6px 7px;
+  border-radius: 999px;
+  background: rgba(148,163,184,.1);
+  color: var(--text3);
+  font-size: 10px;
+  font-style: normal;
+  font-weight: 900;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.comic-practice-steps i.active {
+  background: rgba(251,191,36,.18);
+  color: #fde68a;
+}
+.comic-practice-prompt b,
+.comic-practice-prompt em {
+  display: block;
+}
+.comic-practice-prompt b {
+  color: #fff;
+  font-size: 13px;
+  line-height: 1.4;
+}
+.comic-practice-prompt em {
+  margin-top: 6px;
+  color: rgba(248,250,252,.92);
+  font-family: 'Noto Sans JP', serif;
+  font-size: 15px;
+  font-style: normal;
+  line-height: 1.6;
+}
+.comic-practice-prompt rt {
+  font-size: .55em;
+  color: var(--accent2);
+}
+.comic-player-visual {
+  position: relative;
+  min-height: 0;
+  overflow: hidden;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,.18);
+  background-image: linear-gradient(180deg, rgba(2,6,23,.02), rgba(2,6,23,.08));
+  background-size: 200% 300%;
+  box-shadow: 0 18px 38px rgba(2,6,23,.28);
+  isolation: isolate;
+}
+.comic-player-visual.comic-video-scene {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 9 / 16;
+  min-height: 0;
+  background-size: cover;
+  background-position: center;
+}
+.comic-cinematic-frame {
+  --camera-x: 50%;
+  --camera-y: 50%;
+  --speaker-glow-x: 50%;
+}
+.comic-player-visual::before {
+  content: '';
+  position: absolute;
+  inset: -6%;
+  z-index: 0;
+  background-image: var(--comic-bg);
+  background-size: inherit;
+  background-position: inherit;
+  filter: saturate(1.1) contrast(1.05);
+  transform: scale(1.02);
+}
+.comic-player-visual.comic-video-scene::before {
+  background-size: cover;
+  background-position: var(--camera-x) var(--camera-y);
+}
+.comic-player-visual.comic-video-scene.speaker-focus-A::before {
+  transform-origin: 32% 42%;
+}
+.comic-player-visual.comic-video-scene.speaker-focus-B::before {
+  transform-origin: 72% 42%;
+}
+.comic-player-visual::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background:
+    radial-gradient(circle at var(--speaker-glow-x, 50%) 42%, rgba(255,255,255,.2), transparent 24%),
+    linear-gradient(180deg, rgba(2,6,23,.02), rgba(2,6,23,.18) 42%, rgba(2,6,23,.84));
+  pointer-events: none;
+}
+.comic-cinematic-frame::after {
+  background:
+    radial-gradient(circle at var(--speaker-glow-x, 50%) 42%, rgba(255,255,255,.18), transparent 25%),
+    radial-gradient(circle at 50% 18%, rgba(251,191,36,.1), transparent 32%),
+    linear-gradient(180deg, rgba(2,6,23,.02), rgba(2,6,23,.16) 40%, rgba(2,6,23,.88));
+}
+.cinematic-panel-1 { --camera-x: 50%; --camera-y: 56%; }
+.cinematic-panel-2 { --camera-x: 44%; --camera-y: 58%; }
+.cinematic-panel-3 { --camera-x: 62%; --camera-y: 57%; }
+.cinematic-panel-4 { --camera-x: 38%; --camera-y: 60%; }
+.cinematic-panel-5 { --camera-x: 64%; --camera-y: 60%; }
+.cinematic-panel-6 { --camera-x: 50%; --camera-y: 58%; }
+.comic-cinematic-depth,
+.comic-light-sweep,
+.comic-cinematic-grain {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.comic-cinematic-depth {
+  z-index: 1;
+  opacity: .7;
+  mix-blend-mode: screen;
+}
+.comic-cinematic-depth.depth-back {
+  background:
+    radial-gradient(circle at 20% 22%, rgba(147,197,253,.12), transparent 18%),
+    radial-gradient(circle at 78% 18%, rgba(251,191,36,.1), transparent 20%);
+}
+.comic-cinematic-depth.depth-front {
+  z-index: 4;
+  background:
+    linear-gradient(100deg, transparent 0 18%, rgba(255,255,255,.08) 34%, transparent 50%),
+    radial-gradient(circle at 50% 112%, rgba(15,23,42,.42), transparent 36%);
+  opacity: .42;
+}
+.comic-light-sweep {
+  z-index: 5;
+  inset: -18% -40%;
+  background: linear-gradient(105deg, transparent 22%, rgba(255,255,255,.14) 45%, transparent 64%);
+  transform: translateX(-34%) rotate(1deg);
+  opacity: .42;
+  display: none;
+}
+.comic-cinematic-grain {
+  z-index: 6;
+  opacity: .12;
+  background-image:
+    radial-gradient(circle at 12% 18%, rgba(255,255,255,.8) 0 1px, transparent 1.5px),
+    radial-gradient(circle at 68% 32%, rgba(255,255,255,.7) 0 1px, transparent 1.5px),
+    radial-gradient(circle at 42% 74%, rgba(255,255,255,.65) 0 1px, transparent 1.5px);
+  background-size: 74px 88px, 92px 110px, 110px 128px;
+  animation: comicGrain 620ms steps(2) infinite;
+}
+.comic-cinematic-frame.mood-warm::after {
+  background:
+    radial-gradient(circle at var(--speaker-glow-x, 50%) 42%, rgba(254,240,138,.22), transparent 25%),
+    linear-gradient(180deg, rgba(251,191,36,.08), rgba(2,6,23,.16) 42%, rgba(2,6,23,.86));
+}
+.comic-cinematic-frame.mood-close::after {
+  background:
+    radial-gradient(circle at var(--speaker-glow-x, 50%) 42%, rgba(196,181,253,.22), transparent 26%),
+    linear-gradient(180deg, rgba(2,6,23,.04), rgba(2,6,23,.18) 38%, rgba(2,6,23,.9));
+}
+.vn-character {
+  position: absolute;
+  z-index: 2;
+  bottom: 3%;
+  width: 62%;
+  height: 82%;
+  object-fit: contain;
+  object-position: center bottom;
+  pointer-events: none;
+  filter: drop-shadow(0 18px 28px rgba(2,6,23,.38));
+  transform-origin: 50% 100%;
+  opacity: .9;
+  transition: transform .35s var(--ease), opacity .35s var(--ease), filter .35s var(--ease);
+  animation: vnEnter .42s var(--ease) both, vnIdle 3.8s ease-in-out .42s infinite;
+}
+.vn-character-A {
+  left: -7%;
+}
+.vn-character-B {
+  right: -7%;
+  animation-delay: .5s;
+}
+.comic-player-visual.speaker-focus-A .vn-character-A,
+.comic-player-visual.speaker-focus-B .vn-character-B {
+  opacity: 1;
+  filter: drop-shadow(0 22px 34px rgba(2,6,23,.46)) drop-shadow(0 0 14px rgba(251,191,36,.18));
+  animation: vnSpeak 820ms ease-in-out infinite;
+}
+.comic-player-visual.speaker-focus-A .vn-character-B,
+.comic-player-visual.speaker-focus-B .vn-character-A {
+  opacity: .78;
+  filter: drop-shadow(0 14px 22px rgba(2,6,23,.28)) saturate(.86);
+  transform: scale(.96);
+}
+.comic-player-visual.is-speaking::before {
+  animation: none;
+}
+.comic-player-visual.speaker-focus-A { --speaker-glow-x: 30%; }
+.comic-player-visual.speaker-focus-B { --speaker-glow-x: 70%; }
+.comic-player-visual.speaker-focus-C { --speaker-glow-x: 50%; }
+.comic-video-bars::before,
+.comic-video-bars::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 7%;
+  z-index: 1;
+  background: rgba(2,6,23,.9);
+  pointer-events: none;
+}
+.comic-video-bars::before { top: 0; }
+.comic-video-bars::after { bottom: 0; }
+.comic-play-indicator {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 5;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 28px;
+  padding: 6px 9px;
+  border-radius: 999px;
+  background: rgba(15,23,42,.74);
+  border: 1px solid rgba(255,255,255,.14);
+  color: rgba(248,250,252,.94);
+  backdrop-filter: blur(10px);
+}
+.comic-play-indicator span {
+  width: 3px;
+  height: 11px;
+  border-radius: 999px;
+  background: #a7f3d0;
+  animation: comicEq 780ms ease-in-out infinite;
+}
+.comic-play-indicator span:nth-child(2) { animation-delay: 120ms; }
+.comic-play-indicator span:nth-child(3) { animation-delay: 240ms; }
+.comic-play-indicator b {
+  margin-left: 4px;
+  font-size: 11px;
+  font-weight: 900;
+}
+.comic-subtitle-overlay,
+.comic-script-dock {
+  position: relative;
+  width: min(100%, 430px);
+  z-index: 6;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  padding: 9px;
+  border: 1px solid rgba(255,255,255,.18);
+  border-radius: 8px;
+  background: rgba(2,6,23,.64);
+  box-shadow: 0 14px 34px rgba(2,6,23,.34);
+  backdrop-filter: blur(10px);
+  animation: comicSubtitleIn 320ms var(--ease);
+}
+.comic-script-dock-external {
+  margin-top: 0;
+  gap: 6px;
+  padding: 9px;
+  border-color: rgba(255,255,255,.16);
+  background: linear-gradient(180deg, rgba(2,6,23,.18), rgba(2,6,23,.82));
+  box-shadow: 0 18px 40px rgba(2,6,23,.42), inset 0 1px 0 rgba(255,255,255,.08);
+  animation: none;
+}
+.comic-script-dock-external .comic-script-line:not(.active) {
+  display: none;
+}
+.comic-script-dock-external .comic-script-line.active {
+  grid-template-columns: 48px minmax(0, 1fr) 28px;
+  padding: 10px;
+  background: linear-gradient(180deg, rgba(15,23,42,.74), rgba(2,6,23,.78));
+  opacity: 1;
+  transform: none;
+  animation: none;
+}
+.comic-script-dock-external .comic-script-meta {
+  text-align: center;
+  font-size: 9.5px;
+}
+.comic-script-dock-external .comic-script-speaker {
+  align-self: stretch;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  border-radius: 8px;
+  background: rgba(99,102,241,.18);
+  overflow: hidden;
+}
+.comic-script-avatar {
+  width: 34px;
+  height: 34px;
+  display: block;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,.18);
+  background-color: rgba(15,23,42,.76);
+  background-repeat: no-repeat;
+  background-size: auto 155%;
+  background-position: center 18%;
+}
+.comic-script-role {
+  color: var(--accent2);
+  font-size: 10px;
+  font-weight: 900;
+  line-height: 1;
+}
+.comic-script-dock-external .comic-script-jp {
+  font-size: 18px;
+  line-height: 1.42;
+}
+.comic-script-dock-external .comic-script-ko {
+  font-size: 12px;
+}
+.comic-script-meta {
+  color: var(--text3);
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 1px;
+}
+.comic-script-line {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr) 30px;
+  gap: 8px;
+  align-items: center;
+  padding: 8px 9px;
+  border: 1px solid rgba(255,255,255,.14);
+  border-radius: 8px;
+  background: rgba(15,23,42,.54);
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+  transition: transform var(--dur), background var(--dur), border-color var(--dur), opacity var(--dur);
+}
+.comic-script-line.narrator {
+  grid-template-columns: 1fr;
+  text-align: center;
+  color: #fcd34d;
+}
+.comic-script-line.active {
+  border-color: rgba(129,140,248,.72);
+  background: rgba(15,23,42,.82);
+  box-shadow: 0 0 0 1px rgba(255,255,255,.14), 0 12px 30px rgba(2,6,23,.32);
+  transform: translateY(-2px);
+  animation: comicLinePulse 1.3s ease-in-out infinite;
+}
+.comic-script-speaker {
+  min-width: 0;
+  color: var(--accent2);
+  font-size: 11px;
+  font-weight: 900;
+}
+.comic-script-copy {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.comic-script-jp {
+  font-family: 'Noto Sans JP', serif;
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1.45;
+  text-shadow: 0 2px 8px rgba(0,0,0,.45);
+}
+.comic-script-line.active .comic-script-jp {
+  font-size: 17px;
+  color: #f8fafc;
+}
+.comic-script-line.active .comic-script-ko {
+  color: #fde68a;
+}
+.comic-script-ko {
+  color: rgba(226,232,240,.9);
+  font-size: 12px;
+  line-height: 1.35;
+}
+.comic-script-audio {
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: rgba(255,255,255,.06);
+  color: var(--text2);
+}
+.comic-player-actions {
+  display: grid;
+  grid-template-columns: .8fr 1fr .8fr;
+  gap: 8px;
+}
+.comic-player-actions .btn {
+  min-width: 0;
+  min-height: 50px;
+  padding-inline: 10px;
+}
+.roleplay-comic-page {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px;
+  max-width: 860px;
+  margin: 0 auto;
+  scroll-snap-type: y proximity;
+  width: 100%;
+}
+.comic-page-panel {
+  position: relative;
+  min-height: min(760px, calc(100dvh - 142px));
+  aspect-ratio: auto;
+  overflow: hidden;
+  border: 3px solid rgba(248,250,252,.92);
+  border-radius: 8px;
+  background-image:
+    linear-gradient(180deg, rgba(2,6,23,.02), rgba(2,6,23,.16)),
+    var(--comic-bg);
+  background-size: 200% 300%;
+  box-shadow: 0 18px 36px rgba(2,6,23,.26);
+  scroll-snap-align: start;
+}
+.comic-panel-1 { background-position: 0 0; }
+.comic-panel-2 { background-position: 100% 0; }
+.comic-panel-3 { background-position: 0 50%; }
+.comic-panel-4 { background-position: 100% 50%; }
+.comic-panel-5 { background-position: 0 100%; }
+.comic-panel-6 { background-position: 100% 100%; }
+
+@keyframes comicCameraDrift {
+  from { transform: scale(1.06) translate3d(-1.2%, -.8%, 0); }
+  to { transform: scale(1.16) translate3d(1.2%, .9%, 0); }
+}
+@keyframes comicCameraSpeak {
+  0%, 100% { transform: scale(1.1) translate3d(-.6%, -.3%, 0); }
+  50% { transform: scale(1.18) translate3d(.8%, .5%, 0); }
+}
+@keyframes comicParallaxBack {
+  from { transform: translate3d(-1.5%, -.6%, 0) scale(1.02); }
+  to { transform: translate3d(1.4%, .7%, 0) scale(1.05); }
+}
+@keyframes comicParallaxFront {
+  from { transform: translate3d(1.4%, 0, 0); }
+  to { transform: translate3d(-1.4%, .5%, 0); }
+}
+@keyframes comicLightSweep {
+  0%, 18% { transform: translateX(-44%) rotate(1deg); opacity: 0; }
+  42% { opacity: .36; }
+  66%, 100% { transform: translateX(44%) rotate(1deg); opacity: 0; }
+}
+@keyframes comicGrain {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(-2px, 1px, 0); }
+}
+@keyframes comicEq {
+  0%, 100% { transform: scaleY(.45); opacity: .7; }
+  50% { transform: scaleY(1.18); opacity: 1; }
+}
+@keyframes comicSubtitleIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes comicLinePulse {
+  0%, 100% { border-color: rgba(129,140,248,.54); }
+  50% { border-color: rgba(251,191,36,.78); }
+}
+@keyframes vnIdle {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-3px) scale(1.005); }
+}
+@keyframes vnEnter {
+  from { opacity: 0; transform: translateY(14px) scale(.96); }
+  to { opacity: .9; transform: translateY(0) scale(1); }
+}
+@keyframes vnSpeak {
+  0%, 100% { transform: translateY(-2px) scale(1.03); }
+  35% { transform: translateY(-6px) scale(1.052) rotate(-.3deg); }
+  70% { transform: translateY(-4px) scale(1.04) rotate(.2deg); }
+}
+@keyframes comicCaptionRise {
+  from { opacity: 0; transform: translateY(10px) scale(.985); }
+  to { opacity: 1; transform: translateY(-2px) scale(1); }
+}
+.comic-page-panel::before {
+  content: attr(data-panel);
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  width: 24px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: rgba(15,23,42,.78);
+  color: #f8fafc;
+  font-size: 11px;
+  font-weight: 900;
+  z-index: 2;
+}
+.comic-page-panel-lines {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 22px;
+  background: linear-gradient(180deg, transparent 38%, rgba(2,6,23,.20));
+}
+.comic-panel-2 .comic-page-panel-lines,
+.comic-panel-4 .comic-page-panel-lines {
+  justify-content: space-between;
+  padding-top: 54px;
+}
+.comic-panel-3 .comic-page-panel-lines,
+.comic-panel-5 .comic-page-panel-lines {
+  justify-content: center;
+}
+.comic-panel-6 .comic-page-panel-lines {
+  justify-content: flex-end;
+  padding-bottom: 34px;
+}
+.comic-page-panel .dialogue-line {
+  display: flex;
+  gap: 9px;
+  max-width: 82%;
+}
+.comic-page-panel .dialogue-line.speaker-N {
+  max-width: 84%;
+  align-self: center;
+}
+.comic-page-panel .dialogue-line.speaker-A {
+  align-self: flex-start;
+  flex-direction: row;
+}
+.comic-page-panel .dialogue-line.speaker-B,
+.comic-page-panel .dialogue-line.speaker-C {
+  align-self: flex-end;
+  flex-direction: row-reverse;
+}
+.comic-page-panel .dialogue-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  border: 2px solid rgba(255,255,255,.85);
+  box-shadow: 0 8px 16px rgba(2,6,23,.26);
+}
+.comic-page-panel .dialogue-bubble,
+.comic-page-panel .dialogue-narrator {
+  max-width: 100%;
+  border: 2px solid rgba(15,23,42,.82);
+  border-radius: 18px;
+  background: rgba(255,255,255,.92);
+  color: #111827;
+  box-shadow: 0 12px 20px rgba(2,6,23,.22);
+}
+.comic-page-panel .dialogue-bubble {
+  padding: 12px 14px 11px;
+}
+.comic-page-panel .dialogue-line.speaker-A .dialogue-bubble {
+  background: rgba(238,242,255,.94);
+  border-color: rgba(67,56,202,.72);
+}
+.comic-page-panel .dialogue-narrator {
+  padding: 7px 12px;
+  font-weight: 900;
+}
+.comic-page-panel .db-jp {
+  color: #111827;
+  font-size: 16px;
+  line-height: 1.55;
+}
+.comic-page-panel .db-ko {
+  color: #475569;
+  font-size: 12px;
+}
+.comic-page-panel .db-tip,
+.comic-page-panel .dialogue-tap-hint {
+  color: #64748b;
+}
+.comic-page-panel .db-audio {
+  background: rgba(15,23,42,.08);
+  color: #334155;
+}
+.comic-page-panel .dialogue-bubble::before {
+  background: inherit;
+  border-color: rgba(15,23,42,.82);
+}
+.comic-panel-2 .dialogue-line:first-child,
+.comic-panel-4 .dialogue-line:first-child {
+  align-self: flex-start;
+}
+.comic-panel-2 .dialogue-line:last-child,
+.comic-panel-4 .dialogue-line:last-child {
+  align-self: flex-end;
 }
 .dialogue-line { display: flex; gap: 12px; }
 .dialogue-line.speaker-A { flex-direction: row-reverse; }
@@ -336,7 +1233,6 @@
 }
 .dialogue-line.speaker-A .dialogue-bubble { background: rgba(99,102,241,.12); border-color: rgba(99,102,241,.3); }
 .dialogue-line.speaker-C .dialogue-bubble { background: rgba(251,146,60,.08); border-color: rgba(251,146,60,.3); }
-
 /* ── 현재 재생 중인 라인 하이라이트 ── */
 @keyframes dl-playing-pulse {
   0%, 100% { box-shadow: 0 0 0 2px transparent; }
@@ -370,8 +1266,8 @@
   font-size: 15px;
   font-weight: 600;
   line-height: 2;
-  ruby rt { font-size: 10px; color: var(--accent2); }
 }
+.dialogue-bubble .db-jp ruby rt { font-size: 10px; color: var(--accent2); }
 .dialogue-bubble .db-ko { font-size: 12px; color: var(--text2); margin-top: 4px; line-height: 1.4; }
 .dialogue-bubble .db-tip {
   font-size: 11px; color: var(--text3); margin-top: 5px; line-height: 1.4;
@@ -425,16 +1321,78 @@
   text-align: center;
   max-width: 80%;
 }
+.comic-page-panel .dialogue-bubble .db-jp {
+  color: #111827;
+  font-size: 16px;
+  line-height: 1.55;
+}
+.comic-page-panel .dialogue-bubble .db-ko {
+  color: #475569;
+  font-size: 12px;
+}
+.comic-page-panel .dialogue-narrator {
+  color: #111827;
+  max-width: 100%;
+}
 
 @media (max-width: 420px) {
   .roleplay-hero {
-    min-height: 260px;
+    min-height: 210px;
   }
   .roleplay-hero-content {
-    padding: 16px;
+    padding: 14px;
+  }
+  .roleplay-hero-title {
+    font-size: 21px;
+  }
+  .roleplay-hero-desc {
+    font-size: 12px;
+    line-height: 1.45;
+  }
+  .roleplay-hero-chips {
+    gap: 6px;
+    margin-top: 10px;
+  }
+  .roleplay-hero-chips span {
+    padding: 6px 8px;
+    font-size: 11px;
   }
   .roleplay-guide-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .roleplay-guide-grid span {
+    min-height: 48px;
+    padding: 8px 6px;
+    text-align: center;
+    font-size: 11px;
+  }
+  .roleplay-guide-grid b {
+    display: flex;
+    margin: 0 auto 4px;
+  }
+  .comic-page-panel {
+    min-height: calc(100dvh - 142px);
+  }
+  .flow-screen.roleplay-comic-mode .comic-intro-hero {
+    min-height: min(390px, 46dvh);
+  }
+  .comic-page-panel-lines {
+    gap: 9px;
+    padding: 14px;
+  }
+  .comic-page-panel .dialogue-line {
+    max-width: 88%;
+  }
+  .comic-page-panel .dialogue-avatar {
+    width: 30px;
+    height: 30px;
+  }
+  .comic-page-panel .dialogue-bubble .db-jp {
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  .comic-page-panel .dialogue-bubble .db-ko {
+    font-size: 11px;
   }
   .roleplay-conversation-head {
     align-items: flex-start;
@@ -449,5 +1407,8 @@
   }
   .roleplay-actions .btn {
     flex-basis: 100%;
+  }
+  .flow-screen.roleplay-comic-mode .flow-footer .roleplay-actions .btn {
+    flex-basis: auto;
   }
 }

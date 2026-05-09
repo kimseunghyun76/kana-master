@@ -5,6 +5,12 @@
 'use strict';
 
 window.createRoleplayFlow = (ctx) => {
+  const CINEMATIC_FIRST_MEETING = {
+    bg: 'images/roleplay-comics/vn-first-meeting-bg.png',
+    male: 'images/roleplay-comics/vn-first-meeting-male.png',
+    female: 'images/roleplay-comics/vn-first-meeting-female.png',
+  };
+
   const _detailFlow = createRoleplayDetailFlow({
     ...ctx,
     getPlaybackState: () => _getRoleplayPlaybackState(),
@@ -45,12 +51,250 @@ window.createRoleplayFlow = (ctx) => {
     return ctx.getFlow().roleplayState;
   }
 
+  function _isComicPrototype(mod) {
+    return mod?.id === 'survival_greet';
+  }
+
+  function _comicGroups() {
+    return [
+      [0],
+      [1, 2],
+      [3, 4],
+      [5, 6],
+      [7, 8],
+      [9, 10, 11],
+    ];
+  }
+
+  function _comicPanelForLine(sourceIndex) {
+    return Math.max(0, _comicGroups().findIndex(group => group.includes(sourceIndex)));
+  }
+
+  function _comicPanelLines(dialogues, panelIndex) {
+    return _comicGroups()[panelIndex].map(i => ({ ...dialogues[i], sourceIndex: i })).filter(line => line?.id);
+  }
+
+  function _comicRoleLabel(role) {
+    const practiceSpeaker = ctx.getFlow()?.roleplayState?.practiceSpeaker || 'A';
+    if (role === practiceSpeaker) return '나';
+    if (role === 'N') return '';
+    return '너';
+  }
+
+  function _comicRoleImage(role) {
+    const key = _voiceForSpeaker(role);
+    return key === 'keita' ? CINEMATIC_FIRST_MEETING.male : CINEMATIC_FIRST_MEETING.female;
+  }
+
+  function _renderComicScriptLine(line, isActive = false) {
+    if (line.speaker === 'N') {
+      return `
+        <button class="comic-script-line narrator ${isActive ? 'active' : ''}" id="dl-line-${line.sourceIndex}" type="button">
+          <span class="comic-script-ko">${escHtml(line.korean || line.japanese || '')}</span>
+        </button>
+      `;
+    }
+    const roleLabel = _comicRoleLabel(line.speaker);
+    return `
+      <button class="comic-script-line speaker-${line.speaker} ${isActive ? 'active' : ''}"
+              id="dl-line-${line.sourceIndex}" type="button"
+              onclick="App.showDialogueDetail('${line.id}')">
+        <span class="comic-script-speaker">
+          <span class="comic-script-avatar" style="background-image:url('${ctx.cssUrlValue(_comicRoleImage(line.speaker))}')"></span>
+          <span class="comic-script-role">${escHtml(roleLabel || line.speaker)}</span>
+        </span>
+        <span class="comic-script-copy">
+          <span class="comic-script-jp">${ruby(line.japanese || '')}</span>
+          <span class="comic-script-ko">${escHtml(line.korean || '')}</span>
+        </span>
+        <span class="comic-script-audio" onclick="event.stopPropagation(); App._speakDialogueLine('${line.id}')">${ctx.uiIconSvg('audio', 'audio-inline-icon')}</span>
+      </button>
+    `;
+  }
+
+  function _renderComicScriptDock(dialogues, panelIndex, activeSourceIndex = null) {
+    const lines = _comicPanelLines(dialogues, panelIndex);
+    const selectedLine = activeSourceIndex === null
+      ? (lines.find(line => line.speaker !== 'N') || lines[0])
+      : lines.find(line => line.sourceIndex === activeSourceIndex);
+    const selectedSourceIndex = selectedLine?.sourceIndex ?? null;
+    return `
+      <div class="comic-subtitle-overlay comic-script-dock-external" id="comicScriptDock">
+        ${lines.map(line => _renderComicScriptLine(line, line.sourceIndex === selectedSourceIndex)).join('')}
+      </div>
+    `;
+  }
+
+  function _renderComicFrameHtml(dialogues, panelIndex, activeSourceIndex = null) {
+    const lines = _comicPanelLines(dialogues, panelIndex);
+    const selectedLine = activeSourceIndex === null
+      ? (lines.find(line => line.speaker !== 'N') || lines[0])
+      : lines.find(line => line.sourceIndex === activeSourceIndex);
+    const activeLine = selectedLine;
+    const activeSpeaker = activeLine?.speaker && activeLine.speaker !== 'N' ? activeLine.speaker : '';
+    const focusClass = activeSpeaker ? `is-speaking speaker-focus-${activeSpeaker}` : '';
+    const speakerName = _comicRoleLabel(activeSpeaker);
+    const cinematicClass = `cinematic-panel-${panelIndex + 1}`;
+    const lineMood = activeLine?.id || '';
+    const moodClass = /3|4|7|8/.test(lineMood) ? 'mood-warm' : /9|10|11/.test(lineMood) ? 'mood-close' : 'mood-formal';
+    return `
+      <div class="comic-player-visual comic-video-scene comic-cinematic-frame comic-panel-${panelIndex + 1} ${cinematicClass} ${moodClass} ${focusClass}" id="comicVisualFrame" data-panel="${panelIndex + 1}" data-speaker="${escHtml(activeSpeaker)}">
+        <div class="comic-video-bars" aria-hidden="true"></div>
+        <div class="comic-cinematic-depth depth-back" aria-hidden="true"></div>
+        <div class="comic-cinematic-depth depth-front" aria-hidden="true"></div>
+        <div class="comic-light-sweep" aria-hidden="true"></div>
+        <img class="vn-character vn-character-A" src="${_comicRoleImage('A')}" alt="" aria-hidden="true">
+        <img class="vn-character vn-character-B" src="${_comicRoleImage('B')}" alt="" aria-hidden="true">
+        <div class="comic-cinematic-grain" aria-hidden="true"></div>
+        <div class="comic-play-indicator">
+          <span></span><span></span><span></span>
+          <b>${speakerName ? `${escHtml(speakerName)} 말하는 중` : '장면 재생'}</b>
+        </div>
+      </div>
+    `;
+  }
+
+  function _renderComicIntro(mod, rp, dialogues, roleplayCover, speakerOptions, speakerLabels, practiceSpeaker) {
+    const voices = typeof TTS.getAvailableVoices === 'function' ? TTS.getAvailableVoices() : [];
+    const voiceOptionHtml = role => voices.map(v => `
+      <option value="${v.key}" ${_voiceForSpeaker(role) === v.key ? 'selected' : ''}>
+        ${escHtml(v.label || v.key)} · ${escHtml(VoiceCharacters.meta(v.key).age || (v.gender === 'M' ? '남성' : '여성'))}
+      </option>
+    `).join('');
+    const voiceSelect = role => {
+      const key = _voiceForSpeaker(role);
+      const voice = voices.find(v => v.key === key) || voices[0] || { key, label: key, gender: 'F' };
+      const roleLabel = _comicRoleLabel(role);
+      return `
+        <div class="comic-voice-select-card">
+          <span class="comic-role-avatar" style="background-image:url('${ctx.cssUrlValue(_comicRoleImage(role))}')"></span>
+          <label class="comic-voice-select-main">
+            <span>${escHtml(roleLabel)} · ${escHtml(voice.label || voice.key)}</span>
+            <select class="comic-voice-select" onchange="App._setRoleplayVoice('${role}', this.value)">
+              ${voiceOptionHtml(role)}
+            </select>
+          </label>
+        </div>
+      `;
+    };
+    const roleSelectorHtml = speakerOptions.length > 1 ? `
+      <div class="comic-practice-role-row">
+        <span class="roleplay-role-label">내가 연습할 역할</span>
+        ${speakerOptions.map(s => `
+          <button class="roleplay-role-chip ${practiceSpeaker === s ? 'active' : ''}" type="button"
+                  onclick="App._setRoleplayPracticeSpeaker('${s}')">${escHtml(_comicRoleLabel(s))}</button>
+        `).join('')}
+      </div>
+      <div class="comic-voice-select-grid">
+        ${speakerOptions.map(voiceSelect).join('')}
+      </div>
+    ` : '';
+    document.getElementById('flowStep').textContent = '1 / 2 · 씬과 화자 선택';
+    document.getElementById('flowProgressFill').style.width = '20%';
+    document.getElementById('flowBody').innerHTML = `
+      <div class="comic-intro-shell">
+        <div class="roleplay-hero comic-intro-hero" style="--roleplay-hero-bg:url('${ctx.cssUrlValue(CINEMATIC_FIRST_MEETING.bg)}')">
+          <div class="roleplay-hero-bg" aria-hidden="true"></div>
+          <div class="comic-intro-characters" aria-hidden="true">
+            <img class="comic-intro-character comic-intro-character-A" src="${_comicRoleImage('A')}" alt="">
+            <img class="comic-intro-character comic-intro-character-B" src="${_comicRoleImage('B')}" alt="">
+          </div>
+          <div class="roleplay-hero-content">
+            <div class="roleplay-hero-title">오피스 로비에서 명함을 건네며 인사</div>
+            <div class="roleplay-hero-desc">화자를 선택하면 장면이 자동으로 움직이고, 영화 자막처럼 대사가 이어집니다.</div>
+          </div>
+        </div>
+        <div class="comic-intro-panel">
+          <div class="comic-intro-label">역할과 화자 선택</div>
+          ${roleSelectorHtml}
+        </div>
+      </div>
+    `;
+    document.getElementById('flowFooter').innerHTML = `
+      <div class="roleplay-actions comic-intro-actions">
+        <button class="btn btn-outline" onclick="App.closeFlow()">나중에</button>
+        <button class="btn btn-primary" onclick="App._startRoleplayComicPlayer()">영상 재생 시작 →</button>
+      </div>
+    `;
+  }
+
+  function _renderComicPlayer(mod, rp, dialogues, comicSceneAsset) {
+    const state = _getRoleplayState(mod);
+    const panelIndex = Math.max(0, Math.min(state.comicPanelIndex || 0, _comicGroups().length - 1));
+    state.phase = 'comic_player';
+    state.comicPanelIndex = panelIndex;
+    document.getElementById('flowStep').textContent = '2 / 2 · 영상 재생';
+    document.getElementById('flowProgressFill').style.width = `${32 + Math.round(((panelIndex + 1) / _comicGroups().length) * 60)}%`;
+    document.getElementById('flowBody').innerHTML = `
+      <div class="comic-player-shell" style="--comic-bg:url('${ctx.cssUrlValue(comicSceneAsset)}')">
+        ${_renderComicFrameHtml(dialogues, panelIndex)}
+        ${_renderComicScriptDock(dialogues, panelIndex)}
+      </div>
+    `;
+    document.getElementById('flowFooter').innerHTML = `
+      <div class="comic-player-actions">
+        <button class="btn btn-outline" onclick="App._roleplayComicPrev()">← ${panelIndex === 0 ? '처음' : '이전'}</button>
+        <button class="btn btn-outline" id="btnReplayAll" onclick="App._roleplayComicSpeakPanel()">${ctx.uiLabeledIcon('audio')} 다시 듣기</button>
+        <button class="btn btn-outline" id="btnStopPlay" style="display:none" onclick="App._stopRoleplay()">정지</button>
+        <button class="btn btn-primary" onclick="App._roleplayComicNext()">${panelIndex >= _comicGroups().length - 1 ? '역할 연습 →' : '다음 →'}</button>
+      </div>
+    `;
+  }
+
+  function _renderComicPractice(mod, rp, dialogues, comicSceneAsset) {
+    const state = _getRoleplayState(mod);
+    const practiceLines = state.practiceLines || [];
+    const outputDone = state.outputDone || [];
+    const activeIndex = practiceLines.findIndex((_, idx) => !outputDone[idx]);
+    if (activeIndex < 0) {
+      _completeRoleplay(mod.id);
+      return;
+    }
+    const activeLine = practiceLines[activeIndex];
+    const panelIndex = _comicPanelForLine(activeLine.sourceIndex || 0);
+    const speakerLabel = ({ A: '나', B: '상대', C: '제3자' })[activeLine.speaker] || activeLine.speaker || '';
+    state.phase = 'comic_practice';
+    state.comicPanelIndex = panelIndex;
+    document.getElementById('flowStep').textContent = `말하기 · ${activeIndex + 1}/${practiceLines.length}`;
+    document.getElementById('flowProgressFill').style.width = `${55 + Math.round(((activeIndex + 1) / practiceLines.length) * 40)}%`;
+    document.getElementById('flowBody').innerHTML = `
+      <div class="comic-player-shell comic-practice-shell" style="--comic-bg:url('${ctx.cssUrlValue(comicSceneAsset)}')">
+        ${_renderComicFrameHtml(dialogues, panelIndex, activeLine.sourceIndex)}
+        <div class="comic-practice-prompt">
+          <div class="comic-practice-head">
+            <span>말하기 모드 · ${escHtml(speakerLabel)}</span>
+            <b>${activeIndex + 1} / ${practiceLines.length}</b>
+          </div>
+          <div class="comic-practice-steps">
+            <i>1 듣기</i>
+            <i class="active">2 소리내어 말하기</i>
+            <i>3 다음 대사</i>
+          </div>
+          <b>${escHtml(activeLine.korean || '')}</b>
+          <em>${ruby(activeLine.japanese || '')}</em>
+        </div>
+      </div>
+    `;
+    document.getElementById('flowFooter').innerHTML = `
+      <div class="comic-player-actions">
+        <button class="btn btn-outline" onclick="App._roleplayComicPracticePrev()" ${activeIndex === 0 ? 'disabled' : ''}>← 이전</button>
+        <button class="btn btn-outline" onclick="App._speakDialogueLine('${activeLine.id}')">${ctx.uiLabeledIcon('audio')} 모범 듣기</button>
+        <button class="btn btn-primary" onclick="App._roleplayComicPracticeNext()">말했어요 →</button>
+      </div>
+    `;
+  }
+
   function _renderRoleplay(mod) {
     const rp = mod.roleplay;
     const dialogues = ctx.getDialogue(rp.dialogueKey);
     const state = _getRoleplayState(mod);
     const phase = state.phase || 'preview';
     const roleplayCover = ctx.getRoleplayCoverAsset(mod);
+    const isComicDemo = _isComicPrototype(mod);
+    const comicSceneAsset = isComicDemo ? CINEMATIC_FIRST_MEETING.bg : roleplayCover;
+    const conversationClass = isComicDemo ? 'roleplay-comic-page' : '';
+    document.getElementById('flowScreen')?.classList.toggle('roleplay-comic-mode', isComicDemo);
+    document.getElementById('flowScreen')?.classList.toggle('roleplay-comic-player-mode', isComicDemo && (phase === 'comic_player' || phase === 'comic_practice'));
     const practiceSpeaker = state.practiceSpeaker || 'A';
     const practiceLines = state.practiceLines || [];
     const shadowDone = state.shadowDone || [];
@@ -75,6 +319,18 @@ window.createRoleplayFlow = (ctx) => {
     ` : '';
 
     document.getElementById('flowTitle').textContent = rp.name;
+    if (isComicDemo && phase === 'comic_intro') {
+      _renderComicIntro(mod, rp, dialogues, roleplayCover, speakerOptions, speakerLabels, practiceSpeaker);
+      return;
+    }
+    if (isComicDemo && phase === 'comic_player') {
+      _renderComicPlayer(mod, rp, dialogues, comicSceneAsset);
+      return;
+    }
+    if (isComicDemo && phase === 'comic_practice') {
+      _renderComicPractice(mod, rp, dialogues, comicSceneAsset);
+      return;
+    }
     if (phase === 'preview') {
       document.getElementById('flowStep').textContent = '1 / 2 · 먼저 듣고 흐름 익히기';
       document.getElementById('flowProgressFill').style.width = '35%';
@@ -88,10 +344,10 @@ window.createRoleplayFlow = (ctx) => {
       document.getElementById('flowProgressFill').style.width = `${practicePct}%`;
     }
 
-    const dialogueHtml = dialogues.map((line, i) => {
+    const renderDialogueLine = (line, i) => {
       if (line.speaker === 'N') {
         const narratorText = line.japanese || line.korean || '';
-        return `<div class="dialogue-line speaker-N" id="dl-line-${i}">
+        return `<div class="dialogue-line speaker-N" id="dl-line-${i}" data-panel="${i + 1}">
           <div class="dialogue-narrator">${ruby(narratorText)}</div>
         </div>`;
       }
@@ -100,7 +356,7 @@ window.createRoleplayFlow = (ctx) => {
       const side  = sideMap[line.speaker] || 'speaker-B';
       const label = labelMap[line.speaker] || line.speaker;
       return `
-        <div class="dialogue-line ${side}" id="dl-line-${i}">
+        <div class="dialogue-line ${side}" id="dl-line-${i}" data-panel="${i + 1}">
           <div class="dialogue-avatar">${label}</div>
           <div class="dialogue-bubble" style="cursor:pointer" onclick="App.showDialogueDetail('${line.id}')">
             <div class="db-jp">${ruby(line.japanese || '')}</div>
@@ -113,7 +369,27 @@ window.createRoleplayFlow = (ctx) => {
           </div>
         </div>
       `;
-    }).join('');
+    };
+
+    const dialogueHtml = isComicDemo
+      ? (() => {
+          const groups = [
+            [0],
+            [1, 2],
+            [3, 4],
+            [5, 6],
+            [7, 8],
+            [9, 10, 11],
+          ];
+          return groups.map((indexes, panelIdx) => `
+            <div class="comic-page-panel comic-panel-${panelIdx + 1}" data-panel="${panelIdx + 1}">
+              <div class="comic-page-panel-lines">
+                ${indexes.map(i => dialogues[i] ? renderDialogueLine(dialogues[i], i) : '').join('')}
+              </div>
+            </div>
+          `).join('');
+        })()
+      : dialogues.map(renderDialogueLine).join('');
 
     const practiceHtml = practiceLines.length ? practiceLines.map((line, idx) => {
       const answerVisible = !!revealed[idx];
@@ -202,7 +478,7 @@ window.createRoleplayFlow = (ctx) => {
             <span>대화 장면</span>
             <b>말풍선을 누르면 단어·문장 소리를 확인할 수 있습니다</b>
           </div>
-          <div class="dialogue-list roleplay-comic-list" id="dialogueList">${dialogueHtml}</div>
+          <div class="dialogue-list ${conversationClass}" id="dialogueList" ${isComicDemo && comicSceneAsset ? `style="--comic-bg:url('${ctx.cssUrlValue(comicSceneAsset)}')"` : ''}>${dialogueHtml}</div>
         </div>
       `;
       document.getElementById('flowFooter').innerHTML = `
@@ -234,7 +510,7 @@ window.createRoleplayFlow = (ctx) => {
           <span>대화 장면</span>
           <b>현재 차례부터 듣거나 한 줄씩 분석할 수 있습니다</b>
         </div>
-        <div class="dialogue-list roleplay-comic-list" id="dialogueList">${dialogueHtml}</div>
+        <div class="dialogue-list ${conversationClass}" id="dialogueList" ${isComicDemo && comicSceneAsset ? `style="--comic-bg:url('${ctx.cssUrlValue(comicSceneAsset)}')"` : ''}>${dialogueHtml}</div>
       </div>
       <div style="height:12px"></div>
       <div class="scene-title">${ctx.uiIconSvg('voice', 'scene-title-icon')} 내 말하기 연습</div>
@@ -255,6 +531,12 @@ window.createRoleplayFlow = (ctx) => {
   function _beginRoleplayPractice() {
     if (!ctx.getFlow()?.roleplayState) return;
     _stopRoleplay();
+    if (_isComicPrototype(ctx.getMod(ctx.getFlow().moduleId))) {
+      ctx.getFlow().roleplayState.phase = 'comic_practice';
+      ctx.getFlow().roleplayState.comicPanelIndex = _comicPanelForLine(ctx.getFlow().roleplayState.practiceLines?.[0]?.sourceIndex || 0);
+      _renderRoleplay(ctx.getMod(ctx.getFlow().moduleId));
+      return;
+    }
     ctx.getFlow().roleplayState.phase = 'practice';
     _renderRoleplay(ctx.getMod(ctx.getFlow().moduleId));
   }
@@ -264,9 +546,109 @@ window.createRoleplayFlow = (ctx) => {
     if (!state) return;
     _stopRoleplay();
     state.practiceSpeaker = speaker;
-    state.phase = 'practice';
+    if (state.phase !== 'comic_intro') state.phase = 'practice';
     state.practiceSourceSpeaker = null;
     _renderRoleplay(ctx.getMod(ctx.getFlow().moduleId));
+  }
+
+  function _startRoleplayComicPlayer() {
+    const state = ctx.getFlow()?.roleplayState;
+    if (!state) return;
+    _stopRoleplay();
+    state.phase = 'comic_player';
+    state.comicPanelIndex = 0;
+    document.getElementById('flowScreen')?.classList.add('roleplay-comic-player-mode');
+    _renderRoleplay(ctx.getMod(ctx.getFlow().moduleId));
+    setTimeout(() => _replayAll(ctx.getFlow().moduleId, 0), 250);
+  }
+
+  function _roleplayComicGo(delta) {
+    const state = ctx.getFlow()?.roleplayState;
+    const mod = ctx.getMod(ctx.getFlow()?.moduleId);
+    if (!state || !_isComicPrototype(mod)) return;
+    if ((state.comicPanelIndex || 0) === 0 && delta < 0) {
+      _stopRoleplay();
+      state.phase = 'comic_intro';
+      document.getElementById('flowScreen')?.classList.remove('roleplay-comic-player-mode');
+      _renderRoleplay(mod);
+      return;
+    }
+    if ((state.comicPanelIndex || 0) >= _comicGroups().length - 1 && delta > 0) {
+      _beginRoleplayPractice();
+      return;
+    }
+    _stopRoleplay();
+    state.phase = 'comic_player';
+    state.comicPanelIndex = Math.max(0, Math.min((state.comicPanelIndex || 0) + delta, _comicGroups().length - 1));
+    _renderRoleplay(mod);
+    setTimeout(() => _roleplayComicSpeakPanel(), 220);
+  }
+
+  function _roleplayComicPracticeNext() {
+    const state = ctx.getFlow()?.roleplayState;
+    const mod = ctx.getMod(ctx.getFlow()?.moduleId);
+    if (!state || !_isComicPrototype(mod)) return;
+    const activeIndex = state.practiceLines?.findIndex((_, idx) => !state.outputDone?.[idx]) ?? -1;
+    if (activeIndex < 0) return;
+    state.outputDone[activeIndex] = true;
+    _renderRoleplay(mod);
+  }
+
+  function _roleplayComicPracticePrev() {
+    const state = ctx.getFlow()?.roleplayState;
+    const mod = ctx.getMod(ctx.getFlow()?.moduleId);
+    if (!state || !_isComicPrototype(mod)) return;
+    const activeIndex = state.practiceLines?.findIndex((_, idx) => !state.outputDone?.[idx]) ?? -1;
+    if (activeIndex > 0) state.outputDone[activeIndex - 1] = false;
+    _renderRoleplay(mod);
+  }
+
+  function _roleplayComicSetPanel(panelIndex, activeSourceIndex = null) {
+    const mod = ctx.getMod(ctx.getFlow()?.moduleId);
+    const state = ctx.getFlow()?.roleplayState;
+    if (!state || !_isComicPrototype(mod)) return;
+    if (state.phase !== 'comic_player') return;
+    const dialogues = ctx.getDialogue(mod.roleplay.dialogueKey);
+    const safeIndex = Math.max(0, Math.min(panelIndex, _comicGroups().length - 1));
+    state.comicPanelIndex = safeIndex;
+    const shell = document.querySelector('.comic-player-shell');
+    if (shell) {
+      shell.innerHTML = `
+        ${_renderComicFrameHtml(dialogues, safeIndex, activeSourceIndex)}
+        ${_renderComicScriptDock(dialogues, safeIndex, activeSourceIndex)}
+      `;
+    }
+    document.getElementById('flowStep').textContent = '2 / 2 · 영상 재생';
+    document.getElementById('flowProgressFill').style.width = `${32 + Math.round(((safeIndex + 1) / _comicGroups().length) * 60)}%`;
+  }
+
+  function _roleplayComicSpeakPanel() {
+    const mod = ctx.getMod(ctx.getFlow()?.moduleId);
+    const state = ctx.getFlow()?.roleplayState;
+    if (!state || !_isComicPrototype(mod)) return;
+    if (state.phase !== 'comic_player') return;
+    const dialogues = ctx.getDialogue(mod.roleplay.dialogueKey);
+    const panelIndex = state.comicPanelIndex || 0;
+    const panelLines = _comicPanelLines(dialogues, panelIndex).filter(line => line.speaker !== 'N');
+    if (!panelLines.length) return;
+    _setRoleplayPlaying(true);
+    TTS.speakQueue(panelLines.map(line => ({
+      text: stripFuri(line.japanese || ''),
+      speaker: line.speaker,
+      voice: _voiceForSpeaker(line.speaker),
+      elementId: `dl-line-${line.sourceIndex}`,
+      sourceIndex: line.sourceIndex,
+    })), {
+      rate: 1.0,
+      gapMs: 220,
+      onLineStart: (_idx, line) => {
+        _roleplayComicSetPanel(panelIndex, line.sourceIndex);
+      },
+      onLineEnd: () => {},
+      onDone: () => {
+        _setRoleplayPlaying(false);
+      }
+    });
   }
 
   function _toggleRoleplayReveal(index) {
@@ -351,10 +733,11 @@ window.createRoleplayFlow = (ctx) => {
       step: -1,
       roleplay: true,
       roleplayState: {
-        phase: 'preview',
+        phase: _isComicPrototype(mod) ? 'comic_intro' : 'preview',
         practiceSpeaker: 'A',
         practiceLines: _getRoleplayPracticeLines(dialogues, 'A'),
         practiceSourceSpeaker: 'A',
+        comicPanelIndex: 0,
         revealed: [],
         shadowDone: [],
         outputDone: []
@@ -362,8 +745,9 @@ window.createRoleplayFlow = (ctx) => {
     });
     _renderRoleplay(mod);
 
-    // 자동 재생
-    setTimeout(() => _replayAll(mod.id), 450);
+    if (!_isComicPrototype(mod)) {
+      setTimeout(() => _replayAll(mod.id), 450);
+    }
   }
 
   function _replayAll(moduleId, startIndex = 0) {
@@ -388,12 +772,15 @@ window.createRoleplayFlow = (ctx) => {
       return {
         text:      d.speaker === 'N' ? '' : stripFuri(d.japanese || ''),
         speaker:   d.speaker,
+        voice:     _voiceForSpeaker(d.speaker),
         elementId: `dl-line-${i}`,
         sourceIndex: i
       };
     });
 
     TTS.speakQueue(lines, {
+      rate: 1.0,
+      gapMs: 220,
       onLineStart: (idx, line) => {
         const livePlayback = _getRoleplayPlaybackState();
         if (livePlayback) {
@@ -404,6 +791,12 @@ window.createRoleplayFlow = (ctx) => {
         // 이전 하이라이트 제거 후 현재 라인 하이라이트 + 스크롤
         document.querySelectorAll('.dialogue-line.playing')
                 .forEach(el => el.classList.remove('playing'));
+        document.querySelectorAll('.comic-script-line.active')
+                .forEach(el => el.classList.remove('active'));
+        if (_isComicPrototype(mod) && ctx.getFlow()?.roleplayState?.phase === 'comic_player') {
+          const panelIndex = _comicPanelForLine(line.sourceIndex ?? idx);
+          if (panelIndex >= 0) _roleplayComicSetPanel(panelIndex, line.sourceIndex ?? idx);
+        }
         if (line.elementId) {
           const el = document.getElementById(line.elementId);
           if (el) {
@@ -467,6 +860,12 @@ window.createRoleplayFlow = (ctx) => {
   return {
     renderRoleplay: _renderRoleplay,
     beginPractice: _beginRoleplayPractice,
+    startComicPlayer: _startRoleplayComicPlayer,
+    comicPrev: () => _roleplayComicGo(-1),
+    comicNext: () => _roleplayComicGo(1),
+    comicSpeakPanel: _roleplayComicSpeakPanel,
+    comicPracticeNext: _roleplayComicPracticeNext,
+    comicPracticePrev: _roleplayComicPracticePrev,
     toggleReveal: _toggleRoleplayReveal,
     setPracticeSpeaker: _setRoleplayPracticeSpeaker,
     markShadow: _markRoleplayShadow,

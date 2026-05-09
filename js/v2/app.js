@@ -32,6 +32,7 @@ window.App = (() => {
     setFlowStep: step => { if (_flow) _flow.step = step; },
     runCurrentStep: () => _runCurrentStep(),
     advanceStep: () => _advanceStep(),
+    returnToModuleIntro: () => _returnToModuleIntro(),
     uiIconSvg: _uiIconSvg,
     replayInlineStroke: () => _replayInlineStroke(),
     startInlineStroke: kana => _startInlineStroke(kana),
@@ -359,12 +360,45 @@ window.App = (() => {
     const prog = Store.get();
     const stepsDone = prog.modules[mod.id]?.stepsCompleted || 0;
     const startStep = Math.min(stepsDone, mod.steps.length - 1);
+    const allDone = stepsDone >= mod.steps.length;
+    const roleplayUnlocked = mod.roleplay && isRoleplayUnlocked(mod.id, prog);
     const visual = _getModuleVisual(mod);
     const coverImage = _getModuleCoverAsset(mod);
 
+    const stepTypeMeta = {
+      lecture:       { icon: 'book', label: '강의' },
+      kana_learn:    { icon: 'module-kana', label: '카드' },
+      kana_quiz:     { icon: 'target', label: '퀴즈' },
+      kana_listening:{ icon: 'voice', label: '듣기' },
+      shadowing:     { icon: 'voice', label: '말하기' },
+      vocab_learn:   { icon: 'book', label: '카드' },
+      vocab_quiz:    { icon: 'target', label: '퀴즈' },
+    };
     const items = [
-      ...mod.steps.map(s => `<div class="intro-item"><span class="ii-check">${_uiIconSvg('book', 'ii-icon')}</span> ${escHtml(s.title)}</div>`),
-      mod.roleplay ? `<div class="intro-item"><span class="ii-check">${_uiIconSvg('roleplay', 'ii-icon')}</span> 롤플레이: ${escHtml(mod.roleplay.name)}</div>` : ''
+      ...mod.steps.map((s, stepIndex) => {
+        const meta = stepTypeMeta[s.type] || { icon: 'book', label: '학습' };
+        const done = stepIndex < stepsDone;
+        const current = !allDone && stepIndex === startStep;
+        return `
+          <button class="intro-item ${done ? 'done' : ''} ${current ? 'current' : ''}" type="button"
+                  onclick="App._startFlowFromStep('${mod.id}', ${stepIndex})">
+            <span class="ii-check">${_uiIconSvg(done ? 'check' : meta.icon, 'ii-icon')}</span>
+            <span class="intro-item-main">
+              <span class="intro-item-title">${stepIndex + 1}. ${escHtml(s.title)}</span>
+              <span class="intro-item-meta">${escHtml(meta.label)}${current ? ' · 이어서' : ''}</span>
+            </span>
+          </button>
+        `;
+      }),
+      mod.roleplay ? `
+        <button class="intro-item roleplay ${roleplayUnlocked ? '' : 'locked'}" type="button"
+                ${roleplayUnlocked ? `onclick="App._startRoleplay(App._getMod('${mod.id}'))"` : 'disabled'}>
+          <span class="ii-check">${_uiIconSvg(roleplayUnlocked ? 'roleplay' : 'lock', 'ii-icon')}</span>
+          <span class="intro-item-main">
+            <span class="intro-item-title">${mod.steps.length + 1}. 롤플레이: ${escHtml(mod.roleplay.name)}</span>
+            <span class="intro-item-meta">${roleplayUnlocked ? '실전 대화' : '학습 완료 후 열림'}</span>
+          </span>
+        </button>` : ''
     ].join('');
 
     const flowEl = document.getElementById('flowScreen');
@@ -393,21 +427,30 @@ window.App = (() => {
     document.getElementById('flowBody').innerHTML = `
       <div class="module-intro ${coverImage ? 'has-bg' : ''}" ${coverImage ? `style="--module-intro-bg:url('${_cssUrlValue(coverImage)}')"` : ''}>
         ${coverImage ? '<div class="module-intro-bg" aria-hidden="true"></div>' : ''}
-        <div class="module-intro-content">
-          <div class="module-intro-icon">${_uiIconSvg(visual.iconKey, 'module-intro-icon-svg')}</div>
-          <div class="module-intro-title">${escHtml(mod.name)}</div>
-          <div class="module-intro-sub">${escHtml(mod.desc)}<br>
-            <span>
-              STAGE ${stage.id}: ${escHtml(stage.name)}
-            </span>
+        <div class="module-intro-art">
+          ${coverImage ? `<img class="module-intro-image" src="${escHtml(coverImage)}" alt="">` : `<div class="module-intro-icon large">${_uiIconSvg(visual.iconKey, 'module-intro-icon-svg')}</div>`}
+          <div class="module-intro-art-caption">
+            <span>STAGE ${stage.id}</span>
+            <strong>${escHtml(stage.name)}</strong>
           </div>
+        </div>
+        <div class="module-intro-content">
+          <div class="module-intro-topline">
+            <div class="module-intro-icon">${_uiIconSvg(visual.iconKey, 'module-intro-icon-svg')}</div>
+            <div class="module-intro-stage">
+              <span>이번 강좌</span>
+              <strong>${escHtml(visual.focus || mod.name)}</strong>
+            </div>
+          </div>
+          <div class="module-intro-title">${escHtml(mod.name)}</div>
+          <div class="module-intro-sub">${escHtml(mod.desc)}</div>
+          <div class="module-intro-section-title">학습 순서 · 바로 이동</div>
           <div class="module-intro-items">${items}</div>
           ${lecPreviewHtml}
         </div>
       </div>
     `;
 
-    const allDone = stepsDone >= mod.steps.length;
     if (stepsDone > 0) {
       // 진행 중 또는 완료 — 처음부터 + 이어서 두 버튼 모두 표시
       const continueLabel = allDone ? '복습 모드 (처음부터) ▶' : `${stepsDone}단계부터 이어서 ▶`;
@@ -432,9 +475,29 @@ window.App = (() => {
     _flow = { moduleId: mod.id, step: -1 };
   }
 
+  function _returnToModuleIntro() {
+    const mod = MODULES.find(m => m.id === _flow?.moduleId);
+    if (!mod || _flow?._virtMod) return;
+    TTS.stopQueue();
+    _showModuleIntro(mod);
+  }
+
   function _startFlowFromStep(moduleId, stepIndex) {
     _flow = { moduleId, step: stepIndex };
     _runCurrentStep();
+  }
+
+  function _openModuleStep(moduleId, stepIndex) {
+    const mod = MODULES.find(m => m.id === moduleId);
+    if (!mod) return;
+    const prog = Store.get();
+    if (!isModuleUnlocked(mod, prog)) {
+      showToast('🔒 이전 모듈을 먼저 완료하세요!');
+      return;
+    }
+    const safeStep = Math.max(0, Math.min(Number(stepIndex) || 0, mod.steps.length - 1));
+    _openFlowScreen();
+    _startFlowFromStep(moduleId, safeStep);
   }
 
   function _runCurrentStep() {
@@ -513,6 +576,7 @@ window.App = (() => {
     getAllVocabItems: _getAllVocabItems,
     runCurrentStep: _runCurrentStep,
     showPracticeComplete: _showPracticeComplete,
+    returnToModuleIntro: () => _returnToModuleIntro(),
   });
 
   function _renderKanaQuiz(mod, step, stepIndex) {
@@ -523,6 +587,9 @@ window.App = (() => {
   }
   function _kanaQuizNext() {
     return _quizFlow.kanaQuizNext();
+  }
+  function _startKanaQuizFromPrimer() {
+    return _quizFlow.startKanaQuizFromPrimer();
   }
   function _renderKanaListening(mod, step, stepIndex) {
     return _quizFlow.renderKanaListening(mod, step, stepIndex);
@@ -581,6 +648,7 @@ window.App = (() => {
     uiIconSvg: _uiIconSvg,
     uiLabeledIcon: _uiLabeledIcon,
     getModuleVisual: _getModuleVisual,
+    returnToModuleIntro: () => _returnToModuleIntro(),
   });
 
   function _renderLecture(mod, step, stepIndex) { return _lectureFlow.renderLecture(mod, step, stepIndex); }
@@ -591,6 +659,7 @@ window.App = (() => {
   function _lecToggleCaption(lang) { return _lectureFlow.toggleCaption(lang); }
   function _lecCapTab(lang) { return _lectureFlow.capTab(lang); }
   function _lecSetVoice(key) { return _lectureFlow.setVoice(key); }
+  function _lecCycleVoice() { return _lectureFlow.cycleVoice(); }
 
   // ── Dialogue Study ────────────────────────────────────────
   function _renderDialogueStudy(mod, step, stepIndex) {
@@ -659,8 +728,19 @@ window.App = (() => {
 
   function _renderRoleplay(mod) { return _roleplayFlow.renderRoleplay(mod); }
   function _beginRoleplayPractice() { return _roleplayFlow.beginPractice(); }
+  function _startRoleplayComicPlayer() { return _roleplayFlow.startComicPlayer(); }
+  function _roleplayComicPrev() { return _roleplayFlow.comicPrev(); }
+  function _roleplayComicNext() { return _roleplayFlow.comicNext(); }
+  function _roleplayComicSpeakPanel() { return _roleplayFlow.comicSpeakPanel(); }
+  function _roleplayComicPracticeNext() { return _roleplayFlow.comicPracticeNext(); }
+  function _roleplayComicPracticePrev() { return _roleplayFlow.comicPracticePrev(); }
   function _toggleRoleplayReveal(index) { return _roleplayFlow.toggleReveal(index); }
   function _setRoleplayPracticeSpeaker(speaker) { return _roleplayFlow.setPracticeSpeaker(speaker); }
+  function _setRoleplayVoice(role, key) {
+    TTS.setRoleVoice(role, key);
+    const flowMod = _flow?.moduleId ? _getMod(_flow.moduleId) : null;
+    if (flowMod?.roleplay) _renderRoleplay(flowMod);
+  }
   function _markRoleplayShadow(index) { return _roleplayFlow.markShadow(index); }
   function _markRoleplayOutput(index) { return _roleplayFlow.markOutput(index); }
   function _speakDialogueLine(lineId) { return _roleplayFlow.speakLine(lineId); }
@@ -854,6 +934,7 @@ window.App = (() => {
     openProgram,
     closeProgram,
     openModule,
+    openModuleStep: _openModuleStep,
     startKanaReview,
     startVocabReview,
     startRandomQuiz,
@@ -872,6 +953,8 @@ window.App = (() => {
     setVoiceDefault: _appSettings.setVoiceDefault,
     setVoiceRoleA:   _appSettings.setVoiceRoleA,
     setVoiceRoleB:   _appSettings.setVoiceRoleB,
+    setVoiceRoleC:   _appSettings.setVoiceRoleC,
+    setVoiceRole:    _appSettings.setVoiceRole,
     // 쉐도잉
     _shadowingNext,
     // 개발자 테스트 도구
@@ -887,6 +970,7 @@ window.App = (() => {
     _kanaSpeak: _kanaLearnFlow.kanaSpeak,
     _kanaQuizAnswer,
     _kanaQuizNext,
+    _startKanaQuizFromPrimer,
     _vocabSpeak,
     _vocabFlip,
     _vocabNext,
@@ -908,14 +992,22 @@ window.App = (() => {
     _lecToggleCaption,
     _lecCapTab,
     _lecSetVoice,
+    _lecCycleVoice,
     setQuizPassRate,
     _completeRoleplay,
     _beginRoleplayPractice,
+    _startRoleplayComicPlayer,
+    _roleplayComicPrev,
+    _roleplayComicNext,
+    _roleplayComicSpeakPanel,
+    _roleplayComicPracticeNext,
+    _roleplayComicPracticePrev,
     _replayAll,
     _stopRoleplay,
     _startRoleplay,
     _toggleRoleplayReveal,
     _setRoleplayPracticeSpeaker,
+    _setRoleplayVoice,
     _markRoleplayShadow,
     _markRoleplayOutput,
     _speakDialogueLine,

@@ -35,6 +35,10 @@ window.createLectureFlow = (ctx) => {
   function _lectureGetVoice() {
     return localStorage.getItem('lecture_voice') || TTS.getDefaultVoice();
   }
+  function _lectureVoiceList() {
+    const voices = (typeof TTS.getAvailableVoices === 'function') ? TTS.getAvailableVoices() : [];
+    return [...voices].sort((a, b) => (a.gender === 'F' ? -1 : 1) - (b.gender === 'F' ? -1 : 1));
+  }
   function _lectureSetVoice(key) {
     localStorage.setItem('lecture_voice', key);
     TTS.stopQueue();
@@ -54,35 +58,40 @@ window.createLectureFlow = (ctx) => {
       }
     }
     // 셀렉트 wrap의 성별 색상/마커 갱신
-    const voices = (typeof TTS.getAvailableVoices === 'function') ? TTS.getAvailableVoices() : [];
+    const voices = _lectureVoiceList();
     const meta = voices.find(v => v.key === key);
     const wrap = document.getElementById('lecVoiceWrap');
     if (wrap && meta) {
       wrap.classList.toggle('lec-voice-F', meta.gender === 'F');
       wrap.classList.toggle('lec-voice-M', meta.gender === 'M');
       const marker = wrap.querySelector('.lec-voice-marker');
-      if (marker) marker.textContent = meta.gender === 'F' ? '♀' : '♂';
+      if (marker) marker.textContent = meta.gender === 'F' ? '여' : '남';
+      const name = wrap.querySelector('.lec-voice-name');
+      if (name) name.textContent = (meta.label || meta.key).split(' ')[0];
     }
+  }
+  function _lectureCycleVoice() {
+    const voices = _lectureVoiceList();
+    if (!voices.length) return;
+    const cur = _lectureGetVoice();
+    const idx = voices.findIndex(v => v.key === cur);
+    const next = voices[(idx + 1 + voices.length) % voices.length];
+    _lectureSetVoice(next.key);
   }
   function _lectureVoiceSelect() {
     const cur = _lectureGetVoice();
-    const voices = (typeof TTS.getAvailableVoices === 'function') ? TTS.getAvailableVoices() : [];
+    const voices = _lectureVoiceList();
     if (!voices.length) return '';
-    const sorted = [...voices].sort((a, b) => (a.gender === 'F' ? -1 : 1) - (b.gender === 'F' ? -1 : 1));
-    const curMeta = sorted.find(v => v.key === cur) || sorted[0];
+    const curMeta = voices.find(v => v.key === cur) || voices[0];
     const curGender = curMeta?.gender || 'F';
+    const curName = (curMeta?.label || curMeta?.key || '화자').split(' ')[0];
     return `
-      <label class="lec-voice-select-wrap lec-voice-${curGender}" id="lecVoiceWrap" title="강의 화자">
-        <span class="lec-voice-marker">${curGender === 'F' ? '♀' : '♂'}</span>
-        <select class="lec-voice-select" id="lecVoiceSelect"
-                onchange="App._lecSetVoice(this.value)" aria-label="강의 화자 선택">
-          ${sorted.map(v => {
-            const name = (v.label || v.key).split(' ')[0];
-            const tag = v.gender === 'F' ? '♀' : '♂';
-            return `<option value="${v.key}" ${v.key === cur ? 'selected' : ''}>${tag} ${escHtml(name)}</option>`;
-          }).join('')}
-        </select>
-      </label>
+      <button class="lec-voice-select-wrap lec-voice-${curGender}" id="lecVoiceWrap"
+              onclick="App._lecCycleVoice()" type="button" title="강의 화자 변경">
+        <span class="lec-voice-marker">${curGender === 'F' ? '여' : '남'}</span>
+        <span class="lec-voice-label">화자</span>
+        <span class="lec-voice-name">${escHtml(curName)}</span>
+      </button>
     `;
   }
 
@@ -180,7 +189,7 @@ window.createLectureFlow = (ctx) => {
       </div>
     `;
 
-    const prevLabel = prevSlide?.main ? stripFuri(prevSlide.main) : '이전';
+    const prevLabel = idx === 0 ? '소개' : (prevSlide?.main ? stripFuri(prevSlide.main) : '이전');
     const nextLabel = isLast ? '완료' : stripFuri(nextSlide?.main || '다음');
     document.getElementById('flowFooter').innerHTML = `
       <div class="lec-footer-tools lec-footer-tools-unified">
@@ -194,7 +203,7 @@ window.createLectureFlow = (ctx) => {
       </div>
       <div class="lec-controls lec-controls-compact">
         <button class="btn btn-outline lec-nav-button" id="btnLecPrev"
-                onclick="App._lecPrev()" ${idx === 0 ? 'disabled' : ''}>
+                onclick="App._lecPrev()">
           <span class="lec-nav-arrow">←</span>
           <span class="lec-nav-label">${escHtml(prevLabel)}</span>
         </button>
@@ -427,7 +436,13 @@ window.createLectureFlow = (ctx) => {
 
   function _lecPrev() {
     const lc = _lectureState();
-    if (!lc || lc.idx === 0) return;
+    if (!lc) return;
+    if (lc.idx === 0) {
+      _lecStopTimer();
+      TTS.stopQueue();
+      ctx.returnToModuleIntro?.();
+      return;
+    }
     _lecStopTimer();
     TTS.stopQueue();
     lc.idx--;
@@ -515,6 +530,7 @@ window.createLectureFlow = (ctx) => {
     toggleCaption: _lecToggleCaption,
     capTab: _lecCapTab,
     setVoice: _lectureSetVoice,
+    cycleVoice: _lectureCycleVoice,
     stopLecture,
   };
 };

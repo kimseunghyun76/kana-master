@@ -102,11 +102,21 @@ var VOCAB_ITEMS_W1W4 = [
   { id:'prn_14', japanese:'あの',                   korean:'저 〜',           english:'That ~ (modifier, far)',          tip:'あの+명사. 「あのお店、入ろう」' },
 
   // ── W1: 맞장구·반응어 (w1_reactions) ─────────────────────
-  { id:'w1_sodesu',        japanese:'そうですね',      korean:'그렇네요',              english:'I see / That\'s right (agreeing)',  tip:'끄덕이며 공감할 때. 일본 대화에서 가장 빈번한 표현' },
-  { id:'w1_naruhodo',      japanese:'なるほど',         korean:'아 그렇구나 / 납득',    english:'I see / That makes sense',          tip:'이해·납득했을 때. 「なるほど、そういうことか」' },
-  { id:'w1_hontou',        japanese:'ほんとうですか',   kanji:'本当(ほんとう)ですか',   korean:'정말이요? / 진짜요?',   english:'Really? / Is that true?',           tip:'놀람·확인 두루 사용. 가볍게는 ほんと？' },
-  { id:'w1_wakarimashita', japanese:'わかりました',     kanji:'分(わ)かりました',       korean:'알겠습니다',             english:'I understand / Got it',             tip:'모를 땐 わかりません. OK도 통함' },
-  { id:'w1_daijoubu',      japanese:'だいじょうぶです', kanji:'大丈夫(だいじょうぶ)です', korean:'괜찮아요',             english:'It\'s okay / No problem',           example:'大丈夫(だいじょうぶ)ですか？ = 괜찮아요? (질문형)' },
+  { id:'w1_sodesu',        japanese:'そうですね',      korean:'그렇네요',              english:'I see / That\'s right (agreeing)',
+    tip:'상대 말을 바로 끊지 않고 받아주는 쿠션 표현입니다. 생각할 시간이 필요할 때도 “음, 그렇네요”처럼 쓸 수 있어요.',
+    example:'そうですね。少(すこ)し考(かんが)えます。' },
+  { id:'w1_naruhodo',      japanese:'なるほど',         korean:'아 그렇구나 / 납득',    english:'I see / That makes sense',
+    tip:'정보를 듣고 머릿속 퍼즐이 맞춰졌을 때 쓰는 말입니다. 너무 많이 반복하면 기계적으로 들리니 한 번만 또렷하게요.',
+    example:'なるほど、そういうことですね。' },
+  { id:'w1_hontou',        japanese:'ほんとうですか',   kanji:'本当(ほんとう)ですか',   korean:'정말이요? / 진짜요?',   english:'Really? / Is that true?',
+    tip:'놀람과 확인을 동시에 담는 반응입니다. 눈을 살짝 크게 뜨고 말하면 리액션이 훨씬 자연스러워요.',
+    example:'本当(ほんとう)ですか。すごいですね。' },
+  { id:'w1_wakarimashita', japanese:'わかりました',     kanji:'分(わ)かりました',       korean:'알겠습니다',             english:'I understand / Got it',
+    tip:'지시를 이해했고 그대로 하겠다는 느낌입니다. 캐주얼한 OK보다 업무·가게 상황에서 더 안정적이에요.',
+    example:'はい、分(わ)かりました。ありがとうございます。' },
+  { id:'w1_daijoubu',      japanese:'だいじょうぶです', kanji:'大丈夫(だいじょうぶ)です', korean:'괜찮아요',             english:'It\'s okay / No problem',
+    tip:'괜찮다는 뜻도, 정중히 거절하는 뜻도 됩니다. 표정과 상황에 따라 “필요 없어요”로 들릴 수 있어 주의하세요.',
+    example:'袋(ふくろ)は大丈夫(だいじょうぶ)です。' },
 
   // ── W2: 날짜 숫자·월일 (num_dates) ───────────────────────
   { id:'dn_ichigatsu',  japanese:'いちがつ',    kanji:'一月(いちがつ)',   korean:'1월',            english:'January',   tip:'2月=にがつ, 3月=さんがつ ... 月は「がつ」로 읽음' },

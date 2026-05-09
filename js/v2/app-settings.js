@@ -26,48 +26,18 @@ function createAppSettings(deps = {}) {
     const curDef  = TTS.getDefaultVoice();
     const curA    = TTS.getRoleVoice('A');
     const curB    = TTS.getRoleVoice('B');
+    const curC    = TTS.getRoleVoice('C');
     const stats   = TTS.getStats();
 
-    // 화자 버튼 — 균등 폭, 성별 표시(♀/♂)와 active 색상으로 구분
-    const btnStyle = (active, gender) => `
-      flex:1 1 0;min-width:0;padding:9px 6px;border-radius:9px;cursor:pointer;
-      font-size:12px;font-weight:600;line-height:1.25;
-      display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
-      background:${active ? (gender==='F' ? '#ec4899' : '#3b82f6') : 'var(--bg3)'};
-      color:${active ? '#fff' : 'var(--text)'};
-      border:1px solid ${active ? (gender==='F' ? '#ec4899' : '#3b82f6') : 'var(--border)'};
-      transition:background .15s, border-color .15s;
-    `;
-    const markerStyle = (active, gender) => `
-      font-size:10px;line-height:1;opacity:${active ? '.95' : '.55'};
-      color:${active ? '#fff' : (gender==='F' ? '#ec4899' : '#3b82f6')};
-    `;
-
-    // 한 행: 라벨 + 균등 화자 버튼 N개 + 테스트 재생
     const makeRow = (label, color, currentKey, setterFn, testText) => {
       if (!voices.length) return '';
-      // 여성 먼저 → 남성 정렬
-      const sorted = [...voices].sort((a, b) => (a.gender === 'F' ? -1 : 1) - (b.gender === 'F' ? -1 : 1));
       return `
         <div style="margin-bottom:14px">
           <div style="font-size:12px;color:${color};margin-bottom:6px;font-weight:600">${escHtml(label)}</div>
-          <div style="display:flex;gap:6px;margin-bottom:6px">
-            ${sorted.map(v => {
-              const active = currentKey === v.key;
-              const marker = v.gender === 'F' ? '♀' : '♂';
-              const name = v.label.split(' ')[0];
-              return `
-                <button onclick="${setterFn}('${v.key}')"
-                        style="${btnStyle(active, v.gender)}"
-                        title="${escHtml(v.label)}">
-                  <span style="${markerStyle(active, v.gender)}">${marker}</span>
-                  <span>${escHtml(name)}</span>
-                </button>`;
-            }).join('')}
-          </div>
+          ${VoiceCharacters.picker(voices, currentKey, setterFn, { compact: true })}
           <button onclick="TTS.speak('${testText}', {voice:'${currentKey}'})"
             style="width:100%;padding:7px;background:var(--bg3);border:1px solid var(--border);
-                   border-radius:8px;color:var(--text2);font-size:12px;cursor:pointer">
+                   border-radius:8px;color:var(--text2);font-size:12px;cursor:pointer;margin-top:6px">
             🔊 테스트 재생
           </button>
         </div>
@@ -82,6 +52,7 @@ function createAppSettings(deps = {}) {
       ${makeRow('🎯 기본 발음 (단어/문장 듣기)',  'var(--accent2)', curDef, 'App.setVoiceDefault', 'おはようございます')}
       ${makeRow('🧑‍🎓 롤플레이 — 나 (학습자)',     '#34d399',         curA,   'App.setVoiceRoleA',  'よろしくお願いします')}
       ${makeRow('💬 롤플레이 — 상대방 (점원·친구)', '#fb923c',         curB,   'App.setVoiceRoleB',  'いらっしゃいませ。')}
+      ${makeRow('🎭 롤플레이 — 제3자',             '#c084fc',         curC,   'App.setVoiceRoleC',  '少々お待ちください')}
     `;
 
     if (!stats.manifestLoaded) {
@@ -102,18 +73,23 @@ function createAppSettings(deps = {}) {
   }
 
   function setVoiceRoleA(key) {
-    TTS.setRoleVoice('A', key);
-    showToast('나(A) 화자 변경');
-    TTS.speak('よろしくお願いします', { voice: key });
-    refreshProfile();
+    setVoiceRole('A', key);
   }
 
   function setVoiceRoleB(key) {
-    TTS.setRoleVoice('B', key);
-    TTS.setRoleVoice('C', key); // C도 동일
-    showToast('상대방(B) 화자 변경');
-    // 매니페스트 정확 일치 (마침표 없는 어휘 형태)
-    TTS.speak('いらっしゃいませ', { voice: key });
+    setVoiceRole('B', key);
+  }
+
+  function setVoiceRoleC(key) {
+    setVoiceRole('C', key);
+  }
+
+  function setVoiceRole(role, key) {
+    TTS.setRoleVoice(role, key);
+    const labels = { A: '나(A)', B: '상대방(B)', C: '제3자(C)' };
+    const tests = { A: 'よろしくお願いします', B: 'いらっしゃいませ', C: '少々お待ちください' };
+    showToast(`${labels[role] || role} 화자 변경`);
+    TTS.speak(tests[role] || 'よろしくお願いします', { voice: key });
     refreshProfile();
   }
 
@@ -252,6 +228,8 @@ function createAppSettings(deps = {}) {
     setVoiceDefault,
     setVoiceRoleA,
     setVoiceRoleB,
+    setVoiceRoleC,
+    setVoiceRole,
     devMenu,
     devAddXP,
     devSkipCurrentStep,

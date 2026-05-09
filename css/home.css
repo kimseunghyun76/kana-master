@@ -47,6 +47,81 @@
   font-weight: 900;
   box-shadow: 0 12px 26px rgba(79,70,229,.28);
 }
+.home-step-guide {
+  margin: 12px 0 14px;
+  padding: 10px;
+  border: 1px solid rgba(148,163,184,.18);
+  border-radius: 8px;
+  background: rgba(15,23,42,.42);
+}
+.home-step-guide.compact {
+  margin: 0 0 16px;
+  background: rgba(15,23,42,.58);
+  backdrop-filter: blur(10px);
+}
+.home-step-guide-title {
+  margin-bottom: 8px;
+  color: rgba(226,232,240,.86);
+  font-size: 11px;
+  font-weight: 900;
+  text-align: left;
+}
+.home-step-guide-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 7px;
+}
+.home-step-guide-btn {
+  min-width: 0;
+  min-height: 64px;
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr);
+  align-items: center;
+  gap: 7px;
+  padding: 8px;
+  border: 1px solid rgba(148,163,184,.18);
+  border-radius: 8px;
+  background: rgba(255,255,255,.07);
+  color: #f8fafc;
+  text-align: left;
+  cursor: pointer;
+}
+.home-step-guide-btn.done {
+  border-color: rgba(16,185,129,.32);
+  background: rgba(16,185,129,.1);
+}
+.home-step-guide-icon {
+  width: 24px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #a7f3d0;
+}
+.home-step-guide-svg {
+  width: 18px;
+  height: 18px;
+}
+.home-step-guide-copy {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.home-step-guide-copy b {
+  font-size: 12px;
+  font-weight: 900;
+  color: #f8fafc;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.home-step-guide-copy em {
+  font-size: 10.5px;
+  line-height: 1.25;
+  font-style: normal;
+  color: rgba(203,213,225,.82);
+}
 .dashboard-side {
   width: 118px;
   display: grid;

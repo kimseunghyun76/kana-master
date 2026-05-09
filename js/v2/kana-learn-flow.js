@@ -149,14 +149,14 @@ function createKanaLearnFlow(deps = {}) {
                 ${canShowStroke ? `
                 <div class="kana-stroke-block">
                   <div class="kana-stroke-head">
-                    <span class="kana-stroke-title">획순</span>
+                    <span class="kana-stroke-title">${escHtml(c)} 예쁘게 쓰는 법</span>
                     <div class="kana-stroke-actions">
                       <button class="kana-icon-btn" type="button"
                               onclick="event.stopPropagation();TTS.speak('${safeC}')"
                               aria-label="발음 듣기" title="발음 듣기">${uiIconSvg('audio', 'kana-icon-btn-svg')}</button>
                       <button class="kana-icon-btn" type="button"
                               onclick="event.stopPropagation();App._replayInlineStroke()"
-                              aria-label="다시 그리기" title="다시 그리기">${uiIconSvg('replay', 'kana-icon-btn-svg')}</button>
+                              aria-label="${escHtml(c)} 다시 써보기" title="${escHtml(c)} 다시 써보기">${uiIconSvg('replay', 'kana-icon-btn-svg')}</button>
                     </div>
                   </div>
                   <div class="kana-stroke-mini" id="kanaStrokeInline">
@@ -183,12 +183,16 @@ function createKanaLearnFlow(deps = {}) {
       const prevChar = st.cardIdx > 0 ? st.chars[st.cardIdx - 1] : '';
       const nextChar = st.cardIdx < st.chars.length - 1 ? st.chars[st.cardIdx + 1] : '';
       // 앞면: 다음 = 카드 뒤집기 / 뒷면: 다음 = 다음 가나
-      const prevLabel = st.flipped ? '다시 보기' : (prevChar || '이전');
-      const nextLabel = st.flipped ? (isLast ? '완료 ✓' : nextChar) : '읽는 법';
-      const prevDisabled = !st.flipped && st.cardIdx === 0;
+      const writeLabel = ch => `${ch} 예쁘게 쓰는 법`;
+      const prevLabel = st.cardIdx > 0
+        ? (st.flipped ? `${prevChar} 쓰기 복습` : prevChar)
+        : (st.flipped ? '앞면 보기' : '소개');
+      const nextLabel = st.flipped
+        ? (isLast ? '완료 ✓' : writeLabel(nextChar))
+        : writeLabel(c);
       document.getElementById('flowFooter').innerHTML = `
         <div class="kana-nav">
-          <button class="btn btn-outline kana-nav-btn" onclick="App._kanaLearnPrev()" ${prevDisabled ? 'disabled' : ''}>
+          <button class="btn btn-outline kana-nav-btn" onclick="App._kanaLearnPrev()">
             <span class="kana-nav-arrow">←</span>
             <span class="kana-nav-label">${escHtml(prevLabel)}</span>
           </button>
@@ -258,20 +262,27 @@ function createKanaLearnFlow(deps = {}) {
     }
   }
 
-  // 이전 버튼: 뒷면이면 앞면으로, 앞면이면 이전 카드로
+  // 이전 버튼: 뒷면에서도 이전 글자의 쓰기 가이드로 바로 이동
   function kanaLearnPrev() {
     const flow = getFlow();
     const st = flow?._kanaState;
     if (!st) return;
-    if (st.flipped) {
+    if (st.flipped && st.cardIdx === 0) {
       flipKana();
       return;
     }
-    if (st.cardIdx === 0) return;
+    if (st.cardIdx === 0) {
+      ctx.returnToModuleIntro?.();
+      return;
+    }
     stopInlineStroke();
     st.cardIdx--;
-    st.flipped = false;
+    const keepGuideOpen = st.flipped;
+    st.flipped = keepGuideOpen;
     flow._kanaRender();
+    if (keepGuideOpen && supportsKanaStrokePreview(st.chars[st.cardIdx])) {
+      setTimeout(() => startInlineStroke(st.chars[st.cardIdx]), 80);
+    }
     TTS.speak(st.chars[st.cardIdx]);
   }
 

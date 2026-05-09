@@ -256,13 +256,17 @@
   flex: 0 0 auto;
 }
 
-/* 강의 화자 선택 — SELECT 박스 */
+/* 강의 화자 선택 — 툴바 순환 버튼 */
 .lec-voice-select-wrap {
   position: relative;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 0 9px 0 11px;
+  justify-content: center;
+  gap: 5px;
+  flex: 0 0 auto;
+  min-width: 84px;
+  max-width: 116px;
+  padding: 0 10px;
   height: 32px;
   border-radius: 999px;
   border: 1px solid rgba(148,163,184,.28);
@@ -272,6 +276,8 @@
   font-weight: 700;
   line-height: 1;
   cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
   transition: border-color var(--dur), background var(--dur);
 }
 .lec-voice-select-wrap:hover { border-color: rgba(129,140,248,.5); }
@@ -284,29 +290,29 @@
   border-color: rgba(96,165,250,.55);
 }
 .lec-voice-marker {
-  font-size: 12px;
+  flex: 0 0 auto;
+  min-width: 18px;
+  height: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: rgba(255,255,255,.10);
+  font-size: 10px;
+  font-weight: 900;
   pointer-events: none;
 }
 .lec-voice-select-wrap.lec-voice-F .lec-voice-marker { color: #fbcfe8; }
 .lec-voice-select-wrap.lec-voice-M .lec-voice-marker { color: #bfdbfe; }
-.lec-voice-select {
-  appearance: none;
-  -webkit-appearance: none;
-  background: transparent;
-  border: 0;
-  color: inherit;
-  font: inherit;
-  font-weight: 700;
-  cursor: pointer;
-  padding-right: 16px;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'><path d='M3 4.5L6 8 9 4.5' fill='none' stroke='%23cbd5e1' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/></svg>");
-  background-repeat: no-repeat;
-  background-position: right center;
-  background-size: 12px 12px;
-  outline: none;
+.lec-voice-label {
+  flex: 0 0 auto;
+  color: rgba(226,232,240,.72);
+  font-size: 10px;
 }
-.lec-voice-select option {
-  background: #0f172a;
+.lec-voice-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
   color: #f8fafc;
 }
 /* ── Chalkboard (칠판) ─────────────────────────────────────── */
@@ -611,4 +617,3 @@
     flex-wrap: nowrap;
   }
 }
-

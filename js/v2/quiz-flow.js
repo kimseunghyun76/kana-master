@@ -10,10 +10,18 @@ window.createQuizFlow = (ctx) => {
 
   // ── Kana Quiz ─────────────────────────────────────────────
   function _renderKanaQuiz(mod, step, stepIndex) {
-    ctx.setFlowBodyMode('quiz-mode');
+    ctx.setFlowBodyMode('');
     const level = LEVELS.find(l => l.id === step.levelId);
     const sourceChars = step.chars?.length ? step.chars : level?.chars;
     if (!sourceChars?.length) { ctx.advanceStep(); return; }
+    const flow = ctx.getFlow();
+    const introKey = `${flow.moduleId}:${stepIndex}:kana`;
+    if (flow._kanaQuizIntroKey !== introKey) {
+      flow._pendingKanaQuiz = { mod, step, stepIndex };
+      _renderKanaQuizReviewIntro(mod, step, stepIndex, sourceChars, level);
+      return;
+    }
+    ctx.setFlowBodyMode('quiz-mode');
     const maxQuestions = ctx.isKanaReviewLevel(level?.id) ? Math.min(20, sourceChars.length) : sourceChars.length;
     const chars = shuffle(sourceChars).slice(0, maxQuestions);
 
@@ -88,6 +96,48 @@ window.createQuizFlow = (ctx) => {
       renderQ
     };
     renderQ();
+  }
+
+  function _renderKanaQuizReviewIntro(mod, step, stepIndex, chars, level) {
+    const typeLabel = (step.title || level?.name || '가나 퀴즈').replace(/^[🎯📝\s]+/, '');
+    ctx.updateFlowProgress(stepIndex, mod.steps.length, step.title);
+    document.getElementById('flowBody').innerHTML = `
+      <div class="kana-quiz-primer">
+        <div class="kana-quiz-primer-head">
+          <div>
+            <div class="kana-quiz-primer-kicker">퀴즈 전 30초 복습</div>
+            <div class="kana-quiz-primer-title">${escHtml(typeLabel)}</div>
+          </div>
+          <div class="kana-quiz-primer-count">${chars.length}자</div>
+        </div>
+        <div class="kana-quiz-primer-grid">
+          ${chars.map(ch => {
+            const info = KANA_MAP[ch] || {};
+            const safe = ch.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+            return `
+              <button class="kana-quiz-primer-card" type="button" onclick="TTS.speak('${safe}')">
+                <span class="kana-quiz-primer-char ${isSmallKana(ch) ? 'is-small' : ''}">${ruby(ch)}</span>
+                <span class="kana-quiz-primer-reading">${escHtml(info.romaji || '')}</span>
+              </button>
+            `;
+          }).join('')}
+        </div>
+      </div>
+    `;
+    document.getElementById('flowFooter').innerHTML = `
+      <button class="btn btn-primary" onclick="App._startKanaQuizFromPrimer()">
+        퀴즈 시작 →
+      </button>
+    `;
+  }
+
+  function _startKanaQuizFromPrimer() {
+    const flow = ctx.getFlow();
+    const pending = flow?._pendingKanaQuiz;
+    if (!flow || !pending) return;
+    flow._kanaQuizIntroKey = `${flow.moduleId}:${pending.stepIndex}:kana`;
+    delete flow._pendingKanaQuiz;
+    _renderKanaQuiz(pending.mod, pending.step, pending.stepIndex);
   }
 
   function _kanaQuizAnswer(btn, isCorrect) {
@@ -383,6 +433,11 @@ window.createQuizFlow = (ctx) => {
     const charLen = Math.max(1, Array.from(visualText).length);
     const exampleText = item.example || '';
     const tipText = item.tip || '';
+    const coachKeys = ['nanami', 'aoi', 'mayu', 'keita'];
+    const coachKey = coachKeys[idx % coachKeys.length];
+    st.coachKey = coachKey;
+    const coachMeta = VoiceCharacters.meta(coachKey);
+    const coachName = ({ nanami: '나나미', aoi: '아오이', mayu: '마유', keita: '케이타' })[coachKey] || '가이드';
 
     ctx.updateFlowProgress(stepIndex, mod.steps.length, step.title);
     document.getElementById('flowBody').innerHTML = `
@@ -403,21 +458,27 @@ window.createQuizFlow = (ctx) => {
                 <div class="vc-back-meaning">${escHtml(item.korean || '')}</div>
                 ${item.english ? `<div class="vc-back-english">${escHtml(item.english)}</div>` : ''}
               </div>
-              ${tipText ? `
-              <div class="vc-explain-block">
-                <div class="vc-explain-label">${ctx.uiIconSvg('sparkle', 'vc-tip-icon')} 설명</div>
-                <div class="vc-explain-body">${ruby(tipText)}</div>
-              </div>` : ''}
-              ${exampleText ? `
-              <div class="vc-ex-block">
-                <div class="vc-ex-label">예시</div>
-                <div class="vc-ex-body">${ruby(exampleText)}</div>
+              ${(tipText || exampleText) ? `
+              <div class="vc-coach-panel">
+                <div class="vc-coach-person">
+                  <div class="vc-coach-avatar" style="${VoiceCharacters.avatarStyle(coachKey)}"></div>
+                  <div class="vc-coach-name">${escHtml(coachName)}</div>
+                </div>
+                <div class="vc-coach-content">
+                  <div class="vc-coach-role">${escHtml(coachMeta.role || '해설')}</div>
+                  ${tipText ? `<div class="vc-explain-body">${ruby(tipText)}</div>` : ''}
+                  ${exampleText ? `
+                  <div class="vc-ex-block compact">
+                    <div class="vc-ex-label">예시</div>
+                    <div class="vc-ex-body">${ruby(exampleText)}</div>
+                  </div>` : ''}
+                </div>
               </div>` : ''}
             </div>
           </div>
         </div>
         <div class="vocab-nav">
-          <button class="vocab-nav-btn" onclick="App._vocabPrev()" ${idx === 0 ? 'disabled' : ''}>←</button>
+          <button class="vocab-nav-btn" onclick="App._vocabPrev()">←</button>
           <div class="vocab-nav-dots">
             ${items.slice(0, 20).map((_,i) =>
               `<div class="vocab-nav-dot ${i===idx?'active':i<idx?'done':''}"></div>`).join('')}
@@ -428,13 +489,13 @@ window.createQuizFlow = (ctx) => {
     `;
 
     _vocabUpdateFooter();
-    TTS.speak(item.japanese || '');
+    TTS.speak(item.japanese || '', { voice: coachKey });
   }
 
   function _vocabSpeak() {
     const st = ctx.getFlow()._vocab;
     if (!st || !st.items[st.idx]) return;
-    TTS.speak(stripFuri(st.items[st.idx].japanese));
+    TTS.speak(stripFuri(st.items[st.idx].japanese), { voice: st.coachKey });
   }
 
   function _vocabFlip() {
@@ -454,27 +515,9 @@ window.createQuizFlow = (ctx) => {
     if (!footer) return;
     if (st.showMeaning) {
       footer.innerHTML = `
-        <div class="self-eval">
-          <button class="eval-btn again" onclick="App._vocabEval('again')">
-            <span class="eval-icon-wrap">${ctx.uiIconSvg('close', 'eval-icon')}</span>
-            <span class="eval-label">모름</span>
-            <span class="eval-meta">다시 보기</span>
-          </button>
-          <button class="eval-btn hard" onclick="App._vocabEval('hard')">
-            <span class="eval-icon-wrap">${ctx.uiIconSvg('progress', 'eval-icon')}</span>
-            <span class="eval-label">어려움</span>
-            <span class="eval-meta">한 번 더</span>
-          </button>
-          <button class="eval-btn good" onclick="App._vocabEval('good')">
-            <span class="eval-icon-wrap">${ctx.uiIconSvg('check', 'eval-icon')}</span>
-            <span class="eval-label">알겠음</span>
-            <span class="eval-meta">기억남</span>
-          </button>
-          <button class="eval-btn easy" onclick="App._vocabEval('easy')">
-            <span class="eval-icon-wrap">${ctx.uiIconSvg('sparkle', 'eval-icon')}</span>
-            <span class="eval-label">완벽</span>
-            <span class="eval-meta">바로 떠오름</span>
-          </button>
+        <div class="vocab-footer-nav">
+          <button class="btn btn-outline" onclick="App._vocabPrev()">← ${st.idx === 0 ? '소개' : '이전'}</button>
+          <button class="btn btn-primary" onclick="App._vocabNext()">다음 →</button>
         </div>
       `;
     } else {
@@ -486,8 +529,10 @@ window.createQuizFlow = (ctx) => {
 
   function _vocabNext() {
     if (!ctx.getFlow()._vocab) return;
-    ctx.getFlow()._vocab.showMeaning = false;
     const st = ctx.getFlow()._vocab;
+    const item = st.items[st.idx];
+    if (item?.id) Store.reviewVocabItem(item.id, st.showMeaning ? 'good' : 'again');
+    st.showMeaning = false;
     if (st.idx < st.items.length - 1) {
       st.idx++;
       _vocabRender();
@@ -500,7 +545,11 @@ window.createQuizFlow = (ctx) => {
   }
 
   function _vocabPrev() {
-    if (!ctx.getFlow()._vocab || ctx.getFlow()._vocab.idx === 0) return;
+    if (!ctx.getFlow()._vocab) return;
+    if (ctx.getFlow()._vocab.idx === 0) {
+      ctx.returnToModuleIntro?.();
+      return;
+    }
     ctx.getFlow()._vocab.showMeaning = false;
     ctx.getFlow()._vocab.idx--;
     _vocabRender();
@@ -667,6 +716,7 @@ window.createQuizFlow = (ctx) => {
 
   return {
     renderKanaQuiz: _renderKanaQuiz,
+    startKanaQuizFromPrimer: _startKanaQuizFromPrimer,
     kanaQuizAnswer: _kanaQuizAnswer,
     kanaQuizNext: _kanaQuizNext,
     renderKanaListening: _renderKanaListening,

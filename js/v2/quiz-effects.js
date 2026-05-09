@@ -49,8 +49,8 @@ window.QuizEffects = (() => {
       const now = ctx.currentTime + 0.01;
       const master = ctx.createGain();
       master.gain.setValueAtTime(0.0001, now);
-      master.gain.linearRampToValueAtTime(isCorrect ? 0.42 : 0.36, now + 0.012);
-      master.gain.exponentialRampToValueAtTime(0.0001, now + (isCorrect ? 0.48 : 0.4));
+      master.gain.linearRampToValueAtTime(isCorrect ? 0.62 : 0.5, now + 0.01);
+      master.gain.exponentialRampToValueAtTime(0.0001, now + (isCorrect ? 0.58 : 0.46));
       master.connect(ctx.destination);
 
       const playVoice = (type, startFreq, endFreq, startAt, duration, gainAmount) => {
@@ -76,12 +76,13 @@ window.QuizEffects = (() => {
       };
 
       if (isCorrect) {
-        playVoice('triangle', 880, 1318, now, 0.15, 0.2);
-        playVoice('sine', 1320, 1760, now + 0.06, 0.16, 0.13);
-        playVoice('triangle', 1760, 2349, now + 0.13, 0.15, 0.08);
+        playVoice('square', 659, 1318, now, 0.12, 0.16);
+        playVoice('triangle', 988, 1976, now + 0.055, 0.14, 0.18);
+        playVoice('sine', 1568, 2637, now + 0.13, 0.17, 0.13);
+        playVoice('triangle', 2093, 3136, now + 0.21, 0.12, 0.08);
       } else {
-        playVoice('sawtooth', 220, 164, now, 0.18, 0.16);
-        playVoice('triangle', 196, 146, now + 0.07, 0.2, 0.1);
+        playVoice('sawtooth', 196, 110, now, 0.2, 0.2);
+        playVoice('square', 146, 92, now + 0.07, 0.22, 0.13);
       }
     } catch(e) { /* AudioContext unsupported */ }
 
@@ -90,7 +91,7 @@ window.QuizEffects = (() => {
 
     if (isCorrect) {
       const correctBtn = document.querySelector('.quiz-choice.correct');
-      if (correctBtn) _spawnSparks(correctBtn);
+      if (correctBtn) _spawnSparks(correctBtn, 'correct');
       body.classList.remove('quiz-correct-sheen');
       void body.offsetWidth;
       body.classList.add('quiz-correct-sheen');
@@ -99,6 +100,7 @@ window.QuizEffects = (() => {
       body.classList.remove('quiz-wrong-shake');
       void body.offsetWidth;
       body.classList.add('quiz-wrong-shake');
+      _spawnSparks(body, 'wrong');
       setTimeout(() => body.classList.remove('quiz-wrong-shake'), 600);
     }
   }
@@ -152,11 +154,13 @@ window.QuizEffects = (() => {
     } catch(e) { /* AudioContext unsupported */ }
   }
 
-  function _spawnSparks(el) {
+  function _spawnSparks(el, mode = 'correct') {
     const rect = el.getBoundingClientRect();
     const cx = rect.left + rect.width / 2;
     const cy = rect.top + rect.height / 2;
-    const colors = ['#f8fafc', '#dbeafe', '#bfdbfe', '#c4b5fd', '#86efac', '#fde68a'];
+    const colors = mode === 'correct'
+      ? ['#f8fafc', '#dbeafe', '#bfdbfe', '#c4b5fd', '#86efac', '#fde68a']
+      : ['#fecaca', '#fca5a5', '#f87171', '#fdba74', '#fed7aa'];
 
     const halo = document.createElement('div');
     halo.style.cssText = `
@@ -170,13 +174,14 @@ window.QuizEffects = (() => {
     document.body.appendChild(halo);
     setTimeout(() => halo.remove(), 800);
 
-    for (let i = 0; i < 10; i++) {
+    const count = mode === 'correct' ? 22 : 16;
+    for (let i = 0; i < count; i++) {
       const sp = document.createElement('div');
-      const angle = (Math.PI * 2 * i) / 10 + (Math.random() - 0.5) * 0.22;
-      const dist  = 26 + Math.random() * 30;
+      const angle = (Math.PI * 2 * i) / count + (Math.random() - 0.5) * 0.35;
+      const dist  = (mode === 'correct' ? 34 : 22) + Math.random() * (mode === 'correct' ? 58 : 36);
       sp.style.cssText = `
         position:fixed; z-index:9999; pointer-events:none;
-        width:${6 + Math.random() * 8}px; height:${3 + Math.random() * 3}px;
+        width:${7 + Math.random() * 10}px; height:${4 + Math.random() * 5}px;
         border-radius:999px;
         background:${colors[Math.floor(Math.random() * colors.length)]};
         box-shadow:0 0 16px rgba(255,255,255,.28);

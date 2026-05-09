@@ -38,9 +38,10 @@ function ruby(text, reading) {
     return escHtml(stripFuri(text));
   }
 
-  // Auto-parse 漢字（よみ）or 漢字(よみ)
+  // Auto-parse 漢字（よみ）or 漢字(よみ). Keep ruby anchored to the kanji
+  // chunk only, otherwise furigana drifts toward the center of a full word.
   const parsed = String(text).replace(
-    /([^\s（\(）\)]+)[（\(]([ぁ-ヶー・]+)[）\)]/g,
+    /([\u3400-\u4dbf\u4e00-\u9faf々〆ヶ]+)[（\(]([ぁ-ヶー・]+)[）\)]/g,
     (_, base, rt) => `<ruby>${escHtml(base)}<rt>${escHtml(rt)}</rt></ruby>`
   );
   

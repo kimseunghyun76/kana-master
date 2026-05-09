@@ -26,7 +26,7 @@ window.TTS = (() => {
   const DEFAULT_VOICE = 'nanami';
   const DEFAULT_A     = 'nanami';   // 학습자 (여)
   const DEFAULT_B     = 'keita';    // 상대방 (남)
-  const DEFAULT_C     = 'keita';    // 제3자/점원 (남)
+  const DEFAULT_C     = 'aoi';      // 제3자/점원 (여)
 
   // ── 상태 ─────────────────────────────────────────────────
   let _enabled        = true;
@@ -199,22 +199,29 @@ window.TTS = (() => {
     stopQueue();
     _queueRunning = true;
     _queueStop    = false;
+    const prevRate = _rate;
+    if (typeof callbacks.rate === 'number') setRate(callbacks.rate);
+    const gapMs = Number.isFinite(callbacks.gapMs) ? callbacks.gapMs : 80;
 
-    for (let i = 0; i < lines.length; i++) {
-      if (_queueStop) break;
-      const line = lines[i];
-      if (!line.text) continue;
+    try {
+      for (let i = 0; i < lines.length; i++) {
+        if (_queueStop) break;
+        const line = lines[i];
+        if (!line.text) continue;
 
-      // line.voice가 있으면 우선, 없으면 speaker 역할로 매핑
-      const voiceKey = line.voice || _resolveRoleVoice(line.speaker);
+        // line.voice가 있으면 우선, 없으면 speaker 역할로 매핑
+        const voiceKey = line.voice || _resolveRoleVoice(line.speaker);
 
-      if (callbacks.onLineStart) callbacks.onLineStart(i, line);
-      const cleanLineText = typeof window.stripFuri === 'function'
-        ? window.stripFuri(line.text) : line.text;
-      await _speakOne(cleanLineText, voiceKey);
-      if (callbacks.onLineEnd) callbacks.onLineEnd(i, line);
+        if (callbacks.onLineStart) callbacks.onLineStart(i, line);
+        const cleanLineText = typeof window.stripFuri === 'function'
+          ? window.stripFuri(line.text) : line.text;
+        await _speakOne(cleanLineText, voiceKey);
+        if (callbacks.onLineEnd) callbacks.onLineEnd(i, line);
 
-      if (!_queueStop) await _delay(80);
+        if (!_queueStop) await _delay(gapMs);
+      }
+    } finally {
+      if (typeof callbacks.rate === 'number') setRate(prevRate);
     }
 
     _queueRunning = false;
