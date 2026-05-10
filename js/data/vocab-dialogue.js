@@ -9,18 +9,18 @@ var VOCAB_ITEMS_DIALOGUE = [
   // ══════════════════════════════════════════════════════════
 
   // ── 씬1: 처음 만남 (sim_first_meeting) ──
-  { id:'dm_n1', speaker:'N', japanese:'', romaji:'', korean:'📍 오피스 로비에서 — 명함을 건네며 처음 인사', english:'📍 In an office lobby — first greeting while exchanging business cards', tip:'' },
-  { id:'dm_1',  speaker:'A', japanese:'はじめまして。キムと申します。', romaji:'hajimemashite. kimu to moushimasu', korean:'처음 뵙겠습니다. 김이라고 합니다.', english:'Nice to meet you. My name is Kim.' },
-  { id:'dm_2',  speaker:'B', japanese:'はじめまして。田中です。よろしくお願いします。', romaji:'hajimemashite. tanaka desu. yoroshiku onegai shimasu', korean:'처음 뵙겠습니다. 다나카입니다. 잘 부탁드립니다.', english:'Nice to meet you. I am Tanaka. I look forward to working with you.' },
-  { id:'dm_3',  speaker:'A', japanese:'こちらこそ、よろしくお願いします。', romaji:'kochira koso, yoroshiku onegai shimasu', korean:'저야말로 잘 부탁드립니다.', english:'Likewise, I look forward to working with you.' },
-  { id:'dm_4',  speaker:'B', japanese:'韓国からいらっしゃったんですか？', romaji:'kankoku kara irasshattan desu ka', korean:'한국에서 오셨나요?', english:'Did you come from Korea?' },
-  { id:'dm_5',  speaker:'A', japanese:'はい、ソウルから参りました。', romaji:'hai, souru kara mairimashita', korean:'네, 서울에서 왔습니다.', english:'Yes, I came from Seoul.' },
-  { id:'dm_6',  speaker:'B', japanese:'遠いところ、ありがとうございます。', romaji:'tooi tokoro, arigatou gozaimasu', korean:'먼 곳에서 와 주셔서 감사합니다.', english:'Thank you for coming all this way.' },
-  { id:'dm_7',  speaker:'A', japanese:'お時間をいただき、ありがとうございます。', romaji:'ojikan wo itadaki, arigatou gozaimasu', korean:'시간 내주셔서 감사합니다.', english:'Thank you for taking the time to meet me.' },
-  { id:'dm_8',  speaker:'B', japanese:'では、会議室へご案内します。', romaji:'dewa, kaigishitsu e goannai shimasu', korean:'그럼 회의실로 안내하겠습니다.', english:'Then I will show you to the meeting room.' },
-  { id:'dm_9',  speaker:'A', japanese:'ありがとうございます。お願いいたします。', romaji:'arigatou gozaimasu. onegai itashimasu', korean:'감사합니다. 부탁드립니다.', english:'Thank you. Please lead the way.' },
-  { id:'dm_10', speaker:'B', japanese:'どうぞ、こちらです。', romaji:'douzo, kochira desu', korean:'이쪽입니다.', english:'This way, please.' },
-  { id:'dm_11', speaker:'A', japanese:'失礼いたします。', romaji:'shitsurei itashimasu', korean:'실례하겠습니다.', english:'Excuse me.' },
+  { id:'dm_n1', speaker:'N', japanese:'', romaji:'', korean:'📍 관광지에서 — 사진을 부탁하며 대화 시작', english:'📍 At a tourist spot — starting a conversation by asking for a photo', tip:'' },
+  { id:'dm_1',  speaker:'A', japanese:'すみません、写真を撮っていただけますか？', romaji:'sumimasen, shashin wo totte itadakemasu ka', korean:'저기요, 사진 찍어주실 수 있나요?', english:'Excuse me, could you take a photo for me?' },
+  { id:'dm_2',  speaker:'B', japanese:'もちろんです！はい、どうぞ。',            romaji:'mochiron desu! hai, douzo', korean:'물론이죠! 자, 여기요.', english:'Of course! Here you go.' },
+  { id:'dm_3',  speaker:'A', japanese:'ありがとうございます。日本は初めてなんです。', romaji:'arigatou gozaimasu. nihon wa hajimete nan desu', korean:'감사합니다. 일본은 처음이에요.', english:'Thank you. It\'s my first time in Japan.' },
+  { id:'dm_4',  speaker:'B', japanese:'そうですか！どちらから来ましたか？',       romaji:'sou desu ka! dochira kara kimashita ka', korean:'그래요! 어디서 오셨나요?', english:'Oh really! Where are you from?' },
+  { id:'dm_5',  speaker:'A', japanese:'韓国のソウルから来ました。',               romaji:'kankoku no souru kara kimashita', korean:'한국 서울에서 왔어요.', english:'I came from Seoul, Korea.' },
+  { id:'dm_6',  speaker:'B', japanese:'いいですね！日本の印象はどうですか？',     romaji:'ii desu ne! nihon no inshou wa dou desu ka', korean:'좋네요! 일본 인상은 어때요?', english:'Nice! What do you think of Japan so far?' },
+  { id:'dm_7',  speaker:'A', japanese:'食べ物がおいしくて、みんな親切で大好きです。', romaji:'tabemono ga oishikute, minna shinsetsu de daisuki desu', korean:'음식도 맛있고 다들 친절해서 너무 좋아요.', english:'The food is delicious and everyone is so kind — I love it!' },
+  { id:'dm_8',  speaker:'B', japanese:'それはよかった！どこへ行く予定ですか？',   romaji:'sore wa yokatta! doko e iku yotei desu ka', korean:'다행이에요! 어디 갈 예정이에요?', english:'Glad to hear it! Where are you planning to go?' },
+  { id:'dm_9',  speaker:'A', japanese:'京都と大阪に行きたいです。',               romaji:'kyouto to oosaka ni ikitai desu', korean:'교토랑 오사카에 가고 싶어요.', english:'I want to go to Kyoto and Osaka.' },
+  { id:'dm_10', speaker:'B', japanese:'楽しんでください！よい旅を！',             romaji:'tanoshinde kudasai! yoi tabi wo', korean:'즐기세요! 좋은 여행 되세요!', english:'Enjoy yourself! Have a great trip!' },
+  { id:'dm_11', speaker:'A', japanese:'ありがとうございました！',                 romaji:'arigatou gozaimashita', korean:'감사합니다!', english:'Thank you so much!' },
 
   // ── 씬2: 일상 스몰토크 (sim_daily_chat) ──
   { id:'dd_n1', speaker:'N', japanese:'', romaji:'', korean:'📍 카페에서 — 일본인과 일상 대화', english:'📍 At a café — casual chat with a Japanese person', tip:'' },
