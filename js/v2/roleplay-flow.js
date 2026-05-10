@@ -7,7 +7,7 @@
 window.createRoleplayFlow = (ctx) => {
   const ROLEPLAY_ART = window.RoleplayArt?.byModule || {};
   const FIRST_MEETING_ART = window.RoleplayArt?.FIRST_MEETING || {
-    bg: 'images/roleplay-comics/vn-first-meeting-bg.png',
+    bg: 'images/roleplay-comics/vn-first-meeting-bg.webp',
     male: 'images/roleplay-comics/vn-first-meeting-male.png',
     female: 'images/roleplay-comics/vn-first-meeting-female.png',
   };
