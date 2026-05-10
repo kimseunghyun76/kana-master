@@ -9,14 +9,19 @@
 window.App = (() => {
 
   // ── State ────────────────────────────────────────────────
-  let _currentTab = 'home';       // home | lesson | practice | profile
   let _flow = null;               // current learning flow
-  let _flowEl = null;             // flow screen DOM element
   let _homeView = null;
   let _lessonView = null;
   let _practiceView = null;
   let _groupLearningView = null;
   let _profileView = null;
+  const _shell = createAppShell({
+    Store,
+    capitalize: _capitalize,
+    formatNum: _formatNum,
+    uiIconSvg: _uiIconSvg,
+    uiIconWrap: _uiIconWrap,
+  });
 
   const _appSettings = createAppSettings({
     refreshHome: () => _renderHome(),
@@ -79,8 +84,8 @@ window.App = (() => {
   async function init() {
     await Store.load();
     await TTS.init();  // 사전생성 매니페스트 로드
-    _buildUI();
-    _bindNav();
+    _shell.build();
+    _shell.bindNav();
     _renderHome();
     _renderLesson();
     _renderPractice();
@@ -108,110 +113,12 @@ window.App = (() => {
     return ModuleVisuals.get(mod);
   }
 
-  // ── Build Shell UI ────────────────────────────────────────
-  function _buildUI() {
-    const app = document.getElementById('app');
-    app.innerHTML = `
-      <!-- Header -->
-      <header class="app-header" id="appHeader">
-        <div class="header-left">
-          <button class="btn-back hidden" id="btnBack" onclick="App.goBack()">←</button>
-          <div>
-            <span class="app-title">일본어 마스터</span>
-          </div>
-        </div>
-        <div class="header-right">
-          <div class="stat-pill" id="xpPill">
-            ${_uiIconWrap('xp', 'stat-pill-icon')}
-            <span id="headerXP">0</span> XP
-          </div>
-          <div class="stat-pill" id="streakPill">
-            ${_uiIconWrap('streak', 'stat-pill-icon')}
-            <span id="headerStreak">0</span>
-          </div>
-        </div>
-      </header>
-
-      <!-- Main content -->
-      <main class="app-main" id="appMain">
-        <!-- Home -->
-        <div class="view active" id="viewHome">
-          <div class="home-view" id="homeContent"></div>
-        </div>
-        <!-- Lesson -->
-        <div class="view" id="viewLesson">
-          <div class="lesson-view" id="lessonContent"></div>
-        </div>
-        <!-- Practice -->
-        <div class="view" id="viewPractice">
-          <div class="practice-view" id="practiceContent"></div>
-        </div>
-        <!-- Profile -->
-        <div class="view" id="viewProfile">
-          <div class="profile-view" id="profileContent"></div>
-        </div>
-      </main>
-
-      <!-- Bottom Nav -->
-      <nav class="bottom-nav" id="bottomNav">
-        <button class="nav-btn active" data-tab="home">
-          <span class="nav-icon">${_uiIconSvg('home', 'nav-icon-svg')}</span>
-          <span class="nav-label">홈</span>
-        </button>
-        <button class="nav-btn" data-tab="lesson">
-          <span class="nav-icon">${_uiIconSvg('lesson', 'nav-icon-svg')}</span>
-          <span class="nav-label">레슨</span>
-        </button>
-        <button class="nav-btn" data-tab="practice">
-          <span class="nav-icon">${_uiIconSvg('practice', 'nav-icon-svg')}</span>
-          <span class="nav-label">연습</span>
-        </button>
-        <button class="nav-btn" data-tab="profile">
-          <span class="nav-icon">${_uiIconSvg('profile', 'nav-icon-svg')}</span>
-          <span class="nav-label">나</span>
-        </button>
-      </nav>
-
-      <!-- Flow Screen (overlays everything) -->
-      <div class="flow-screen" id="flowScreen">
-        <div class="flow-header">
-          <button class="btn-back" onclick="App.closeFlow()">←</button>
-          <div class="flow-title" id="flowTitle">학습 중...</div>
-          <div class="flow-step" id="flowStep"></div>
-        </div>
-        <div class="flow-progress">
-          <div class="flow-progress-fill" id="flowProgressFill" style="width:0%"></div>
-        </div>
-        <div class="flow-body" id="flowBody"></div>
-        <div class="flow-footer" id="flowFooter"></div>
-      </div>
-
-      <!-- Toast -->
-      <div class="toast" id="toast"></div>
-    `;
-  }
-
-  // ── Nav Binding ───────────────────────────────────────────
-  function _bindNav() {
-    document.querySelectorAll('.nav-btn[data-tab]').forEach(btn => {
-      btn.addEventListener('click', () => switchTab(btn.dataset.tab));
-    });
-  }
-
   function switchTab(tab) {
-    _currentTab = tab;
-    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-    document.getElementById('view' + _capitalize(tab)).classList.add('active');
-    document.querySelectorAll('.nav-btn').forEach(b => {
-      b.classList.toggle('active', b.dataset.tab === tab);
-    });
-    _updateHeader();
+    _shell.switchTab(tab);
   }
 
   function _updateHeader() {
-    const prog = Store.get();
-    document.getElementById('headerXP').textContent = _formatNum(prog.xp);
-    document.getElementById('headerStreak').textContent = prog.streak;
+    _shell.updateHeader();
   }
 
   // ════════════════════════════════════════════════════════
@@ -793,14 +700,14 @@ window.App = (() => {
 
   // ── Flow Screen Control ───────────────────────────────────
   function _openFlowScreen() {
-    document.getElementById('flowScreen').classList.add('open');
+    _shell.openFlowScreen();
   }
 
   function closeFlow() {
     _quizFlow.clearTimers();
     _lectureFlow.stopLecture();
     _roleplayFlow.stopRoleplay();
-    document.getElementById('flowScreen').classList.remove('open');
+    _shell.closeFlowScreen();
     TTS.stop();
     _flow = null;
     _renderHome();
