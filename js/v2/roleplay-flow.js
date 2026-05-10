@@ -5,79 +5,11 @@
 'use strict';
 
 window.createRoleplayFlow = (ctx) => {
-  const CINEMATIC_FIRST_MEETING = {
+  const ROLEPLAY_ART = window.RoleplayArt?.byModule || {};
+  const FIRST_MEETING_ART = window.RoleplayArt?.FIRST_MEETING || {
     bg: 'images/roleplay-comics/vn-first-meeting-bg.png',
     male: 'images/roleplay-comics/vn-first-meeting-male.png',
     female: 'images/roleplay-comics/vn-first-meeting-female.png',
-  };
-  const ROLEPLAY_ART = {
-    survival_greet: {
-      bg: CINEMATIC_FIRST_MEETING.bg,
-      characters: {
-        A: CINEMATIC_FIRST_MEETING.male,
-        B: CINEMATIC_FIRST_MEETING.female,
-      }
-    },
-    survival_pointing: {
-      bg: 'images/roleplay-comics/generated/shopping-bg.png',
-      characters: { A: 'images/roleplay-comics/generated/characters/casual-male.png', B: 'images/roleplay-comics/generated/characters/service-female.png' }
-    },
-    survival_numbers: {
-      bg: 'images/roleplay-comics/generated/schedule-bg.png',
-      characters: { A: 'images/roleplay-comics/generated/characters/traveler-female.png', B: 'images/roleplay-comics/generated/characters/staff-male.png' }
-    },
-    survival_location: {
-      bg: 'images/roleplay-comics/generated/facility-bg.png',
-      characters: { A: 'images/roleplay-comics/generated/characters/traveler-female.png', B: 'images/roleplay-comics/generated/characters/staff-male.png' }
-    },
-    survival_transport: {
-      bg: 'images/roleplay-comics/generated/transport-bg.png',
-      characters: { A: 'images/roleplay-comics/generated/characters/casual-male.png', B: 'images/roleplay-comics/generated/characters/staff-male.png' }
-    },
-    survival_food: {
-      bg: 'images/roleplay-comics/generated/food-bg.png',
-      characters: { A: 'images/roleplay-comics/generated/characters/casual-male.png', B: 'images/roleplay-comics/generated/characters/service-female.png' }
-    },
-    survival_shopping: {
-      bg: 'images/roleplay-comics/generated/retail-bg.png',
-      characters: { A: 'images/roleplay-comics/generated/characters/casual-male.png', B: 'images/roleplay-comics/generated/characters/service-female.png' }
-    },
-    survival_hotel: {
-      bg: 'images/roleplay-comics/generated/hotel-bg.png',
-      characters: { A: 'images/roleplay-comics/generated/characters/traveler-female.png', B: 'images/roleplay-comics/generated/characters/staff-male.png' }
-    },
-    daily_places: {
-      bg: 'images/roleplay-comics/generated/sightseeing-bg.png',
-      characters: { A: 'images/roleplay-comics/generated/characters/traveler-female.png', B: 'images/roleplay-comics/generated/characters/staff-male.png' }
-    },
-    daily_health: {
-      bg: 'images/roleplay-comics/generated/health-bg.png',
-      characters: { A: 'images/roleplay-comics/generated/characters/traveler-female.png', B: 'images/roleplay-comics/generated/characters/doctor-female.png' }
-    },
-    it_workplace_vocab: {
-      bg: 'images/roleplay-comics/generated/it-standup-bg.png',
-      characters: { A: 'images/roleplay-comics/generated/characters/engineer-male.png', B: 'images/roleplay-comics/generated/characters/pm-female.png' }
-    },
-    biz_basic: {
-      bg: 'images/roleplay-comics/generated/code-review-bg.png',
-      characters: { A: 'images/roleplay-comics/generated/characters/engineer-male.png', B: 'images/roleplay-comics/generated/characters/pm-female.png' }
-    },
-    biz_meeting: {
-      bg: 'images/roleplay-comics/generated/kickoff-bg.png',
-      characters: { A: 'images/roleplay-comics/generated/characters/engineer-male.png', B: 'images/roleplay-comics/generated/characters/pm-female.png' }
-    },
-    biz_1on1: {
-      bg: 'images/roleplay-comics/generated/one-on-one-bg.png',
-      characters: { A: 'images/roleplay-comics/generated/characters/engineer-male.png', B: 'images/roleplay-comics/generated/characters/pm-female.png' }
-    },
-    biz_intro: {
-      bg: 'images/roleplay-comics/generated/onboarding-bg.png',
-      characters: { A: 'images/roleplay-comics/generated/characters/casual-male.png', B: 'images/roleplay-comics/generated/characters/pm-female.png' }
-    },
-    biz_spec: {
-      bg: 'images/roleplay-comics/generated/spec-bg.png',
-      characters: { A: 'images/roleplay-comics/generated/characters/engineer-male.png', B: 'images/roleplay-comics/generated/characters/pm-female.png' }
-    },
   };
 
   const _detailFlow = createRoleplayDetailFlow({
@@ -125,7 +57,7 @@ window.createRoleplayFlow = (ctx) => {
   }
 
   function _comicSceneAsset(mod, fallbackAsset = '') {
-    return ROLEPLAY_ART[mod?.id]?.bg || fallbackAsset || CINEMATIC_FIRST_MEETING.bg;
+    return ROLEPLAY_ART[mod?.id]?.bg || fallbackAsset || FIRST_MEETING_ART.bg;
   }
 
   function _comicIntroTitle(mod, rp, dialogues) {
@@ -184,7 +116,7 @@ window.createRoleplayFlow = (ctx) => {
     const roleAsset = ROLEPLAY_ART[mod?.id]?.characters?.[role];
     if (roleAsset) return roleAsset;
     const key = _voiceForSpeaker(role);
-    return key === 'keita' ? CINEMATIC_FIRST_MEETING.male : CINEMATIC_FIRST_MEETING.female;
+    return key === 'keita' ? FIRST_MEETING_ART.male : FIRST_MEETING_ART.female;
   }
 
   function _comicSpeakerRoles(dialogues = []) {
