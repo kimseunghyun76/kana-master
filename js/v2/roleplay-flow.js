@@ -10,6 +10,75 @@ window.createRoleplayFlow = (ctx) => {
     male: 'images/roleplay-comics/vn-first-meeting-male.png',
     female: 'images/roleplay-comics/vn-first-meeting-female.png',
   };
+  const ROLEPLAY_ART = {
+    survival_greet: {
+      bg: CINEMATIC_FIRST_MEETING.bg,
+      characters: {
+        A: CINEMATIC_FIRST_MEETING.male,
+        B: CINEMATIC_FIRST_MEETING.female,
+      }
+    },
+    survival_pointing: {
+      bg: 'images/roleplay-comics/generated/shopping-bg.png',
+      characters: { A: 'images/roleplay-comics/generated/characters/casual-male.png', B: 'images/roleplay-comics/generated/characters/service-female.png' }
+    },
+    survival_numbers: {
+      bg: 'images/roleplay-comics/generated/schedule-bg.png',
+      characters: { A: 'images/roleplay-comics/generated/characters/traveler-female.png', B: 'images/roleplay-comics/generated/characters/staff-male.png' }
+    },
+    survival_location: {
+      bg: 'images/roleplay-comics/generated/facility-bg.png',
+      characters: { A: 'images/roleplay-comics/generated/characters/traveler-female.png', B: 'images/roleplay-comics/generated/characters/staff-male.png' }
+    },
+    survival_transport: {
+      bg: 'images/roleplay-comics/generated/transport-bg.png',
+      characters: { A: 'images/roleplay-comics/generated/characters/casual-male.png', B: 'images/roleplay-comics/generated/characters/staff-male.png' }
+    },
+    survival_food: {
+      bg: 'images/roleplay-comics/generated/food-bg.png',
+      characters: { A: 'images/roleplay-comics/generated/characters/casual-male.png', B: 'images/roleplay-comics/generated/characters/service-female.png' }
+    },
+    survival_shopping: {
+      bg: 'images/roleplay-comics/generated/retail-bg.png',
+      characters: { A: 'images/roleplay-comics/generated/characters/casual-male.png', B: 'images/roleplay-comics/generated/characters/service-female.png' }
+    },
+    survival_hotel: {
+      bg: 'images/roleplay-comics/generated/hotel-bg.png',
+      characters: { A: 'images/roleplay-comics/generated/characters/traveler-female.png', B: 'images/roleplay-comics/generated/characters/staff-male.png' }
+    },
+    daily_places: {
+      bg: 'images/roleplay-comics/generated/sightseeing-bg.png',
+      characters: { A: 'images/roleplay-comics/generated/characters/traveler-female.png', B: 'images/roleplay-comics/generated/characters/staff-male.png' }
+    },
+    daily_health: {
+      bg: 'images/roleplay-comics/generated/health-bg.png',
+      characters: { A: 'images/roleplay-comics/generated/characters/traveler-female.png', B: 'images/roleplay-comics/generated/characters/doctor-female.png' }
+    },
+    it_workplace_vocab: {
+      bg: 'images/roleplay-comics/generated/it-standup-bg.png',
+      characters: { A: 'images/roleplay-comics/generated/characters/engineer-male.png', B: 'images/roleplay-comics/generated/characters/pm-female.png' }
+    },
+    biz_basic: {
+      bg: 'images/roleplay-comics/generated/code-review-bg.png',
+      characters: { A: 'images/roleplay-comics/generated/characters/engineer-male.png', B: 'images/roleplay-comics/generated/characters/pm-female.png' }
+    },
+    biz_meeting: {
+      bg: 'images/roleplay-comics/generated/kickoff-bg.png',
+      characters: { A: 'images/roleplay-comics/generated/characters/engineer-male.png', B: 'images/roleplay-comics/generated/characters/pm-female.png' }
+    },
+    biz_1on1: {
+      bg: 'images/roleplay-comics/generated/one-on-one-bg.png',
+      characters: { A: 'images/roleplay-comics/generated/characters/engineer-male.png', B: 'images/roleplay-comics/generated/characters/pm-female.png' }
+    },
+    biz_intro: {
+      bg: 'images/roleplay-comics/generated/onboarding-bg.png',
+      characters: { A: 'images/roleplay-comics/generated/characters/casual-male.png', B: 'images/roleplay-comics/generated/characters/pm-female.png' }
+    },
+    biz_spec: {
+      bg: 'images/roleplay-comics/generated/spec-bg.png',
+      characters: { A: 'images/roleplay-comics/generated/characters/engineer-male.png', B: 'images/roleplay-comics/generated/characters/pm-female.png' }
+    },
+  };
 
   const _detailFlow = createRoleplayDetailFlow({
     ...ctx,
@@ -52,26 +121,56 @@ window.createRoleplayFlow = (ctx) => {
   }
 
   function _isComicPrototype(mod) {
-    return mod?.id === 'survival_greet';
+    return !!mod?.roleplay;
   }
 
-  function _comicGroups() {
-    return [
-      [0],
-      [1, 2],
-      [3, 4],
-      [5, 6],
-      [7, 8],
-      [9, 10, 11],
-    ];
+  function _comicSceneAsset(mod, fallbackAsset = '') {
+    return ROLEPLAY_ART[mod?.id]?.bg || fallbackAsset || CINEMATIC_FIRST_MEETING.bg;
   }
 
-  function _comicPanelForLine(sourceIndex) {
-    return Math.max(0, _comicGroups().findIndex(group => group.includes(sourceIndex)));
+  function _comicIntroTitle(mod, rp, dialogues) {
+    if (mod?.id === 'survival_greet') return '오피스 로비에서 명함을 건네며 인사';
+    const narrator = (dialogues || []).find(line => line.speaker === 'N' && (line.korean || line.japanese));
+    const sceneText = (narrator?.korean || narrator?.japanese || '')
+      .replace(/^[^\w가-힣ぁ-んァ-ン一-龥]+/u, '')
+      .replace(/\s*[—-]\s*/g, ' ')
+      .trim();
+    return sceneText || rp?.name || '롤플레이 장면';
+  }
+
+  function _comicIntroDesc(rp, dialogues) {
+    const lineCount = (dialogues || []).filter(line => line.speaker !== 'N').length;
+    return `${escHtml(rp?.desc || '실전 대화를 영상처럼 듣고 따라 말합니다.')} · ${lineCount}개 대사`;
+  }
+
+  function _comicGroups(dialogues = []) {
+    const groups = [];
+    let current = [];
+    dialogues.forEach((line, index) => {
+      if (line?.speaker === 'N') {
+        if (current.length) groups.push(current);
+        groups.push([index]);
+        current = [];
+        return;
+      }
+      current.push(index);
+      if (current.length >= 2) {
+        groups.push(current);
+        current = [];
+      }
+    });
+    if (current.length) groups.push(current);
+    return groups.length ? groups : [[]];
+  }
+
+  function _comicPanelForLine(sourceIndex, dialogues = []) {
+    const foundIndex = _comicGroups(dialogues).findIndex(group => group.includes(sourceIndex));
+    return foundIndex >= 0 ? foundIndex : 0;
   }
 
   function _comicPanelLines(dialogues, panelIndex) {
-    return _comicGroups()[panelIndex].map(i => ({ ...dialogues[i], sourceIndex: i })).filter(line => line?.id);
+    const group = _comicGroups(dialogues)[panelIndex] || [];
+    return group.map(i => ({ ...dialogues[i], sourceIndex: i })).filter(line => line?.id);
   }
 
   function _comicRoleLabel(role) {
@@ -81,12 +180,26 @@ window.createRoleplayFlow = (ctx) => {
     return '너';
   }
 
-  function _comicRoleImage(role) {
+  function _comicRoleImage(role, mod = null) {
+    const roleAsset = ROLEPLAY_ART[mod?.id]?.characters?.[role];
+    if (roleAsset) return roleAsset;
     const key = _voiceForSpeaker(role);
     return key === 'keita' ? CINEMATIC_FIRST_MEETING.male : CINEMATIC_FIRST_MEETING.female;
   }
 
-  function _renderComicScriptLine(line, isActive = false) {
+  function _comicSpeakerRoles(dialogues = []) {
+    const roles = [...new Set(dialogues.map(line => line.speaker).filter(s => s && s !== 'N'))];
+    roles.sort((a, b) => ({ A: 1, B: 2, C: 3 }[a] || 9) - ({ A: 1, B: 2, C: 3 }[b] || 9));
+    return roles.length ? roles : ['A', 'B'];
+  }
+
+  function _renderComicCharacters(dialogues, classPrefix = 'vn-character', mod = null) {
+    return _comicSpeakerRoles(dialogues).map(role => `
+      <img class="${classPrefix} ${classPrefix}-${role}" src="${_comicRoleImage(role, mod)}" alt="" aria-hidden="true">
+    `).join('');
+  }
+
+  function _renderComicScriptLine(line, isActive = false, mod = null) {
     if (line.speaker === 'N') {
       return `
         <button class="comic-script-line narrator ${isActive ? 'active' : ''}" id="dl-line-${line.sourceIndex}" type="button">
@@ -100,7 +213,7 @@ window.createRoleplayFlow = (ctx) => {
               id="dl-line-${line.sourceIndex}" type="button"
               onclick="App.showDialogueDetail('${line.id}')">
         <span class="comic-script-speaker">
-          <span class="comic-script-avatar" style="background-image:url('${ctx.cssUrlValue(_comicRoleImage(line.speaker))}')"></span>
+          <span class="comic-script-avatar" style="background-image:url('${ctx.cssUrlValue(_comicRoleImage(line.speaker, mod))}')"></span>
           <span class="comic-script-role">${escHtml(roleLabel || line.speaker)}</span>
         </span>
         <span class="comic-script-copy">
@@ -112,7 +225,7 @@ window.createRoleplayFlow = (ctx) => {
     `;
   }
 
-  function _renderComicScriptDock(dialogues, panelIndex, activeSourceIndex = null) {
+  function _renderComicScriptDock(dialogues, panelIndex, activeSourceIndex = null, mod = null) {
     const lines = _comicPanelLines(dialogues, panelIndex);
     const selectedLine = activeSourceIndex === null
       ? (lines.find(line => line.speaker !== 'N') || lines[0])
@@ -120,12 +233,12 @@ window.createRoleplayFlow = (ctx) => {
     const selectedSourceIndex = selectedLine?.sourceIndex ?? null;
     return `
       <div class="comic-subtitle-overlay comic-script-dock-external" id="comicScriptDock">
-        ${lines.map(line => _renderComicScriptLine(line, line.sourceIndex === selectedSourceIndex)).join('')}
+        ${lines.map(line => _renderComicScriptLine(line, line.sourceIndex === selectedSourceIndex, mod)).join('')}
       </div>
     `;
   }
 
-  function _renderComicFrameHtml(dialogues, panelIndex, activeSourceIndex = null) {
+  function _renderComicFrameHtml(dialogues, panelIndex, activeSourceIndex = null, mod = null) {
     const lines = _comicPanelLines(dialogues, panelIndex);
     const selectedLine = activeSourceIndex === null
       ? (lines.find(line => line.speaker !== 'N') || lines[0])
@@ -134,7 +247,7 @@ window.createRoleplayFlow = (ctx) => {
     const activeSpeaker = activeLine?.speaker && activeLine.speaker !== 'N' ? activeLine.speaker : '';
     const focusClass = activeSpeaker ? `is-speaking speaker-focus-${activeSpeaker}` : '';
     const speakerName = _comicRoleLabel(activeSpeaker);
-    const cinematicClass = `cinematic-panel-${panelIndex + 1}`;
+    const cinematicClass = `cinematic-panel-${(panelIndex % 6) + 1}`;
     const lineMood = activeLine?.id || '';
     const moodClass = /3|4|7|8/.test(lineMood) ? 'mood-warm' : /9|10|11/.test(lineMood) ? 'mood-close' : 'mood-formal';
     return `
@@ -143,8 +256,7 @@ window.createRoleplayFlow = (ctx) => {
         <div class="comic-cinematic-depth depth-back" aria-hidden="true"></div>
         <div class="comic-cinematic-depth depth-front" aria-hidden="true"></div>
         <div class="comic-light-sweep" aria-hidden="true"></div>
-        <img class="vn-character vn-character-A" src="${_comicRoleImage('A')}" alt="" aria-hidden="true">
-        <img class="vn-character vn-character-B" src="${_comicRoleImage('B')}" alt="" aria-hidden="true">
+        ${_renderComicCharacters(dialogues, 'vn-character', mod)}
         <div class="comic-cinematic-grain" aria-hidden="true"></div>
         <div class="comic-play-indicator">
           <span></span><span></span><span></span>
@@ -167,7 +279,7 @@ window.createRoleplayFlow = (ctx) => {
       const roleLabel = _comicRoleLabel(role);
       return `
         <div class="comic-voice-select-card">
-          <span class="comic-role-avatar" style="background-image:url('${ctx.cssUrlValue(_comicRoleImage(role))}')"></span>
+          <span class="comic-role-avatar" style="background-image:url('${ctx.cssUrlValue(_comicRoleImage(role, mod))}')"></span>
           <label class="comic-voice-select-main">
             <span>${escHtml(roleLabel)} · ${escHtml(voice.label || voice.key)}</span>
             <select class="comic-voice-select" onchange="App._setRoleplayVoice('${role}', this.value)">
@@ -193,15 +305,14 @@ window.createRoleplayFlow = (ctx) => {
     document.getElementById('flowProgressFill').style.width = '20%';
     document.getElementById('flowBody').innerHTML = `
       <div class="comic-intro-shell">
-        <div class="roleplay-hero comic-intro-hero" style="--roleplay-hero-bg:url('${ctx.cssUrlValue(CINEMATIC_FIRST_MEETING.bg)}')">
+        <div class="roleplay-hero comic-intro-hero" style="--roleplay-hero-bg:url('${ctx.cssUrlValue(roleplayCover)}')">
           <div class="roleplay-hero-bg" aria-hidden="true"></div>
           <div class="comic-intro-characters" aria-hidden="true">
-            <img class="comic-intro-character comic-intro-character-A" src="${_comicRoleImage('A')}" alt="">
-            <img class="comic-intro-character comic-intro-character-B" src="${_comicRoleImage('B')}" alt="">
+            ${_renderComicCharacters(dialogues, 'comic-intro-character', mod)}
           </div>
           <div class="roleplay-hero-content">
-            <div class="roleplay-hero-title">오피스 로비에서 명함을 건네며 인사</div>
-            <div class="roleplay-hero-desc">화자를 선택하면 장면이 자동으로 움직이고, 영화 자막처럼 대사가 이어집니다.</div>
+            <div class="roleplay-hero-title">${escHtml(_comicIntroTitle(mod, rp, dialogues))}</div>
+            <div class="roleplay-hero-desc">${_comicIntroDesc(rp, dialogues)}<br>화자를 선택하면 장면이 자동으로 움직이고, 영화 자막처럼 대사가 이어집니다.</div>
           </div>
         </div>
         <div class="comic-intro-panel">
@@ -220,15 +331,16 @@ window.createRoleplayFlow = (ctx) => {
 
   function _renderComicPlayer(mod, rp, dialogues, comicSceneAsset) {
     const state = _getRoleplayState(mod);
-    const panelIndex = Math.max(0, Math.min(state.comicPanelIndex || 0, _comicGroups().length - 1));
+    const groups = _comicGroups(dialogues);
+    const panelIndex = Math.max(0, Math.min(state.comicPanelIndex || 0, groups.length - 1));
     state.phase = 'comic_player';
     state.comicPanelIndex = panelIndex;
     document.getElementById('flowStep').textContent = '2 / 2 · 영상 재생';
-    document.getElementById('flowProgressFill').style.width = `${32 + Math.round(((panelIndex + 1) / _comicGroups().length) * 60)}%`;
+    document.getElementById('flowProgressFill').style.width = `${32 + Math.round(((panelIndex + 1) / groups.length) * 60)}%`;
     document.getElementById('flowBody').innerHTML = `
       <div class="comic-player-shell" style="--comic-bg:url('${ctx.cssUrlValue(comicSceneAsset)}')">
-        ${_renderComicFrameHtml(dialogues, panelIndex)}
-        ${_renderComicScriptDock(dialogues, panelIndex)}
+        ${_renderComicFrameHtml(dialogues, panelIndex, null, mod)}
+        ${_renderComicScriptDock(dialogues, panelIndex, null, mod)}
       </div>
     `;
     document.getElementById('flowFooter').innerHTML = `
@@ -236,7 +348,7 @@ window.createRoleplayFlow = (ctx) => {
         <button class="btn btn-outline" onclick="App._roleplayComicPrev()">← ${panelIndex === 0 ? '처음' : '이전'}</button>
         <button class="btn btn-outline" id="btnReplayAll" onclick="App._roleplayComicSpeakPanel()">${ctx.uiLabeledIcon('audio')} 다시 듣기</button>
         <button class="btn btn-outline" id="btnStopPlay" style="display:none" onclick="App._stopRoleplay()">정지</button>
-        <button class="btn btn-primary" onclick="App._roleplayComicNext()">${panelIndex >= _comicGroups().length - 1 ? '역할 연습 →' : '다음 →'}</button>
+        <button class="btn btn-primary" onclick="App._roleplayComicNext()">${panelIndex >= groups.length - 1 ? '역할 연습 →' : '다음 →'}</button>
       </div>
     `;
   }
@@ -251,15 +363,15 @@ window.createRoleplayFlow = (ctx) => {
       return;
     }
     const activeLine = practiceLines[activeIndex];
-    const panelIndex = _comicPanelForLine(activeLine.sourceIndex || 0);
-    const speakerLabel = ({ A: '나', B: '상대', C: '제3자' })[activeLine.speaker] || activeLine.speaker || '';
+    const panelIndex = _comicPanelForLine(activeLine.sourceIndex || 0, dialogues);
+    const speakerLabel = _comicRoleLabel(activeLine.speaker) || activeLine.speaker || '';
     state.phase = 'comic_practice';
     state.comicPanelIndex = panelIndex;
     document.getElementById('flowStep').textContent = `말하기 · ${activeIndex + 1}/${practiceLines.length}`;
     document.getElementById('flowProgressFill').style.width = `${55 + Math.round(((activeIndex + 1) / practiceLines.length) * 40)}%`;
     document.getElementById('flowBody').innerHTML = `
       <div class="comic-player-shell comic-practice-shell" style="--comic-bg:url('${ctx.cssUrlValue(comicSceneAsset)}')">
-        ${_renderComicFrameHtml(dialogues, panelIndex, activeLine.sourceIndex)}
+        ${_renderComicFrameHtml(dialogues, panelIndex, activeLine.sourceIndex, mod)}
         <div class="comic-practice-prompt">
           <div class="comic-practice-head">
             <span>말하기 모드 · ${escHtml(speakerLabel)}</span>
@@ -291,7 +403,7 @@ window.createRoleplayFlow = (ctx) => {
     const phase = state.phase || 'preview';
     const roleplayCover = ctx.getRoleplayCoverAsset(mod);
     const isComicDemo = _isComicPrototype(mod);
-    const comicSceneAsset = isComicDemo ? CINEMATIC_FIRST_MEETING.bg : roleplayCover;
+    const comicSceneAsset = isComicDemo ? _comicSceneAsset(mod, roleplayCover) : roleplayCover;
     const conversationClass = isComicDemo ? 'roleplay-comic-page' : '';
     document.getElementById('flowScreen')?.classList.toggle('roleplay-comic-mode', isComicDemo);
     document.getElementById('flowScreen')?.classList.toggle('roleplay-comic-player-mode', isComicDemo && (phase === 'comic_player' || phase === 'comic_practice'));
@@ -304,7 +416,7 @@ window.createRoleplayFlow = (ctx) => {
     const allReady = practiceLines.length === 0 || readyCount === practiceLines.length;
     const activeIndex = practiceLines.findIndex((_, idx) => !outputDone[idx]);
     const activeLine = activeIndex >= 0 ? practiceLines[activeIndex] : null;
-    const speakerOptions = [...new Set(dialogues.map(line => line.speaker).filter(s => s && s !== 'N'))];
+    const speakerOptions = _comicSpeakerRoles(dialogues);
     const speakerLabels = { A: 'A · 나', B: 'B · 상대', C: 'C · 제3자' };
     const roleSelectorHtml = speakerOptions.length > 1 ? `
       <div class="roleplay-role-selector">
@@ -320,7 +432,7 @@ window.createRoleplayFlow = (ctx) => {
 
     document.getElementById('flowTitle').textContent = rp.name;
     if (isComicDemo && phase === 'comic_intro') {
-      _renderComicIntro(mod, rp, dialogues, roleplayCover, speakerOptions, speakerLabels, practiceSpeaker);
+      _renderComicIntro(mod, rp, dialogues, comicSceneAsset, speakerOptions, speakerLabels, practiceSpeaker);
       return;
     }
     if (isComicDemo && phase === 'comic_player') {
@@ -531,10 +643,12 @@ window.createRoleplayFlow = (ctx) => {
   function _beginRoleplayPractice() {
     if (!ctx.getFlow()?.roleplayState) return;
     _stopRoleplay();
-    if (_isComicPrototype(ctx.getMod(ctx.getFlow().moduleId))) {
+    const mod = ctx.getMod(ctx.getFlow().moduleId);
+    if (_isComicPrototype(mod)) {
+      const dialogues = ctx.getDialogue(mod.roleplay.dialogueKey);
       ctx.getFlow().roleplayState.phase = 'comic_practice';
-      ctx.getFlow().roleplayState.comicPanelIndex = _comicPanelForLine(ctx.getFlow().roleplayState.practiceLines?.[0]?.sourceIndex || 0);
-      _renderRoleplay(ctx.getMod(ctx.getFlow().moduleId));
+      ctx.getFlow().roleplayState.comicPanelIndex = _comicPanelForLine(ctx.getFlow().roleplayState.practiceLines?.[0]?.sourceIndex || 0, dialogues);
+      _renderRoleplay(mod);
       return;
     }
     ctx.getFlow().roleplayState.phase = 'practice';
@@ -566,6 +680,8 @@ window.createRoleplayFlow = (ctx) => {
     const state = ctx.getFlow()?.roleplayState;
     const mod = ctx.getMod(ctx.getFlow()?.moduleId);
     if (!state || !_isComicPrototype(mod)) return;
+    const dialogues = ctx.getDialogue(mod.roleplay.dialogueKey);
+    const groups = _comicGroups(dialogues);
     if ((state.comicPanelIndex || 0) === 0 && delta < 0) {
       _stopRoleplay();
       state.phase = 'comic_intro';
@@ -573,13 +689,13 @@ window.createRoleplayFlow = (ctx) => {
       _renderRoleplay(mod);
       return;
     }
-    if ((state.comicPanelIndex || 0) >= _comicGroups().length - 1 && delta > 0) {
+    if ((state.comicPanelIndex || 0) >= groups.length - 1 && delta > 0) {
       _beginRoleplayPractice();
       return;
     }
     _stopRoleplay();
     state.phase = 'comic_player';
-    state.comicPanelIndex = Math.max(0, Math.min((state.comicPanelIndex || 0) + delta, _comicGroups().length - 1));
+    state.comicPanelIndex = Math.max(0, Math.min((state.comicPanelIndex || 0) + delta, groups.length - 1));
     _renderRoleplay(mod);
     setTimeout(() => _roleplayComicSpeakPanel(), 220);
   }
@@ -609,17 +725,18 @@ window.createRoleplayFlow = (ctx) => {
     if (!state || !_isComicPrototype(mod)) return;
     if (state.phase !== 'comic_player') return;
     const dialogues = ctx.getDialogue(mod.roleplay.dialogueKey);
-    const safeIndex = Math.max(0, Math.min(panelIndex, _comicGroups().length - 1));
+    const groups = _comicGroups(dialogues);
+    const safeIndex = Math.max(0, Math.min(panelIndex, groups.length - 1));
     state.comicPanelIndex = safeIndex;
     const shell = document.querySelector('.comic-player-shell');
     if (shell) {
       shell.innerHTML = `
-        ${_renderComicFrameHtml(dialogues, safeIndex, activeSourceIndex)}
-        ${_renderComicScriptDock(dialogues, safeIndex, activeSourceIndex)}
+        ${_renderComicFrameHtml(dialogues, safeIndex, activeSourceIndex, mod)}
+        ${_renderComicScriptDock(dialogues, safeIndex, activeSourceIndex, mod)}
       `;
     }
     document.getElementById('flowStep').textContent = '2 / 2 · 영상 재생';
-    document.getElementById('flowProgressFill').style.width = `${32 + Math.round(((safeIndex + 1) / _comicGroups().length) * 60)}%`;
+    document.getElementById('flowProgressFill').style.width = `${32 + Math.round(((safeIndex + 1) / groups.length) * 60)}%`;
   }
 
   function _roleplayComicSpeakPanel() {
@@ -794,7 +911,7 @@ window.createRoleplayFlow = (ctx) => {
         document.querySelectorAll('.comic-script-line.active')
                 .forEach(el => el.classList.remove('active'));
         if (_isComicPrototype(mod) && ctx.getFlow()?.roleplayState?.phase === 'comic_player') {
-          const panelIndex = _comicPanelForLine(line.sourceIndex ?? idx);
+          const panelIndex = _comicPanelForLine(line.sourceIndex ?? idx, dialogues);
           if (panelIndex >= 0) _roleplayComicSetPanel(panelIndex, line.sourceIndex ?? idx);
         }
         if (line.elementId) {

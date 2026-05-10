@@ -519,6 +519,15 @@
 .comic-intro-character-B {
   transform: translateX(-7%) scale(.98);
 }
+.comic-intro-characters:has(.comic-intro-character-C) {
+  gap: clamp(4px, 2vw, 16px);
+}
+.comic-intro-characters:has(.comic-intro-character-C) .comic-intro-character {
+  max-width: 32%;
+}
+.comic-intro-character-C {
+  transform: translateY(1%) scale(.96);
+}
 .flow-screen.roleplay-comic-player-mode .flow-body {
   overflow: hidden;
 }
@@ -765,17 +774,41 @@
   right: -7%;
   animation-delay: .5s;
 }
+.vn-character-C {
+  left: 26%;
+  z-index: 3;
+  width: 52%;
+  opacity: .84;
+  animation-delay: .35s;
+}
+.comic-player-visual:has(.vn-character-C) .vn-character-A {
+  left: -14%;
+  width: 50%;
+}
+.comic-player-visual:has(.vn-character-C) .vn-character-B {
+  right: -14%;
+  width: 50%;
+}
 .comic-player-visual.speaker-focus-A .vn-character-A,
-.comic-player-visual.speaker-focus-B .vn-character-B {
+.comic-player-visual.speaker-focus-B .vn-character-B,
+.comic-player-visual.speaker-focus-C .vn-character-C {
   opacity: 1;
   filter: drop-shadow(0 22px 34px rgba(2,6,23,.46)) drop-shadow(0 0 14px rgba(251,191,36,.18));
   animation: vnSpeak 820ms ease-in-out infinite;
 }
 .comic-player-visual.speaker-focus-A .vn-character-B,
-.comic-player-visual.speaker-focus-B .vn-character-A {
+.comic-player-visual.speaker-focus-B .vn-character-A,
+.comic-player-visual.speaker-focus-C .vn-character-A,
+.comic-player-visual.speaker-focus-C .vn-character-B {
   opacity: .78;
   filter: drop-shadow(0 14px 22px rgba(2,6,23,.28)) saturate(.86);
   transform: scale(.96);
+}
+.comic-player-visual.speaker-focus-A .vn-character-C,
+.comic-player-visual.speaker-focus-B .vn-character-C {
+  opacity: .7;
+  filter: drop-shadow(0 14px 22px rgba(2,6,23,.28)) saturate(.82);
+  transform: scale(.94);
 }
 .comic-player-visual.is-speaking::before {
   animation: none;
