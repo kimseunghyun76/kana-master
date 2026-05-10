@@ -4,7 +4,7 @@
    1순위: /public/audio/{voice}/{id}.mp3 (Azure Neural TTS 프리렌더)
    2순위: Web Speech API (가나/임의 텍스트용)
    ─────────────────────────────────────────────────────────────
-   화자 7종: 여 nanami/aoi/mayu/shiori, 남 keita/daichi/naoki
+   화자 4종: 여 nanami/aoi/mayu, 남 keita
    롤플레이 라인 speaker: 'A' 학습자 / 'B' 상대방 / 'C' 제3자 / 'N' 나레이터→A
    ============================================================ */
 
