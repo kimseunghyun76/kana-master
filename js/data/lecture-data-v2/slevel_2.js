@@ -2,7 +2,7 @@ window.LECTURE_DATA = window.LECTURE_DATA || {};
 window.LECTURE_DATA.slevel_2 = [
   {
     type: 'hook', label: '오늘의 이야기', duration: 6000, audio: null,
-    image: 'images/lecture-scenes/slevel2-self-introduction-office-lobby.png',
+    image: 'images/lecture-scenes/slevel2-self-introduction-office-lobby.webp',
     main: '자기소개',
     sub: '처음 만난 상대에게 나를 알리는 일본만의 예절 섞인 자기소개법을 배워봅시다.',
     captionJp: '日本では初めて会うとき、名前だけでなく出身や趣味も話すのが定番です。相手との共通点を見つけて仲良くなるための、とても大切な儀式のようですね。',
@@ -10,7 +10,7 @@ window.LECTURE_DATA.slevel_2 = [
   },
   {
     type: 'kanji', label: '한자 파헤치기', duration: 8000, audio: null,
-    image: 'images/lecture-scenes/slevel2-self-introduction-office-lobby.png',
+    image: 'images/lecture-scenes/slevel2-self-introduction-office-lobby.webp',
     main: '名 와 出',
     sub: '\'이름 名\'은 저녁(夕)에 입(口)으로 부르는 그림, \'날 出\'은 발(止)이 동굴 밖으로 나가는 모양.',
     captionJp: '自己紹介で必ず登場する2つの漢字を分解してみましょう！①「名(メイ・な)」=「夕(ゆう)＋口」、つまり「夕方の暗闇で、自分が誰かを口で名乗る」=「名前」。古代では暗くなって相手の顔が見えない時、声で「私は〇〇です」と名乗る必要があったんです。②「出(シュツ・でる)」=「止(足)＋凵(穴・うつわ)」、つまり「足が穴(洞窟)から外に出る」様子をそのまま絵にしたもの。「出身」=「(あなたが)出てきた身体の場所」=「ふるさと」。漢字の絵を意識すると、自己紹介の言葉一つ一つに歴史を感じますね。',
@@ -18,7 +18,7 @@ window.LECTURE_DATA.slevel_2 = [
   },
   {
     type: 'culture', label: '문화 노트', duration: 7000, audio: 'はじめまして',
-    image: 'images/lecture-scenes/slevel2-self-introduction-office-lobby.png',
+    image: 'images/lecture-scenes/slevel2-self-introduction-office-lobby.webp',
     main: '처음 뵙겠습니다',
     sub: '이름을 말하기 전, 상대방에 대한 존경을 담아 가장 먼저 건네는 정중한 인사입니다.',
     captionJp: '「はじめまして」は最高の敬意を表す言葉。相手の姿を初めて拝見します、という謙虚な気持ちで伝えると、とても好印象を与えられますよ。',
@@ -26,7 +26,7 @@ window.LECTURE_DATA.slevel_2 = [
   },
   {
     type: 'story', label: '어원 이야기', duration: 7000, audio: '申します',
-    image: 'images/lecture-scenes/slevel2-self-introduction-office-lobby.png',
+    image: 'images/lecture-scenes/slevel2-self-introduction-office-lobby.webp',
     main: '申します vs 言います',
     sub: '\'말하다\'에도 두 종류 — 같은 \'말합니다\'지만 「申します」는 자신을 한층 낮추는 겸양어입니다.',
     captionJp: '自己紹介で「私は〇〇です」より「〇〇と申します(もうします)」の方が、ずっと丁寧で大人っぽく聞こえます。「申す(もうす)」は「言う」の謙譲語、つまり「自分の動作をへりくだって表現する」言葉です。漢字「申」は元々「稲妻(いなずま)」を表す象形文字でしたが、後に「神様に向かって申し上げる」という意味になり、現代では「目上の人に話す」謙譲語として残りました。ビジネス・面接・公式な場では「〜と申します」、友達同士では「〜です」、と使い分けると一気にプロっぽくなりますよ。',
@@ -34,7 +34,7 @@ window.LECTURE_DATA.slevel_2 = [
   },
   {
     type: 'mnemonic', label: '암기법', duration: 6000, audio: 'お名前は何ですか',
-    image: 'images/lecture-scenes/slevel2-self-introduction-office-lobby.png',
+    image: 'images/lecture-scenes/slevel2-self-introduction-office-lobby.webp',
     main: '이름 묻기',
     sub: '상대방의 이름을 물을 때는 앞에 \'오(お)\'를 붙여 정중하게 표현합니다.',
     captionJp: '「お名前は何ですか？」の「お」は丁寧さの魔法です。相手の名前を大切に扱う気持ちを込めて、「おなまえ」と言うのがマナーなんですよ。',
@@ -42,7 +42,7 @@ window.LECTURE_DATA.slevel_2 = [
   },
   {
     type: 'culture', label: '문화 노트: 호칭 매너', duration: 8000, audio: null,
-    image: 'images/lecture-scenes/slevel2-self-introduction-office-lobby.png',
+    image: 'images/lecture-scenes/slevel2-self-introduction-office-lobby.webp',
     main: '姓 + さん이 기본',
     sub: '한국과 달리, 일본은 처음 만난 사람을 보통 \'성(姓) + さん\'으로 부르는 게 안전합니다.',
     captionJp: '日本では、初対面の相手は必ず「姓(せい)＋さん」で呼びます！例えば田中花子さんに会った時、「花子さん」ではなく「田中さん」が正解。韓国ではすぐに名前(下の名前)で呼ぶ文化があるので、感覚が違います。日本で「下の名前＋さん」で呼ぶのは、ある程度親しくなってから・許可を得てから(「花子って呼んでください」など)。さらに「ちゃん」(女性・子供向け)、「君(くん)」(男性後輩・同僚)、「様(さま)」(お客様・最上敬称)など、関係性によって使い分けます。間違えると失礼になるので、まずは「姓＋さん」を絶対の安全策として覚えましょう！',
@@ -50,7 +50,7 @@ window.LECTURE_DATA.slevel_2 = [
   },
   {
     type: 'funfact', label: '재미있는 사실', duration: 6000, audio: null,
-    image: 'images/lecture-scenes/slevel2-self-introduction-office-lobby.png',
+    image: 'images/lecture-scenes/slevel2-self-introduction-office-lobby.webp',
     main: '출신 묻기',
     sub: '"어느 나라 사람이에요?"보다 "어디에서 오셨나요?"가 훨씬 더 세련된 표현입니다.',
     captionJp: '「何人(なにじん)ですか？」と聞くより、「どちらのご出身ですか？」と聞く方がずっとスマートです。相手のプライバシーを尊重する聞き方が喜ばれますよ。',
@@ -58,7 +58,7 @@ window.LECTURE_DATA.slevel_2 = [
   },
   {
     type: 'practice', label: '실전 연습: 친밀도 시그널', duration: 8000, audio: null,
-    image: 'images/lecture-scenes/slevel2-self-introduction-office-lobby.png',
+    image: 'images/lecture-scenes/slevel2-self-introduction-office-lobby.webp',
     main: '〜と呼んでください',
     sub: '한 단계 친해지고 싶을 때 보내는 마법의 시그널 — \'~라고 불러주세요\'.',
     captionJp: '日本人とある程度仲良くなった時、距離を一段近づける魔法のフレーズが「〇〇と呼んでください(よんでください)」(~라고 불러주세요)です！例えば「キムさん」と呼ばれていた人が「ヒョンと呼んでください」と言えば、「下の名前で呼んでもいい関係になりたい」というメッセージ。逆に、相手が突然下の名前で呼んできたら、「もっと親しくなりたい」というサイン。日本では「呼び方を変える」ことそのものが、関係の深まりを意味する大切な儀式なんです。タイミングは食事を一緒にした後、共通の趣味を見つけた後、などがおすすめ！',
@@ -66,7 +66,7 @@ window.LECTURE_DATA.slevel_2 = [
   },
   {
     type: 'practice', label: '실전 연습', duration: 7000, audio: '趣味は何ですか',
-    image: 'images/lecture-scenes/slevel2-self-introduction-office-lobby.png',
+    image: 'images/lecture-scenes/slevel2-self-introduction-office-lobby.webp',
     main: '취미는 무엇인가요?',
     sub: '대화를 풍성하게 만드는 최고의 주제! 서로의 관심사를 나누는 법을 배웁니다.',
     captionJp: '「趣味は何ですか？」は日本で最も人気のある話題です。自分の好きなことを伝えて、友達の輪を広げていきましょう！',
@@ -74,7 +74,7 @@ window.LECTURE_DATA.slevel_2 = [
   },
   {
     type: 'practice', label: '실전 연습', duration: 7000, audio: '私は韓国から来ました',
-    image: 'images/lecture-scenes/slevel2-self-introduction-office-lobby.png',
+    image: 'images/lecture-scenes/slevel2-self-introduction-office-lobby.webp',
     main: '자기소개 템플릿',
     sub: '이름, 출신, 직업, 취미를 이어서 말하는 완벽한 자기소개 문장을 완성해 봅시다.',
     captionJp: '「はじめまして、～です。韓国から来ました。趣味は～です。よろしくお願いします！」このパターンを完璧に覚えれば、もう自己紹介は怖くありません！',
@@ -82,7 +82,7 @@ window.LECTURE_DATA.slevel_2 = [
   },
   {
     type: 'summary', label: '오늘의 정리', duration: 6000, audio: null,
-    image: 'images/lecture-scenes/slevel2-self-introduction-office-lobby.png',
+    image: 'images/lecture-scenes/slevel2-self-introduction-office-lobby.webp',
     main: '요약 리뷰',
     sub: '名·出 한자, 申します 겸양어, 姓+さん 호칭, 친밀도 시그널까지 자기소개 종합!',
     captionJp: '今日は「名」と「出」の漢字の絵から、「申します」の謙譲表現、姓＋さんの呼び方ルール、友達になる「呼んでください」の魔法まで、自己紹介の全てを学びました。これだけ知っていれば、ビジネスでも観光でも、どんな日本人とも自信を持って自己紹介できますよ！',

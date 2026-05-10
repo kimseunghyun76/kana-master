@@ -2,7 +2,7 @@ window.LECTURE_DATA = window.LECTURE_DATA || {};
 window.LECTURE_DATA.wlevel_6 = [
   {
     type: 'hook', label: '오늘의 이야기', duration: 6000, audio: null,
-    image: 'images/lecture-scenes/wlevel6-adjective-cafe-comparison.png',
+    image: 'images/lecture-scenes/wlevel6-adjective-cafe-comparison.webp',
     main: '형용사 2종류',
     sub: '일본어 형용사는 태생에 따라 「い형」과 「な형」으로 나뉩니다.',
     captionJp: '日本語には形容詞が2種類あります！「い形容詞」と「な形容詞」。なぜ2種類あるかというと、実は言葉のルーツが違うからなんです。',
@@ -10,7 +10,7 @@ window.LECTURE_DATA.wlevel_6 = [
   },
   {
     type: 'kanji', label: '한자 파헤치기', duration: 8000, audio: null,
-    image: 'images/lecture-scenes/wlevel6-adjective-cafe-comparison.png',
+    image: 'images/lecture-scenes/wlevel6-adjective-cafe-comparison.webp',
     main: '高 와 安',
     sub: '높을 고(高)는 누각 모양, 편안할 안(安)은 집 안에 앉은 여자에서 \'싸다\'까지 갔습니다.',
     captionJp: '「高い(たかい)」の「高」は、二階建ての高い建物(楼閣)を真横から見た形。だから「背が高い」「値段が高い」「位が高い」など、上に向かう全ての意味に使われます。一方「安い(やすい)」の「安」は、家(宀)の中に女(女)が静かに座っている姿。元々は「平和・安心」の意味で、そこから「気持ちが楽＝負担がない＝値段が安い」へ広がっていったんです。',
@@ -18,7 +18,7 @@ window.LECTURE_DATA.wlevel_6 = [
   },
   {
     type: 'mnemonic', label: '암기 꿀팁', duration: 7000, audio: 'きれい・きらい',
-    image: 'images/lecture-scenes/wlevel6-adjective-cafe-comparison.png',
+    image: 'images/lecture-scenes/wlevel6-adjective-cafe-comparison.webp',
     main: 'きれい (예쁘다)',
     sub: '끝이 \'い\'로 끝나서 헷갈리기 쉽지만, 사실은 「な형용사」 집안의 아이입니다.',
     captionJp: '「きれい(綺麗)」は最後が「い」で終わりますが、「な形容詞」なので注意が必要です！「きれいな人」と言うのが正解です。',
@@ -26,7 +26,7 @@ window.LECTURE_DATA.wlevel_6 = [
   },
   {
     type: 'grammar', label: '문법 노트: 명사 수식', duration: 8000, audio: null,
-    image: 'images/lecture-scenes/wlevel6-adjective-cafe-comparison.png',
+    image: 'images/lecture-scenes/wlevel6-adjective-cafe-comparison.webp',
     main: '\'예쁜 ~\' 만들기',
     sub: 'い형용사는 그대로, な형용사는 \'な\'를 끼워 넣고 명사를 붙입니다.',
     captionJp: '名詞を飾る時のルールが、2つのグループで違います！①「い形容詞」はそのまま名詞をくっつけるだけ → 高い山、おいしいラーメン、寒い日。②「な形容詞」は必ず「な」を入れてから名詞 → きれいな人、静かな部屋、元気な子。「い」で終わるのに「な」が必要な「きれい」「嫌い」「有名」などは、最初に名前を覚えてしまいましょう！',
@@ -34,7 +34,7 @@ window.LECTURE_DATA.wlevel_6 = [
   },
   {
     type: 'funfact', label: '재미있는 사실', duration: 6000, audio: null,
-    image: 'images/lecture-scenes/wlevel6-adjective-cafe-comparison.png',
+    image: 'images/lecture-scenes/wlevel6-adjective-cafe-comparison.webp',
     main: 'かわいい (귀엽다)',
     sub: '천 년 전에는 "불쌍하다"는 뜻으로 쓰였다는 사실, 알고 계셨나요?',
     captionJp: '「かわいい」は1000年前、実は「かわいそう」に近い意味でした。顔が赤くなるほど恥ずかしい、守ってあげたい、という気持ちから現在の「可愛い」になりました。',
@@ -42,7 +42,7 @@ window.LECTURE_DATA.wlevel_6 = [
   },
   {
     type: 'story', label: '어원 이야기', duration: 7000, audio: null,
-    image: 'images/lecture-scenes/wlevel6-adjective-cafe-comparison.png',
+    image: 'images/lecture-scenes/wlevel6-adjective-cafe-comparison.webp',
     main: '두 집안의 뿌리',
     sub: 'い형용사는 순수 일본 토박이, な형용사는 한자어·외래어 출신입니다.',
     captionJp: 'なぜ形容詞が2種類あるのでしょう？答えは「言葉の生まれ」が違うから。「い形容詞」(高い・寒い・楽しい)は古代日本に元々あった大和ことば(やまとことば)。一方「な形容詞」(元気・静か・有名・ハンサム)は、中国から来た漢字語や、最近の外来語が日本語に取り込まれたものです。だから「ハンサムな人」「クールな夜」のように、新しい外来語もすべて「な形容詞」になるんですよ！',
@@ -50,7 +50,7 @@ window.LECTURE_DATA.wlevel_6 = [
   },
   {
     type: 'practice', label: '문법 연습', duration: 7000, audio: '高い・高くない・高かった・高くなかった',
-    image: 'images/lecture-scenes/wlevel6-adjective-cafe-comparison.png',
+    image: 'images/lecture-scenes/wlevel6-adjective-cafe-comparison.webp',
     main: 'い형용사 활용',
     sub: '꼬리인 \'い\'를 \'~くない, ~かった\'로 바꾸기만 하면 부정과 과거 표현이 됩니다.',
     captionJp: 'い形容詞のルールは簡単です！最後を「～くない(否定)」や「～かった(過去)」に変えるだけ。「おいしい」なら「おいしくない」「おいしかった」になります。',
@@ -58,7 +58,7 @@ window.LECTURE_DATA.wlevel_6 = [
   },
   {
     type: 'culture', label: '실전 팁: 형용사 잇기', duration: 8000, audio: null,
-    image: 'images/lecture-scenes/wlevel6-adjective-cafe-comparison.png',
+    image: 'images/lecture-scenes/wlevel6-adjective-cafe-comparison.webp',
     main: '~くて, ~で',
     sub: '\'맛있고 싸요\'처럼 형용사 두 개를 이으면 바로 그럴듯한 후기 한 줄이 됩니다.',
     captionJp: '形容詞を2つつなげると、感想がぐっとプロっぽくなります！①い形容詞は「い」を「くて」に変える → 「美味しくて、安い」「広くて、明るい」。②な形容詞は「な」の代わりに「で」 → 「静かで、きれい」「親切で、有名」。グルメサイトのレビューや、Instagramの投稿でも大活躍するパターンですよ。これだけで「日本語上手ですね！」って褒められます。',
@@ -66,7 +66,7 @@ window.LECTURE_DATA.wlevel_6 = [
   },
   {
     type: 'mnemonic', label: '암기 꿀팁', duration: 7000, audio: 'きれいじゃない・きれいだった・きれいじゃなかった',
-    image: 'images/lecture-scenes/wlevel6-adjective-cafe-comparison.png',
+    image: 'images/lecture-scenes/wlevel6-adjective-cafe-comparison.webp',
     main: 'な형용사 활용',
     sub: '나 형용사는 명사처럼 활용하세요! 부정은 \'~じゃない\', 과거는 \'~だった\'입니다.',
     captionJp: 'なけいようしは、めいしとおなじルールでうごきます。「きれいだ」「きれいじゃない」「きれいだった」のように、げんざい・ひてい・かこをかえていきます。めいしとかたちがおなじなので、おぼえやすいですよ！',
@@ -74,7 +74,7 @@ window.LECTURE_DATA.wlevel_6 = [
   },
   {
     type: 'mnemonic', label: '암기 꿀팁: 색깔', duration: 7000, audio: null,
-    image: 'images/lecture-scenes/wlevel6-adjective-cafe-comparison.png',
+    image: 'images/lecture-scenes/wlevel6-adjective-cafe-comparison.webp',
     main: '색깔 형용사 5개',
     sub: '\'い형용사\'로 쓰는 색은 단 5개! 빨강·파랑·검정·하양·노랑뿐입니다.',
     captionJp: '色の言葉、すべて「い」を付けたくなりますよね？でも実は、い形容詞として使える色はたった5つだけ — 赤い・青い・白い・黒い・黄色い。それ以外の色（緑・紫・ピンク・茶色など）は名詞なので、「緑のかばん」「ピンクの服」のように「の」でつなぎます。「みどりい服」とは絶対に言いません！この5色だけ覚えておけば、色の表現で迷うことはなくなります。',
@@ -82,7 +82,7 @@ window.LECTURE_DATA.wlevel_6 = [
   },
   {
     type: 'summary', label: '오늘의 정리', duration: 6000, audio: null,
-    image: 'images/lecture-scenes/wlevel6-adjective-cafe-comparison.png',
+    image: 'images/lecture-scenes/wlevel6-adjective-cafe-comparison.webp',
     main: '요약 리뷰',
     sub: 'い·な형용사 분류, 명사 수식, ~くて 잇기, 그리고 5색 형용사까지 정리 완료!',
     captionJp: '今日は形容詞の2つの家族(い形・な形)、名詞の飾り方、「くて・で」のつなぎ方、そして色の表現まで盛りだくさんでした！形容詞が使えると、感想や状態が一気に表現豊かになります。明日のひとことに、ぜひ一つ入れてみてくださいね。',

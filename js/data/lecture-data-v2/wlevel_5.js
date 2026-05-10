@@ -2,7 +2,7 @@ window.LECTURE_DATA = window.LECTURE_DATA || {};
 window.LECTURE_DATA.wlevel_5 = [
   {
     type: 'hook', label: '오늘의 이야기', duration: 6000, audio: null,
-    image: 'images/lecture-scenes/wlevel5-verb-dining-action.png',
+    image: 'images/lecture-scenes/wlevel5-verb-dining-action.webp',
     main: '일본어 동사',
     sub: '가다, 오다, 돌아가다! 움직임을 나타내는 동사의 기본을 배워봅시다.',
     captionJp: 'にほんごのどうしには、みっつのグループがあります！いく・くる・かえるなど、まいにちのうごきをあらわすいちばんきほんてきなどうしから、まずまなんでいきましょう。',
@@ -10,7 +10,7 @@ window.LECTURE_DATA.wlevel_5 = [
   },
   {
     type: 'kanji', label: '한자 파헤치기', duration: 8000, audio: null,
-    image: 'images/lecture-scenes/wlevel5-verb-dining-action.png',
+    image: 'images/lecture-scenes/wlevel5-verb-dining-action.webp',
     main: '食 와 飲',
     sub: '먹을 식(食)은 뚜껑 덮은 그릇, 마실 음(飲)은 입을 크게 벌린 사람의 모습입니다.',
     captionJp: '「食べる」の「食(ショク)」は、ふたをした器(うつわ)から湯気が立ち上る様子を描いた漢字です！上の「△」が蓋、下が器とご飯。一方「飲む」の「飲(イン)」は、左の「食」に、右の「欠(あくび)＝口を大きく開けた人」を組み合わせて、「お酒や水をぐっと飲み干す人」を絵にしたもの。日本人が大切にする「食」の文化が、漢字一文字に詰まっているんですね。',
@@ -18,7 +18,7 @@ window.LECTURE_DATA.wlevel_5 = [
   },
   {
     type: 'culture', label: '문화 노트', duration: 7000, audio: '食べます・飲みます',
-    image: 'images/lecture-scenes/wlevel5-verb-dining-action.png',
+    image: 'images/lecture-scenes/wlevel5-verb-dining-action.webp',
     main: '먹다 vs 드시다',
     sub: '상황에 맞게 동사의 꼬리말을 바꾸는 매너를 배워봅니다.',
     captionJp: 'にほんごには「たべる」と「たべます」のように、ていねいさのちがうかたちがあります。はじめてあうひとやめうえのひとには、ごびに「ます」をつけてはなすのがマナーです。',
@@ -26,7 +26,7 @@ window.LECTURE_DATA.wlevel_5 = [
   },
   {
     type: 'grammar', label: '문법 노트: 3그룹 분류', duration: 8000, audio: null,
-    image: 'images/lecture-scenes/wlevel5-verb-dining-action.png',
+    image: 'images/lecture-scenes/wlevel5-verb-dining-action.webp',
     main: '동사의 세 그룹',
     sub: '일본어 동사는 형태에 따라 1그룹·2그룹·3그룹으로 나뉩니다.',
     captionJp: '日本語の動詞は3つのグループに分けられます。①1グループ:「く・む・す・う」など色んな音で終わる動詞 (行く・読む・話す・買う)。②2グループ:「〜いる」「〜える」で終わる動詞 (食べる・見る・寝る)。③3グループ:たった2つだけの不規則動詞「する」と「来る」！グループによって「ます形」の作り方が変わるので、まず分類できるようになるのが上達の鍵です。',
@@ -34,7 +34,7 @@ window.LECTURE_DATA.wlevel_5 = [
   },
   {
     type: 'mnemonic', label: '암기 꿀팁', duration: 6000, audio: 'する',
-    image: 'images/lecture-scenes/wlevel5-verb-dining-action.png',
+    image: 'images/lecture-scenes/wlevel5-verb-dining-action.webp',
     main: '하는 동사 (する)',
     sub: '명사 뒤에 「する」만 붙이면 마법처럼 동사가 됩니다.',
     captionJp: '「する」はさいきょうのどうしです！「べんきょう＋する」「りょうり＋する」のように、めいしにつけるだけで、なんでもどうしになります。えいごの「ドライブ＋する」もオーケーですよ！',
@@ -42,7 +42,7 @@ window.LECTURE_DATA.wlevel_5 = [
   },
   {
     type: 'story', label: '어원 이야기', duration: 7000, audio: null,
-    image: 'images/lecture-scenes/wlevel5-verb-dining-action.png',
+    image: 'images/lecture-scenes/wlevel5-verb-dining-action.webp',
     main: 'ます의 정체',
     sub: '「~ます」는 옛 일본어 동사 \'まする\'가 줄어든 흔적입니다.',
     captionJp: '「食べます」の「ます」って一体何でしょう？実は古い日本語の動詞「まする(候する)」が短くなったものなんです。元々は「お仕えする・きちんと控えている」という意味で、「私はあなたの前に礼儀正しく座っております」という、へりくだった気持ちがこもった言葉でした。だから「ます」を付けるだけで、瞬時にとても丁寧な響きになるんですね。',
@@ -50,7 +50,7 @@ window.LECTURE_DATA.wlevel_5 = [
   },
   {
     type: 'practice', label: '문법 연습', duration: 7000, audio: '食べます・食べません・食べました',
-    image: 'images/lecture-scenes/wlevel5-verb-dining-action.png',
+    image: 'images/lecture-scenes/wlevel5-verb-dining-action.webp',
     main: '꼬리말 삼총사',
     sub: '합니다(~ます), 안 합니다(~ません), 했습니다(~ました)를 한 번에 익혀봅시다.',
     captionJp: '否定の「～ません」、過去の「～ました」を覚えましょう！「食べます」「食べません」「食べました」。このセットを言えるようになれば、会話の幅がグッと広がります。',
@@ -58,7 +58,7 @@ window.LECTURE_DATA.wlevel_5 = [
   },
   {
     type: 'mnemonic', label: '암기 꿀팁: 그룹 구분', duration: 7000, audio: null,
-    image: 'images/lecture-scenes/wlevel5-verb-dining-action.png',
+    image: 'images/lecture-scenes/wlevel5-verb-dining-action.webp',
     main: '1·2그룹 한 방에 구분',
     sub: '동사 끝 두 글자가 \'い단·え단 + る\'면 거의 100% 2그룹입니다.',
     captionJp: '1グループと2グループで迷ったら、語尾を見てください。「〜いる」「〜える」で終わっていれば、ほぼ100％2グループです (食べる→たべ＋る、見る→み＋る、寝る→ね＋る)。それ以外で終わるのは全部1グループ (行く・読む・話す・買う)。例外は「帰る・走る・入る・切る」など少数だけで、これらは「形は2グループっぽいけど中身は1グループ」という特別ケースとして覚えればOKです。',
@@ -66,7 +66,7 @@ window.LECTURE_DATA.wlevel_5 = [
   },
   {
     type: 'story', label: '문법 이야기', duration: 7000, audio: '食べて・飲んで・行って',
-    image: 'images/lecture-scenes/wlevel5-verb-dining-action.png',
+    image: 'images/lecture-scenes/wlevel5-verb-dining-action.webp',
     main: '연결하는 ~て형',
     sub: '문장을 길게 이어서 말할 때 쓰는 아주 중요한 형태입니다.',
     captionJp: '「〜て」は、ぶんしょうをつなぐときにつかいます。「たべてねます」や「〜てください」など、ほんとうによくつかうべんりなかたちです。',
@@ -74,7 +74,7 @@ window.LECTURE_DATA.wlevel_5 = [
   },
   {
     type: 'culture', label: '실전 팁: 권유 표현', duration: 8000, audio: null,
-    image: 'images/lecture-scenes/wlevel5-verb-dining-action.png',
+    image: 'images/lecture-scenes/wlevel5-verb-dining-action.webp',
     main: '〜ませんか?',
     sub: '\'안 ~할래요?\'로 직역하면 어색하지만, 일본에선 가장 부드러운 권유입니다.',
     captionJp: '「一緒に行きませんか？」「お茶でも飲みませんか？」。日本ではこの「〜ませんか？」が「一緒にどうですか」という最も上品な誘い方です。「行きましょう！」と一方的に誘うより、「行きませんか？」と相手の意思を尊重する方がずっと感じが良く聞こえます。デート、ランチ、出張のお誘いなど、何にでも使える神フレーズですよ！',
@@ -82,7 +82,7 @@ window.LECTURE_DATA.wlevel_5 = [
   },
   {
     type: 'summary', label: '오늘의 정리', duration: 6000, audio: null,
-    image: 'images/lecture-scenes/wlevel5-verb-dining-action.png',
+    image: 'images/lecture-scenes/wlevel5-verb-dining-action.webp',
     main: '요약 리뷰',
     sub: '동사 3그룹, ます/ません/ました, て형, 그리고 만능 권유 〜ませんか까지!',
     captionJp: '今日は動詞の3グループ、「ます・ません・ました」の活用、「て形」、そしてとても優しい誘い方「〜ませんか？」まで一気に学びました。動詞を制する者は会話を制す！明日のひとことに、必ず一つは登場しますよ。',

@@ -2,7 +2,7 @@ window.LECTURE_DATA = window.LECTURE_DATA || {};
 window.LECTURE_DATA.wlevel_8 = [
   {
     type: 'hook', label: '오늘의 이야기', duration: 6000, audio: null,
-    image: 'images/lecture-scenes/wlevel8-clinic-health-help.png',
+    image: 'images/lecture-scenes/wlevel8-clinic-health-help.webp',
     main: '신체와 마음',
     sub: '신체 부위를 활용해 감정을 표현하는 일본어의 독특한 비유를 알아봅시다.',
     captionJp: 'にほんごでは、からだのぶいでかんじょうをあらわすことがよくあります！たとえば「はらがたつ」は「おこる」といういみです。からだとこころはつながっているんですね。',
@@ -10,7 +10,7 @@ window.LECTURE_DATA.wlevel_8 = [
   },
   {
     type: 'kanji', label: '한자 파헤치기', duration: 8000, audio: null,
-    image: 'images/lecture-scenes/wlevel8-clinic-health-help.png',
+    image: 'images/lecture-scenes/wlevel8-clinic-health-help.webp',
     main: '目 · 耳 · 口',
     sub: '얼굴 한자 3총사는 옛날 사람들이 본 그대로 그린 그림문자입니다.',
     captionJp: '顔の漢字は、見たままを絵にした象形文字(しょうけいもじ)の代表選手です！①「目(め)」は元々横向きの目玉「⊙」を縦に立てて書いたもの。②「耳(みみ)」は人の耳の形をそのまま線にしたもの。③「口(くち)」は口を開けた四角。古代の人がスマホもないのに、観察力で生み出した素朴な絵が、今も漢字として生き残っているんですね。一度知ったら絶対忘れません！',
@@ -18,7 +18,7 @@ window.LECTURE_DATA.wlevel_8 = [
   },
   {
     type: 'culture', label: '문화 노트', duration: 7000, audio: 'お大事に',
-    image: 'images/lecture-scenes/wlevel8-clinic-health-help.png',
+    image: 'images/lecture-scenes/wlevel8-clinic-health-help.webp',
     main: 'お大事に',
     sub: '아픈 사람에게 건네는 따뜻한 한마디, "몸조리 잘 하세요"라는 뜻입니다.',
     captionJp: '「お大事(だいじ)に」は病院や薬局で必ず聞く言葉です。「どうかお体を大切にしてください」という思いやりが詰まった魔法の挨拶なんですよ。',
@@ -26,7 +26,7 @@ window.LECTURE_DATA.wlevel_8 = [
   },
   {
     type: 'story', label: '어원 이야기', duration: 7000, audio: null,
-    image: 'images/lecture-scenes/wlevel8-clinic-health-help.png',
+    image: 'images/lecture-scenes/wlevel8-clinic-health-help.webp',
     main: '\'お大事に\'의 깊이',
     sub: '\'大事\'는 \'큰 일\'이라는 뜻 — \'당신의 몸은 큰 일이에요\'라는 진심이 담겼습니다.',
     captionJp: '「お大事に」を漢字で書くと「お大事に」、つまり「大きな事＝大切な事」です！元々この表現は「あなたの体は、(他の何より)重大な事ですから、大切にしてくださいね」という意味でした。日本では仕事より約束より、まず体が一番大事という価値観が根強くあって、お見舞いの場面で必ずこの言葉が出てきます。短いひと言ですが、相手をどれだけ思いやっているかが伝わる、深い表現なんですよ。',
@@ -34,7 +34,7 @@ window.LECTURE_DATA.wlevel_8 = [
   },
   {
     type: 'mnemonic', label: '암기 꿀팁', duration: 6000, audio: '頭・目・耳・口',
-    image: 'images/lecture-scenes/wlevel8-clinic-health-help.png',
+    image: 'images/lecture-scenes/wlevel8-clinic-health-help.webp',
     main: '얼굴 부위 외우기',
     sub: '위에서 아래로 내려오며 머리, 눈, 귀, 입 순서로 외워볼까요?',
     captionJp: '「あたま・め・みみ・くち」！かおのパーツは、まいにちかがみをみるたびにとなえれば、すぐおぼえられますよ。うえからじゅんばんに、リズムにのせていってみましょう！',
@@ -42,7 +42,7 @@ window.LECTURE_DATA.wlevel_8 = [
   },
   {
     type: 'culture', label: '문화 노트: 気(키) 컬렉션', duration: 8000, audio: '元気・病気',
-    image: 'images/lecture-scenes/wlevel8-clinic-health-help.png',
+    image: 'images/lecture-scenes/wlevel8-clinic-health-help.webp',
     main: '気가 들어간 표현',
     sub: '\'기운(気)\'은 일본어에서 컨디션·기분·기운을 한 단어로 묶는 핵심 한자입니다.',
     captionJp: '日本語で体の調子を表す時、必ず「気(き)」が登場します！①「元気(げんき)」=「気の元(もと)」、つまり生命エネルギーの根本→「元気ですか？」は「エネルギー満タンですか？」。②「病気(びょうき)」=「気が病んでいる」=「エネルギーが病んでいる」状態。③「風邪気味(かぜぎみ)」=「ちょっと風邪っぽい(完全な風邪までいかない)」。④「やる気」=「やる気持ち」、モチベーション。「気」という一文字は、体・心・気分すべてに使える万能漢字なんです！',
@@ -50,7 +50,7 @@ window.LECTURE_DATA.wlevel_8 = [
   },
   {
     type: 'vocabulary', label: '필수 어휘', duration: 7000, audio: null,
-    image: 'images/lecture-scenes/wlevel8-clinic-health-help.png',
+    image: 'images/lecture-scenes/wlevel8-clinic-health-help.webp',
     main: '신체 부위 명칭',
     sub: '머리부터 발끝까지! 한자와 함께 내 몸의 명칭들을 익혀봅시다.',
     captionJp: 'くび・かた・むね・うで・て・あし！からだのぶいのなまえは、まいにちうごかすところからおぼえていくと、すこしずつしぜんにみについていきますよ。',
@@ -58,7 +58,7 @@ window.LECTURE_DATA.wlevel_8 = [
   },
   {
     type: 'culture', label: '실전 팁: 약국 회화', duration: 8000, audio: null,
-    image: 'images/lecture-scenes/wlevel8-clinic-health-help.png',
+    image: 'images/lecture-scenes/wlevel8-clinic-health-help.webp',
     main: '약국 마법의 3단어',
     sub: '풍邪薬·痛み止め·咳止め만 알면 일본 약국에서 어지간한 약은 다 살 수 있어요.',
     captionJp: '日本の薬局(やっきょく/ドラッグストア)で必ず役立つ3つの言葉を覚えておきましょう！①「風邪薬(かぜぐすり)」= 総合感冒薬、咳・鼻水・熱に効く万能薬。②「痛み止め(いたみどめ)」= 鎮痛剤、頭痛・生理痛・歯痛などに。③「咳止め(せきどめ)」= 咳が止まらない時専用。これに、痛い場所を指差して「ここが痛いです」と言えば、薬剤師さんが必ずぴったりの薬を選んでくれます。海外旅行で一番心強い表現セットですよ！',
@@ -66,7 +66,7 @@ window.LECTURE_DATA.wlevel_8 = [
   },
   {
     type: 'practice', label: '실전 연습', duration: 7000, audio: '頭가 痛いです・お腹가 痛いです',
-    image: 'images/lecture-scenes/wlevel8-clinic-health-help.png',
+    image: 'images/lecture-scenes/wlevel8-clinic-health-help.webp',
     main: '어디가 아픈가요?',
     sub: '병원이나 약국에서 내 컨디션을 정확히 전달하는 법을 배워봅니다.',
     captionJp: '「～が痛いです」と言えば、どこが悪いか伝えられます。「頭が痛いです」「お腹が痛いです」。これだけ知っていれば、緊急のときも安心ですね！',
@@ -74,7 +74,7 @@ window.LECTURE_DATA.wlevel_8 = [
   },
   {
     type: 'mnemonic', label: '암기 꿀팁: 신체 비유', duration: 7000, audio: null,
-    image: 'images/lecture-scenes/wlevel8-clinic-health-help.png',
+    image: 'images/lecture-scenes/wlevel8-clinic-health-help.webp',
     main: '몸으로 마음 말하기',
     sub: '頭·腹·手·目 같은 단어가 들어간 일본어 비유는 한국어와 놀랍게 닮았습니다.',
     captionJp: '体のパーツは感情・態度の表現にもよく使われます！①「頭にくる」=「頭に来る」=「腹が立つ・むかつく」。②「腹が立つ」= 怒る (お腹が立ち上がるイメージ)。③「手を貸す」= 手伝う (文字通り手を貸してあげる)。④「目がない」=「(甘い物)に目がない」= 大好きでたまらない。韓国語の「머리에 피도 안 마른」「가슴이 아프다」と発想がそっくりですよね。一つ覚えると一気にネイティブっぽくなります！',
@@ -82,7 +82,7 @@ window.LECTURE_DATA.wlevel_8 = [
   },
   {
     type: 'summary', label: '오늘의 정리', duration: 6000, audio: null,
-    image: 'images/lecture-scenes/wlevel8-clinic-health-help.png',
+    image: 'images/lecture-scenes/wlevel8-clinic-health-help.webp',
     main: '요약 리뷰',
     sub: '얼굴 한자, お大事に의 깊이, 気 컬렉션, 약국 3단어, 신체 비유까지 마스터!',
     captionJp: '今日は顔の漢字(目・耳・口)から、お大事にの本当の意味、「気」のつく健康表現、薬局で使える3つの言葉、そして体を使った感情表現まで、健康と体の世界を丸ごと学びました。基礎レベルはここで一区切り。本当におつかれさまでした！',

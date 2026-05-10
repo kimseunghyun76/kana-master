@@ -73,7 +73,7 @@ window.createHomeView = (ctx) => {
   }
 
   function _renderWelcome() {
-    const welcomeBg = cssUrlValue('images/lecture-scenes/slevel1-first-phrases-classroom-greeting.png');
+    const welcomeBg = cssUrlValue('images/lecture-scenes/slevel1-first-phrases-classroom-greeting.webp');
     const firstMod = MODULES.find(m => m.id === 'kana_hira');
     return `
       <div class="welcome-card welcome-card-cinematic" style="--welcome-bg:url('${welcomeBg}')">

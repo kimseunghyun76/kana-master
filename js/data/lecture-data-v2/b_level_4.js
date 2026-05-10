@@ -2,7 +2,7 @@ window.LECTURE_DATA = window.LECTURE_DATA || {};
 window.LECTURE_DATA.b_level_4 = [
   {
     type: 'hook', label: '오늘의 이야기', duration: 6000, audio: null,
-    image: 'images/lecture-scenes/blevel4-meeting-consensus-room.png',
+    image: 'images/lecture-scenes/blevel4-meeting-consensus-room.webp',
     main: '일본식 회의',
     sub: '회의는 의견 대결보다 합의 형성과 정리의 과정에 더 가깝습니다.',
     captionJp: '日本の会議では、場でいきなり結論をぶつけ合うよりも、参加者が納得しながら少しずつ合意を作っていく流れが多いです。空気を読みつつ論点を整える力が求められます。',
@@ -10,7 +10,7 @@ window.LECTURE_DATA.b_level_4 = [
   },
   {
     type: 'kanji', label: '한자 파헤치기', duration: 8000, audio: null,
-    image: 'images/lecture-scenes/blevel4-meeting-consensus-room.png',
+    image: 'images/lecture-scenes/blevel4-meeting-consensus-room.webp',
     main: '会議',
     sub: '\'만날 会 + 의논할 議\' = 사람이 모여 말로 진리를 따져 정한다는 뜻입니다.',
     captionJp: '「会議(かいぎ)」を分解してみましょう！「会(カイ)」は「人が集まる」を表す漢字。屋根の下に集まった人々の姿が起源です。「議(ギ)」は「言(言葉)＋義(正しさ)」、つまり「言葉で正しさを話し合う」という意味。だから「会議」とは「人が集まって、言葉で正しい結論を出す場」。漢字そのものに「対決」ではなく「議論を通じて正解を見つける」という哲学が込められています。日本式の会議で「空気を読みつつ全員の納得を作る」やり方は、実はこの漢字の本来の意味に最も近いんですよ。',
@@ -18,7 +18,7 @@ window.LECTURE_DATA.b_level_4 = [
   },
   {
     type: 'vocabulary', label: '핵심 어휘', duration: 7000, audio: '議題・結論・共有',
-    image: 'images/lecture-scenes/blevel4-meeting-consensus-room.png',
+    image: 'images/lecture-scenes/blevel4-meeting-consensus-room.webp',
     main: '회의에서 자주 쓰는 단어',
     sub: '議題, 結論, 認識合わせ, 宿題는 꼭 익혀야 합니다.',
     captionJp: 'ぎだい、けつろん、にんしきあわせ、しゅくだいなどは、かいぎのながれをりかいするうえでとてもたいせつなことばです。',
@@ -26,7 +26,7 @@ window.LECTURE_DATA.b_level_4 = [
   },
   {
     type: 'culture', label: '문화 노트: 根回し', duration: 8000, audio: null,
-    image: 'images/lecture-scenes/blevel4-meeting-consensus-room.png',
+    image: 'images/lecture-scenes/blevel4-meeting-consensus-room.webp',
     main: '根回し (네마와시)',
     sub: '회의 전에 미리 관계자에게 설명하고 동의를 모으는 \'사전 정지\' 작업입니다.',
     captionJp: '日本のビジネスで「根回し(ねまわし)」という言葉を必ず聞きます。元々は園芸用語で「木を移植する前に根の周りを整えること」、つまり「本番の前に下準備をする」という意味です。会議で大切な提案をする前に、関係者一人一人に事前に説明して、意見を聞いて、賛成を得ておく作業を指します。「会議でいきなり提案 → 反対される」という日本企業最大のタブーを避けるため。「会議は決定の場、根回しは合意形成の場」と分業化されているとも言えます。Slack やメールで「事前にご相談したいことがありまして」と声をかけるところから、根回しは始まっています！',
@@ -34,7 +34,7 @@ window.LECTURE_DATA.b_level_4 = [
   },
   {
     type: 'grammar', label: '문형 패턴', duration: 7000, audio: '〜と思います',
-    image: 'images/lecture-scenes/blevel4-meeting-consensus-room.png',
+    image: 'images/lecture-scenes/blevel4-meeting-consensus-room.webp',
     main: '의견을 부드럽게 말하기',
     sub: '断定보다 「〜と思います」「〜ではないでしょうか」를 자주 씁니다.',
     captionJp: 'にほんごのかいぎでは「それはちがいます」よりも、「〜だとおもいます」「〜ではないでしょうか」のように、すこしよはくをもたせたいいかたがしぜんです。',
@@ -42,7 +42,7 @@ window.LECTURE_DATA.b_level_4 = [
   },
   {
     type: 'story', label: '어원 이야기', duration: 7000, audio: null,
-    image: 'images/lecture-scenes/blevel4-meeting-consensus-room.png',
+    image: 'images/lecture-scenes/blevel4-meeting-consensus-room.webp',
     main: '空気を読む (KY)',
     sub: '\'분위기를 읽다\' — 일본 회의실의 보이지 않는 공기를 읽는 능력의 정수입니다.',
     captionJp: '日本の会議で必須の能力「空気(くうき)を読む」、漢字通り「(その場の)空気を読み取る」という意味です。会議中に「今、誰が何を考えているか」「これ以上意見を言うと険悪になるか」といった、言葉になっていない雰囲気をキャッチする力。逆に空気を読めない人を「KY(空気が読めない)」と呼んで、ビジネスでは大きなマイナスになります。日本式会議では、発言の中身だけでなく「いつ・どのトーンで・どの長さで」言うかが評価対象。「沈黙が続いた後、みんなが少し疲れている」と感じたら、結論を急がず一度休憩を提案する — そんな細やかな空気読みが、信頼につながります。',
@@ -50,7 +50,7 @@ window.LECTURE_DATA.b_level_4 = [
   },
   {
     type: 'culture', label: '문화 노트', duration: 7000, audio: null,
-    image: 'images/lecture-scenes/blevel4-meeting-consensus-room.png',
+    image: 'images/lecture-scenes/blevel4-meeting-consensus-room.webp',
     main: '반대 의견도 정리형으로',
     sub: '반박보다 우려 사항을 정리해서 제시하는 편이 자연스럽습니다.',
     captionJp: '反対意見を言う時も、「懸念としては」「一点気になるのは」のように、課題を整理して差し出す言い方が好まれます。相手を否定しないのがポイントです。',
@@ -58,7 +58,7 @@ window.LECTURE_DATA.b_level_4 = [
   },
   {
     type: 'practice', label: '실전 연습: 회의록', duration: 8000, audio: '議事録',
-    image: 'images/lecture-scenes/blevel4-meeting-consensus-room.png',
+    image: 'images/lecture-scenes/blevel4-meeting-consensus-room.webp',
     main: '議事録 (회의록)',
     sub: '회의 끝에 \'결정사항·미정사항·다음 액션\'을 한 번 더 정리하면 신뢰도가 급상승합니다.',
     captionJp: '日本の会議では「議事録(ぎじろく)」を必ず残します。会議の最後に書記が「では、本日の決定事項とTo-Doを確認します」と言って読み上げるのが定番。理想的な議事録の3要素は: ①決定事項(きまったこと)、②保留事項(ペンディング、まだ決まっていないこと)、③Next Action(担当者と期限). 会議中に話すスキルがまだ追いつかない時期でも、議事録を率先して書くと「この人は会議を整理できる人」と評価されます。新人時代の最強の武器の一つですよ。',
@@ -66,7 +66,7 @@ window.LECTURE_DATA.b_level_4 = [
   },
   {
     type: 'practice', label: '실전 연습', duration: 7000, audio: '認識を合わせたいです',
-    image: 'images/lecture-scenes/blevel4-meeting-consensus-room.png',
+    image: 'images/lecture-scenes/blevel4-meeting-consensus-room.webp',
     main: '회의에서 자주 하는 말',
     sub: '정리하기, 확인하기, 다음 액션 제안하기를 연습합니다.',
     captionJp: '「認識を合わせたいです」「ここまでをまとめると」「次のアクションとしては」この辺りを言えるだけで、会議の参加感が大きく上がります。',
@@ -74,7 +74,7 @@ window.LECTURE_DATA.b_level_4 = [
   },
   {
     type: 'mnemonic', label: '암기 꿀팁: 발언 입출구', duration: 7000, audio: null,
-    image: 'images/lecture-scenes/blevel4-meeting-consensus-room.png',
+    image: 'images/lecture-scenes/blevel4-meeting-consensus-room.webp',
     main: '一点 → 以上です',
     sub: '발언 시작과 끝을 깔끔하게 끊는 \'입구\'와 \'출구\' 표현 세트.',
     captionJp: '会議で発言する時、始め方と終わり方が決まっていると安心です！①入口(はじめ): 「一点(いってん)よろしいですか？」(한 가지 괜찮을까요?)、「補足(ほそく)させてください」(보충하겠습니다)、「確認(かくにん)させてください」(확인하겠습니다)。②終わり方: 「以上(いじょう)です」(이상입니다)、「以上、〇〇のご共有でした」(이상 ~의 공유였습니다)。発言が長くなりすぎるのを防ぎ、参加者全員が「この人の発言が今終わった」と分かるので、次の人がスムーズに話せます。日本式会議のリズム感そのものを作る入口・出口セットです。',
@@ -82,7 +82,7 @@ window.LECTURE_DATA.b_level_4 = [
   },
   {
     type: 'summary', label: '오늘의 정리', duration: 6000, audio: null,
-    image: 'images/lecture-scenes/blevel4-meeting-consensus-room.png',
+    image: 'images/lecture-scenes/blevel4-meeting-consensus-room.webp',
     main: '요약 리뷰',
     sub: '会議 한자, 根回し, 空気を読む, 議事録 3요소, 一点・以上 입출구 세트까지!',
     captionJp: '今日は会議の漢字の哲学から、根回しの仕組み、空気を読む文化、議事録の作り方、そして発言の入口・出口セットまで、日本式会議の全てをカバーしました。会議は「勝つ場」ではなく「合意を作る場」。今日学んだ表現があれば、リズム感を持って自然に参加できますよ！',

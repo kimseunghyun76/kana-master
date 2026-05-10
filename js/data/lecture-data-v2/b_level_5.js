@@ -2,7 +2,7 @@ window.LECTURE_DATA = window.LECTURE_DATA || {};
 window.LECTURE_DATA.b_level_5 = [
   {
     type: 'hook', label: '오늘의 이야기', duration: 6000, audio: null,
-    image: 'images/lecture-scenes/blevel5-manager-one-on-one.png',
+    image: 'images/lecture-scenes/blevel5-manager-one-on-one.webp',
     main: '매니저와의 1on1',
     sub: '업무 보고가 아니라 상태 공유와 성장 대화를 하는 시간입니다.',
     captionJp: '1on1では、単なる進捗確認だけでなく、困りごとやキャリアの話まで含めて対話することがあります。遠慮しすぎず、でも整理して話すことが大切です。',
@@ -10,7 +10,7 @@ window.LECTURE_DATA.b_level_5 = [
   },
   {
     type: 'kanji', label: '한자 파헤치기', duration: 8000, audio: null,
-    image: 'images/lecture-scenes/blevel5-manager-one-on-one.png',
+    image: 'images/lecture-scenes/blevel5-manager-one-on-one.webp',
     main: '相談',
     sub: '\'相(서로 상) + 談(말씀 담)\' = 마주 보고 깊이 이야기하다, 1on1의 본질입니다.',
     captionJp: '「相談(そうだん)」を分解してみましょう！「相(ソウ)」は「木＋目」、つまり「木を目で見て確かめる」=「向き合って確認する」。一方「談(ダン)」は「言＋炎(ほのお)」、「火を囲んで言葉を交わす」=「打ち解けて深く語る」という意味です。つまり相談とは「お互いに向き合って、火を囲むように打ち解けて話し合う」こと。1on1の本質そのものなんです。「報告」がトップダウンの一方向だとすれば、「相談」は双方向の対話。マネージャーに相談する時、漢字の意味を思い出せば、自然と肩の力が抜けて話しやすくなりますよ。',
@@ -18,7 +18,7 @@ window.LECTURE_DATA.b_level_5 = [
   },
   {
     type: 'vocabulary', label: '핵심 표현', duration: 7000, audio: '困っていること',
-    image: 'images/lecture-scenes/blevel5-manager-one-on-one.png',
+    image: 'images/lecture-scenes/blevel5-manager-one-on-one.webp',
     main: '상태 설명하기',
     sub: '困っていること, 課題, 相談したいこと 같은 표현이 중요합니다.',
     captionJp: 'ワンオンワンでは「こまっていることがあります」「そうだんしたいことがあります」のように、じぶんのじょうたいをていねいにげんごかすることがもとめられます。あいまいなちんもくよりも、みじかいことばのほうがやくにたちます。',
@@ -26,7 +26,7 @@ window.LECTURE_DATA.b_level_5 = [
   },
   {
     type: 'culture', label: '문화 노트: 1on1 도입사', duration: 8000, audio: null,
-    image: 'images/lecture-scenes/blevel5-manager-one-on-one.png',
+    image: 'images/lecture-scenes/blevel5-manager-one-on-one.webp',
     main: 'Yahoo Japan에서 시작',
     sub: '일본 1on1 문화는 2012년 야후 재팬 도입을 계기로 IT업계 전반으로 퍼졌습니다.',
     captionJp: '日本企業の1on1文化は、実は比較的新しいんです！2012年、ヤフージャパン(現LINEヤフー)が全社員約7,000人に「マネージャーは部下と毎週30分、1on1ミーティングを行う」というルールを導入したのが転機。当時は「上司との面談=評価の場(年に2回)」が常識でしたが、Yahoo Japanは「評価ではなく、部下の成長と困りごと共有のための毎週の対話」と再定義しました。これが大成功し、メルカリ・サイバーエージェント・freeeなど日本IT企業全般に広まり、今では多くの会社で当たり前の制度になっています。だから「1on1」と聞いて緊張する必要はありません — 本来は「あなたの味方になるための時間」なんです！',
@@ -34,7 +34,7 @@ window.LECTURE_DATA.b_level_5 = [
   },
   {
     type: 'grammar', label: '문형 패턴', duration: 7000, audio: '〜ようにしたいです',
-    image: 'images/lecture-scenes/blevel5-manager-one-on-one.png',
+    image: 'images/lecture-scenes/blevel5-manager-one-on-one.webp',
     main: '희망과 개선 표현',
     sub: '앞으로 어떻게 하고 싶은지 말할 때는 「〜ようにしたいです」가 유용합니다.',
     captionJp: '「今後はもっと早めに共有できるようにしたいです」「設計の理解を深められるようにしたいです」のように、改善意欲を丁寧に示せる便利な形です。',
@@ -42,7 +42,7 @@ window.LECTURE_DATA.b_level_5 = [
   },
   {
     type: 'practice', label: '실전 연습: 캐리어 대화', duration: 8000, audio: null,
-    image: 'images/lecture-scenes/blevel5-manager-one-on-one.png',
+    image: 'images/lecture-scenes/blevel5-manager-one-on-one.webp',
     main: '将来やってみたいこと',
     sub: '단기·중기·장기로 나눠 말하면 매니저가 구체적인 지원 계획을 세울 수 있습니다.',
     captionJp: '1on1で「将来(しょうらい)、何をしたいですか？」と聞かれた時、漠然と答えるのは惜しいです。3つの時間軸に分けて話すと、マネージャーが具体的にサポートしやすくなります。①「短期(3〜6ヶ月)では〇〇のスキルを身につけたいです」(短期目標)。②「中期(1〜2年)では〇〇のような案件をリードしてみたいです」(中期目標)。③「長期的には〇〇の分野で専門性を深めたいと考えています」(長期目標)。具体的な目標があれば、マネージャーは「それなら、次の四半期はこのプロジェクトに入ってみる？」と次のアクションを提案してくれます。漠然とした「成長したいです」より、千倍効果的ですよ。',
@@ -50,7 +50,7 @@ window.LECTURE_DATA.b_level_5 = [
   },
   {
     type: 'culture', label: '문화 노트', duration: 7000, audio: null,
-    image: 'images/lecture-scenes/blevel5-manager-one-on-one.png',
+    image: 'images/lecture-scenes/blevel5-manager-one-on-one.webp',
     main: '잘 모르겠습니다의 가치',
     sub: '모르는 것을 말하는 건 위험 신호가 아니라 관리 가능한 신호입니다.',
     captionJp: '日本の職場では、分からないことを黙って抱えるより、「まだ理解が浅いです」と共有してくれる方が、マネージャーとしてもサポートしやすいです。',
@@ -58,7 +58,7 @@ window.LECTURE_DATA.b_level_5 = [
   },
   {
     type: 'mnemonic', label: '암기 꿀팁: 준비 체크', duration: 8000, audio: null,
-    image: 'images/lecture-scenes/blevel5-manager-one-on-one.png',
+    image: 'images/lecture-scenes/blevel5-manager-one-on-one.webp',
     main: '1on1 5분 사전 준비',
     sub: '시작 5분 전 \'4질문\'을 메모하면 30분이 알찬 대화로 바뀝니다.',
     captionJp: '1on1の5分前に、メモアプリで4つの質問に答えてみましょう！①「最近うまく行っていることは？」(잘 되고 있는 것). ②「困っていること、ブロッカーは？」(막히는 것). ③「相談したいことは？」(상담하고 싶은 것). ④「次のチャレンジは？」(다음 도전). この4つを箇条書きで2-3行ずつ準備するだけで、30分の1on1が「沈黙が続く気まずい時間」から「具体的に進む対話」に変わります。マネージャー側も「この人は1on1を活用できる人だ」と評価します。日本では準備のある人が信頼される文化なので、この5分の投資が長期的に大きな差になりますよ。',
@@ -66,7 +66,7 @@ window.LECTURE_DATA.b_level_5 = [
   },
   {
     type: 'practice', label: '실전 연습', duration: 7000, audio: '相談したいことがあります',
-    image: 'images/lecture-scenes/blevel5-manager-one-on-one.png',
+    image: 'images/lecture-scenes/blevel5-manager-one-on-one.webp',
     main: '1on1 시작 문장',
     sub: '현재 상태, 고민, 다음 행동을 짧게 정리해 말해봅니다.',
     captionJp: '「今の状況を共有します」「一つ相談したいことがあります」「次はこう進めたいです」。この流れで話せると、とても分かりやすい1on1になります。',
@@ -74,7 +74,7 @@ window.LECTURE_DATA.b_level_5 = [
   },
   {
     type: 'story', label: '어원 이야기', duration: 7000, audio: null,
-    image: 'images/lecture-scenes/blevel5-manager-one-on-one.png',
+    image: 'images/lecture-scenes/blevel5-manager-one-on-one.webp',
     main: '評価面談 vs 1on1',
     sub: '연 2회의 평가 면담과 매주의 1on1은 목적과 톤이 완전히 다릅니다.',
     captionJp: '日本の組織には2種類のマネージャー対話があります。混同すると痛い目を見るので必ず区別しましょう！①「評価面談(ひょうかめんだん)」: 半年・1年に1回、給料・昇進・評価結果を伝える公式の場。緊張感あり、メモ必須、過去の実績がメインテーマ。②「1on1ミーティング」: 週1〜隔週で行う対話。評価ではなく成長サポート、雑談混じりOK、未来の話がメイン。1on1で「給料上げてください」のような評価面談的な話を急にすると、マネージャーが困ります。逆に評価面談で「実は最近モチベーションが…」と長く話しすぎると、評価の話が終わりません。場面に合った話題を選ぶ感覚が、日本ビジネスでは重要なスキルです。',
@@ -82,7 +82,7 @@ window.LECTURE_DATA.b_level_5 = [
   },
   {
     type: 'summary', label: '오늘의 정리', duration: 6000, audio: null,
-    image: 'images/lecture-scenes/blevel5-manager-one-on-one.png',
+    image: 'images/lecture-scenes/blevel5-manager-one-on-one.webp',
     main: '요약 리뷰',
     sub: '相談 한자, 1on1 도입사, 캐리어 3시간축, 5분 준비 체크, 평가 면담과의 차이까지!',
     captionJp: '今日は相談の漢字が示す「向き合って語る」哲学から、Yahoo Japanで始まった1on1文化、キャリアを3つの時間軸で語る方法、5分前準備の4質問、そして評価面談との明確な違いまで、1on1を120%活用するための全てを学びました。1on1は「完璧な自分を見せる場」ではなく「より良く働くための共同作業の場」です！',

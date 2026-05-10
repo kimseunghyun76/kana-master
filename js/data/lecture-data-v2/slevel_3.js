@@ -2,7 +2,7 @@ window.LECTURE_DATA = window.LECTURE_DATA || {};
 window.LECTURE_DATA.slevel_3 = [
   {
     type: 'hook', label: '오늘의 이야기', duration: 6000, audio: null,
-    image: 'images/lecture-scenes/slevel3-convenience-store-checkout.png',
+    image: 'images/lecture-scenes/slevel3-convenience-store-checkout.webp',
     main: '이랏샤이마세!',
     sub: '일본 상점에 발을 들이는 순간 들려오는 환영의 인사말입니다.',
     captionJp: '「いらっしゃいませ！」は、お店に来てくれたお客様を歓迎する言葉です。もともとは「よくいらっしゃいました」という丁寧な表現だったんですよ。',
@@ -10,7 +10,7 @@ window.LECTURE_DATA.slevel_3 = [
   },
   {
     type: 'kanji', label: '한자 파헤치기', duration: 8000, audio: null,
-    image: 'images/lecture-scenes/slevel3-convenience-store-checkout.png',
+    image: 'images/lecture-scenes/slevel3-convenience-store-checkout.webp',
     main: '円 (엔)',
     sub: '엔 화폐의 한자 円은 \'둥글다\'는 뜻 — 옛 동전의 모양에서 그대로 따왔습니다.',
     captionJp: '日本のお金の単位「円(えん)」は、文字通り「丸い形」を意味します！漢字をよく見ると、四角の中にしっかり閉じた形があります。これは古代中国から伝わった丸い銅貨の形をそのまま漢字にしたものです。元々の旧字体は「圓」と書き、もっと丸い感じが分かりやすかったんですよ。今でも10円玉や5円玉、500円玉まで全て丸いのは、この漢字の意味がそのまま生きているからなんです。',
@@ -18,7 +18,7 @@ window.LECTURE_DATA.slevel_3 = [
   },
   {
     type: 'culture', label: '문화 노트', duration: 7000, audio: ' 하나만 주세요',
-    image: 'images/lecture-scenes/slevel3-convenience-store-checkout.png',
+    image: 'images/lecture-scenes/slevel3-convenience-store-checkout.webp',
     main: '하나만 주세요 (ひとつください)',
     sub: '손가락으로 가리키며 이 한마디만 하세요! 어디서든 주문이 가능해집니다.',
     captionJp: '「〜をひとつください」は、かいものでさいきょうのフレーズです！ゆびをさして「これ」といえば、にほんごがかんぺきじゃなくても、なんでもかえますよ。',
@@ -26,7 +26,7 @@ window.LECTURE_DATA.slevel_3 = [
   },
   {
     type: 'story', label: '어원 이야기', duration: 7000, audio: null,
-    image: 'images/lecture-scenes/slevel3-convenience-store-checkout.png',
+    image: 'images/lecture-scenes/slevel3-convenience-store-checkout.webp',
     main: 'いらっしゃいませ의 정체',
     sub: '\'오시다·계시다\'의 존경어 「いらっしゃる」의 명령형이 환영 인사가 된 표현입니다.',
     captionJp: '「いらっしゃいませ」は、実は「いらっしゃる」(来る・行く・いるの尊敬語)の命令形＋丁寧の「ませ」が組み合わさった言葉です！意味は「どうぞ、いらしてください」、つまり「お越しください」という最上級の敬意表現。命令形なのに優しく聞こえるのは、語尾の「ませ」が和らげているからなんです。日本では客＝神様という考えが根強くあって、お店側はこの最高の敬語で迎え入れているんですよ。',
@@ -34,7 +34,7 @@ window.LECTURE_DATA.slevel_3 = [
   },
   {
     type: 'funfact', label: '재미있는 사실', duration: 6000, audio: null,
-    image: 'images/lecture-scenes/slevel3-convenience-store-checkout.png',
+    image: 'images/lecture-scenes/slevel3-convenience-store-checkout.webp',
     main: '현금 왕국 일본',
     sub: '대도시에서도 작은 가게나 라멘집은 현금만 받는 경우가 많으니 주의하세요!',
     captionJp: '日本はまだ現金をよく使う国です。最近はカードも増えましたが、小さなお店では現金しか使えないこともあるので、小銭を用意しておくと安心ですよ。',
@@ -42,7 +42,7 @@ window.LECTURE_DATA.slevel_3 = [
   },
   {
     type: 'mnemonic', label: '암기 꿀팁: 화폐 읽기', duration: 8000, audio: null,
-    image: 'images/lecture-scenes/slevel3-convenience-store-checkout.png',
+    image: 'images/lecture-scenes/slevel3-convenience-store-checkout.webp',
     main: '엔화 읽는 법',
     sub: '1만·5천·천·5백·백·10·5·1엔 — 발음 패턴만 알면 가격 듣기가 편해집니다.',
     captionJp: '日本のお金の読み方を覚えましょう！①一万円(いちまんえん) = 1万円札。②五千円(ごせんえん) = 5千円札。③千円(せんえん) = 千円札。④五百円(ごひゃくえん) = 銀色の大きな硬貨。⑤百円(ひゃくえん) = 銀色の中サイズ。⑥十円(じゅうえん) = 茶色の硬貨。⑦五円(ごえん) = 真ん中に穴のある黄色い硬貨「ご縁(良いご縁)があるように」と縁起物。⑧一円(いちえん) = アルミの軽い硬貨。レジで聞き取れるようになると、買い物が一気に楽しくなりますよ！',
@@ -50,7 +50,7 @@ window.LECTURE_DATA.slevel_3 = [
   },
   {
     type: 'practice', label: '실전 연습', duration: 7000, audio: '이거 얼마예요?',
-    image: 'images/lecture-scenes/slevel3-convenience-store-checkout.png',
+    image: 'images/lecture-scenes/slevel3-convenience-store-checkout.webp',
     main: '가격 묻기',
     sub: '"이거 얼마예요?"라고 묻고 가격을 확인하는 여행 필수 회화를 배워봅시다.',
     captionJp: '「これはいくらですか？」とお金を確認しましょう。店員さんが「～円(えん)」と言ったら、お財布からお金を出して「お願いします」と渡せば完璧です。',
@@ -58,7 +58,7 @@ window.LECTURE_DATA.slevel_3 = [
   },
   {
     type: 'culture', label: '실전 팁: 식당 계산', duration: 8000, audio: 'お会計お願いします',
-    image: 'images/lecture-scenes/slevel3-convenience-store-checkout.png',
+    image: 'images/lecture-scenes/slevel3-convenience-store-checkout.webp',
     main: 'お会計 (오카이케이)',
     sub: '일본 식당은 자리에서 계산하지 않고 출구의 카운터로 직접 가져가는 곳이 많습니다.',
     captionJp: '日本の食堂では、テーブルに置かれた伝票(レシート)を持って、出口のレジに自分で行くのが基本のスタイルです！「テーブル会計」(席で支払い)の店も増えていますが、まだ「カウンター会計」が主流。座ったまま「お会計お願いします！」と言うと、店員さんが伝票を持ってきてくれるか、レジまで案内してくれます。チップ文化はないので、書かれた金額をそのまま払えばOK。サービス料が含まれていることが多いです。',
@@ -66,7 +66,7 @@ window.LECTURE_DATA.slevel_3 = [
   },
   {
     type: 'vocabulary', label: '필수 어휘', duration: 7000, audio: null,
-    image: 'images/lecture-scenes/slevel3-convenience-store-checkout.png',
+    image: 'images/lecture-scenes/slevel3-convenience-store-checkout.webp',
     main: '편의점 마스터',
     sub: '봉투가 필요한지, 도시락을 데워줄지 묻는 질문에 당황하지 않고 대답해 봅시다.',
     captionJp: '「袋(ふくろ)はいりますか？」と聞かれたら、必要なら「はい」、いらないなら「大丈夫です」と言いましょう。お弁当を「温めますか？」と聞かれることも多いですよ。',
@@ -74,7 +74,7 @@ window.LECTURE_DATA.slevel_3 = [
   },
   {
     type: 'practice', label: '실전 연습: 계산대 질문', duration: 8000, audio: null,
-    image: 'images/lecture-scenes/slevel3-convenience-store-checkout.png',
+    image: 'images/lecture-scenes/slevel3-convenience-store-checkout.webp',
     main: '계산대에서 듣는 질문 5종',
     sub: '포인트카드·영수증·봉투·온도·결제수단 질문에 당황하지 않고 대답하기.',
     captionJp: 'コンビニのレジで必ず聞かれる5つの質問を覚えておきましょう！①「ポイントカードはお持ちですか？」(ポイントカードありますか) → なければ「ないです」。②「レシートはご利用ですか？」(レシート要りますか) → 不要なら「大丈夫です」。③「袋ご利用ですか？」→ 必要なら「お願いします」。④「温めますか？」(お弁当を温める) → 必要なら「お願いします」。⑤「お支払い方法は？」(どう払う？) → 「現金で」「カードで」「ペイペイで」など。この5つを聞き分けられたら、もう日本のコンビニは完全制覇です！',
@@ -82,7 +82,7 @@ window.LECTURE_DATA.slevel_3 = [
   },
   {
     type: 'summary', label: '오늘의 정리', duration: 6000, audio: null,
-    image: 'images/lecture-scenes/slevel3-convenience-store-checkout.png',
+    image: 'images/lecture-scenes/slevel3-convenience-store-checkout.webp',
     main: '요약 리뷰',
     sub: '円의 어원, いらっしゃいませ의 깊이, 화폐 읽기, お会計, 계산대 질문 5종까지!',
     captionJp: '今日は「いらっしゃいませ」の本当の意味から、円の漢字の由来、お金の読み方、食堂の会計スタイル、そしてコンビニのレジで聞かれる5大質問まで、お買い物の現場を丸ごとカバーしました。これでもう日本のお店で困ることはありません！',

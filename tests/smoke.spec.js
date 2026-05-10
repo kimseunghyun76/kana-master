@@ -138,7 +138,7 @@ test('serves current assets and rejects removed v1 paths', async ({ request }) =
     '/images/lecture-scenes/blevel7-onboarding-self-introduction.webp',
     '/images/lecture-scenes/slevel7-sightseeing-cultural-directions.webp',
     '/js/data/lecture-data-v2/wlevel_1.js',
-    '/images/lecture-scenes/wlevel2-elevator-number-culture.png',
+    '/images/lecture-scenes/wlevel2-elevator-number-culture.webp',
   ]) {
     const response = await request.get(path);
     expect(response.status(), path).toBe(200);

@@ -2,7 +2,7 @@ window.LECTURE_DATA = window.LECTURE_DATA || {};
 window.LECTURE_DATA.wlevel_3 = [
   {
     type: 'hook', label: '오늘의 이야기', duration: 6000, audio: null,
-    image: 'images/lecture-scenes/wlevel3-calendar-time-study.png',
+    image: 'images/lecture-scenes/wlevel3-calendar-time-study.webp',
     main: '연호 (元号)',
     sub: '일본은 서양식 연도(202X년)와 함께 자기들만의 독특한 연도를 섞어 씁니다.',
     captionJp: '日本には「元号」という独自の年の数え方があります！今は「令和(れいわ)」という時代で、2019年から始まりました。役所の書類には西暦と元号、両方使うことが多いので少しややこしいですよ。',
@@ -10,7 +10,7 @@ window.LECTURE_DATA.wlevel_3 = [
   },
   {
     type: 'kanji', label: '한자 파헤치기', duration: 8000, audio: null,
-    image: 'images/lecture-scenes/wlevel3-calendar-time-study.png',
+    image: 'images/lecture-scenes/wlevel3-calendar-time-study.webp',
     main: '年과 月',
     sub: '해 년(年)과 달 월(月)은 시간의 가장 기본이 되는 한자입니다.',
     captionJp: '「年(ねん)」という漢字は、実った稲を人が背負う姿から「一年(収穫のサイクル)」の意味になりました。「月(つき/げつ)」は空に浮かぶ三日月の形から生まれた漢字です！',
@@ -18,7 +18,7 @@ window.LECTURE_DATA.wlevel_3 = [
   },
   {
     type: 'culture', label: '문화 노트: 요일', duration: 7000, audio: '月曜日',
-    image: 'images/lecture-scenes/wlevel3-calendar-time-study.png',
+    image: 'images/lecture-scenes/wlevel3-calendar-time-study.webp',
     main: '요일의 이름',
     sub: '월, 화, 수, 목, 금, 토, 일은 우주의 천체에서 이름을 따왔습니다.',
     captionJp: '日本語の曜日は実は天体から来ています。月・火星・水星・木星・金星・土星・太陽の順番です！これは韓国語とも英語とも全く同じ発想なんですよ。',
@@ -26,7 +26,7 @@ window.LECTURE_DATA.wlevel_3 = [
   },
   {
     type: 'grammar', label: '문법 노트: 요일 묻기', duration: 7000, audio: null,
-    image: 'images/lecture-scenes/wlevel3-calendar-time-study.png',
+    image: 'images/lecture-scenes/wlevel3-calendar-time-study.webp',
     main: '何',
     sub: '무엇을 뜻하는 마법의 의문사 何(난)을 쓰면 요일을 물어볼 수 있습니다.',
     captionJp: '「何」は「何(What)」という意味です。「今日は何曜日ですか？」と聞かれたら、「月曜日です」のように答えてみましょう。',
@@ -34,7 +34,7 @@ window.LECTURE_DATA.wlevel_3 = [
   },
   {
     type: 'story', label: '어원 이야기', duration: 7000, audio: '午前・午後',
-    image: 'images/lecture-scenes/wlevel3-calendar-time-study.png',
+    image: 'images/lecture-scenes/wlevel3-calendar-time-study.webp',
     main: '오전과 오후',
     sub: '낮 12시를 기준으로 왜 한자 午(말 오)를 사용하는 걸까요?',
     captionJp: '「午前」「午後」の「午」は十二支の「馬」のことなんです！昔は正午(12時)のことを一番太陽が高い「馬の刻」と言いました。',
@@ -42,7 +42,7 @@ window.LECTURE_DATA.wlevel_3 = [
   },
   {
     type: 'practice', label: '실전 응용: 시각 읽기', duration: 8000, audio: '〜時〜分',
-    image: 'images/lecture-scenes/wlevel3-calendar-time-study.png',
+    image: 'images/lecture-scenes/wlevel3-calendar-time-study.webp',
     main: '〜時 · 〜分 · 〜半',
     sub: '\'7시 30분\'은 \'7時半(시치지한)\' — 일본어 시각 읽기의 발음 변칙까지 한 번에.',
     captionJp: '時間を聞き取れるようになりましょう！①「〜時(じ)」= 시. 「7時(しちじ)」「9時(くじ)」のように読みますが、4時は例外で「よじ」(「しじ」と言いません)。②「〜分(ふん/ぷん)」= 분。発音が変則です — 1分(いっぷん)・2分(にふん)・3分(さんぷん)・4分(よんぷん)・10分(じゅっぷん)。一の段は「ぷん」、それ以外は「ふん」が基本ルール。③「〜半(はん)」= 30분 = 半。「7時半(しちじはん)」=「7시30분」。「3시半까지 와주세요」=「3時半までに来てください」。約束する時、この3つさえ言えれば完璧です！',
@@ -50,7 +50,7 @@ window.LECTURE_DATA.wlevel_3 = [
   },
   {
     type: 'kanji', label: '한자 파헤치기', duration: 8000, audio: null,
-    image: 'images/lecture-scenes/wlevel3-calendar-time-study.png',
+    image: 'images/lecture-scenes/wlevel3-calendar-time-study.webp',
     main: '今',
     sub: '지금 이 순간을 덮어 가둬버린다는 뜻의 이제 금(今) 입니다.',
     captionJp: '「今(いま)」という漢字は、蓋(ふた)で物を覆うように「現在の時間を区切る」ところから出来たと言われています。今日(きょう)、今週(こんしゅう)、今年(ことし)などによく使いますよ。',
@@ -58,7 +58,7 @@ window.LECTURE_DATA.wlevel_3 = [
   },
   {
     type: 'practice', label: '실전 응용: 날짜 읽기', duration: 8000, audio: null,
-    image: 'images/lecture-scenes/wlevel3-calendar-time-study.png',
+    image: 'images/lecture-scenes/wlevel3-calendar-time-study.webp',
     main: '1일 ~ 10일',
     sub: '달력의 1일에서 10일까지는 완전히 불규칙한 일본어 전통 방식으로 읽습니다.',
     captionJp: '日本のカレンダーの1日から10日は、特別な読み方をします。ついたち、ふつか、みっか、よっか、いつか、むいか、なのか、ようか、ここのか、とおか！呪文みたいですね。',
@@ -66,7 +66,7 @@ window.LECTURE_DATA.wlevel_3 = [
   },
   {
     type: 'mnemonic', label: '암기 꿀팁', duration: 7000, audio: null,
-    image: 'images/lecture-scenes/wlevel3-calendar-time-study.png',
+    image: 'images/lecture-scenes/wlevel3-calendar-time-study.webp',
     main: '8일과 20일',
     sub: '8일은 길게 늘여서 발음하고, 20일은 성인식처럼 특별하게 읽습니다.',
     captionJp: '「よっか(4日)」と「ようか(8日)」は間違いやすいです！8は長いから「よーか」と伸ばすと覚えましょう。そして20日は特別に「はつか」と読みます！',
@@ -74,7 +74,7 @@ window.LECTURE_DATA.wlevel_3 = [
   },
   {
     type: 'culture', label: '실전 팁: 영업시간', duration: 8000, audio: null,
-    image: 'images/lecture-scenes/wlevel3-calendar-time-study.png',
+    image: 'images/lecture-scenes/wlevel3-calendar-time-study.webp',
     main: '営業時間 · 定休日',
     sub: '맛집 헛걸음 방지! 일본 가게의 영업시간 표기와 \'정기 휴일\' 한자 읽기.',
     captionJp: '日本の人気店の前で必ず見る2つの漢字を読めるようになりましょう！①「営業時間(えいぎょうじかん)」= 영업시간、お店が開いている時間。例: 「11:00〜22:00」「ラストオーダー21:30」。②「定休日(ていきゅうび)」= 정기 휴일、お店が必ず閉まっている曜日。例: 「定休日: 月曜日(火曜日が祝日の場合は火曜日)」。日本の人気ラーメン店や個人経営のレストランは、Googleマップに出ない情報も多いので、このサインを直接読めると無駄足を防げます。さらに「中休み(なかやすみ)」(ランチとディナーの間休む時間、例えば14:00〜17:00)もあるので、午後3時頃に行くと「準備中」のことが多いんですよ！',
@@ -82,7 +82,7 @@ window.LECTURE_DATA.wlevel_3 = [
   },
   {
     type: 'summary', label: '오늘의 정리', duration: 8000, audio: null,
-    image: 'images/lecture-scenes/wlevel3-calendar-time-study.png',
+    image: 'images/lecture-scenes/wlevel3-calendar-time-study.webp',
     main: '요약 리뷰',
     sub: '연호·요일·오전오후·시각 읽기·1~10일·8/20일·정기 휴일까지 시간 마스터!',
     captionJp: '今日は元号という独特の年号、天体から来た曜日、馬が由来の午前・午後、〜時〜分〜半の発音、呪文のような1〜10日の読み方、そしてお店の「営業時間」「定休日」の読み方まで、日本の時間世界を丸ごと制覇しました。これでもう、約束も買い物も時間で困ることはありません！',

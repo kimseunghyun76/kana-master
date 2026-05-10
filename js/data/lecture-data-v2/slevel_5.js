@@ -2,7 +2,7 @@ window.LECTURE_DATA = window.LECTURE_DATA || {};
 window.LECTURE_DATA.slevel_5 = [
   {
     type: 'hook', label: '오늘의 이야기', duration: 6000, audio: null,
-    image: 'images/lecture-scenes/slevel5-ryokan-checkin-lobby.png',
+    image: 'images/lecture-scenes/slevel5-ryokan-checkin-lobby.webp',
     main: '료칸 (旅館)',
     sub: '일본 전통 숙소인 료칸에서 느끼는 정성 가득한 환대, 오모테나시를 알아봅시다.',
     captionJp: '日本の旅館は、ただ泊まる場所ではなく、最高のおもてなしを体験する場所です。美味しい料理と温泉、温かいサービスを楽しみましょう。',
@@ -10,7 +10,7 @@ window.LECTURE_DATA.slevel_5 = [
   },
   {
     type: 'kanji', label: '한자 파헤치기', duration: 8000, audio: null,
-    image: 'images/lecture-scenes/slevel5-ryokan-checkin-lobby.png',
+    image: 'images/lecture-scenes/slevel5-ryokan-checkin-lobby.webp',
     main: '旅館 (료칸)',
     sub: '여행 려(旅) + 큰 집 관(館) — 글자 그대로 \'여행자를 위한 큰 집\'입니다.',
     captionJp: '「旅館(りょかん)」を分解してみましょう。「旅(たび)」は古代では「旗を持って一緒に歩く人々」を表す漢字で、左の「方」は旗、右側は隊列を組む人の絵。一方「館(やかた)」は「立派な大きな建物」を意味し、左の「食」は食事を、右の「官」は公的な場所を表します。つまり旅館とは「旅人が食事をしながらゆっくり泊まれる立派な家」なんです。漢字一つ一つに、もてなしの心が刻まれているんですね。',
@@ -18,7 +18,7 @@ window.LECTURE_DATA.slevel_5 = [
   },
   {
     type: 'culture', label: '문화 노트', duration: 7000, audio: '체크인을 부탁합니다',
-    image: 'images/lecture-scenes/slevel5-ryokan-checkin-lobby.png',
+    image: 'images/lecture-scenes/slevel5-ryokan-checkin-lobby.webp',
     main: '체크인',
     sub: '호텔 로비에 도착했을 때 가장 먼저 말하는 한마디, "체크인 부탁합니다."',
     captionJp: '「チェックインをお願いします」と笑顔で言いましょう。予約の確認書やスマートフォンの画面を見せるとスムーズですよ。',
@@ -26,7 +26,7 @@ window.LECTURE_DATA.slevel_5 = [
   },
   {
     type: 'culture', label: '문화 노트: 오모테나시', duration: 8000, audio: 'おもてなし',
-    image: 'images/lecture-scenes/slevel5-ryokan-checkin-lobby.png',
+    image: 'images/lecture-scenes/slevel5-ryokan-checkin-lobby.webp',
     main: 'おもてなし',
     sub: '\'表(겉) + 無し(없다)\' = 겉과 속이 같다는, 일본 환대의 정수입니다.',
     captionJp: '「おもてなし」は世界中で有名な日本の言葉ですが、その本当の意味を知っていますか？語源は「表(おもて)無し(なし)」、つまり「裏表のない、心からのおもてなし」という意味です！お客様が見ていない所でも同じ気持ちで準備をする、見返りを求めない、という哲学。例えば旅館では、布団を敷くタイミング、お茶の温度、玄関の靴の向きまで、全てお客様が気づかない細部にまで心を配ります。「サービス」(対価のある仕事)とは違う、日本独自のホスピタリティ精神なんですよ。',
@@ -34,7 +34,7 @@ window.LECTURE_DATA.slevel_5 = [
   },
   {
     type: 'story', label: '어원 이야기', duration: 7000, audio: '료칸',
-    image: 'images/lecture-scenes/slevel5-ryokan-checkin-lobby.png',
+    image: 'images/lecture-scenes/slevel5-ryokan-checkin-lobby.webp',
     main: '료칸 vs 호텔',
     sub: '잠만 자는 호텔과 삼시세끼 정성이 담긴 료칸의 차이점을 아시나요?',
     captionJp: '旅館は「一泊二食(夕食と朝食)」が付くのが基本です。ホテルは素泊まりが多いですが、どちらもそれぞれの良さがあります。',
@@ -42,7 +42,7 @@ window.LECTURE_DATA.slevel_5 = [
   },
   {
     type: 'story', label: '어원 이야기: 仲居', duration: 7000, audio: null,
-    image: 'images/lecture-scenes/slevel5-ryokan-checkin-lobby.png',
+    image: 'images/lecture-scenes/slevel5-ryokan-checkin-lobby.webp',
     main: '나카이상 (仲居さん)',
     sub: '료칸에서 객실까지 식사를 날라주는 도우미 \'나카이\'는 \'주인과 손님 사이에 사는 사람\'입니다.',
     captionJp: '旅館で部屋まで料理を運んでくれる女性スタッフを「仲居(なかい)さん」と呼びます。漢字を見てください — 「仲(なか)」は「人と人の間」、「居(い)」は「住む・いる」。つまり「主人とお客様の間に住む人」、両者をつなぐ橋のような存在を意味します。仲居さんは食事を運ぶだけでなく、観光案内、布団の用意、相談相手まで何でもやってくれる、料館滞在の総合プロデューサー。出発の時に少額のお心付け(チップ)を渡す習慣もあります(必須ではありませんが)。',
@@ -50,7 +50,7 @@ window.LECTURE_DATA.slevel_5 = [
   },
   {
     type: 'funfact', label: '재미있는 사실', duration: 6000, audio: null,
-    image: 'images/lecture-scenes/slevel5-ryokan-checkin-lobby.png',
+    image: 'images/lecture-scenes/slevel5-ryokan-checkin-lobby.webp',
     main: '온천의 규칙',
     sub: '일본 온천에 들어가기 전, 수영복을 입지 않는 것 외에도 몇 가지 매너가 있습니다.',
     captionJp: '温泉に入る前には必ず体を洗いましょう。また、タオルを湯船に入れないのが日本の大切なマナーなんですよ。',
@@ -58,7 +58,7 @@ window.LECTURE_DATA.slevel_5 = [
   },
   {
     type: 'mnemonic', label: '암기 꿀팁: 유카타 입기', duration: 8000, audio: null,
-    image: 'images/lecture-scenes/slevel5-ryokan-checkin-lobby.png',
+    image: 'images/lecture-scenes/slevel5-ryokan-checkin-lobby.webp',
     main: '유카타는 좌상우하',
     sub: '오른쪽 옷자락을 먼저 안쪽에, 왼쪽을 위로! 반대는 \'장례식 입관 차림\'이니 절대 주의.',
     captionJp: '旅館で用意される浴衣(ゆかた)、着方の一番大事なルールがあります — 「左前(ひだりまえ)」は絶対NG！必ず「右前(みぎまえ)」、つまり右側のえりを先に体に当てて、左側のえりをその上に重ねます。日本では「左前」は亡くなった人に着せる装いなので、生きている人が左前で着るのは大変な失礼にあたります。覚え方は「自分の右手が懐(ふところ)に入る方が正しい」！これだけ守れば、写真もばっちり、夕食も気持ちよく食べられます。',
@@ -66,7 +66,7 @@ window.LECTURE_DATA.slevel_5 = [
   },
   {
     type: 'practice', label: '실전 연습', duration: 7000, audio: '구경할 곳을 알려주세요',
-    image: 'images/lecture-scenes/slevel5-ryokan-checkin-lobby.png',
+    image: 'images/lecture-scenes/slevel5-ryokan-checkin-lobby.webp',
     main: '현지인 추천 받기',
     sub: '"어디 구경할 만한 곳 있나요?"라고 물어 숨겨진 맛집을 찾아보세요.',
     captionJp: '「観光スポットを教えてください」と聞いてみましょう。ガイドブックには載っていない素敵なお店に出会えるかもしれませんよ。',
@@ -74,7 +74,7 @@ window.LECTURE_DATA.slevel_5 = [
   },
   {
     type: 'practice', label: '실전 연습: 식사 시간', duration: 8000, audio: null,
-    image: 'images/lecture-scenes/slevel5-ryokan-checkin-lobby.png',
+    image: 'images/lecture-scenes/slevel5-ryokan-checkin-lobby.webp',
     main: '식사·온천 시간 확인',
     sub: '료칸 체크인 직후 반드시 물어야 할 3가지: 저녁·아침 시간과 온천 영업 시간.',
     captionJp: '旅館にチェックインしたら、必ず3つを確認しましょう！①「夕食は何時(なんじ)からですか？」= 저녁 식사 시간(보통 18:00~19:30 시작). ②「朝食は何時までですか？」= 아침 식사 마감 시간. ③「お風呂(ふろ)は何時まで入れますか？」= 온천 영업 종료 시간(보통 23:00~24:00). 旅館では時間が決まっているので、これを最初に聞いておかないと「夕食を逃した」「夜中に温泉に入ろうとしたら閉まっていた」なんてことに！この3つだけ確認すれば、料館滞在を120％楽しめます。',
@@ -82,7 +82,7 @@ window.LECTURE_DATA.slevel_5 = [
   },
   {
     type: 'summary', label: '오늘의 정리', duration: 6000, audio: null,
-    image: 'images/lecture-scenes/slevel5-ryokan-checkin-lobby.png',
+    image: 'images/lecture-scenes/slevel5-ryokan-checkin-lobby.webp',
     main: '요약 리뷰',
     sub: '旅館 한자, おもてなし 정신, 仲居상, 유카타 입기, 식사 시간 확인까지!',
     captionJp: '今日は旅館の漢字の意味、おもてなしの心、仲居さんの役割、浴衣の着方ルール、そしてチェックイン時の3大確認事項まで、料館の世界を丸ごと体験しました。これで日本の伝統的な旅が10倍楽しくなりますよ！',

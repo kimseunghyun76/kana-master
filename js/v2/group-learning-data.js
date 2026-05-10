@@ -12,7 +12,7 @@ window.GROUP_LEARNING_SETS = [
     desc: '가격, 시간, 날짜를 말하기 전 먼저 익혀야 하는 숫자 뼈대입니다.',
     pattern: '숫자는 단어처럼 외우기보다 자릿수 규칙을 묶어서 봅니다.',
     icon: '一二三',
-    image: 'images/lecture-scenes/wlevel2-elevator-number-culture.png',
+    image: 'images/lecture-scenes/wlevel2-elevator-number-culture.webp',
     items: [
       { kanji: '零 / ゼロ', jp: 'れい / ゼロ', ko: '0', note: '전화번호와 점수에서는 ゼロ도 자주 씁니다.' },
       { kanji: '一', jp: 'いち', ko: '1' },
@@ -37,7 +37,7 @@ window.GROUP_LEARNING_SETS = [
     desc: '여행 일정, 예약, 생일을 말할 때 바로 필요한 달 이름입니다.',
     pattern: '숫자 + 月(がつ) 형태로 읽습니다.',
     icon: '月',
-    image: 'images/lecture-scenes/wlevel3-calendar-time-study.png',
+    image: 'images/lecture-scenes/wlevel3-calendar-time-study.webp',
     items: [
       { kanji: '一月', jp: 'いちがつ', ko: '1월' },
       { kanji: '二月', jp: 'にがつ', ko: '2월' },
@@ -60,7 +60,7 @@ window.GROUP_LEARNING_SETS = [
     desc: '약속, 영업일, 수업 일정을 이해하기 위한 기본 묶음입니다.',
     pattern: '각 요일은 자연 요소 한자 + 曜日(ようび)로 구성됩니다.',
     icon: '曜',
-    image: 'images/lecture-scenes/wlevel3-calendar-time-study.png',
+    image: 'images/lecture-scenes/wlevel3-calendar-time-study.webp',
     items: [
       { kanji: '月曜日', jp: 'げつようび', ko: '월요일', note: '月은 달을 뜻합니다.' },
       { kanji: '火曜日', jp: 'かようび', ko: '화요일', note: '火는 불입니다.' },
@@ -78,7 +78,7 @@ window.GROUP_LEARNING_SETS = [
     desc: '길 찾기와 장소 설명에서 자주 나오는 방향 단어입니다.',
     pattern: '지도 방향과 몸 기준 위치를 함께 묶어서 봅니다.',
     icon: '東西',
-    image: 'images/lecture-scenes/wlevel4-kosoado-city-directions.png',
+    image: 'images/lecture-scenes/wlevel4-kosoado-city-directions.webp',
     items: [
       { kanji: '東', jp: 'ひがし', ko: '동쪽' },
       { kanji: '西', jp: 'にし', ko: '서쪽' },

@@ -15,11 +15,11 @@ window.createPracticeView = (ctx) => {
 
   const PRACTICE_BG = {
     kana: 'images/lecture-scenes/kana-hiragana-study-desk.webp',
-    vocab: 'images/lecture-scenes/wlevel3-calendar-time-study.png',
+    vocab: 'images/lecture-scenes/wlevel3-calendar-time-study.webp',
     kanaQuiz: 'images/lecture-scenes/kana-katakana-loanword-cafe.webp',
-    vocabQuiz: 'images/lecture-scenes/slevel3-convenience-store-checkout.png',
-    listening: 'images/lecture-scenes/slevel4-train-station-transfer.png',
-    speaking: 'images/lecture-scenes/slevel2-self-introduction-office-lobby.png',
+    vocabQuiz: 'images/lecture-scenes/slevel3-convenience-store-checkout.webp',
+    listening: 'images/lecture-scenes/slevel4-train-station-transfer.webp',
+    speaking: 'images/lecture-scenes/slevel2-self-introduction-office-lobby.webp',
   };
 
   function render() {

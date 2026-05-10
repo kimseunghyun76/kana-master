@@ -2,7 +2,7 @@ window.LECTURE_DATA = window.LECTURE_DATA || {};
 window.LECTURE_DATA.wlevel_4 = [
   {
     type: 'hook', label: '오늘의 이야기', duration: 6000, audio: null,
-    image: 'images/lecture-scenes/wlevel4-kosoado-city-directions.png',
+    image: 'images/lecture-scenes/wlevel4-kosoado-city-directions.webp',
     main: '지시어 (こそあど)',
     sub: '한국어보다 더 정교한 일본어만의 거리 감각을 배워봅시다.',
     captionJp: 'にほんごには「こ・そ・あ・ど」というまほうのほうそくがあります！これ・それ・あれ・どれ。このほうそくをおぼえれば、ばしょやほうこうも、おなじパターンでつたえることができますよ。',
@@ -10,7 +10,7 @@ window.LECTURE_DATA.wlevel_4 = [
   },
   {
     type: 'kanji', label: '한자 파헤치기', duration: 8000, audio: null,
-    image: 'images/lecture-scenes/wlevel4-kosoado-city-directions.png',
+    image: 'images/lecture-scenes/wlevel4-kosoado-city-directions.webp',
     main: '右 와 左',
     sub: '오른쪽과 왼쪽 한자에는 사실 \'손\'이 숨겨져 있습니다.',
     captionJp: '「右(みぎ)」と「左(ひだり)」の漢字をよく見ると、実はどちらも「手」を描いた絵から始まっています！古代の人は、右手で食べ物を口に運ぶ様子（右の下にある「口」）と、左手で工具を支える様子（左の下にある「工」）を、そのまま絵にして文字にしたんです。',
@@ -18,7 +18,7 @@ window.LECTURE_DATA.wlevel_4 = [
   },
   {
     type: 'mnemonic', label: '암기 꿀팁', duration: 7000, audio: 'わたし・あなた・かれ・かのじょ',
-    image: 'images/lecture-scenes/wlevel4-kosoado-city-directions.png',
+    image: 'images/lecture-scenes/wlevel4-kosoado-city-directions.webp',
     main: '사람을 부르는 말',
     sub: '일본어에서는 \'당신(あなた)\'이라는 표현을 거의 쓰지 않는다는 사실, 알고 계셨나요?',
     captionJp: '実は日本語では「あなた」をあまり使いません！知らない人に「あなた」と言うと失礼に聞こえることもあります。名前を知っているなら「名前＋さん」を使うのが一番自然で丁寧ですよ。',
@@ -26,7 +26,7 @@ window.LECTURE_DATA.wlevel_4 = [
   },
   {
     type: 'practice', label: '실전 연습', duration: 7000, audio: 'これ・それ・あれ・どれ',
-    image: 'images/lecture-scenes/wlevel4-kosoado-city-directions.png',
+    image: 'images/lecture-scenes/wlevel4-kosoado-city-directions.webp',
     main: '지시어 확장표',
     sub: '물건, 장소, 방향까지 패턴 하나로 전부 해결할 수 있습니다.',
     captionJp: 'もの:これ・それ・あれ・どれ。ばしょ:ここ・そこ・あそこ・どこ。ほうこう:こちら・そちら・あちら・どちら。たったよっつのパターンで、なんびゃくものひょうげんをつくることができます！',
@@ -34,7 +34,7 @@ window.LECTURE_DATA.wlevel_4 = [
   },
   {
     type: 'grammar', label: '문법 노트: これ vs この', duration: 8000, audio: null,
-    image: 'images/lecture-scenes/wlevel4-kosoado-city-directions.png',
+    image: 'images/lecture-scenes/wlevel4-kosoado-city-directions.webp',
     main: 'これ vs この',
     sub: '단독으로 \'이것\'은 これ, 명사 앞에 붙어 \'이 ~\'가 될 땐 この를 씁니다.',
     captionJp: '初心者がよく間違えるのが「これ」と「この」の違いです！「これは本です」のように単独で「これ＝もの」を指す時は『これ』。「この本は面白い」のように後ろに名詞をくっつけて「this 〜」を作る時は『この』。たった一文字違うだけですが、混ぜると一気に不自然な日本語になってしまいます。',
@@ -42,7 +42,7 @@ window.LECTURE_DATA.wlevel_4 = [
   },
   {
     type: 'vocabulary', label: '필수 어휘', duration: 7000, audio: null,
-    image: 'images/lecture-scenes/wlevel4-kosoado-city-directions.png',
+    image: 'images/lecture-scenes/wlevel4-kosoado-city-directions.webp',
     main: '위치와 방향',
     sub: '오른쪽, 왼쪽, 위, 아래... 길 찾기에 꼭 필요한 단어들입니다.',
     captionJp: '右(みぎ)・左(ひだり)・前(まえ)・後ろ(うしろ)・上(うえ)・下(した)。これを「〜にあります」と組み合わせれば場所の説明が完璧にできます！',
@@ -50,7 +50,7 @@ window.LECTURE_DATA.wlevel_4 = [
   },
   {
     type: 'story', label: '어원 이야기', duration: 7000, audio: null,
-    image: 'images/lecture-scenes/wlevel4-kosoado-city-directions.png',
+    image: 'images/lecture-scenes/wlevel4-kosoado-city-directions.webp',
     main: 'こそあど의 정체',
     sub: '\'코·소·아·도\'는 사실 옛 한자 此·其·彼·何의 흔적입니다.',
     captionJp: '実は「こそあど」の正体は、古い日本語の「此(こ)・其(そ)・彼(あ)・何(ど)」から来ています！「此」は自分のそば、「其」は相手のそば、「彼」は二人とも遠い場所、「何」は分からない場所…という距離感が、現代の「これ・それ・あれ・どれ」の発音にそのまま残っているんですね。',
@@ -58,7 +58,7 @@ window.LECTURE_DATA.wlevel_4 = [
   },
   {
     type: 'funfact', label: '재미있는 사실', duration: 6000, audio: null,
-    image: 'images/lecture-scenes/wlevel4-kosoado-city-directions.png',
+    image: 'images/lecture-scenes/wlevel4-kosoado-city-directions.webp',
     main: 'ここ vs こちら',
     sub: '단순히 장소를 말할 때와 예의를 갖추어 방향을 말할 때의 차이점!',
     captionJp: '「ここ」は場所を指しますが、「こちら」は方向や「丁寧な場所」を表します。お店の人が「こちらへどうぞ！」と言うのは、お客様を丁寧に案内するためなんですよ。',
@@ -66,7 +66,7 @@ window.LECTURE_DATA.wlevel_4 = [
   },
   {
     type: 'culture', label: '실전 팁: 만능 표현', duration: 8000, audio: 'これください',
-    image: 'images/lecture-scenes/wlevel4-kosoado-city-directions.png',
+    image: 'images/lecture-scenes/wlevel4-kosoado-city-directions.webp',
     main: 'これ + ください',
     sub: '단어를 몰라도 손가락 하나로 일본 어디서든 주문 가능한 마법의 패턴!',
     captionJp: '日本旅行で困ったら、これだけ覚えてください — 「これ、ください！」。メニューを指さして「これ」、ショーケースを指さして「これ」、写真を指さして「これ」。難しい料理名や商品名を知らなくても、お店の人は必ず分かってくれます。数を足せば「これ、二つください！」で完璧な注文の完成です。',
@@ -74,7 +74,7 @@ window.LECTURE_DATA.wlevel_4 = [
   },
   {
     type: 'kanji', label: '한자 파헤치기', duration: 8000, audio: null,
-    image: 'images/lecture-scenes/wlevel4-kosoado-city-directions.png',
+    image: 'images/lecture-scenes/wlevel4-kosoado-city-directions.webp',
     main: '上 · 下 · 中',
     sub: '기준선 위의 점, 아래의 점, 가운데를 꿰뚫는 막대로 만든 한자 3총사.',
     captionJp: '「上(うえ)」「下(した)」「中(なか)」は世界一シンプルな漢字かもしれません！横の一本線を「基準の地面」だと思ってください。その上に点があれば『上』、下に点があれば『下』、真ん中を縦線が貫けば『中』。古代の人の発想がそのまま絵になっているので、一度見たら絶対に忘れません。',
@@ -82,7 +82,7 @@ window.LECTURE_DATA.wlevel_4 = [
   },
   {
     type: 'summary', label: '오늘의 정리', duration: 6000, audio: null,
-    image: 'images/lecture-scenes/wlevel4-kosoado-city-directions.png',
+    image: 'images/lecture-scenes/wlevel4-kosoado-city-directions.webp',
     main: '요약 리뷰',
     sub: '코·소·아·도 4패턴, これ vs この 구분, 위치 한자, 만능 표현 これください까지!',
     captionJp: '今日は「こそあど」の千年の歴史から、漢字の「右・左・上・下・中」、そして旅で必ず役立つ「これ、ください！」まで盛りだくさんでした。指でさせば日本どこでも生き残れますよ。次のレッスンも一緒にがんばりましょう！',

@@ -2,7 +2,7 @@ window.LECTURE_DATA = window.LECTURE_DATA || {};
 window.LECTURE_DATA.slevel_6 = [
   {
     type: 'hook', label: '오늘의 이야기', duration: 6000, audio: null,
-    image: 'images/lecture-scenes/slevel6-koban-lost-item-help.png',
+    image: 'images/lecture-scenes/slevel6-koban-lost-item-help.webp',
     main: '다이죠-부!',
     sub: '세상에서 가장 편리한 일본어, "다이죠-부"의 마법 같은 쓰임새를 알아봅시다.',
     captionJp: '「大丈夫(だいじょうぶ)」は、OKという意味だけでなく「いりません」という意味でも使われます。状況によって意味が変わる魔法の言葉ですね。',
@@ -10,7 +10,7 @@ window.LECTURE_DATA.slevel_6 = [
   },
   {
     type: 'kanji', label: '한자 파헤치기', duration: 8000, audio: null,
-    image: 'images/lecture-scenes/slevel6-koban-lost-item-help.png',
+    image: 'images/lecture-scenes/slevel6-koban-lost-item-help.webp',
     main: '大丈夫',
     sub: '\'큰 大 + 어른 丈 + 사나이 夫\' = 듬직한 큰 어른 사나이 = 안심해도 좋다!',
     captionJp: '「大丈夫」を漢字で分解すると面白いですよ！「大(おおきい)＋丈(おとな)＋夫(おとこ)」、つまり「立派で大きな男(おとな)」という意味です！古代中国では、身長一丈(いちじょう、約1.8m)以上の頼もしい男性を「丈夫(じょうぶ)」と呼び、その上に「大」を付けて「特に頼もしい人」を表していました。だから「大丈夫だよ」は本来「君が頼もしい大男のように堂々としていれば大丈夫だ＝心配いらないよ」という意味だったんです。なんだか元気が出る漢字ですね！',
@@ -18,7 +18,7 @@ window.LECTURE_DATA.slevel_6 = [
   },
   {
     type: 'culture', label: '문화 노트', duration: 7000, audio: '도와주세요',
-    image: 'images/lecture-scenes/slevel6-koban-lost-item-help.png',
+    image: 'images/lecture-scenes/slevel6-koban-lost-item-help.webp',
     main: '도와주세요 (助けて)',
     sub: '긴급한 상황에서 내 생명을 지켜줄 가장 중요한 한마디입니다.',
     captionJp: '本当に困ったときは「助けてください！」と叫びましょう。日本の警察(110)や救急車(119)の番号も覚えておくと安心です。',
@@ -26,7 +26,7 @@ window.LECTURE_DATA.slevel_6 = [
   },
   {
     type: 'practice', label: '실전 연습: 길 묻기', duration: 8000, audio: null,
-    image: 'images/lecture-scenes/slevel6-koban-lost-item-help.png',
+    image: 'images/lecture-scenes/slevel6-koban-lost-item-help.webp',
     main: '〜への行き方',
     sub: '\'~로 가는 길을 알려주세요\' — 길을 잃었을 때 가장 든든한 만능 패턴.',
     captionJp: '道に迷った時の鉄板フレーズを覚えておきましょう！「すみません、〜への行き方(いきかた)を教えてください」(저, ~로 가는 길을 알려주세요). 駅、コンビニ、ホテルの名前を入れるだけでOKです。例えば「東京駅への行き方を教えてください」「セブンイレブンはどこですか？」。日本人は道を聞かれたら、自分のスマホで検索してでも教えてくれる親切な人がとても多いです。指差しジェスチャーと組み合わせれば100%通じます！',
@@ -34,7 +34,7 @@ window.LECTURE_DATA.slevel_6 = [
   },
   {
     type: 'funfact', label: '재미있는 사실', duration: 6000, audio: null,
-    image: 'images/lecture-scenes/slevel6-koban-lost-item-help.png',
+    image: 'images/lecture-scenes/slevel6-koban-lost-item-help.webp',
     main: '파출소 (교번)',
     sub: '일본 거리를 걷다 보면 자주 마주치는 소형 파출소, 교번의 역할을 알아봅시다.',
     captionJp: '日本の「交番(こうばん)」は、困ったときにいつでも相談できる頼もしい場所です。道を教えてくれたり、落とし物を届けてくれたりします。',
@@ -42,7 +42,7 @@ window.LECTURE_DATA.slevel_6 = [
   },
   {
     type: 'story', label: '어원 이야기: 交番', duration: 7000, audio: null,
-    image: 'images/lecture-scenes/slevel6-koban-lost-item-help.png',
+    image: 'images/lecture-scenes/slevel6-koban-lost-item-help.webp',
     main: '교번 시스템의 탄생',
     sub: '\'交(서로 교) + 番(차례 번)\' = 경찰이 교대로 근무하는 곳. 메이지 시대부터 시작되었습니다.',
     captionJp: '「交番(こうばん)」を漢字で見ると、「交(かわるがわる)＋番(ばん＝当番)」、つまり「交代で当番をする場所」という意味です！明治7年(1874年)、東京の街を安全に保つため、警察官が立ち番(立って見張る)を交代でする小さな建物が街に作られました。これが交番の始まり。日本独自のこのシステムは「KOBAN」として世界中の都市計画でも研究されていて、ブラジル・シンガポール・インドネシアなどでも導入されています。日本で安心して旅行できる理由の一つは、この交番がほぼ徒歩圏内に必ずあるからなんですよ。',
@@ -50,7 +50,7 @@ window.LECTURE_DATA.slevel_6 = [
   },
   {
     type: 'vocabulary', label: '필수 어휘', duration: 7000, audio: null,
-    image: 'images/lecture-scenes/slevel6-koban-lost-item-help.png',
+    image: 'images/lecture-scenes/slevel6-koban-lost-item-help.webp',
     main: '일상 서바이벌',
     sub: '"잠깐만요", "모르겠어요", "천천히 말해주세요" 등 소통에 꼭 필요한 표현들입니다.',
     captionJp: '「ちょっと待ってください」「わかりません」「ゆっくりお願いします」。これらを言えれば、会話のトラブルがぐっと減りますよ。',
@@ -58,7 +58,7 @@ window.LECTURE_DATA.slevel_6 = [
   },
   {
     type: 'mnemonic', label: '암기 꿀팁: 비상 번호', duration: 8000, audio: null,
-    image: 'images/lecture-scenes/slevel6-koban-lost-item-help.png',
+    image: 'images/lecture-scenes/slevel6-koban-lost-item-help.webp',
     main: '110 · 119',
     sub: '경찰 110, 소방·구급 119 — 두 숫자만 외워두면 일본 어디서든 안전합니다.',
     captionJp: '日本の緊急電話番号、必ず覚えてください！①「110番(ひゃくとうばん)」= 警察 (事件・事故・盗難)。②「119番(ひゃくじゅうきゅうばん)」= 消防・救急 (火事・けが・急病)。両方とも公衆電話からも携帯からも無料でかけられます。日本語が話せなくても、最近はオペレーターが英語・中国語・韓国語に対応してくれることも多いです。さらに「在日韓国大使館」の領事サービス番号も控えておくと、パスポート紛失や事件時に強い味方になります。海外旅行は「楽しさ」と「備え」の両方が大切です！',
@@ -66,7 +66,7 @@ window.LECTURE_DATA.slevel_6 = [
   },
   {
     type: 'practice', label: '실전 연습', duration: 7000, audio: '지갑을 잃어버렸어요',
-    image: 'images/lecture-scenes/slevel6-koban-lost-item-help.png',
+    image: 'images/lecture-scenes/slevel6-koban-lost-item-help.webp',
     main: '분실 신고',
     sub: '지갑이나 휴대폰을 잃어버렸을 때 파출소에서 신고하는 대화를 연습해 봅니다.',
     captionJp: '「～をなくしました。交番はどこですか？」と聞いてみましょう。日本の警察はとても親切に、あなたの落とし物を探してくれますよ。',
@@ -74,7 +74,7 @@ window.LECTURE_DATA.slevel_6 = [
   },
   {
     type: 'practice', label: '실전 연습: 영어 가능자', duration: 7000, audio: null,
-    image: 'images/lecture-scenes/slevel6-koban-lost-item-help.png',
+    image: 'images/lecture-scenes/slevel6-koban-lost-item-help.webp',
     main: '英語が話せる方は?',
     sub: '복잡한 상황에서 일본어로 표현이 어려울 때, 영어 가능자를 정중히 부르는 패턴.',
     captionJp: '本当に複雑な状況で日本語では伝えきれない時の最後の切り札 — 「英語(えいご)が話せる方(かた)はいらっしゃいますか？」(영어 하실 수 있는 분 계세요?). 病院・銀行・空港・ホテルなど、大事な手続きが必要な場面では、たいてい英語対応のスタッフがいます。「いらっしゃいますか？」は最高に丁寧な聞き方なので、相手も「あ、この人は礼儀をわきまえている」と感じて、より親切に対応してくれます。複雑な医療や行政の話ほど、無理して日本語で頑張るより、こうやって聞く方がずっと安全です！',
@@ -82,7 +82,7 @@ window.LECTURE_DATA.slevel_6 = [
   },
   {
     type: 'summary', label: '오늘의 정리', duration: 6000, audio: null,
-    image: 'images/lecture-scenes/slevel6-koban-lost-item-help.png',
+    image: 'images/lecture-scenes/slevel6-koban-lost-item-help.webp',
     main: '요약 리뷰',
     sub: '大丈夫 어원, 길 묻기, 교번 역사, 110·119, 영어 가능자 묻기까지 서바이벌 완성!',
     captionJp: 'お疲れ様でした！今日は「大丈夫」の漢字から、道の聞き方、交番の歴史、緊急番号110・119、そして最後の切り札「英語が話せる方は？」まで、日本旅行の安全と安心を全部カバーしました。これだけ知っていれば、どんなトラブルにも落ち着いて対応できますよ。自信を持って、どんどん日本を楽しんでください！',

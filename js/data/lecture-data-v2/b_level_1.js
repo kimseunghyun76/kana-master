@@ -2,7 +2,7 @@ window.LECTURE_DATA = window.LECTURE_DATA || {};
 window.LECTURE_DATA.b_level_1 = [
   {
     type: 'hook', label: '오늘의 이야기', duration: 6000, audio: null,
-    image: 'images/lecture-scenes/blevel1-it-team-communication.png',
+    image: 'images/lecture-scenes/blevel1-it-team-communication.webp',
     main: '한일 IT 조직 문화',
     sub: '같은 개발자여도 일하는 방식과 기대하는 커뮤니케이션은 꽤 다릅니다.',
     captionJp: '日本のITチームでは、技術力だけでなく「周囲とどう連携するか」がとても重視されます。コードが書けるだけでなく、安心して一緒に働ける人かどうかも見られているんですね。',
@@ -10,7 +10,7 @@ window.LECTURE_DATA.b_level_1 = [
   },
   {
     type: 'kanji', label: '한자 파헤치기', duration: 8000, audio: null,
-    image: 'images/lecture-scenes/blevel1-it-team-communication.png',
+    image: 'images/lecture-scenes/blevel1-it-team-communication.webp',
     main: '仕事 (시고토)',
     sub: '\'섬길 仕 + 일 事\' = 글자 그대로 \'주인을 섬기며 하는 일\'이라는 뜻입니다.',
     captionJp: '日本語で「仕事(しごと)」は「働く」ことですが、漢字を分解すると面白いです。「仕(つかえる)＋事(こと)」、つまり元々は「主人や上の人にお仕えして行う事(こと)」という意味でした！江戸時代の武士が、主君に対して仕える姿が起源です。だから日本のビジネスでは「自分の仕事をする」だけでなく「周囲(チーム・上司・お客様)に対して責任を果たす」という感覚が今でも強く残っています。「仕事」という言葉そのものに、日本独特の働き方の哲学が込められているんですね。',
@@ -18,7 +18,7 @@ window.LECTURE_DATA.b_level_1 = [
   },
   {
     type: 'culture', label: '문화 노트', duration: 7000, audio: 'お願いします',
-    image: 'images/lecture-scenes/blevel1-it-team-communication.png',
+    image: 'images/lecture-scenes/blevel1-it-team-communication.webp',
     main: '부탁의 기본 톤',
     sub: '명령이 아니라 협조 요청처럼 들리게 말하는 것이 중요합니다.',
     captionJp: '日本の職場では「これやってください」よりも、「こちら、お願いできますか」「ご対応をお願いします」のように、相手の都合を尊重する言い方が好まれます。',
@@ -26,7 +26,7 @@ window.LECTURE_DATA.b_level_1 = [
   },
   {
     type: 'story', label: '어원 이야기', duration: 7000, audio: 'お疲れ様です',
-    image: 'images/lecture-scenes/blevel1-it-team-communication.png',
+    image: 'images/lecture-scenes/blevel1-it-team-communication.webp',
     main: 'お疲れ様です',
     sub: '\'고생 많으십니다\'라는 인사가 사실은 회사의 시작과 끝, 거의 모든 순간에 쓰입니다.',
     captionJp: '日本の職場で1日に何十回も聞く「お疲れ様(おつかれさま)です」は、漢字の通り「お疲れ＋様」、つまり「お疲れになった様子に対する敬意」を表す言葉です。最初は本当に疲れた人を労う意味でしたが、今では出社時の「おはようございます」の代わりにも、退社時の「さようなら」の代わりにも、廊下で同僚とすれ違う時にも使われる万能挨拶になっています。「ご苦労様(ごくろうさま)」は目下の人にしか使えないので、迷ったら必ず「お疲れ様」を選びましょう！上司にも先輩にも安全な言葉です。',
@@ -34,7 +34,7 @@ window.LECTURE_DATA.b_level_1 = [
   },
   {
     type: 'grammar', label: '문법 노트', duration: 7000, audio: '確認します',
-    image: 'images/lecture-scenes/blevel1-it-team-communication.png',
+    image: 'images/lecture-scenes/blevel1-it-team-communication.webp',
     main: '즉답보다 확인',
     sub: '모를 때는 성급히 답하지 말고 확인 후 회신하는 것이 기본입니다.',
     captionJp: '分からないことがあった時、すぐに「できます」と言うより、「確認してご連絡します」と言える方が評価されることもあります。正確さと信頼の方が大切だからです。',
@@ -42,7 +42,7 @@ window.LECTURE_DATA.b_level_1 = [
   },
   {
     type: 'culture', label: '문화 노트: 報連相', duration: 8000, audio: 'ほうれんそう',
-    image: 'images/lecture-scenes/blevel1-it-team-communication.png',
+    image: 'images/lecture-scenes/blevel1-it-team-communication.webp',
     main: '報連相 (호렌소-)',
     sub: '報告·連絡·相談의 머리글자 — 일본 비즈니스 커뮤니케이션의 3대 기둥입니다.',
     captionJp: '日本の職場で必ず聞く「報連相(ほうれんそう)」、これは野菜の「ほうれん草」ではありません！「報告(ほうこく)＋連絡(れんらく)＋相談(そうだん)」の頭文字を取った造語で、日本ビジネスコミュニケーションの3大原則です。①報告(ほうこく)= 完了したこと・進捗を伝える。②連絡(れんらく)= 必要な情報を関係者に共有する。③相談(そうだん)= 困った時、判断に迷う時に上司や同僚に意見を求める。この3つがちゃんとできる人は「信頼できる人」と評価されます。逆に黙って一人で抱え込むのは、日本では「報連相ができない人」として大きなマイナス評価になりますよ。',
@@ -50,7 +50,7 @@ window.LECTURE_DATA.b_level_1 = [
   },
   {
     type: 'vocabulary', label: '핵심 어휘', duration: 7000, audio: null,
-    image: 'images/lecture-scenes/blevel1-it-team-communication.png',
+    image: 'images/lecture-scenes/blevel1-it-team-communication.webp',
     main: '현장에서 자주 듣는 말',
     sub: '仕様, 確認, 対応, 共有 같은 단어는 매일 등장합니다.',
     captionJp: 'しよう、たいおう、かくにん、きょうゆう、しんちょくなどは、にほんのアイティーげんばでまいにちきくキーワードです。いみよりも、いつどんなニュアンスでつかわれるのかまでおぼえることがたいせつです。',
@@ -58,7 +58,7 @@ window.LECTURE_DATA.b_level_1 = [
   },
   {
     type: 'mnemonic', label: '암기 꿀팁: IT 한자', duration: 8000, audio: null,
-    image: 'images/lecture-scenes/blevel1-it-team-communication.png',
+    image: 'images/lecture-scenes/blevel1-it-team-communication.webp',
     main: '本番 · 障害 · 切り戻し',
     sub: '실제 IT 회의에서 매일 들리지만 헷갈리는 일본 IT 한자어 4총사.',
     captionJp: '日本のITチームで毎日飛び交う必須漢字語を覚えておきましょう！①「本番(ほんばん)」= 本番環境(プロダクション)、ライブ環境のこと。「本番デプロイ」と言えば「Production deploy」。②「障害(しょうがい)」= 障害(インシデント・ダウン)、システムが落ちる事態。「障害発生」=「ダウン発生」。③「展開(てんかい)」= デプロイ、リリース。「展開する」=「ロールアウトする」。④「切り戻し(きりもどし)」= ロールバック。「切り戻します」=「Rollbackします」。これらの言葉を聞き取れるかどうかで、会議の理解度が天と地ほど変わりますよ！',
@@ -66,7 +66,7 @@ window.LECTURE_DATA.b_level_1 = [
   },
   {
     type: 'practice', label: '실전 연습', duration: 7000, audio: '確認してご連絡します',
-    image: 'images/lecture-scenes/blevel1-it-team-communication.png',
+    image: 'images/lecture-scenes/blevel1-it-team-communication.webp',
     main: '가장 안전한 한 문장',
     sub: '불확실할 때는 "확인 후 연락드리겠습니다"를 먼저 꺼내세요.',
     captionJp: '「確認してご連絡します」は、分からない時の逃げではなく、信頼を守るための正しい対応です。特に入社直後は、この一言を丁寧に使えるととても安心感があります。',
@@ -74,7 +74,7 @@ window.LECTURE_DATA.b_level_1 = [
   },
   {
     type: 'practice', label: '실전 연습: 끼어들기 매너', duration: 8000, audio: null,
-    image: 'images/lecture-scenes/blevel1-it-team-communication.png',
+    image: 'images/lecture-scenes/blevel1-it-team-communication.webp',
     main: '少しよろしいでしょうか',
     sub: '회의 중 발언하거나 상사에게 말 걸 때 가장 안전하고 정중한 도입부.',
     captionJp: '会議中に発言したい時、上司や先輩に話しかけたい時、いきなり本題から入ると失礼に感じられることがあります。そんな時の魔法のフレーズが「少し(すこし)よろしいでしょうか？」(잠깐 괜찮으실까요?)。これは「あなたの時間を少しもらってもいいですか」と相手の都合を尊重する表現で、日本のビジネス会話では超基本の入り口です。Slack や Teams のチャットでも、用件の前に「お忙しいところすみません、少しよろしいでしょうか」と一言入れるだけで、相手の受け取り方が大きく変わります。',
@@ -82,7 +82,7 @@ window.LECTURE_DATA.b_level_1 = [
   },
   {
     type: 'summary', label: '오늘의 정리', duration: 6000, audio: null,
-    image: 'images/lecture-scenes/blevel1-it-team-communication.png',
+    image: 'images/lecture-scenes/blevel1-it-team-communication.webp',
     main: '요약 리뷰',
     sub: '仕事 어원, お疲れ様, 報連相 3원칙, IT 한자 4총사, 끼어들기 매너까지!',
     captionJp: '今日は「仕事」の漢字の由来から、「お疲れ様」の万能挨拶、報連相の3原則、IT現場の必須漢字語、そして会議や上司への話しかけ方の魔法フレーズまで、日本のIT職場で必要な土台を全部学びました。技術力だけでなく、こうした言葉の使い方までできると、入社初日から信頼される人になれますよ！',

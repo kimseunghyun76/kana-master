@@ -2,7 +2,7 @@ window.LECTURE_DATA = window.LECTURE_DATA || {};
 window.LECTURE_DATA.slevel_1 = [
   {
     type: 'hook', label: '오늘의 이야기', duration: 6000, audio: null,
-    image: 'images/lecture-scenes/slevel1-first-phrases-classroom-greeting.png',
+    image: 'images/lecture-scenes/slevel1-first-phrases-classroom-greeting.webp',
     main: 'はじめまして',
     sub: '처음 뵙겠습니다! 일본에서 가장 설레는 첫 만남의 인사말입니다.',
     captionJp: '「はじめまして」は「初めてお目にかかります」という言葉が短くなったものです。相手に初めて会えて嬉しい、という敬意が込められた素敵な挨拶なんですよ。',
@@ -10,7 +10,7 @@ window.LECTURE_DATA.slevel_1 = [
   },
   {
     type: 'kanji', label: '한자 파헤치기', duration: 8000, audio: null,
-    image: 'images/lecture-scenes/slevel1-first-phrases-classroom-greeting.png',
+    image: 'images/lecture-scenes/slevel1-first-phrases-classroom-greeting.webp',
     main: '初 와 始',
     sub: '\'처음 初\'는 옷 + 칼, \'비롯할 始\'는 여자 + 입 — 두 가지 시작이 다른 그림으로 보입니다.',
     captionJp: '「はじめまして」の「はじめ」を漢字で書くと「初」または「始」。実は意味が少し違うんです！①「初(ショ・はじめ)」=「衣(ころも)＋刀」、つまり「布を刀で初めて切る瞬間」=「最初に行う動作」。「初めて会う」「初めて食べる」のように使います。②「始(シ・はじめ)」=「女＋台(口の上)」、「女性が口で始まりを告げる」が原義 → 「物事のスタート、開始」。「始業」「開始」のように使います。「はじめまして」は「初めて会う」の意味なので、漢字を意識すれば「初」の感覚が正しい、と分かりますね！',
@@ -18,7 +18,7 @@ window.LECTURE_DATA.slevel_1 = [
   },
   {
     type: 'culture', label: '문화 노트', duration: 7000, audio: 'よろしくお願いします',
-    image: 'images/lecture-scenes/slevel1-first-phrases-classroom-greeting.png',
+    image: 'images/lecture-scenes/slevel1-first-phrases-classroom-greeting.webp',
     main: 'よろしくお願いします',
     sub: '영어로 번역 불가능한 일본인들의 만능 인사말, "잘 부탁드립니다."',
     captionJp: '「よろしくお願いします」は英語に訳すのがとても難しい言葉です。「仲良くしてください」「助けてください」など、たくさんの意味が含まれている万能な表現なんですよ。',
@@ -26,7 +26,7 @@ window.LECTURE_DATA.slevel_1 = [
   },
   {
     type: 'story', label: '어원 이야기', duration: 7000, audio: 'こちらこそ',
-    image: 'images/lecture-scenes/slevel1-first-phrases-classroom-greeting.png',
+    image: 'images/lecture-scenes/slevel1-first-phrases-classroom-greeting.webp',
     main: 'こちらこそ',
     sub: '상대방이 \'잘 부탁합니다\' 하면 받아치는 \'이쪽이야말로\' — 자기소개의 마지막 한 수.',
     captionJp: '相手が「よろしくお願いします」と言った時、ただ「はい」と返すのは少し寂しいです。日本人は必ず「こちらこそ、よろしくお願いします」と返します。「こちらこそ」は「こちら(自分の方)＋こそ(強調)」、つまり「いえいえ、私の方こそ」という意味。相手の好意を受け止めて、それ以上に返す美しい言葉です。日本では「相手より一歩下がる」のが礼儀の基本なので、この「こちらこそ」一言で、いきなり日本人っぽい振る舞いになります！',
@@ -34,7 +34,7 @@ window.LECTURE_DATA.slevel_1 = [
   },
   {
     type: 'mnemonic', label: '암기 꿀팁', duration: 6000, audio: 'どうぞよろしく',
-    image: 'images/lecture-scenes/slevel1-first-phrases-classroom-greeting.png',
+    image: 'images/lecture-scenes/slevel1-first-phrases-classroom-greeting.webp',
     main: 'どうぞ (도-조)',
     sub: '"자 드세요", "어서 오세요", "아무쪼록"까지! 무엇이든 권할 때 쓰는 만능 열쇠입니다.',
     captionJp: '「どうぞ」は日本語でとても便利な言葉です。何かをあげるとき、席を譲るとき、そして「どうぞよろしく」のように強調したいときなど、笑顔で使いましょう！',
@@ -42,7 +42,7 @@ window.LECTURE_DATA.slevel_1 = [
   },
   {
     type: 'practice', label: '실전 연습: 자기소개 4단계', duration: 8000, audio: null,
-    image: 'images/lecture-scenes/slevel1-first-phrases-classroom-greeting.png',
+    image: 'images/lecture-scenes/slevel1-first-phrases-classroom-greeting.webp',
     main: '이름·출신·소속·부탁',
     sub: '\'はじめまして → 이름 → 출신 → 소속/직책 → よろしく\' — 30초 자기소개 황금 공식.',
     captionJp: '日本での初対面で必ず使える「30秒自己紹介テンプレート」を覚えましょう！①「はじめまして」(처음 뵙겠습니다)。②「〇〇と申します」(저는 ~라고 합니다 — 「私は〇〇です」より丁寧)。③「韓国から来ました」(한국에서 왔습니다)。④「〇〇会社のエンジニアです」 또는 「〇〇大学の学生です」(소속·직책)。⑤「どうぞよろしくお願いします」(잘 부탁드립니다 — 마무리)。この5ステップを30秒で言えるようにしておくと、ビジネスでも観光でも自信を持って自己紹介できます。「申します(もうします)」は「言います」の謙譲語、ぐっとプロっぽい印象になりますよ！',
@@ -50,7 +50,7 @@ window.LECTURE_DATA.slevel_1 = [
   },
   {
     type: 'practice', label: '실전 연습', duration: 7000, audio: 'おはようございます・こんにちは・こんばんは',
-    image: 'images/lecture-scenes/slevel1-first-phrases-classroom-greeting.png',
+    image: 'images/lecture-scenes/slevel1-first-phrases-classroom-greeting.webp',
     main: '시간대별 인사',
     sub: '아침, 점심, 저녁! 해의 위치에 따라 바뀌는 세 가지 인사법을 익혀봅시다.',
     captionJp: '朝は「おはようございます」、昼は「こんにちは」、夜は「こんばんは」。時間を守って挨拶するのが、日本人と仲良くなる近道です！',
@@ -58,7 +58,7 @@ window.LECTURE_DATA.slevel_1 = [
   },
   {
     type: 'culture', label: '문화 노트: 명함 교환', duration: 8000, audio: null,
-    image: 'images/lecture-scenes/slevel1-first-phrases-classroom-greeting.png',
+    image: 'images/lecture-scenes/slevel1-first-phrases-classroom-greeting.webp',
     main: '名刺交換 (메이시 코-칸)',
     sub: '일본 비즈니스의 첫 의식 — 명함 한 장에도 정해진 7가지 매너가 있습니다.',
     captionJp: '日本のビジネスシーンで「名刺交換(めいしこうかん)」は最重要の儀式です。基本のルール7か条: ①立って交換する(座ったままはNG). ②名刺は両手で受け取る・両手で渡す. ③相手の名刺は自分のより少し下の位置で渡す(目上を立てる). ④受け取った名刺はその場で読み、名前と部署を確認. ⑤会議中は机の上、自分の左手側に並べて置く(しまわない). ⑥相手の名刺の上に物を置かない、メモを書かない. ⑦ミーティング後、丁寧に名刺入れにしまう. 旅行ではあまり使いませんが、出張・転職・取引先訪問では絶対に必要なマナーです。慣れるまでは少し緊張しますが、これができるだけで日本のビジネス相手から「礼儀正しい人」と一気に評価されます。',
@@ -66,7 +66,7 @@ window.LECTURE_DATA.slevel_1 = [
   },
   {
     type: 'vocabulary', label: '필수 어휘', duration: 7000, audio: null,
-    image: 'images/lecture-scenes/slevel1-first-phrases-classroom-greeting.png',
+    image: 'images/lecture-scenes/slevel1-first-phrases-classroom-greeting.webp',
     main: '작별 인사',
     sub: '"안녕히 계세요"부터 "내일 봐"까지! 기분 좋게 헤어지는 표현들을 배웁니다.',
     captionJp: '「さようなら」は少し寂しい響きがするので、友達には「またね」や「じゃあね」を使うのが一般的ですよ。「お先に失礼します」は仕事で使います。',
@@ -74,7 +74,7 @@ window.LECTURE_DATA.slevel_1 = [
   },
   {
     type: 'story', label: '문화 이야기', duration: 6000, audio: 'お疲れ様です',
-    image: 'images/lecture-scenes/slevel1-first-phrases-classroom-greeting.png',
+    image: 'images/lecture-scenes/slevel1-first-phrases-classroom-greeting.webp',
     main: '수고하셨습니다',
     sub: '동료에게 건네는 「お疲れ様」와 아랫사람에게 건네는 「ご苦労様」를 구분해서 써야 합니다.',
     captionJp: '「お疲れ様です」は誰にでも使えますが、「ご苦労様です」は目上の人が使う言葉です。間違えると失礼になるので、まずは「お疲れ様です」だけ覚えれば安心です！',
@@ -82,7 +82,7 @@ window.LECTURE_DATA.slevel_1 = [
   },
   {
     type: 'summary', label: '오늘의 정리', duration: 6000, audio: null,
-    image: 'images/lecture-scenes/slevel1-first-phrases-classroom-greeting.png',
+    image: 'images/lecture-scenes/slevel1-first-phrases-classroom-greeting.webp',
     main: '요약 리뷰',
     sub: '初·始 한자, こちらこそ, 30초 자기소개, 명함 교환 7원칙까지 첫 만남 종합!',
     captionJp: '今日は「初」と「始」の漢字の違いから、「こちらこそ」の美学、30秒自己紹介テンプレート、名刺交換7か条、そして時間帯別の挨拶まで、日本での「最初の30秒」に必要な全てを学びました。第一印象は一度しか作れません — 今日の表現を使いこなせば、日本人から「礼儀正しくて温かい人」と心に残る出会いになりますよ！',

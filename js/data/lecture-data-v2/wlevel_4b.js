@@ -2,7 +2,7 @@ window.LECTURE_DATA = window.LECTURE_DATA || {};
 window.LECTURE_DATA.wlevel_4b = [
   {
     type: 'hook', label: '오늘의 이야기', duration: 6000, audio: null,
-    image: 'images/lecture-scenes/wlevel4b-station-location-help.png',
+    image: 'images/lecture-scenes/wlevel4b-station-location-help.webp',
     main: 'あります · います',
     sub: '일본어에서는 "있다"도 사람인지 사물인지에 따라 다르게 말합니다.',
     captionJp: '日本語では「ある」と「いる」を使い分けます。物や場所には「あります」、人や動物には「います」。とても基本的ですが、会話で何度も出てくる大切なルールです。',
@@ -10,7 +10,7 @@ window.LECTURE_DATA.wlevel_4b = [
   },
   {
     type: 'kanji', label: '한자 파헤치기', duration: 8000, audio: null,
-    image: 'images/lecture-scenes/wlevel4b-station-location-help.png',
+    image: 'images/lecture-scenes/wlevel4b-station-location-help.webp',
     main: '在 와 有',
     sub: '\'있다\'는 한자에는 흙 위의 물건과, 손에 쥔 고기가 숨어있습니다.',
     captionJp: '「あります」を漢字で書くと「在ります」または「有ります」となります。「在(ザイ)」は土の上に物がしっかり置かれている様子、「有(ユウ)」は手(ナ)で月＝肉を持っている様子を描いた漢字です。どちらも「ここに、確かに存在する」という感覚を絵にしたものなんですよ。',
@@ -18,7 +18,7 @@ window.LECTURE_DATA.wlevel_4b = [
   },
   {
     type: 'grammar', label: '문법 노트', duration: 7000, audio: 'ここにあります・あそこにいます',
-    image: 'images/lecture-scenes/wlevel4b-station-location-help.png',
+    image: 'images/lecture-scenes/wlevel4b-station-location-help.webp',
     main: '장소 + に + 있습니다',
     sub: '어디에 있는지 말할 때는 장소 뒤에 「に」를 붙이는 것이 기본입니다.',
     captionJp: '「トイレはあそこにあります」「駅員さんはそこにいます」のように、場所を表す言葉のあとに「に」を入れると、存在する場所を自然に言えます。',
@@ -26,7 +26,7 @@ window.LECTURE_DATA.wlevel_4b = [
   },
   {
     type: 'story', label: '어원 이야기', duration: 7000, audio: null,
-    image: 'images/lecture-scenes/wlevel4b-station-location-help.png',
+    image: 'images/lecture-scenes/wlevel4b-station-location-help.webp',
     main: 'います = 居る',
     sub: '사람·동물에 「います」를 쓰는 이유는 한자 居(거주할 거)에 답이 있습니다.',
     captionJp: '「いる」は漢字で「居る」と書きます。家(尸)の中で人がじっと座っている姿を表す漢字で、もともとは「ここに留まっている」という意味でした。だから自分の意思でその場にいる存在(人や動物)には「います」を使うんです。物は自分で動けないから「あります」。「動けるか、動けないか」で覚えると一発で理解できますよ。',
@@ -34,7 +34,7 @@ window.LECTURE_DATA.wlevel_4b = [
   },
   {
     type: 'culture', label: '문화 노트', duration: 7000, audio: null,
-    image: 'images/lecture-scenes/wlevel4b-station-location-help.png',
+    image: 'images/lecture-scenes/wlevel4b-station-location-help.webp',
     main: '없을 때의 대답',
     sub: '없으면 「ありません」「いません」이라고 또렷하게 말해 주는 편이 친절합니다.',
     captionJp: 'お店や駅で何かを聞いた時、日本では「ありません」「今はおりません」とはっきり伝えてくれることが多いです。曖昧にせず、状況をきちんと共有する文化ですね。',
@@ -42,7 +42,7 @@ window.LECTURE_DATA.wlevel_4b = [
   },
   {
     type: 'grammar', label: '문법 노트: は vs が', duration: 8000, audio: null,
-    image: 'images/lecture-scenes/wlevel4b-station-location-help.png',
+    image: 'images/lecture-scenes/wlevel4b-station-location-help.webp',
     main: '~は 와 ~が의 차이',
     sub: '\'화장실은 어디에?\'(は)와 \'화장실이 있어요!\'(が)는 강조 포인트가 다릅니다.',
     captionJp: '「トイレはどこですか？」と「ここにトイレがあります！」、助詞が違いますよね。「は」はすでに話題になっているもの（あなたが探しているトイレ）を取り上げる時、「が」は新しく登場・発見するもの（あ、ここにトイレが！）に使います。慣れるまでは「主題＝は、発見＝が」と覚えてみましょう。',
@@ -50,7 +50,7 @@ window.LECTURE_DATA.wlevel_4b = [
   },
   {
     type: 'vocabulary', label: '필수 어휘', duration: 7000, audio: null,
-    image: 'images/lecture-scenes/wlevel4b-station-location-help.png',
+    image: 'images/lecture-scenes/wlevel4b-station-location-help.webp',
     main: '위치 안내 표현',
     sub: 'ここ, そこ, あそこ, 右, 左, 隣 같은 단어들이 존재문과 잘 붙습니다.',
     captionJp: 'ここ・そこ・あそこ・右・左・隣・近く。この辺りの言葉と「あります」「います」を組み合わせるだけで、場所案内のかなり多くをカバーできます。',
@@ -58,7 +58,7 @@ window.LECTURE_DATA.wlevel_4b = [
   },
   {
     type: 'culture', label: '실전 팁: 만능 질문', duration: 8000, audio: null,
-    image: 'images/lecture-scenes/wlevel4b-station-location-help.png',
+    image: 'images/lecture-scenes/wlevel4b-station-location-help.webp',
     main: '〜はありますか？',
     sub: '편의점·약국·가게에서 상품을 찾을 때 가장 많이 쓰는 마법의 한 마디.',
     captionJp: 'コンビニや薬局で何かを探している時、棚を見つけられなくても「〜はありますか？」と聞けばOKです！「絆創膏(ばんそうこう)はありますか？」「Wi-Fiはありますか？」「両替(りょうがえ)できる場所はありますか？」。これだけで、お店の人が必ず一緒に探してくれます。文末を上げるだけで質問になるので、文法を考えなくても自然に話せますよ。',
@@ -66,7 +66,7 @@ window.LECTURE_DATA.wlevel_4b = [
   },
   {
     type: 'practice', label: '실전 연습', duration: 7000, audio: 'トイレはどこにありますか',
-    image: 'images/lecture-scenes/wlevel4b-station-location-help.png',
+    image: 'images/lecture-scenes/wlevel4b-station-location-help.webp',
     main: '어디에 있나요?',
     sub: '화장실, 역, 카운터, 직원이 어디 있는지 묻고 답하는 연습입니다.',
     captionJp: '「トイレはどこにありますか」「改札はどこですか」「店員さんはいますか」。旅行でも日常でも、そのまま使える質問ばかりです。',
@@ -74,7 +74,7 @@ window.LECTURE_DATA.wlevel_4b = [
   },
   {
     type: 'mnemonic', label: '암기 꿀팁', duration: 7000, audio: null,
-    image: 'images/lecture-scenes/wlevel4b-station-location-help.png',
+    image: 'images/lecture-scenes/wlevel4b-station-location-help.webp',
     main: '움직이면 います',
     sub: '\'스스로 움직일 수 있나?\' 이 한 가지 질문으로 평생 안 헷갈립니다.',
     captionJp: '「あります」と「います」で迷ったら、心の中でこう聞いてください — 「これ、自分で動ける？」。動ける(人・犬・猫・魚)なら「います」。動けない(本・テーブル・車・ロボット)なら「あります」。ちなみに車やバスは「あります」です（自分の意思では動かないので）！運転手はもちろん「います」ですけどね。',
@@ -82,7 +82,7 @@ window.LECTURE_DATA.wlevel_4b = [
   },
   {
     type: 'summary', label: '오늘의 정리', duration: 6000, audio: null,
-    image: 'images/lecture-scenes/wlevel4b-station-location-help.png',
+    image: 'images/lecture-scenes/wlevel4b-station-location-help.webp',
     main: '요약 리뷰',
     sub: '사물=あります, 사람=います, 장소엔 に, 화제엔 は, 발견엔 が, 그리고 만능 〜はありますか!',
     captionJp: '今日は短くても本当に毎日使う「ある・いる」を学びました。漢字の「在・居」、助詞の「に・は・が」、そしてどんなお店でも使える「〜はありますか？」まで。明日の会話で必ず一回は登場しますよ！',

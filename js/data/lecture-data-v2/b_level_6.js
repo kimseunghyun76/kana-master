@@ -2,7 +2,7 @@ window.LECTURE_DATA = window.LECTURE_DATA || {};
 window.LECTURE_DATA.b_level_6 = [
   {
     type: 'hook', label: '오늘의 이야기', duration: 6000, audio: null,
-    image: 'images/lecture-scenes/blevel6-requirements-planning-board.png',
+    image: 'images/lecture-scenes/blevel6-requirements-planning-board.webp',
     main: '사양 조율',
     sub: '개발에서 어려운 건 구현만이 아니라, 무엇을 만들지 정확히 맞추는 일입니다.',
     captionJp: '仕様確認の会話では、コードを書く前の言葉の精度がとても重要です。曖昧な理解のまま進めると、あとで大きな手戻りにつながります。',
@@ -10,7 +10,7 @@ window.LECTURE_DATA.b_level_6 = [
   },
   {
     type: 'kanji', label: '한자 파헤치기', duration: 8000, audio: null,
-    image: 'images/lecture-scenes/blevel6-requirements-planning-board.png',
+    image: 'images/lecture-scenes/blevel6-requirements-planning-board.webp',
     main: '仕様',
     sub: '\'섬길 仕 + 모양 様\' = 어떤 모양으로 일하기로 약속했는지를 정한 문서입니다.',
     captionJp: '「仕様(しよう)」を分解してみましょう！「仕(シ)」=「人＋士」、「人が責任を持って仕えること」、つまり「決まった役割」を意味します。「様(ヨウ)」=「木＋羊」、もともと「お手本になる形」「一定のパターン」という意味の漢字です。だから「仕様」とは「(プロダクトが)どのような形で機能すべきかの取り決め」。Specificationの完璧な訳語ですね。仕様書を読む時、「これは作り手と使い手の間の約束事だ」と意識すると、読み方そのものが変わります。仕様の食い違い=約束の食い違い、だからこそ事前確認がこれほど重視されるんです。',
@@ -18,7 +18,7 @@ window.LECTURE_DATA.b_level_6 = [
   },
   {
     type: 'vocabulary', label: '핵심 어휘', duration: 7000, audio: '仕様・要件・前提',
-    image: 'images/lecture-scenes/blevel6-requirements-planning-board.png',
+    image: 'images/lecture-scenes/blevel6-requirements-planning-board.webp',
     main: '사양 대화의 단어들',
     sub: '仕様, 要件, 前提, 影響範囲, 優先度는 꼭 알아야 합니다.',
     captionJp: 'しよう、ようけん、ぜんてい、えいきょうはんい、ゆうせんどなどは、せっけいやじっそうのかいわでなんどもとうじょうします。',
@@ -26,7 +26,7 @@ window.LECTURE_DATA.b_level_6 = [
   },
   {
     type: 'mnemonic', label: '암기 꿀팁: 문서 3종', duration: 8000, audio: null,
-    image: 'images/lecture-scenes/blevel6-requirements-planning-board.png',
+    image: 'images/lecture-scenes/blevel6-requirements-planning-board.webp',
     main: '要件 → 仕様 → 設計',
     sub: '\'무엇을·어떻게 보일지·어떻게 만들지\' — 일본 IT 3대 문서의 명확한 구분.',
     captionJp: '日本のIT現場で混同しがちな3つの文書を区別しましょう！①「要件定義書(ようけんていぎしょ)」= What & Why、ビジネスゴール・ユーザー要求。「ログイン機能が必要」レベル。②「仕様書(しようしょ)」= How it behaves、機能の振る舞いを詳細に。「メール+パスワード、3回失敗で5分ロック」レベル。③「設計書(せっけいしょ)」= How it is built、技術的な実装方法。「JWT認証、Redis でロック状態管理」レベル。会議で「これ、要件ですか？仕様ですか？」と聞き分けられると、議論の解像度が一気に上がります。要件は変わりにくい、仕様は調整可能、設計はエンジニア責任、と覚えると役割分担も見えてきますよ。',
@@ -34,7 +34,7 @@ window.LECTURE_DATA.b_level_6 = [
   },
   {
     type: 'grammar', label: '문형 패턴', duration: 7000, audio: '〜という理解で合っていますか',
-    image: 'images/lecture-scenes/blevel6-requirements-planning-board.png',
+    image: 'images/lecture-scenes/blevel6-requirements-planning-board.webp',
     main: '이해 확인 문장',
     sub: '확신이 없을 때는 정리한 뒤 확인받는 방식이 가장 안전합니다.',
     captionJp: '「〜というりかいであっていますか」は、あいてのはなしをくりかえしてかくにんするときに、とてもやくにたちます。ききかえすだけよりも、じぶんのりかいをさきにみせるほうが、ずっとせいさんてきです。',
@@ -42,7 +42,7 @@ window.LECTURE_DATA.b_level_6 = [
   },
   {
     type: 'story', label: '어원 이야기', duration: 7000, audio: '論理削除',
-    image: 'images/lecture-scenes/blevel6-requirements-planning-board.png',
+    image: 'images/lecture-scenes/blevel6-requirements-planning-board.webp',
     main: '論理削除 vs 物理削除',
     sub: '데이터 \'삭제\'에도 두 종류가 있다는 것을 처음 사양 회의에서 마주칩니다.',
     captionJp: '日本のIT現場で必ず登場する用語、「論理削除(ろんりさくじょ)」と「物理削除(ぶつりさくじょ)」を理解しておきましょう！①「論理削除(Logical Delete / Soft Delete)」= データは実際には消さず、「deleted_at」のようなフラグだけ立てる。後から復元可能、監査ログにも残る。②「物理削除(Physical Delete / Hard Delete)」= データを本当にDBから消す。完全に消去、復元不可。仕様会議で「ユーザーが退会したら？」と聞かれた時、「論理削除でお願いします、復元の可能性と監査要件があるので」と答えられると、シニアっぽい印象になります。GDPR や個人情報保護法の話とも絡む、重要な分かれ道なんですよ。',
@@ -50,7 +50,7 @@ window.LECTURE_DATA.b_level_6 = [
   },
   {
     type: 'culture', label: '문화 노트', duration: 7000, audio: null,
-    image: 'images/lecture-scenes/blevel6-requirements-planning-board.png',
+    image: 'images/lecture-scenes/blevel6-requirements-planning-board.webp',
     main: '질문은 세밀할수록 좋다',
     sub: '너무 많이 묻는 것보다 애매하게 넘기는 쪽이 더 위험할 수 있습니다.',
     captionJp: '日本の現場では、丁寧に確認してくれる人はむしろ安心されます。特に仕様が曖昧な時ほど、早い段階で論点を細かく分けて確認することが大切です。',
@@ -58,7 +58,7 @@ window.LECTURE_DATA.b_level_6 = [
   },
   {
     type: 'practice', label: '실전 연습: Edge Case', duration: 8000, audio: null,
-    image: 'images/lecture-scenes/blevel6-requirements-planning-board.png',
+    image: 'images/lecture-scenes/blevel6-requirements-planning-board.webp',
     main: '例外ケースの確認',
     sub: '\'정상 동작\'만 확인하면 위험 — 일본 IT가 가장 중시하는 \'예외 케이스\' 질문법.',
     captionJp: '日本の仕様会議で評価される人は、必ず「例外ケース(れいがいケース)」を確認します！正常系(うまく行く場合)だけでなく、異常系(失敗・エラー)を聞く質問パターンを覚えておきましょう。①「ネットワークが切れた場合の挙動はどうしますか？」(네트워크 끊김). ②「同時に複数の人が更新したらどうなりますか？」(동시 갱신 충돌). ③「データが0件の時の表示は？」(빈 상태). ④「最大何件まで対応すべきでしょうか？」(상한치). ⑤「権限のないユーザーがアクセスしたら？」(권한 없음). 「正常系は分かりました。例外系で、〇〇の場合はいかがでしょうか？」 — この一言で、あなたへの信頼が一段階上がります。',
@@ -66,7 +66,7 @@ window.LECTURE_DATA.b_level_6 = [
   },
   {
     type: 'practice', label: '실전 연습', duration: 7000, audio: '確認したい点があります',
-    image: 'images/lecture-scenes/blevel6-requirements-planning-board.png',
+    image: 'images/lecture-scenes/blevel6-requirements-planning-board.webp',
     main: '사양 확인 흐름',
     sub: '질문 열기 -> 내가 이해한 바 정리 -> 영향 범위 확인 순서로 연습합니다.',
     captionJp: '「確認したい点があります」「現状の理解では〜です」「影響範囲はどこまででしょうか」。この流れを覚えると、仕様会話がかなり安定します。',
@@ -74,7 +74,7 @@ window.LECTURE_DATA.b_level_6 = [
   },
   {
     type: 'culture', label: '문화 노트: 우선순위', duration: 8000, audio: null,
-    image: 'images/lecture-scenes/blevel6-requirements-planning-board.png',
+    image: 'images/lecture-scenes/blevel6-requirements-planning-board.webp',
     main: 'Must · Should · Could',
     sub: '\'전부 필요해요\'는 답이 아닙니다. 우선순위 3단계로 협상하는 일본식 사양 정리법.',
     captionJp: '仕様会議で「全部必要です」と言われると、開発側は誰も得をしません。日本のIT現場でもよく使われる優先順位3段階で整理してみましょう！①「マスト(Must)」=「必須(ひっす)」: これがないとリリースできない。②「シュッド(Should)」=「推奨(すいしょう)」: 強く望ましいが、なくてもリリース可能。③「クッド(Could)」=「希望(きぼう)」: あれば嬉しい。「この機能はマスト・シュッド・クッドのどれでしょうか？」と聞くだけで、議論の質が変わります。締切やリソースが厳しい時、「シュッドとクッドは次のスプリントに回しましょう」という建設的な提案ができるようになります。',
@@ -82,7 +82,7 @@ window.LECTURE_DATA.b_level_6 = [
   },
   {
     type: 'summary', label: '오늘의 정리', duration: 6000, audio: null,
-    image: 'images/lecture-scenes/blevel6-requirements-planning-board.png',
+    image: 'images/lecture-scenes/blevel6-requirements-planning-board.webp',
     main: '요약 리뷰',
     sub: '仕様 한자, 문서 3종 구분, 論理/物理 削除, 예외 케이스, Must·Should·Could!',
     captionJp: '今日は仕様の漢字の哲学から、要件・仕様・設計の3文書の違い、論理削除vs物理削除、例外ケースの確認パターン、そしてMust・Should・Couldの優先順位整理まで、日本のIT現場で本当に必要な対話技術を全て学びました。仕様調整は、コードを書く前の最強の生産性向上スキル。今日からぜひ使ってみてください！',

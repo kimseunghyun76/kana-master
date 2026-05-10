@@ -2,7 +2,7 @@ window.LECTURE_DATA = window.LECTURE_DATA || {};
 window.LECTURE_DATA.b_level_3 = [
   {
     type: 'hook', label: '오늘의 이야기', duration: 6000, audio: null,
-    image: 'images/lecture-scenes/blevel3-business-email-review.png',
+    image: 'images/lecture-scenes/blevel3-business-email-review.webp',
     main: '비즈니스 메일',
     sub: '메일 한 통에도 관계와 예절이 담기는 것이 일본식 비즈니스 커뮤니케이션입니다.',
     captionJp: 'にほんのビジネスメールは、じょうほうのでんたつだけでなく、あいてへのはいりょをかたちにするぶんかでもあります。ぼうとうのあいさつやしめのいちぶんで、いんしょうがおおきくかわります。',
@@ -10,7 +10,7 @@ window.LECTURE_DATA.b_level_3 = [
   },
   {
     type: 'kanji', label: '한자 파헤치기', duration: 8000, audio: null,
-    image: 'images/lecture-scenes/blevel3-business-email-review.png',
+    image: 'images/lecture-scenes/blevel3-business-email-review.webp',
     main: '拝 · 敬 · 啓',
     sub: '정중한 일본어 메일·편지에서 자주 보이는 세 한자에는 모두 \'고개 숙이는 사람\'이 있습니다.',
     captionJp: '日本のビジネスメールや手紙でよく見る3つの漢字を見てみましょう！①「拝(ハイ)」= 両手を合わせて頭を下げる人、「拝啓」「拝見」「拝聴」など、相手を高めて自分を下げる謙譲語に必須の文字。②「敬(ケイ)」= 「攵(動作)＋苟(つつしむ)」、心を引き締めて礼儀正しく振る舞う様子。「敬具」(手紙の結び)に登場。③「啓(ケイ)」= 「戸を開く」+「口で告げる」、「申し上げる」を意味する。「拝啓(はいけい)」=「謹んで申し上げます」、手紙の冒頭に付けます。漢字の中に既に「お辞儀」「謙虚」が刻まれているんですね。',
@@ -18,7 +18,7 @@ window.LECTURE_DATA.b_level_3 = [
   },
   {
     type: 'vocabulary', label: '필수 표현', duration: 7000, audio: 'お世話になっております',
-    image: 'images/lecture-scenes/blevel3-business-email-review.png',
+    image: 'images/lecture-scenes/blevel3-business-email-review.webp',
     main: '메일 첫 문장',
     sub: '「お世話になっております」는 일본 비즈니스 메일의 대표적인 시작 표현입니다.',
     captionJp: '「お世話になっております」は直訳しにくいですが、「いつもありがとうございます。日頃から関わっていただき感謝しています」という空気を一度に伝えられる定番表現です。',
@@ -26,7 +26,7 @@ window.LECTURE_DATA.b_level_3 = [
   },
   {
     type: 'story', label: '어원 이야기', duration: 7000, audio: null,
-    image: 'images/lecture-scenes/blevel3-business-email-review.png',
+    image: 'images/lecture-scenes/blevel3-business-email-review.webp',
     main: 'お世話 의 깊이',
     sub: '\'世(세상) + 話(이야기)\'가 합쳐져 \'세상사 챙겨주는 마음\'이라는 뜻이 됐습니다.',
     captionJp: '「お世話(おせわ)」の語源は面白いんです — 「世(よ)」=「世の中」+「話(はなし)」=「話す・面倒を見る」、つまり「世の中で面倒をみる」=「日常生活であれこれ気にかけてあげること」という意味です！江戸時代から「世話を焼く(せわをやく)」(あれこれ面倒を見る)という表現があり、相手のために細かく動く優しさを表します。だから「お世話になっております」は単なる挨拶ではなく、「あなたが私のために色々と気を配ってくださっていることに、心から感謝しています」という深い意味を含んでいるんですよ。',
@@ -34,7 +34,7 @@ window.LECTURE_DATA.b_level_3 = [
   },
   {
     type: 'grammar', label: '문형 패턴', duration: 7000, audio: 'ご確認のほどよろしくお願いします',
-    image: 'images/lecture-scenes/blevel3-business-email-review.png',
+    image: 'images/lecture-scenes/blevel3-business-email-review.webp',
     main: '부탁의 완충 표현',
     sub: '확인해 주세요를 더 부드럽게 만들 때 「〜のほど」를 많이 씁니다.',
     captionJp: '「ご確認ください」でも通じますが、「ご確認のほどよろしくお願いします」とすると、ぐっと柔らかく丁寧な印象になります。依頼メールの基本ですね。',
@@ -42,7 +42,7 @@ window.LECTURE_DATA.b_level_3 = [
   },
   {
     type: 'culture', label: '문화 노트: 件名', duration: 8000, audio: null,
-    image: 'images/lecture-scenes/blevel3-business-email-review.png',
+    image: 'images/lecture-scenes/blevel3-business-email-review.webp',
     main: '件名 (제목)의 기술',
     sub: '받는 사람의 받은편지함에서 \'한 줄로 무엇을 원하는지\' 명확히 보여야 합니다.',
     captionJp: '日本のビジネスメールでは、件名(けんめい＝タイトル)が本文と同じくらい重要です！基本のフォーマットは「【依頼】〇〇の件 / 〇月〇日まで」のように、用件の種類・案件名・期限を一行に詰め込みます。よく使うラベル: ①【依頼】= 부탁・의뢰、②【共有】= 정보 공유、③【相談】= 상담、④【ご報告】= 보고、⑤【お願い】= 일반 요청、⑥【至急】= 긴급. 件名だけで「読まなくちゃいけない」と判断できるようにするのが、忙しい相手への最大の配慮なんです。「ご相談」「資料」のような曖昧なタイトルは、開封率が一気に下がります。',
@@ -50,7 +50,7 @@ window.LECTURE_DATA.b_level_3 = [
   },
   {
     type: 'culture', label: '문화 노트', duration: 7000, audio: null,
-    image: 'images/lecture-scenes/blevel3-business-email-review.png',
+    image: 'images/lecture-scenes/blevel3-business-email-review.webp',
     main: '결론을 먼저',
     sub: '정중함은 길게 쓰는 것과 다르고, 메일은 목적이 먼저 보여야 합니다.',
     captionJp: '丁寧に書こうとして前置きが長くなりすぎると、かえって読みにくくなります。用件・背景・依頼の順で、相手がすぐ判断できるように書くのが大切です。',
@@ -58,7 +58,7 @@ window.LECTURE_DATA.b_level_3 = [
   },
   {
     type: 'practice', label: '실전 연습: 사과 메일', duration: 8000, audio: '大変申し訳ございません',
-    image: 'images/lecture-scenes/blevel3-business-email-review.png',
+    image: 'images/lecture-scenes/blevel3-business-email-review.webp',
     main: '사과 메일 3단 구조',
     sub: '①사과 → ②원인·상황 → ③재발 방지·다음 행동 — 일본 사과 메일의 정석.',
     captionJp: 'ミスや遅延が起きた時の謝罪メールには鉄板の3段構成があります！①「この度はご迷惑をおかけし、大変申し訳ございません」(이번 일로 폐를 끼쳐 대단히 죄송합니다) — 言い訳より先に謝罪。②「原因は〇〇でした。現在〇〇という状況です」(원인은 ~였습니다. 현재 ~상황입니다) — 事実を正直に。③「今後はこのようなことがないよう、〇〇いたします。引き続きよろしくお願い申し上げます」(앞으로 이런 일 없도록 ~하겠습니다) — 改善策と継続関係。「言い訳しない・事実を伝える・次の行動を約束する」、この順番を守ると、信頼が逆に深まることもあります。',
@@ -66,7 +66,7 @@ window.LECTURE_DATA.b_level_3 = [
   },
   {
     type: 'practice', label: '실전 연습', duration: 7000, audio: '添付いたします',
-    image: 'images/lecture-scenes/blevel3-business-email-review.png',
+    image: 'images/lecture-scenes/blevel3-business-email-review.webp',
     main: '자주 쓰는 메일 패턴',
     sub: '자료 첨부, 확인 요청, 감사 인사를 묶어서 연습합니다.',
     captionJp: '「資料を添付いたします」「ご確認をお願いします」「ご対応ありがとうございます」。この3本柱だけでも、かなり多くの業務メールに対応できます。',
@@ -74,7 +74,7 @@ window.LECTURE_DATA.b_level_3 = [
   },
   {
     type: 'mnemonic', label: '암기 꿀팁: 메일 5단 구조', duration: 8000, audio: null,
-    image: 'images/lecture-scenes/blevel3-business-email-review.png',
+    image: 'images/lecture-scenes/blevel3-business-email-review.webp',
     main: '宛名→挨拶→本題→結び→署名',
     sub: '일본 메일의 5단 골격을 외우면 어떤 상황에서도 흔들리지 않아요.',
     captionJp: '日本のビジネスメールには「絶対崩してはいけない5段構造」があります！①「宛名(あてな)」=「〇〇株式会社 〇〇様」(상대 회사명+이름+様). ②「挨拶(あいさつ)」=「お世話になっております。〇〇会社の△△です」(인사+자기 이름). ③「本題(ほんだい)」= 用件(용건). ④「結び(むすび)」=「ご確認のほどよろしくお願いします」「引き続きよろしくお願いいたします」(맺음 인사). ⑤「署名(しょめい)」= 회사명+이름+연락처の固定ブロック. この5つを毎回そろえるだけで、相手から「丁寧で安心できる人」と評価されます。慣れたら30秒で書けるようになりますよ！',
@@ -82,7 +82,7 @@ window.LECTURE_DATA.b_level_3 = [
   },
   {
     type: 'summary', label: '오늘의 정리', duration: 6000, audio: null,
-    image: 'images/lecture-scenes/blevel3-business-email-review.png',
+    image: 'images/lecture-scenes/blevel3-business-email-review.webp',
     main: '요약 리뷰',
     sub: '拝·敬·啓 한자, お世話 깊이, 件名 기술, 사과 3단, 5단 구조까지!',
     captionJp: '今日は「拝・敬・啓」の漢字から、「お世話」の語源、件名の書き方、謝罪メールの3段構成、そしてビジネスメールの絶対5段構造まで、メール文化の核を全部学びました。長く書く必要はありません。フォーマットを守りながら「目的」と「敬意」を一文ずつ揃えれば、十分プロのメールになります！',

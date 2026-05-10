@@ -2,7 +2,7 @@ window.LECTURE_DATA = window.LECTURE_DATA || {};
 window.LECTURE_DATA.k_level_1 = [
   {
     type: 'hook', label: '오늘의 이야기', duration: 6000, audio: null,
-    image: 'images/lecture-scenes/klevel1-keigo-service-counter.png',
+    image: 'images/lecture-scenes/klevel1-keigo-service-counter.webp',
     main: '경어의 세계',
     sub: '정중어, 존경어, 겸양어는 일본어의 사회적 거리감을 섬세하게 조절하는 장치입니다.',
     captionJp: '敬語は難しそうに見えますが、本質は「相手を立てるか、自分を下げるか、丁寧に伝えるか」の3つです。仕組みが分かると、意外と整理して覚えられますよ。',
@@ -10,7 +10,7 @@ window.LECTURE_DATA.k_level_1 = [
   },
   {
     type: 'kanji', label: '한자 파헤치기', duration: 8000, audio: null,
-    image: 'images/lecture-scenes/klevel1-keigo-service-counter.png',
+    image: 'images/lecture-scenes/klevel1-keigo-service-counter.webp',
     main: '敬 · 尊 · 謙',
     sub: '경어의 3대 한자에는 \'고개 숙임\'·\'두 손 받듦\'·\'겸손\'의 자세가 그대로 담겼습니다.',
     captionJp: '敬語の中心になる3つの漢字を見てみましょう！①「敬(ケイ)」= 尊敬の敬。「攵(動作)＋苟(つつしむ)」、「心を引き締めて礼儀正しく振る舞う」が原義。②「尊(ソン)」= 尊敬の尊。「酋(お酒の容器)＋寸(両手)」、「お酒を両手で頭上に捧げる」儀式の姿が起源 — つまり「頭の上に高く掲げて敬う」。③「謙(ケン)」= 謙譲の謙。「言＋兼(かねる)」、「言葉を控えて他者を立てる」=「自分を引いて相手を上にする」。漢字を見るだけで、敬語の本質「相手を上げ、自分を下げる動作」が体感できますね。',
@@ -18,7 +18,7 @@ window.LECTURE_DATA.k_level_1 = [
   },
   {
     type: 'grammar', label: '문법 노트', duration: 7000, audio: 'いらっしゃいます・参ります',
-    image: 'images/lecture-scenes/klevel1-keigo-service-counter.png',
+    image: 'images/lecture-scenes/klevel1-keigo-service-counter.webp',
     main: '정중어 vs 존경어 vs 겸양어',
     sub: '같은 "가다"도 누구의 행동이냐에 따라 전혀 다른 단어를 씁니다.',
     captionJp: '例えば「行きます」は丁寧語、「いらっしゃいます」は尊敬語、「参ります」は謙譲語です。主語が誰なのかを意識すると、敬語はかなり理解しやすくなります。',
@@ -26,7 +26,7 @@ window.LECTURE_DATA.k_level_1 = [
   },
   {
     type: 'culture', label: '문화 노트: お vs ご', duration: 8000, audio: null,
-    image: 'images/lecture-scenes/klevel1-keigo-service-counter.png',
+    image: 'images/lecture-scenes/klevel1-keigo-service-counter.webp',
     main: 'お · ご 구분 규칙',
     sub: '\'お\'는 일본 토박이 말, \'ご\'는 한자어 — 단순한 규칙 하나로 헷갈림을 끝냅니다.',
     captionJp: '敬語の入口で必ず迷うのが「お」と「ご」の使い分け。実はとてもシンプルなルールがあります！原則は: ①「お」+ 和語(やまとことば、訓読みの言葉) = お名前(なまえ)、お時間(じかん)、お電話(でんわ)、お話(はなし)、お忙しい. ②「ご」+ 漢語(音読みの言葉) = ご連絡(れんらく)、ご確認(かくにん)、ご相談(そうだん)、ご報告(ほうこく)、ご親切(しんせつ). 例外もあります(お料理・お食事・お返事など、漢語なのにお)が、9割はこのルールで合います。「ご名前」「お確認」と言うとネイティブには違和感があるので、和語=お、漢語=ごと一度しっかり覚えましょう！',
@@ -34,7 +34,7 @@ window.LECTURE_DATA.k_level_1 = [
   },
   {
     type: 'culture', label: '문화 노트', duration: 7000, audio: null,
-    image: 'images/lecture-scenes/klevel1-keigo-service-counter.png',
+    image: 'images/lecture-scenes/klevel1-keigo-service-counter.webp',
     main: '전부 경어일 필요는 없다',
     sub: '자연스러운 비즈니스 일본어는 과한 경어보다 안정적인 정중함에 가깝습니다.',
     captionJp: '全部を難しい敬語にしようとすると、かえって不自然になることがあります。まずは「です・ます」を安定させて、必要な場面で尊敬語・謙譲語を入れる方が実践的です。',
@@ -42,7 +42,7 @@ window.LECTURE_DATA.k_level_1 = [
   },
   {
     type: 'culture', label: '문화 노트: 二重敬語', duration: 8000, audio: null,
-    image: 'images/lecture-scenes/klevel1-keigo-service-counter.png',
+    image: 'images/lecture-scenes/klevel1-keigo-service-counter.webp',
     main: '이중경어 함정',
     sub: '\'정중하게\'를 두 번 쓰면 오히려 어색하거나 무례하게 들립니다.',
     captionJp: '敬語を頑張りすぎる人がよく陥る罠が「二重敬語(にじゅうけいご)」です。一つの動詞に尊敬語を2回重ねてしまう間違い。NG例: ①「お読みになられる」(「お〜になる」+ 「られる」、両方とも尊敬語). ②「ご覧になられる」. ③「おっしゃられる」(「おっしゃる」自体が「言う」の尊敬語、それに「られる」を足してダブル). 正解はそれぞれ「お読みになる」「ご覧になる」「おっしゃる」だけでOK。日本人でも間違えるレベルですが、ビジネスメールやプレゼンで二重敬語を連発すると「敬語の使い方が怪しい人」と思われます。「敬語は重ねず、一つで十分」と覚えましょう！',
@@ -50,7 +50,7 @@ window.LECTURE_DATA.k_level_1 = [
   },
   {
     type: 'vocabulary', label: '핵심 표현', duration: 7000, audio: '承知しました・かしこまりました',
-    image: 'images/lecture-scenes/klevel1-keigo-service-counter.png',
+    image: 'images/lecture-scenes/klevel1-keigo-service-counter.webp',
     main: '자주 쓰는 경어 표현',
     sub: '承知しました, かしこまりました, 伺います, 拝見します는 활용도가 높습니다.',
     captionJp: '「分かりました」の代わりに「承知しました」、「見ます」の代わりに「拝見します」。頻出の置き換えを少しずつ増やしていくと、敬語が現場で使える形になります。',
@@ -58,7 +58,7 @@ window.LECTURE_DATA.k_level_1 = [
   },
   {
     type: 'practice', label: '실전 연습: 御社·弊社', duration: 8000, audio: '御社・弊社',
-    image: 'images/lecture-scenes/klevel1-keigo-service-counter.png',
+    image: 'images/lecture-scenes/klevel1-keigo-service-counter.webp',
     main: '회사 호칭의 경어',
     sub: '상대 회사는 御社·貴社, 자기 회사는 弊社·当社 — 비즈니스 일본어 필수 구분.',
     captionJp: '会議やメールで会社の名前を言う時、「敬語」が登場します。これが意外と間違えやすいんです！相手の会社: ①「御社(おんしゃ)」= 話し言葉(打ち合わせ・電話)で使う、相手会社の尊敬呼称. ②「貴社(きしゃ)」= 書き言葉(メール・契約書)で使う。自分の会社: ③「弊社(へいしゃ)」= 謙譲表現、「弊(つつましい)」=「自分の会社をへりくだって」. ④「当社(とうしゃ)」= 中立的、「私たちの会社」. 「うちの会社」をビジネスで使うのは大NG。「弊社の〇〇でございますが、御社の△△様はいらっしゃいますでしょうか」 — このフレーズが自然に出ると、一気にプロのビジネス日本語に聞こえますよ！',
@@ -66,7 +66,7 @@ window.LECTURE_DATA.k_level_1 = [
   },
   {
     type: 'practice', label: '실전 연습', duration: 7000, audio: '少々お待ちください',
-    image: 'images/lecture-scenes/klevel1-keigo-service-counter.png',
+    image: 'images/lecture-scenes/klevel1-keigo-service-counter.webp',
     main: '서비스와 업무의 정중 표현',
     sub: '잠시만 기다려 주세요, 확인하겠습니다, 찾아뵙겠습니다 같은 표현을 익힙니다.',
     captionJp: '「少々お待ちください」「確認いたします」「後ほど伺います」などは、サービス業でもオフィスでもとてもよく使います。相手を不安にさせない定番表現です。',
@@ -74,7 +74,7 @@ window.LECTURE_DATA.k_level_1 = [
   },
   {
     type: 'mnemonic', label: '암기 꿀팁: 변환 공식', duration: 8000, audio: null,
-    image: 'images/lecture-scenes/klevel1-keigo-service-counter.png',
+    image: 'images/lecture-scenes/klevel1-keigo-service-counter.webp',
     main: '동사 → 경어 변환 3공식',
     sub: '특수 경어를 외우기 전에, 어떤 동사든 적용 가능한 \'규칙형\' 3공식을 먼저.',
     captionJp: '特殊な敬語(食べる→召し上がる)を全部覚えるのは大変ですよね。でも実は、どんな動詞にも使える3つの規則的なフォーマットがあります！①尊敬語(相手の動作)を上げる: 「お+ます形+になる」=「お読みになる」「お話しになる」「お休みになる」. ②謙譲語(自分の動作)を下げる: 「お+ます形+する/いたす」=「お送りいたします」「お持ちします」「ご連絡いたします」. ③簡易尊敬: 「動詞+(ら)れる」=「読まれる」「来られる」「決められる」(少しカジュアル). この3公式を知っているだけで、特殊敬語を知らない動詞でもとっさに敬語が作れます。新人時代の最強の保険ですよ！',
@@ -82,7 +82,7 @@ window.LECTURE_DATA.k_level_1 = [
   },
   {
     type: 'summary', label: '오늘의 정리', duration: 6000, audio: null,
-    image: 'images/lecture-scenes/klevel1-keigo-service-counter.png',
+    image: 'images/lecture-scenes/klevel1-keigo-service-counter.webp',
     main: '요약 리뷰',
     sub: '敬·尊·謙 한자, お vs ご, 二重敬語, 御社·弊社, 변환 3공식까지 마스터!',
     captionJp: '今日は敬語の3大漢字の哲学から、「お」と「ご」の使い分け、二重敬語の罠、御社・弊社の使い分け、そして敬語の規則的な3公式まで、敬語の核を全部学びました。敬語は単なる暗記ではなく、相手との距離や立場を調整する仕組み。今日の内容を意識しながら少しずつ使うと、半年後には驚くほど自然な敬語が話せるようになりますよ！',

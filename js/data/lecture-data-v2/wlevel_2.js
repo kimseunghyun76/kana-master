@@ -2,7 +2,7 @@ window.LECTURE_DATA = window.LECTURE_DATA || {};
 window.LECTURE_DATA.wlevel_2 = [
   {
     type: 'hook', label: '오늘의 이야기', duration: 6000, audio: null,
-    image: 'images/lecture-scenes/wlevel2-elevator-number-culture.png',
+    image: 'images/lecture-scenes/wlevel2-elevator-number-culture.webp',
     main: '일본의 엘리베이터',
     sub: '병원의 엘리베이터에는 종종 4층과 9층이 없습니다.',
     captionJp: '日本の古い病院やマンションのエレベーターには「4」や「9」のフロアがないことがよくあります。なぜだか分かりますか？実はこれ、数字の発音が理由なんです！韓国にも「4階(F)」がない建物がありますよね。',
@@ -10,7 +10,7 @@ window.LECTURE_DATA.wlevel_2 = [
   },
   {
     type: 'kanji', label: '한자 파헤치기', duration: 8000, audio: null,
-    image: 'images/lecture-scenes/wlevel2-elevator-number-culture.png',
+    image: 'images/lecture-scenes/wlevel2-elevator-number-culture.webp',
     main: '四(4) 와 九(9)',
     sub: '4의 발음은 \'죽음\'과, 9의 발음은 \'고통\'과 같기 때문입니다.',
     captionJp: '日本語で「4」は「し」と発音します。これは「死(し)」と同じ発音です。そして「9」は「く」と読みますが、これは「苦しみ(苦・く)」と同じ発音になります。だから昔から避けられてきたんです。',
@@ -18,7 +18,7 @@ window.LECTURE_DATA.wlevel_2 = [
   },
   {
     type: 'grammar', label: '문법 노트: 숫자 세기', duration: 8000, audio: null,
-    image: 'images/lecture-scenes/wlevel2-elevator-number-culture.png',
+    image: 'images/lecture-scenes/wlevel2-elevator-number-culture.webp',
     main: '두 가지 숫자 시스템',
     sub: '일본어 숫자는 한자어(\'일, 이, 삼\')와 고유어(\'하나, 둘, 셋\') 두 가지가 있습니다.',
     captionJp: '日本語には数の数え方が2種類あります。「いち、に、さん」は中国語から来た読み方。「ひとつ、ふたつ、みっつ」は日本に昔からある固有の読み方です。韓国語の「イル、イ、サム」と「ハナ、ドゥル、セッ」と同じですね！',
@@ -26,7 +26,7 @@ window.LECTURE_DATA.wlevel_2 = [
   },
   {
     type: 'culture', label: '실전 팁: 물건 주문하기', duration: 7000, audio: '一つください',
-    image: 'images/lecture-scenes/wlevel2-elevator-number-culture.png',
+    image: 'images/lecture-scenes/wlevel2-elevator-number-culture.webp',
     main: '고유어 사용하기',
     sub: '식당에서 물건을 가리키며 개수를 말할 때는 반드시 고유어를 씁니다.',
     captionJp: 'レストランで何か注文する時、指をさして「これ、ひとつください」と言ってみましょう！「いち、ください」と言うと少し不自然に聞こえてしまいます。',
@@ -34,7 +34,7 @@ window.LECTURE_DATA.wlevel_2 = [
   },
   {
     type: 'practice', label: '실전 응용!', duration: 7000, audio: null,
-    image: 'images/lecture-scenes/wlevel2-elevator-number-culture.png',
+    image: 'images/lecture-scenes/wlevel2-elevator-number-culture.webp',
     main: '한자어 사용하기',
     sub: '돈의 액수나 전화번호, 단위를 말할 때는 한자어를 사용합니다.',
     captionJp: '逆に「いち、に、さん」は単位と一緒に使います。例えば「100円」や「3階」、そして電話番号などです。「ひとつ円」とは絶対に言いませんので注意しましょう！',
@@ -42,7 +42,7 @@ window.LECTURE_DATA.wlevel_2 = [
   },
   {
     type: 'kanji', label: '한자 파헤치기: 큰 숫자', duration: 8000, audio: null,
-    image: 'images/lecture-scenes/wlevel2-elevator-number-culture.png',
+    image: 'images/lecture-scenes/wlevel2-elevator-number-culture.webp',
     main: '百 · 千 · 万',
     sub: '100·1000·10000은 \'햐쿠·센·만\' — 한자 자체에 그림으로 숫자가 새겨져 있습니다.',
     captionJp: 'お金や人数を聞き取るために必須の3つの大きな数の漢字を見ましょう！①「百(ひゃく)」=「白＋一」、古代では「白い貝殻が100個並んだ」イメージから100の意味になりました。②「千(せん)」=「人＋一」、人(立った姿)に横棒一本で「たくさんの人＝1000」を表します。③「万(まん)」=元々はサソリの形を描いた象形文字。「数えきれないほど多い」という意味から1万になりました。日本円の感覚: 100円=コーラ1本、1000円=ランチ、10000円=高級ディナー。これで価格表示の漢字も即座に読めますね！',
@@ -50,7 +50,7 @@ window.LECTURE_DATA.wlevel_2 = [
   },
   {
     type: 'kanji', label: '한자 파헤치기', duration: 8000, audio: null,
-    image: 'images/lecture-scenes/wlevel2-elevator-number-culture.png',
+    image: 'images/lecture-scenes/wlevel2-elevator-number-culture.webp',
     main: '八',
     sub: '아래로 갈수록 넓어지는 한자 모양 때문에 8은 행운을 상징합니다.',
     captionJp: '漢字の「八」の下に向かって広がる形を「末広がり」と呼びます。「未来に向かってどんどん発展していく」という意味が込められていて、結婚式のお祝い金などに好まれるとてもラッキーな数字なんです。',
@@ -58,7 +58,7 @@ window.LECTURE_DATA.wlevel_2 = [
   },
   {
     type: 'funfact', label: '재미있는 사실', duration: 6000, audio: null,
-    image: 'images/lecture-scenes/wlevel2-elevator-number-culture.png',
+    image: 'images/lecture-scenes/wlevel2-elevator-number-culture.webp',
     main: '7과 8',
     sub: '마트나 빠찡꼬에서는 항상 7과 8을 유난히 좋아합니다.',
     captionJp: '日本で縁起が良いとされる数字は「7」と「8」です。7は「七福神(7人の幸運の神様)」から来ています。スーパーの特売でも「888円」や「777円」という値段をよく見かけますよ。',
@@ -66,7 +66,7 @@ window.LECTURE_DATA.wlevel_2 = [
   },
   {
     type: 'mnemonic', label: '암기 꿀팁: 카운터', duration: 8000, audio: null,
-    image: 'images/lecture-scenes/wlevel2-elevator-number-culture.png',
+    image: 'images/lecture-scenes/wlevel2-elevator-number-culture.webp',
     main: '個 · 枚 · 本 · 杯 · 人',
     sub: '일본어 숫자의 진짜 보스 — \'~개·~장·~병·~잔·~명\'을 세는 카운터 5종.',
     captionJp: '日本語学習者最大の壁、それが「助数詞(じょすうし)＝カウンター」です！物の種類によって付く言葉が違います。覚えるべき5大カウンター: ①「個(こ)」= 小さくて丸い物 (りんご・たまご・お菓子)→ 1個・2個・3個。②「枚(まい)」= 平たい物 (紙・チケット・Tシャツ)→ 1枚・2枚・3枚。③「本(ほん/ぼん/ぽん)」= 細長い物 (ペン・ビール瓶・傘)→ 1本(いっぽん)・2本(にほん)・3本(さんぼん)。④「杯(はい/ぱい/ばい)」= 飲み物 (コーヒー・ビール)→ 1杯・2杯・3杯。⑤「人(にん/り)」= 人 → 一人(ひとり)・二人(ふたり)・三人(さんにん)。1〜3だけは発音が変則的なので、まずそこから慣れていきましょう！',
@@ -74,7 +74,7 @@ window.LECTURE_DATA.wlevel_2 = [
   },
   {
     type: 'culture', label: '생활 밀착형 정보', duration: 7000, audio: null,
-    image: 'images/lecture-scenes/wlevel2-elevator-number-culture.png',
+    image: 'images/lecture-scenes/wlevel2-elevator-number-culture.webp',
     main: '소비세 10%',
     sub: '100엔 숍에서 물건을 살 때는 계산대에서 항상 세금을 더 내야 합니다.',
     captionJp: '日本の100円ショップで買い物をする時の注意点です！レジに行くと「110円」を求められます。これは消費税が10%かかるからです。数字の計算をする時はいつも10%を頭に入れておきましょう！',
@@ -82,7 +82,7 @@ window.LECTURE_DATA.wlevel_2 = [
   },
   {
     type: 'summary', label: '오늘의 정리', duration: 8000, audio: null,
-    image: 'images/lecture-scenes/wlevel2-elevator-number-culture.png',
+    image: 'images/lecture-scenes/wlevel2-elevator-number-culture.webp',
     main: '요약 리뷰',
     sub: '4·9·8 미신, 두 숫자 시스템, 百千万 큰 수, 카운터 5종, 소비세까지!',
     captionJp: '今日は数字の読み方(和語と音読み)、文化的な4・9・8のタブー、百・千・万の漢字、カウンター5種、消費税の落とし穴まで、日本の数字世界を丸ごと学びました。次に買い物をする時は「ひとつください」を使い、価格表示の「百・千・万」を即座に読み取れますね！',

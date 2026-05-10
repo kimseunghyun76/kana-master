@@ -2,7 +2,7 @@ window.LECTURE_DATA = window.LECTURE_DATA || {};
 window.LECTURE_DATA.wlevel_7 = [
   {
     type: 'hook', label: '오늘의 이야기', duration: 6000, audio: null,
-    image: 'images/lecture-scenes/wlevel7-izakaya-ordering-table.png',
+    image: 'images/lecture-scenes/wlevel7-izakaya-ordering-table.webp',
     main: '이자카야 (居酒屋)',
     sub: '일본 직장인들의 피로를 풀어주는 진짜 휴식처, 이자카야 문화를 알아봅시다.',
     captionJp: 'にほんには「いざかやぶんか」があります！しごとがおわったあと、どうりょうとのみながらほんねをはなすばしょです。にほんならではの「ノミニケーション」がおこなわれる、とてもにぎやかなばしょなんですよ。',
@@ -10,7 +10,7 @@ window.LECTURE_DATA.wlevel_7 = [
   },
   {
     type: 'kanji', label: '한자 파헤치기', duration: 8000, audio: null,
-    image: 'images/lecture-scenes/wlevel7-izakaya-ordering-table.png',
+    image: 'images/lecture-scenes/wlevel7-izakaya-ordering-table.webp',
     main: '居 · 酒 · 屋',
     sub: '居酒屋를 글자 그대로 풀면 \'머무를 居 + 술 酒 + 가게 屋\' = 술집에 눌러앉는 곳!',
     captionJp: '「居酒屋」は3つの漢字でできています — 居(いる、留まる)・酒(さけ)・屋(店)。本来、酒屋(さかや＝酒を売る店)で「ちょっと立ち飲みさせてもらう」のが始まりで、お客さんがそのまま「居続ける(いつづける)」ようになって「居酒屋」と呼ばれるようになったと言われています。つまり「居(い)＋酒屋(ざかや)」＝「居続ける、酒の店」という意味なんですね。',
@@ -18,7 +18,7 @@ window.LECTURE_DATA.wlevel_7 = [
   },
   {
     type: 'culture', label: '문화 노트', duration: 7000, audio: 'いただきます',
-    image: 'images/lecture-scenes/wlevel7-izakaya-ordering-table.png',
+    image: 'images/lecture-scenes/wlevel7-izakaya-ordering-table.webp',
     main: 'いただきます',
     sub: '"잘 먹겠습니다"는 사실 식재료의 생명에 대한 감사의 작별인사입니다.',
     captionJp: '「いただきます」は、しょくざいのいのちにかんしゃして、そのいのちをいただくといういみです。だからたべはじめるまえに、てをあわせてこころをこめていうのが、にほんのマナーです。',
@@ -26,7 +26,7 @@ window.LECTURE_DATA.wlevel_7 = [
   },
   {
     type: 'culture', label: '문화 노트: 식후 인사', duration: 7000, audio: 'ごちそうさまでした',
-    image: 'images/lecture-scenes/wlevel7-izakaya-ordering-table.png',
+    image: 'images/lecture-scenes/wlevel7-izakaya-ordering-table.webp',
     main: 'ごちそうさまでした',
     sub: '\'잘 먹었습니다\'는 음식을 만든 사람의 \'뛰어다닌 수고\'에 감사하는 표현입니다.',
     captionJp: '食事の最後に言う「ごちそうさまでした」は、漢字で「御馳走様」と書きます。「馳走(ちそう)」は本来、「馬で走り回る」という意味！昔はお客様をもてなすために、あちこち走り回って食材を集めて料理を作ってくれました。その「走り回ってくれた人」への感謝が、この一言に込められているんです。お店でも家でも、食べ終わったら必ず言いましょう。',
@@ -34,7 +34,7 @@ window.LECTURE_DATA.wlevel_7 = [
   },
   {
     type: 'funfact', label: '재미있는 사실', duration: 6000, audio: null,
-    image: 'images/lecture-scenes/wlevel7-izakaya-ordering-table.png',
+    image: 'images/lecture-scenes/wlevel7-izakaya-ordering-table.webp',
     main: '편의점 도시락 (벤또)',
     sub: '일본 편의점 도시락이 유독 맛있는 이유는 에도시대 때부터 내려온 정성 때문입니다.',
     captionJp: '日本のコンビニのお弁当は世界最高水準と言われています！色鮮やかで栄養バランスも考えられていて、旅行者にとっても強い味方ですよね。',
@@ -42,7 +42,7 @@ window.LECTURE_DATA.wlevel_7 = [
   },
   {
     type: 'story', label: '어원 이야기', duration: 7000, audio: '乾杯',
-    image: 'images/lecture-scenes/wlevel7-izakaya-ordering-table.png',
+    image: 'images/lecture-scenes/wlevel7-izakaya-ordering-table.webp',
     main: '乾杯 (칸파이)',
     sub: '직역하면 \'잔을 마르게 하라\' — 잔을 비우라는 호쾌한 명령이 건배의 시작입니다.',
     captionJp: '日本の居酒屋に入ると最初に聞くのが「乾杯(かんぱい)！」。漢字をよく見てください — 「乾(乾燥の乾)＋杯(さかずき)」、つまり「杯(さかずき)を乾かせ＝飲み干せ！」という、なかなか豪快な意味なんです！中国から来た言葉で、もともとは本当に一気飲みすることを指していました。今はお互いの幸せを願って軽くグラスを合わせるシーンに使われていますよ。',
@@ -50,7 +50,7 @@ window.LECTURE_DATA.wlevel_7 = [
   },
   {
     type: 'vocabulary', label: '필수 어휘', duration: 7000, audio: null,
-    image: 'images/lecture-scenes/wlevel7-izakaya-ordering-table.png',
+    image: 'images/lecture-scenes/wlevel7-izakaya-ordering-table.webp',
     main: '음식 메뉴',
     sub: '라멘, 스시, 돈부리... 이름만 들어도 배고파지는 필수 음식 단어들을 익혀봅시다.',
     captionJp: 'ラーメン、寿司(すし)、天ぷら、焼肉(やきにく)！これらはもう世界共通語ですね。正しい発音で注文すれば、もっと美味しく感じられるはずです。',
@@ -58,7 +58,7 @@ window.LECTURE_DATA.wlevel_7 = [
   },
   {
     type: 'culture', label: '실전 팁: 함정 주의', duration: 8000, audio: 'お通し',
-    image: 'images/lecture-scenes/wlevel7-izakaya-ordering-table.png',
+    image: 'images/lecture-scenes/wlevel7-izakaya-ordering-table.webp',
     main: 'お通し (오토오시)',
     sub: '시키지도 않은 작은 안주가 나오면 당황하지 마세요 — 자릿세 개념의 유료 안주입니다.',
     captionJp: '居酒屋で席に座ると、注文していない小皿が出てくることがあります。これは「お通し(おとおし)」と呼ばれる、その店のおすすめの一品で、実は席代として300円〜500円ほど料金がかかります！「頼んでないからサービスかな？」と思って後で会計でびっくりする旅行者が多いんです。文化として定着しているので、ほとんどの居酒屋でお断りはできません。これも一つの楽しみと思って味わってみましょう。',
@@ -66,7 +66,7 @@ window.LECTURE_DATA.wlevel_7 = [
   },
   {
     type: 'practice', label: '실전 연습', duration: 7000, audio: '〜를 주세요・〜는 있나요',
-    image: 'images/lecture-scenes/wlevel7-izakaya-ordering-table.png',
+    image: 'images/lecture-scenes/wlevel7-izakaya-ordering-table.webp',
     main: '식당 주문 마스터',
     sub: '벨이 없는 식당에서 점원을 부르는 법부터 계산까지! 실전 대화를 배워봅니다.',
     captionJp: '①「すみません！」でてんいんをよぶ。②「これをください」でちゅうもん。③「おかいけいをおねがいします」ではらう。このじゅんばんさえおぼえれば、はじめてのおみせでも、ひとりでだいじょうぶです！',
@@ -74,7 +74,7 @@ window.LECTURE_DATA.wlevel_7 = [
   },
   {
     type: 'mnemonic', label: '암기 꿀팁: 메뉴판 한자', duration: 7000, audio: null,
-    image: 'images/lecture-scenes/wlevel7-izakaya-ordering-table.png',
+    image: 'images/lecture-scenes/wlevel7-izakaya-ordering-table.webp',
     main: '生 · 中 · 大',
     sub: '맥주 메뉴판에서 자주 보는 세 한자만 알아도 사이즈를 자신 있게 고를 수 있어요.',
     captionJp: 'ビールメニューでよく見る3つの漢字を覚えておきましょう！①「生(なま)」=「樽から注いだフレッシュなビール」、缶や瓶ではなく生ビールという意味。②「中(ちゅう)」= 中ジョッキ、約400〜500ml。③「大(だい)」= 大ジョッキ、約700ml以上。だから「生中(なまちゅう)を一つ」と言えば「中ジョッキの生ビール」が出てきます。常連感がぐっとアップしますよ！',
@@ -82,7 +82,7 @@ window.LECTURE_DATA.wlevel_7 = [
   },
   {
     type: 'summary', label: '오늘의 정리', duration: 6000, audio: null,
-    image: 'images/lecture-scenes/wlevel7-izakaya-ordering-table.png',
+    image: 'images/lecture-scenes/wlevel7-izakaya-ordering-table.webp',
     main: '요약 리뷰',
     sub: '居酒屋 어원, いただきます/ごちそうさま, 乾杯, お通し 함정, 메뉴판 한자까지!',
     captionJp: '今日は居酒屋の名前の由来から、食前・食後の挨拶、乾杯の意味、お通しの仕組み、そしてビールサイズの漢字まで一気にカバーしました。これだけ知っていれば、初めての居酒屋でも常連のように振る舞えますよ！',

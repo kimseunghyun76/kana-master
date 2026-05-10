@@ -2,7 +2,7 @@ window.LECTURE_DATA = window.LECTURE_DATA || {};
 window.LECTURE_DATA.b_level_2 = [
   {
     type: 'hook', label: '오늘의 이야기', duration: 6000, audio: null,
-    image: 'images/lecture-scenes/blevel2-horenso-standup-update.png',
+    image: 'images/lecture-scenes/blevel2-horenso-standup-update.webp',
     main: '호렌소(報連相)',
     sub: '보고, 연락, 상담. 일본 직장 커뮤니케이션의 핵심 3단어입니다.',
     captionJp: '報告・連絡・相談、略して「報連相」。日本では新人研修でも何度も出てくるほど重要な考え方です。問題が起きてからではなく、起きる前に共有する文化なんですね。',
@@ -10,7 +10,7 @@ window.LECTURE_DATA.b_level_2 = [
   },
   {
     type: 'kanji', label: '한자 파헤치기', duration: 8000, audio: null,
-    image: 'images/lecture-scenes/blevel2-horenso-standup-update.png',
+    image: 'images/lecture-scenes/blevel2-horenso-standup-update.webp',
     main: '報 · 連 · 相',
     sub: '세 한자 모두 \'사람과 사람을 잇는 행위\'를 그림으로 담고 있습니다.',
     captionJp: '報連相の3つの漢字をそれぞれ見てみましょう！①「報(ホウ)」= 罪を報告する人を描いた古代の漢字、「事実を上に伝える」が原義。②「連(レン)」= 「車(くるま)」と「辶(歩く)」の組み合わせ、「車が連なって走る」=「つながる」。③「相(ソウ)」= 「木」と「目」、「目で木を見て確認し合う」=「お互いに見る・話し合う」。3つともに共通するのは「人と人をつなぐ動き」。これらが揃って初めて、職場のコミュニケーションが成立すると、漢字そのものが教えてくれているんですね。',
@@ -18,7 +18,7 @@ window.LECTURE_DATA.b_level_2 = [
   },
   {
     type: 'vocabulary', label: '단어 정리', duration: 7000, audio: '報告・連絡・相談',
-    image: 'images/lecture-scenes/blevel2-horenso-standup-update.png',
+    image: 'images/lecture-scenes/blevel2-horenso-standup-update.webp',
     main: '세 단어의 차이',
     sub: '報告은 결과, 連絡은 사실 전달, 相談은 판단 전 의논에 가깝습니다.',
     captionJp: '報告は「結果や進捗を伝えること」、連絡は「必要な事実を知らせること」、相談は「迷いや判断ポイントを一緒に考えてもらうこと」です。似て見えて役割が違います。',
@@ -26,7 +26,7 @@ window.LECTURE_DATA.b_level_2 = [
   },
   {
     type: 'story', label: '어원 이야기', duration: 7000, audio: null,
-    image: 'images/lecture-scenes/blevel2-horenso-standup-update.png',
+    image: 'images/lecture-scenes/blevel2-horenso-standup-update.webp',
     main: '호렌소의 탄생',
     sub: '1980년대 야마가타산업 야마자키 회장이 사내 슬로건으로 만든 게 시작입니다.',
     captionJp: '「報連相」という言葉、実は最近の発明だってご存知ですか？1980年代、山種証券(やまたねしょうけん)の山崎富治(やまざきとみじ)社長が、社員間のコミュニケーションを良くするために「ほうれん草」(野菜)とかけて作った造語です！「報告・連絡・相談、略してホウレンソウ。新鮮なホウレン草のように、フレッシュなうちに伝えよう」というキャッチーなフレーズが日本中の企業に広まり、今では新人研修の必修科目になっています。シンプルで覚えやすい言い回しが、文化レベルにまで定着した珍しい例なんです。',
@@ -34,7 +34,7 @@ window.LECTURE_DATA.b_level_2 = [
   },
   {
     type: 'grammar', label: '문형 패턴', duration: 7000, audio: '共有いたします',
-    image: 'images/lecture-scenes/blevel2-horenso-standup-update.png',
+    image: 'images/lecture-scenes/blevel2-horenso-standup-update.webp',
     main: '공유의 정중 표현',
     sub: '共有します, ご連絡します, 相談させてください는 정말 자주 씁니다.',
     captionJp: '「きょうゆうします」「ごれんらくします」「ごそうだんさせてください」は、スラックやミーティングでなんどもつかいます。みじかくても、ばのくうきをととのえてくれるべんりなひょうげんです。',
@@ -42,7 +42,7 @@ window.LECTURE_DATA.b_level_2 = [
   },
   {
     type: 'culture', label: '문화 노트: 나쁜 소식', duration: 8000, audio: null,
-    image: 'images/lecture-scenes/blevel2-horenso-standup-update.png',
+    image: 'images/lecture-scenes/blevel2-horenso-standup-update.webp',
     main: '나쁜 소식일수록 빨리',
     sub: '\'悪い報告ほど早く\' — 일본 직장의 절대적인 룰입니다.',
     captionJp: '日本の職場には「悪い報告ほど早く(わるいほうこくほどはやく)」という鉄則があります！ミス、遅延、トラブルが起きた時、「うまくいったら報告しよう」と思って黙っていると、後で発覚した時に大きな問題になります。逆に、まだ解決していなくても「現在こういう問題が発生していて、対応中です」とすぐに共有すれば、上司や同僚が一緒にカバーしてくれます。「自分だけで解決しよう」と頑張るのではなく、「チーム全体で解決する」ためにまず共有する。これが日本の信頼の作り方なんです。',
@@ -50,7 +50,7 @@ window.LECTURE_DATA.b_level_2 = [
   },
   {
     type: 'culture', label: '문화 노트', duration: 7000, audio: null,
-    image: 'images/lecture-scenes/blevel2-horenso-standup-update.png',
+    image: 'images/lecture-scenes/blevel2-horenso-standup-update.webp',
     main: '문제가 없을 때도 공유',
     sub: '"특이사항 없음"도 중요한 보고가 될 수 있습니다.',
     captionJp: 'にほんのげんばでは、なにももんだいがないときでも「げんじてんではもんだいありません」とひとことあるだけで、あんしんかんがうまれます。ちんもくよりも、ちいさなきょうゆうがひょうかされることがあります。',
@@ -58,7 +58,7 @@ window.LECTURE_DATA.b_level_2 = [
   },
   {
     type: 'practice', label: '실전 연습: 스탠드업', duration: 8000, audio: null,
-    image: 'images/lecture-scenes/blevel2-horenso-standup-update.png',
+    image: 'images/lecture-scenes/blevel2-horenso-standup-update.webp',
     main: '데일리 스탠드업 3종 세트',
     sub: '어제 한 일·오늘 할 일·블로커 — 매일 30초 안에 깔끔히 말하는 패턴.',
     captionJp: 'デイリースタンドアップで毎朝使える3点セットを覚えておきましょう！①「昨日(きのう)は〇〇を完了しました」(어제는 ~을 완료했습니다)。②「今日(きょう)は〇〇に取り組みます」(오늘은 ~에 착수합니다)。③「ブロッカーは〇〇です/今のところありません」(블로커는 ~입니다 / 현재 없습니다)。この3つを30秒以内に話すのが理想形。長すぎると他のメンバーの時間を奪い、短すぎると「何やってるか分からない」と思われます。「具体的かつ簡潔」が日本の朝会の美学です。',
@@ -66,7 +66,7 @@ window.LECTURE_DATA.b_level_2 = [
   },
   {
     type: 'practice', label: '실전 연습', duration: 7000, audio: '進捗をご共有します',
-    image: 'images/lecture-scenes/blevel2-horenso-standup-update.png',
+    image: 'images/lecture-scenes/blevel2-horenso-standup-update.webp',
     main: '진행 상황 말하기',
     sub: '작업 완료, 지연, 확인 필요를 짧게 정리해서 말하는 연습입니다.',
     captionJp: '「Aは完了しました」「Bは確認中です」「Cは少し遅れそうです」この3つの型を言えるだけで、スタンドアップや朝会がかなり楽になります。',
@@ -74,7 +74,7 @@ window.LECTURE_DATA.b_level_2 = [
   },
   {
     type: 'mnemonic', label: '암기 꿀팁: 시금치 트릭', duration: 7000, audio: null,
-    image: 'images/lecture-scenes/blevel2-horenso-standup-update.png',
+    image: 'images/lecture-scenes/blevel2-horenso-standup-update.webp',
     main: 'ほうれん草처럼 신선하게',
     sub: '시금치(ほうれん草)와 동음이의어인 호렌소-, 함께 쓸 \'아렌소-\'까지 챙기세요.',
     captionJp: '「報連相(ほうれんそう)」は野菜の「ほうれん草」と同じ発音で覚えやすいですが、最近は補完語として「あれんそう(あ・れん・そう)」も登場しています！「あ」=「相手の立場を考える(あいて)」、「れん」=「連携(れんけい)」、「そう」=「想像(そうぞう)」。つまり「報連相＋あれんそう」=「事実を伝えるだけでなく、相手の気持ちを想像してから伝える」という進化版です。野菜のほうれん草を見るたびに「フレッシュに伝えよう」と思い出せれば、あなたももう日本のビジネス文化の一員ですよ！',
@@ -82,7 +82,7 @@ window.LECTURE_DATA.b_level_2 = [
   },
   {
     type: 'summary', label: '오늘의 정리', duration: 6000, audio: null,
-    image: 'images/lecture-scenes/blevel2-horenso-standup-update.png',
+    image: 'images/lecture-scenes/blevel2-horenso-standup-update.webp',
     main: '요약 리뷰',
     sub: '報·連·相 한자, 호렌소- 탄생사, 나쁜 소식 빨리, 스탠드업 패턴, 시금치 트릭!',
     captionJp: '今日は報連相の漢字の由来から、80年代に生まれた歴史、「悪い報告ほど早く」の鉄則、デイリースタンドアップの3点セット、そして「あれんそう」の進化版まで全部学びました。報連相は「おしゃべり」ではなく「チームに安心を届ける技術」。今日からあなたのSlackやメールに、フレッシュなほうれん草を届けてくださいね！',

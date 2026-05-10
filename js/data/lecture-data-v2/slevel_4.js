@@ -2,7 +2,7 @@ window.LECTURE_DATA = window.LECTURE_DATA || {};
 window.LECTURE_DATA.slevel_4 = [
   {
     type: 'hook', label: '오늘의 이야기', duration: 6000, audio: null,
-    image: 'images/lecture-scenes/slevel4-train-station-transfer.png',
+    image: 'images/lecture-scenes/slevel4-train-station-transfer.webp',
     main: '신칸센 (新幹線)',
     sub: '세상에서 가장 정확한 열차, 일본 신칸센의 놀라운 비밀을 알아봅시다.',
     captionJp: '日本の新幹線は、1秒の狂いもなく到着することで世界的に有名です。時間通りに乗ることは、日本の大切なマナーの一つなんですよ。',
@@ -10,7 +10,7 @@ window.LECTURE_DATA.slevel_4 = [
   },
   {
     type: 'kanji', label: '한자 파헤치기', duration: 8000, audio: null,
-    image: 'images/lecture-scenes/slevel4-train-station-transfer.png',
+    image: 'images/lecture-scenes/slevel4-train-station-transfer.webp',
     main: '駅 (역)',
     sub: '\'역 역(駅)\' 한자에는 옛날에 말을 갈아탔던 \'역참\'의 흔적이 그대로 남아있습니다.',
     captionJp: '「駅(えき)」をよく見てください — 左に「馬(うま)」、右に「尺(しゃく)＝物差し」が見えますか？昔の日本や中国では、長い距離を移動する時、一定の距離(尺)ごとに馬を交換できる「駅(うまや)」が街道に置かれていました。電車もない時代、馬が人と荷物を運ぶ最速の交通手段だったんです。今の電車駅にこの漢字が残っているのは、「人や物を運ぶための拠点」という機能がそのまま受け継がれているからなんですよ。',
@@ -18,7 +18,7 @@ window.LECTURE_DATA.slevel_4 = [
   },
   {
     type: 'culture', label: '문화 노트', duration: 7000, audio: '환승',
-    image: 'images/lecture-scenes/slevel4-train-station-transfer.png',
+    image: 'images/lecture-scenes/slevel4-train-station-transfer.webp',
     main: '환승 (乗り換え)',
     sub: '복잡한 도쿄 지하철도 "노리카에" 한마디면 어디든 찾아갈 수 있습니다.',
     captionJp: '東京の地下鉄はとても複雑ですが、「乗り換え」という言葉を知っていれば安心です。看板の「乗換」という文字を探しながら歩いてみましょう。',
@@ -26,7 +26,7 @@ window.LECTURE_DATA.slevel_4 = [
   },
   {
     type: 'culture', label: '문화 노트: 7분의 기적', duration: 8000, audio: null,
-    image: 'images/lecture-scenes/slevel4-train-station-transfer.png',
+    image: 'images/lecture-scenes/slevel4-train-station-transfer.webp',
     main: '신칸센의 7분 청소',
     sub: '도착 후 단 7분 만에 16량 객차를 완벽하게 청소하는 \'테세이\'팀의 비밀.',
     captionJp: '新幹線が時間通りに走れるのは、実は「テッセイ(TESSEI)」という清掃チームの存在が大きいんです！東京駅では、新幹線が到着してから次の出発まで、たった12分間。その中で乗客降車に2分、乗車に3分、清掃チームに与えられる時間はなんと7分だけ！16両編成の客車を、約20人のスタッフが一斉に窓拭き・床掃除・座席向き反転・ゴミ回収・忘れ物確認まで完璧にやり遂げます。世界中から「7-minute miracle(7分の奇跡)」と呼ばれて視察団が来るほどの伝説のチームです。',
@@ -34,7 +34,7 @@ window.LECTURE_DATA.slevel_4 = [
   },
   {
     type: 'mnemonic', label: '암기 꿀팁', duration: 6000, audio: '〜까지 가주세요',
-    image: 'images/lecture-scenes/slevel4-train-station-transfer.png',
+    image: 'images/lecture-scenes/slevel4-train-station-transfer.webp',
     main: '택시에서 말하기',
     sub: '목적지 이름 뒤에 "~마데 잇테 구다사이"만 붙이면 택시 타기도 끝!',
     captionJp: 'タクシーに乗ったら「～まで行ってください」と言いましょう。短いフレーズですが、運転手さんに目的地を正確に伝えることができます。',
@@ -42,7 +42,7 @@ window.LECTURE_DATA.slevel_4 = [
   },
   {
     type: 'story', label: '어원 이야기', duration: 7000, audio: null,
-    image: 'images/lecture-scenes/slevel4-train-station-transfer.png',
+    image: 'images/lecture-scenes/slevel4-train-station-transfer.webp',
     main: '切符 (킵푸)',
     sub: '표를 \'切る(끊다)\' + \'符(부신)\'로 쓰는 이유는 옛날 종이를 칼로 잘라 썼기 때문입니다.',
     captionJp: '「切符(きっぷ)」を漢字で書くと「切＋符」、つまり「切って分ける符号(しるし)」という意味です！昔は一枚の証明書を半分に切って、半分を駅員が、もう半分を乗客が持つことで「正しい乗客である」と確認していました。だから「切符」と書くんです。今でも改札で駅員さんに「パチン」とハサミを入れてもらった時代の名残で、「切符を切る」という表現が残っています。電子チケットの時代になっても、この言葉だけは変わらず使われているんですよ。',
@@ -50,7 +50,7 @@ window.LECTURE_DATA.slevel_4 = [
   },
   {
     type: 'vocabulary', label: '필수 어휘', duration: 7000, audio: null,
-    image: 'images/lecture-scenes/slevel4-train-station-transfer.png',
+    image: 'images/lecture-scenes/slevel4-train-station-transfer.webp',
     main: '역에서 쓰는 단어',
     sub: '표, 승강장, 첫차, 막차... 전철 여행의 필수 단어들을 모았습니다.',
     captionJp: '「切符(きっぷ)」「ホーム」「終電(しゅうでん)」！これらの言葉は駅で必ず見かけます。特に「終電」は忘れないようにしましょうね。',
@@ -58,7 +58,7 @@ window.LECTURE_DATA.slevel_4 = [
   },
   {
     type: 'mnemonic', label: '암기 꿀팁: IC카드', duration: 8000, audio: null,
-    image: 'images/lecture-scenes/slevel4-train-station-transfer.png',
+    image: 'images/lecture-scenes/slevel4-train-station-transfer.webp',
     main: 'IC카드 3대장',
     sub: 'Suica·Pasmo·ICOCA — 지역 따라 이름이 다르지만 일본 전국 어디서나 호환됩니다.',
     captionJp: '日本の交通系ICカードには地域ごとに違う名前があります！①「Suica(スイカ)」= JR東日本、東京エリアの代表(緑色のペンギンのキャラクター)。②「PASMO(パスモ)」= 東京の私鉄・地下鉄系。③「ICOCA(イコカ)」= JR西日本、大阪・京都エリア(関西弁の「行こか＝行こう」が語源)。④「Kitaca」= 北海道、「manaca」= 名古屋など。でも安心してください、これらは全部相互利用可能なので、東京で買ったSuicaを大阪でそのまま使えますし、コンビニや自販機の支払いにもなります！「チャージ」という言葉だけ覚えておけば、どこでも使えますよ。',
@@ -66,7 +66,7 @@ window.LECTURE_DATA.slevel_4 = [
   },
   {
     type: 'practice', label: '실전 연습', duration: 7000, audio: '표를 한 장 주세요',
-    image: 'images/lecture-scenes/slevel4-train-station-transfer.png',
+    image: 'images/lecture-scenes/slevel4-train-station-transfer.webp',
     main: '표 사기',
     sub: '직원에게 표를 사거나 IC카드를 충전하는 실전 대화를 연습해 봅니다.',
     captionJp: '「～まで一枚ください」と窓口で言ってみましょう。ICカードを使う場合は「チャージ」という言葉も覚えておくととても便利です。',
@@ -74,7 +74,7 @@ window.LECTURE_DATA.slevel_4 = [
   },
   {
     type: 'practice', label: '실전 연습: 시간 묻기', duration: 8000, audio: '何時に出ますか',
-    image: 'images/lecture-scenes/slevel4-train-station-transfer.png',
+    image: 'images/lecture-scenes/slevel4-train-station-transfer.webp',
     main: '몇 시에 나가요?',
     sub: '시간을 묻고 듣는 표현은 신칸센·전철·버스 어디서나 가장 자주 쓰입니다.',
     captionJp: '駅やバス停で必ず使う「時間」の表現を覚えましょう！①「次の電車は何時(なんじ)ですか？」= 다음 열차는 몇 시예요? ②「何時に出ますか？」= 몇 시에 출발하나요? ③「あと何分(なんぷん)ですか？」= 앞으로 몇 분 남았나요? 答えの聞き方も大事です — 「3時5分(さんじ ごふん)」「8時半(はちじはん)」「あと10分(じゅっぷん)」など。発車時刻が秒単位で正確な日本では、この一言が遅刻を防ぐ命綱ですよ！',
@@ -82,7 +82,7 @@ window.LECTURE_DATA.slevel_4 = [
   },
   {
     type: 'summary', label: '오늘의 정리', duration: 6000, audio: null,
-    image: 'images/lecture-scenes/slevel4-train-station-transfer.png',
+    image: 'images/lecture-scenes/slevel4-train-station-transfer.webp',
     main: '요약 리뷰',
     sub: '駅 어원, 7분 청소 기적, 切符 유래, IC카드 3대장, 시간 묻기까지 정복!',
     captionJp: '今日は駅の漢字の由来から、新幹線の7分清掃の秘密、切符の語源、ICカードの種類、時間の聞き方まで、日本の交通の世界を丸ごとカバーしました！「乗り換え」「チャージ」「何時ですか？」の3つが言えれば、もう日本のどこへでも行けますよ。',
