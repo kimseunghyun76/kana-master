@@ -47,6 +47,7 @@ const targets = [
   'js/v2/quiz-effects.js',
   'js/v2/quiz-result-flow.js',
   'js/v2/quiz-flow.js',
+  'js/v2/roleplay-comic-view.js',
   'js/v2/roleplay-detail-flow.js',
   'js/v2/roleplay-flow.js',
   'js/v2/stroke-renderer.js',
