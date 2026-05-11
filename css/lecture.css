@@ -256,6 +256,67 @@
   flex: 0 0 auto;
 }
 
+/* 강사 언어 라디오 토글 (JP ↔ KO, 항상 정확히 하나 활성) */
+.lec-instructor-toggle {
+  padding: 6px 12px;
+}
+.lec-instructor-toggle .lec-display-toggle-state {
+  color: #cbd5e1;
+  font-weight: 600;
+}
+.lec-instructor-toggle.active {
+  background: rgba(16,185,129,.22);
+  border-color: rgba(52,211,153,.55);
+  color: #f8fafc;
+}
+.lec-instructor-toggle.active .lec-display-toggle-state {
+  color: #6ee7b7;
+}
+
+/* 최초 1회 강사 언어 선택 모달 */
+.lec-instructor-modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(2,6,23,.74);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 9999;
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+  animation: lec-instr-fade .18s ease;
+}
+@keyframes lec-instr-fade { from { opacity: 0 } to { opacity: 1 } }
+.lec-instructor-modal {
+  width: 100%; max-width: 360px;
+  background: linear-gradient(180deg, #0f172a, #0b1424);
+  border: 1px solid rgba(148,163,184,.2);
+  border-radius: 20px;
+  padding: 22px 20px 18px;
+  box-shadow: 0 30px 80px rgba(0,0,0,.5);
+  color: #f1f5f9;
+}
+.lec-instructor-modal-title {
+  font-size: 17px; font-weight: 800; line-height: 1.4;
+  text-align: center; margin-bottom: 6px;
+}
+.lec-instructor-modal-sub {
+  font-size: 12px; color: #94a3b8;
+  text-align: center; margin-bottom: 18px;
+}
+.lec-instructor-modal-actions {
+  display: flex; flex-direction: column; gap: 10px;
+}
+.lec-instructor-pick {
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  padding: 14px 16px;
+  font-size: 14px; font-weight: 700;
+  border-radius: 14px;
+  text-align: center;
+  line-height: 1.3;
+}
+.lec-instructor-flag { font-size: 24px; margin-bottom: 4px; }
+.lec-instructor-pick-label { font-size: 15px; font-weight: 800; }
+.lec-instructor-pick-sub { font-size: 11px; opacity: .8; font-weight: 500; }
+
 /* 강의 화자 선택 — 툴바 순환 버튼 */
 .lec-voice-select-wrap {
   position: relative;
@@ -438,6 +499,15 @@
   padding: 8px 12px 9px;
   font-size: 12px; color: #cbd5e1; line-height: 1.6;
   background: rgba(255,255,255,.02);
+}
+/* 단일 언어 모드 — 자막 영역 확대 */
+.lec-caption-box-solo .lec-cap-jp,
+.lec-caption-box-solo .lec-cap-ko {
+  max-height: 168px;
+  padding: 12px 14px;
+  font-size: 14px;
+  line-height: 1.7;
+  border-bottom: none;
 }
 /* 현재 읽고 있는 문장 하이라이트 */
 .lec-sentence {

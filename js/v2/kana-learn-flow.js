@@ -162,7 +162,10 @@ function createKanaLearnFlow(deps = {}) {
                   <div class="kana-stroke-mini" id="kanaStrokeInline">
                     <div class="kana-stroke-loading">…</div>
                   </div>
-                </div>` : ''}
+                </div>` : `
+                <div class="kana-stroke-block kana-stroke-large">
+                  <div class="kana-stroke-large-char">${escHtml(c)}</div>
+                </div>`}
                 <div class="kana-examples-block">
                   <div class="kana-examples-title">예시 단어</div>
                   <div class="kana-examples">${examples}</div>
@@ -183,13 +186,12 @@ function createKanaLearnFlow(deps = {}) {
       const prevChar = st.cardIdx > 0 ? st.chars[st.cardIdx - 1] : '';
       const nextChar = st.cardIdx < st.chars.length - 1 ? st.chars[st.cardIdx + 1] : '';
       // 앞면: 다음 = 카드 뒤집기 / 뒷면: 다음 = 다음 가나
-      const writeLabel = ch => `${ch} 예쁘게 쓰는 법`;
       const prevLabel = st.cardIdx > 0
-        ? (st.flipped ? `${prevChar} 쓰기 복습` : prevChar)
+        ? prevChar
         : (st.flipped ? '앞면 보기' : '소개');
       const nextLabel = st.flipped
-        ? (isLast ? '완료 ✓' : writeLabel(nextChar))
-        : writeLabel(c);
+        ? (isLast ? '완료 ✓' : nextChar)
+        : c;
       document.getElementById('flowFooter').innerHTML = `
         <div class="kana-nav">
           <button class="btn btn-outline kana-nav-btn" onclick="App._kanaLearnPrev()">

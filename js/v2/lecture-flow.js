@@ -13,34 +13,47 @@ window.createLectureFlow = (ctx) => {
     return `${ctx.uiLabeledIcon(paused ? 'play' : 'pause')} <span class="lecture-pause-text">${paused ? '재생' : '일시정지'}</span>`;
   }
 
-  function _lectureCaptionEnabled(lang) {
-    return !!Store.getSetting(lang === 'jp' ? 'lectureCaptionJp' : 'lectureCaptionKo');
+  // ── 강의 강사 언어 (라디오: 항상 정확히 하나) ─────────────
+  function _lectureInstructor() {
+    const v = Store.getSetting('lectureInstructor');
+    return (v === 'jp' || v === 'ko') ? v : 'ko';
   }
-
-  function _lectureCaptionToggleButton(lang) {
-    const enabled = _lectureCaptionEnabled(lang);
-    const label = lang === 'jp' ? 'JP' : 'KO';
+  function _lectureInstructorToggleButton(lang) {
+    const cur = _lectureInstructor();
+    const active = cur === lang;
+    const label = lang === 'jp' ? '일본어 강사' : '한국어 강사';
+    const flag = lang === 'jp' ? 'JP' : 'KO';
     return `
-      <button class="lec-display-toggle ${enabled ? 'active' : ''}"
-              onclick="App._lecToggleCaption('${lang}')"
+      <button class="lec-display-toggle lec-instructor-toggle ${active ? 'active' : ''}"
+              onclick="App._lecSetInstructor('${lang}')"
               type="button"
-              aria-pressed="${enabled ? 'true' : 'false'}">
-        <span class="lec-display-toggle-label">${label}</span>
-        <span class="lec-display-toggle-state">${enabled ? 'ON' : 'OFF'}</span>
+              role="radio"
+              aria-checked="${active ? 'true' : 'false'}">
+        <span class="lec-display-toggle-label">${flag}</span>
+        <span class="lec-display-toggle-state">${label}</span>
       </button>
     `;
   }
 
-  // ── 강의 화자 토글 (여/남) ───────────────────────────────
+  // ── 강의 화자 토글 (선택된 강사 언어 내에서) ──────────────
+  function _voiceKeyForLang(lang) {
+    return lang === 'ko' ? 'lecture_voice_ko' : 'lecture_voice_jp';
+  }
   function _lectureGetVoice() {
-    return localStorage.getItem('lecture_voice') || TTS.getDefaultVoice();
+    const lang = _lectureInstructor();
+    const stored = localStorage.getItem(_voiceKeyForLang(lang));
+    const list = _lectureVoiceList();
+    if (stored && list.some(v => v.key === stored)) return stored;
+    return list[0]?.key || TTS.getDefaultVoice();
   }
   function _lectureVoiceList() {
-    const voices = (typeof TTS.getAvailableVoices === 'function') ? TTS.getAvailableVoices() : [];
+    const lang = _lectureInstructor();
+    const voices = (typeof TTS.getAvailableVoices === 'function') ? TTS.getAvailableVoices(lang) : [];
     return [...voices].sort((a, b) => (a.gender === 'F' ? -1 : 1) - (b.gender === 'F' ? -1 : 1));
   }
   function _lectureSetVoice(key) {
-    localStorage.setItem('lecture_voice', key);
+    const lang = _lectureInstructor();
+    localStorage.setItem(_voiceKeyForLang(lang), key);
     TTS.stopQueue();
     // 현재 슬라이드 다시 읽기 + 자동 진행 콜백 유지
     const lc = _lectureState();
@@ -51,8 +64,8 @@ window.createLectureFlow = (ctx) => {
       if (lc.timerId) { clearTimeout(lc.timerId); lc.timerId = null; }
       const bar = document.getElementById('lecTimerBar');
       if (bar) bar.style.animationPlayState = 'paused';
-      if (slide?.captionJp) {
-        _lecReadCaptionJp(slide.captionJp, slide.captionKo, idx, () => _lecAfterCaptionRead(idx));
+      if (_hasActiveCaption(slide)) {
+        _lecReadCaption(slide, idx, () => _lecAfterCaptionRead(idx));
       } else {
         _lecStartTimer();
       }
@@ -122,7 +135,50 @@ window.createLectureFlow = (ctx) => {
     const flow = ctx.getFlow();
     if (!flow) return;
     flow._lecture = { slides, idx: 0, paused: false, stepIndex, mod, step, timerId: null };
+    // 강사 언어가 아직 선택된 적 없으면 최초 1회 모달 띄우기
+    const setting = Store.getSetting('lectureInstructor');
+    if (setting !== 'jp' && setting !== 'ko') {
+      _showInstructorChoiceModal((picked) => {
+        Store.setSetting('lectureInstructor', picked);
+        _lectureRenderSlide();
+      });
+      return;
+    }
     _lectureRenderSlide();
+  }
+
+  function _showInstructorChoiceModal(onPick) {
+    const existing = document.getElementById('lecInstructorModal');
+    if (existing) existing.remove();
+    const overlay = document.createElement('div');
+    overlay.id = 'lecInstructorModal';
+    overlay.className = 'lec-instructor-modal-overlay';
+    overlay.innerHTML = `
+      <div class="lec-instructor-modal" role="dialog" aria-modal="true" aria-label="강의 언어 선택">
+        <div class="lec-instructor-modal-title">강의를 어떤 언어로 듣고 싶으세요?</div>
+        <div class="lec-instructor-modal-sub">하단 버튼으로 언제든 바꿀 수 있어요.</div>
+        <div class="lec-instructor-modal-actions">
+          <button class="btn btn-primary lec-instructor-pick" data-lang="ko">
+            <span class="lec-instructor-flag">🇰🇷</span>
+            <span class="lec-instructor-pick-label">한국어 강사</span>
+            <span class="lec-instructor-pick-sub">처음 배우는 분께 추천</span>
+          </button>
+          <button class="btn btn-outline lec-instructor-pick" data-lang="jp">
+            <span class="lec-instructor-flag">🇯🇵</span>
+            <span class="lec-instructor-pick-label">일본어 강사</span>
+            <span class="lec-instructor-pick-sub">귀를 일본어에 익히고 싶다면</span>
+          </button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(overlay);
+    overlay.querySelectorAll('.lec-instructor-pick').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const lang = btn.getAttribute('data-lang');
+        overlay.remove();
+        onPick?.(lang === 'jp' ? 'jp' : 'ko');
+      });
+    });
   }
 
   function _lectureRenderSlide() {
@@ -136,10 +192,10 @@ window.createLectureFlow = (ctx) => {
     const shotClass = `shot-${(idx % 4) + 1}`;
     const nextSlide = slides[idx + 1];
     const prevSlide = slides[idx - 1];
-    const showJpCaption = _lectureCaptionEnabled('jp');
-    const showKoCaption = _lectureCaptionEnabled('ko');
-    const hasAnyCaption = !!(slide.captionJp || slide.captionKo);
-    const hasVisibleCaption = (slide.captionJp && showJpCaption) || (slide.captionKo && showKoCaption);
+    const instructor = _lectureInstructor();
+    const activeCaption = instructor === 'ko' ? slide.captionKo : slide.captionJp;
+    const hasAnyCaption = !!activeCaption;
+    const hasVisibleCaption = hasAnyCaption;
     const slideSegments = slides.map((_, slideIndex) => `
       <div class="lec-segment ${slideIndex < idx ? 'done' : ''} ${slideIndex === idx ? 'active' : ''}">
         <div class="lec-segment-fill"></div>
@@ -175,9 +231,10 @@ window.createLectureFlow = (ctx) => {
           </div>
 
           ${hasAnyCaption ? `
-          <div class="lec-caption-box ${hasVisibleCaption ? '' : 'hidden'}">
-            ${slide.captionJp ? `<div class="lec-cap-jp ${showJpCaption ? '' : 'hidden'}" id="lecCapJp">${ruby(slide.captionJp)}</div>` : ''}
-            ${slide.captionKo ? `<div class="lec-cap-ko ${showKoCaption ? '' : 'hidden'}" id="lecCapKo">${escHtml(slide.captionKo)}</div>` : ''}
+          <div class="lec-caption-box lec-caption-box-solo">
+            ${instructor === 'jp'
+              ? `<div class="lec-cap-jp" id="lecCapJp">${ruby(slide.captionJp || '')}</div>`
+              : `<div class="lec-cap-ko" id="lecCapKo">${escHtml(slide.captionKo || '')}</div>`}
           </div>` : ''}
         </div>
 
@@ -192,9 +249,9 @@ window.createLectureFlow = (ctx) => {
     const prevLabel = idx === 0 ? '소개' : (prevSlide?.main ? stripFuri(prevSlide.main) : '이전');
     const nextLabel = isLast ? '완료' : stripFuri(nextSlide?.main || '다음');
     document.getElementById('flowFooter').innerHTML = `
-      <div class="lec-footer-tools lec-footer-tools-unified">
-        ${_lectureCaptionToggleButton('jp')}
-        ${_lectureCaptionToggleButton('ko')}
+      <div class="lec-footer-tools lec-footer-tools-unified" role="radiogroup" aria-label="강사 언어 선택">
+        ${_lectureInstructorToggleButton('ko')}
+        ${_lectureInstructorToggleButton('jp')}
         <button class="lec-display-toggle lec-display-action" id="btnLecPause"
                 aria-label="일시정지"
                 onclick="App._lecPauseToggle()">${_lecturePauseButtonLabel(false)}</button>
@@ -218,14 +275,13 @@ window.createLectureFlow = (ctx) => {
     // 1. 칠판 한 글자씩 필기 애니메이션
     const animDur = _lecChalkboardAnim(slide.main);
 
-    // 2. 칠판 애니메이션 완료 후 → captionJp 다화자 읽기
+    // 2. 칠판 애니메이션 완료 후 → 선택된 강사 언어의 캡션 읽기
     setTimeout(() => {
       const current = _lectureState();
       if (!current || current.idx !== idx) return;
-      if (slide.captionJp) {
-        _lecReadCaptionJp(slide.captionJp, slide.captionKo, idx, () => _lecAfterCaptionRead(idx));
+      if (_hasActiveCaption(slide)) {
+        _lecReadCaption(slide, idx, () => _lecAfterCaptionRead(idx));
       } else {
-        // captionJp 없으면 기존 타이머로 자동 진행
         _lecStartTimer();
       }
     }, animDur + 300);
@@ -285,89 +341,71 @@ window.createLectureFlow = (ctx) => {
     return r;
   }
 
-  // ── captionJp 다화자 순차 읽기 ──────────────────────────────
-  // captionKo를 함께 받아 한국어 번역도 병렬 하이라이트
-  function _lecReadCaptionJp(captionJp, captionKo, slideIdx, onDone) {
-    if (!captionJp) { if (onDone) onDone(); return; }
+  function _hasActiveCaption(slide) {
+    const lang = _lectureInstructor();
+    return !!(lang === 'ko' ? slide?.captionKo : slide?.captionJp);
+  }
 
-    // ① 표시용 문장 분리 (후리가나 제거 후 분리)
-    const rawText = stripFuri(captionJp);
-    const jpSentences = rawText
-      .match(/[^。！？…]+[。！？…]*/g)?.map(s => s.trim()).filter(Boolean);
-    if (!jpSentences?.length) { if (onDone) onDone(); return; }
+  // ── 선택된 강사 언어 캡션 순차 읽기 ─────────────────────────
+  function _lecReadCaption(slide, slideIdx, onDone) {
+    const lang = _lectureInstructor();
+    const caption = lang === 'ko' ? slide?.captionKo : slide?.captionJp;
+    if (!caption) { if (onDone) onDone(); return; }
 
-    // ② 한국어 문장 분리
-    const koSentences = captionKo
-      ? (captionKo.match(/[^.!?…！？]+[.!?…！？]*/g) || [captionKo])
-          .map(s => s.trim()).filter(Boolean)
-      : [];
+    // ① 문장 분리 (언어별 구두점)
+    const rawText = lang === 'jp' ? stripFuri(caption) : caption;
+    const splitRe = lang === 'jp' ? /[^。！？…]+[。！？…]*/g : /[^.!?…！？]+[.!?…！？]*/g;
+    const sentences = rawText.match(splitRe)?.map(s => s.trim()).filter(Boolean) || [rawText];
+    if (!sentences.length) { if (onDone) onDone(); return; }
 
-    // ③ JP 문장 spans 재구성
-    const capJpEl = document.getElementById('lecCapJp');
-    if (capJpEl) {
-      capJpEl.innerHTML = jpSentences.map((s, i) =>
-        `<span class="lec-sentence" id="lecSent${i}">${ruby(s)}</span>`
-      ).join('');
-    }
-    // ④ KO 문장 spans 재구성
-    const capKoEl = document.querySelector('.lec-cap-ko');
-    if (capKoEl && koSentences.length) {
-      capKoEl.innerHTML = koSentences.map((s, i) =>
-        `<span class="lec-sentence-ko" id="lecSentKo${i}">${escHtml(s)}</span>`
+    // ② 캡션 spans 재구성
+    const capId = lang === 'jp' ? 'lecCapJp' : 'lecCapKo';
+    const capEl = document.getElementById(capId);
+    const sentClass = lang === 'jp' ? 'lec-sentence' : 'lec-sentence-ko';
+    const sentIdPrefix = lang === 'jp' ? 'lecSent' : 'lecSentKo';
+    const render = lang === 'jp' ? ruby : escHtml;
+    if (capEl) {
+      capEl.innerHTML = sentences.map((s, i) =>
+        `<span class="${sentClass}" id="${sentIdPrefix}${i}">${render(s)}</span>`
       ).join('');
     }
 
-    const jpLen = jpSentences.length;
-    const koLen = koSentences.length;
+    const total = sentences.length;
     const lectureVoice = _lectureGetVoice();
-
-    // ⑤ 사전 생성 강의 mp3가 있으면 단일 파일 재생 (가갭리스, 자연스러움)
     const lc = _lectureState();
     const lectureKey = lc?.step?.lectureKey;
-    if (lectureKey && TTS.hasLectureAudio(lectureKey, slideIdx)) {
+
+    // ③ 사전 생성 강의 mp3가 있으면 단일 파일 재생
+    if (lectureKey && TTS.hasLectureAudio(lectureKey, slideIdx, lang)) {
       TTS.playLectureAudio(lectureKey, slideIdx, lectureVoice, {
         onProgress: (ratio) => {
-          // 시간 비례로 JP/KO 문장 하이라이트 진행
-          const ji = Math.min(Math.floor(ratio * jpLen), jpLen - 1);
-          document.querySelectorAll('.lec-sentence').forEach((el, idx) => {
-            el.classList.toggle('reading', idx === ji);
+          const i = Math.min(Math.floor(ratio * total), total - 1);
+          document.querySelectorAll('.' + sentClass).forEach((el, idx2) => {
+            el.classList.toggle('reading', idx2 === i);
           });
-          if (koLen) {
-            const ki = Math.min(Math.floor(ratio * koLen), koLen - 1);
-            document.querySelectorAll('.lec-sentence-ko').forEach((el, idx) => {
-              el.classList.toggle('reading', idx === ki);
-            });
-          }
-          document.getElementById(`lecSent${ji}`)?.scrollIntoView?.({ block: 'nearest', behavior: 'smooth' });
+          document.getElementById(`${sentIdPrefix}${i}`)?.scrollIntoView?.({ block: 'nearest', behavior: 'smooth' });
         },
         onDone: () => {
-          document.querySelectorAll('.lec-sentence,.lec-sentence-ko').forEach(el => el.classList.remove('reading'));
+          document.querySelectorAll('.' + sentClass).forEach(el => el.classList.remove('reading'));
           if (onDone) onDone();
         },
-      });
+      }, lang);
       return;
     }
 
-    // ⑥ 폴백: 문장별 TTS 큐 (Web Speech 사용 시)
-    const ttsSentences = jpSentences.map(s => _koToKatakana(s).trim());
-    const lines = ttsSentences.map((text) => ({ text, voice: lectureVoice }));
+    // ④ 폴백: Web Speech 문장별 큐 (jp는 가타카나 변환, ko는 그대로)
+    const lines = sentences.map((text) => ({
+      text: lang === 'jp' ? _koToKatakana(text).trim() : text,
+      voice: lectureVoice,
+    }));
     TTS.speakQueue(lines, {
       onLineStart: (i) => {
-        document.querySelectorAll('.lec-sentence').forEach(el => el.classList.remove('reading'));
-        document.getElementById(`lecSent${i}`)?.classList.add('reading');
-        document.getElementById(`lecSent${i}`)?.scrollIntoView?.({ block: 'nearest', behavior: 'smooth' });
-        if (koLen > 0) {
-          document.querySelectorAll('.lec-sentence-ko').forEach(el => el.classList.remove('reading'));
-          const ki = Math.min(Math.floor(i * koLen / jpLen), koLen - 1);
-          document.getElementById(`lecSentKo${ki}`)?.classList.add('reading');
-        }
+        document.querySelectorAll('.' + sentClass).forEach(el => el.classList.remove('reading'));
+        document.getElementById(`${sentIdPrefix}${i}`)?.classList.add('reading');
+        document.getElementById(`${sentIdPrefix}${i}`)?.scrollIntoView?.({ block: 'nearest', behavior: 'smooth' });
       },
       onLineEnd: (i) => {
-        document.getElementById(`lecSent${i}`)?.classList.remove('reading');
-        if (koLen > 0) {
-          const ki = Math.min(Math.floor(i * koLen / jpLen), koLen - 1);
-          document.getElementById(`lecSentKo${ki}`)?.classList.remove('reading');
-        }
+        document.getElementById(`${sentIdPrefix}${i}`)?.classList.remove('reading');
       },
       onDone,
     });
@@ -464,10 +502,9 @@ window.createLectureFlow = (ctx) => {
       if (btn) btn.innerHTML = _lecturePauseButtonLabel(false);
       if (btn) btn.setAttribute('aria-label', '일시정지');
       const slide = lc.slides[lc.idx];
-      if (slide.captionJp) {
-        // 일시정지 후 재개 → captionJp 처음부터 다시 읽기
+      if (_hasActiveCaption(slide)) {
         const idx = lc.idx;
-        _lecReadCaptionJp(slide.captionJp, slide.captionKo, idx, () => _lecAfterCaptionRead(idx));
+        _lecReadCaption(slide, idx, () => _lecAfterCaptionRead(idx));
       } else {
         const bar = document.getElementById('lecTimerBar');
         if (bar) bar.style.animationPlayState = 'running';
@@ -476,41 +513,16 @@ window.createLectureFlow = (ctx) => {
     }
   }
 
-  function _lecCapTab(lang) {
-    const ko = document.getElementById('lecCapKo');
-    const jp = document.getElementById('lecCapJp');
-    const tKo = document.getElementById('capTabKo');
-    const tJp = document.getElementById('capTabJp');
-    if (lang === 'ko') {
-      ko?.classList.remove('hidden'); jp?.classList.add('hidden');
-      tKo?.classList.add('active'); tJp?.classList.remove('active');
-    } else {
-      jp?.classList.remove('hidden'); ko?.classList.add('hidden');
-      tJp?.classList.add('active'); tKo?.classList.remove('active');
-    }
-  }
-
-  function _lecToggleCaption(lang) {
-    const key = lang === 'jp' ? 'lectureCaptionJp' : 'lectureCaptionKo';
-    const next = !Store.getSetting(key);
-    Store.setSetting(key, next);
-    const box = document.querySelector(lang === 'jp' ? '.lec-cap-jp' : '.lec-cap-ko');
-    if (box) box.classList.toggle('hidden', !next);
-    document.querySelectorAll('.lec-display-toggle').forEach(btn => {
-      const isLangBtn = btn.getAttribute('onclick')?.includes(`'${lang}'`);
-      if (!isLangBtn) return;
-      btn.classList.toggle('active', next);
-      btn.setAttribute('aria-pressed', next ? 'true' : 'false');
-      const stateEl = btn.querySelector('.lec-display-toggle-state');
-      if (stateEl) stateEl.textContent = next ? 'ON' : 'OFF';
-    });
-    const hasVisibleCaption = !!document.querySelector('.lec-cap-jp:not(.hidden), .lec-cap-ko:not(.hidden)');
-    const capBox = document.querySelector('.lec-caption-box');
-    if (capBox) capBox.classList.toggle('hidden', !hasVisibleCaption);
-    const reel = document.querySelector('.lec-reel');
-    if (reel) {
-      reel.classList.toggle('has-caption', hasVisibleCaption);
-      reel.classList.toggle('no-caption', !hasVisibleCaption);
+  function _lecSetInstructor(lang) {
+    if (lang !== 'jp' && lang !== 'ko') return;
+    if (_lectureInstructor() === lang) return;
+    Store.setSetting('lectureInstructor', lang);
+    TTS.stopQueue();
+    // 현재 슬라이드 다시 렌더 (캡션 언어/화자 셀렉트가 한꺼번에 갱신)
+    const lc = _lectureState();
+    if (lc) {
+      _lecStopTimer();
+      _lectureRenderSlide();
     }
   }
 
@@ -527,8 +539,7 @@ window.createLectureFlow = (ctx) => {
     prev: _lecPrev,
     restart: _lecRestart,
     pauseToggle: _lecPauseToggle,
-    toggleCaption: _lecToggleCaption,
-    capTab: _lecCapTab,
+    setInstructor: _lecSetInstructor,
     setVoice: _lectureSetVoice,
     cycleVoice: _lectureCycleVoice,
     stopLecture,

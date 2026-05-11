@@ -17,10 +17,13 @@ const KEY = process.env.AZURE_SPEECH_KEY;
 const REGION = process.env.AZURE_SPEECH_REGION || 'koreacentral';
 
 const VOICES = {
-  nanami: { name: 'ja-JP-NanamiNeural', label: '나나미 (따뜻·표준)',   gender: 'F' },
-  aoi:    { name: 'ja-JP-AoiNeural',    label: '아오이 (밝은 톤)',      gender: 'F' },
-  mayu:   { name: 'ja-JP-MayuNeural',   label: '마유 (정중·차분)',      gender: 'F' },
-  keita:  { name: 'ja-JP-KeitaNeural',  label: '케이타 (표준 남성)',     gender: 'M' },
+  nanami: { name: 'ja-JP-NanamiNeural', lang: 'ja-JP', label: '나나미 (따뜻·표준)',   gender: 'F' },
+  aoi:    { name: 'ja-JP-AoiNeural',    lang: 'ja-JP', label: '아오이 (밝은 톤)',      gender: 'F' },
+  mayu:   { name: 'ja-JP-MayuNeural',   lang: 'ja-JP', label: '마유 (정중·차분)',      gender: 'F' },
+  keita:  { name: 'ja-JP-KeitaNeural',  lang: 'ja-JP', label: '케이타 (표준 남성)',     gender: 'M' },
+  // 한국어 강사 (강의 captionKo 전용)
+  sunhi:  { name: 'ko-KR-SunHiNeural',  lang: 'ko-KR', label: '선희 (차분·강의)',      gender: 'F' },
+  jimin:  { name: 'ko-KR-JiMinNeural',  lang: 'ko-KR', label: '지민 (밝은 친근)',      gender: 'F' },
 };
 
 const ROOT = path.resolve(__dirname, '..');
@@ -47,7 +50,12 @@ const voiceArg = (() => {
   const i = args.indexOf('--voice');
   return i >= 0 ? args[i + 1] : null;
 })();
-const filterArg = args.find(a => !a.startsWith('--') && args[args.indexOf(a) - 1] !== '--voice');
+const lectureArg = (() => {
+  const i = args.indexOf('--lecture');
+  return i >= 0 ? args[i + 1] : null;
+})();
+const FLAG_VALUE_OPTS = new Set(['--voice', '--lecture']);
+const filterArg = args.find((a, i) => !a.startsWith('--') && !FLAG_VALUE_OPTS.has(args[i - 1]));
 
 const targetVoices = voiceArg ? { [voiceArg]: VOICES[voiceArg] } : VOICES;
 if (voiceArg && !VOICES[voiceArg]) {
@@ -68,8 +76,9 @@ function loadVocab(file) {
   return null;
 }
 
-// 강의 슬라이드 전체 captionJp 수집
-function loadLectures() {
+// 강의 슬라이드 captionJp + captionKo 수집
+// lectureFilter: 특정 키 하나만 수집 (예: 'wlevel_1')
+function loadLectures(lectureFilter) {
   const sandbox = { window: {} };
   vm.createContext(sandbox);
   for (const f of fs.readdirSync(LECTURE_DIR)) {
@@ -81,14 +90,18 @@ function loadLectures() {
   const data = sandbox.window.LECTURE_DATA || {};
   const items = [];
   for (const key of Object.keys(data)) {
+    if (lectureFilter && key !== lectureFilter) continue;
     const slides = data[key];
     if (!Array.isArray(slides)) continue;
     slides.forEach((slide, idx) => {
-      if (!slide?.captionJp) return;
-      // 후리가나(漢字(かな)) 제거 + 정제
-      const text = cleanForTTS(stripFurigana(slide.captionJp));
-      if (!text) return;
-      items.push({ id: `lec_${key}_${idx}`, text, source: `lecture/${key}` });
+      if (slide?.captionJp) {
+        const text = cleanForTTS(stripFurigana(slide.captionJp));
+        if (text) items.push({ id: `lec_${key}_${idx}`, text, lang: 'ja-JP', source: `lecture/${key}` });
+      }
+      if (slide?.captionKo) {
+        const text = cleanKoForTTS(slide.captionKo);
+        if (text) items.push({ id: `lecKo_${key}_${idx}`, text, lang: 'ko-KR', source: `lecture/${key}` });
+      }
     });
   }
   return items;
@@ -146,20 +159,46 @@ function cleanForTTS(text) {
 }
 
 // SSML 빌드
-function buildSSML(text, voiceName) {
-  const safe = text
+function buildSSML(text, voiceName, lang = 'ja-JP') {
+  let safe = text
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;');
-  return `<speak version="1.0" xml:lang="ja-JP" xmlns="http://www.w3.org/2001/10/synthesis">
+  // sentinel → <emphasis level="moderate"> 태그
+  safe = safe.replace(//g, '<emphasis level="moderate">').replace(//g, '</emphasis>');
+  return `<speak version="1.0" xml:lang="${lang}" xmlns="http://www.w3.org/2001/10/synthesis">
   <voice name="${voiceName}">
     <prosody rate="-5%">${safe}</prosody>
   </voice>
 </speak>`;
 }
 
+// captionKo → 한국어 화자용 정제
+// 일본어→한글 발음 표기 부분을 sentinel(…)로 감싸서
+// SSML <emphasis>로 강조 처리. 매니페스트 표시 텍스트는 sentinel 제거 버전.
+const EMPH_OPEN = '';
+const EMPH_CLOSE = '';
+function cleanKoForTTS(text) {
+  if (!text) return '';
+  let t = text;
+  // 「JP(KO)」 또는 『JP(KO)』 → KO
+  t = t.replace(/[「『][^」』]*[」』]\s*\(([^)]*[가-힣][^)]*)\)/g, EMPH_OPEN + '$1' + EMPH_CLOSE);
+  // JP(KO) — 괄호 안 한글만 남기고 강조
+  t = t.replace(/[぀-ヿ一-鿿々ー]+\s*\(([^)]*[가-힣][^)]*)\)/g, EMPH_OPEN + '$1' + EMPH_CLOSE);
+  // 남은 일본어 글자(가나/한자) + 일본식 따옴표 제거
+  t = t.replace(/[぀-ゟ゠-ヿ一-鿿々ー「」『』〜~]+/g, '');
+  // 빈 괄호/연속 공백/문장부호 앞 공백 정리
+  t = t.replace(/\(\s*\)/g, '');
+  t = t.replace(/\s+([,.!?;:])/g, '$1');
+  t = t.replace(/\s+/g, ' ').trim();
+  return t;
+}
+function stripEmphasis(s) {
+  return s ? s.replace(/[]/g, '') : '';
+}
+
 // Azure REST 호출 (429 재시도 + 지수 백오프)
-async function synth(text, voiceName, attempt = 1) {
+async function synth(text, voiceName, lang, attempt = 1) {
   const url = `https://${REGION}.tts.speech.microsoft.com/cognitiveservices/v1`;
   const res = await fetch(url, {
     method: 'POST',
@@ -169,14 +208,14 @@ async function synth(text, voiceName, attempt = 1) {
       'X-Microsoft-OutputFormat': 'audio-24khz-48kbitrate-mono-mp3',
       'User-Agent': 'kana-master-tts',
     },
-    body: buildSSML(text, voiceName),
+    body: buildSSML(text, voiceName, lang),
   });
   if (res.status === 429 && attempt <= 10) {
     // F0 분당 20회 제한 — Retry-After 헤더 또는 지수 백오프 (최대 90s, 최대 10회)
     const ra = parseFloat(res.headers.get('retry-after') || '0');
     const wait = ra > 0 ? ra * 1000 : Math.min(90000, 5000 * Math.pow(1.5, attempt - 1));
     await new Promise(r => setTimeout(r, wait));
-    return synth(text, voiceName, attempt + 1);
+    return synth(text, voiceName, lang, attempt + 1);
   }
   if (!res.ok) {
     const err = await res.text().catch(() => '');
@@ -238,8 +277,10 @@ async function main() {
     }
   }
   if (includeLectures) {
-    const lecItems = loadLectures();
-    console.log(`강의 captionJp 수집: ${lecItems.length}개`);
+    const lecItems = loadLectures(lectureArg);
+    const jpCount = lecItems.filter(it => it.lang === 'ja-JP').length;
+    const koCount = lecItems.filter(it => it.lang === 'ko-KR').length;
+    console.log(`강의 캡션 수집: JP ${jpCount}개 + KO ${koCount}개${lectureArg ? ` (필터: ${lectureArg})` : ''}`);
     allItems.push(...lecItems);
   }
   if (includeKana) {
@@ -276,7 +317,7 @@ async function main() {
 
   // 매니페스트 (기존 + 갱신)
   const manifestPath = path.join(OUT_DIR, 'manifest.json');
-  let manifest = { generatedAt: null, voices: {}, items: {}, textIndex: {}, lectures: {} };
+  let manifest = { generatedAt: null, voices: {}, items: {}, textIndex: {}, lectures: {}, lecturesKo: {} };
   if (fs.existsSync(manifestPath)) {
     try {
       const old = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
@@ -284,18 +325,21 @@ async function main() {
                    voices: old.voices || {},
                    items: old.items || {},
                    textIndex: old.textIndex || {},
-                   lectures: old.lectures || {} };
+                   lectures: old.lectures || {},
+                   lecturesKo: old.lecturesKo || {} };
     } catch (_) {}
   }
   // 화자 메타 — 현재 VOICES로 완전 교체 (옛 화자 제거)
   manifest.voices = {};
   for (const [k, v] of Object.entries(VOICES)) {
-    manifest.voices[k] = { name: v.name, label: v.label, gender: v.gender };
+    manifest.voices[k] = { name: v.name, lang: v.lang, label: v.label, gender: v.gender };
   }
   // 인덱스 갱신
   for (const item of allItems) {
-    if (item.id.startsWith('lec_')) {
-      // 강의: lec_<key>_<idx> → 클라이언트는 key+idx로 조회
+    if (item.id.startsWith('lecKo_')) {
+      const m = item.id.match(/^lecKo_(.+)_(\d+)$/);
+      if (m) manifest.lecturesKo[`${m[1]}_${m[2]}`] = item.id;
+    } else if (item.id.startsWith('lec_')) {
       const m = item.id.match(/^lec_(.+)_(\d+)$/);
       if (m) manifest.lectures[`${m[1]}_${m[2]}`] = item.id;
     } else {
@@ -303,13 +347,15 @@ async function main() {
     }
   }
 
-  // 작업 큐 생성 (이미 있는 파일은 스킵)
+  // 작업 큐 생성 (이미 있는 파일은 스킵, 언어가 같은 화자만 페어링)
   const jobs = [];
   for (const item of allItems) {
+    const itemLang = item.lang || 'ja-JP';
     for (const [vKey, vDef] of Object.entries(targetVoices)) {
+      if ((vDef.lang || 'ja-JP') !== itemLang) continue;
       const outPath = path.join(OUT_DIR, vKey, `${item.id}.mp3`);
       if (fs.existsSync(outPath)) continue;
-      jobs.push({ item, vKey, vName: vDef.name, outPath });
+      jobs.push({ item, vKey, vName: vDef.name, vLang: vDef.lang || 'ja-JP', outPath });
     }
   }
   console.log(`신규 생성 대상: ${jobs.length}개 (이미 존재하는 항목은 스킵)`);
@@ -320,15 +366,15 @@ async function main() {
 
   await pMap(jobs, async (job) => {
     try {
-      const buf = await synth(job.item.text, job.vName);
+      const buf = await synth(job.item.text, job.vName, job.vLang);
       fs.writeFileSync(job.outPath, buf);
       done++;
       if (done % 20 === 0 || done === jobs.length) {
         const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
         console.log(`  [${done}/${jobs.length}] ${elapsed}s 경과`);
       }
-      // 매니페스트 기록
-      const cur = manifest.items[job.item.id] || { text: job.item.text, voices: [] };
+      // 매니페스트 기록 (sentinel 마커는 제거된 표시용 텍스트로 저장)
+      const cur = manifest.items[job.item.id] || { text: stripEmphasis(job.item.text), voices: [] };
       if (!cur.voices.includes(job.vKey)) cur.voices.push(job.vKey);
       manifest.items[job.item.id] = cur;
     } catch (e) {

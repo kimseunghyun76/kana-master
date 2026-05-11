@@ -355,6 +355,24 @@
 .kana-stroke-mini svg { display: block; width: 100%; height: 100%; position: relative; z-index: 1; }
 .kana-stroke-loading { font-size: 11px; color: rgba(148,163,184,.5); position: relative; z-index: 1; }
 
+/* 쓰기 가이드 없는 글자(요음·반탁음 등) — 큰 글자 표시 */
+.kana-stroke-block.kana-stroke-large {
+  align-items: center; justify-content: center;
+}
+.kana-stroke-large-char {
+  width: 100%;
+  flex: 1; min-height: 100px;
+  background: linear-gradient(145deg, #fefcf8, #f8f4ee);
+  border-radius: 14px;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,.06), 0 3px 12px rgba(0,0,0,.18);
+  display: flex; align-items: center; justify-content: center;
+  font-size: clamp(72px, 22vw, 140px);
+  font-weight: 600;
+  color: #1f2937;
+  line-height: 1;
+  letter-spacing: 0;
+}
+
 /* 예시 단어 (flash 없음) */
 .kana-examples-block {
   width: 100%;

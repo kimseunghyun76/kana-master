@@ -33,6 +33,7 @@ function defaultProgress() {
       furigana: true,
       lectureCaptionJp: true,
       lectureCaptionKo: true,
+      lectureInstructor: '',   // '' = 미선택(최초 1회 모달) / 'ko' / 'jp'
       darkMode: true,
       notifyStreak: true
     }

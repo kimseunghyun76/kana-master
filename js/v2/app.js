@@ -455,8 +455,7 @@ window.App = (() => {
   function _lecPrev() { return _lectureFlow.prev(); }
   function _lecRestart() { return _lectureFlow.restart(); }
   function _lecPauseToggle() { return _lectureFlow.pauseToggle(); }
-  function _lecToggleCaption(lang) { return _lectureFlow.toggleCaption(lang); }
-  function _lecCapTab(lang) { return _lectureFlow.capTab(lang); }
+  function _lecSetInstructor(lang) { return _lectureFlow.setInstructor(lang); }
   function _lecSetVoice(key) { return _lectureFlow.setVoice(key); }
   function _lecCycleVoice() { return _lectureFlow.cycleVoice(); }
 
@@ -788,8 +787,7 @@ window.App = (() => {
     _lecPrev,
     _lecRestart,
     _lecPauseToggle,
-    _lecToggleCaption,
-    _lecCapTab,
+    _lecSetInstructor,
     _lecSetVoice,
     _lecCycleVoice,
     setQuizPassRate,

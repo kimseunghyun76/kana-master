@@ -16,10 +16,12 @@ window.TTS = (() => {
   const AUDIO_BASE   = 'public/audio';
 
   const FALLBACK_VOICES = {
-    nanami: { name: 'ja-JP-NanamiNeural', label: '나나미', gender: 'F' },
-    aoi:    { name: 'ja-JP-AoiNeural',    label: '아오이', gender: 'F' },
-    mayu:   { name: 'ja-JP-MayuNeural',   label: '마유',   gender: 'F' },
-    keita:  { name: 'ja-JP-KeitaNeural',  label: '케이타', gender: 'M' },
+    nanami: { name: 'ja-JP-NanamiNeural', lang: 'ja-JP', label: '나나미', gender: 'F' },
+    aoi:    { name: 'ja-JP-AoiNeural',    lang: 'ja-JP', label: '아오이', gender: 'F' },
+    mayu:   { name: 'ja-JP-MayuNeural',   lang: 'ja-JP', label: '마유',   gender: 'F' },
+    keita:  { name: 'ja-JP-KeitaNeural',  lang: 'ja-JP', label: '케이타', gender: 'M' },
+    sunhi:  { name: 'ko-KR-SunHiNeural',  lang: 'ko-KR', label: '선희',   gender: 'F' },
+    jimin:  { name: 'ko-KR-JiMinNeural',  lang: 'ko-KR', label: '지민',   gender: 'F' },
   };
 
   // 기본값
@@ -31,7 +33,7 @@ window.TTS = (() => {
   // ── 상태 ─────────────────────────────────────────────────
   let _enabled        = true;
   let _rate           = 1.0;
-  let _manifest       = { voices: FALLBACK_VOICES, items: {}, textIndex: {}, lectures: {} };
+  let _manifest       = { voices: FALLBACK_VOICES, items: {}, textIndex: {}, lectures: {}, lecturesKo: {} };
   let _manifestLoaded = false;
   let _normIndex      = null; // 구두점 제거 인덱스 (lazy)
   let _wsVoice        = null;
@@ -71,10 +73,11 @@ window.TTS = (() => {
       if (!r.ok) throw new Error(`HTTP ${r.status}`);
       const data = await r.json();
       _manifest = {
-        voices:    data.voices    || FALLBACK_VOICES,
-        items:     data.items     || {},
-        textIndex: data.textIndex || {},
-        lectures:  data.lectures  || {},
+        voices:     data.voices     || FALLBACK_VOICES,
+        items:      data.items      || {},
+        textIndex:  data.textIndex  || {},
+        lectures:   data.lectures   || {},
+        lecturesKo: data.lecturesKo || {},
       };
       _normIndex = null; // lazy 재빌드
       _manifestLoaded = true;
@@ -259,11 +262,15 @@ window.TTS = (() => {
   function getRate()  { return _rate; }
 
   // ── 화자 설정 API ───────────────────────────────────────
-  function getAvailableVoices() {
-    // [{ key, name, label, gender }]
-    return Object.entries(_manifest.voices).map(([key, v]) => ({
-      key, name: v.name, label: v.label, gender: v.gender || 'F',
-    }));
+  function getAvailableVoices(langFilter) {
+    // [{ key, name, lang, label, gender }] — langFilter: 'ja'|'jp'|'ko' (선택)
+    const norm = l => (l || 'ja-JP').slice(0, 2).toLowerCase();
+    const wanted = langFilter === 'jp' ? 'ja' : (langFilter || '').toLowerCase();
+    return Object.entries(_manifest.voices)
+      .filter(([, v]) => !wanted || norm(v.lang) === wanted)
+      .map(([key, v]) => ({
+        key, name: v.name, lang: v.lang || 'ja-JP', label: v.label, gender: v.gender || 'F',
+      }));
   }
 
   function getDefaultVoice() { return _voiceDefault; }
@@ -294,15 +301,19 @@ window.TTS = (() => {
   function getWebSpeechVoiceName() { return _wsVoice?.name ?? '브라우저 기본'; }
 
   // ── 강의 단일 mp3 재생 (가갭리스) ────────────────────────
-  function hasLectureAudio(lectureKey, slideIdx) {
-    if (!_manifestLoaded || !_manifest.lectures) return false;
-    return !!_manifest.lectures[`${lectureKey}_${slideIdx}`];
+  // lang: 'ja' | 'ko' — 'ko'면 lecturesKo 매핑 조회
+  function _lectureMap(lang) {
+    return (lang === 'ko' ? _manifest.lecturesKo : _manifest.lectures) || {};
+  }
+  function hasLectureAudio(lectureKey, slideIdx, lang) {
+    if (!_manifestLoaded) return false;
+    return !!_lectureMap(lang)[`${lectureKey}_${slideIdx}`];
   }
 
-  function playLectureAudio(lectureKey, slideIdx, voiceKey, callbacks = {}) {
+  function playLectureAudio(lectureKey, slideIdx, voiceKey, callbacks = {}, lang) {
     stopQueue();
     stop();
-    const id = _manifest.lectures?.[`${lectureKey}_${slideIdx}`];
+    const id = _lectureMap(lang)[`${lectureKey}_${slideIdx}`];
     if (!id) { callbacks.onDone?.(); return; }
     const url = `${AUDIO_BASE}/${voiceKey}/${encodeURIComponent(id)}.mp3`;
     const audio = new Audio(url);
