@@ -186,7 +186,7 @@ function cleanKoForTTS(text) {
   // JP(KO) — 괄호 안 한글만 남기고 강조
   t = t.replace(/[぀-ヿ一-鿿々ー]+\s*\(([^)]*[가-힣][^)]*)\)/g, EMPH_OPEN + '$1' + EMPH_CLOSE);
   // 남은 일본어 글자(가나/한자) + 일본식 따옴표 제거
-  t = t.replace(/[぀-ゟ゠-ヿ一-鿿々ー「」『』〜~]+/g, '');
+  t = t.replace(/[　-〿぀-ヿ一-鿿○●～~]+/g, '');
   // 빈 괄호/연속 공백/문장부호 앞 공백 정리
   t = t.replace(/\(\s*\)/g, '');
   t = t.replace(/\s+([,.!?;:])/g, '$1');
@@ -364,8 +364,15 @@ async function main() {
   const failures = [];
   const startTime = Date.now();
 
+  // F0 무료 티어: 분당 20회 — 호출 사이 3.5s 간격으로 안전 마진
+  const RATE_GAP_MS = 3500;
+  let lastCallAt = 0;
   await pMap(jobs, async (job) => {
     try {
+      // 순차 간격 보장 (concurrency 1 + sleep)
+      const wait = Math.max(0, lastCallAt + RATE_GAP_MS - Date.now());
+      if (wait > 0) await new Promise(r => setTimeout(r, wait));
+      lastCallAt = Date.now();
       const buf = await synth(job.item.text, job.vName, job.vLang);
       fs.writeFileSync(job.outPath, buf);
       done++;
@@ -373,8 +380,9 @@ async function main() {
         const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
         console.log(`  [${done}/${jobs.length}] ${elapsed}s 경과`);
       }
-      // 매니페스트 기록 (sentinel 마커는 제거된 표시용 텍스트로 저장)
-      const cur = manifest.items[job.item.id] || { text: stripEmphasis(job.item.text), voices: [] };
+      // 매니페스트 기록 — text는 항상 최신 캡션으로 갱신 (sentinel 제거)
+      const cur = manifest.items[job.item.id] || { voices: [] };
+      cur.text = stripEmphasis(job.item.text);
       if (!cur.voices.includes(job.vKey)) cur.voices.push(job.vKey);
       manifest.items[job.item.id] = cur;
     } catch (e) {
@@ -382,7 +390,7 @@ async function main() {
       failures.push({ id: job.item.id, voice: job.vKey, error: e.message });
       console.error(`  실패: ${job.item.id} (${job.vKey}) - ${e.message}`);
     }
-  }, 8);
+  }, 1); // F0 무료 티어 — 순차 호출 + 강제 gap으로 분당 20회 안전
 
   manifest.generatedAt = new Date().toISOString();
   fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2), 'utf8');
