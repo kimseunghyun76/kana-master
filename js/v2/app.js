@@ -456,6 +456,9 @@ window.App = (() => {
   function _lecRestart() { return _lectureFlow.restart(); }
   function _lecPauseToggle() { return _lectureFlow.pauseToggle(); }
   function _lecSetInstructor(lang) { return _lectureFlow.setInstructor(lang); }
+  function _lecPickInstructor(lang) { return _lectureFlow.pickInstructor(lang); }
+  function _lecToggleCaptionShow() { return _lectureFlow.toggleCaptionShow(); }
+  function _lecToggleBoardFont() { return _lectureFlow.toggleBoardFont(); }
   function _lecSetVoice(key) { return _lectureFlow.setVoice(key); }
   function _lecCycleVoice() { return _lectureFlow.cycleVoice(); }
 
@@ -788,6 +791,9 @@ window.App = (() => {
     _lecRestart,
     _lecPauseToggle,
     _lecSetInstructor,
+    _lecPickInstructor,
+    _lecToggleCaptionShow,
+    _lecToggleBoardFont,
     _lecSetVoice,
     _lecCycleVoice,
     setQuizPassRate,

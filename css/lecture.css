@@ -119,23 +119,50 @@
   z-index: 2;
   top: 14px;
   left: 14px;
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  max-width: calc(100% - 28px);
-  padding: 7px 10px;
-  border-radius: 999px;
-  background: rgba(2,6,23,.58);
+  right: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 6px;
+  padding: 8px 12px 10px;
+  border-radius: 14px;
+  background: rgba(2,6,23,.62);
   border: 1px solid rgba(255,255,255,.14);
-  color: rgba(248,250,252,.92);
-  font-size: 11px;
-  font-weight: 800;
+  color: rgba(248,250,252,.94);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
+}
+.lec-topline-meta {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 11px;
+  font-weight: 800;
+}
+.lec-topline-title {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+}
+.lec-topline-kicker {
+  color: #fcd34d;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: .04em;
+}
+.lec-topline-main {
+  color: #f8fafc;
+  font-size: 15px;
+  font-weight: 800;
+  font-family: 'Noto Sans JP', 'Noto Sans KR', sans-serif;
+  letter-spacing: 0;
+  word-break: keep-all;
 }
 .lec-shot-count {
   color: #bfdbfe;
   font-variant-numeric: tabular-nums;
+  margin-left: auto;
 }
 .lec-live-dot {
   width: 7px;
@@ -256,24 +283,137 @@
   flex: 0 0 auto;
 }
 
-/* 강사 언어 라디오 토글 (JP ↔ KO, 항상 정확히 하나 활성) */
+/* 강사 언어 라디오 토글 — 짧은 KO/JP 버튼 */
 .lec-instructor-toggle {
-  padding: 6px 12px;
-}
-.lec-instructor-toggle .lec-display-toggle-state {
-  color: #cbd5e1;
-  font-weight: 600;
+  min-width: 38px;
+  padding: 6px 10px;
 }
 .lec-instructor-toggle.active {
   background: rgba(16,185,129,.22);
   border-color: rgba(52,211,153,.55);
-  color: #f8fafc;
-}
-.lec-instructor-toggle.active .lec-display-toggle-state {
   color: #6ee7b7;
 }
 
-/* 최초 1회 강사 언어 선택 모달 */
+/* 폰트 토글 — 손글씨 ↔ 일반 */
+.lec-font-toggle.active {
+  background: rgba(244,114,182,.18);
+  border-color: rgba(244,114,182,.5);
+  color: #fbb6ce;
+}
+.lec-font-toggle.active .lec-display-toggle-state {
+  color: #fbb6ce;
+}
+
+/* 자막 보기 토글 — 활성 시 sky 강조 */
+.lec-caption-toggle.active {
+  background: rgba(56,189,248,.18);
+  border-color: rgba(56,189,248,.5);
+}
+.lec-caption-toggle.active .lec-display-toggle-state {
+  color: #7dd3fc;
+}
+
+/* 자막 숨김 모드 — caption-box 자체 숨김 */
+.lec-reel.captions-hidden .lec-caption-box-solo {
+  display: none;
+}
+.lec-caption-box-solo.hidden { display: none; }
+
+/* 강의 시작 — In-lecture 강사 선택 화면 */
+.lec-reel-pick .lec-reel-backdrop { filter: brightness(.95); }
+.lec-reel-dim {
+  position: absolute; inset: 0;
+  background: linear-gradient(180deg,
+    rgba(2,6,23,.65) 0%,
+    rgba(2,6,23,.25) 30%,
+    rgba(2,6,23,.25) 55%,
+    rgba(2,6,23,.85) 100%);
+  pointer-events: none;
+}
+.lec-pick-top {
+  position: absolute;
+  z-index: 3;
+  top: 28px; left: 20px; right: 20px;
+  text-align: center;
+  color: #f8fafc;
+}
+.lec-pick-greeting {
+  font-size: 28px;
+  font-weight: 800;
+  margin-bottom: 6px;
+}
+.lec-pick-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #fde68a;
+  margin-bottom: 14px;
+}
+.lec-pick-sub {
+  font-size: 14px;
+  color: #cbd5e1;
+  font-weight: 500;
+}
+.lec-pick-bottom {
+  position: absolute;
+  z-index: 3;
+  left: 16px; right: 16px;
+  bottom: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.lec-pick-btn {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 13px 16px;
+  background: rgba(15,23,42,.78);
+  border: 1px solid rgba(148,163,184,.3);
+  border-radius: 16px;
+  color: #f1f5f9;
+  cursor: pointer;
+  transition: background .15s, border-color .15s, transform .15s;
+  text-align: left;
+  -webkit-tap-highlight-color: transparent;
+}
+.lec-pick-btn:hover,
+.lec-pick-btn:focus-visible {
+  background: rgba(30,41,59,.9);
+  border-color: rgba(129,140,248,.6);
+  transform: translateY(-1px);
+  outline: none;
+}
+.lec-pick-ko { border-left: 4px solid #10b981; }
+.lec-pick-jp { border-left: 4px solid #ef4444; }
+.lec-pick-flag {
+  font-size: 28px;
+  flex-shrink: 0;
+}
+.lec-pick-btn-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+.lec-pick-btn-main {
+  font-size: 16px;
+  font-weight: 800;
+  color: #f8fafc;
+}
+.lec-pick-btn-sub {
+  font-size: 12px;
+  color: #94a3b8;
+  font-weight: 500;
+}
+.lec-pick-hint {
+  text-align: center;
+  font-size: 11px;
+  color: rgba(203,213,225,.7);
+  margin-top: 6px;
+}
+
+/* 옛 모달 (안 쓰지만 잔재 안전망) */
 .lec-instructor-modal-overlay {
   position: fixed; inset: 0;
   background: rgba(2,6,23,.74);
@@ -377,70 +517,166 @@
   color: #f8fafc;
 }
 /* ── Chalkboard (칠판) ─────────────────────────────────────── */
-.lec-board {
+/* Board + Caption stack — reel 하단에 컬럼으로 묶음 */
+.lec-board-stack {
   position: absolute;
   left: 14px;
   right: 14px;
-  /* 자막 박스 위로 충분히 띄움 — 자막 둘 다 켰을 때 겹치지 않도록 */
-  bottom: 198px;
+  bottom: 14px;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: calc(100% - 60px); /* 상단 topline 영역 보존 */
+}
+.lec-board {
+  position: relative;
   z-index: 1;
-  background: linear-gradient(180deg, rgba(15,23,42,.18), rgba(15,23,42,.78));
-  border: 1px solid rgba(255,255,255,.14);
-  border-radius: 18px;
-  padding: 16px 16px 15px;
+  /* 칠판 — 깊은 녹색 + 살짝의 비네팅 */
+  background:
+    radial-gradient(ellipse at top, rgba(255,255,255,.04), transparent 55%),
+    linear-gradient(170deg, #2f4a3e 0%, #243a30 55%, #1c2e26 100%);
+  border: 1px solid rgba(255,255,255,.08);
+  /* 나무 프레임 느낌의 인셋 그림자 + 외부 그림자 */
+  box-shadow:
+    inset 0 0 0 4px rgba(140, 92, 50, .35),
+    inset 0 0 30px rgba(0,0,0,.45),
+    0 18px 42px rgba(2,6,23,.45);
+  border-radius: 14px;
+  padding: 18px 18px 16px;
   text-align: left;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 9px;
-  min-height: auto;
-  box-shadow: 0 18px 42px rgba(2,6,23,.32);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  gap: 10px;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
 }
-.lec-reel.no-caption .lec-board {
-  bottom: 18px;
-}
+/* 분필 가루 텍스처 (SVG noise overlay) */
 .lec-board::before {
   content: '';
   position: absolute;
   inset: 0;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.18 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  background-size: 220px 220px;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: .35;
+  mix-blend-mode: screen;
+}
+/* 좌측 상단 분필 자국 */
+.lec-board::after {
+  content: '';
+  position: absolute;
+  inset: 0;
   background:
-    linear-gradient(180deg, rgba(255,255,255,.11), transparent 38%),
-    radial-gradient(circle at top left, color-mix(in srgb, var(--lc, #6366f1) 16%, transparent), transparent 48%);
+    radial-gradient(160px 60px at 88% 96%, rgba(255,255,255,.07), transparent 70%),
+    radial-gradient(140px 40px at 8% 4%, rgba(255,255,255,.05), transparent 70%);
   border-radius: inherit;
   pointer-events: none;
 }
+/* 카테고리 + 작은 타이틀이 한 줄에 — Board 상단 헤더 */
+.lec-board-header {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+/* 칠판 카테고리 뱃지 — 노란 분필 */
 .lec-board-kicker {
-  position: relative;
-  z-index: 1;
-  color: #bfdbfe;
-  font-size: 10px;
-  font-weight: 900;
-  letter-spacing: .12em;
-  text-transform: uppercase;
+  position: relative; z-index: 2;
+  color: #f7d574;
+  font-size: 11px;
+  font-weight: 700;
+  font-family: 'Gaegu', 'Klee One', 'Nanum Pen Script', cursive;
+  letter-spacing: .04em;
+  text-shadow: 0 0 6px rgba(247,213,116,.25);
 }
-.lec-board-text {
-  position: relative;
-  z-index: 1;
-  font-size: 34px;
-  font-weight: 900;
-  font-family: 'Noto Sans JP', sans-serif;
-  color: #f8fafc;
-  line-height: 1.12;
+.lec-board-title {
+  position: relative; z-index: 2;
+  color: #fef3c7;
+  font-size: 16px;
+  font-weight: 600;
+  font-family: 'Klee One', 'Gaegu', 'Nanum Pen Script', 'Noto Sans JP', cursive;
   letter-spacing: 0;
-  min-height: 38px;
-  word-break: break-all;
-  text-shadow: 0 3px 20px rgba(2,6,23,.56);
+  text-shadow: 0 0 6px rgba(254,243,199,.3);
 }
-.lec-board-text ruby rt { font-size: 11px; color: #93c5fd; }
-.lec-board-sub {
+.lec-board-title ruby rt {
+  font-size: 9px;
+  color: #fde68a;
+  font-family: 'Klee One', cursive;
+}
+/* Board 본문 — 칠판 필기 효과의 메인 학습 콘텐츠 */
+.lec-board-body {
   position: relative;
-  z-index: 1;
-  font-size: 13px;
-  color: #e2e8f0;
-  line-height: 1.6;
-  max-width: 28rem;
+  z-index: 2;
+  font-size: 20px;
+  font-weight: 700;
+  /* 한글: Gaegu 700 (또박또박), 일본어: Klee One 600 */
+  font-family: 'Gaegu', 'Klee One', 'Noto Sans JP', cursive;
+  color: #f4f1ec;
+  line-height: 1.55;
+  letter-spacing: 0;
+  min-height: 60px;
+  word-break: keep-all;
+  white-space: pre-line;
+  text-shadow:
+    0 0 1px rgba(255,255,255,.5),
+    0 0 8px rgba(255,255,255,.18);
+}
+
+/* 글자별 분필 색 — 칠판 강조 컬러 */
+.lec-board-body .chk-kanji {
+  color: #fde047;       /* 노란 분필 — 한자 핵심 */
+  font-weight: 700;
+  font-size: 1.18em;    /* 일본어/한자 약간 크게 */
+  text-shadow: 0 0 2px rgba(253,224,71,.55), 0 0 10px rgba(253,224,71,.3);
+}
+.lec-board-body .chk-hiragana {
+  color: #fef3c7;       /* 연한 크림 — 히라가나 */
+  font-weight: 600;
+  font-size: 1.18em;
+  text-shadow: 0 0 2px rgba(254,243,199,.45), 0 0 8px rgba(254,243,199,.22);
+}
+.lec-board-body .chk-katakana {
+  color: #7dd3fc;       /* 하늘 분필 — 가타카나(외래어) */
+  font-weight: 600;
+  font-size: 1.18em;
+  text-shadow: 0 0 2px rgba(125,211,252,.55), 0 0 10px rgba(125,211,252,.32);
+}
+.lec-board-body .chk-num {
+  color: #fda4af;       /* 코랄 — ①②③ 마커 */
+  text-shadow: 0 0 2px rgba(253,164,175,.55), 0 0 8px rgba(253,164,175,.32);
+}
+.lec-board-body .chk-mark {
+  color: #f8fafc;       /* 흰 분필 — → ✓ ★ */
+  text-shadow: 0 0 2px rgba(248,250,252,.45), 0 0 8px rgba(248,250,252,.2);
+}
+.lec-board-body .chk-punct {
+  color: rgba(244,241,236,.45); /* 「」 흐리게 */
+  text-shadow: none;
+}
+/* 일본어 글자는 Klee One으로 별도 적용 */
+.lec-board-body .chk-kanji,
+.lec-board-body .chk-hiragana,
+.lec-board-body .chk-katakana {
+  font-family: 'Klee One', 'Noto Sans JP', cursive;
+}
+
+/* 칠판 폰트 일반 모드 — 손글씨 폰트 대신 산세리프 */
+.lec-board-body.font-plain {
+  font-family: 'Noto Sans KR', 'Noto Sans JP', sans-serif;
+  font-weight: 700;
+}
+.lec-board-body.font-plain .chk-kanji,
+.lec-board-body.font-plain .chk-hiragana,
+.lec-board-body.font-plain .chk-katakana {
+  font-family: 'Noto Sans JP', sans-serif;
+  font-weight: 700;
 }
 .lec-board-reading {
   position: relative;
@@ -457,30 +693,28 @@
 
 /* 분필 글자 하나씩 등장 애니메이션 */
 @keyframes chalk-write {
-  0%   { opacity: 0; transform: scale(0.6) rotate(-4deg); filter: blur(2px); }
-  60%  { opacity: 1; filter: blur(0); }
+  0%   { opacity: 0; transform: scale(0.85) rotate(-2deg) translateY(2px); filter: blur(1.2px); }
+  40%  { opacity: .8; filter: blur(.4px); }
   100% { opacity: 1; transform: none; filter: blur(0); }
 }
 .chalk-char {
   display: inline-block;
   opacity: 0;
-  animation: chalk-write 0.18s ease forwards;
+  animation: chalk-write 0.22s ease-out forwards;
 }
 
 /* ── Caption Box (JP 메인 + KO 번역) ─────────────────────── */
 .lec-caption-box {
-  position: absolute;
+  position: relative;
   z-index: 3;
-  left: 14px;
-  right: 14px;
-  bottom: 14px;
   background: rgba(2,6,23,.76);
   border: 1px solid rgba(255,255,255,.16);
-  border-radius: 16px;
+  border-radius: 14px;
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 18px 42px rgba(2,6,23,.34);
+  flex: 0 0 auto;
+  box-shadow: 0 12px 28px rgba(2,6,23,.34);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
 }
@@ -500,14 +734,18 @@
   font-size: 12px; color: #cbd5e1; line-height: 1.6;
   background: rgba(255,255,255,.02);
 }
-/* 단일 언어 모드 — 자막 영역 확대 */
+/* 단일 언어 모드 — 전체 스크립트 표시 + 작은 폰트 + 스크롤 */
 .lec-caption-box-solo .lec-cap-jp,
 .lec-caption-box-solo .lec-cap-ko {
-  max-height: 168px;
-  padding: 12px 14px;
-  font-size: 14px;
-  line-height: 1.7;
+  max-height: 140px;
+  min-height: 60px;
+  padding: 10px 14px;
+  font-size: 12.5px;
+  line-height: 1.65;
   border-bottom: none;
+  overflow-y: auto;
+  text-align: left;
+  display: block;
 }
 /* 현재 읽고 있는 문장 하이라이트 */
 .lec-sentence {
@@ -664,14 +902,10 @@
     height: 30px;
   }
   .lec-board {
-    bottom: 188px;
     padding: 14px;
   }
-  .lec-reel.no-caption .lec-board {
-    bottom: 14px;
-  }
-  .lec-board-text {
-    font-size: 30px;
+  .lec-board-body {
+    font-size: 17px;
   }
   .lec-caption-box {
     border-radius: 14px;

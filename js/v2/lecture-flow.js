@@ -13,6 +13,74 @@ window.createLectureFlow = (ctx) => {
     return `${ctx.uiLabeledIcon(paused ? 'play' : 'pause')} <span class="lecture-pause-text">${paused ? '재생' : '일시정지'}</span>`;
   }
 
+  // ── 칠판 폰트 토글 (손글씨 ↔ 일반) ────────────────────────
+  function _lectureBoardFont() {
+    return Store.getSetting('lectureBoardFont') === 'plain' ? 'plain' : 'chalk';
+  }
+  function _lectureFontToggleButton() {
+    const isPlain = _lectureBoardFont() === 'plain';
+    return `
+      <button class="lec-display-toggle lec-font-toggle ${isPlain ? 'active' : ''}"
+              onclick="App._lecToggleBoardFont()"
+              type="button"
+              title="칠판 폰트 ${isPlain ? '손글씨로' : '일반으로'} 전환">
+        <span class="lec-display-toggle-label">${isPlain ? '가' : '✎'}</span>
+        <span class="lec-display-toggle-state">${isPlain ? '일반' : '손글씨'}</span>
+      </button>
+    `;
+  }
+  function _lecToggleBoardFont() {
+    const next = _lectureBoardFont() === 'plain' ? 'chalk' : 'plain';
+    Store.setSetting('lectureBoardFont', next);
+    const body = document.getElementById('lecBoardSub');
+    if (body) body.classList.toggle('font-plain', next === 'plain');
+    document.querySelectorAll('.lec-font-toggle').forEach(btn => {
+      const isP = next === 'plain';
+      btn.classList.toggle('active', isP);
+      btn.setAttribute('title', '칠판 폰트 ' + (isP ? '손글씨로' : '일반으로') + ' 전환');
+      const labelEl = btn.querySelector('.lec-display-toggle-label');
+      if (labelEl) labelEl.textContent = isP ? '가' : '✎';
+      const stateEl = btn.querySelector('.lec-display-toggle-state');
+      if (stateEl) stateEl.textContent = isP ? '일반' : '손글씨';
+    });
+  }
+
+  // ── 자막 보이기/숨기기 토글 (기본 숨김) ──────────────────
+  function _lectureCaptionShow() {
+    return !!Store.getSetting('lectureCaptionShow');
+  }
+  function _lectureCaptionToggleButton() {
+    const on = _lectureCaptionShow();
+    return `
+      <button class="lec-display-toggle lec-caption-toggle ${on ? 'active' : ''}"
+              onclick="App._lecToggleCaptionShow()"
+              type="button"
+              aria-pressed="${on ? 'true' : 'false'}"
+              title="자막 ${on ? '숨기기' : '보이기'}">
+        <span class="lec-display-toggle-label">자막</span>
+        <span class="lec-display-toggle-state">${on ? 'ON' : 'OFF'}</span>
+      </button>
+    `;
+  }
+  function _lecToggleCaptionShow() {
+    const next = !_lectureCaptionShow();
+    Store.setSetting('lectureCaptionShow', next);
+    const reel = document.querySelector('.lec-reel');
+    if (reel) {
+      reel.classList.toggle('captions-hidden', !next);
+      reel.classList.toggle('has-caption', next);
+      reel.classList.toggle('no-caption', !next);
+    }
+    document.querySelector('.lec-caption-box-solo')?.classList.toggle('hidden', !next);
+    document.querySelectorAll('.lec-caption-toggle').forEach(btn => {
+      btn.classList.toggle('active', next);
+      btn.setAttribute('aria-pressed', next ? 'true' : 'false');
+      btn.setAttribute('title', '자막 ' + (next ? '숨기기' : '보이기'));
+      const stateEl = btn.querySelector('.lec-display-toggle-state');
+      if (stateEl) stateEl.textContent = next ? 'ON' : 'OFF';
+    });
+  }
+
   // ── 강의 강사 언어 (라디오: 항상 정확히 하나) ─────────────
   function _lectureInstructor() {
     const v = Store.getSetting('lectureInstructor');
@@ -21,16 +89,16 @@ window.createLectureFlow = (ctx) => {
   function _lectureInstructorToggleButton(lang) {
     const cur = _lectureInstructor();
     const active = cur === lang;
-    const label = lang === 'jp' ? '일본어 강사' : '한국어 강사';
     const flag = lang === 'jp' ? 'JP' : 'KO';
+    const fullLabel = lang === 'jp' ? '일본어 강사' : '한국어 강사';
     return `
       <button class="lec-display-toggle lec-instructor-toggle ${active ? 'active' : ''}"
               onclick="App._lecSetInstructor('${lang}')"
               type="button"
               role="radio"
-              aria-checked="${active ? 'true' : 'false'}">
+              aria-checked="${active ? 'true' : 'false'}"
+              title="${fullLabel}">
         <span class="lec-display-toggle-label">${flag}</span>
-        <span class="lec-display-toggle-state">${label}</span>
       </button>
     `;
   }
@@ -135,50 +203,56 @@ window.createLectureFlow = (ctx) => {
     const flow = ctx.getFlow();
     if (!flow) return;
     flow._lecture = { slides, idx: 0, paused: false, stepIndex, mod, step, timerId: null };
-    // 강사 언어가 아직 선택된 적 없으면 최초 1회 모달 띄우기
+    // 강사 언어가 아직 선택된 적 없으면 in-lecture 선택 화면
     const setting = Store.getSetting('lectureInstructor');
     if (setting !== 'jp' && setting !== 'ko') {
-      _showInstructorChoiceModal((picked) => {
-        Store.setSetting('lectureInstructor', picked);
-        _lectureRenderSlide();
-      });
+      _renderInstructorPickInline(mod, slides[0]);
       return;
     }
     _lectureRenderSlide();
   }
 
-  function _showInstructorChoiceModal(onPick) {
-    const existing = document.getElementById('lecInstructorModal');
-    if (existing) existing.remove();
-    const overlay = document.createElement('div');
-    overlay.id = 'lecInstructorModal';
-    overlay.className = 'lec-instructor-modal-overlay';
-    overlay.innerHTML = `
-      <div class="lec-instructor-modal" role="dialog" aria-modal="true" aria-label="강의 언어 선택">
-        <div class="lec-instructor-modal-title">강의를 어떤 언어로 듣고 싶으세요?</div>
-        <div class="lec-instructor-modal-sub">하단 버튼으로 언제든 바꿀 수 있어요.</div>
-        <div class="lec-instructor-modal-actions">
-          <button class="btn btn-primary lec-instructor-pick" data-lang="ko">
-            <span class="lec-instructor-flag">🇰🇷</span>
-            <span class="lec-instructor-pick-label">한국어 강사</span>
-            <span class="lec-instructor-pick-sub">처음 배우는 분께 추천</span>
-          </button>
-          <button class="btn btn-outline lec-instructor-pick" data-lang="jp">
-            <span class="lec-instructor-flag">🇯🇵</span>
-            <span class="lec-instructor-pick-label">일본어 강사</span>
-            <span class="lec-instructor-pick-sub">귀를 일본어에 익히고 싶다면</span>
-          </button>
+  // 강사 언어 선택 화면 — 강의 화면 안에서 (이미지 배경 보이게)
+  function _renderInstructorPickInline(mod, firstSlide) {
+    const visualSrc = _lectureVisualSource(mod, firstSlide);
+    document.getElementById('flowBody').innerHTML = `
+      <div class="lecture-slide lec-pick-slide">
+        <div class="lec-reel lec-reel-pick" style="--lc:#6366f1">
+          <div class="lec-reel-backdrop shot-1">
+            ${visualSrc ? `<img class="lec-scene-img" src="${escHtml(visualSrc)}" alt="">` : ''}
+            <div class="lec-reel-dim"></div>
+          </div>
+          <div class="lec-pick-top">
+            <div class="lec-pick-greeting">잘 오셨어요! 👋</div>
+            <div class="lec-pick-title">${escHtml(mod.name || '강의')}</div>
+            <div class="lec-pick-sub">어떤 언어로 듣고 싶으세요?</div>
+          </div>
+          <div class="lec-pick-bottom">
+            <button class="lec-pick-btn lec-pick-ko" type="button" onclick="App._lecPickInstructor('ko')">
+              <span class="lec-pick-flag">🇰🇷</span>
+              <div class="lec-pick-btn-text">
+                <span class="lec-pick-btn-main">한국어 강사</span>
+                <span class="lec-pick-btn-sub">처음 배우는 분께 추천</span>
+              </div>
+            </button>
+            <button class="lec-pick-btn lec-pick-jp" type="button" onclick="App._lecPickInstructor('jp')">
+              <span class="lec-pick-flag">🇯🇵</span>
+              <div class="lec-pick-btn-text">
+                <span class="lec-pick-btn-main">일본어 강사</span>
+                <span class="lec-pick-btn-sub">귀를 일본어에 익히고 싶다면</span>
+              </div>
+            </button>
+            <div class="lec-pick-hint">하단 버튼으로 언제든 바꿀 수 있어요</div>
+          </div>
         </div>
       </div>
     `;
-    document.body.appendChild(overlay);
-    overlay.querySelectorAll('.lec-instructor-pick').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const lang = btn.getAttribute('data-lang');
-        overlay.remove();
-        onPick?.(lang === 'jp' ? 'jp' : 'ko');
-      });
-    });
+    document.getElementById('flowFooter').innerHTML = '';
+  }
+  function _lecPickInstructor(lang) {
+    if (lang !== 'jp' && lang !== 'ko') return;
+    Store.setSetting('lectureInstructor', lang);
+    _lectureRenderSlide();
   }
 
   function _lectureRenderSlide() {
@@ -195,7 +269,8 @@ window.createLectureFlow = (ctx) => {
     const instructor = _lectureInstructor();
     const activeCaption = instructor === 'ko' ? slide.captionKo : slide.captionJp;
     const hasAnyCaption = !!activeCaption;
-    const hasVisibleCaption = hasAnyCaption;
+    const captionsShown = _lectureCaptionShow();
+    const hasVisibleCaption = hasAnyCaption && captionsShown;
     const slideSegments = slides.map((_, slideIndex) => `
       <div class="lec-segment ${slideIndex < idx ? 'done' : ''} ${slideIndex === idx ? 'active' : ''}">
         <div class="lec-segment-fill"></div>
@@ -210,7 +285,7 @@ window.createLectureFlow = (ctx) => {
       <div class="lecture-slide lecture-slide-enter" id="lectureSlide">
         <div class="lec-segments">${slideSegments}</div>
 
-        <div class="lec-reel ${hasVisibleCaption ? 'has-caption' : 'no-caption'}" style="--lc:${ts.color}">
+        <div class="lec-reel ${hasVisibleCaption ? 'has-caption' : 'no-caption'}${captionsShown ? '' : ' captions-hidden'}" style="--lc:${ts.color}">
           <div class="lec-reel-backdrop ${shotClass}">
             ${visualSrc ? `<img class="lec-scene-img" src="${escHtml(visualSrc)}" alt="">` : ''}
             <div class="lec-reel-pattern">${ctx.uiIconSvg(ts.icon, 'lec-reel-icon')}</div>
@@ -218,24 +293,29 @@ window.createLectureFlow = (ctx) => {
           </div>
 
           <div class="lec-scene-topline">
-            <span class="lec-live-dot"></span>
-            <span>${escHtml(mod.name)}</span>
-            <span class="lec-shot-count">${idx + 1}/${slides.length}</span>
+            <div class="lec-topline-meta">
+              <span class="lec-live-dot"></span>
+              <span>${escHtml(mod.name)}</span>
+              <span class="lec-shot-count">${idx + 1}/${slides.length}</span>
+            </div>
+            <div class="lec-topline-title">
+              ${slide.label ? `<span class="lec-topline-kicker">${escHtml(slide.label)}</span>` : ''}
+              ${slide.main ? `<span class="lec-topline-main">${escHtml(slide.main.replace(/[（\(]([ぁ-ヶー・]+)[）\)]/g, ''))}</span>` : ''}
+            </div>
           </div>
 
-          <div class="lec-board" id="lecBoard">
-            <div class="lec-board-kicker">${escHtml(slide.label || 'Lecture')}</div>
-            <div class="lec-board-text" id="lecBoardText"></div>
-            ${slide.sub ? `<div class="lec-board-sub">${escHtml(slide.sub)}</div>` : ''}
-            ${slide.audio ? `<div class="lec-board-reading">${escHtml(slide.audio)}</div>` : ''}
+          <div class="lec-board-stack">
+            <div class="lec-board ${_lectureBoardFont() === 'plain' ? 'font-plain' : ''}" id="lecBoard">
+              <div class="lec-board-body ${_lectureBoardFont() === 'plain' ? 'font-plain' : ''}" id="lecBoardSub"></div>
+              ${slide.audio ? `<div class="lec-board-reading">${escHtml(slide.audio)}</div>` : ''}
+            </div>
+            ${hasAnyCaption ? `
+            <div class="lec-caption-box lec-caption-box-solo${captionsShown ? '' : ' hidden'}">
+              ${instructor === 'jp'
+                ? `<div class="lec-cap-jp" id="lecCapJp">${ruby(slide.captionJp || '')}</div>`
+                : `<div class="lec-cap-ko" id="lecCapKo">${escHtml(slide.captionKo || '')}</div>`}
+            </div>` : ''}
           </div>
-
-          ${hasAnyCaption ? `
-          <div class="lec-caption-box lec-caption-box-solo">
-            ${instructor === 'jp'
-              ? `<div class="lec-cap-jp" id="lecCapJp">${ruby(slide.captionJp || '')}</div>`
-              : `<div class="lec-cap-ko" id="lecCapKo">${escHtml(slide.captionKo || '')}</div>`}
-          </div>` : ''}
         </div>
 
         <!-- 타이머 바 -->
@@ -249,9 +329,11 @@ window.createLectureFlow = (ctx) => {
     const prevLabel = idx === 0 ? '소개' : (prevSlide?.main ? stripFuri(prevSlide.main) : '이전');
     const nextLabel = isLast ? '완료' : stripFuri(nextSlide?.main || '다음');
     document.getElementById('flowFooter').innerHTML = `
-      <div class="lec-footer-tools lec-footer-tools-unified" role="radiogroup" aria-label="강사 언어 선택">
+      <div class="lec-footer-tools lec-footer-tools-unified">
         ${_lectureInstructorToggleButton('ko')}
         ${_lectureInstructorToggleButton('jp')}
+        ${_lectureFontToggleButton()}
+        ${_lectureCaptionToggleButton()}
         <button class="lec-display-toggle lec-display-action" id="btnLecPause"
                 aria-label="일시정지"
                 onclick="App._lecPauseToggle()">${_lecturePauseButtonLabel(false)}</button>
@@ -272,10 +354,10 @@ window.createLectureFlow = (ctx) => {
       </div>
     `;
 
-    // 1. 칠판 한 글자씩 필기 애니메이션
-    const animDur = _lecChalkboardAnim(slide.main);
+    // 1. 칠판 sub 한 글자씩 필기 애니메이션
+    const animDur = _lecSubChalk(slide.sub);
 
-    // 2. 칠판 애니메이션 완료 후 → 선택된 강사 언어의 캡션 읽기
+    // 2. 칠판 시작 후 짧은 텀 두고 → 캡션 읽기 (병렬 — 학습자는 보면서 들음)
     setTimeout(() => {
       const current = _lectureState();
       if (!current || current.idx !== idx) return;
@@ -284,7 +366,7 @@ window.createLectureFlow = (ctx) => {
       } else {
         _lecStartTimer();
       }
-    }, animDur + 300);
+    }, Math.min(animDur, 400));
   }
 
   // 캡션 TTS가 끝났을 때 자동 진행을 스케줄
@@ -300,23 +382,35 @@ window.createLectureFlow = (ctx) => {
     }, 2000);
   }
 
-  // ── 칠판 한 글자씩 필기 애니메이션 ─────────────────────────
-  function _lecChalkboardAnim(text) {
-    const el = document.getElementById('lecBoardText');
+  // ── 칠판 sub 한 글자씩 필기 애니메이션 ─────────────────────
+  // - 후리가나 「漢字(かな)」 패턴은 칠판에서 제거 (스크립트에만 유지)
+  // - 글자 유형별로 분필 색 다르게 (한자=노랑, 가타카나=하늘, 마커=코랄...)
+  // - 애니 완료 후에도 span 유지 (ruby 교체 없음)
+  function _chalkClass(ch) {
+    if (/[一-鿿]/.test(ch)) return 'chk-kanji';     // 한자
+    if (/[぀-ゟ]/.test(ch)) return 'chk-hiragana';  // 히라가나
+    if (/[゠-ヿ]/.test(ch)) return 'chk-katakana';  // 가타카나
+    if (/[①-⑳]/.test(ch))           return 'chk-num';        // 동그라미 숫자
+    if (/[→↓↑←★✓✗⚠▸▪⇒⟶]/.test(ch)) return 'chk-mark';      // 마커
+    if (/[「」『』]/.test(ch))         return 'chk-punct';      // 일본식 따옴표
+    return ''; // 기본 (한글/Latin/숫자/기타)
+  }
+  function _lecSubChalk(text) {
+    const el = document.getElementById('lecBoardSub');
     if (!el || !text) return 0;
-    const plain = text.replace(/<[^>]*>/g, ''); // ruby 태그 제거 → 순수 텍스트
-    const chars = [...plain]; // 유니코드 안전 분리 (이모지 포함)
-    const PER_CHAR = 65; // ms per character
-    el.innerHTML = chars.map((ch, i) =>
-      `<span class="chalk-char" style="animation-delay:${i * PER_CHAR}ms">${escHtml(ch)}</span>`
-    ).join('');
-    const totalDur = chars.length * PER_CHAR + 200;
-    // 애니메이션 완료 후 ruby 버전으로 교체
-    setTimeout(() => {
-      const el2 = document.getElementById('lecBoardText');
-      if (el2) el2.innerHTML = ruby(text);
-    }, totalDur + 100);
-    return totalDur;
+    // 후리가나 제거: 漢字(かな) → 漢字 (괄호 안이 히라가나일 때만)
+    const plain = text.replace(/[（\(]([ぁ-ヶー・]+)[）\)]/g, '');
+    const chars = [...plain];
+    const PER_CHAR = 45;
+    let i = 0;
+    el.innerHTML = chars.map((ch) => {
+      if (ch === '\n') return '<br>';
+      const cls = _chalkClass(ch);
+      const span = `<span class="chalk-char${cls ? ' ' + cls : ''}" style="animation-delay:${i * PER_CHAR}ms">${escHtml(ch)}</span>`;
+      i++;
+      return span;
+    }).join('');
+    return i * PER_CHAR + 200;
   }
 
   // ── 한국어 → 가타카나 근사 변환 (TTS용) ────────────────────
@@ -540,6 +634,9 @@ window.createLectureFlow = (ctx) => {
     restart: _lecRestart,
     pauseToggle: _lecPauseToggle,
     setInstructor: _lecSetInstructor,
+    pickInstructor: _lecPickInstructor,
+    toggleCaptionShow: _lecToggleCaptionShow,
+    toggleBoardFont: _lecToggleBoardFont,
     setVoice: _lectureSetVoice,
     cycleVoice: _lectureCycleVoice,
     stopLecture,

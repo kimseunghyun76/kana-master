@@ -33,7 +33,9 @@ function defaultProgress() {
       furigana: true,
       lectureCaptionJp: true,
       lectureCaptionKo: true,
-      lectureInstructor: '',   // '' = 미선택(최초 1회 모달) / 'ko' / 'jp'
+      lectureInstructor: '',     // '' = 미선택(최초 1회 모달) / 'ko' / 'jp'
+      lectureCaptionShow: false, // 자막 영역 보기/숨김 — 기본 숨김
+      lectureBoardFont: 'chalk', // 칠판 폰트: 'chalk' 손글씨 | 'plain' 일반
       darkMode: true,
       notifyStreak: true
     }
