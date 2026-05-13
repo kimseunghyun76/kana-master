@@ -372,105 +372,123 @@
     rgba(2,6,23,.85) 100%);
   pointer-events: none;
 }
-.lec-pick-top {
+/* 통합 강사+성우+모드 선택 카드 */
+.lec-pick-card {
   position: absolute;
   z-index: 3;
-  top: 28px; left: 20px; right: 20px;
-  text-align: center;
-  color: #f8fafc;
+  left: 14px; right: 14px;
+  bottom: 14px;
+  padding: 18px 16px 14px;
+  background: rgba(15,23,42,.85);
+  border: 1px solid rgba(148,163,184,.25);
+  border-radius: 18px;
+  box-shadow: 0 18px 42px rgba(0,0,0,.45);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 .lec-pick-greeting {
-  font-size: 28px;
-  font-weight: 800;
-  margin-bottom: 6px;
-}
-.lec-pick-title {
-  font-size: 16px;
-  font-weight: 700;
-  color: #fde68a;
-  margin-bottom: 14px;
-}
-.lec-pick-sub {
-  font-size: 14px;
-  color: #cbd5e1;
-  font-weight: 500;
-}
-.lec-pick-bottom {
-  position: absolute;
-  z-index: 3;
-  left: 16px; right: 16px;
-  bottom: 18px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-.lec-pick-btn {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 13px 16px;
-  background: rgba(15,23,42,.78);
-  border: 1px solid rgba(148,163,184,.3);
-  border-radius: 16px;
-  color: #f1f5f9;
-  cursor: pointer;
-  transition: background .15s, border-color .15s, transform .15s;
-  text-align: left;
-  -webkit-tap-highlight-color: transparent;
-}
-.lec-pick-btn:hover,
-.lec-pick-btn:focus-visible {
-  background: rgba(30,41,59,.9);
-  border-color: rgba(129,140,248,.6);
-  transform: translateY(-1px);
-  outline: none;
-}
-.lec-pick-ko { border-left: 4px solid #10b981; }
-.lec-pick-jp { border-left: 4px solid #ef4444; }
-.lec-pick-flag {
-  font-size: 28px;
-  flex-shrink: 0;
-}
-.lec-pick-btn-text {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  flex: 1;
-  min-width: 0;
-}
-.lec-pick-btn-main {
-  font-size: 16px;
+  font-size: 20px;
   font-weight: 800;
   color: #f8fafc;
-}
-.lec-pick-btn-sub {
-  font-size: 12px;
-  color: #94a3b8;
-  font-weight: 500;
-}
-.lec-pick-hint {
   text-align: center;
-  font-size: 11px;
-  color: rgba(203,213,225,.7);
-  margin-top: 6px;
 }
-/* 최근 선택한 강사 강조 */
-.lec-pick-btn.is-recent {
-  border-color: rgba(129,140,248,.65);
-  background: rgba(49,46,129,.55);
-  box-shadow: 0 0 0 2px rgba(129,140,248,.25);
-}
-.lec-pick-recent-badge {
-  display: inline-block;
-  font-size: 10px;
+.lec-pick-title {
+  font-size: 13px;
   font-weight: 700;
-  padding: 1px 6px;
-  margin-left: 6px;
-  border-radius: 999px;
-  background: rgba(129,140,248,.32);
+  color: #fde68a;
+  text-align: center;
+  margin-top: -8px;
+  margin-bottom: 4px;
+}
+.lec-pick-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.lec-pick-row-label {
+  flex: 0 0 auto;
+  width: 40px;
+  font-size: 11px;
+  font-weight: 800;
+  color: rgba(203,213,225,.75);
+  letter-spacing: .04em;
+}
+.lec-pick-options {
+  display: flex;
+  flex: 1 1 auto;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.lec-pick-opt {
+  flex: 1 1 0;
+  min-width: 44px;
+  min-height: 38px;
+  padding: 4px 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  background: rgba(2,6,23,.55);
+  border: 1px solid rgba(148,163,184,.22);
+  border-radius: 12px;
+  color: #e2e8f0;
+  cursor: pointer;
+  transition: background .15s, border-color .15s, transform .15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.lec-pick-opt:hover {
+  border-color: rgba(129,140,248,.5);
+  transform: translateY(-1px);
+}
+.lec-pick-opt.active {
+  background: rgba(99,102,241,.28);
+  border-color: rgba(129,140,248,.75);
+  color: #f8fafc;
+  box-shadow: 0 0 0 2px rgba(129,140,248,.2);
+}
+.lec-pick-opt-main {
+  font-size: 14px;
+  font-weight: 900;
+  line-height: 1;
+}
+.lec-pick-opt.active .lec-pick-opt-main {
   color: #c7d2fe;
-  vertical-align: middle;
-  letter-spacing: 0;
+}
+.lec-pick-opt-sub {
+  font-size: 9px;
+  font-weight: 700;
+  color: rgba(148,163,184,.85);
+  line-height: 1;
+}
+/* 시작 버튼 */
+.lec-pick-start {
+  margin-top: 4px;
+  padding: 12px 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #6366f1, #4f46e5);
+  border: 1px solid rgba(129,140,248,.7);
+  border-radius: 14px;
+  color: #f8fafc;
+  font-size: 15px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: background .15s, transform .15s, box-shadow .15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.lec-pick-start:hover {
+  background: linear-gradient(135deg, #818cf8, #6366f1);
+  transform: translateY(-1px);
+  box-shadow: 0 10px 24px rgba(99,102,241,.4);
+}
+.lec-pick-start-arrow {
+  font-size: 12px;
 }
 
 /* 옛 모달 (안 쓰지만 잔재 안전망) */
@@ -522,16 +540,17 @@
 .lec-voice-select-wrap { /* legacy class kept on the same element for hooks */ }
 /* ── Chalkboard (칠판) ─────────────────────────────────────── */
 /* Board + Caption stack — reel 하단에 컬럼으로 묶음 */
-/* top: 상단 topline 박스 영역 보존 (헤더+카테고리+타이틀 ~ 100px) */
+/* 하단부터 자동 높이, 상단 topline 박스 영역(~110px)은 침범 안 함 */
 .lec-board-stack {
   position: absolute;
   left: 14px;
   right: 14px;
   bottom: 14px;
-  top: 110px;
+  max-height: calc(100% - 110px);
   z-index: 2;
   display: flex;
   flex-direction: column;
+  justify-content: flex-end;  /* 콘텐츠가 짧으면 아래 정렬 */
   gap: 8px;
   min-height: 0;
 }
@@ -543,7 +562,6 @@
     radial-gradient(ellipse at top, rgba(255,255,255,.04), transparent 55%),
     linear-gradient(170deg, #2f4a3e 0%, #243a30 55%, #1c2e26 100%);
   border: 1px solid rgba(255,255,255,.08);
-  /* 나무 프레임 느낌의 인셋 그림자 + 외부 그림자 */
   box-shadow:
     inset 0 0 0 4px rgba(140, 92, 50, .35),
     inset 0 0 30px rgba(0,0,0,.45),
@@ -555,9 +573,10 @@
   flex-direction: column;
   align-items: flex-start;
   gap: 10px;
-  flex: 1 1 auto;
+  /* 콘텐츠 높이에 딱 맞게 — 빈 하단 공백 제거 */
+  flex: 0 1 auto;
   min-height: 0;
-  overflow: hidden;  /* fit-text 가 처리 — 스크롤 없음 */
+  overflow: hidden;
 }
 /* 분필 가루 텍스처 (SVG noise overlay) */
 .lec-board::before {

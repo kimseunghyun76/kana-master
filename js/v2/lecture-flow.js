@@ -218,10 +218,19 @@ window.createLectureFlow = (ctx) => {
     _renderInstructorPickInline(mod, slides[0]);
   }
 
-  // 강사 언어 선택 화면 — 강의 화면 안에서 (이미지 배경 보이게)
+  // 강사 언어 + 성우 + 모드 통합 선택 화면 — 강의 화면 안에서
   function _renderInstructorPickInline(mod, firstSlide) {
     const visualSrc = _lectureVisualSource(mod, firstSlide);
-    const prev = _lectureInstructor();  // 이전 선택 ('ko' | 'jp')
+    // 이전 선택값들 (기본값 fallback)
+    const prevLang = (Store.getSetting('lectureInstructor') === 'jp' || Store.getSetting('lectureInstructor') === 'ko')
+      ? Store.getSetting('lectureInstructor') : 'ko';
+    const prevFont = Store.getSetting('lectureBoardFont') === 'plain' ? 'plain' : 'chalk';
+    // 현재 임시 선택 (시작 누르기 전까지 Store에 반영 X)
+    window.__lecPickState = {
+      lang: prevLang,
+      font: prevFont,
+      voice: null  // resolved 후 채워짐
+    };
     document.getElementById('flowBody').innerHTML = `
       <div class="lecture-slide lec-pick-slide">
         <div class="lec-reel lec-reel-pick" style="--lc:#6366f1">
@@ -229,33 +238,111 @@ window.createLectureFlow = (ctx) => {
             ${visualSrc ? `<img class="lec-scene-img" src="${escHtml(visualSrc)}" alt="">` : ''}
             <div class="lec-reel-dim"></div>
           </div>
-          <div class="lec-pick-top">
+          <div class="lec-pick-card">
             <div class="lec-pick-greeting">잘 오셨어요! 👋</div>
             <div class="lec-pick-title">${escHtml(mod.name || '강의')}</div>
-            <div class="lec-pick-sub">어떤 언어로 듣고 싶으세요?</div>
-          </div>
-          <div class="lec-pick-bottom">
-            <button class="lec-pick-btn lec-pick-ko ${prev === 'ko' ? 'is-recent' : ''}" type="button" onclick="App._lecPickInstructor('ko')">
-              <span class="lec-pick-flag">🇰🇷</span>
-              <div class="lec-pick-btn-text">
-                <span class="lec-pick-btn-main">한국어 강사 ${prev === 'ko' ? '<span class="lec-pick-recent-badge">최근</span>' : ''}</span>
-                <span class="lec-pick-btn-sub">처음 배우는 분께 추천</span>
+
+            <div class="lec-pick-row">
+              <div class="lec-pick-row-label">강사</div>
+              <div class="lec-pick-options" id="lecPickLang">
+                <button class="lec-pick-opt ${prevLang === 'ko' ? 'active' : ''}" data-val="ko" type="button" onclick="App._lecPickSet('lang','ko')">
+                  <span class="lec-pick-opt-main">KO</span>
+                  <span class="lec-pick-opt-sub">한국어</span>
+                </button>
+                <button class="lec-pick-opt ${prevLang === 'jp' ? 'active' : ''}" data-val="jp" type="button" onclick="App._lecPickSet('lang','jp')">
+                  <span class="lec-pick-opt-main">JP</span>
+                  <span class="lec-pick-opt-sub">일본어</span>
+                </button>
               </div>
-            </button>
-            <button class="lec-pick-btn lec-pick-jp ${prev === 'jp' ? 'is-recent' : ''}" type="button" onclick="App._lecPickInstructor('jp')">
-              <span class="lec-pick-flag">🇯🇵</span>
-              <div class="lec-pick-btn-text">
-                <span class="lec-pick-btn-main">일본어 강사 ${prev === 'jp' ? '<span class="lec-pick-recent-badge">최근</span>' : ''}</span>
-                <span class="lec-pick-btn-sub">귀를 일본어에 익히고 싶다면</span>
+            </div>
+
+            <div class="lec-pick-row">
+              <div class="lec-pick-row-label">성우</div>
+              <div class="lec-pick-options" id="lecPickVoice"></div>
+            </div>
+
+            <div class="lec-pick-row">
+              <div class="lec-pick-row-label">모드</div>
+              <div class="lec-pick-options" id="lecPickFont">
+                <button class="lec-pick-opt ${prevFont === 'chalk' ? 'active' : ''}" data-val="chalk" type="button" onclick="App._lecPickSet('font','chalk')">
+                  <span class="lec-pick-opt-main">✎</span>
+                  <span class="lec-pick-opt-sub">칠판</span>
+                </button>
+                <button class="lec-pick-opt ${prevFont === 'plain' ? 'active' : ''}" data-val="plain" type="button" onclick="App._lecPickSet('font','plain')">
+                  <span class="lec-pick-opt-main">Aa</span>
+                  <span class="lec-pick-opt-sub">종이</span>
+                </button>
               </div>
+            </div>
+
+            <button class="lec-pick-start" type="button" onclick="App._lecPickStart()">
+              <span>시작하기</span>
+              <span class="lec-pick-start-arrow">▶</span>
             </button>
-            <div class="lec-pick-hint">언제든 하단 토글로 바꿀 수 있어요</div>
           </div>
         </div>
       </div>
     `;
     document.getElementById('flowFooter').innerHTML = '';
+    _lecPickRefreshVoices();
   }
+  function _lecPickRefreshVoices() {
+    const cont = document.getElementById('lecPickVoice');
+    if (!cont) return;
+    const lang = window.__lecPickState?.lang || 'ko';
+    const voices = (typeof TTS.getAvailableVoices === 'function') ? TTS.getAvailableVoices(lang) : [];
+    // 이전 lang 선호 voice 복원
+    const storedKey = lang === 'ko' ? 'lecture_voice_ko' : 'lecture_voice_jp';
+    let preferred = localStorage.getItem(storedKey);
+    if (!preferred || !voices.some(v => v.key === preferred)) {
+      preferred = voices[0]?.key || null;
+    }
+    window.__lecPickState.voice = preferred;
+    cont.innerHTML = voices.map(v => {
+      const name = (v.label || v.key).split(' ')[0];
+      const sym = v.gender === 'F' ? '♀' : '♂';
+      return `
+        <button class="lec-pick-opt lec-pick-opt-voice ${v.key === preferred ? 'active' : ''}"
+                data-val="${escHtml(v.key)}" type="button" onclick="App._lecPickSet('voice','${escHtml(v.key)}')">
+          <span class="lec-pick-opt-main">${sym}</span>
+          <span class="lec-pick-opt-sub">${escHtml(name)}</span>
+        </button>
+      `;
+    }).join('');
+  }
+  function _lecPickSet(field, value) {
+    if (!window.__lecPickState) return;
+    if (field === 'lang') {
+      window.__lecPickState.lang = value;
+      document.querySelectorAll('#lecPickLang .lec-pick-opt').forEach(b => {
+        b.classList.toggle('active', b.dataset.val === value);
+      });
+      _lecPickRefreshVoices();  // voice list 갱신
+    } else if (field === 'font') {
+      window.__lecPickState.font = value;
+      document.querySelectorAll('#lecPickFont .lec-pick-opt').forEach(b => {
+        b.classList.toggle('active', b.dataset.val === value);
+      });
+    } else if (field === 'voice') {
+      window.__lecPickState.voice = value;
+      document.querySelectorAll('#lecPickVoice .lec-pick-opt').forEach(b => {
+        b.classList.toggle('active', b.dataset.val === value);
+      });
+    }
+  }
+  function _lecPickStart() {
+    const s = window.__lecPickState;
+    if (!s) return;
+    Store.setSetting('lectureInstructor', s.lang);
+    Store.setSetting('lectureBoardFont', s.font);
+    if (s.voice) {
+      const storedKey = s.lang === 'ko' ? 'lecture_voice_ko' : 'lecture_voice_jp';
+      localStorage.setItem(storedKey, s.voice);
+    }
+    window.__lecPickState = null;
+    _lectureRenderSlide();
+  }
+  // 레거시 (옛 버튼 호환) — 이전 코드 경로 안전망
   function _lecPickInstructor(lang) {
     if (lang !== 'jp' && lang !== 'ko') return;
     Store.setSetting('lectureInstructor', lang);
@@ -727,6 +814,8 @@ window.createLectureFlow = (ctx) => {
     setInstructor: _lecSetInstructor,
     toggleInstructor: _lecToggleInstructor,
     pickInstructor: _lecPickInstructor,
+    pickSet: _lecPickSet,
+    pickStart: _lecPickStart,
     toggleCaptionShow: _lecToggleCaptionShow,
     toggleBoardFont: _lecToggleBoardFont,
     setVoice: _lectureSetVoice,
