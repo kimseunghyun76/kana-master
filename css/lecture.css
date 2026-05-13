@@ -661,11 +661,42 @@
   color: rgba(244,241,236,.45); /* 「」 흐리게 */
   text-shadow: none;
 }
+.lec-board-body .chk-korean {
+  /* 한글은 기본 본문 색 — Gaegu / Noto KR */
+  color: inherit;
+}
 /* 일본어 글자는 Klee One으로 별도 적용 */
 .lec-board-body .chk-kanji,
 .lec-board-body .chk-hiragana,
-.lec-board-body .chk-katakana {
+.lec-board-body .chk-katakana,
+.lec-board-body ruby.chk-ruby {
   font-family: 'Klee One', 'Noto Sans JP', cursive;
+}
+/* 후리가나 — 흰 분필, 작게 */
+.lec-board-body ruby.chk-ruby {
+  color: #fde047;       /* 본문 한자 부분도 노란색 유지 */
+  font-weight: 700;
+  font-size: 1.18em;
+  text-shadow: 0 0 2px rgba(253,224,71,.55), 0 0 10px rgba(253,224,71,.3);
+}
+.lec-board-body .chk-furi {
+  color: #f8fafc;       /* 흰 분필 후리가나 */
+  font-size: .42em;
+  font-weight: 600;
+  font-family: 'Klee One', 'Noto Sans JP', cursive;
+  text-shadow: 0 0 2px rgba(248,250,252,.5), 0 0 6px rgba(248,250,252,.25);
+}
+
+/* 일본어 ↔ 한글 인접 시 자동 간격 */
+.lec-board-body .chk-kanji + .chk-korean,
+.lec-board-body .chk-hiragana + .chk-korean,
+.lec-board-body .chk-katakana + .chk-korean,
+.lec-board-body ruby.chk-ruby + .chk-korean,
+.lec-board-body .chk-korean + .chk-kanji,
+.lec-board-body .chk-korean + .chk-hiragana,
+.lec-board-body .chk-korean + .chk-katakana,
+.lec-board-body .chk-korean + ruby.chk-ruby {
+  margin-left: .3em;
 }
 
 /* 칠판 폰트 일반 모드 — 손글씨 폰트 대신 산세리프 */
@@ -675,7 +706,9 @@
 }
 .lec-board-body.font-plain .chk-kanji,
 .lec-board-body.font-plain .chk-hiragana,
-.lec-board-body.font-plain .chk-katakana {
+.lec-board-body.font-plain .chk-katakana,
+.lec-board-body.font-plain ruby.chk-ruby,
+.lec-board-body.font-plain .chk-furi {
   font-family: 'Noto Sans JP', sans-serif;
   font-weight: 700;
 }

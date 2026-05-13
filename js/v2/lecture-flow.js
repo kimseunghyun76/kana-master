@@ -390,10 +390,11 @@ window.createLectureFlow = (ctx) => {
     if (/[一-鿿]/.test(ch)) return 'chk-kanji';     // 한자
     if (/[぀-ゟ]/.test(ch)) return 'chk-hiragana';  // 히라가나
     if (/[゠-ヿ]/.test(ch)) return 'chk-katakana';  // 가타카나
-    if (/[①-⑳]/.test(ch))           return 'chk-num';        // 동그라미 숫자
-    if (/[→↓↑←★✓✗⚠▸▪⇒⟶]/.test(ch)) return 'chk-mark';      // 마커
-    if (/[「」『』]/.test(ch))         return 'chk-punct';      // 일본식 따옴표
-    return ''; // 기본 (한글/Latin/숫자/기타)
+    if (/[가-힣]/.test(ch))             return 'chk-korean';     // 한글
+    if (/[①-⑳]/.test(ch))               return 'chk-num';        // 동그라미 숫자
+    if (/[→↓↑←★✓✗⚠▸▪⇒⟶]/.test(ch)) return 'chk-mark';       // 마커
+    if (/[「」『』]/.test(ch))           return 'chk-punct';      // 일본식 따옴표
+    return ''; // 기본
   }
   function _lecSubChalk(text) {
     const el = document.getElementById('lecBoardSub');
@@ -406,11 +407,42 @@ window.createLectureFlow = (ctx) => {
     el.innerHTML = chars.map((ch) => {
       if (ch === '\n') return '<br>';
       const cls = _chalkClass(ch);
-      const span = `<span class="chalk-char${cls ? ' ' + cls : ''}" style="animation-delay:${i * PER_CHAR}ms">${escHtml(ch)}</span>`;
+      const content = ch === ' ' ? '&nbsp;' : escHtml(ch);
+      const span = `<span class="chalk-char${cls ? ' ' + cls : ''}" style="animation-delay:${i * PER_CHAR}ms">${content}</span>`;
       i++;
       return span;
     }).join('');
-    return i * PER_CHAR + 200;
+    const totalDur = i * PER_CHAR + 200;
+    // 애니메이션 완료 후 — 후리가나 ruby 포함된 정착 버전으로 교체
+    setTimeout(() => {
+      const el2 = document.getElementById('lecBoardSub');
+      if (el2) el2.innerHTML = _buildRichBoardText(text);
+    }, totalDur + 100);
+    return totalDur;
+  }
+
+  // 정착 후 칠판 본문 — 후리가나 ruby + 글자별 색상 클래스 보존
+  function _buildRichBoardText(text) {
+    let result = '';
+    let i = 0;
+    while (i < text.length) {
+      const rest = text.slice(i);
+      // 漢字(かな) 패턴 → ruby
+      const m = rest.match(/^([一-鿿々]+)[（\(]([ぁ-ヶー・]+)[）\)]/);
+      if (m) {
+        const [whole, kanji, furi] = m;
+        result += `<ruby class="chk-ruby">${escHtml(kanji)}<rt class="chk-furi">${escHtml(furi)}</rt></ruby>`;
+        i += whole.length;
+        continue;
+      }
+      const ch = text[i];
+      if (ch === '\n') { result += '<br>'; i++; continue; }
+      const cls = _chalkClass(ch);
+      const content = ch === ' ' ? '&nbsp;' : escHtml(ch);
+      result += `<span${cls ? ' class="' + cls + '"' : ''}>${content}</span>`;
+      i++;
+    }
+    return result;
   }
 
   // ── 한국어 → 가타카나 근사 변환 (TTS용) ────────────────────
