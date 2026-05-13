@@ -45,40 +45,37 @@ window.createLectureFlow = (ctx) => {
     });
   }
 
-  // ── 자막 보이기/숨기기 토글 (기본 숨김) ──────────────────
+  // ── 자막 토글 — 3-state: OFF → JP → KO → OFF ─────────────
   function _lectureCaptionShow() {
-    return !!Store.getSetting('lectureCaptionShow');
+    const v = Store.getSetting('lectureCaptionShow');
+    if (v === 'jp' || v === 'ko' || v === 'off') return v;
+    return 'off';
   }
   function _lectureCaptionToggleButton() {
-    const on = _lectureCaptionShow();
+    const state = _lectureCaptionShow();
+    const labels = { off: 'OFF', jp: 'JP', ko: 'KO' };
+    const isOn = state !== 'off';
     return `
-      <button class="lec-display-toggle lec-caption-toggle ${on ? 'active' : ''}"
+      <button class="lec-display-toggle lec-caption-toggle ${isOn ? 'active' : ''} cap-${state}"
               onclick="App._lecToggleCaptionShow()"
               type="button"
-              aria-pressed="${on ? 'true' : 'false'}"
-              title="자막 ${on ? '숨기기' : '보이기'}">
+              title="자막 (다음: ${state === 'off' ? 'JP' : state === 'jp' ? 'KO' : 'OFF'})">
         <span class="lec-display-toggle-label">자막</span>
-        <span class="lec-display-toggle-state">${on ? 'ON' : 'OFF'}</span>
+        <span class="lec-display-toggle-state">${labels[state]}</span>
       </button>
     `;
   }
   function _lecToggleCaptionShow() {
-    const next = !_lectureCaptionShow();
+    const cur = _lectureCaptionShow();
+    const next = cur === 'off' ? 'jp' : cur === 'jp' ? 'ko' : 'off';
     Store.setSetting('lectureCaptionShow', next);
-    const reel = document.querySelector('.lec-reel');
-    if (reel) {
-      reel.classList.toggle('captions-hidden', !next);
-      reel.classList.toggle('has-caption', next);
-      reel.classList.toggle('no-caption', !next);
+    // 자막 언어가 바뀌면 단순 클래스 토글로 부족 — 슬라이드 재렌더 (현재 인덱스 유지)
+    TTS.stopQueue();
+    const lc = _lectureState();
+    if (lc) {
+      _lecStopTimer();
+      _lectureRenderSlide();
     }
-    document.querySelector('.lec-caption-box-solo')?.classList.toggle('hidden', !next);
-    document.querySelectorAll('.lec-caption-toggle').forEach(btn => {
-      btn.classList.toggle('active', next);
-      btn.setAttribute('aria-pressed', next ? 'true' : 'false');
-      btn.setAttribute('title', '자막 ' + (next ? '숨기기' : '보이기'));
-      const stateEl = btn.querySelector('.lec-display-toggle-state');
-      if (stateEl) stateEl.textContent = next ? 'ON' : 'OFF';
-    });
   }
 
   // ── 강의 강사 언어 (라디오: 항상 정확히 하나) ─────────────
@@ -86,21 +83,23 @@ window.createLectureFlow = (ctx) => {
     const v = Store.getSetting('lectureInstructor');
     return (v === 'jp' || v === 'ko') ? v : 'ko';
   }
-  function _lectureInstructorToggleButton(lang) {
+  function _lectureInstructorToggleButton() {
     const cur = _lectureInstructor();
-    const active = cur === lang;
-    const flag = lang === 'jp' ? 'JP' : 'KO';
-    const fullLabel = lang === 'jp' ? '일본어 강사' : '한국어 강사';
+    const flag = cur === 'jp' ? 'JP' : 'KO';
+    const next = cur === 'jp' ? '한국어' : '일본어';
     return `
-      <button class="lec-display-toggle lec-instructor-toggle ${active ? 'active' : ''}"
-              onclick="App._lecSetInstructor('${lang}')"
+      <button class="lec-display-toggle lec-instructor-toggle active"
+              onclick="App._lecToggleInstructor()"
               type="button"
-              role="radio"
-              aria-checked="${active ? 'true' : 'false'}"
-              title="${fullLabel}">
+              title="강사: ${cur === 'jp' ? '일본어' : '한국어'} (클릭하여 ${next}로 전환)">
         <span class="lec-display-toggle-label">${flag}</span>
+        <span class="lec-display-toggle-state">강사</span>
       </button>
     `;
+  }
+  function _lecToggleInstructor() {
+    const next = _lectureInstructor() === 'ko' ? 'jp' : 'ko';
+    _lecSetInstructor(next);
   }
 
   // ── 강의 화자 토글 (선택된 강사 언어 내에서) ──────────────
@@ -267,10 +266,12 @@ window.createLectureFlow = (ctx) => {
     const nextSlide = slides[idx + 1];
     const prevSlide = slides[idx - 1];
     const instructor = _lectureInstructor();
-    const activeCaption = instructor === 'ko' ? slide.captionKo : slide.captionJp;
-    const hasAnyCaption = !!activeCaption;
-    const captionsShown = _lectureCaptionShow();
-    const hasVisibleCaption = hasAnyCaption && captionsShown;
+    const captionState = _lectureCaptionShow();   // 'off' | 'jp' | 'ko'
+    const captionLang = captionState === 'off' ? null : captionState;
+    const captionText = captionLang === 'ko' ? slide.captionKo
+                       : captionLang === 'jp' ? slide.captionJp : '';
+    const hasVisibleCaption = !!captionText;
+    const captionsShown = captionState !== 'off';
     const slideSegments = slides.map((_, slideIndex) => `
       <div class="lec-segment ${slideIndex < idx ? 'done' : ''} ${slideIndex === idx ? 'active' : ''}">
         <div class="lec-segment-fill"></div>
@@ -309,9 +310,9 @@ window.createLectureFlow = (ctx) => {
               <div class="lec-board-body ${_lectureBoardFont() === 'plain' ? 'font-plain' : ''}" id="lecBoardSub"></div>
               ${slide.audio ? `<div class="lec-board-reading">${escHtml(slide.audio)}</div>` : ''}
             </div>
-            ${hasAnyCaption ? `
-            <div class="lec-caption-box lec-caption-box-solo${captionsShown ? '' : ' hidden'}">
-              ${instructor === 'jp'
+            ${hasVisibleCaption ? `
+            <div class="lec-caption-box lec-caption-box-solo">
+              ${captionLang === 'jp'
                 ? `<div class="lec-cap-jp" id="lecCapJp">${ruby(slide.captionJp || '')}</div>`
                 : `<div class="lec-cap-ko" id="lecCapKo">${escHtml(slide.captionKo || '')}</div>`}
             </div>` : ''}
@@ -330,14 +331,13 @@ window.createLectureFlow = (ctx) => {
     const nextLabel = isLast ? '완료' : stripFuri(nextSlide?.main || '다음');
     document.getElementById('flowFooter').innerHTML = `
       <div class="lec-footer-tools lec-footer-tools-unified">
-        ${_lectureInstructorToggleButton('ko')}
-        ${_lectureInstructorToggleButton('jp')}
+        ${_lectureInstructorToggleButton()}
+        ${_lectureVoiceSelect()}
         ${_lectureFontToggleButton()}
         ${_lectureCaptionToggleButton()}
         <button class="lec-display-toggle lec-display-action" id="btnLecPause"
                 aria-label="일시정지"
                 onclick="App._lecPauseToggle()">${_lecturePauseButtonLabel(false)}</button>
-        ${_lectureVoiceSelect()}
         ${isLast ? `<button class="lec-display-toggle lec-display-replay" onclick="App._lecRestart()" title="처음부터 다시 보기">${ctx.uiLabeledIcon('replay')} 다시 보기</button>` : ''}
       </div>
       <div class="lec-controls lec-controls-compact">
@@ -666,6 +666,7 @@ window.createLectureFlow = (ctx) => {
     restart: _lecRestart,
     pauseToggle: _lecPauseToggle,
     setInstructor: _lecSetInstructor,
+    toggleInstructor: _lecToggleInstructor,
     pickInstructor: _lecPickInstructor,
     toggleCaptionShow: _lecToggleCaptionShow,
     toggleBoardFont: _lecToggleBoardFont,

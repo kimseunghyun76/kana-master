@@ -304,14 +304,17 @@
   color: #fbb6ce;
 }
 
-/* 자막 보기 토글 — 활성 시 sky 강조 */
-.lec-caption-toggle.active {
+/* 자막 토글 3-state — OFF / JP / KO */
+.lec-caption-toggle.cap-jp {
+  background: rgba(244,114,182,.18);
+  border-color: rgba(244,114,182,.5);
+}
+.lec-caption-toggle.cap-jp .lec-display-toggle-state { color: #fbb6ce; }
+.lec-caption-toggle.cap-ko {
   background: rgba(56,189,248,.18);
   border-color: rgba(56,189,248,.5);
 }
-.lec-caption-toggle.active .lec-display-toggle-state {
-  color: #7dd3fc;
-}
+.lec-caption-toggle.cap-ko .lec-display-toggle-state { color: #7dd3fc; }
 
 /* 자막 숨김 모드 — caption-box 자체 숨김 */
 .lec-reel.captions-hidden .lec-caption-box-solo {

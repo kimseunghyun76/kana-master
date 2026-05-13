@@ -456,6 +456,7 @@ window.App = (() => {
   function _lecRestart() { return _lectureFlow.restart(); }
   function _lecPauseToggle() { return _lectureFlow.pauseToggle(); }
   function _lecSetInstructor(lang) { return _lectureFlow.setInstructor(lang); }
+  function _lecToggleInstructor() { return _lectureFlow.toggleInstructor(); }
   function _lecPickInstructor(lang) { return _lectureFlow.pickInstructor(lang); }
   function _lecToggleCaptionShow() { return _lectureFlow.toggleCaptionShow(); }
   function _lecToggleBoardFont() { return _lectureFlow.toggleBoardFont(); }
@@ -791,6 +792,7 @@ window.App = (() => {
     _lecRestart,
     _lecPauseToggle,
     _lecSetInstructor,
+    _lecToggleInstructor,
     _lecPickInstructor,
     _lecToggleCaptionShow,
     _lecToggleBoardFont,
