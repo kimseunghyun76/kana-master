@@ -649,8 +649,9 @@
   text-shadow: 0 0 2px rgba(125,211,252,.55), 0 0 10px rgba(125,211,252,.32);
 }
 .lec-board-body .chk-num {
-  color: #fda4af;       /* 코랄 — ①②③ 마커 */
-  text-shadow: 0 0 2px rgba(253,164,175,.55), 0 0 8px rgba(253,164,175,.32);
+  color: #f8fafc;       /* 흰 분필 — ①②③ 마커 */
+  margin-right: .35em;  /* 다음 글자와 시각 간격 확보 */
+  text-shadow: 0 0 2px rgba(248,250,252,.45), 0 0 8px rgba(248,250,252,.2);
 }
 .lec-board-body .chk-mark {
   color: #f8fafc;       /* 흰 분필 — → ✓ ★ */
