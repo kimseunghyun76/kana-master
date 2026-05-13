@@ -10,7 +10,10 @@ window.createLectureFlow = (ctx) => {
   }
 
   function _lecturePauseButtonLabel(paused) {
-    return `${ctx.uiLabeledIcon(paused ? 'play' : 'pause')} <span class="lecture-pause-text">${paused ? '재생' : '일시정지'}</span>`;
+    return `
+      <span class="lec-tool-main">${paused ? '재생' : '정지'}</span>
+      <span class="lec-tool-sub">제어</span>
+    `;
   }
 
   // ── 칠판 폰트 토글 (손글씨 ↔ 일반) ────────────────────────
@@ -20,11 +23,12 @@ window.createLectureFlow = (ctx) => {
   function _lectureFontToggleButton() {
     const isPlain = _lectureBoardFont() === 'plain';
     return `
-      <button class="lec-display-toggle lec-font-toggle ${isPlain ? 'active' : ''}"
+      <button class="lec-display-toggle lec-tool-btn lec-font-toggle ${isPlain ? 'is-plain' : 'is-chalk'}"
               onclick="App._lecToggleBoardFont()"
               type="button"
               title="${isPlain ? '종이 → 칠판 모드' : '칠판 → 종이 모드'}">
-        <span class="lec-display-toggle-icon" aria-hidden="true">${isPlain ? '📄' : '🟩'}</span>
+        <span class="lec-tool-main">${isPlain ? '종이' : '칠판'}</span>
+        <span class="lec-tool-sub">모드</span>
       </button>
     `;
   }
@@ -37,10 +41,11 @@ window.createLectureFlow = (ctx) => {
     if (body) body.classList.toggle('font-plain', next === 'plain');
     document.querySelectorAll('.lec-font-toggle').forEach(btn => {
       const isP = next === 'plain';
-      btn.classList.toggle('active', isP);
+      btn.classList.toggle('is-plain', isP);
+      btn.classList.toggle('is-chalk', !isP);
       btn.setAttribute('title', isP ? '종이 → 칠판 모드' : '칠판 → 종이 모드');
-      const iconEl = btn.querySelector('.lec-display-toggle-icon');
-      if (iconEl) iconEl.textContent = isP ? '📄' : '🟩';
+      const mainEl = btn.querySelector('.lec-tool-main');
+      if (mainEl) mainEl.textContent = isP ? '종이' : '칠판';
     });
   }
 
@@ -53,14 +58,13 @@ window.createLectureFlow = (ctx) => {
   function _lectureCaptionToggleButton() {
     const state = _lectureCaptionShow();
     const labels = { off: 'OFF', jp: 'JP', ko: 'KO' };
-    const isOn = state !== 'off';
     return `
-      <button class="lec-display-toggle lec-caption-toggle ${isOn ? 'active' : ''} cap-${state}"
+      <button class="lec-display-toggle lec-tool-btn lec-caption-toggle cap-${state}"
               onclick="App._lecToggleCaptionShow()"
               type="button"
               title="자막 (다음: ${state === 'off' ? 'JP' : state === 'jp' ? 'KO' : 'OFF'})">
-        <span class="lec-display-toggle-icon" aria-hidden="true">💬</span>
-        <span class="lec-display-toggle-label">${labels[state]}</span>
+        <span class="lec-tool-main">${labels[state]}</span>
+        <span class="lec-tool-sub">자막</span>
       </button>
     `;
   }
@@ -84,15 +88,14 @@ window.createLectureFlow = (ctx) => {
   }
   function _lectureInstructorToggleButton() {
     const cur = _lectureInstructor();
-    const flagEmoji = cur === 'jp' ? '🇯🇵' : '🇰🇷';
     const nextLabel = cur === 'jp' ? '한국어' : '일본어';
     return `
-      <button class="lec-display-toggle lec-instructor-toggle active"
+      <button class="lec-display-toggle lec-tool-btn lec-instructor-toggle"
               onclick="App._lecToggleInstructor()"
               type="button"
-              title="강사: ${cur === 'jp' ? '일본어' : '한국어'} (클릭하여 ${nextLabel}로 전환)">
-        <span class="lec-display-toggle-icon" aria-hidden="true">🎓</span>
-        <span class="lec-display-toggle-flag" aria-hidden="true">${flagEmoji}</span>
+              title="강사: ${cur === 'jp' ? '일본어' : '한국어'} (클릭 → ${nextLabel})">
+        <span class="lec-tool-main">${cur === 'jp' ? 'JP' : 'KO'}</span>
+        <span class="lec-tool-sub">강사</span>
       </button>
     `;
   }
@@ -143,10 +146,10 @@ window.createLectureFlow = (ctx) => {
     if (wrap && meta) {
       wrap.classList.toggle('lec-voice-F', meta.gender === 'F');
       wrap.classList.toggle('lec-voice-M', meta.gender === 'M');
-      const marker = wrap.querySelector('.lec-voice-marker');
-      if (marker) marker.textContent = meta.gender === 'F' ? '♀' : '♂';
-      const name = wrap.querySelector('.lec-voice-name');
-      if (name) name.textContent = (meta.label || meta.key).split(' ')[0];
+      const mainEl = wrap.querySelector('.lec-tool-main');
+      if (mainEl) mainEl.textContent = (meta.label || meta.key).split(' ')[0];
+      const subEl = wrap.querySelector('.lec-tool-sub');
+      if (subEl) subEl.textContent = meta.gender === 'F' ? '여 화자' : '남 화자';
     }
   }
   function _lectureCycleVoice() {
@@ -165,10 +168,10 @@ window.createLectureFlow = (ctx) => {
     const curGender = curMeta?.gender || 'F';
     const curName = (curMeta?.label || curMeta?.key || '화자').split(' ')[0];
     return `
-      <button class="lec-voice-select-wrap lec-voice-${curGender}" id="lecVoiceWrap"
-              onclick="App._lecCycleVoice()" type="button" title="강의 화자 변경">
-        <span class="lec-voice-marker" aria-label="${curGender === 'F' ? '여성 화자' : '남성 화자'}">${curGender === 'F' ? '♀' : '♂'}</span>
-        <span class="lec-voice-name">${escHtml(curName)}</span>
+      <button class="lec-display-toggle lec-tool-btn lec-voice-select-wrap lec-voice-${curGender}" id="lecVoiceWrap"
+              onclick="App._lecCycleVoice()" type="button" title="강의 화자 변경 (${curGender === 'F' ? '여성' : '남성'})">
+        <span class="lec-tool-main">${escHtml(curName)}</span>
+        <span class="lec-tool-sub">${curGender === 'F' ? '여 화자' : '남 화자'}</span>
       </button>
     `;
   }
@@ -331,7 +334,7 @@ window.createLectureFlow = (ctx) => {
         ${_lectureVoiceSelect()}
         ${_lectureFontToggleButton()}
         ${_lectureCaptionToggleButton()}
-        <button class="lec-display-toggle lec-display-action" id="btnLecPause"
+        <button class="lec-display-toggle lec-tool-btn lec-pause-btn" id="btnLecPause"
                 aria-label="일시정지"
                 onclick="App._lecPauseToggle()">${_lecturePauseButtonLabel(false)}</button>
         ${isLast ? `<button class="lec-display-toggle lec-display-replay" onclick="App._lecRestart()" title="처음부터 다시 보기">${ctx.uiLabeledIcon('replay')} 다시 보기</button>` : ''}
@@ -392,24 +395,47 @@ window.createLectureFlow = (ctx) => {
     if (/[「」『』]/.test(ch))           return 'chk-punct';      // 일본식 따옴표
     return ''; // 기본
   }
+  // __text__ 마크업을 [{text, underline}] 세그먼트로 토큰화
+  function _tokenizeUnderline(text) {
+    const segs = [];
+    let inU = false;
+    let buf = '';
+    for (let j = 0; j < text.length; j++) {
+      if (text[j] === '_' && text[j+1] === '_') {
+        if (buf) segs.push({ text: buf, underline: inU });
+        buf = '';
+        inU = !inU;
+        j++; // skip second _
+      } else {
+        buf += text[j];
+      }
+    }
+    if (buf) segs.push({ text: buf, underline: inU });
+    return segs;
+  }
+
   function _lecSubChalk(text) {
     const el = document.getElementById('lecBoardSub');
     if (!el || !text) return 0;
     // 후리가나 제거: 漢字(かな) → 漢字 (괄호 안이 히라가나일 때만)
     const plain = text.replace(/[（\(]([ぁ-ヶー・]+)[）\)]/g, '');
-    const chars = [...plain];
+    const segments = _tokenizeUnderline(plain);
     const PER_CHAR = 45;
     let i = 0;
-    el.innerHTML = chars.map((ch) => {
-      if (ch === '\n') return '<br>';
-      const cls = _chalkClass(ch);
-      const content = ch === ' ' ? '&nbsp;' : escHtml(ch);
-      const span = `<span class="chalk-char${cls ? ' ' + cls : ''}" style="animation-delay:${i * PER_CHAR}ms">${content}</span>`;
-      i++;
-      return span;
-    }).join('');
+    const parts = [];
+    for (const seg of segments) {
+      for (const ch of [...seg.text]) {
+        if (ch === '\n') { parts.push('<br>'); continue; }
+        const cls = _chalkClass(ch);
+        const uCls = seg.underline ? ' chk-underline' : '';
+        const content = ch === ' ' ? '&nbsp;' : escHtml(ch);
+        parts.push(`<span class="chalk-char${cls ? ' ' + cls : ''}${uCls}" style="animation-delay:${i * PER_CHAR}ms">${content}</span>`);
+        i++;
+      }
+    }
+    el.innerHTML = parts.join('');
     const totalDur = i * PER_CHAR + 200;
-    // 애니메이션 완료 후 — 후리가나 ruby 포함된 정착 버전으로 교체
+    // 애니메이션 완료 후 — 후리가나 ruby + 밑줄 포함된 정착 버전으로 교체
     setTimeout(() => {
       const el2 = document.getElementById('lecBoardSub');
       if (el2) el2.innerHTML = _buildRichBoardText(text);
@@ -417,17 +443,25 @@ window.createLectureFlow = (ctx) => {
     return totalDur;
   }
 
-  // 정착 후 칠판 본문 — 후리가나 ruby + 글자별 색상 클래스 보존
+  // 정착 후 칠판 본문 — 후리가나 ruby + 글자별 색상 클래스 + __밑줄__ 보존
   function _buildRichBoardText(text) {
     let result = '';
     let i = 0;
+    let inU = false;
     while (i < text.length) {
+      // __밑줄__ 토글 토큰
+      if (text[i] === '_' && text[i+1] === '_') {
+        inU = !inU;
+        i += 2;
+        continue;
+      }
+      const uCls = inU ? ' chk-underline' : '';
       const rest = text.slice(i);
       // 漢字(かな) 패턴 → ruby
       const m = rest.match(/^([一-鿿々]+)[（\(]([ぁ-ヶー・]+)[）\)]/);
       if (m) {
         const [whole, kanji, furi] = m;
-        result += `<ruby class="chk-ruby">${escHtml(kanji)}<rt class="chk-furi">${escHtml(furi)}</rt></ruby>`;
+        result += `<ruby class="chk-ruby${uCls}">${escHtml(kanji)}<rt class="chk-furi">${escHtml(furi)}</rt></ruby>`;
         i += whole.length;
         continue;
       }
@@ -435,7 +469,7 @@ window.createLectureFlow = (ctx) => {
       if (ch === '\n') { result += '<br>'; i++; continue; }
       const cls = _chalkClass(ch);
       const content = ch === ' ' ? '&nbsp;' : escHtml(ch);
-      result += `<span${cls ? ' class="' + cls + '"' : ''}>${content}</span>`;
+      result += `<span class="${cls}${uCls}">${content}</span>`;
       i++;
     }
     return result;

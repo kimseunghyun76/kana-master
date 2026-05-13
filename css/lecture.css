@@ -233,25 +233,24 @@
   display: none;
 }
 .lec-display-toggle {
-  border: 1px solid rgba(148,163,184,.2);
-  background: rgba(15,23,42,.54);
-  color: #cbd5e1;
-  border-radius: 999px;
-  padding: 6px 10px;
-  min-height: 32px;
+  border: 1px solid rgba(148,163,184,.22);
+  background: rgba(15,23,42,.58);
+  color: #e2e8f0;
+  border-radius: 12px;
+  padding: 4px 8px;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
   font-size: 11px;
   font-weight: 700;
-  line-height: 1;
+  line-height: 1.05;
   white-space: nowrap;
   transition: border-color var(--dur), background var(--dur), color var(--dur), transform var(--dur);
+  -webkit-tap-highlight-color: transparent;
 }
 .lec-display-toggle:hover {
-  border-color: rgba(129,140,248,.4);
+  border-color: rgba(129,140,248,.45);
   color: #f8fafc;
   transform: translateY(-1px);
 }
@@ -259,6 +258,29 @@
   background: rgba(99,102,241,.18);
   border-color: rgba(129,140,248,.48);
   color: #f8fafc;
+}
+
+/* 통일 풋터 툴 버튼 — 모두 같은 크기 (2단 라벨) */
+.lec-tool-btn {
+  flex-direction: column;
+  gap: 1px;
+  min-width: 58px;
+  min-height: 38px;
+  padding: 4px 8px;
+}
+.lec-tool-main {
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: .02em;
+  color: #f8fafc;
+  line-height: 1.05;
+}
+.lec-tool-sub {
+  font-size: 9px;
+  font-weight: 700;
+  color: rgba(148,163,184,.82);
+  letter-spacing: 0;
+  line-height: 1;
 }
 .lec-display-toggle-label {
   letter-spacing: .08em;
@@ -300,38 +322,20 @@
   flex: 0 0 auto;
 }
 
-/* 강사 언어 라디오 토글 — 짧은 KO/JP 버튼 */
-.lec-instructor-toggle {
-  min-width: 38px;
-  padding: 6px 10px;
-}
-.lec-instructor-toggle.active {
-  background: rgba(16,185,129,.22);
-  border-color: rgba(52,211,153,.55);
-  color: #6ee7b7;
-}
-
-/* 폰트 토글 — 손글씨 ↔ 일반 */
-.lec-font-toggle.active {
-  background: rgba(244,114,182,.18);
-  border-color: rgba(244,114,182,.5);
-  color: #fbb6ce;
-}
-.lec-font-toggle.active .lec-display-toggle-state {
-  color: #fbb6ce;
-}
-
-/* 자막 토글 3-state — OFF / JP / KO */
-.lec-caption-toggle.cap-jp {
-  background: rgba(244,114,182,.18);
-  border-color: rgba(244,114,182,.5);
-}
-.lec-caption-toggle.cap-jp .lec-display-toggle-state { color: #fbb6ce; }
+/* 통일 active 스타일 — 모든 toggle 동일 인디고 */
+.lec-instructor-toggle,
+.lec-font-toggle.is-plain,
+.lec-caption-toggle.cap-jp,
 .lec-caption-toggle.cap-ko {
-  background: rgba(56,189,248,.18);
-  border-color: rgba(56,189,248,.5);
+  background: rgba(99,102,241,.20);
+  border-color: rgba(129,140,248,.5);
 }
-.lec-caption-toggle.cap-ko .lec-display-toggle-state { color: #7dd3fc; }
+.lec-instructor-toggle .lec-tool-main,
+.lec-font-toggle.is-plain .lec-tool-main,
+.lec-caption-toggle.cap-jp .lec-tool-main,
+.lec-caption-toggle.cap-ko .lec-tool-main {
+  color: #c7d2fe;
+}
 
 /* 자막 숨김 모드 — caption-box 자체 숨김 */
 .lec-reel.captions-hidden .lec-caption-box-solo {
@@ -496,67 +500,8 @@
 .lec-instructor-pick-sub { font-size: 11px; opacity: .8; font-weight: 500; }
 
 /* 강의 화자 선택 — 툴바 순환 버튼 */
-.lec-voice-select-wrap {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 5px;
-  flex: 0 0 auto;
-  min-width: 84px;
-  max-width: 116px;
-  padding: 0 10px;
-  height: 32px;
-  border-radius: 999px;
-  border: 1px solid rgba(148,163,184,.28);
-  background: rgba(15,23,42,.54);
-  color: #f8fafc;
-  font-size: 11px;
-  font-weight: 700;
-  line-height: 1;
-  cursor: pointer;
-  white-space: nowrap;
-  overflow: hidden;
-  transition: border-color var(--dur), background var(--dur);
-}
-.lec-voice-select-wrap:hover { border-color: rgba(129,140,248,.5); }
-.lec-voice-select-wrap.lec-voice-F {
-  background: rgba(236,72,153,.18);
-  border-color: rgba(236,72,153,.55);
-}
-.lec-voice-select-wrap.lec-voice-M {
-  background: rgba(59,130,246,.18);
-  border-color: rgba(96,165,250,.55);
-}
-.lec-voice-marker {
-  flex: 0 0 auto;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 16px;
-  height: 16px;
-  font-size: 14px;
-  font-weight: 900;
-  line-height: 1;
-  pointer-events: none;
-}
-.lec-voice-select-wrap.lec-voice-F .lec-voice-marker {
-  color: #f9a8d4;  /* 핑크 — ♀ */
-}
-.lec-voice-select-wrap.lec-voice-M .lec-voice-marker {
-  color: #93c5fd;  /* 하늘 — ♂ */
-}
-.lec-voice-label {
-  flex: 0 0 auto;
-  color: rgba(226,232,240,.72);
-  font-size: 10px;
-}
-.lec-voice-name {
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  color: #f8fafc;
-}
+/* 화자 select — 통일 tool 버튼 사용. 화자 별 색상 차별화 X */
+.lec-voice-select-wrap { /* legacy class kept on the same element for hooks */ }
 /* ── Chalkboard (칠판) ─────────────────────────────────────── */
 /* Board + Caption stack — reel 하단에 컬럼으로 묶음 */
 .lec-board-stack {
@@ -706,6 +651,17 @@
   /* 한글은 기본 본문 색 — Gaegu / Noto KR */
   color: inherit;
 }
+/* 칠판 핵심 포인트 밑줄 (__text__) */
+.lec-board-body .chk-underline {
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-decoration-color: rgba(253,224,71,.85);
+  text-underline-offset: 3px;
+}
+.lec-board.font-plain .chk-underline {
+  text-decoration-color: #b45309;  /* 종이 모드 갈색 밑줄 */
+  text-decoration-thickness: 1.5px;
+}
 /* 일본어 글자는 Klee One으로 별도 적용 */
 .lec-board-body .chk-kanji,
 .lec-board-body .chk-hiragana,
@@ -773,6 +729,10 @@
   font-weight: 700;
   color: #1f2937;
   text-shadow: none;
+  font-size: 17px;     /* 기본 본문 살짝 축소 */
+}
+.lec-board.font-plain .chk-korean {
+  font-size: .85em;    /* 종이 모드 한글은 일본어 대비 작게 */
 }
 /* 종이 모드 — 글자 색 어둡게, 한자는 강조 색 유지하되 darker */
 .lec-board.font-plain .chk-kanji {
