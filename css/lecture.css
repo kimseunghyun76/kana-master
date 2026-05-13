@@ -276,6 +276,14 @@
   /* 이모지가 폰트 통일에 영향 안 받도록 */
   font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif;
 }
+/* 강사 토글 — 국기 이모지 */
+.lec-display-toggle-flag {
+  font-size: 16px;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif;
+}
 .lec-display-action {
   width: 52px;
   min-width: 52px;
@@ -524,10 +532,19 @@
   flex: 0 0 auto;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
   font-size: 14px;
+  font-weight: 900;
   line-height: 1;
   pointer-events: none;
-  font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif;
+}
+.lec-voice-select-wrap.lec-voice-F .lec-voice-marker {
+  color: #f9a8d4;  /* 핑크 — ♀ */
+}
+.lec-voice-select-wrap.lec-voice-M .lec-voice-marker {
+  color: #93c5fd;  /* 하늘 — ♂ */
 }
 .lec-voice-label {
   flex: 0 0 auto;
@@ -723,16 +740,80 @@
   margin-left: .3em;
 }
 
-/* 칠판 폰트 일반 모드 — 손글씨 폰트 대신 산세리프 */
-.lec-board-body.font-plain {
+/* ── 일반 폰트 모드 → 종이 노트 효과 ───────────────────────── */
+.lec-board.font-plain {
+  /* 크림 종이 + 부드러운 그라데이션 */
+  background:
+    repeating-linear-gradient(180deg,
+      transparent 0,
+      transparent 28px,
+      rgba(96, 125, 139, .12) 28px,
+      rgba(96, 125, 139, .12) 29px),
+    linear-gradient(180deg, #fefdf7 0%, #f7f1e3 60%, #efe7d3 100%);
+  border: 1px solid rgba(180, 165, 130, .35);
+  box-shadow:
+    0 1px 0 rgba(180, 165, 130, .3) inset,  /* 종이 윗줄 */
+    0 18px 36px rgba(0, 0, 0, .35);          /* 들린 그림자 */
+}
+.lec-board.font-plain::before {
+  /* 칠판 분필 가루 텍스처 제거 — 종이 종이 결만 */
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='p'><feTurbulence type='fractalNoise' baseFrequency='1.2' numOctaves='1' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.55  0 0 0 0 0.48  0 0 0 0 0.36  0 0 0 0.08 0'/></filter><rect width='100%25' height='100%25' filter='url(%23p)'/></svg>");
+  background-size: 180px 180px;
+  mix-blend-mode: multiply;
+  opacity: .35;
+}
+.lec-board.font-plain::after {
+  /* 종이 한쪽 모서리 살짝 어둡게 (입체감) */
+  background:
+    linear-gradient(135deg, rgba(0,0,0,.05) 0%, transparent 18%),
+    radial-gradient(120px 50px at 96% 96%, rgba(120, 90, 50, .08), transparent 70%);
+}
+.lec-board.font-plain .lec-board-body {
   font-family: 'Noto Sans KR', 'Noto Sans JP', sans-serif;
   font-weight: 700;
+  color: #1f2937;
+  text-shadow: none;
 }
-.lec-board-body.font-plain .chk-kanji,
-.lec-board-body.font-plain .chk-hiragana,
-.lec-board-body.font-plain .chk-katakana,
-.lec-board-body.font-plain ruby.chk-ruby,
-.lec-board-body.font-plain .chk-furi {
+/* 종이 모드 — 글자 색 어둡게, 한자는 강조 색 유지하되 darker */
+.lec-board.font-plain .chk-kanji {
+  color: #b45309;             /* 어두운 노란/갈색 (highlight) */
+  text-shadow: none;
+}
+.lec-board.font-plain .chk-hiragana {
+  color: #1f2937;
+  text-shadow: none;
+}
+.lec-board.font-plain .chk-katakana {
+  color: #0e7490;             /* 진한 청록 */
+  text-shadow: none;
+}
+.lec-board.font-plain .chk-korean {
+  color: #1f2937;
+}
+.lec-board.font-plain .chk-num {
+  color: #b91c1c;             /* 빨간 마커 */
+  text-shadow: none;
+}
+.lec-board.font-plain .chk-mark {
+  color: #4b5563;
+  text-shadow: none;
+}
+.lec-board.font-plain .chk-punct {
+  color: rgba(31, 41, 55, .45);
+}
+.lec-board.font-plain ruby.chk-ruby {
+  color: #b45309;
+  text-shadow: none;
+}
+.lec-board.font-plain .chk-furi {
+  color: #6b7280;
+  text-shadow: none;
+}
+.lec-board.font-plain .chk-kanji,
+.lec-board.font-plain .chk-hiragana,
+.lec-board.font-plain .chk-katakana,
+.lec-board.font-plain ruby.chk-ruby,
+.lec-board.font-plain .chk-furi {
   font-family: 'Noto Sans JP', sans-serif;
   font-weight: 700;
 }
