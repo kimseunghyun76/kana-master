@@ -11,7 +11,7 @@ window.createLectureFlow = (ctx) => {
 
   function _lecturePauseButtonLabel(paused) {
     return `
-      <span class="lec-tool-main">${paused ? '재생' : '정지'}</span>
+      <span class="lec-tool-icon">${paused ? '▶' : '⏸'}</span>
       <span class="lec-tool-sub">제어</span>
     `;
   }
@@ -27,7 +27,7 @@ window.createLectureFlow = (ctx) => {
               onclick="App._lecToggleBoardFont()"
               type="button"
               title="${isPlain ? '종이 → 칠판 모드' : '칠판 → 종이 모드'}">
-        <span class="lec-tool-main">${isPlain ? '종이' : '칠판'}</span>
+        <span class="lec-tool-icon">${isPlain ? 'Aa' : '✎'}</span>
         <span class="lec-tool-sub">모드</span>
       </button>
     `;
@@ -44,9 +44,11 @@ window.createLectureFlow = (ctx) => {
       btn.classList.toggle('is-plain', isP);
       btn.classList.toggle('is-chalk', !isP);
       btn.setAttribute('title', isP ? '종이 → 칠판 모드' : '칠판 → 종이 모드');
-      const mainEl = btn.querySelector('.lec-tool-main');
-      if (mainEl) mainEl.textContent = isP ? '종이' : '칠판';
+      const iconEl = btn.querySelector('.lec-tool-icon');
+      if (iconEl) iconEl.textContent = isP ? 'Aa' : '✎';
     });
+    // 폰트 모드 변경 후 자동 fit 재계산
+    _lecFitBoard();
   }
 
   // ── 자막 토글 — 3-state: OFF → JP → KO → OFF ─────────────
@@ -63,7 +65,7 @@ window.createLectureFlow = (ctx) => {
               onclick="App._lecToggleCaptionShow()"
               type="button"
               title="자막 (다음: ${state === 'off' ? 'JP' : state === 'jp' ? 'KO' : 'OFF'})">
-        <span class="lec-tool-main">${labels[state]}</span>
+        <span class="lec-tool-icon">${labels[state]}</span>
         <span class="lec-tool-sub">자막</span>
       </button>
     `;
@@ -94,7 +96,7 @@ window.createLectureFlow = (ctx) => {
               onclick="App._lecToggleInstructor()"
               type="button"
               title="강사: ${cur === 'jp' ? '일본어' : '한국어'} (클릭 → ${nextLabel})">
-        <span class="lec-tool-main">${cur === 'jp' ? 'JP' : 'KO'}</span>
+        <span class="lec-tool-icon">${cur === 'jp' ? 'JP' : 'KO'}</span>
         <span class="lec-tool-sub">강사</span>
       </button>
     `;
@@ -146,10 +148,17 @@ window.createLectureFlow = (ctx) => {
     if (wrap && meta) {
       wrap.classList.toggle('lec-voice-F', meta.gender === 'F');
       wrap.classList.toggle('lec-voice-M', meta.gender === 'M');
-      const mainEl = wrap.querySelector('.lec-tool-main');
-      if (mainEl) mainEl.textContent = (meta.label || meta.key).split(' ')[0];
+      const iconEl = wrap.querySelector('.lec-tool-icon');
+      const nameEl = wrap.querySelector('.lec-tool-voice-name');
+      const name = (meta.label || meta.key).split(' ')[0];
+      if (iconEl && nameEl) {
+        nameEl.textContent = name;
+        // Update the leading symbol
+        const sym = meta.gender === 'F' ? '♀ ' : '♂ ';
+        iconEl.firstChild.textContent = sym;
+      }
       const subEl = wrap.querySelector('.lec-tool-sub');
-      if (subEl) subEl.textContent = meta.gender === 'F' ? '여 화자' : '남 화자';
+      if (subEl) subEl.textContent = meta.gender === 'F' ? '여 성우' : '남 성우';
     }
   }
   function _lectureCycleVoice() {
@@ -169,9 +178,9 @@ window.createLectureFlow = (ctx) => {
     const curName = (curMeta?.label || curMeta?.key || '화자').split(' ')[0];
     return `
       <button class="lec-display-toggle lec-tool-btn lec-voice-select-wrap lec-voice-${curGender}" id="lecVoiceWrap"
-              onclick="App._lecCycleVoice()" type="button" title="강의 화자 변경 (${curGender === 'F' ? '여성' : '남성'})">
-        <span class="lec-tool-main">${escHtml(curName)}</span>
-        <span class="lec-tool-sub">${curGender === 'F' ? '여 화자' : '남 화자'}</span>
+              onclick="App._lecCycleVoice()" type="button" title="강의 성우 변경 (${curGender === 'F' ? '여성' : '남성'} — ${escHtml(curName)})">
+        <span class="lec-tool-icon">${curGender === 'F' ? '♀' : '♂'} <span class="lec-tool-voice-name">${escHtml(curName)}</span></span>
+        <span class="lec-tool-sub">${curGender === 'F' ? '여 성우' : '남 성우'}</span>
       </button>
     `;
   }
@@ -435,12 +444,32 @@ window.createLectureFlow = (ctx) => {
     }
     el.innerHTML = parts.join('');
     const totalDur = i * PER_CHAR + 200;
-    // 애니메이션 완료 후 — 후리가나 ruby + 밑줄 포함된 정착 버전으로 교체
+    // 첫 fit — 칠판 영역 내 자동 폰트 축소 (overflow 방지)
+    requestAnimationFrame(_lecFitBoard);
+    // 애니메이션 완료 후 — 후리가나 ruby + 밑줄 포함된 정착 버전으로 교체 + 재fit
     setTimeout(() => {
       const el2 = document.getElementById('lecBoardSub');
       if (el2) el2.innerHTML = _buildRichBoardText(text);
+      requestAnimationFrame(_lecFitBoard);
     }, totalDur + 100);
     return totalDur;
+  }
+
+  // 칠판 본문 폰트를 영역에 맞게 자동 축소 (overflow 방지)
+  function _lecFitBoard() {
+    const body = document.getElementById('lecBoardSub');
+    const board = document.getElementById('lecBoard');
+    if (!body || !board) return;
+    body.style.fontSize = '';  // 기본 크기 리셋
+    const minPx = 11;
+    const startPx = parseFloat(getComputedStyle(body).fontSize) || 20;
+    let size = startPx;
+    const availH = board.clientHeight - 24;  // padding 여유
+    let guard = 60;
+    while (size > minPx && body.scrollHeight > availH && guard-- > 0) {
+      size -= 0.5;
+      body.style.fontSize = size + 'px';
+    }
   }
 
   // 정착 후 칠판 본문 — 후리가나 ruby + 글자별 색상 클래스 + __밑줄__ 보존

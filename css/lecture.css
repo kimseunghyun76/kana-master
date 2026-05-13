@@ -263,24 +263,42 @@
 /* 통일 풋터 툴 버튼 — 모두 같은 크기 (2단 라벨) */
 .lec-tool-btn {
   flex-direction: column;
-  gap: 1px;
-  min-width: 58px;
-  min-height: 38px;
+  gap: 2px;
+  min-width: 64px;
+  min-height: 40px;
   padding: 4px 8px;
 }
-.lec-tool-main {
-  font-size: 13px;
-  font-weight: 800;
-  letter-spacing: .02em;
-  color: #f8fafc;
-  line-height: 1.05;
+/* 상단 아이콘/심볼 — 단색 (color-free) */
+.lec-tool-icon {
+  font-size: 14px;
+  font-weight: 900;
+  letter-spacing: 0;
+  color: #e2e8f0;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-variant-numeric: tabular-nums;
 }
+.lec-tool-voice-name {
+  font-size: 11px;
+  font-weight: 700;
+  color: #cbd5e1;
+}
+/* 하단 descriptor */
 .lec-tool-sub {
   font-size: 9px;
   font-weight: 700;
   color: rgba(148,163,184,.82);
   letter-spacing: 0;
   line-height: 1;
+}
+/* 활성 토글 상태에서 아이콘 색도 강조 */
+.lec-display-toggle.lec-instructor-toggle .lec-tool-icon,
+.lec-font-toggle.is-plain .lec-tool-icon,
+.lec-caption-toggle.cap-jp .lec-tool-icon,
+.lec-caption-toggle.cap-ko .lec-tool-icon {
+  color: #c7d2fe;
 }
 .lec-display-toggle-label {
   letter-spacing: .08em;
@@ -504,16 +522,18 @@
 .lec-voice-select-wrap { /* legacy class kept on the same element for hooks */ }
 /* ── Chalkboard (칠판) ─────────────────────────────────────── */
 /* Board + Caption stack — reel 하단에 컬럼으로 묶음 */
+/* top: 상단 topline 박스 영역 보존 (헤더+카테고리+타이틀 ~ 100px) */
 .lec-board-stack {
   position: absolute;
   left: 14px;
   right: 14px;
   bottom: 14px;
+  top: 110px;
   z-index: 2;
   display: flex;
   flex-direction: column;
   gap: 8px;
-  max-height: calc(100% - 60px); /* 상단 topline 영역 보존 */
+  min-height: 0;
 }
 .lec-board {
   position: relative;
@@ -537,7 +557,7 @@
   gap: 10px;
   flex: 1 1 auto;
   min-height: 0;
-  overflow-y: auto;
+  overflow: hidden;  /* fit-text 가 처리 — 스크롤 없음 */
 }
 /* 분필 가루 텍스처 (SVG noise overlay) */
 .lec-board::before {
@@ -812,7 +832,10 @@
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  flex: 0 0 auto;
+  /* 칠판이 우선 — 자막이 줄어들 수 있음 */
+  flex: 0 1 auto;
+  max-height: 30%;
+  min-height: 50px;
   box-shadow: 0 12px 28px rgba(2,6,23,.34);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
