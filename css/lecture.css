@@ -159,6 +159,18 @@
   letter-spacing: 0;
   word-break: keep-all;
 }
+/* main이 칠판으로 이동했을 때 topline은 한 줄로 컴팩트 */
+.lec-scene-topline-compact {
+  flex-direction: row !important;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.lec-scene-topline-compact .lec-topline-meta { flex: 0 1 auto; }
+.lec-scene-topline-compact .lec-topline-kicker {
+  margin-left: auto;
+  white-space: nowrap;
+}
 .lec-shot-count {
   color: #bfdbfe;
   font-variant-numeric: tabular-nums;
@@ -372,98 +384,181 @@
     rgba(2,6,23,.85) 100%);
   pointer-events: none;
 }
-/* 통합 강사+성우+모드 선택 카드 */
-.lec-pick-card {
+/* 상단 인사·제목 */
+.lec-pick-top {
+  position: absolute;
+  z-index: 3;
+  top: 28px; left: 20px; right: 20px;
+  text-align: center;
+  color: #f8fafc;
+}
+.lec-pick-greeting {
+  font-size: 26px;
+  font-weight: 800;
+  margin-bottom: 4px;
+}
+.lec-pick-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #fde68a;
+  margin-bottom: 8px;
+}
+.lec-pick-sub {
+  font-size: 12px;
+  color: #cbd5e1;
+  font-weight: 500;
+}
+/* 하단 — 카드 + 모드 + 시작 */
+.lec-pick-bottom {
   position: absolute;
   z-index: 3;
   left: 14px; right: 14px;
   bottom: 14px;
-  padding: 18px 16px 14px;
-  background: rgba(15,23,42,.85);
-  border: 1px solid rgba(148,163,184,.25);
-  border-radius: 18px;
-  box-shadow: 0 18px 42px rgba(0,0,0,.45);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
   display: flex;
   flex-direction: column;
-  gap: 12px;
-}
-.lec-pick-greeting {
-  font-size: 20px;
-  font-weight: 800;
-  color: #f8fafc;
-  text-align: center;
-}
-.lec-pick-title {
-  font-size: 13px;
-  font-weight: 700;
-  color: #fde68a;
-  text-align: center;
-  margin-top: -8px;
-  margin-bottom: 4px;
-}
-.lec-pick-row {
-  display: flex;
-  align-items: center;
   gap: 10px;
 }
-.lec-pick-row-label {
-  flex: 0 0 auto;
-  width: 40px;
-  font-size: 11px;
-  font-weight: 800;
-  color: rgba(203,213,225,.75);
-  letter-spacing: .04em;
-}
-.lec-pick-options {
-  display: flex;
-  flex: 1 1 auto;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-.lec-pick-opt {
-  flex: 1 1 0;
-  min-width: 44px;
-  min-height: 38px;
-  padding: 4px 8px;
+/* 강사 카드 영역 */
+.lec-pick-cards {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 2px;
-  background: rgba(2,6,23,.55);
-  border: 1px solid rgba(148,163,184,.22);
-  border-radius: 12px;
-  color: #e2e8f0;
+  gap: 10px;
+}
+.lec-pick-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 14px;
+  background: rgba(15,23,42,.78);
+  border: 1px solid rgba(148,163,184,.3);
+  border-radius: 16px;
   cursor: pointer;
   transition: background .15s, border-color .15s, transform .15s;
   -webkit-tap-highlight-color: transparent;
 }
-.lec-pick-opt:hover {
-  border-color: rgba(129,140,248,.5);
+.lec-pick-card:hover {
+  background: rgba(30,41,59,.9);
   transform: translateY(-1px);
 }
-.lec-pick-opt.active {
-  background: rgba(99,102,241,.28);
-  border-color: rgba(129,140,248,.75);
-  color: #f8fafc;
-  box-shadow: 0 0 0 2px rgba(129,140,248,.2);
+.lec-pick-card.lec-pick-ko { border-left: 4px solid #10b981; }
+.lec-pick-card.lec-pick-jp { border-left: 4px solid #ef4444; }
+.lec-pick-card.is-active {
+  border-color: rgba(129,140,248,.65);
+  background: rgba(49,46,129,.4);
+  box-shadow: 0 0 0 2px rgba(129,140,248,.25);
 }
-.lec-pick-opt-main {
-  font-size: 14px;
+.lec-pick-card-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.lec-pick-card-code {
+  font-size: 18px;
   font-weight: 900;
-  line-height: 1;
+  color: #f8fafc;
+  letter-spacing: .04em;
+  flex: 0 0 auto;
+  min-width: 32px;
+  text-align: center;
 }
-.lec-pick-opt.active .lec-pick-opt-main {
-  color: #c7d2fe;
+.lec-pick-card-titles {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1 1 auto;
+  min-width: 0;
 }
-.lec-pick-opt-sub {
-  font-size: 9px;
+.lec-pick-card-main {
+  font-size: 15px;
+  font-weight: 800;
+  color: #f8fafc;
+}
+.lec-pick-card-sub {
+  font-size: 11px;
+  color: #94a3b8;
+  font-weight: 500;
+}
+/* 카드 내부 성우 칩 */
+.lec-pick-card-voices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.lec-pick-voice-chip {
+  flex: 1 1 0;
+  min-height: 32px;
+  padding: 4px 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  background: rgba(2,6,23,.45);
+  border: 1px solid rgba(148,163,184,.2);
+  border-radius: 10px;
+  color: #cbd5e1;
+  font-size: 12px;
   font-weight: 700;
-  color: rgba(148,163,184,.85);
-  line-height: 1;
+  cursor: pointer;
+  transition: background .15s, border-color .15s;
+  -webkit-tap-highlight-color: transparent;
 }
+.lec-pick-voice-chip:hover {
+  border-color: rgba(129,140,248,.4);
+}
+.lec-pick-voice-chip.active {
+  background: rgba(99,102,241,.32);
+  border-color: rgba(129,140,248,.7);
+  color: #f8fafc;
+}
+.lec-pick-voice-sym {
+  font-size: 13px;
+  font-weight: 900;
+}
+.lec-pick-voice-name {
+  font-size: 12px;
+  font-weight: 700;
+}
+/* 모드 toggle (작게) */
+.lec-pick-mode-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 2px 4px;
+}
+.lec-pick-mode-label {
+  font-size: 11px;
+  font-weight: 800;
+  color: rgba(203,213,225,.7);
+  letter-spacing: .04em;
+}
+.lec-pick-mode-toggle {
+  display: inline-flex;
+  gap: 6px;
+}
+.lec-pick-mode-btn {
+  min-width: 56px;
+  min-height: 32px;
+  padding: 4px 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: rgba(15,23,42,.6);
+  border: 1px solid rgba(148,163,184,.22);
+  border-radius: 10px;
+  color: #cbd5e1;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background .15s, border-color .15s;
+}
+.lec-pick-mode-btn:hover { border-color: rgba(129,140,248,.4); }
+.lec-pick-mode-btn.active {
+  background: rgba(99,102,241,.28);
+  border-color: rgba(129,140,248,.7);
+  color: #f8fafc;
+}
+.lec-pick-mode-icon { font-size: 14px; font-weight: 900; }
+.lec-pick-mode-name { font-size: 11px; font-weight: 700; }
 /* 시작 버튼 */
 .lec-pick-start {
   margin-top: 4px;
@@ -487,9 +582,7 @@
   transform: translateY(-1px);
   box-shadow: 0 10px 24px rgba(99,102,241,.4);
 }
-.lec-pick-start-arrow {
-  font-size: 12px;
-}
+.lec-pick-start-arrow { font-size: 12px; }
 
 /* 옛 모달 (안 쓰지만 잔재 안전망) */
 .lec-instructor-modal-overlay {
@@ -634,6 +727,31 @@
   font-size: 9px;
   color: #fde68a;
   font-family: 'Klee One', cursive;
+}
+/* 칠판 SubTitle — 본문 위 큰 분필 글씨로 강조 */
+.lec-board-title-chalk {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  font-size: 24px;
+  font-weight: 700;
+  font-family: 'Klee One', 'Gaegu', 'Noto Sans JP', cursive;
+  color: #fde047;
+  line-height: 1.2;
+  letter-spacing: .02em;
+  padding-bottom: 8px;
+  margin-bottom: 4px;
+  border-bottom: 1.5px dashed rgba(253,224,71,.35);
+  text-shadow: 0 0 3px rgba(253,224,71,.45), 0 0 12px rgba(253,224,71,.25);
+  word-break: keep-all;
+}
+.lec-board.font-plain .lec-board-title-chalk {
+  color: #1f2937;
+  font-family: 'Noto Sans KR', 'Noto Sans JP', sans-serif;
+  font-weight: 800;
+  font-size: 22px;
+  text-shadow: none;
+  border-bottom: 1.5px dashed rgba(180,83,9,.45);
 }
 /* Board 본문 — 칠판 필기 효과의 메인 학습 콘텐츠 */
 .lec-board-body {

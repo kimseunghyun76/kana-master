@@ -218,19 +218,14 @@ window.createLectureFlow = (ctx) => {
     _renderInstructorPickInline(mod, slides[0]);
   }
 
-  // 강사 언어 + 성우 + 모드 통합 선택 화면 — 강의 화면 안에서
+  // 강사 + 성우 + 모드 통합 선택 화면 — 큰 카드 디자인
   function _renderInstructorPickInline(mod, firstSlide) {
     const visualSrc = _lectureVisualSource(mod, firstSlide);
-    // 이전 선택값들 (기본값 fallback)
     const prevLang = (Store.getSetting('lectureInstructor') === 'jp' || Store.getSetting('lectureInstructor') === 'ko')
       ? Store.getSetting('lectureInstructor') : 'ko';
     const prevFont = Store.getSetting('lectureBoardFont') === 'plain' ? 'plain' : 'chalk';
-    // 현재 임시 선택 (시작 누르기 전까지 Store에 반영 X)
-    window.__lecPickState = {
-      lang: prevLang,
-      font: prevFont,
-      voice: null  // resolved 후 채워짐
-    };
+    window.__lecPickState = { lang: prevLang, font: prevFont, voice: null };
+
     document.getElementById('flowBody').innerHTML = `
       <div class="lecture-slide lec-pick-slide">
         <div class="lec-reel lec-reel-pick" style="--lc:#6366f1">
@@ -238,43 +233,29 @@ window.createLectureFlow = (ctx) => {
             ${visualSrc ? `<img class="lec-scene-img" src="${escHtml(visualSrc)}" alt="">` : ''}
             <div class="lec-reel-dim"></div>
           </div>
-          <div class="lec-pick-card">
+          <div class="lec-pick-top">
             <div class="lec-pick-greeting">잘 오셨어요! 👋</div>
             <div class="lec-pick-title">${escHtml(mod.name || '강의')}</div>
-
-            <div class="lec-pick-row">
-              <div class="lec-pick-row-label">강사</div>
-              <div class="lec-pick-options" id="lecPickLang">
-                <button class="lec-pick-opt ${prevLang === 'ko' ? 'active' : ''}" data-val="ko" type="button" onclick="App._lecPickSet('lang','ko')">
-                  <span class="lec-pick-opt-main">KO</span>
-                  <span class="lec-pick-opt-sub">한국어</span>
+            <div class="lec-pick-sub">강사 · 성우 · 모드를 골라주세요</div>
+          </div>
+          <div class="lec-pick-bottom">
+            <div class="lec-pick-cards">
+              ${_lecPickCardHTML('ko', prevLang === 'ko')}
+              ${_lecPickCardHTML('jp', prevLang === 'jp')}
+            </div>
+            <div class="lec-pick-mode-row">
+              <span class="lec-pick-mode-label">모드</span>
+              <div class="lec-pick-mode-toggle" id="lecPickFont">
+                <button class="lec-pick-mode-btn ${prevFont === 'chalk' ? 'active' : ''}" data-val="chalk" type="button" onclick="App._lecPickSet('font','chalk')">
+                  <span class="lec-pick-mode-icon">✎</span>
+                  <span class="lec-pick-mode-name">칠판</span>
                 </button>
-                <button class="lec-pick-opt ${prevLang === 'jp' ? 'active' : ''}" data-val="jp" type="button" onclick="App._lecPickSet('lang','jp')">
-                  <span class="lec-pick-opt-main">JP</span>
-                  <span class="lec-pick-opt-sub">일본어</span>
+                <button class="lec-pick-mode-btn ${prevFont === 'plain' ? 'active' : ''}" data-val="plain" type="button" onclick="App._lecPickSet('font','plain')">
+                  <span class="lec-pick-mode-icon">Aa</span>
+                  <span class="lec-pick-mode-name">종이</span>
                 </button>
               </div>
             </div>
-
-            <div class="lec-pick-row">
-              <div class="lec-pick-row-label">성우</div>
-              <div class="lec-pick-options" id="lecPickVoice"></div>
-            </div>
-
-            <div class="lec-pick-row">
-              <div class="lec-pick-row-label">모드</div>
-              <div class="lec-pick-options" id="lecPickFont">
-                <button class="lec-pick-opt ${prevFont === 'chalk' ? 'active' : ''}" data-val="chalk" type="button" onclick="App._lecPickSet('font','chalk')">
-                  <span class="lec-pick-opt-main">✎</span>
-                  <span class="lec-pick-opt-sub">칠판</span>
-                </button>
-                <button class="lec-pick-opt ${prevFont === 'plain' ? 'active' : ''}" data-val="plain" type="button" onclick="App._lecPickSet('font','plain')">
-                  <span class="lec-pick-opt-main">Aa</span>
-                  <span class="lec-pick-opt-sub">종이</span>
-                </button>
-              </div>
-            </div>
-
             <button class="lec-pick-start" type="button" onclick="App._lecPickStart()">
               <span>시작하기</span>
               <span class="lec-pick-start-arrow">▶</span>
@@ -284,50 +265,84 @@ window.createLectureFlow = (ctx) => {
       </div>
     `;
     document.getElementById('flowFooter').innerHTML = '';
-    _lecPickRefreshVoices();
+    _lecPickRefreshVoices('ko');
+    _lecPickRefreshVoices('jp');
+    // 활성 강사의 voice를 state로 picking
+    _lecPickResolveVoice();
   }
-  function _lecPickRefreshVoices() {
-    const cont = document.getElementById('lecPickVoice');
+
+  function _lecPickCardHTML(lang, active) {
+    const langName = lang === 'ko' ? '한국어 강사' : '일본어 강사';
+    const langDesc = lang === 'ko' ? '처음 배우는 분께' : '귀를 일본어에 익히기';
+    const accent = lang === 'ko' ? 'lec-pick-ko' : 'lec-pick-jp';
+    return `
+      <div class="lec-pick-card ${accent} ${active ? 'is-active' : ''}" data-lang="${lang}"
+           onclick="App._lecPickSet('lang','${lang}')">
+        <div class="lec-pick-card-head">
+          <span class="lec-pick-card-code">${lang === 'ko' ? 'KO' : 'JP'}</span>
+          <div class="lec-pick-card-titles">
+            <span class="lec-pick-card-main">${langName}</span>
+            <span class="lec-pick-card-sub">${langDesc}</span>
+          </div>
+        </div>
+        <div class="lec-pick-card-voices" id="lecPickVoice_${lang}"></div>
+      </div>
+    `;
+  }
+
+  function _lecPickRefreshVoices(lang) {
+    const cont = document.getElementById('lecPickVoice_' + lang);
     if (!cont) return;
-    const lang = window.__lecPickState?.lang || 'ko';
     const voices = (typeof TTS.getAvailableVoices === 'function') ? TTS.getAvailableVoices(lang) : [];
-    // 이전 lang 선호 voice 복원
     const storedKey = lang === 'ko' ? 'lecture_voice_ko' : 'lecture_voice_jp';
     let preferred = localStorage.getItem(storedKey);
     if (!preferred || !voices.some(v => v.key === preferred)) {
       preferred = voices[0]?.key || null;
     }
-    window.__lecPickState.voice = preferred;
     cont.innerHTML = voices.map(v => {
       const name = (v.label || v.key).split(' ')[0];
       const sym = v.gender === 'F' ? '♀' : '♂';
       return `
-        <button class="lec-pick-opt lec-pick-opt-voice ${v.key === preferred ? 'active' : ''}"
-                data-val="${escHtml(v.key)}" type="button" onclick="App._lecPickSet('voice','${escHtml(v.key)}')">
-          <span class="lec-pick-opt-main">${sym}</span>
-          <span class="lec-pick-opt-sub">${escHtml(name)}</span>
+        <button class="lec-pick-voice-chip ${v.key === preferred ? 'active' : ''}"
+                data-val="${escHtml(v.key)}" data-lang="${lang}" type="button"
+                onclick="event.stopPropagation();App._lecPickSet('voice','${escHtml(v.key)}','${lang}')">
+          <span class="lec-pick-voice-sym">${sym}</span>
+          <span class="lec-pick-voice-name">${escHtml(name)}</span>
         </button>
       `;
     }).join('');
   }
-  function _lecPickSet(field, value) {
+
+  // 활성 강사 카드의 현재 active voice를 state에 반영
+  function _lecPickResolveVoice() {
+    const lang = window.__lecPickState?.lang || 'ko';
+    const activeVoice = document.querySelector(`#lecPickVoice_${lang} .lec-pick-voice-chip.active`);
+    window.__lecPickState.voice = activeVoice?.dataset.val || null;
+  }
+
+  function _lecPickSet(field, value, langScope) {
     if (!window.__lecPickState) return;
     if (field === 'lang') {
       window.__lecPickState.lang = value;
-      document.querySelectorAll('#lecPickLang .lec-pick-opt').forEach(b => {
-        b.classList.toggle('active', b.dataset.val === value);
+      document.querySelectorAll('.lec-pick-card').forEach(c => {
+        c.classList.toggle('is-active', c.dataset.lang === value);
       });
-      _lecPickRefreshVoices();  // voice list 갱신
+      _lecPickResolveVoice();
     } else if (field === 'font') {
       window.__lecPickState.font = value;
-      document.querySelectorAll('#lecPickFont .lec-pick-opt').forEach(b => {
+      document.querySelectorAll('#lecPickFont .lec-pick-mode-btn').forEach(b => {
         b.classList.toggle('active', b.dataset.val === value);
       });
     } else if (field === 'voice') {
-      window.__lecPickState.voice = value;
-      document.querySelectorAll('#lecPickVoice .lec-pick-opt').forEach(b => {
+      // voice는 해당 lang scope의 chip 중에서만 active
+      document.querySelectorAll(`#lecPickVoice_${langScope} .lec-pick-voice-chip`).forEach(b => {
         b.classList.toggle('active', b.dataset.val === value);
       });
+      // 해당 lang으로 카드도 active 전환
+      if (window.__lecPickState.lang !== langScope) {
+        _lecPickSet('lang', langScope);
+      }
+      window.__lecPickState.voice = value;
     }
   }
   function _lecPickStart() {
@@ -388,20 +403,18 @@ window.createLectureFlow = (ctx) => {
             <div class="lec-reel-sheen"></div>
           </div>
 
-          <div class="lec-scene-topline">
+          <div class="lec-scene-topline lec-scene-topline-compact">
             <div class="lec-topline-meta">
               <span class="lec-live-dot"></span>
               <span>${escHtml(mod.name)}</span>
               <span class="lec-shot-count">${idx + 1}/${slides.length}</span>
             </div>
-            <div class="lec-topline-title">
-              ${slide.label ? `<span class="lec-topline-kicker">${escHtml(slide.label)}</span>` : ''}
-              ${slide.main ? `<span class="lec-topline-main">${escHtml(slide.main.replace(/[（\(]([ぁ-ヶー・]+)[）\)]/g, ''))}</span>` : ''}
-            </div>
+            ${slide.label ? `<span class="lec-topline-kicker">${escHtml(slide.label)}</span>` : ''}
           </div>
 
           <div class="lec-board-stack">
             <div class="lec-board ${_lectureBoardFont() === 'plain' ? 'font-plain' : ''}" id="lecBoard">
+              ${slide.main ? `<div class="lec-board-title-chalk" id="lecBoardTitle">${escHtml(slide.main.replace(/[（\(]([ぁ-ヶー・]+)[）\)]/g, ''))}</div>` : ''}
               <div class="lec-board-body ${_lectureBoardFont() === 'plain' ? 'font-plain' : ''}" id="lecBoardSub"></div>
               ${slide.audio ? `<div class="lec-board-reading">${escHtml(slide.audio)}</div>` : ''}
             </div>
