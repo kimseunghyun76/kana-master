@@ -198,18 +198,14 @@ window.createLectureFlow = (ctx) => {
     const flow = ctx.getFlow();
     if (!flow) return;
     flow._lecture = { slides, idx: 0, paused: false, stepIndex, mod, step, timerId: null };
-    // 강사 언어가 아직 선택된 적 없으면 in-lecture 선택 화면
-    const setting = Store.getSetting('lectureInstructor');
-    if (setting !== 'jp' && setting !== 'ko') {
-      _renderInstructorPickInline(mod, slides[0]);
-      return;
-    }
-    _lectureRenderSlide();
+    // 강의 진입 시 강사 선택 화면 항상 표시 — 이전 선택은 기본 추천으로 강조
+    _renderInstructorPickInline(mod, slides[0]);
   }
 
   // 강사 언어 선택 화면 — 강의 화면 안에서 (이미지 배경 보이게)
   function _renderInstructorPickInline(mod, firstSlide) {
     const visualSrc = _lectureVisualSource(mod, firstSlide);
+    const prev = _lectureInstructor();  // 이전 선택 ('ko' | 'jp')
     document.getElementById('flowBody').innerHTML = `
       <div class="lecture-slide lec-pick-slide">
         <div class="lec-reel lec-reel-pick" style="--lc:#6366f1">
@@ -223,21 +219,21 @@ window.createLectureFlow = (ctx) => {
             <div class="lec-pick-sub">어떤 언어로 듣고 싶으세요?</div>
           </div>
           <div class="lec-pick-bottom">
-            <button class="lec-pick-btn lec-pick-ko" type="button" onclick="App._lecPickInstructor('ko')">
+            <button class="lec-pick-btn lec-pick-ko ${prev === 'ko' ? 'is-recent' : ''}" type="button" onclick="App._lecPickInstructor('ko')">
               <span class="lec-pick-flag">🇰🇷</span>
               <div class="lec-pick-btn-text">
-                <span class="lec-pick-btn-main">한국어 강사</span>
+                <span class="lec-pick-btn-main">한국어 강사 ${prev === 'ko' ? '<span class="lec-pick-recent-badge">최근</span>' : ''}</span>
                 <span class="lec-pick-btn-sub">처음 배우는 분께 추천</span>
               </div>
             </button>
-            <button class="lec-pick-btn lec-pick-jp" type="button" onclick="App._lecPickInstructor('jp')">
+            <button class="lec-pick-btn lec-pick-jp ${prev === 'jp' ? 'is-recent' : ''}" type="button" onclick="App._lecPickInstructor('jp')">
               <span class="lec-pick-flag">🇯🇵</span>
               <div class="lec-pick-btn-text">
-                <span class="lec-pick-btn-main">일본어 강사</span>
+                <span class="lec-pick-btn-main">일본어 강사 ${prev === 'jp' ? '<span class="lec-pick-recent-badge">최근</span>' : ''}</span>
                 <span class="lec-pick-btn-sub">귀를 일본어에 익히고 싶다면</span>
               </div>
             </button>
-            <div class="lec-pick-hint">하단 버튼으로 언제든 바꿀 수 있어요</div>
+            <div class="lec-pick-hint">언제든 하단 토글로 바꿀 수 있어요</div>
           </div>
         </div>
       </div>

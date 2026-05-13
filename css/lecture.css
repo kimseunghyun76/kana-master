@@ -424,6 +424,24 @@
   color: rgba(203,213,225,.7);
   margin-top: 6px;
 }
+/* 최근 선택한 강사 강조 */
+.lec-pick-btn.is-recent {
+  border-color: rgba(129,140,248,.65);
+  background: rgba(49,46,129,.55);
+  box-shadow: 0 0 0 2px rgba(129,140,248,.25);
+}
+.lec-pick-recent-badge {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 6px;
+  margin-left: 6px;
+  border-radius: 999px;
+  background: rgba(129,140,248,.32);
+  color: #c7d2fe;
+  vertical-align: middle;
+  letter-spacing: 0;
+}
 
 /* 옛 모달 (안 쓰지만 잔재 안전망) */
 .lec-instructor-modal-overlay {
