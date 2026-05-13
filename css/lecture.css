@@ -267,6 +267,15 @@
   color: #93c5fd;
   font-size: 10px;
 }
+/* 토글 버튼 아이콘 — 이모지 라벨용 */
+.lec-display-toggle-icon {
+  font-size: 14px;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  /* 이모지가 폰트 통일에 영향 안 받도록 */
+  font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif;
+}
 .lec-display-action {
   width: 52px;
   min-width: 52px;
@@ -495,19 +504,13 @@
 }
 .lec-voice-marker {
   flex: 0 0 auto;
-  min-width: 18px;
-  height: 18px;
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  border-radius: 999px;
-  background: rgba(255,255,255,.10);
-  font-size: 10px;
-  font-weight: 900;
+  font-size: 14px;
+  line-height: 1;
   pointer-events: none;
+  font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif;
 }
-.lec-voice-select-wrap.lec-voice-F .lec-voice-marker { color: #fbcfe8; }
-.lec-voice-select-wrap.lec-voice-M .lec-voice-marker { color: #bfdbfe; }
 .lec-voice-label {
   flex: 0 0 auto;
   color: rgba(226,232,240,.72);

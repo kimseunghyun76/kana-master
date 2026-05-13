@@ -24,8 +24,7 @@ window.createLectureFlow = (ctx) => {
               onclick="App._lecToggleBoardFont()"
               type="button"
               title="칠판 폰트 ${isPlain ? '손글씨로' : '일반으로'} 전환">
-        <span class="lec-display-toggle-label">${isPlain ? '가' : '✎'}</span>
-        <span class="lec-display-toggle-state">${isPlain ? '일반' : '손글씨'}</span>
+        <span class="lec-display-toggle-icon" aria-hidden="true">${isPlain ? '🅰️' : '✍️'}</span>
       </button>
     `;
   }
@@ -38,10 +37,8 @@ window.createLectureFlow = (ctx) => {
       const isP = next === 'plain';
       btn.classList.toggle('active', isP);
       btn.setAttribute('title', '칠판 폰트 ' + (isP ? '손글씨로' : '일반으로') + ' 전환');
-      const labelEl = btn.querySelector('.lec-display-toggle-label');
-      if (labelEl) labelEl.textContent = isP ? '가' : '✎';
-      const stateEl = btn.querySelector('.lec-display-toggle-state');
-      if (stateEl) stateEl.textContent = isP ? '일반' : '손글씨';
+      const iconEl = btn.querySelector('.lec-display-toggle-icon');
+      if (iconEl) iconEl.textContent = isP ? '🅰️' : '✍️';
     });
   }
 
@@ -60,8 +57,8 @@ window.createLectureFlow = (ctx) => {
               onclick="App._lecToggleCaptionShow()"
               type="button"
               title="자막 (다음: ${state === 'off' ? 'JP' : state === 'jp' ? 'KO' : 'OFF'})">
-        <span class="lec-display-toggle-label">자막</span>
-        <span class="lec-display-toggle-state">${labels[state]}</span>
+        <span class="lec-display-toggle-icon" aria-hidden="true">💬</span>
+        <span class="lec-display-toggle-label">${labels[state]}</span>
       </button>
     `;
   }
@@ -92,8 +89,8 @@ window.createLectureFlow = (ctx) => {
               onclick="App._lecToggleInstructor()"
               type="button"
               title="강사: ${cur === 'jp' ? '일본어' : '한국어'} (클릭하여 ${next}로 전환)">
+        <span class="lec-display-toggle-icon" aria-hidden="true">🎓</span>
         <span class="lec-display-toggle-label">${flag}</span>
-        <span class="lec-display-toggle-state">강사</span>
       </button>
     `;
   }
@@ -145,7 +142,7 @@ window.createLectureFlow = (ctx) => {
       wrap.classList.toggle('lec-voice-F', meta.gender === 'F');
       wrap.classList.toggle('lec-voice-M', meta.gender === 'M');
       const marker = wrap.querySelector('.lec-voice-marker');
-      if (marker) marker.textContent = meta.gender === 'F' ? '여' : '남';
+      if (marker) marker.textContent = meta.gender === 'F' ? '👩' : '🧑';
       const name = wrap.querySelector('.lec-voice-name');
       if (name) name.textContent = (meta.label || meta.key).split(' ')[0];
     }
@@ -168,8 +165,7 @@ window.createLectureFlow = (ctx) => {
     return `
       <button class="lec-voice-select-wrap lec-voice-${curGender}" id="lecVoiceWrap"
               onclick="App._lecCycleVoice()" type="button" title="강의 화자 변경">
-        <span class="lec-voice-marker">${curGender === 'F' ? '여' : '남'}</span>
-        <span class="lec-voice-label">화자</span>
+        <span class="lec-voice-marker" aria-label="${curGender === 'F' ? '여성 화자' : '남성 화자'}">${curGender === 'F' ? '👩' : '🧑'}</span>
         <span class="lec-voice-name">${escHtml(curName)}</span>
       </button>
     `;
