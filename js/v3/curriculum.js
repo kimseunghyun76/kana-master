@@ -1,0 +1,928 @@
+/* ============================================================
+   V3 CURRICULUM — question/answer travel roleplay beginner track
+   Keeps v2 intact by providing a separate STAGES/MODULES set.
+   ============================================================ */
+
+'use strict';
+
+const STAGES = [
+  {
+    id: 1, key: 'v3_letters',
+    name: '문자 입문',
+    nameJp: '文字入門',
+    icon: '🔤',
+    color: '#8b5cf6',
+    jlpt: null,
+    desc: '오십음도, 히라가나, 가타가나의 전체 지도를 먼저 잡는 단계.',
+    unlockXP: 0
+  },
+  {
+    id: 2, key: 'v3_reading',
+    name: '읽기 규칙',
+    nameJp: '読み方ルール',
+    icon: '🔊',
+    color: '#3b82f6',
+    jlpt: null,
+    desc: '탁음, 요음, 장음, 촉음, 조사 발음처럼 실제 읽기에서 자주 막히는 규칙.',
+    unlockXP: 0
+  },
+  {
+    id: 3, key: 'v3_survival_words',
+    name: '질문·답변 핵심',
+    nameJp: '質問と答えの基本',
+    icon: '❓',
+    color: '#06b6d4',
+    jlpt: 'N5',
+    desc: '여행자가 통째로 외워야 하는 인사, 다시 묻기, 대답, 숫자, 위치 질문.',
+    unlockXP: 0
+  },
+  {
+    id: 4, key: 'v3_sentence_engine',
+    name: '공항·비행기',
+    nameJp: '空港と飛行機',
+    icon: '✈️',
+    color: '#10b981',
+    jlpt: 'N5',
+    desc: '체크인, 입국, 기내 요청, 면세점처럼 일본 도착 전후의 질문과 답변.',
+    unlockXP: 0
+  },
+  {
+    id: 5, key: 'v3_travel_move',
+    name: '교통·길 찾기',
+    nameJp: '交通と道案内',
+    icon: '🚃',
+    color: '#f59e0b',
+    jlpt: 'N5',
+    desc: '지하철, 버스, 택시, 길 찾기에서 바로 외워 쓰는 질문과 답변.',
+    unlockXP: 0
+  },
+  {
+    id: 6, key: 'v3_travel_life',
+    name: '먹고 마시기',
+    nameJp: '食事と飲み物',
+    icon: '🍜',
+    color: '#ef4444',
+    jlpt: 'N5',
+    desc: '편의점, 식당, 카페, 술집, 조식에서 반복되는 주문 질문과 답변.',
+    unlockXP: 0
+  },
+  {
+    id: 7, key: 'v3_trouble',
+    name: '쇼핑·결제',
+    nameJp: '買い物と会計',
+    icon: '🛍️',
+    color: '#64748b',
+    jlpt: 'N5',
+    desc: '옷가게, 상점, 면세, 교환, 결제에서 필요한 질문과 답변.',
+    unlockXP: 0
+  },
+  {
+    id: 8, key: 'v3_stay_onsen',
+    name: '숙박·온천',
+    nameJp: '宿泊と温泉',
+    icon: '🏨',
+    color: '#14b8a6',
+    jlpt: 'N5',
+    desc: '호텔 체크인, 조식, 객실 요청, 온천 이용 규칙을 장면별로 외우는 단계.',
+    unlockXP: 0
+  },
+  {
+    id: 9, key: 'v3_health_trouble',
+    name: '건강·문제 해결',
+    nameJp: '健康とトラブル',
+    icon: '💊',
+    color: '#a855f7',
+    jlpt: 'N5',
+    desc: '약국, 병원, 분실물, 경찰/안내소에서 당황하지 않게 말하는 단계.',
+    unlockXP: 0
+  },
+  {
+    id: 10, key: 'v3_local_plus',
+    name: '현지 확장',
+    nameJp: '現地応用',
+    icon: '🗾',
+    color: '#f43f5e',
+    jlpt: 'N5',
+    desc: '렌트카, 관광지, 예약, 사진 부탁처럼 여행 만족도를 올리는 실전 장면.',
+    unlockXP: 0
+  },
+  {
+    id: 11, key: 'v3_drama',
+    name: '드라마 귀 트기',
+    nameJp: 'ドラマ聞き取り',
+    icon: '🎬',
+    color: '#f97316',
+    jlpt: null,
+    desc: '자막 속 짧은 반응, 감정 표현, 친구 말투를 알아듣는 콘텐츠 학습 입문.',
+    unlockXP: 0
+  }
+];
+
+const HIRAGANA_BASE = ['あ','い','う','え','お','か','き','く','け','こ','さ','し','す','せ','そ','た','ち','つ','て','と','な','に','ぬ','ね','の','は','ひ','ふ','へ','ほ','ま','み','む','め','も','や','ゆ','よ','ら','り','る','れ','ろ','わ','を','ん'];
+const KATAKANA_BASE = ['ア','イ','ウ','エ','オ','カ','キ','ク','ケ','コ','サ','シ','ス','セ','ソ','タ','チ','ツ','テ','ト','ナ','ニ','ヌ','ネ','ノ','ハ','ヒ','フ','ヘ','ホ','マ','ミ','ム','メ','モ','ヤ','ユ','ヨ','ラ','リ','ル','レ','ロ','ワ','ヲ','ン'];
+
+const MODULES = [
+  {
+    id: 'v3_kana_map',
+    stageId: 1,
+    accessTier: 'free',
+    name: '오십음도 한눈에',
+    nameJp: '五十音図',
+    icon: '五',
+    iconIsText: true,
+    desc: '일본어 글자 표의 구조와 가장 빠른 암기 순서',
+    xp: 120,
+    steps: [
+      { type: 'lecture', title: '🎬 오십음도는 글자 지도', lectureKey: 'v3_kana_map' },
+      { type: 'kana_chart', title: '오십음도 표로 한 번에 보기' },
+      { type: 'kana_learn', title: '히라가나 기본 위치 카드', kanaType: 'hiragana', chars: HIRAGANA_BASE, customLabel: '히라가나 46자' },
+      { type: 'kana_learn', title: '가타가나 기본 위치 카드', kanaType: 'katakana', chars: KATAKANA_BASE, customLabel: '가타가나 46자' },
+    ],
+    roleplay: null
+  },
+  {
+    id: 'kana_hira',
+    stageId: 1,
+    accessTier: 'free',
+    name: '히라가나 읽기',
+    nameJp: 'ひらがな',
+    icon: 'あ',
+    iconIsText: true,
+    desc: '히라가나 역할, 기본 46자, 탁음, 요음',
+    xp: 520,
+    unlockAfter: ['v3_kana_map'],
+    steps: [
+      { type: 'lecture', title: '🎬 히라가나는 문장의 뼈대', lectureKey: 'v3_hiragana_intro' },
+      { type: 'kana_learn', title: 'あ행 + か행', kanaType: 'hiragana', levelId: 1 },
+      { type: 'kana_quiz', title: 'あ행 + か행 퀴즈', kanaType: 'hiragana', levelId: 1 },
+      { type: 'kana_learn', title: 'さ행 + た행', kanaType: 'hiragana', levelId: 2 },
+      { type: 'kana_quiz', title: 'さ행 + た행 퀴즈', kanaType: 'hiragana', levelId: 2 },
+      { type: 'kana_learn', title: 'な행 + は행', kanaType: 'hiragana', levelId: 3 },
+      { type: 'kana_quiz', title: 'な행 + は행 퀴즈', kanaType: 'hiragana', levelId: 3 },
+      { type: 'kana_learn', title: 'ま·や·ら·わ행', kanaType: 'hiragana', levelId: 4 },
+      { type: 'kana_quiz', title: '기본 히라가나 퀴즈', kanaType: 'hiragana', levelId: 4 },
+      { type: 'kana_learn', title: '히라가나 탁음·반탁음', kanaType: 'hiragana_dakuten', levelId: 6 },
+      { type: 'kana_learn', title: '히라가나 요음', kanaType: 'hiragana_yoon', levelId: 7 },
+      { type: 'kana_listening', title: '히라가나 듣고 고르기', chars: HIRAGANA_BASE },
+    ],
+    roleplay: null
+  },
+  {
+    id: 'kana_kata',
+    stageId: 1,
+    accessTier: 'free',
+    name: '가타가나 읽기',
+    nameJp: 'カタカナ',
+    icon: 'ア',
+    iconIsText: true,
+    desc: '여행 간판과 메뉴판에 강해지는 외래어 문자',
+    xp: 520,
+    unlockAfter: ['kana_hira'],
+    steps: [
+      { type: 'lecture', title: '🎬 가타가나는 외래어 표지판', lectureKey: 'v3_katakana_intro' },
+      { type: 'kana_learn', title: 'ア행 + カ행', kanaType: 'katakana', levelId: 8 },
+      { type: 'kana_quiz', title: 'ア행 + カ행 퀴즈', kanaType: 'katakana', levelId: 8 },
+      { type: 'kana_learn', title: 'サ행 + タ행', kanaType: 'katakana', levelId: 9 },
+      { type: 'kana_quiz', title: 'サ행 + タ행 퀴즈', kanaType: 'katakana', levelId: 9 },
+      { type: 'kana_learn', title: 'ナ행 + ハ행', kanaType: 'katakana', levelId: 10 },
+      { type: 'kana_quiz', title: 'ナ행 + ハ행 퀴즈', kanaType: 'katakana', levelId: 10 },
+      { type: 'kana_learn', title: 'マ·ヤ·ラ·ワ행', kanaType: 'katakana', levelId: 11 },
+      { type: 'kana_quiz', title: '기본 가타가나 퀴즈', kanaType: 'katakana', levelId: 11 },
+      { type: 'kana_learn', title: '가타가나 탁음·요음', kanaType: 'katakana_dakuten', levelId: 12 },
+      { type: 'kana_learn', title: '장음·촉음·조사 읽기', kanaType: 'special', levelId: 15 },
+      { type: 'kana_listening', title: '가타가나 듣고 고르기', chars: KATAKANA_BASE },
+    ],
+    roleplay: null
+  },
+  {
+    id: 'v3_kana_sound_rules',
+    stageId: 2,
+    accessTier: 'free',
+    name: '발음·읽기 규칙',
+    nameJp: '発音と読み方',
+    icon: '🔊',
+    desc: '탁음, 반탁음, 요음, 장음, 촉음, は/へ/を 조사 발음을 실제 단어로 익히기',
+    xp: 420,
+    unlockAfter: ['kana_kata'],
+    steps: [
+      { type: 'lecture', title: '🎬 글자는 아는데 왜 다르게 들릴까', lectureKey: 'v3_kana_sound_rules' },
+      { type: 'kana_learn', title: '탁음·반탁음 다시 보기', kanaType: 'hiragana_dakuten', levelId: 6 },
+      { type: 'kana_learn', title: '요음과 작은 글자', kanaType: 'hiragana_yoon', levelId: 7 },
+      { type: 'kana_learn', title: '장음·촉음·조사 읽기', kanaType: 'special', levelId: 15 },
+      { type: 'kana_quiz', title: '소리 규칙 확인 퀴즈', kanaType: 'special', levelId: 15 },
+    ],
+    roleplay: null
+  },
+
+  {
+    id: 'v3_first_greetings',
+    stageId: 3,
+    accessTier: 'free',
+    name: '첫 인사와 리액션',
+    nameJp: '最初の挨拶',
+    icon: '👋',
+    desc: '안녕, 고마워, 저기요, 네/아니요, 다시 말해 주세요',
+    xp: 220,
+    unlockAfter: ['v3_kana_sound_rules'],
+    steps: [
+      { type: 'lecture', title: '🎬 여행 첫날 말문 트기', lectureKey: 'v3_first_greetings' },
+      { type: 'vocab_learn', title: '인사 필수 단어', categoryId: 'basic_words', limit: 10 },
+      { type: 'vocab_learn', title: '리액션과 버티기 표현', categoryIds: ['first_expressions', 'w1_reactions'], limit: 14 },
+      { type: 'vocab_quiz', title: '첫 반응 퀴즈', categoryIds: ['basic_words', 'first_expressions', 'w1_reactions'], limit: 22 },
+    ],
+    roleplay: {
+      id: 'rp_first_photo_greeting',
+      name: '사진 부탁하며 말 걸기',
+      nameJp: '写真をお願いする',
+      icon: '📷',
+      desc: '저기요, 감사합니다, 일본은 처음이에요',
+      dialogueKey: 'first_photo_greeting'
+    }
+  },
+  {
+    id: 'v3_survival_objects',
+    stageId: 3,
+    accessTier: 'free',
+    name: '기본 물건·장소',
+    nameJp: '基本の物と場所',
+    icon: '🎒',
+    desc: '물, 화장실, 역, 호텔, 카드처럼 여행에서 손으로 가리킬 기본 단어',
+    xp: 260,
+    unlockAfter: ['v3_first_greetings'],
+    steps: [
+      { type: 'lecture', title: '🎬 단어는 가리킬 수 있는 것부터', lectureKey: 'v3_survival_objects' },
+      { type: 'vocab_learn', title: '기초 물건과 말문 단어', categoryIds: ['basic_words','essential_phrases'], limit: 18 },
+      { type: 'vocab_learn', title: '장소·이동 기본 단어', categoryId: 'place_transport', limit: 14 },
+      { type: 'vocab_quiz', title: '기본 물건·장소 퀴즈', categoryIds: ['basic_words','essential_phrases','place_transport'], limit: 28 },
+    ],
+    roleplay: null
+  },
+  {
+    id: 'v3_pronouns_places',
+    stageId: 3,
+    accessTier: 'free',
+    name: '이것·저것·여기·저기',
+    nameJp: 'これ・そこ・どこ',
+    icon: '📍',
+    desc: '사람, 사물, 장소 대명사로 가리키고 묻기',
+    xp: 260,
+    unlockAfter: ['v3_survival_objects'],
+    steps: [
+      { type: 'lecture', title: '🎬 대명사는 거리 감각', lectureKey: 'v3_pronouns_places' },
+      { type: 'vocab_learn', title: '사물 대명사', categoryId: 'pronouns_thing' },
+      { type: 'vocab_learn', title: '장소 대명사', categoryId: 'pronouns_place' },
+      { type: 'vocab_learn', title: '사람 대명사', categoryId: 'pronouns_personal' },
+      { type: 'vocab_quiz', title: '대명사 퀴즈', categoryIds: ['pronouns_thing','pronouns_place','pronouns_personal'], limit: 24 },
+    ],
+    roleplay: null
+  },
+  {
+    id: 'v3_numbers_time',
+    stageId: 3,
+    accessTier: 'free',
+    name: '숫자·시간·요일',
+    nameJp: '数字・時間・曜日',
+    icon: '🔢',
+    desc: '가격, 수량, 시간, 요일, 날짜를 알아듣기',
+    xp: 320,
+    unlockAfter: ['v3_pronouns_places'],
+    steps: [
+      { type: 'lecture', title: '🎬 숫자는 여행의 안전장치', lectureKey: 'v3_numbers_time' },
+      { type: 'vocab_learn', title: '숫자 기본', categoryId: 'numbers_basic', limit: 13 },
+      { type: 'vocab_learn', title: '가격·수량 표현', categoryId: 'numbers_applied', limit: 10 },
+      { type: 'vocab_learn', title: '날짜·시각·요일', categoryIds: ['date_basic','time_clock','days_of_week','num_dates'], limit: 26 },
+      { type: 'vocab_quiz', title: '숫자·시간·요일 퀴즈', categoryIds: ['numbers_basic','numbers_applied','date_basic','time_clock','days_of_week','num_dates'], limit: 30 },
+    ],
+    roleplay: null
+  },
+  {
+    id: 'v3_money_counting',
+    stageId: 3,
+    accessTier: 'free',
+    name: '돈·수량·날짜',
+    nameJp: 'お金・数・日付',
+    icon: '💴',
+    desc: '엔화 가격, 몇 개, 며칠, 몇 명처럼 여행 결제와 예약에 필요한 숫자 확장',
+    xp: 300,
+    unlockAfter: ['v3_numbers_time'],
+    steps: [
+      { type: 'lecture', title: '🎬 숫자는 돈과 예약에서 완성된다', lectureKey: 'v3_money_counting' },
+      { type: 'vocab_learn', title: '가격·수량 표현', categoryId: 'numbers_applied', limit: 14 },
+      { type: 'vocab_learn', title: '날짜·요일·기간', categoryIds: ['date_basic','days_of_week','num_dates'], limit: 24 },
+      { type: 'vocab_quiz', title: '돈·수량·날짜 퀴즈', categoryIds: ['numbers_basic','numbers_applied','date_basic','days_of_week','num_dates'], limit: 32 },
+    ],
+    roleplay: null
+  },
+  {
+    id: 'v3_directions_body',
+    stageId: 3,
+    accessTier: 'free',
+    name: '방향·장소·신체부위',
+    nameJp: '方向・場所・体',
+    icon: '🧭',
+    desc: '오른쪽/왼쪽, 가까워요/멀어요, 머리/배/다리처럼 꼭 필요한 기본어',
+    xp: 300,
+    unlockAfter: ['v3_money_counting'],
+    steps: [
+      { type: 'lecture', title: '🎬 방향과 몸은 직접 가리키기', lectureKey: 'v3_directions_body' },
+      { type: 'vocab_learn', title: '길 찾기·방향', categoryId: 'directions', limit: 14 },
+      { type: 'vocab_learn', title: '장소·교통 기본어', categoryId: 'place_transport', limit: 14 },
+      { type: 'vocab_learn', title: '신체 부위', categoryId: 'body_parts', limit: 14 },
+      { type: 'vocab_quiz', title: '방향·장소·몸 퀴즈', categoryIds: ['directions','place_transport','body_parts'], limit: 30 },
+    ],
+    roleplay: null
+  },
+
+  {
+    id: 'v3_particle_basics',
+    stageId: 3,
+    accessTier: 'free',
+    name: '조사 감각',
+    nameJp: '助詞の感覚',
+    icon: '🧷',
+    desc: 'は, を, に, で, へ를 외우기보다 여행 문장 안에서 위치로 익히기',
+    xp: 320,
+    unlockAfter: ['v3_directions_body'],
+    steps: [
+      { type: 'lecture', title: '🎬 조사는 단어 사이의 표지판', lectureKey: 'v3_particle_basics' },
+      { type: 'vocab_learn', title: '자기소개와 は/です', categoryId: 'self_intro', limit: 12 },
+      { type: 'vocab_learn', title: '장소·이동 문장 재료', categoryId: 'place_transport', limit: 14 },
+      { type: 'vocab_quiz', title: '조사 감각 퀴즈', categoryIds: ['self_intro','place_transport','basic_questions'], limit: 28 },
+    ],
+    roleplay: null
+  },
+  {
+    id: 'v3_question_engine',
+    stageId: 3,
+    accessTier: 'free',
+    name: '질문하는 법',
+    nameJp: '質問の作り方',
+    icon: '❓',
+    desc: '뭐예요, 어디예요, 얼마예요, 되나요, 있나요',
+    xp: 300,
+    unlockAfter: ['v3_particle_basics'],
+    steps: [
+      { type: 'lecture', title: '🎬 질문은 끝에 か', lectureKey: 'v3_question_engine' },
+      { type: 'vocab_learn', title: '기초 질문 패턴', categoryId: 'basic_questions', limit: 12 },
+      { type: 'vocab_learn', title: '길 찾기 질문', categoryId: 'directions', limit: 10 },
+      { type: 'vocab_quiz', title: '질문 패턴 퀴즈', categoryIds: ['basic_questions','directions'], limit: 24 },
+    ],
+    roleplay: {
+      id: 'rp_ask_again_help',
+      name: '못 알아들었을 때',
+      nameJp: '聞き返す',
+      icon: '💬',
+      desc: '천천히 말해 주세요, 조금 알아요',
+      dialogueKey: 'ask_again_help'
+    }
+  },
+  {
+    id: 'v3_answer_engine',
+    stageId: 3,
+    accessTier: 'free',
+    name: '대답하는 법',
+    nameJp: '返事の作り方',
+    icon: '💬',
+    desc: '한국인이에요, 여행으로 왔어요, 괜찮아요, 잘 모르겠어요',
+    xp: 300,
+    unlockAfter: ['v3_question_engine'],
+    steps: [
+      { type: 'lecture', title: '🎬 짧게 답해도 대화는 이어진다', lectureKey: 'v3_answer_engine' },
+      { type: 'vocab_learn', title: '자기소개 핵심 답변', categoryId: 'self_intro', limit: 10 },
+      { type: 'vocab_learn', title: '리액션과 대답', categoryId: 'w1_reactions', limit: 10 },
+      { type: 'vocab_quiz', title: '대답 패턴 퀴즈', categoryIds: ['self_intro','w1_reactions'], limit: 22 },
+    ],
+    roleplay: {
+      id: 'rp_first_origin_chat',
+      name: '어디서 왔어요?',
+      nameJp: 'どこから来ましたか',
+      icon: '🗣️',
+      desc: '한국에서 왔어요, 감사합니다',
+      dialogueKey: 'first_origin_chat'
+    }
+  },
+  {
+    id: 'v3_reaction_shadowing',
+    stageId: 3,
+    accessTier: 'free',
+    name: '리액션·쉐도잉',
+    nameJp: 'リアクション練習',
+    icon: '🎙️',
+    desc: '네, 괜찮아요, 잠깐만요, 다시 부탁해요를 듣고 바로 따라 말하기',
+    xp: 260,
+    unlockAfter: ['v3_answer_engine'],
+    steps: [
+      { type: 'lecture', title: '🎬 회화는 리액션으로 이어진다', lectureKey: 'v3_reaction_shadowing' },
+      { type: 'vocab_learn', title: '리액션 한마디', categoryIds: ['w1_reactions','first_expressions'], limit: 18 },
+      { type: 'vocab_quiz', title: '리액션 즉답 퀴즈', categoryIds: ['w1_reactions','first_expressions'], limit: 24 },
+    ],
+    roleplay: null
+  },
+
+  {
+    id: 'v3_airport',
+    stageId: 4,
+    accessTier: 'free',
+    name: '공항과 입국',
+    nameJp: '空港',
+    icon: '✈️',
+    desc: '여권, 좌석, 수하물, 탑승 시간을 알아듣기',
+    xp: 320,
+    unlockAfter: ['v3_reaction_shadowing'],
+    steps: [
+      { type: 'lecture', title: '🎬 공항에서는 짧게 답하기', lectureKey: 'v3_airport' },
+      { type: 'vocab_learn', title: '공항·이동 기본어', categoryId: 'place_transport', limit: 14 },
+      { type: 'vocab_quiz', title: '공항·이동 퀴즈', categoryId: 'place_transport', limit: 14 },
+      { type: 'dialogue_study', title: '공항 대화 미리보기', dialogueKey: 'airport_checkin' },
+    ],
+    roleplay: { id: 'rp_airport_checkin', name: '공항 체크인', nameJp: 'チェックイン', icon: '✈️', desc: '좌석과 수하물 확인하기', dialogueKey: 'airport_checkin' }
+  },
+  {
+    id: 'v3_immigration',
+    stageId: 4,
+    accessTier: 'free',
+    name: '입국 심사',
+    nameJp: '入国審査',
+    icon: '🛂',
+    desc: '목적, 체류 기간, 숙소를 짧게 답하기',
+    xp: 300,
+    unlockAfter: ['v3_airport'],
+    steps: [
+      { type: 'dialogue_study', title: '입국 심사 미리보기', dialogueKey: 'immigration_short' },
+      { type: 'vocab_learn', title: '목적·기간·숙소 답변', categoryIds: ['self_intro','hotel_phrases','date_basic'], limit: 20 },
+      { type: 'vocab_quiz', title: '입국 답변 퀴즈', categoryIds: ['self_intro','hotel_phrases','date_basic'], limit: 22 },
+    ],
+    roleplay: { id: 'rp_immigration_short', name: '입국 심사 답하기', nameJp: '入国審査', icon: '🛂', desc: '여행이에요, 3일이에요, 호텔에 묵어요', dialogueKey: 'immigration_short' }
+  },
+  {
+    id: 'v3_airplane_request',
+    stageId: 4,
+    accessTier: 'free',
+    name: '기내 요청',
+    nameJp: '機内でお願い',
+    icon: '🛫',
+    desc: '물, 담요, 자리, 입국 카드처럼 비행기 안에서 부탁하기',
+    xp: 280,
+    unlockAfter: ['v3_immigration'],
+    steps: [
+      { type: 'dialogue_study', title: '기내 요청 미리보기', dialogueKey: 'airplane_request' },
+      { type: 'vocab_learn', title: '부탁과 필요한 물건', categoryIds: ['basic_words','first_expressions'], limit: 18 },
+      { type: 'vocab_quiz', title: '기내 요청 퀴즈', categoryIds: ['basic_words','first_expressions'], limit: 20 },
+    ],
+    roleplay: { id: 'rp_airplane_request', name: '기내에서 부탁하기', nameJp: '機内でお願い', icon: '🛫', desc: '물 주세요, 담요 있어요?', dialogueKey: 'airplane_request' }
+  },
+  {
+    id: 'v3_transport',
+    stageId: 5,
+    accessTier: 'free',
+    name: '전철·길 찾기',
+    nameJp: '電車・道案内',
+    icon: '🚃',
+    desc: '역, 환승, 목적지, 몇 분 걸리는지 묻기',
+    xp: 340,
+    unlockAfter: ['v3_airplane_request'],
+    steps: [
+      { type: 'lecture', title: '🎬 역에서 살아남기', lectureKey: 'v3_transport' },
+      { type: 'vocab_learn', title: '교통·이동 표현', categoryId: 'transport_phrases', limit: 14 },
+      { type: 'vocab_learn', title: '시각·소요시간 묻기', categoryId: 's4_time_asking', limit: 8 },
+      { type: 'vocab_quiz', title: '전철·길 찾기 퀴즈', categoryIds: ['transport_phrases','s4_time_asking'], limit: 24 },
+      { type: 'dialogue_study', title: '택시·목적지 미리보기', dialogueKey: 'station_direction' },
+    ],
+    roleplay: { id: 'rp_station_direction', name: '목적지까지 가기', nameJp: '目的地まで', icon: '🧭', desc: '어디까지 가 주세요, 얼마나 걸려요', dialogueKey: 'station_direction' }
+  },
+  {
+    id: 'v3_bus_ride',
+    stageId: 5,
+    accessTier: 'free',
+    name: '버스 타기',
+    nameJp: 'バスに乗る',
+    icon: '🚌',
+    desc: '목적지 확인, 요금, 내릴 곳을 묻기',
+    xp: 300,
+    unlockAfter: ['v3_transport'],
+    steps: [
+      { type: 'dialogue_study', title: '버스 대화 미리보기', dialogueKey: 'bus_ride' },
+      { type: 'vocab_learn', title: '버스·목적지 표현', categoryIds: ['transport_phrases','directions'], limit: 20 },
+      { type: 'vocab_quiz', title: '버스 표현 퀴즈', categoryIds: ['transport_phrases','directions'], limit: 22 },
+    ],
+    roleplay: { id: 'rp_bus_ride', name: '버스 목적지 확인', nameJp: 'バスの行き先', icon: '🚌', desc: '이 버스가 역에 가나요?', dialogueKey: 'bus_ride' }
+  },
+  {
+    id: 'v3_taxi_ride',
+    stageId: 5,
+    accessTier: 'free',
+    name: '택시 타기',
+    nameJp: 'タクシー',
+    icon: '🚕',
+    desc: '호텔까지, 여기서 세워 주세요, 카드 되나요',
+    xp: 300,
+    unlockAfter: ['v3_bus_ride'],
+    steps: [
+      { type: 'dialogue_study', title: '택시 대화 미리보기', dialogueKey: 'taxi_ride' },
+      { type: 'vocab_learn', title: '택시·결제 표현', categoryIds: ['transport_phrases','shopping_phrases'], limit: 20 },
+      { type: 'vocab_quiz', title: '택시 표현 퀴즈', categoryIds: ['transport_phrases','shopping_phrases'], limit: 22 },
+    ],
+    roleplay: { id: 'rp_taxi_ride', name: '택시로 호텔 가기', nameJp: 'タクシーでホテルへ', icon: '🚕', desc: '호텔까지 부탁해요, 여기서 괜찮아요', dialogueKey: 'taxi_ride' }
+  },
+  {
+    id: 'v3_konbini',
+    stageId: 6,
+    accessTier: 'free',
+    name: '편의점',
+    nameJp: 'コンビニ',
+    icon: '🏪',
+    desc: '도시락 데우기, 봉투, 결제, 교통카드',
+    xp: 300,
+    unlockAfter: ['v3_taxi_ride'],
+    steps: [
+      { type: 'lecture', title: '🎬 편의점은 선택지만 들으면 된다', lectureKey: 'v3_konbini' },
+      { type: 'vocab_learn', title: '편의점·결제 표현', categoryId: 'shopping_phrases', limit: 12 },
+      { type: 'vocab_quiz', title: '편의점 표현 퀴즈', categoryId: 'shopping_phrases', limit: 16 },
+      { type: 'dialogue_study', title: '편의점 대화 미리보기', dialogueKey: 'konbini_bento' },
+    ],
+    roleplay: { id: 'rp_konbini_bento', name: '도시락 데우기', nameJp: 'お弁当を温める', icon: '🍱', desc: '데워 주세요, 봉투 필요 없어요', dialogueKey: 'konbini_bento' }
+  },
+  {
+    id: 'v3_cafe_breakfast',
+    stageId: 6,
+    accessTier: 'free',
+    name: '카페·조식',
+    nameJp: 'カフェ・朝食',
+    icon: '☕',
+    desc: '커피 주문, 매장/포장, 조식 시간과 좌석 묻기',
+    xp: 300,
+    unlockAfter: ['v3_konbini'],
+    steps: [
+      { type: 'dialogue_study', title: '카페·조식 미리보기', dialogueKey: 'cafe_breakfast' },
+      { type: 'vocab_learn', title: '카페·아침 표현', categoryIds: ['food_ordering','food_restaurant','hotel_phrases'], limit: 24 },
+      { type: 'vocab_quiz', title: '카페·조식 퀴즈', categoryIds: ['food_ordering','food_restaurant','hotel_phrases'], limit: 24 },
+    ],
+    roleplay: { id: 'rp_cafe_breakfast', name: '카페에서 아침 주문', nameJp: 'カフェで朝食', icon: '☕', desc: '아이스커피와 토스트를 주문하기', dialogueKey: 'cafe_breakfast' }
+  },
+  {
+    id: 'v3_restaurant',
+    stageId: 6,
+    accessTier: 'free',
+    name: '식당 주문',
+    nameJp: 'レストラン',
+    icon: '🍜',
+    desc: '한 명이에요, 이거 주세요, 계산 부탁해요',
+    xp: 340,
+    unlockAfter: ['v3_cafe_breakfast'],
+    steps: [
+      { type: 'lecture', title: '🎬 주세요와 부탁합니다', lectureKey: 'v3_restaurant' },
+      { type: 'vocab_learn', title: '식당 주문 표현', categoryId: 'food_ordering', limit: 12 },
+      { type: 'vocab_learn', title: '음식·식당 어휘', categoryId: 'food_restaurant', limit: 12 },
+      { type: 'vocab_quiz', title: '식당 주문 퀴즈', categoryIds: ['food_ordering','food_restaurant'], limit: 24 },
+      { type: 'dialogue_study', title: '혼밥 주문 미리보기', dialogueKey: 'restaurant_solo' },
+    ],
+    roleplay: { id: 'rp_restaurant_solo', name: '혼자 식당 주문', nameJp: '一人で注文', icon: '🍜', desc: '입장부터 계산까지 한 상황만', dialogueKey: 'restaurant_solo' }
+  },
+  {
+    id: 'v3_izakaya',
+    stageId: 6,
+    accessTier: 'free',
+    name: '술집·이자카야',
+    nameJp: '居酒屋',
+    icon: '🍺',
+    desc: '몇 명인지, 첫 잔, 추천, 추가 주문, 계산',
+    xp: 320,
+    unlockAfter: ['v3_restaurant'],
+    steps: [
+      { type: 'dialogue_study', title: '이자카야 미리보기', dialogueKey: 'izakaya_order' },
+      { type: 'vocab_learn', title: '술집 주문 표현', categoryIds: ['food_ordering','food_restaurant'], limit: 24 },
+      { type: 'vocab_quiz', title: '술집 표현 퀴즈', categoryIds: ['food_ordering','food_restaurant'], limit: 24 },
+    ],
+    roleplay: { id: 'rp_izakaya_order', name: '이자카야 주문', nameJp: '居酒屋で注文', icon: '🍺', desc: '맥주와 추천 메뉴 주문하기', dialogueKey: 'izakaya_order' }
+  },
+  {
+    id: 'v3_shopping',
+    stageId: 7,
+    accessTier: 'free',
+    name: '쇼핑·사이즈',
+    nameJp: '買い物',
+    icon: '🛍️',
+    desc: '그냥 볼게요, 입어봐도 돼요, 얼마예요',
+    xp: 320,
+    unlockAfter: ['v3_izakaya'],
+    steps: [
+      { type: 'lecture', title: '🎬 쇼핑은 세 문장으로 시작', lectureKey: 'v3_shopping' },
+      { type: 'vocab_learn', title: '쇼핑 표현', categoryId: 'shopping_phrases', limit: 14 },
+      { type: 'vocab_quiz', title: '쇼핑 퀴즈', categoryId: 'shopping_phrases', limit: 18 },
+      { type: 'dialogue_study', title: '옷가게 미리보기', dialogueKey: 'clothes_size' },
+    ],
+    roleplay: { id: 'rp_clothes_size', name: '사이즈 묻기', nameJp: 'サイズを聞く', icon: '👕', desc: '입어보기, 사이즈, 가격 묻기', dialogueKey: 'clothes_size' }
+  },
+  {
+    id: 'v3_store_payment',
+    stageId: 7,
+    accessTier: 'free',
+    name: '상점·결제',
+    nameJp: 'お店と会計',
+    icon: '💳',
+    desc: '카드, 현금, 봉투, 영수증, 면세 가능 여부',
+    xp: 300,
+    unlockAfter: ['v3_shopping'],
+    steps: [
+      { type: 'dialogue_study', title: '상점 결제 미리보기', dialogueKey: 'store_payment' },
+      { type: 'vocab_learn', title: '결제·면세 표현', categoryId: 'shopping_phrases', limit: 18 },
+      { type: 'vocab_quiz', title: '결제 표현 퀴즈', categoryId: 'shopping_phrases', limit: 22 },
+    ],
+    roleplay: { id: 'rp_store_payment', name: '상점에서 결제', nameJp: 'お店で会計', icon: '💳', desc: '카드 되나요, 봉투 필요 없어요', dialogueKey: 'store_payment' }
+  },
+  {
+    id: 'v3_duty_free',
+    stageId: 7,
+    accessTier: 'free',
+    name: '공항 상점·면세',
+    nameJp: '免税店',
+    icon: '🛍️',
+    desc: '여권 제시, 선물 추천, 기내 반입 가능 여부',
+    xp: 300,
+    unlockAfter: ['v3_store_payment'],
+    steps: [
+      { type: 'dialogue_study', title: '면세점 미리보기', dialogueKey: 'duty_free_shop' },
+      { type: 'vocab_learn', title: '상점·선물 표현', categoryIds: ['shopping_phrases','basic_questions'], limit: 22 },
+      { type: 'vocab_quiz', title: '면세점 표현 퀴즈', categoryIds: ['shopping_phrases','basic_questions'], limit: 24 },
+    ],
+    roleplay: { id: 'rp_duty_free_shop', name: '면세점에서 선물 사기', nameJp: '免税店で買い物', icon: '🛍️', desc: '추천과 기내 반입 가능 여부 묻기', dialogueKey: 'duty_free_shop' }
+  },
+  {
+    id: 'v3_hotel',
+    stageId: 8,
+    accessTier: 'free',
+    name: '호텔 체크인',
+    nameJp: 'ホテル',
+    icon: '🏨',
+    desc: '체크인, 이름, 여권, 조식, 체크아웃 시간',
+    xp: 320,
+    unlockAfter: ['v3_duty_free'],
+    steps: [
+      { type: 'lecture', title: '🎬 숙소에서 듣는 말', lectureKey: 'v3_hotel' },
+      { type: 'vocab_learn', title: '호텔·숙박 표현', categoryId: 'hotel_phrases', limit: 14 },
+      { type: 'vocab_quiz', title: '호텔 표현 퀴즈', categoryId: 'hotel_phrases', limit: 18 },
+      { type: 'dialogue_study', title: '호텔 체크인 미리보기', dialogueKey: 'hotel_checkin' },
+    ],
+    roleplay: { id: 'rp_hotel_checkin', name: '체크인하기', nameJp: 'チェックイン', icon: '🏨', desc: '예약 확인과 기본 질문', dialogueKey: 'hotel_checkin' }
+  },
+  {
+    id: 'v3_hotel_request',
+    stageId: 8,
+    accessTier: 'free',
+    name: '객실 요청',
+    nameJp: '部屋のお願い',
+    icon: '🛎️',
+    desc: '수건, 와이파이, 에어컨, 체크아웃 시간 묻기',
+    xp: 300,
+    unlockAfter: ['v3_hotel'],
+    steps: [
+      { type: 'dialogue_study', title: '객실 요청 미리보기', dialogueKey: 'hotel_request' },
+      { type: 'vocab_learn', title: '객실·시설 표현', categoryId: 'hotel_phrases', limit: 18 },
+      { type: 'vocab_quiz', title: '객실 요청 퀴즈', categoryId: 'hotel_phrases', limit: 22 },
+    ],
+    roleplay: { id: 'rp_hotel_request', name: '프런트에 요청하기', nameJp: 'フロントにお願い', icon: '🛎️', desc: '수건과 와이파이를 부탁하기', dialogueKey: 'hotel_request' }
+  },
+  {
+    id: 'v3_onsen',
+    stageId: 8,
+    accessTier: 'free',
+    name: '온천 이용',
+    nameJp: '温泉',
+    icon: '♨️',
+    desc: '입장, 수건, 문신, 이용 시간, 규칙 묻기',
+    xp: 300,
+    unlockAfter: ['v3_hotel_request'],
+    steps: [
+      { type: 'dialogue_study', title: '온천 이용 미리보기', dialogueKey: 'onsen_rules' },
+      { type: 'vocab_learn', title: '온천·시설 표현', categoryIds: ['hotel_phrases','basic_questions'], limit: 22 },
+      { type: 'vocab_quiz', title: '온천 표현 퀴즈', categoryIds: ['hotel_phrases','basic_questions'], limit: 24 },
+    ],
+    roleplay: { id: 'rp_onsen_rules', name: '온천 규칙 묻기', nameJp: '温泉のルール', icon: '♨️', desc: '수건과 이용 시간을 묻기', dialogueKey: 'onsen_rules' }
+  },
+  {
+    id: 'v3_health',
+    stageId: 9,
+    accessTier: 'free',
+    name: '아플 때',
+    nameJp: '体調が悪い時',
+    icon: '💊',
+    desc: '머리, 배, 약국, 병원, 도움 요청',
+    xp: 300,
+    unlockAfter: ['v3_onsen'],
+    steps: [
+      { type: 'lecture', title: '🎬 아픈 곳부터 말하기', lectureKey: 'v3_health' },
+      { type: 'vocab_learn', title: '신체 부위', categoryId: 'body_parts', limit: 12 },
+      { type: 'vocab_learn', title: '증상·도움 표현', categoryIds: ['health_symptoms','medical_care','emergency_sos'], limit: 18 },
+      { type: 'vocab_quiz', title: '건강·긴급 퀴즈', categoryIds: ['body_parts','health_symptoms','medical_care','emergency_sos'], limit: 28 },
+    ],
+    roleplay: { id: 'rp_health_help', name: '몸이 안 좋아요', nameJp: '体調が悪いです', icon: '💊', desc: '증상 말하고 도움 받기', dialogueKey: 'health_help' }
+  },
+  {
+    id: 'v3_hospital',
+    stageId: 9,
+    accessTier: 'free',
+    name: '병원 접수',
+    nameJp: '病院受付',
+    icon: '🏥',
+    desc: '보험, 접수, 증상, 기다리는 시간 말하기',
+    xp: 320,
+    unlockAfter: ['v3_health'],
+    steps: [
+      { type: 'dialogue_study', title: '병원 접수 미리보기', dialogueKey: 'hospital_reception' },
+      { type: 'vocab_learn', title: '병원·증상 표현', categoryIds: ['medical_care','health_symptoms','body_parts'], limit: 24 },
+      { type: 'vocab_quiz', title: '병원 표현 퀴즈', categoryIds: ['medical_care','health_symptoms','body_parts'], limit: 26 },
+    ],
+    roleplay: { id: 'rp_hospital_reception', name: '병원에서 접수하기', nameJp: '病院で受付', icon: '🏥', desc: '열이 있고 배가 아프다고 말하기', dialogueKey: 'hospital_reception' }
+  },
+  {
+    id: 'v3_lost_and_help',
+    stageId: 9,
+    accessTier: 'free',
+    name: '분실·도움 요청',
+    nameJp: '忘れ物・助けて',
+    icon: '🧰',
+    desc: '물건을 잃어버렸을 때, 장소를 찾을 때, 직원에게 도움을 요청하는 표현',
+    xp: 300,
+    unlockAfter: ['v3_hospital'],
+    steps: [
+      { type: 'lecture', title: '🎬 당황했을 때는 잃어버린 것부터', lectureKey: 'v3_lost_and_help' },
+      { type: 'vocab_learn', title: '도움 요청 표현', categoryIds: ['emergency_sos','basic_questions'], limit: 18 },
+      { type: 'vocab_learn', title: '장소·이동 재확인', categoryIds: ['place_transport','directions'], limit: 20 },
+      { type: 'vocab_quiz', title: '분실·도움 요청 퀴즈', categoryIds: ['emergency_sos','basic_questions','place_transport','directions'], limit: 28 },
+      { type: 'dialogue_study', title: '분실물 문의 미리보기', dialogueKey: 'lost_item_help' },
+    ],
+    roleplay: { id: 'rp_lost_item_help', name: '물건을 잃어버렸어요', nameJp: '忘れ物をしました', icon: '🎒', desc: '가방을 잃어버렸다고 말하고 안내받기', dialogueKey: 'lost_item_help' }
+  },
+
+  {
+    id: 'v3_rentacar',
+    stageId: 10,
+    accessTier: 'free',
+    name: '렌트카',
+    nameJp: 'レンタカー',
+    icon: '🚗',
+    desc: '예약 확인, 면허증, 보험, 반납 시간 묻기',
+    xp: 340,
+    unlockAfter: ['v3_lost_and_help'],
+    steps: [
+      { type: 'dialogue_study', title: '렌트카 미리보기', dialogueKey: 'rentacar_pickup' },
+      { type: 'vocab_learn', title: '예약·이동 표현', categoryIds: ['transport_phrases','basic_questions','date_basic'], limit: 24 },
+      { type: 'vocab_quiz', title: '렌트카 표현 퀴즈', categoryIds: ['transport_phrases','basic_questions','date_basic'], limit: 26 },
+    ],
+    roleplay: { id: 'rp_rentacar_pickup', name: '렌트카 빌리기', nameJp: 'レンタカーを借りる', icon: '🚗', desc: '예약 확인과 반납 시간을 묻기', dialogueKey: 'rentacar_pickup' }
+  },
+  {
+    id: 'v3_tourist_spot',
+    stageId: 10,
+    accessTier: 'free',
+    name: '관광지·사진',
+    nameJp: '観光地と写真',
+    icon: '📷',
+    desc: '입장권, 사진 부탁, 추천 장소 묻기',
+    xp: 320,
+    unlockAfter: ['v3_rentacar'],
+    steps: [
+      { type: 'dialogue_study', title: '관광지 대화 미리보기', dialogueKey: 'tourist_photo' },
+      { type: 'vocab_learn', title: '관광·사진 표현', categoryIds: ['basic_questions','directions','first_expressions'], limit: 24 },
+      { type: 'vocab_quiz', title: '관광지 표현 퀴즈', categoryIds: ['basic_questions','directions','first_expressions'], limit: 26 },
+    ],
+    roleplay: { id: 'rp_tourist_photo', name: '사진 부탁하기', nameJp: '写真をお願いする', icon: '📷', desc: '사진 한 장 부탁하고 감사하기', dialogueKey: 'tourist_photo' }
+  },
+  {
+    id: 'v3_reservation_call',
+    stageId: 10,
+    accessTier: 'free',
+    name: '예약 확인',
+    nameJp: '予約確認',
+    icon: '📅',
+    desc: '예약했어요, 이름은 무엇입니다, 시간 변경 가능해요?',
+    xp: 320,
+    unlockAfter: ['v3_tourist_spot'],
+    steps: [
+      { type: 'dialogue_study', title: '예약 확인 미리보기', dialogueKey: 'reservation_check' },
+      { type: 'vocab_learn', title: '예약·시간 표현', categoryIds: ['hotel_phrases','date_basic','time_clock','basic_questions'], limit: 26 },
+      { type: 'vocab_quiz', title: '예약 확인 퀴즈', categoryIds: ['hotel_phrases','date_basic','time_clock','basic_questions'], limit: 28 },
+    ],
+    roleplay: { id: 'rp_reservation_check', name: '예약 확인하기', nameJp: '予約を確認する', icon: '📅', desc: '예약 이름과 시간을 확인하기', dialogueKey: 'reservation_check' }
+  },
+  {
+    id: 'v3_weather_plan',
+    stageId: 10,
+    accessTier: 'free',
+    name: '날씨·일정 변경',
+    nameJp: '天気と予定変更',
+    icon: '🌦️',
+    desc: '비가 와요, 내일 가도 돼요?, 일정 바꾸고 싶어요',
+    xp: 300,
+    unlockAfter: ['v3_reservation_call'],
+    steps: [
+      { type: 'dialogue_study', title: '일정 변경 미리보기', dialogueKey: 'weather_plan_change' },
+      { type: 'vocab_learn', title: '날짜·감정·질문 표현', categoryIds: ['date_basic','adj_emotion','basic_questions'], limit: 24 },
+      { type: 'vocab_quiz', title: '일정 변경 퀴즈', categoryIds: ['date_basic','adj_emotion','basic_questions'], limit: 26 },
+    ],
+    roleplay: { id: 'rp_weather_plan_change', name: '비 와서 일정 바꾸기', nameJp: '予定を変える', icon: '🌦️', desc: '내일로 바꿀 수 있는지 묻기', dialogueKey: 'weather_plan_change' }
+  },
+  {
+    id: 'v3_polite_wrapup',
+    stageId: 10,
+    accessTier: 'free',
+    name: '마무리·감사',
+    nameJp: 'お礼と締め',
+    icon: '🙏',
+    desc: '도움받은 뒤 감사, 괜찮아요, 또 올게요로 자연스럽게 끝내기',
+    xp: 280,
+    unlockAfter: ['v3_weather_plan'],
+    steps: [
+      { type: 'dialogue_study', title: '감사 마무리 미리보기', dialogueKey: 'polite_wrapup' },
+      { type: 'vocab_learn', title: '감사·마무리 표현', categoryIds: ['first_expressions','w1_reactions'], limit: 20 },
+      { type: 'vocab_quiz', title: '마무리 표현 퀴즈', categoryIds: ['first_expressions','w1_reactions'], limit: 22 },
+    ],
+    roleplay: { id: 'rp_polite_wrapup', name: '도움받고 마무리하기', nameJp: 'お礼を言う', icon: '🙏', desc: '정중하지만 길지 않게 감사하기', dialogueKey: 'polite_wrapup' }
+  },
+
+  {
+    id: 'v3_drama_reactions',
+    stageId: 11,
+    accessTier: 'free',
+    name: '드라마 리액션',
+    nameJp: 'ドラマの反応',
+    icon: '🎬',
+    desc: 'え, うそ, まじで, なんで처럼 자막에서 계속 보이는 짧은 말',
+    xp: 260,
+    unlockAfter: ['v3_polite_wrapup'],
+    steps: [
+      { type: 'lecture', title: '🎬 자막보다 먼저 들리는 말', lectureKey: 'v3_drama_reactions' },
+      { type: 'vocab_learn', title: '짧은 반응어', categoryIds: ['w1_reactions', 'youth_slang'], limit: 18 },
+      { type: 'vocab_quiz', title: '리액션 듣기 전 퀴즈', categoryIds: ['w1_reactions', 'youth_slang'], limit: 20 },
+    ],
+    roleplay: null
+  },
+  {
+    id: 'v3_drama_daily',
+    stageId: 11,
+    accessTier: 'free',
+    name: '드라마 일상 대사',
+    nameJp: '日常セリフ',
+    icon: '📺',
+    desc: '친구 말투, 감정 표현, 짧은 일상 문장',
+    xp: 300,
+    unlockAfter: ['v3_drama_reactions'],
+    steps: [
+      { type: 'lecture', title: '🎬 드라마 대사는 짧게 끊어 듣기', lectureKey: 'v3_drama_daily' },
+      { type: 'vocab_learn', title: '감정·상태 표현', categoryIds: ['adj_emotion','small_talk'], limit: 18 },
+      { type: 'vocab_learn', title: '취미·관심사', categoryId: 's2_hobbies', limit: 10 },
+      { type: 'vocab_quiz', title: '드라마 입문 퀴즈', categoryIds: ['adj_emotion','small_talk','s2_hobbies'], limit: 24 },
+      { type: 'dialogue_study', title: '일상 대화 미리보기', dialogueKey: 'daily_chat' },
+    ],
+    roleplay: { id: 'rp_daily_chat', name: '짧은 일상 대화', nameJp: '日常会話', icon: '💬', desc: '일본어 공부와 취미 이야기', dialogueKey: 'daily_chat' }
+  },
+];
+
+function getModulesByStage(stageId) {
+  return MODULES.filter(m => m.stageId === stageId);
+}
+
+function isModuleUnlocked(moduleId, progress) {
+  const mod = typeof moduleId === 'object'
+    ? moduleId
+    : MODULES.find(m => m.id === moduleId);
+  return !!mod;
+}
+
+function isRoleplayUnlocked(moduleId, progress) {
+  const mod = MODULES.find(m => m.id === moduleId);
+  return !!mod?.roleplay;
+}
+
+function getModuleProgressPct(moduleId, progress) {
+  const mod = MODULES.find(m => m.id === moduleId);
+  if (!mod) return 0;
+  const total = mod.steps.length + (mod.roleplay ? 1 : 0);
+  const mp = progress.modules?.[moduleId] || {};
+  const done = Math.min(mp.stepsCompleted || 0, mod.steps.length) + (mp.roleplayDone ? 1 : 0);
+  return total ? Math.round((done / total) * 100) : 0;
+}
+
+function getStageProgressPct(stageId, progress) {
+  const mods = getModulesByStage(stageId);
+  if (!mods.length) return 0;
+  const total = mods.reduce((sum, mod) => sum + mod.steps.length + (mod.roleplay ? 1 : 0), 0);
+  const done = mods.reduce((sum, mod) => {
+    const mp = progress.modules?.[mod.id] || {};
+    return sum + Math.min(mp.stepsCompleted || 0, mod.steps.length) + (mp.roleplayDone ? 1 : 0);
+  }, 0);
+  return Math.round((done / total) * 100);
+}
+
+function getNextModule(progress) {
+  for (const stage of STAGES) {
+    const mods = getModulesByStage(stage.id);
+    for (const mod of mods) {
+      if (!isModuleUnlocked(mod.id, progress)) continue;
+      const mp = progress.modules?.[mod.id] || {};
+      if ((mp.stepsCompleted || 0) < mod.steps.length) return { mod, roleplay: false };
+      if (mod.roleplay && !mp.roleplayDone) return { mod, roleplay: true };
+    }
+  }
+  return null;
+}

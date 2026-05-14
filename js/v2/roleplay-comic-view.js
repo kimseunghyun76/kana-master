@@ -58,14 +58,16 @@ window.createRoleplayComicView = (ctx, deps) => {
   }
 
   function roleLabel(role) {
-    const practiceSpeaker = ctx.getFlow()?.roleplayState?.practiceSpeaker || 'A';
-    if (role === practiceSpeaker) return '나';
     if (role === 'N') return '';
-    return '너';
+    return role || '';
   }
 
-  function roleImage(role, mod = null) {
-    const roleAsset = roleplayArt[mod?.id]?.characters?.[role];
+  function roleImage(role, mod = null, variant = 'body') {
+    const roleAssets = roleplayArt[mod?.id]?.characters || {};
+    const faceAssets = roleplayArt[mod?.id]?.faces || {};
+    const roleAsset = variant === 'face'
+      ? (faceAssets[role] || roleAssets[role])
+      : (roleAssets[role] || faceAssets[role]);
     if (roleAsset) return roleAsset;
     const key = deps.voiceForSpeaker(role);
     return key === 'keita' ? firstMeetingArt.male : firstMeetingArt.female;
@@ -79,7 +81,7 @@ window.createRoleplayComicView = (ctx, deps) => {
 
   function renderCharacters(dialogues, classPrefix = 'vn-character', mod = null) {
     return speakerRoles(dialogues).map(role => `
-      <img class="${classPrefix} ${classPrefix}-${role}" src="${roleImage(role, mod)}" alt="" aria-hidden="true">
+      <img class="${classPrefix} ${classPrefix}-${role}" data-role="${role}" src="${roleImage(role, mod, 'body')}" alt="" aria-hidden="true">
     `).join('');
   }
 
@@ -91,14 +93,12 @@ window.createRoleplayComicView = (ctx, deps) => {
         </button>
       `;
     }
-    const label = roleLabel(line.speaker);
     return `
       <button class="comic-script-line speaker-${line.speaker} ${isActive ? 'active' : ''}"
               id="dl-line-${line.sourceIndex}" type="button"
               onclick="App.showDialogueDetail('${line.id}')">
         <span class="comic-script-speaker">
-          <span class="comic-script-avatar" style="background-image:url('${ctx.cssUrlValue(roleImage(line.speaker, mod))}')"></span>
-          <span class="comic-script-role">${escHtml(label || line.speaker)}</span>
+          <span class="comic-script-avatar" style="background-image:url('${ctx.cssUrlValue(roleImage(line.speaker, mod, 'face'))}')"></span>
         </span>
         <span class="comic-script-copy">
           <span class="comic-script-jp">${ruby(line.japanese || '')}</span>
@@ -150,10 +150,12 @@ window.createRoleplayComicView = (ctx, deps) => {
   }
 
   function renderIntro(mod, rp, dialogues, roleplayCover, speakerOptions, practiceSpeaker) {
-    const voices = typeof TTS.getAvailableVoices === 'function' ? TTS.getAvailableVoices() : [];
+    const voices = typeof TTS.getAvailableVoices === 'function'
+      ? TTS.getAvailableVoices().filter(v => v.lang === 'ja-JP' || ['nanami','aoi','mayu','keita'].includes(v.key))
+      : [];
     const voiceOptionHtml = role => voices.map(v => `
       <option value="${v.key}" ${deps.voiceForSpeaker(role) === v.key ? 'selected' : ''}>
-        ${escHtml(v.label || v.key)} · ${escHtml(VoiceCharacters.meta(v.key).age || (v.gender === 'M' ? '남성' : '여성'))}
+          ${escHtml(v.label || v.key)} · ${escHtml(VoiceCharacters.meta(v.key).age || (v.gender === 'M' ? '남성' : '여성'))}
       </option>
     `).join('');
     const voiceSelect = role => {
@@ -162,7 +164,7 @@ window.createRoleplayComicView = (ctx, deps) => {
       const label = roleLabel(role);
       return `
         <div class="comic-voice-select-card">
-          <span class="comic-role-avatar" style="background-image:url('${ctx.cssUrlValue(roleImage(role, mod))}')"></span>
+          <span class="comic-role-avatar" style="background-image:url('${ctx.cssUrlValue(roleImage(role, mod, 'face'))}')"></span>
           <label class="comic-voice-select-main">
             <span>${escHtml(label)} · ${escHtml(voice.label || voice.key)}</span>
             <select class="comic-voice-select" onchange="App._setRoleplayVoice('${role}', this.value)">
@@ -188,14 +190,11 @@ window.createRoleplayComicView = (ctx, deps) => {
     document.getElementById('flowProgressFill').style.width = '20%';
     document.getElementById('flowBody').innerHTML = `
       <div class="comic-intro-shell">
-        <div class="roleplay-hero comic-intro-hero" style="--roleplay-hero-bg:url('${ctx.cssUrlValue(roleplayCover)}')">
+        <div class="roleplay-hero comic-intro-hero no-characters" style="--roleplay-hero-bg:url('${ctx.cssUrlValue(roleplayCover)}')">
           <div class="roleplay-hero-bg" aria-hidden="true"></div>
-          <div class="comic-intro-characters" aria-hidden="true">
-            ${renderCharacters(dialogues, 'comic-intro-character', mod)}
-          </div>
           <div class="roleplay-hero-content">
             <div class="roleplay-hero-title">${escHtml(introTitle(mod, rp, dialogues))}</div>
-            <div class="roleplay-hero-desc">${introDesc(rp, dialogues)}<br>화자를 선택하면 장면이 자동으로 움직이고, 영화 자막처럼 대사가 이어집니다.</div>
+            <div class="roleplay-hero-desc">${introDesc(rp, dialogues)}</div>
           </div>
         </div>
         <div class="comic-intro-panel">
@@ -207,7 +206,41 @@ window.createRoleplayComicView = (ctx, deps) => {
     document.getElementById('flowFooter').innerHTML = `
       <div class="roleplay-actions comic-intro-actions">
         <button class="btn btn-outline" onclick="App.closeFlow()">나중에</button>
-        <button class="btn btn-primary" onclick="App._startRoleplayComicPlayer()">영상 재생 시작 →</button>
+        <button class="btn btn-primary" onclick="App._startRoleplayComicPlayer()">대화 미리보기 →</button>
+      </div>
+    `;
+  }
+
+  function renderPreview(mod, rp, dialogues, comicSceneAsset) {
+    const lines = (dialogues || []).filter(line => line.speaker !== 'N');
+    document.getElementById('flowStep').textContent = '미리보기 · 오늘 외울 대화';
+    document.getElementById('flowProgressFill').style.width = '28%';
+    document.getElementById('flowBody').innerHTML = `
+      <div class="comic-preview-shell">
+        <div class="comic-preview-scene" style="--comic-bg:url('${ctx.cssUrlValue(comicSceneAsset)}')">
+          <div>
+            <span>대화 미리보기</span>
+            <b>${escHtml(introTitle(mod, rp, dialogues))}</b>
+          </div>
+        </div>
+        <div class="comic-preview-list">
+          ${lines.map((line, idx) => `
+            <button class="comic-preview-line" type="button" onclick="App.showDialogueDetail('${line.id}')">
+              <span class="comic-preview-face" style="background-image:url('${ctx.cssUrlValue(roleImage(line.speaker, mod, 'face'))}')"></span>
+              <span class="comic-preview-copy">
+                <b>${idx + 1}. ${ruby(line.japanese || '')}</b>
+                <em>${escHtml(line.korean || '')}</em>
+              </span>
+            </button>
+          `).join('')}
+        </div>
+      </div>
+    `;
+    document.getElementById('flowFooter').innerHTML = `
+      <div class="comic-player-actions">
+        <button class="btn btn-outline" onclick="App._returnRoleplayComicIntro()">← 화자 선택</button>
+        <button class="btn btn-outline" onclick="App._replayAll('${mod.id}')">${ctx.uiLabeledIcon('audio')} 먼저 듣기</button>
+        <button class="btn btn-primary" onclick="App._startRoleplayComicPlayback()">영상 시작 →</button>
       </div>
     `;
   }
@@ -222,6 +255,10 @@ window.createRoleplayComicView = (ctx, deps) => {
     document.getElementById('flowProgressFill').style.width = `${32 + Math.round(((panelIndex + 1) / panelGroups.length) * 60)}%`;
     document.getElementById('flowBody').innerHTML = `
       <div class="comic-player-shell" style="--comic-bg:url('${ctx.cssUrlValue(comicSceneAsset)}')">
+        <div class="comic-phase-nav">
+          <button class="active" type="button">듣기</button>
+          <button type="button" onclick="App._beginRoleplayPractice()">말하기</button>
+        </div>
         ${renderFrameHtml(dialogues, panelIndex, null, mod)}
         ${renderScriptDock(dialogues, panelIndex, null, mod)}
       </div>
@@ -254,6 +291,10 @@ window.createRoleplayComicView = (ctx, deps) => {
     document.getElementById('flowProgressFill').style.width = `${55 + Math.round(((activeIndex + 1) / practiceLines.length) * 40)}%`;
     document.getElementById('flowBody').innerHTML = `
       <div class="comic-player-shell comic-practice-shell" style="--comic-bg:url('${ctx.cssUrlValue(comicSceneAsset)}')">
+        <div class="comic-phase-nav">
+          <button type="button" onclick="App._startRoleplayComicPlayback()">듣기</button>
+          <button class="active" type="button">말하기</button>
+        </div>
         ${renderFrameHtml(dialogues, panelIndex, activeLine.sourceIndex, mod)}
         <div class="comic-practice-prompt">
           <div class="comic-practice-head">
@@ -282,10 +323,19 @@ window.createRoleplayComicView = (ctx, deps) => {
   function rerenderPlayerShell(dialogues, panelIndex, activeSourceIndex, mod) {
     const shell = document.querySelector('.comic-player-shell');
     if (!shell) return;
-    shell.innerHTML = `
-      ${renderFrameHtml(dialogues, panelIndex, activeSourceIndex, mod)}
-      ${renderScriptDock(dialogues, panelIndex, activeSourceIndex, mod)}
-    `;
+    const visual = shell.querySelector('#comicVisualFrame');
+    const lines = panelLines(dialogues, panelIndex);
+    const selectedLine = activeSourceIndex === null
+      ? (lines.find(line => line.speaker !== 'N') || lines[0])
+      : lines.find(line => line.sourceIndex === activeSourceIndex);
+    const activeSpeaker = selectedLine?.speaker && selectedLine.speaker !== 'N' ? selectedLine.speaker : '';
+    if (visual) {
+      visual.className = `comic-player-visual comic-video-scene comic-cinematic-frame comic-panel-${panelIndex + 1} cinematic-panel-${(panelIndex % 6) + 1} ${activeSpeaker ? `is-speaking speaker-focus-${activeSpeaker}` : ''}`;
+      visual.dataset.panel = String(panelIndex + 1);
+      visual.dataset.speaker = activeSpeaker;
+    }
+    const dock = shell.querySelector('#comicScriptDock');
+    if (dock) dock.outerHTML = renderScriptDock(dialogues, panelIndex, activeSourceIndex, mod);
   }
 
   return {
@@ -296,6 +346,7 @@ window.createRoleplayComicView = (ctx, deps) => {
     roleLabel,
     speakerRoles,
     renderIntro,
+    renderPreview,
     renderPlayer,
     renderPractice,
     rerenderPlayerShell,

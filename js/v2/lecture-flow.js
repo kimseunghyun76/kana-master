@@ -626,6 +626,43 @@ window.createLectureFlow = (ctx) => {
     return r;
   }
 
+  const _JP_TEXT_RE = /[\u3040-\u30ff\u3400-\u9fff々〆ヶー]+/g;
+  function _captionLinesForTts(sentences, lang, lectureVoice) {
+    if (lang === 'jp') {
+      return sentences.map((text, elementIndex) => ({
+        text: _koToKatakana(text).trim(),
+        voice: lectureVoice,
+        elementIndex,
+      })).filter(line => line.text);
+    }
+
+    const jpVoice = TTS.getDefaultVoice ? TTS.getDefaultVoice() : 'nanami';
+    return sentences.flatMap((sentence, elementIndex) => {
+      const lines = [];
+      let cursor = 0;
+      const text = String(sentence || '');
+      for (const match of text.matchAll(_JP_TEXT_RE)) {
+        const jpStart = match.index || 0;
+        const jpText = match[0].trim();
+        const koText = text.slice(cursor, jpStart).trim();
+        if (koText) lines.push({ text: koText, voice: lectureVoice, elementIndex });
+        if (jpText) {
+          lines.push({
+            text: jpText,
+            voice: jpVoice,
+            elementIndex,
+            gapBeforeMs: 1000,
+            gapAfterMs: 1000,
+          });
+        }
+        cursor = jpStart + match[0].length;
+      }
+      const rest = text.slice(cursor).trim();
+      if (rest) lines.push({ text: rest, voice: lectureVoice, elementIndex });
+      return lines.length ? lines : [{ text, voice: lectureVoice, elementIndex }];
+    });
+  }
+
   function _hasActiveCaption(slide) {
     const lang = _lectureInstructor();
     return !!(lang === 'ko' ? slide?.captionKo : slide?.captionJp);
@@ -678,19 +715,19 @@ window.createLectureFlow = (ctx) => {
       return;
     }
 
-    // ④ 폴백: Web Speech 문장별 큐 (jp는 가타카나 변환, ko는 그대로)
-    const lines = sentences.map((text) => ({
-      text: lang === 'jp' ? _koToKatakana(text).trim() : text,
-      voice: lectureVoice,
-    }));
+    // ④ 폴백: Web Speech 큐
+    // 한국어 강의 안의 일본어 조각은 전후 1초 쉬고 일본어 화자로 읽는다.
+    const lines = _captionLinesForTts(sentences, lang, lectureVoice);
     TTS.speakQueue(lines, {
       onLineStart: (i) => {
+        const elementIndex = lines[i]?.elementIndex ?? i;
         document.querySelectorAll('.' + sentClass).forEach(el => el.classList.remove('reading'));
-        document.getElementById(`${sentIdPrefix}${i}`)?.classList.add('reading');
-        document.getElementById(`${sentIdPrefix}${i}`)?.scrollIntoView?.({ block: 'nearest', behavior: 'smooth' });
+        document.getElementById(`${sentIdPrefix}${elementIndex}`)?.classList.add('reading');
+        document.getElementById(`${sentIdPrefix}${elementIndex}`)?.scrollIntoView?.({ block: 'nearest', behavior: 'smooth' });
       },
       onLineEnd: (i) => {
-        document.getElementById(`${sentIdPrefix}${i}`)?.classList.remove('reading');
+        const elementIndex = lines[i]?.elementIndex ?? i;
+        document.getElementById(`${sentIdPrefix}${elementIndex}`)?.classList.remove('reading');
       },
       onDone,
     });

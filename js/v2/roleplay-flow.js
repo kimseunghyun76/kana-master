@@ -102,6 +102,10 @@ window.createRoleplayFlow = (ctx) => {
       _comicView.renderIntro(mod, rp, dialogues, comicSceneAsset, speakerOptions, practiceSpeaker);
       return;
     }
+    if (isComicDemo && phase === 'comic_preview') {
+      _comicView.renderPreview(mod, rp, dialogues, comicSceneAsset);
+      return;
+    }
     if (isComicDemo && phase === 'comic_player') {
       _comicView.renderPlayer(mod, dialogues, comicSceneAsset);
       return;
@@ -327,12 +331,34 @@ window.createRoleplayFlow = (ctx) => {
     if (!state) return;
     _stopRoleplay();
     state.practiceSpeaker = speaker;
-    if (state.phase !== 'comic_intro') state.phase = 'practice';
+    if (state.phase !== 'comic_intro' && state.phase !== 'comic_preview') state.phase = 'practice';
     state.practiceSourceSpeaker = null;
     _renderRoleplay(ctx.getMod(ctx.getFlow().moduleId));
   }
 
   function _startRoleplayComicPlayer() {
+    const state = ctx.getFlow()?.roleplayState;
+    if (!state) return;
+    _stopRoleplay();
+    if (state.phase === 'comic_intro') {
+      state.phase = 'comic_preview';
+      document.getElementById('flowScreen')?.classList.remove('roleplay-comic-player-mode');
+      _renderRoleplay(ctx.getMod(ctx.getFlow().moduleId));
+      return;
+    }
+    _startRoleplayComicPlayback();
+  }
+
+  function _returnRoleplayComicIntro() {
+    const state = ctx.getFlow()?.roleplayState;
+    if (!state) return;
+    _stopRoleplay();
+    state.phase = 'comic_intro';
+    document.getElementById('flowScreen')?.classList.remove('roleplay-comic-player-mode');
+    _renderRoleplay(ctx.getMod(ctx.getFlow().moduleId));
+  }
+
+  function _startRoleplayComicPlayback() {
     const state = ctx.getFlow()?.roleplayState;
     if (!state) return;
     _stopRoleplay();
@@ -351,7 +377,7 @@ window.createRoleplayFlow = (ctx) => {
     const groups = _comicView.groups(dialogues);
     if ((state.comicPanelIndex || 0) === 0 && delta < 0) {
       _stopRoleplay();
-      state.phase = 'comic_intro';
+      state.phase = 'comic_preview';
       document.getElementById('flowScreen')?.classList.remove('roleplay-comic-player-mode');
       _renderRoleplay(mod);
       return;
@@ -639,6 +665,8 @@ window.createRoleplayFlow = (ctx) => {
     renderRoleplay: _renderRoleplay,
     beginPractice: _beginRoleplayPractice,
     startComicPlayer: _startRoleplayComicPlayer,
+    startComicPlayback: _startRoleplayComicPlayback,
+    returnComicIntro: _returnRoleplayComicIntro,
     comicPrev: () => _roleplayComicGo(-1),
     comicNext: () => _roleplayComicGo(1),
     comicSpeakPanel: _roleplayComicSpeakPanel,

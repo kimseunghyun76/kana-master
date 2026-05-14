@@ -400,7 +400,7 @@
   border: 1px solid rgba(255,255,255,.16);
   background-color: rgba(15,23,42,.76);
   background-repeat: no-repeat;
-  background-size: auto 142%;
+  background-size: cover;
   background-position: center 18%;
   box-shadow: 0 10px 22px rgba(2,6,23,.24);
 }
@@ -528,6 +528,105 @@
 .comic-intro-character-C {
   transform: translateY(1%) scale(.96);
 }
+.comic-intro-hero.no-characters .roleplay-hero-content {
+  padding-bottom: 22px;
+}
+.comic-preview-shell {
+  height: 100%;
+  min-height: 0;
+  display: grid;
+  grid-template-rows: 110px minmax(0, 1fr);
+  gap: 10px;
+}
+.comic-preview-scene {
+  position: relative;
+  overflow: hidden;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,.16);
+  background: #020617;
+}
+.comic-preview-scene::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: var(--comic-bg);
+  background-size: cover;
+  background-position: center;
+  filter: saturate(1.08) contrast(1.04);
+}
+.comic-preview-scene::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(2,6,23,.84), rgba(2,6,23,.18));
+}
+.comic-preview-scene > div {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 14px;
+}
+.comic-preview-scene span {
+  color: #bfdbfe;
+  font-size: 11px;
+  font-weight: 900;
+}
+.comic-preview-scene b {
+  color: #fff;
+  font-size: 18px;
+  line-height: 1.35;
+}
+.comic-preview-list {
+  min-height: 0;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-right: 2px;
+}
+.comic-preview-line {
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr);
+  gap: 10px;
+  align-items: center;
+  width: 100%;
+  padding: 9px;
+  border: 1px solid rgba(148,163,184,.16);
+  border-radius: 8px;
+  background: rgba(15,23,42,.64);
+  color: var(--text);
+  text-align: left;
+}
+.comic-preview-face {
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,.16);
+  background-size: cover;
+  background-position: center 18%;
+  background-color: rgba(2,6,23,.5);
+}
+.comic-preview-copy {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.comic-preview-copy b {
+  color: #fff;
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 14px;
+  line-height: 1.45;
+}
+.comic-preview-copy em {
+  color: var(--text2);
+  font-size: 12px;
+  font-style: normal;
+  line-height: 1.45;
+}
 .flow-screen.roleplay-comic-player-mode .flow-body {
   overflow: hidden;
 }
@@ -546,6 +645,35 @@
   place-items: center;
   gap: 8px;
 }
+.comic-phase-nav {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 12;
+  display: inline-grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 999px;
+  background: rgba(2,6,23,.62);
+  border: 1px solid rgba(255,255,255,.14);
+  backdrop-filter: blur(10px);
+}
+.comic-phase-nav button {
+  min-width: 72px;
+  min-height: 30px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: rgba(226,232,240,.8);
+  font-size: 11px;
+  font-weight: 900;
+  cursor: pointer;
+}
+.comic-phase-nav button.active {
+  background: rgba(99,102,241,.82);
+  color: #fff;
+}
 .comic-practice-shell {
   width: 100%;
   grid-template-rows: minmax(0, 1fr);
@@ -556,7 +684,8 @@
 .comic-practice-prompt {
   position: absolute;
   z-index: 8;
-  top: 58px;
+  top: auto;
+  bottom: 14px;
   left: 12px;
   right: 12px;
   width: auto;
@@ -756,8 +885,8 @@
   position: absolute;
   z-index: 2;
   bottom: 3%;
-  width: 62%;
-  height: 82%;
+  width: 56%;
+  height: 76%;
   object-fit: contain;
   object-position: center bottom;
   pointer-events: none;
@@ -795,14 +924,15 @@
   opacity: 1;
   filter: drop-shadow(0 22px 34px rgba(2,6,23,.46)) drop-shadow(0 0 14px rgba(251,191,36,.18));
   animation: vnSpeak 820ms ease-in-out infinite;
+  transform: scale(1.1);
 }
 .comic-player-visual.speaker-focus-A .vn-character-B,
 .comic-player-visual.speaker-focus-B .vn-character-A,
 .comic-player-visual.speaker-focus-C .vn-character-A,
 .comic-player-visual.speaker-focus-C .vn-character-B {
-  opacity: .78;
+  opacity: .72;
   filter: drop-shadow(0 14px 22px rgba(2,6,23,.28)) saturate(.86);
-  transform: scale(.96);
+  transform: scale(.84);
 }
 .comic-player-visual.speaker-focus-A .vn-character-C,
 .comic-player-visual.speaker-focus-B .vn-character-C {
@@ -918,10 +1048,11 @@
   border: 1px solid rgba(255,255,255,.18);
   background-color: rgba(15,23,42,.76);
   background-repeat: no-repeat;
-  background-size: auto 155%;
+  background-size: cover;
   background-position: center 18%;
 }
 .comic-script-role {
+  display: none;
   color: var(--accent2);
   font-size: 10px;
   font-weight: 900;
@@ -965,7 +1096,7 @@
   background: rgba(15,23,42,.82);
   box-shadow: 0 0 0 1px rgba(255,255,255,.14), 0 12px 30px rgba(2,6,23,.32);
   transform: translateY(-2px);
-  animation: comicLinePulse 1.3s ease-in-out infinite;
+  animation: none;
 }
 .comic-script-speaker {
   min-width: 0;

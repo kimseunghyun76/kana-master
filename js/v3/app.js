@@ -1,6 +1,6 @@
 /* ============================================================
-   일본어 마스터 v2 — Main App
-   Stage-based prerequisite unlock learning system
+   일본어 마스터 v3 — Main App
+   Beginner-first travel/N5/drama curriculum
    ============================================================ */
 
 'use strict';
@@ -323,6 +323,7 @@ window.App = (() => {
 
     switch (s.type) {
       case 'lecture':         _renderLecture(mod, s, step); break;
+      case 'kana_chart':      _renderKanaChart(mod, s, step); break;
       case 'kana_learn':      _kanaLearnFlow.renderKanaLearn(mod, s, step); break;
       case 'kana_quiz':       _renderKanaQuiz(mod, s, step); break;
       case 'kana_listening':  _renderKanaListening(mod, s, step); break;
@@ -345,6 +346,84 @@ window.App = (() => {
     document.getElementById('flowFooter').innerHTML = `
       <button class="btn btn-primary" onclick="App.closeFlow()">홈으로 →</button>
     `;
+  }
+
+  function _renderKanaChart(mod, step, stepIndex) {
+    const rows = [
+      { key: 'a', label: 'あ행', hira: ['あ','い','う','え','お'], kata: ['ア','イ','ウ','エ','オ'], hint: '입 모양 5개. 모든 행의 기준.' },
+      { key: 'ka', label: 'か행', hira: ['か','き','く','け','こ'], kata: ['カ','キ','ク','ケ','コ'], hint: 'k 소리. 카키쿠케코 리듬.' },
+      { key: 'sa', label: 'さ행', hira: ['さ','し','す','せ','そ'], kata: ['サ','シ','ス','セ','ソ'], hint: 'し는 si보다 shi에 가까워.' },
+      { key: 'ta', label: 'た행', hira: ['た','ち','つ','て','と'], kata: ['タ','チ','ツ','テ','ト'], hint: 'ち=chi, つ=tsu 예외 소리.' },
+      { key: 'na', label: 'な행', hira: ['な','に','ぬ','ね','の'], kata: ['ナ','ニ','ヌ','ネ','ノ'], hint: '단어 안에서 자주 보이는 부드러운 n 소리.' },
+      { key: 'ha', label: 'は행', hira: ['は','ひ','ふ','へ','ほ'], kata: ['ハ','ヒ','フ','ヘ','ホ'], hint: 'ふ는 fu. は는 조사일 때 wa.' },
+      { key: 'ma', label: 'ま행', hira: ['ま','み','む','め','も'], kata: ['マ','ミ','ム','メ','モ'], hint: '입술을 닫았다 여는 m 소리.' },
+      { key: 'ya', label: 'や행', hira: ['や','','ゆ','','よ'], kata: ['ヤ','','ユ','','ヨ'], hint: '빈칸도 구조야. ya, yu, yo만 기본.' },
+      { key: 'ra', label: 'ら행', hira: ['ら','り','る','れ','ろ'], kata: ['ラ','リ','ル','レ','ロ'], hint: '한국어 ㄹ보다 가볍게 튕기는 소리.' },
+      { key: 'wa', label: 'わ행', hira: ['わ','','','','を'], kata: ['ワ','','','','ヲ'], hint: 'を는 보통 조사로 쓰고 o처럼 읽어.' },
+      { key: 'n', label: 'ん', hira: ['ん','','','',''], kata: ['ン','','','',''], hint: '마지막 받침 같은 n. 뒤 소리에 따라 느낌이 변해.' },
+    ];
+    const columns = ['あ段', 'い段', 'う段', 'え段', 'お段'];
+    const tableRows = rows.map(row => `
+      <div class="v3-kana-row">
+        <div class="v3-kana-row-head">
+          <strong>${escHtml(row.label)}</strong>
+          <span>${escHtml(row.hint)}</span>
+        </div>
+        ${row.hira.map((hira, idx) => {
+          const kata = row.kata[idx] || '';
+          const chars = [hira, kata].filter(Boolean);
+          if (!chars.length) return `<div class="v3-kana-cell is-empty" aria-label="빈칸"></div>`;
+          return `
+            <button class="v3-kana-cell" type="button" onclick="App._kanaChartSpeak('${chars[0]}')">
+              <span class="v3-kana-hira">${escHtml(hira)}</span>
+              <span class="v3-kana-kata">${escHtml(kata)}</span>
+            </button>
+          `;
+        }).join('')}
+      </div>
+    `).join('');
+
+    document.getElementById('flowBody').innerHTML = `
+      <section class="v3-kana-chart">
+        <div class="v3-kana-chart-hero">
+          <div>
+            <div class="v3-kana-kicker">오십음도 한눈에</div>
+            <h2>가로는 입 모양, 세로는 소리 가족</h2>
+            <p>글자를 하나씩 외우기 전에 표의 위치를 먼저 잡아. 히라가나와 가타가나는 같은 소리를 다른 글자 모양으로 적는다고 보면 된다.</p>
+          </div>
+          <div class="v3-kana-axis" aria-hidden="true">
+            <span>가로: あ·い·う·え·お</span>
+            <span>세로: か·さ·た·な...</span>
+          </div>
+        </div>
+        <div class="v3-kana-columns">
+          <span>행</span>
+          ${columns.map(col => `<span>${escHtml(col)}</span>`).join('')}
+        </div>
+        <div class="v3-kana-table">${tableRows}</div>
+        <div class="v3-kana-memory">
+          <div><b>1분 암기법</b><span>あいうえお를 먼저 소리내고, 다음엔 かさたなはまやらわ 순서만 외워.</span></div>
+          <div><b>여행 기준</b><span>완벽한 필기보다 메뉴판에서 보고 읽는 속도가 먼저야.</span></div>
+          <div><b>헷갈림 처리</b><span>ぬ/め, れ/ね, シ/ツ, ソ/ン은 따로 비교해서 잡으면 된다.</span></div>
+        </div>
+      </section>
+    `;
+
+    document.getElementById('flowFooter').innerHTML = `
+      <button class="btn btn-outline" onclick="App._startFlowFromStep('${mod.id}', ${Math.max(0, stepIndex - 1)})">← 강의 다시 보기</button>
+      <button class="btn btn-primary" onclick="App._completeKanaChart(${stepIndex})">표 구조 이해했어 →</button>
+    `;
+  }
+
+  function _kanaChartSpeak(char) {
+    TTS.speak(char);
+  }
+
+  function _completeKanaChart(stepIndex) {
+    Store.completeStep(_flow.moduleId, stepIndex);
+    Store.addXP(30);
+    _flow.step = stepIndex + 1;
+    _runCurrentStep();
   }
 
   function _advanceStep() {
@@ -774,6 +853,8 @@ window.App = (() => {
     _kanaLearnNext: _kanaLearnFlow.kanaLearnNext,
     _kanaLearnPrev: _kanaLearnFlow.kanaLearnPrev,
     _kanaSpeak: _kanaLearnFlow.kanaSpeak,
+    _kanaChartSpeak,
+    _completeKanaChart,
     _kanaQuizAnswer,
     _kanaQuizNext,
     _startKanaQuizFromPrimer,

@@ -214,6 +214,10 @@ window.TTS = (() => {
 
         // line.voice가 있으면 우선, 없으면 speaker 역할로 매핑
         const voiceKey = line.voice || _resolveRoleVoice(line.speaker);
+        const gapBeforeMs = Number.isFinite(line.gapBeforeMs) ? line.gapBeforeMs : 0;
+        const gapAfterMs = Number.isFinite(line.gapAfterMs) ? line.gapAfterMs : gapMs;
+
+        if (gapBeforeMs > 0 && !_queueStop) await _delay(gapBeforeMs);
 
         if (callbacks.onLineStart) callbacks.onLineStart(i, line);
         const cleanLineText = typeof window.stripFuri === 'function'
@@ -221,7 +225,7 @@ window.TTS = (() => {
         await _speakOne(cleanLineText, voiceKey);
         if (callbacks.onLineEnd) callbacks.onLineEnd(i, line);
 
-        if (!_queueStop) await _delay(gapMs);
+        if (!_queueStop) await _delay(gapAfterMs);
       }
     } finally {
       if (typeof callbacks.rate === 'number') setRate(prevRate);
