@@ -149,6 +149,110 @@ const V3_BASIC_STRUCTURE_CARDS = [
   { id:'v3str_10', japanese:'日本語は少しだけです', romaji:'nihongo wa sukoshi dake desu', korean:'일본어는 조금만 해요' },
 ];
 
+const V3_AIRPORT_QA_CARDS = [
+  { id:'v3air_01', japanese:'パスポートをお願いします', romaji:'pasupooto wo onegai shimasu', korean:'여권 부탁드려요' },
+  { id:'v3air_02', japanese:'はい、どうぞ', romaji:'hai, douzo', korean:'네, 여기요' },
+  { id:'v3air_03', japanese:'荷物は一つです', romaji:'nimotsu wa hitotsu desu', korean:'짐은 하나예요' },
+  { id:'v3air_04', japanese:'通路側をお願いします', romaji:'tsuuro gawa wo onegai shimasu', korean:'통로 쪽으로 부탁해요' },
+  { id:'v3air_05', japanese:'窓側をお願いします', romaji:'madogawa wo onegai shimasu', korean:'창가 쪽으로 부탁해요' },
+  { id:'v3air_06', japanese:'搭乗口はどこですか', romaji:'toujouguchi wa doko desu ka', korean:'탑승구는 어디예요?' },
+  { id:'v3air_07', japanese:'何時から搭乗ですか', romaji:'nan ji kara toujou desu ka', korean:'몇 시부터 탑승이에요?' },
+  { id:'v3air_08', japanese:'この荷物を預けたいです', romaji:'kono nimotsu wo azuketai desu', korean:'이 짐을 맡기고 싶어요' },
+  { id:'v3air_09', japanese:'ありがとうございます', romaji:'arigatou gozaimasu', korean:'고마워요' },
+  { id:'v3air_10', japanese:'わかりました', romaji:'wakarimashita', korean:'알겠어요' },
+];
+
+const V3_IMMIGRATION_QA_CARDS = [
+  { id:'v3imm_01', japanese:'目的は何ですか', romaji:'mokuteki wa nan desu ka', korean:'목적은 뭐예요?' },
+  { id:'v3imm_02', japanese:'旅行です', romaji:'ryokou desu', korean:'여행이에요' },
+  { id:'v3imm_03', japanese:'何日滞在しますか', romaji:'nan nichi taizai shimasu ka', korean:'며칠 머물러요?' },
+  { id:'v3imm_04', japanese:'三日です', romaji:'mikka desu', korean:'3일이에요' },
+  { id:'v3imm_05', japanese:'どこに泊まりますか', romaji:'doko ni tomarimasu ka', korean:'어디에 묵어요?' },
+  { id:'v3imm_06', japanese:'新宿のホテルです', romaji:'shinjuku no hoteru desu', korean:'신주쿠 호텔이에요' },
+  { id:'v3imm_07', japanese:'帰りのチケットはありますか', romaji:'kaeri no chiketto wa arimasu ka', korean:'돌아가는 티켓 있어요?' },
+  { id:'v3imm_08', japanese:'はい、あります', romaji:'hai, arimasu', korean:'네, 있어요' },
+  { id:'v3imm_09', japanese:'一人です', romaji:'hitori desu', korean:'혼자예요' },
+  { id:'v3imm_10', japanese:'観光です', romaji:'kankou desu', korean:'관광이에요' },
+];
+
+const V3_AIRPLANE_QA_CARDS = [
+  { id:'v3plane_01', japanese:'水をください', romaji:'mizu wo kudasai', korean:'물 주세요' },
+  { id:'v3plane_02', japanese:'毛布はありますか', romaji:'moufu wa arimasu ka', korean:'담요 있어요?' },
+  { id:'v3plane_03', japanese:'入国カードはありますか', romaji:'nyuukoku kaado wa arimasu ka', korean:'입국 카드 있어요?' },
+  { id:'v3plane_04', japanese:'ペンをお願いします', romaji:'pen wo onegai shimasu', korean:'펜 부탁해요' },
+  { id:'v3plane_05', japanese:'席を変えられますか', romaji:'seki wo kaeraremasu ka', korean:'자리 바꿀 수 있어요?' },
+  { id:'v3plane_06', japanese:'少々お待ちください', romaji:'shoushou omachi kudasai', korean:'잠시 기다려 주세요' },
+  { id:'v3plane_07', japanese:'大丈夫です', romaji:'daijoubu desu', korean:'괜찮아요' },
+  { id:'v3plane_08', japanese:'ありがとうございます', romaji:'arigatou gozaimasu', korean:'고마워요' },
+  { id:'v3plane_09', japanese:'すみません', romaji:'sumimasen', korean:'저기요' },
+  { id:'v3plane_10', japanese:'お願いします', romaji:'onegai shimasu', korean:'부탁해요' },
+];
+
+const V3_STATION_QA_CARDS = [
+  { id:'v3st_01', japanese:'新宿駅はどこですか', romaji:'shinjuku eki wa doko desu ka', korean:'신주쿠역은 어디예요?' },
+  { id:'v3st_02', japanese:'この道をまっすぐです', romaji:'kono michi wo massugu desu', korean:'이 길을 쭉 가면 돼요' },
+  { id:'v3st_03', japanese:'歩いて何分ですか', romaji:'aruite nan pun desu ka', korean:'걸어서 몇 분이에요?' },
+  { id:'v3st_04', japanese:'十分くらいです', romaji:'juppun kurai desu', korean:'10분 정도예요' },
+  { id:'v3st_05', japanese:'何番線ですか', romaji:'nan bansen desu ka', korean:'몇 번 승강장이에요?' },
+  { id:'v3st_06', japanese:'二番線です', romaji:'ni bansen desu', korean:'2번 승강장이에요' },
+  { id:'v3st_07', japanese:'乗り換えはありますか', romaji:'norikae wa arimasu ka', korean:'환승 있어요?' },
+  { id:'v3st_08', japanese:'山手線に乗ってください', romaji:'yamanote sen ni notte kudasai', korean:'야마노테선을 타세요' },
+  { id:'v3st_09', japanese:'ありがとうございます', romaji:'arigatou gozaimasu', korean:'고마워요' },
+  { id:'v3st_10', japanese:'気をつけてください', romaji:'ki wo tsukete kudasai', korean:'조심하세요' },
+];
+
+const V3_BUS_QA_CARDS = [
+  { id:'v3bus_01', japanese:'このバスは浅草に行きますか', romaji:'kono basu wa asakusa ni ikimasu ka', korean:'이 버스는 아사쿠사에 가요?' },
+  { id:'v3bus_02', japanese:'はい、行きます', romaji:'hai, ikimasu', korean:'네, 가요' },
+  { id:'v3bus_03', japanese:'料金はいくらですか', romaji:'ryoukin wa ikura desu ka', korean:'요금은 얼마예요?' },
+  { id:'v3bus_04', japanese:'二百円です', romaji:'nihyaku en desu', korean:'200엔이에요' },
+  { id:'v3bus_05', japanese:'ICカードは使えますか', romaji:'IC kaado wa tsukaemasu ka', korean:'IC 카드 쓸 수 있어요?' },
+  { id:'v3bus_06', japanese:'どこで降りますか', romaji:'doko de orimasu ka', korean:'어디에서 내려요?' },
+  { id:'v3bus_07', japanese:'次の次です', romaji:'tsugi no tsugi desu', korean:'다음 다음이에요' },
+  { id:'v3bus_08', japanese:'ボタンを押してください', romaji:'botan wo oshite kudasai', korean:'버튼을 눌러 주세요' },
+  { id:'v3bus_09', japanese:'わかりました', romaji:'wakarimashita', korean:'알겠어요' },
+  { id:'v3bus_10', japanese:'ありがとうございます', romaji:'arigatou gozaimasu', korean:'고마워요' },
+];
+
+const V3_TAXI_QA_CARDS = [
+  { id:'v3taxi_01', japanese:'このホテルまでお願いします', romaji:'kono hoteru made onegai shimasu', korean:'이 호텔까지 부탁해요' },
+  { id:'v3taxi_02', japanese:'何分かかりますか', romaji:'nan pun kakarimasu ka', korean:'몇 분 걸려요?' },
+  { id:'v3taxi_03', japanese:'十五分くらいです', romaji:'juugo fun kurai desu', korean:'15분 정도예요' },
+  { id:'v3taxi_04', japanese:'ここで大丈夫です', romaji:'koko de daijoubu desu', korean:'여기서 괜찮아요' },
+  { id:'v3taxi_05', japanese:'カードは使えますか', romaji:'kaado wa tsukaemasu ka', korean:'카드 쓸 수 있어요?' },
+  { id:'v3taxi_06', japanese:'領収書をください', romaji:'ryoushuusho wo kudasai', korean:'영수증 주세요' },
+  { id:'v3taxi_07', japanese:'高速道路は使わないでください', romaji:'kousoku douro wa tsukawanaide kudasai', korean:'고속도로는 쓰지 말아 주세요' },
+  { id:'v3taxi_08', japanese:'はい、わかりました', romaji:'hai, wakarimashita', korean:'네, 알겠습니다' },
+  { id:'v3taxi_09', japanese:'料金はいくらですか', romaji:'ryoukin wa ikura desu ka', korean:'요금은 얼마예요?' },
+  { id:'v3taxi_10', japanese:'ありがとうございます', romaji:'arigatou gozaimasu', korean:'고마워요' },
+];
+
+const V3_KONBINI_QA_CARDS = [
+  { id:'v3kon_01', japanese:'このお弁当をお願いします', romaji:'kono obentou wo onegai shimasu', korean:'이 도시락 부탁해요' },
+  { id:'v3kon_02', japanese:'温めますか', romaji:'atatamemasu ka', korean:'데워 드릴까요?' },
+  { id:'v3kon_03', japanese:'はい、お願いします', romaji:'hai, onegai shimasu', korean:'네, 부탁해요' },
+  { id:'v3kon_04', japanese:'お箸は要りますか', romaji:'ohashi wa irimasu ka', korean:'젓가락 필요하세요?' },
+  { id:'v3kon_05', japanese:'一つお願いします', romaji:'hitotsu onegai shimasu', korean:'하나 부탁해요' },
+  { id:'v3kon_06', japanese:'袋は要りますか', romaji:'fukuro wa irimasu ka', korean:'봉투 필요하세요?' },
+  { id:'v3kon_07', japanese:'大丈夫です', romaji:'daijoubu desu', korean:'괜찮아요' },
+  { id:'v3kon_08', japanese:'Suicaでお願いします', romaji:'suika de onegai shimasu', korean:'스이카로 부탁해요' },
+  { id:'v3kon_09', japanese:'六百円です', romaji:'roppyaku en desu', korean:'600엔이에요' },
+  { id:'v3kon_10', japanese:'ありがとうございました', romaji:'arigatou gozaimashita', korean:'감사합니다' },
+];
+
+const V3_CAFE_QA_CARDS = [
+  { id:'v3cafe_01', japanese:'モーニングセットをください', romaji:'mooningu setto wo kudasai', korean:'모닝 세트 주세요' },
+  { id:'v3cafe_02', japanese:'飲み物は何にしますか', romaji:'nomimono wa nani ni shimasu ka', korean:'음료는 뭘로 하시겠어요?' },
+  { id:'v3cafe_03', japanese:'アイスコーヒーでお願いします', romaji:'aisu koohii de onegai shimasu', korean:'아이스커피로 부탁해요' },
+  { id:'v3cafe_04', japanese:'店内ですか', romaji:'tennai desu ka', korean:'매장이세요?' },
+  { id:'v3cafe_05', japanese:'はい、店内です', romaji:'hai, tennai desu', korean:'네, 매장이요' },
+  { id:'v3cafe_06', japanese:'席はあちらです', romaji:'seki wa achira desu', korean:'자리는 저쪽이에요' },
+  { id:'v3cafe_07', japanese:'何時までですか', romaji:'nan ji made desu ka', korean:'몇 시까지예요?' },
+  { id:'v3cafe_08', japanese:'十一時までです', romaji:'juuichi ji made desu', korean:'11시까지예요' },
+  { id:'v3cafe_09', japanese:'トーストもお願いします', romaji:'toosuto mo onegai shimasu', korean:'토스트도 부탁해요' },
+  { id:'v3cafe_10', japanese:'かしこまりました', romaji:'kashikomarimashita', korean:'알겠습니다' },
+];
+
 const MODULES = [
   {
     id: 'v3_kana_map',
@@ -491,8 +595,10 @@ const MODULES = [
     steps: [
       { type: 'lecture', title: '🎬 공항에서는 짧게 답하기', lectureKey: 'v3_airport' },
       { type: 'vocab_learn', title: '공항·이동 기본어', categoryId: 'place_transport', limit: 14 },
-      { type: 'vocab_quiz', title: '공항·이동 퀴즈', categoryId: 'place_transport', limit: 14 },
+      { type: 'vocab_learn', title: '체크인 질문·답변 카드', items: V3_AIRPORT_QA_CARDS },
       { type: 'dialogue_study', title: '공항 대화 미리보기', dialogueKey: 'airport_checkin' },
+      { type: 'vocab_quiz', title: '공항 체크인 즉답 퀴즈', items: V3_AIRPORT_QA_CARDS },
+      { type: 'vocab_quiz', title: '공항·이동 퀴즈', categoryId: 'place_transport', limit: 14 },
     ],
     roleplay: { id: 'rp_airport_checkin', name: '공항 체크인', nameJp: 'チェックイン', icon: '✈️', desc: '좌석과 수하물 확인하기', dialogueKey: 'airport_checkin' }
   },
@@ -507,8 +613,10 @@ const MODULES = [
     xp: 300,
     unlockAfter: ['v3_airport'],
     steps: [
-      { type: 'dialogue_study', title: '입국 심사 미리보기', dialogueKey: 'immigration_short' },
+      { type: 'vocab_learn', title: '입국 질문·답변 카드', items: V3_IMMIGRATION_QA_CARDS },
       { type: 'vocab_learn', title: '목적·기간·숙소 답변', categoryIds: ['self_intro','hotel_phrases','date_basic'], limit: 20 },
+      { type: 'dialogue_study', title: '입국 심사 미리보기', dialogueKey: 'immigration_short' },
+      { type: 'vocab_quiz', title: '입국 즉답 퀴즈', items: V3_IMMIGRATION_QA_CARDS },
       { type: 'vocab_quiz', title: '입국 답변 퀴즈', categoryIds: ['self_intro','hotel_phrases','date_basic'], limit: 22 },
     ],
     roleplay: { id: 'rp_immigration_short', name: '입국 심사 답하기', nameJp: '入国審査', icon: '🛂', desc: '여행이에요, 3일이에요, 호텔에 묵어요', dialogueKey: 'immigration_short' }
@@ -524,8 +632,10 @@ const MODULES = [
     xp: 280,
     unlockAfter: ['v3_immigration'],
     steps: [
-      { type: 'dialogue_study', title: '기내 요청 미리보기', dialogueKey: 'airplane_request' },
+      { type: 'vocab_learn', title: '기내 요청 질문·답변 카드', items: V3_AIRPLANE_QA_CARDS },
       { type: 'vocab_learn', title: '부탁과 필요한 물건', categoryIds: ['basic_words','first_expressions'], limit: 18 },
+      { type: 'dialogue_study', title: '기내 요청 미리보기', dialogueKey: 'airplane_request' },
+      { type: 'vocab_quiz', title: '기내 요청 즉답 퀴즈', items: V3_AIRPLANE_QA_CARDS },
       { type: 'vocab_quiz', title: '기내 요청 퀴즈', categoryIds: ['basic_words','first_expressions'], limit: 20 },
     ],
     roleplay: { id: 'rp_airplane_request', name: '기내에서 부탁하기', nameJp: '機内でお願い', icon: '🛫', desc: '물 주세요, 담요 있어요?', dialogueKey: 'airplane_request' }
@@ -543,9 +653,11 @@ const MODULES = [
     steps: [
       { type: 'lecture', title: '🎬 역에서 살아남기', lectureKey: 'v3_transport' },
       { type: 'vocab_learn', title: '교통·이동 표현', categoryId: 'transport_phrases', limit: 14 },
+      { type: 'vocab_learn', title: '역·환승 질문 카드', items: V3_STATION_QA_CARDS },
       { type: 'vocab_learn', title: '시각·소요시간 묻기', categoryId: 's4_time_asking', limit: 8 },
-      { type: 'vocab_quiz', title: '전철·길 찾기 퀴즈', categoryIds: ['transport_phrases','s4_time_asking'], limit: 24 },
       { type: 'dialogue_study', title: '택시·목적지 미리보기', dialogueKey: 'station_direction' },
+      { type: 'vocab_quiz', title: '역·환승 즉답 퀴즈', items: V3_STATION_QA_CARDS },
+      { type: 'vocab_quiz', title: '전철·길 찾기 퀴즈', categoryIds: ['transport_phrases','s4_time_asking'], limit: 24 },
     ],
     roleplay: { id: 'rp_station_direction', name: '목적지까지 가기', nameJp: '目的地まで', icon: '🧭', desc: '어디까지 가 주세요, 얼마나 걸려요', dialogueKey: 'station_direction' }
   },
@@ -560,8 +672,10 @@ const MODULES = [
     xp: 300,
     unlockAfter: ['v3_transport'],
     steps: [
-      { type: 'dialogue_study', title: '버스 대화 미리보기', dialogueKey: 'bus_ride' },
+      { type: 'vocab_learn', title: '버스 질문·답변 카드', items: V3_BUS_QA_CARDS },
       { type: 'vocab_learn', title: '버스·목적지 표현', categoryIds: ['transport_phrases','directions'], limit: 20 },
+      { type: 'dialogue_study', title: '버스 대화 미리보기', dialogueKey: 'bus_ride' },
+      { type: 'vocab_quiz', title: '버스 즉답 퀴즈', items: V3_BUS_QA_CARDS },
       { type: 'vocab_quiz', title: '버스 표현 퀴즈', categoryIds: ['transport_phrases','directions'], limit: 22 },
     ],
     roleplay: { id: 'rp_bus_ride', name: '버스 목적지 확인', nameJp: 'バスの行き先', icon: '🚌', desc: '이 버스가 역에 가나요?', dialogueKey: 'bus_ride' }
@@ -577,8 +691,10 @@ const MODULES = [
     xp: 300,
     unlockAfter: ['v3_bus_ride'],
     steps: [
-      { type: 'dialogue_study', title: '택시 대화 미리보기', dialogueKey: 'taxi_ride' },
+      { type: 'vocab_learn', title: '택시 질문·답변 카드', items: V3_TAXI_QA_CARDS },
       { type: 'vocab_learn', title: '택시·결제 표현', categoryIds: ['transport_phrases','shopping_phrases'], limit: 20 },
+      { type: 'dialogue_study', title: '택시 대화 미리보기', dialogueKey: 'taxi_ride' },
+      { type: 'vocab_quiz', title: '택시 즉답 퀴즈', items: V3_TAXI_QA_CARDS },
       { type: 'vocab_quiz', title: '택시 표현 퀴즈', categoryIds: ['transport_phrases','shopping_phrases'], limit: 22 },
     ],
     roleplay: { id: 'rp_taxi_ride', name: '택시로 호텔 가기', nameJp: 'タクシーでホテルへ', icon: '🚕', desc: '호텔까지 부탁해요, 여기서 괜찮아요', dialogueKey: 'taxi_ride' }
@@ -596,8 +712,10 @@ const MODULES = [
     steps: [
       { type: 'lecture', title: '🎬 편의점은 선택지만 들으면 된다', lectureKey: 'v3_konbini' },
       { type: 'vocab_learn', title: '편의점·결제 표현', categoryId: 'shopping_phrases', limit: 12 },
-      { type: 'vocab_quiz', title: '편의점 표현 퀴즈', categoryId: 'shopping_phrases', limit: 16 },
+      { type: 'vocab_learn', title: '도시락·봉투·결제 카드', items: V3_KONBINI_QA_CARDS },
       { type: 'dialogue_study', title: '편의점 대화 미리보기', dialogueKey: 'konbini_bento' },
+      { type: 'vocab_quiz', title: '편의점 즉답 퀴즈', items: V3_KONBINI_QA_CARDS },
+      { type: 'vocab_quiz', title: '편의점 표현 퀴즈', categoryId: 'shopping_phrases', limit: 16 },
     ],
     roleplay: { id: 'rp_konbini_bento', name: '도시락 데우기', nameJp: 'お弁当を温める', icon: '🍱', desc: '데워 주세요, 봉투 필요 없어요', dialogueKey: 'konbini_bento' }
   },
@@ -612,8 +730,10 @@ const MODULES = [
     xp: 300,
     unlockAfter: ['v3_konbini'],
     steps: [
-      { type: 'dialogue_study', title: '카페·조식 미리보기', dialogueKey: 'cafe_breakfast' },
+      { type: 'vocab_learn', title: '조식·카페 질문 카드', items: V3_CAFE_QA_CARDS },
       { type: 'vocab_learn', title: '카페·아침 표현', categoryIds: ['food_ordering','food_restaurant','hotel_phrases'], limit: 24 },
+      { type: 'dialogue_study', title: '카페·조식 미리보기', dialogueKey: 'cafe_breakfast' },
+      { type: 'vocab_quiz', title: '카페·조식 즉답 퀴즈', items: V3_CAFE_QA_CARDS },
       { type: 'vocab_quiz', title: '카페·조식 퀴즈', categoryIds: ['food_ordering','food_restaurant','hotel_phrases'], limit: 24 },
     ],
     roleplay: { id: 'rp_cafe_breakfast', name: '카페에서 아침 주문', nameJp: 'カフェで朝食', icon: '☕', desc: '아이스커피와 토스트를 주문하기', dialogueKey: 'cafe_breakfast' }
