@@ -31,7 +31,13 @@ function resolveExistingPath(requestPath) {
   ];
   for (const candidate of candidates) {
     const fullPath = path.join(BASE, candidate);
-    if (fullPath.startsWith(BASE) && fs.existsSync(fullPath)) return fullPath;
+    if (!fullPath.startsWith(BASE) || !fs.existsSync(fullPath)) continue;
+    const stat = fs.statSync(fullPath);
+    if (stat.isDirectory()) {
+      const indexPath = path.join(fullPath, 'index.html');
+      if (indexPath.startsWith(BASE) && fs.existsSync(indexPath)) return indexPath;
+    }
+    return fullPath;
   }
   return path.join(BASE, requestPath);
 }

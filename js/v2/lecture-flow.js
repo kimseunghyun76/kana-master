@@ -224,7 +224,7 @@ window.createLectureFlow = (ctx) => {
     const prevLang = (Store.getSetting('lectureInstructor') === 'jp' || Store.getSetting('lectureInstructor') === 'ko')
       ? Store.getSetting('lectureInstructor') : 'ko';
     const prevFont = Store.getSetting('lectureBoardFont') === 'plain' ? 'plain' : 'chalk';
-    window.__lecPickState = { lang: prevLang, font: prevFont, voice: null };
+    window.__lecPickState = { lang: prevLang, font: prevFont };
 
     document.getElementById('flowBody').innerHTML = `
       <div class="lecture-slide lec-pick-slide">
@@ -236,25 +236,12 @@ window.createLectureFlow = (ctx) => {
           <div class="lec-pick-top">
             <div class="lec-pick-greeting">잘 오셨어요! 👋</div>
             <div class="lec-pick-title">${escHtml(mod.name || '강의')}</div>
-            <div class="lec-pick-sub">강사 · 성우 · 모드를 골라주세요</div>
+            <div class="lec-pick-sub">이번 강의를 설명해 줄 강사만 골라주세요</div>
           </div>
           <div class="lec-pick-bottom">
             <div class="lec-pick-cards">
               ${_lecPickCardHTML('ko', prevLang === 'ko')}
               ${_lecPickCardHTML('jp', prevLang === 'jp')}
-            </div>
-            <div class="lec-pick-mode-row">
-              <span class="lec-pick-mode-label">모드</span>
-              <div class="lec-pick-mode-toggle" id="lecPickFont">
-                <button class="lec-pick-mode-btn ${prevFont === 'chalk' ? 'active' : ''}" data-val="chalk" type="button" onclick="App._lecPickSet('font','chalk')">
-                  <span class="lec-pick-mode-icon">✎</span>
-                  <span class="lec-pick-mode-name">칠판</span>
-                </button>
-                <button class="lec-pick-mode-btn ${prevFont === 'plain' ? 'active' : ''}" data-val="plain" type="button" onclick="App._lecPickSet('font','plain')">
-                  <span class="lec-pick-mode-icon">Aa</span>
-                  <span class="lec-pick-mode-name">종이</span>
-                </button>
-              </div>
             </div>
             <button class="lec-pick-start" type="button" onclick="App._lecPickStart()">
               <span>시작하기</span>
@@ -265,10 +252,6 @@ window.createLectureFlow = (ctx) => {
       </div>
     `;
     document.getElementById('flowFooter').innerHTML = '';
-    _lecPickRefreshVoices('ko');
-    _lecPickRefreshVoices('jp');
-    // 활성 강사의 voice를 state로 picking
-    _lecPickResolveVoice();
   }
 
   function _lecPickCardHTML(lang, active) {
@@ -285,39 +268,8 @@ window.createLectureFlow = (ctx) => {
             <span class="lec-pick-card-sub">${langDesc}</span>
           </div>
         </div>
-        <div class="lec-pick-card-voices" id="lecPickVoice_${lang}"></div>
       </div>
     `;
-  }
-
-  function _lecPickRefreshVoices(lang) {
-    const cont = document.getElementById('lecPickVoice_' + lang);
-    if (!cont) return;
-    const voices = (typeof TTS.getAvailableVoices === 'function') ? TTS.getAvailableVoices(lang) : [];
-    const storedKey = lang === 'ko' ? 'lecture_voice_ko' : 'lecture_voice_jp';
-    let preferred = localStorage.getItem(storedKey);
-    if (!preferred || !voices.some(v => v.key === preferred)) {
-      preferred = voices[0]?.key || null;
-    }
-    cont.innerHTML = voices.map(v => {
-      const name = (v.label || v.key).split(' ')[0];
-      const sym = v.gender === 'F' ? '♀' : '♂';
-      return `
-        <button class="lec-pick-voice-chip ${v.key === preferred ? 'active' : ''}"
-                data-val="${escHtml(v.key)}" data-lang="${lang}" type="button"
-                onclick="event.stopPropagation();App._lecPickSet('voice','${escHtml(v.key)}','${lang}')">
-          <span class="lec-pick-voice-sym">${sym}</span>
-          <span class="lec-pick-voice-name">${escHtml(name)}</span>
-        </button>
-      `;
-    }).join('');
-  }
-
-  // 활성 강사 카드의 현재 active voice를 state에 반영
-  function _lecPickResolveVoice() {
-    const lang = window.__lecPickState?.lang || 'ko';
-    const activeVoice = document.querySelector(`#lecPickVoice_${lang} .lec-pick-voice-chip.active`);
-    window.__lecPickState.voice = activeVoice?.dataset.val || null;
   }
 
   function _lecPickSet(field, value, langScope) {
@@ -327,22 +279,11 @@ window.createLectureFlow = (ctx) => {
       document.querySelectorAll('.lec-pick-card').forEach(c => {
         c.classList.toggle('is-active', c.dataset.lang === value);
       });
-      _lecPickResolveVoice();
     } else if (field === 'font') {
       window.__lecPickState.font = value;
       document.querySelectorAll('#lecPickFont .lec-pick-mode-btn').forEach(b => {
         b.classList.toggle('active', b.dataset.val === value);
       });
-    } else if (field === 'voice') {
-      // voice는 해당 lang scope의 chip 중에서만 active
-      document.querySelectorAll(`#lecPickVoice_${langScope} .lec-pick-voice-chip`).forEach(b => {
-        b.classList.toggle('active', b.dataset.val === value);
-      });
-      // 해당 lang으로 카드도 active 전환
-      if (window.__lecPickState.lang !== langScope) {
-        _lecPickSet('lang', langScope);
-      }
-      window.__lecPickState.voice = value;
     }
   }
   function _lecPickStart() {
@@ -350,10 +291,6 @@ window.createLectureFlow = (ctx) => {
     if (!s) return;
     Store.setSetting('lectureInstructor', s.lang);
     Store.setSetting('lectureBoardFont', s.font);
-    if (s.voice) {
-      const storedKey = s.lang === 'ko' ? 'lecture_voice_ko' : 'lecture_voice_jp';
-      localStorage.setItem(storedKey, s.voice);
-    }
     window.__lecPickState = null;
     _lectureRenderSlide();
   }
@@ -382,6 +319,9 @@ window.createLectureFlow = (ctx) => {
                        : captionLang === 'jp' ? slide.captionJp : '';
     const hasVisibleCaption = !!captionText;
     const captionsShown = captionState !== 'off';
+    const instructorVoiceKey = _lectureGetVoice();
+    const instructorMeta = typeof VoiceCharacters !== 'undefined' ? VoiceCharacters.meta(instructorVoiceKey) : {};
+    const instructorAvatarStyle = typeof VoiceCharacters !== 'undefined' ? VoiceCharacters.avatarStyle(instructorVoiceKey) : '';
     const slideSegments = slides.map((_, slideIndex) => `
       <div class="lec-segment ${slideIndex < idx ? 'done' : ''} ${slideIndex === idx ? 'active' : ''}">
         <div class="lec-segment-fill"></div>
@@ -402,6 +342,7 @@ window.createLectureFlow = (ctx) => {
             <div class="lec-reel-pattern">${ctx.uiIconSvg(ts.icon, 'lec-reel-icon')}</div>
             <div class="lec-reel-sheen"></div>
           </div>
+          <div class="lec-instructor-avatar" style="${instructorAvatarStyle}" title="${escHtml(instructorMeta?.role || '강사')}"></div>
 
           <div class="lec-scene-topline lec-scene-topline-compact">
             <div class="lec-topline-meta">
@@ -440,7 +381,6 @@ window.createLectureFlow = (ctx) => {
     document.getElementById('flowFooter').innerHTML = `
       <div class="lec-footer-tools lec-footer-tools-unified">
         ${_lectureInstructorToggleButton()}
-        ${_lectureVoiceSelect()}
         ${_lectureFontToggleButton()}
         ${_lectureCaptionToggleButton()}
         <button class="lec-display-toggle lec-tool-btn lec-pause-btn" id="btnLecPause"

@@ -2,7 +2,7 @@
    일본어 마스터 v3 — v2 engine styles + v3 additions
    ============================================================ */
 
-@import url("./v2.css");
+@import url("/css/shared-app.css");
 
 .v3-kana-chart {
   display: flex;

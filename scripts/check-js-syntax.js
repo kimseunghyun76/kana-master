@@ -5,7 +5,8 @@ const path = require('path');
 const { spawnSync } = require('child_process');
 
 const root = path.resolve(__dirname, '..');
-const scanDirs = ['js', 'scripts'];
+const scanDirs = ['js', 'apps', 'scripts'];
+const rootFiles = ['server.js'];
 
 function walk(dir, out = []) {
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
@@ -20,7 +21,9 @@ function walk(dir, out = []) {
 }
 
 const files = scanDirs
+  .filter(dir => fs.existsSync(path.join(root, dir)))
   .flatMap(dir => walk(path.join(root, dir)))
+  .concat(rootFiles.filter(file => fs.existsSync(path.join(root, file))))
   .sort();
 
 let failed = false;

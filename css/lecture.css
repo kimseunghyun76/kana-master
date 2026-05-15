@@ -525,6 +525,20 @@
   font-size: 12px;
   font-weight: 700;
 }
+.lec-instructor-avatar {
+  position: absolute;
+  z-index: 4;
+  right: 18px;
+  bottom: 96px;
+  width: 72px;
+  height: 72px;
+  border-radius: 18px;
+  border: 2px solid rgba(255,255,255,.74);
+  background-image: var(--voice-avatar);
+  background-size: var(--voice-avatar-size, cover);
+  background-position: var(--voice-avatar-pos, center);
+  box-shadow: 0 14px 34px rgba(2,6,23,.35);
+}
 /* 모드 toggle (작게) */
 .lec-pick-mode-row {
   display: flex;

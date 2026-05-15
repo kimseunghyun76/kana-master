@@ -1,5 +1,6 @@
 /* ============================================================
-   일본어 마스터 v2 — Screen and Flow Styles
+   Shared app surface styles
+   Used by legacy v2 and current v3 app entries.
    ============================================================ */
 
 @import url("./shell.css");

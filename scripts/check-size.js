@@ -20,8 +20,14 @@ function walk(dir, ext, out = []) {
 
 const targets = [
   'index.html',
+  'index-v2.html',
+  'index-v3.html',
+  'server.js',
   ...walk(path.join(root, 'css'), '.css'),
   ...walk(path.join(root, 'js'), '.js'),
+  ...walk(path.join(root, 'apps'), '.css'),
+  ...walk(path.join(root, 'apps'), '.html'),
+  ...walk(path.join(root, 'apps'), '.js'),
 ].sort();
 
 let anyWarn = false;

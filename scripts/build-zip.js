@@ -24,8 +24,11 @@ archive.pipe(output);
 const root = path.resolve(__dirname, '..');
 const include = [
   'index.html',
+  'index-v2.html',
+  'index-v3.html',
   'server.js',
   'package.json',
+  'apps/**',
   'js/**/*.js',
   'css/**',
   'assets/**',

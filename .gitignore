@@ -26,3 +26,4 @@ node_modules/
 dist/
 test-results/
 playwright-report/
+images/roleplay-comics/generated/characters/*-src.png

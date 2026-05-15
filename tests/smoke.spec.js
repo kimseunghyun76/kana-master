@@ -34,8 +34,8 @@ test.afterEach(async ({ page }) => {
   expect(page.consoleErrors, 'browser console/page errors').toEqual([]);
 });
 
-test('loads v2 app data and primary screens', async ({ page }) => {
-  await page.goto('/');
+test('loads legacy v2 app data and primary screens', async ({ page }) => {
+  await page.goto('/apps/legacy-v2/');
 
   await expect(page.locator('.app-title')).toHaveText('일본어 마스터');
   await expect(page.locator('.welcome-card')).toBeVisible();
@@ -111,10 +111,17 @@ test('loads v2 app data and primary screens', async ({ page }) => {
   expect(kanaFit.scrollHeight).toBeLessThanOrEqual(kanaFit.clientHeight + 2);
 });
 
-test('serves current assets and rejects removed v1 paths', async ({ request }) => {
+test('serves organized app assets and rejects removed paths', async ({ request }) => {
   for (const path of [
     '/index.html',
-    '/css/v2.css',
+    '/index-v2.html',
+    '/index-v3.html',
+    '/apps/legacy-v2/index.html',
+    '/apps/legacy-v2/styles.css',
+    '/apps/current-v3/index.html',
+    '/apps/current-v3/styles.css',
+    '/apps/current-v3/js/curriculum.js',
+    '/css/shared-app.css',
     '/js/kana-levels.js',
     '/js/kana-data-hiragana.js',
     '/js/kana-data.js',
@@ -147,7 +154,10 @@ test('serves current assets and rejects removed v1 paths', async ({ request }) =
   for (const path of [
     '/app.html',
     '/app.css',
+    '/css/v2.css',
+    '/css/v3.css',
     '/js/data/lecture-data.js',
+    '/js/v3/curriculum.js',
     '/sounds/index.json',
     '/sw.js',
   ]) {
@@ -156,8 +166,25 @@ test('serves current assets and rejects removed v1 paths', async ({ request }) =
   }
 });
 
-test('opens and answers a vocab quiz flow', async ({ page }) => {
+test('root entry opens current v3 app shell', async ({ page }) => {
   await page.goto('/');
+
+  await expect(page).toHaveURL(/\/apps\/current-v3\/?$/);
+  await expect(page.locator('.app-title')).toHaveText('일본어 마스터 v3');
+
+  const dataSummary = await page.evaluate(() => ({
+    modules: typeof MODULES !== 'undefined' ? MODULES.length : 0,
+    stages: typeof STAGES !== 'undefined' ? STAGES.length : 0,
+    storeVersion: window.Store?.get?.().schemaVersion,
+  }));
+
+  expect(dataSummary.modules).toBeGreaterThanOrEqual(40);
+  expect(dataSummary.stages).toBeGreaterThanOrEqual(10);
+  expect(dataSummary.storeVersion).toBe(3);
+});
+
+test('opens and answers a vocab quiz flow', async ({ page }) => {
+  await page.goto('/apps/legacy-v2/');
 
   await page.evaluate(() => {
     window.TTS.speak = async () => {};
@@ -174,7 +201,7 @@ test('opens and answers a vocab quiz flow', async ({ page }) => {
 });
 
 test('enforces access tiers on lesson modules', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/apps/legacy-v2/');
 
   await page.evaluate(() => {
     window.Entitlements.setTier('free');
@@ -201,7 +228,7 @@ test('enforces access tiers on lesson modules', async ({ page }) => {
 });
 
 test('opens lecture player and toggles playback controls', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/apps/legacy-v2/');
 
   await page.evaluate(() => {
     window.TTS.speak = async () => {};
@@ -216,16 +243,20 @@ test('opens lecture player and toggles playback controls', async ({ page }) => {
 
   await expect(page.locator('#flowScreen')).toHaveClass(/open/);
   await page.getByRole('button', { name: /학습 시작/ }).click();
+  const instructorStart = page.locator('.lec-pick-start');
+  if (await instructorStart.isVisible({ timeout: 1500 }).catch(() => false)) {
+    await instructorStart.click();
+  }
   await expect(page.locator('.lecture-slide')).toBeVisible();
   await expect(page.locator('.lec-reel')).toBeVisible();
-  await expect(page.locator('.lec-display-toggle').filter({ hasText: 'JP' })).toBeVisible();
+  await expect(page.locator('.lec-caption-toggle')).toBeVisible();
 
   await page.locator('#btnLecPause').click();
-  await expect(page.locator('#btnLecPause')).toHaveText(/재생/);
+  await expect(page.locator('#btnLecPause')).toHaveAttribute('aria-label', '재생');
 });
 
 test('opens roleplay and dialogue detail popup', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/apps/legacy-v2/');
 
   await page.evaluate(() => {
     window.TTS.speak = async () => {};
@@ -242,10 +273,9 @@ test('opens roleplay and dialogue detail popup', async ({ page }) => {
   await expect(page.locator('.roleplay-hero')).toBeVisible();
   await expect(page.locator('.dialogue-bubble')).toHaveCount(0);
 
-  await page.getByRole('button', { name: /영상 재생 시작/ }).click();
-  await page.getByRole('button', { name: /다음/ }).click();
-  await expect(page.locator('.comic-script-line:not(.narrator)').first()).toBeVisible();
-  await page.locator('.comic-script-line:not(.narrator)').first().click();
+  await page.getByRole('button', { name: /대화 미리보기/ }).click();
+  await expect(page.locator('.comic-preview-line').first()).toBeVisible();
+  await page.locator('.comic-preview-line').first().click();
   await expect(page.locator('#detailOverlay')).toBeVisible();
   await expect(page.locator('.detail-popup')).toBeVisible();
 

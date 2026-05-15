@@ -10,8 +10,8 @@ npm run check
 
 This runs:
 
-- JavaScript syntax checks for the v2 runtime files.
-- File size checks for the main v2 source files.
+- JavaScript syntax checks for shared runtime files and versioned app files.
+- File size checks for root wrappers, shared files, and versioned app files.
 - Playwright smoke tests on desktop Chromium and mobile-size WebKit.
 
 Build the distributable ZIP separately:
@@ -26,11 +26,12 @@ The ZIP is generated under `dist/`, which is intentionally ignored by git.
 
 The current smoke test verifies:
 
-- The v2 app boots without browser console errors.
+- The legacy v2 app boots without browser console errors.
+- The root entry redirects to the current v3 app.
 - Home, lesson, practice, and module intro screens render.
 - Core data counts are loaded: lecture data, kana map, and vocabulary items.
-- Current v2 assets return `200`.
-- Removed v1 paths return `404`.
+- Organized app assets return `200`.
+- Removed legacy paths return `404`.
 
 Local TTS services are mocked in the smoke test. Manual TTS quality checks are still required when changing `js/v2/tts.js`.
 
@@ -40,7 +41,7 @@ Local TTS services are mocked in the smoke test. Manual TTS quality checks are s
    - Suggested targets: shell/navigation, home, lesson list, practice, quiz, lecture, roleplay, profile, stroke panel.
    - Keep `window.App` as the compatibility facade until all inline handlers are removed.
 
-2. Split `css/v2.css` by surface.
+2. Continue splitting shared CSS by surface.
    - Suggested targets: base/tokens, shell, cards, lesson, quiz, lecture, roleplay, profile, responsive.
    - Keep imports simple if the app remains script-tag based.
 
