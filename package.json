@@ -8,6 +8,7 @@
     "lint": "node scripts/check-js-syntax.js",
     "size": "node scripts/check-size.js",
     "audit:content": "node scripts/audit-content.js",
+    "audit:v3": "node scripts/audit-v3-content.js",
     "audio": "node scripts/generate-audio.js",
     "audio:lectures": "node scripts/generate-audio.js --lectures",
     "audio:kana": "node scripts/generate-audio.js --kana",

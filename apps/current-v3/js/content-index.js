@@ -145,6 +145,8 @@ window.ContentIndex = (() => {
         { id:'v3_pre_6', speaker:'A', japanese:'これをください。', romaji:'kore wo kudasai', korean:'이거 주세요.', english:'This, please.' },
         { id:'v3_pre_7', speaker:'B', japanese:'はい、どうぞ。', romaji:'hai, douzo', korean:'네, 여기요.', english:'Here you go.' },
         { id:'v3_pre_8', speaker:'A', japanese:'ありがとうございます。', romaji:'arigatou gozaimasu', korean:'고마워요.', english:'Thank you.' },
+        { id:'v3_pre_9', speaker:'B', japanese:'袋は必要ですか？', romaji:'fukuro wa hitsuyou desu ka', korean:'봉투 필요해요?', english:'Do you need a bag?' },
+        { id:'v3_pre_10', speaker:'A', japanese:'大丈夫です。', romaji:'daijoubu desu', korean:'괜찮아요.', english:'I am fine.' },
       ],
       basic_structure_check: [
         { id:'v3_struct_n1', speaker:'N', japanese:'', romaji:'', korean:'📍 역 근처 — は/を/に/で를 짧게 써 보기', english:'📍 Near a station — using basic particles briefly' },
@@ -155,6 +157,9 @@ window.ContentIndex = (() => {
         { id:'v3_struct_5', speaker:'A', japanese:'駅に行きます。', romaji:'eki ni ikimasu', korean:'역에 가요.', english:'I am going to the station.' },
         { id:'v3_struct_6', speaker:'B', japanese:'まっすぐ行ってください。', romaji:'massugu itte kudasai', korean:'쭉 가세요.', english:'Please go straight.' },
         { id:'v3_struct_7', speaker:'A', japanese:'ありがとうございます。', romaji:'arigatou gozaimasu', korean:'고마워요.', english:'Thank you.' },
+        { id:'v3_struct_8', speaker:'B', japanese:'信号を右です。', romaji:'shingou wo migi desu', korean:'신호에서 오른쪽이에요.', english:'Right at the traffic light.' },
+        { id:'v3_struct_9', speaker:'A', japanese:'右ですね。', romaji:'migi desu ne', korean:'오른쪽이죠.', english:'Right, correct?' },
+        { id:'v3_struct_10', speaker:'B', japanese:'はい、右です。', romaji:'hai, migi desu', korean:'네, 오른쪽이에요.', english:'Yes, right.' },
       ],
       pointing_pronouns: [
         { id:'v3_point_n1', speaker:'N', japanese:'', romaji:'', korean:'📍 가게에서 — 이름을 몰라도 가리켜서 말하기', english:'📍 At a shop — pointing when you do not know the name' },
@@ -165,6 +170,9 @@ window.ContentIndex = (() => {
         { id:'v3_point_5', speaker:'B', japanese:'一つですか？', romaji:'hitotsu desu ka', korean:'하나예요?', english:'One?' },
         { id:'v3_point_6', speaker:'A', japanese:'はい、一つです。', romaji:'hai, hitotsu desu', korean:'네, 하나예요.', english:'Yes, one.' },
         { id:'v3_point_7', speaker:'B', japanese:'こちらです。', romaji:'kochira desu', korean:'여기예요.', english:'Here it is.' },
+        { id:'v3_point_8', speaker:'A', japanese:'あれも見てもいいですか？', romaji:'are mo mite mo ii desu ka', korean:'저것도 봐도 돼요?', english:'May I look at that too?' },
+        { id:'v3_point_9', speaker:'B', japanese:'はい、どうぞ。', romaji:'hai, douzo', korean:'네, 보세요.', english:'Yes, please.' },
+        { id:'v3_point_10', speaker:'A', japanese:'では、これにします。', romaji:'dewa, kore ni shimasu', korean:'그럼 이걸로 할게요.', english:'Then I will take this.' },
       ],
       numbers_time_check: [
         { id:'v3_num_n1', speaker:'N', japanese:'', romaji:'', korean:'📍 매표소에서 — 가격과 시간 알아듣기', english:'📍 At a ticket counter — price and time' },
@@ -175,6 +183,9 @@ window.ContentIndex = (() => {
         { id:'v3_num_5', speaker:'A', japanese:'今日ですか？', romaji:'kyou desu ka', korean:'오늘이에요?', english:'Is it today?' },
         { id:'v3_num_6', speaker:'B', japanese:'はい、今日です。', romaji:'hai, kyou desu', korean:'네, 오늘이에요.', english:'Yes, today.' },
         { id:'v3_num_7', speaker:'A', japanese:'ありがとうございます。', romaji:'arigatou gozaimasu', korean:'고마워요.', english:'Thank you.' },
+        { id:'v3_num_8', speaker:'B', japanese:'二枚ですか？', romaji:'ni mai desu ka', korean:'두 장이에요?', english:'Two tickets?' },
+        { id:'v3_num_9', speaker:'A', japanese:'はい、二枚お願いします。', romaji:'hai, ni mai onegai shimasu', korean:'네, 두 장 부탁해요.', english:'Yes, two tickets please.' },
+        { id:'v3_num_10', speaker:'B', japanese:'では、二千四百円です。', romaji:'dewa, nisen yonhyaku en desu', korean:'그럼 2400엔이에요.', english:'Then it is 2,400 yen.' },
       ],
       direction_body_check: [
         { id:'v3_dir_n1', speaker:'N', japanese:'', romaji:'', korean:'📍 안내소에서 — 방향을 묻고 몸 상태를 짧게 말하기', english:'📍 At an information desk — directions and body words' },
@@ -185,6 +196,9 @@ window.ContentIndex = (() => {
         { id:'v3_dir_5', speaker:'A', japanese:'少しお腹が痛いです。', romaji:'sukoshi onaka ga itai desu', korean:'배가 조금 아파요.', english:'My stomach hurts a little.' },
         { id:'v3_dir_6', speaker:'B', japanese:'薬局も近くにあります。', romaji:'yakkyoku mo chikaku ni arimasu', korean:'약국도 근처에 있어요.', english:'There is also a pharmacy nearby.' },
         { id:'v3_dir_7', speaker:'A', japanese:'助かりました。', romaji:'tasukarimashita', korean:'도움이 됐어요.', english:'That helped.' },
+        { id:'v3_dir_8', speaker:'B', japanese:'左の角を曲がってください。', romaji:'hidari no kado wo magatte kudasai', korean:'왼쪽 모퉁이를 도세요.', english:'Turn at the left corner.' },
+        { id:'v3_dir_9', speaker:'A', japanese:'左の角ですね。', romaji:'hidari no kado desu ne', korean:'왼쪽 모퉁이죠.', english:'The left corner, right?' },
+        { id:'v3_dir_10', speaker:'B', japanese:'はい、すぐ見えます。', romaji:'hai, sugu miemasu', korean:'네, 바로 보여요.', english:'Yes, you will see it soon.' },
       ],
       first_photo_greeting: [
         { id:'v3_fg_n1', speaker:'N', japanese:'', romaji:'', korean:'📍 관광지에서 — 지나가는 사람에게 사진 부탁하기', english:'📍 At a tourist spot — asking someone to take a photo' },
@@ -193,6 +207,11 @@ window.ContentIndex = (() => {
         { id:'v3_fg_3', speaker:'B', japanese:'いいですよ。', romaji:'ii desu yo', korean:'좋아요.', english:'Sure.' },
         { id:'v3_fg_4', speaker:'B', japanese:'はい、どうぞ。', romaji:'hai, douzo', korean:'자, 여기요.', english:'Here you go.' },
         { id:'v3_fg_5', speaker:'A', japanese:'ありがとうございます。', romaji:'arigatou gozaimasu', korean:'고마워요.', english:'Thank you.' },
+        { id:'v3_fg_6', speaker:'B', japanese:'日本は初めてですか？', romaji:'nihon wa hajimete desu ka', korean:'일본은 처음이에요?', english:'Is this your first time in Japan?' },
+        { id:'v3_fg_7', speaker:'A', japanese:'はい、初めてです。', romaji:'hai, hajimete desu', korean:'네, 처음이에요.', english:'Yes, it is my first time.' },
+        { id:'v3_fg_8', speaker:'B', japanese:'楽しんでください。', romaji:'tanoshinde kudasai', korean:'즐겁게 보내세요.', english:'Enjoy your trip.' },
+        { id:'v3_fg_9', speaker:'A', japanese:'はい、ありがとうございます。', romaji:'hai, arigatou gozaimasu', korean:'네, 고마워요.', english:'Yes, thank you.' },
+        { id:'v3_fg_10', speaker:'B', japanese:'よい旅を。', romaji:'yoi tabi wo', korean:'좋은 여행 되세요.', english:'Have a good trip.' },
       ],
       first_origin_chat: [
         { id:'v3_ans_n1', speaker:'N', japanese:'', romaji:'', korean:'📍 카페에서 — 어디서 왔는지 짧게 답하기', english:'📍 At a cafe — answering where you are from' },
@@ -202,6 +221,10 @@ window.ContentIndex = (() => {
         { id:'v3_ans_4', speaker:'A', japanese:'はい、旅行です。', romaji:'hai, ryokou desu', korean:'네, 여행이에요.', english:'Yes, I am traveling.' },
         { id:'v3_ans_5', speaker:'B', japanese:'楽しんでください。', romaji:'tanoshinde kudasai', korean:'즐겁게 보내세요.', english:'Enjoy yourself.' },
         { id:'v3_ans_6', speaker:'A', japanese:'ありがとうございます。', romaji:'arigatou gozaimasu', korean:'고마워요.', english:'Thank you.' },
+        { id:'v3_ans_7', speaker:'B', japanese:'日本語が上手ですね。', romaji:'nihongo ga jouzu desu ne', korean:'일본어 잘하시네요.', english:'Your Japanese is good.' },
+        { id:'v3_ans_8', speaker:'A', japanese:'いえ、少しだけです。', romaji:'ie, sukoshi dake desu', korean:'아니에요, 조금만 해요.', english:'No, only a little.' },
+        { id:'v3_ans_9', speaker:'B', japanese:'どこへ行きますか？', romaji:'doko e ikimasu ka', korean:'어디에 가요?', english:'Where are you going?' },
+        { id:'v3_ans_10', speaker:'A', japanese:'今日は浅草に行きます。', romaji:'kyou wa asakusa ni ikimasu', korean:'오늘은 아사쿠사에 가요.', english:'Today I am going to Asakusa.' },
       ],
       ask_again_help: [
         { id:'v3_q_n1', speaker:'N', japanese:'', romaji:'', korean:'📍 가게에서 — 못 알아들었을 때 다시 부탁하기', english:'📍 At a shop — asking someone to repeat slowly' },
@@ -210,6 +233,11 @@ window.ContentIndex = (() => {
         { id:'v3_q_3', speaker:'A', japanese:'もう一度お願いします。', romaji:'mou ichido onegai shimasu', korean:'한 번 더 부탁해요.', english:'One more time, please.' },
         { id:'v3_q_4', speaker:'B', japanese:'はい、ゆっくり話します。', romaji:'hai, yukkuri hanashimasu', korean:'네, 천천히 말할게요.', english:'Sure, I will speak slowly.' },
         { id:'v3_q_5', speaker:'A', japanese:'ありがとうございます。', romaji:'arigatou gozaimasu', korean:'고마워요.', english:'Thank you.' },
+        { id:'v3_q_6', speaker:'B', japanese:'これはポイントカードです。', romaji:'kore wa pointo kaado desu', korean:'이건 포인트 카드예요.', english:'This is a point card.' },
+        { id:'v3_q_7', speaker:'A', japanese:'ポイントカードはありません。', romaji:'pointo kaado wa arimasen', korean:'포인트 카드는 없어요.', english:'I do not have a point card.' },
+        { id:'v3_q_8', speaker:'B', japanese:'袋はどうしますか？', romaji:'fukuro wa dou shimasu ka', korean:'봉투는 어떻게 할까요?', english:'What about a bag?' },
+        { id:'v3_q_9', speaker:'A', japanese:'袋は大丈夫です。', romaji:'fukuro wa daijoubu desu', korean:'봉투는 괜찮아요.', english:'No bag is fine.' },
+        { id:'v3_q_10', speaker:'B', japanese:'わかりました。', romaji:'wakarimashita', korean:'알겠습니다.', english:'Understood.' },
       ],
       immigration_short: [
         { id:'v3_im_n1', speaker:'N', japanese:'', romaji:'', korean:'📍 입국 심사에서 — 목적과 기간 짧게 답하기', english:'📍 Immigration — answering purpose and stay' },

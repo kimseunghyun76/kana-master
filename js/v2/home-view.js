@@ -74,15 +74,18 @@ window.createHomeView = (ctx) => {
 
   function _renderWelcome() {
     const welcomeBg = cssUrlValue('images/lecture-scenes/slevel1-first-phrases-classroom-greeting.webp');
-    const firstMod = MODULES.find(m => m.id === 'kana_hira');
+    const firstMod = MODULES.find(m => m.id === 'v3_kana_map') || MODULES.find(m => m.id === 'kana_hira');
+    const isV3 = firstMod?.id === 'v3_kana_map';
     return `
       <div class="welcome-card welcome-card-cinematic" style="--welcome-bg:url('${welcomeBg}')">
         <div class="welcome-bg" aria-hidden="true"></div>
         <div class="welcome-content">
           <div class="welcome-eyebrow">처음 시작하는 학습자용 루트</div>
-          <div class="welcome-title">오늘은 문자부터 시작하세요</div>
+          <div class="welcome-title">${isV3 ? '오늘은 오십음도 지도부터 잡으세요' : '오늘은 문자부터 시작하세요'}</div>
           <div class="welcome-copy">
-            히라가나를 먼저 끝내면 여행 표현, 롤플레이, 업무 일본어가 순서대로 열립니다.
+            ${isV3
+              ? '오십음도 구조를 먼저 잡으면 히라가나, 가타가나, 여행 질문과 답변이 차례로 붙습니다.'
+              : '히라가나를 먼저 끝내면 여행 표현, 롤플레이, 업무 일본어가 순서대로 열립니다.'}
           </div>
           <div class="welcome-plan-row">
             <span><b>15분</b>오늘 분량</span>
@@ -90,7 +93,7 @@ window.createHomeView = (ctx) => {
             <span><b>무료</b>첫 단계</span>
           </div>
           ${firstMod ? _renderStepGuide(firstMod, Store.get(), true) : ''}
-          <button class="dashboard-primary" onclick="App.openModule('kana_hira')">히라가나 시작하기</button>
+          ${firstMod ? `<button class="dashboard-primary" onclick="App.openModule('${firstMod.id}')">${isV3 ? '오십음도 시작하기' : '히라가나 시작하기'}</button>` : ''}
         </div>
       </div>
     `;
