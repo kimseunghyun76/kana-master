@@ -16,6 +16,7 @@ window.App = (() => {
   let _groupLearningView = null;
   let _profileView = null;
   const _shell = createAppShell({
+    gameUi: true,
     Store,
     capitalize: _capitalize,
     formatNum: _formatNum,
@@ -23,6 +24,7 @@ window.App = (() => {
     uiIconWrap: _uiIconWrap,
   });
   const _moduleIntroView = createModuleIntroView({
+    gameUi: true,
     Store,
     isRoleplayUnlocked,
     getModuleVisual: _getModuleVisual,
@@ -32,6 +34,7 @@ window.App = (() => {
   });
 
   const _appSettings = createAppSettings({
+    storageKeys: ['jp_master_v3'],
     voiceLangFilter: 'ja',
     refreshHome: () => _renderHome(),
     refreshLesson: () => _renderLesson(),
@@ -150,6 +153,7 @@ window.App = (() => {
     _updateHeader();
     if (!_homeView) {
       _homeView = createHomeView({
+        gameUi: true,
         Store,
         escHtml,
         cssUrlValue: _cssUrlValue,
@@ -170,6 +174,7 @@ window.App = (() => {
   function _renderLesson() {
     if (!_lessonView) {
       _lessonView = createLessonView({
+        gameUi: true,
         Store,
         Entitlements,
         escHtml,
@@ -208,6 +213,7 @@ window.App = (() => {
         });
       }
       _practiceView = createPracticeView({
+        gameUi: true,
         Store,
         getAllVocabItems: _getAllVocabItems,
         cssUrlValue: _cssUrlValue,
@@ -242,6 +248,7 @@ window.App = (() => {
   function _renderProfile() {
     if (!_profileView) {
       _profileView = createProfileView({
+        gameUi: true,
         Store,
         TTS,
         buildTTSSettingsHtml: _appSettings.buildTTSSettingsHtml,
@@ -572,7 +579,7 @@ window.App = (() => {
         </div>`;
       }
       const sideMap = { A: 'speaker-A', B: 'speaker-B', C: 'speaker-C' };
-      const labelMap = { A: '나', B: 'B', C: 'C' };
+      const labelMap = { A: 'A', B: 'B', C: 'C' };
       const side  = sideMap[line.speaker] || 'speaker-B';
       const label = labelMap[line.speaker] || line.speaker;
       return `
@@ -590,15 +597,15 @@ window.App = (() => {
 
     document.getElementById('flowBody').innerHTML = `
       <div class="dialogue-scene">
-        <div class="scene-title">${_uiIconSvg('book', 'scene-title-icon')} 대화 미리 보기</div>
-        실전 롤플레이 전에 전체 대화를 먼저 읽어보세요.
+        <div class="scene-title">${_uiIconSvg('book', 'scene-title-icon')} SCRIPT PREVIEW</div>
+        한국어 자막으로 뜻을 확인하고, 일본어 대사는 그대로 외워봅니다.
       </div>
       <div class="dialogue-list">${html}</div>
     `;
 
     document.getElementById('flowFooter').innerHTML = `
       <button class="btn btn-primary" onclick="App._dialogueStudyDone(${stepIndex})">
-        이해했어요 ✓
+        READY ✓
       </button>
     `;
   }
@@ -612,6 +619,7 @@ window.App = (() => {
 
   // ── Roleplay ──────────────────────────────────────────────
   const _roleplayFlow = createRoleplayFlow({
+    gameUi: true,
     lockPracticeSpeaker: true,
     lockVoiceSelection: true,
     getFlow: () => _flow,
@@ -667,23 +675,23 @@ window.App = (() => {
     document.getElementById('flowBody').innerHTML = `
       <div class="completion-screen">
         <div class="completion-emoji">${_uiIconSvg('check', 'completion-main-icon')}</div>
-        <div class="completion-title">모듈 완료!</div>
-        <div class="completion-sub">${escHtml(mod.name)} 모든 학습 단계 완료!<br>
-          ${mod.roleplay ? '롤플레이가 해금되었습니다.' : '다음 모듈로 진행하세요!'}
+        <div class="completion-title">QUEST CLEAR</div>
+        <div class="completion-sub">${escHtml(mod.name)} route cleared.<br>
+          ${mod.roleplay ? 'ROLEPLAY unlocked.' : 'Next quest is ready.'}
         </div>
         <div class="completion-unlocks">
-          <div class="cu-title">획득</div>
-          <div class="completion-unlock-item"><span class="cui-icon">${_uiIconSvg('xp', 'completion-inline-icon')}</span> +50 XP 보너스</div>
-          ${mod.roleplay ? `<div class="completion-unlock-item"><span class="cui-icon">${_uiIconSvg('roleplay', 'completion-inline-icon')}</span> ${escHtml(mod.roleplay.name)} 해금</div>` : ''}
+          <div class="cu-title">REWARD</div>
+          <div class="completion-unlock-item"><span class="cui-icon">${_uiIconSvg('xp', 'completion-inline-icon')}</span> +50 XP bonus</div>
+          ${mod.roleplay ? `<div class="completion-unlock-item"><span class="cui-icon">${_uiIconSvg('roleplay', 'completion-inline-icon')}</span> ${escHtml(mod.roleplay.name)} unlocked</div>` : ''}
         </div>
       </div>
     `;
 
     document.getElementById('flowFooter').innerHTML = `
       <div style="display:flex;gap:10px">
-        ${mod.roleplay ? `<button class="btn btn-primary" onclick="App._startRoleplay(App._getMod('${mod.id}'))">이제 롤플레이 시작 →</button>` : ''}
+        ${mod.roleplay ? `<button class="btn btn-primary" onclick="App._startRoleplay(App._getMod('${mod.id}'))">START ROLEPLAY →</button>` : ''}
         <button class="btn ${mod.roleplay ? 'btn-outline' : 'btn-primary'}" onclick="App.closeFlow()">
-          ${mod.roleplay ? '나중에' : '홈으로 →'}
+          ${mod.roleplay ? 'LATER' : 'HOME →'}
         </button>
       </div>
     `;

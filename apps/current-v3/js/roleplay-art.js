@@ -1,5 +1,5 @@
 /* ============================================================
-   V3 ROLEPLAY ART — Japan-local scene and cute character map
+   V3 ROLEPLAY ART — bright Japan-local scene and cute character map
    Extends the shared v2 roleplay renderer without touching v2 data.
    ============================================================ */
 
@@ -9,34 +9,34 @@
   const base = window.RoleplayArt || { byModule: {} };
   const V = {
     nanami: {
-      body: 'images/v3-game/characters/yuna-body.webp',
-      face: 'images/v3-game/characters/yuna-face.webp',
+      body: 'images/v3-cute/characters/yuna-body.webp',
+      face: 'images/v3-cute/characters/yuna-face.webp',
     },
     aoi: {
-      body: 'images/v3-game/characters/mika-body.webp',
-      face: 'images/v3-game/characters/mika-face.webp',
+      body: 'images/v3-cute/characters/mika-body.webp',
+      face: 'images/v3-cute/characters/mika-face.webp',
     },
     mayu: {
-      body: 'images/v3-game/characters/akari-body.webp',
-      face: 'images/v3-game/characters/akari-face.webp',
+      body: 'images/v3-cute/characters/akari-body.webp',
+      face: 'images/v3-cute/characters/akari-face.webp',
     },
     keita: {
-      body: 'images/v3-game/characters/ren-body.webp',
-      face: 'images/v3-game/characters/ren-face.webp',
+      body: 'images/v3-cute/characters/ren-body.webp',
+      face: 'images/v3-cute/characters/ren-face.webp',
     },
     takumi: {
-      body: 'images/v3-game/characters/takumi-body.webp',
-      face: 'images/v3-game/characters/takumi-face.webp',
+      body: 'images/v3-cute/characters/takumi-body.webp',
+      face: 'images/v3-cute/characters/takumi-face.webp',
     },
   };
   const BG = {
-    airport: 'images/v3-game/bg-airport-terminal.webp',
-    transit: 'images/v3-game/bg-transit-station.webp',
-    food: 'images/v3-game/bg-shop-cafe.webp',
-    shop: 'images/v3-game/bg-shop-cafe.webp',
-    hotel: 'images/v3-game/bg-hotel-onsen.webp',
-    trouble: 'images/v3-game/bg-health-clinic.webp',
-    local: 'images/v3-game/home-urban-night.webp',
+    airport: 'images/v3-cute/bg-airport-pastel.webp',
+    transit: 'images/v3-cute/bg-station-pastel.webp',
+    food: 'images/v3-cute/bg-shop-cafe-pastel.webp',
+    shop: 'images/v3-cute/bg-shop-cafe-pastel.webp',
+    hotel: 'images/v3-cute/bg-hotel-ryokan-pastel.webp',
+    trouble: 'images/v3-cute/bg-pharmacy-clinic-pastel.webp',
+    local: 'images/v3-cute/home-sakura-street.webp',
     fallbackAirport: 'images/lecture-scenes/slevel4-train-station-transfer.webp',
     fallbackTransit: 'images/roleplay-comics/generated/transport-bg.webp',
     fallbackFood: 'images/roleplay-comics/generated/food-bg.webp',

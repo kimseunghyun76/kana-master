@@ -5,6 +5,7 @@
 'use strict';
 
 window.createHomeView = (ctx) => {
+  const gameUi = !!ctx.gameUi;
   const {
     Store,
     escHtml,
@@ -44,18 +45,18 @@ window.createHomeView = (ctx) => {
       return `
         <section class="home-dashboard welcome-card">
           <div class="dashboard-main">
-            <div class="dashboard-kicker">오늘의 다음 행동</div>
+            <div class="dashboard-kicker">${gameUi ? 'NEXT QUEST' : '오늘의 다음 행동'}</div>
             <h1>${escHtml(title)}</h1>
-            <p>${escHtml(stage.name)} · ${escHtml(visual.focus)} · ${pct}% 진행</p>
+            <p>${escHtml(stage.name)} · ${escHtml(visual.focus)} · ${pct}% ${gameUi ? 'CLEAR' : '진행'}</p>
             ${guideHtml}
             <button class="dashboard-primary" onclick="App.openModule('${next.mod.id}', ${next.roleplay ? 'true' : 'false'})">
-              ${next.roleplay ? '롤플레이 시작' : '계속 학습하기'}
+              ${next.roleplay ? (gameUi ? 'START ROLEPLAY' : '롤플레이 시작') : (gameUi ? 'CONTINUE QUEST' : '계속 학습하기')}
             </button>
           </div>
           <div class="dashboard-side">
-            <div class="dashboard-metric"><span>${formatNum(prog.xp)}</span><b>누적 XP</b></div>
-            <div class="dashboard-metric"><span>${prog.streak}</span><b>연속 학습</b></div>
-            <div class="dashboard-metric"><span>${Math.min(todayXP, 100)}%</span><b>오늘 목표</b></div>
+            <div class="dashboard-metric"><span>${formatNum(prog.xp)}</span><b>${gameUi ? 'TOTAL XP' : '누적 XP'}</b></div>
+            <div class="dashboard-metric"><span>${prog.streak}</span><b>${gameUi ? 'STREAK' : '연속 학습'}</b></div>
+            <div class="dashboard-metric"><span>${Math.min(todayXP, 100)}%</span><b>${gameUi ? 'TODAY' : '오늘 목표'}</b></div>
           </div>
         </section>
       `;
@@ -63,10 +64,10 @@ window.createHomeView = (ctx) => {
     return `
       <section class="home-dashboard welcome-card">
         <div class="dashboard-main">
-          <div class="dashboard-kicker">오늘의 학습</div>
-          <h1>오늘의 레슨 완료</h1>
-          <p>복습, 묶음 학습, 롤플레이로 유지 학습을 이어가세요.</p>
-          <button class="dashboard-primary" onclick="App.switchTab('practice')">연습으로 이동</button>
+          <div class="dashboard-kicker">${gameUi ? 'TODAY CLEAR' : '오늘의 학습'}</div>
+          <h1>${gameUi ? 'QUEST COMPLETE' : '오늘의 레슨 완료'}</h1>
+          <p>${gameUi ? 'TRAIN mode is ready for review, listening, and shadowing.' : '복습, 묶음 학습, 롤플레이로 유지 학습을 이어가세요.'}</p>
+          <button class="dashboard-primary" onclick="App.switchTab('practice')">${gameUi ? 'OPEN TRAIN' : '연습으로 이동'}</button>
         </div>
       </section>
     `;
@@ -84,16 +85,16 @@ window.createHomeView = (ctx) => {
           <div class="welcome-title">${isV3 ? '五十音 MAP' : '오늘은 문자부터 시작하세요'}</div>
           <div class="welcome-copy">
             ${isV3
-              ? '히라가나와 가타가나를 게임 맵처럼 열고, 여행 질문과 대답을 바로 이어 붙입니다.'
+              ? 'Open Hiragana, Katakana, travel questions, and short answers like a story quest.'
               : '히라가나를 먼저 끝내면 여행 표현, 롤플레이, 업무 일본어가 순서대로 열립니다.'}
           </div>
           <div class="welcome-plan-row">
-            <span><b>15분</b>오늘 분량</span>
-            <span><b>7일</b>문자 완성</span>
-            <span><b>무료</b>첫 단계</span>
+            <span><b>15 min</b>${isV3 ? 'daily run' : '오늘 분량'}</span>
+            <span><b>7 days</b>${isV3 ? 'kana clear' : '문자 완성'}</span>
+            <span><b>FREE</b>${isV3 ? 'stage 1' : '첫 단계'}</span>
           </div>
           ${firstMod ? _renderStepGuide(firstMod, Store.get(), true) : ''}
-          ${firstMod ? `<button class="dashboard-primary" onclick="App.openModule('${firstMod.id}')">${isV3 ? '오십음도 시작하기' : '히라가나 시작하기'}</button>` : ''}
+          ${firstMod ? `<button class="dashboard-primary" onclick="App.openModule('${firstMod.id}')">${isV3 ? 'START 五十音 MAP' : '히라가나 시작하기'}</button>` : ''}
         </div>
       </div>
     `;
@@ -118,7 +119,7 @@ window.createHomeView = (ctx) => {
     }).join('');
     return `
       <div class="home-step-guide ${compact ? 'compact' : ''}">
-        <div class="home-step-guide-title">원하는 방식으로 바로 시작</div>
+        <div class="home-step-guide-title">${gameUi ? 'QUICK START' : '원하는 방식으로 바로 시작'}</div>
         <div class="home-step-guide-grid">${cards}</div>
       </div>
     `;
@@ -126,9 +127,9 @@ window.createHomeView = (ctx) => {
 
   function _getGuideSteps(mod) {
     const wanted = [
-      { key: 'lecture', label: '강의 보기', desc: '핵심 설명부터', iconKey: 'book' },
-      { key: 'learn', label: '카드 강의', desc: '표현만 바로 보기', iconKey: 'grid' },
-      { key: 'quiz', label: '퀴즈 풀기', desc: '바로 점검하기', iconKey: 'quiz' },
+      { key: 'lecture', label: gameUi ? 'STORY' : '강의 보기', desc: gameUi ? 'coach scene' : '핵심 설명부터', iconKey: 'book' },
+      { key: 'learn', label: gameUi ? 'CARD' : '카드 강의', desc: gameUi ? 'memorize set' : '표현만 바로 보기', iconKey: 'grid' },
+      { key: 'quiz', label: gameUi ? 'QUIZ' : '퀴즈 풀기', desc: gameUi ? 'quick check' : '바로 점검하기', iconKey: 'quiz' },
     ];
     return wanted.map(w => {
       const index = mod.steps.findIndex(step => {
@@ -141,8 +142,8 @@ window.createHomeView = (ctx) => {
       const step = mod.steps[index];
       return {
         index,
-        label: w.key === 'learn' && step.type === 'kana_learn' ? '문자 카드' : w.label,
-        desc: w.key === 'quiz' && step.type === 'kana_listening' ? '듣고 고르기' : w.desc,
+        label: w.key === 'learn' && step.type === 'kana_learn' ? (gameUi ? 'KANA CARD' : '문자 카드') : w.label,
+        desc: w.key === 'quiz' && step.type === 'kana_listening' ? (gameUi ? 'sound pick' : '듣고 고르기') : w.desc,
         iconKey: w.iconKey,
       };
     }).filter(Boolean);
@@ -156,13 +157,13 @@ window.createHomeView = (ctx) => {
                 onclick="App.openProgram('${program.id}')">
           <span class="program-card-head">
             <span class="program-topline">${escHtml(program.label)}</span>
-            <span class="program-day-count">하루 ${program.dailyMinutes}분</span>
+            <span class="program-day-count">${gameUi ? `${program.dailyMinutes} min/day` : `하루 ${program.dailyMinutes}분`}</span>
           </span>
           <span class="program-title">${escHtml(program.title)}</span>
           <span class="program-desc">${escHtml(program.desc)}</span>
           <span class="program-outcome">${escHtml(program.outcome)}</span>
           <span class="program-foot">
-            <span>${progress.completed}/${progress.total} 모듈</span>
+            <span>${progress.completed}/${progress.total} ${gameUi ? 'QUESTS' : '모듈'}</span>
             <span>${progress.pct}%</span>
           </span>
           <span class="program-bar"><span style="width:${progress.pct}%"></span></span>
@@ -172,7 +173,7 @@ window.createHomeView = (ctx) => {
 
     return `
       <div class="program-section">
-        <div class="section-title">완성 프로그램 · 목표별 플랜</div>
+        <div class="section-title">${gameUi ? 'PROGRAM QUESTS' : '완성 프로그램 · 목표별 플랜'}</div>
         <div class="program-strip">${cards}</div>
       </div>
     `;
@@ -183,7 +184,7 @@ window.createHomeView = (ctx) => {
     const completedMissions = missions.filter(m => m.done).length;
     return `
       <div style="margin:0 16px 4px">
-        <div class="section-title" style="padding:0 0 10px">오늘의 미션 · ${completedMissions}/${missions.length}</div>
+        <div class="section-title" style="padding:0 0 10px">${gameUi ? 'DAILY MISSIONS' : '오늘의 미션'} · ${completedMissions}/${missions.length}</div>
         <div style="display:flex;flex-direction:column;gap:8px">
           ${missions.map(m => `
             <div style="background:var(--card);border:1px solid ${m.done ? 'rgba(16,185,129,.3)' : 'var(--border)'};
@@ -213,7 +214,7 @@ window.createHomeView = (ctx) => {
       <div class="stats-row" style="margin-top:16px">
         <div class="stat-card streak">
           <div class="stat-num">${prog.streak}</div>
-          <div class="stat-name stat-name-row">${uiIconWrap('streak', 'mini-stat-icon')}연속 일수</div>
+          <div class="stat-name stat-name-row">${uiIconWrap('streak', 'mini-stat-icon')}${gameUi ? 'STREAK' : '연속 일수'}</div>
         </div>
         <div class="stat-card xp">
           <div class="stat-num">${formatNum(prog.xp)}</div>
@@ -221,14 +222,14 @@ window.createHomeView = (ctx) => {
         </div>
         <div class="stat-card done">
           <div class="stat-num">${doneMods}</div>
-          <div class="stat-name stat-name-row">${uiIconWrap('check', 'mini-stat-icon')}완료 모듈</div>
+          <div class="stat-name stat-name-row">${uiIconWrap('check', 'mini-stat-icon')}${gameUi ? 'CLEAR' : '완료 모듈'}</div>
         </div>
       </div>
     `;
   }
 
   function _renderRoadmap(prog) {
-    let html = `<div class="section-title">학습 로드맵</div><div class="stage-map">`;
+    let html = `<div class="section-title">${gameUi ? 'STAGE MAP' : '학습 로드맵'}</div><div class="stage-map">`;
     STAGES.forEach(stage => {
       const pct = getStageProgressPct(stage.id, prog);
       const locked = prog.xp < stage.unlockXP;
@@ -241,7 +242,7 @@ window.createHomeView = (ctx) => {
             <div class="stage-index">STAGE<br><b>${stage.id}</b></div>
             <div class="stage-meta">
               <div class="stage-name">${escHtml(stage.name)}</div>
-              <div class="stage-sub">${stage.jlpt ? `JLPT ${stage.jlpt} · ` : ''}${modCount}개 모듈</div>
+              <div class="stage-sub">${stage.jlpt ? `JLPT ${stage.jlpt} · ` : ''}${modCount}${gameUi ? ' QUESTS' : '개 모듈'}</div>
             </div>
             <span class="stage-tag">${locked ? `${uiIconWrap('lock', 'stage-tag-icon')}${formatNum(stage.unlockXP)} XP` : (pct === 100 ? uiIconWrap('check', 'stage-tag-icon') : `${pct}%`)}</span>
           </div>
@@ -250,7 +251,7 @@ window.createHomeView = (ctx) => {
               <div class="stage-progress-bar-fill" style="width:${pct}%"></div>
             </div>
             <div class="stage-progress-text">
-              <span>${locked ? `${formatNum(stage.unlockXP - prog.xp)} XP 더 필요` : stage.desc.slice(0, 30) + '…'}</span>
+              <span>${locked ? `${formatNum(stage.unlockXP - prog.xp)} XP ${gameUi ? 'TO OPEN' : '더 필요'}` : stage.desc.slice(0, 30) + '…'}</span>
               <span>${pct}%</span>
             </div>
           </div>

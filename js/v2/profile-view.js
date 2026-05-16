@@ -5,6 +5,7 @@
 'use strict';
 
 window.createProfileView = (ctx) => {
+  const gameUi = !!ctx.gameUi;
   const {
     Store,
     TTS,
@@ -31,7 +32,7 @@ window.createProfileView = (ctx) => {
       <div class="profile-hero">
         <div class="profile-avatar">${uiIconSvg('profile', 'profile-avatar-svg')}</div>
         <div class="profile-name">${levelName}</div>
-        <div class="profile-level">${totalXP} XP · 다음 레벨까지 ${formatNum(nextLevelXP - totalXP)} XP</div>
+        <div class="profile-level">${totalXP} XP · ${gameUi ? `${formatNum(nextLevelXP - totalXP)} XP TO NEXT` : `다음 레벨까지 ${formatNum(nextLevelXP - totalXP)} XP`}</div>
         <div class="xp-bar-wrap">
           <div class="xp-bar-bg">
             <div class="xp-bar-fill" style="width:${xpPct}%"></div>
@@ -43,56 +44,56 @@ window.createProfileView = (ctx) => {
       <div class="profile-stats-grid">
         <div class="pstat">
           <div class="ps-num" style="color:var(--warning)">${prog.streak}</div>
-          <div class="ps-name ps-name-row">${uiIconWrap('streak', 'mini-stat-icon')}연속일</div>
+          <div class="ps-name ps-name-row">${uiIconWrap('streak', 'mini-stat-icon')}${gameUi ? 'STREAK' : '연속일'}</div>
         </div>
         <div class="pstat">
           <div class="ps-num" style="color:var(--accent2)">${prog.totalDays || 0}</div>
-          <div class="ps-name ps-name-row">${uiIconWrap('calendar', 'mini-stat-icon')}총 학습일</div>
+          <div class="ps-name ps-name-row">${uiIconWrap('calendar', 'mini-stat-icon')}${gameUi ? 'DAYS' : '총 학습일'}</div>
         </div>
         <div class="pstat">
           <div class="ps-num" style="color:var(--success)">${learnedKana + learnedVocab}</div>
-          <div class="ps-name ps-name-row">${uiIconWrap('grid', 'mini-stat-icon')}학습 아이템</div>
+          <div class="ps-name ps-name-row">${uiIconWrap('grid', 'mini-stat-icon')}${gameUi ? 'ITEMS' : '학습 아이템'}</div>
         </div>
       </div>
 
       <div class="profile-section">
-        <div class="profile-section-title">최근 4주 학습 기록</div>
+        <div class="profile-section-title">${gameUi ? '4 WEEK LOG' : '최근 4주 학습 기록'}</div>
         <div class="streak-calendar">${_buildCalDays(prog.studyDays)}</div>
       </div>
 
       ${_renderSettings(prog)}
       ${_renderQuizSettings()}
-      <div class="profile-section">
+      ${gameUi ? '' : `<div class="profile-section">
         <div class="profile-section-title">${uiIconWrap('voice', 'section-title-icon')}음성(TTS) 설정</div>
         ${buildTTSSettingsHtml()}
-      </div>
-      ${_renderDevTools()}
+      </div>`}
+      ${gameUi ? '' : _renderDevTools()}
     `;
   }
 
   function _renderSettings(prog) {
     return `
       <div class="profile-section">
-        <div class="profile-section-title">${uiIconWrap('settings', 'section-title-icon')}설정</div>
+        <div class="profile-section-title">${uiIconWrap('settings', 'section-title-icon')}${gameUi ? 'SETTINGS' : '설정'}</div>
         <div class="settings-list">
           <div class="settings-item" onclick="App.toggleFurigana()">
             <span class="si-icon">あ</span>
-            <span class="si-label">후리가나 표시</span>
+            <span class="si-label">${gameUi ? 'Furigana' : '후리가나 표시'}</span>
             <span class="si-arrow">${prog.settings.furigana ? uiIconSvg('check', 'settings-state-icon') : uiIconSvg('progress', 'settings-state-icon muted')}</span>
           </div>
           <div class="settings-item" onclick="App.exportProgress()">
             <span class="si-icon">${uiIconSvg('download', 'settings-row-icon')}</span>
-            <span class="si-label">진도 내보내기</span>
+            <span class="si-label">${gameUi ? 'Export progress' : '진도 내보내기'}</span>
             <span class="si-arrow">${uiIconSvg('progress', 'settings-state-icon')}</span>
           </div>
           <div class="settings-item" onclick="App.importProgress()">
             <span class="si-icon">${uiIconSvg('upload', 'settings-row-icon')}</span>
-            <span class="si-label">진도 가져오기</span>
+            <span class="si-label">${gameUi ? 'Import progress' : '진도 가져오기'}</span>
             <span class="si-arrow">${uiIconSvg('progress', 'settings-state-icon')}</span>
           </div>
           <div class="settings-item" onclick="App.resetProgress()">
             <span class="si-icon">${uiIconSvg('trash', 'settings-row-icon')}</span>
-            <span class="si-label">진도 초기화</span>
+            <span class="si-label">${gameUi ? 'Reset progress' : '진도 초기화'}</span>
             <span class="si-arrow">${uiIconSvg('progress', 'settings-state-icon')}</span>
           </div>
         </div>
@@ -104,8 +105,8 @@ window.createProfileView = (ctx) => {
     const currentRate = parseInt(Store.getSetting('quizPassRate')) || 60;
     return `
       <div class="profile-section">
-        <div class="profile-section-title">${uiIconWrap('quiz', 'section-title-icon')}퀴즈 설정</div>
-        <div style="font-size:12px;color:var(--text3);margin-bottom:10px">통과 기준 점수</div>
+        <div class="profile-section-title">${uiIconWrap('quiz', 'section-title-icon')}${gameUi ? 'QUIZ PASS RATE' : '퀴즈 설정'}</div>
+        <div style="font-size:12px;color:var(--text3);margin-bottom:10px">${gameUi ? 'clear score' : '통과 기준 점수'}</div>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
           ${[50,60,70,80,90].map(rate => {
             const active = currentRate === rate;
@@ -119,7 +120,7 @@ window.createProfileView = (ctx) => {
           }).join('')}
         </div>
         <div style="font-size:11px;color:var(--text3);margin-top:8px">
-          현재: <strong style="color:var(--accent)">${currentRate}% 이상</strong>이면 통과
+          ${gameUi ? 'Current' : '현재'}: <strong style="color:var(--accent)">${currentRate}% ${gameUi ? '+' : '이상'}</strong>${gameUi ? '' : '이면 통과'}
         </div>
       </div>
     `;

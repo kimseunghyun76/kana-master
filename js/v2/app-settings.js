@@ -13,6 +13,9 @@ function createAppSettings(deps = {}) {
   const setFlowStep = deps.setFlowStep || (() => {});
   const runCurrentStep = deps.runCurrentStep || (() => {});
   const voiceLangFilter = deps.voiceLangFilter || '';
+  const storageKeys = Array.isArray(deps.storageKeys) && deps.storageKeys.length
+    ? deps.storageKeys
+    : ['jp_master_v2'];
 
   function refreshAll() {
     refreshHome();
@@ -180,11 +183,13 @@ function createAppSettings(deps = {}) {
     showToast('TTS 설정은 브라우저에서 관리됩니다');
   }
 
-  function resetProgress() {
+  async function resetProgress() {
     if (!confirm('진도를 초기화할까요? 이 작업은 되돌릴 수 없습니다.')) return;
-    localStorage.removeItem('jp_master_v2');
-    if (typeof chrome !== 'undefined' && chrome.storage) {
-      chrome.storage.local.remove('jp_master_v2');
+    storageKeys.forEach(key => {
+      try { localStorage.removeItem(key); } catch {}
+    });
+    if (typeof chrome !== 'undefined' && chrome.storage?.local) {
+      await new Promise(resolve => chrome.storage.local.remove(storageKeys, resolve));
     }
     location.reload();
   }

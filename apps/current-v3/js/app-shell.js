@@ -66,7 +66,7 @@ window.createAppShell = (ctx) => {
       <div class="flow-screen" id="flowScreen">
         <div class="flow-header">
           <button class="btn-back" onclick="App.closeFlow()">←</button>
-          <div class="flow-title" id="flowTitle">학습 중...</div>
+          <div class="flow-title" id="flowTitle">QUEST</div>
           <div class="flow-step" id="flowStep"></div>
         </div>
         <div class="flow-progress">

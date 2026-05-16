@@ -22,6 +22,7 @@ window.createRoleplayFlow = (ctx) => {
     roleplayArt: ROLEPLAY_ART,
     firstMeetingArt: FIRST_MEETING_ART,
     lockVoiceSelection: !!ctx.lockVoiceSelection,
+    gameUi: !!ctx.gameUi,
     getState: mod => _getRoleplayState(mod),
     voiceForSpeaker: speaker => _voiceForSpeaker(speaker),
     completeRoleplay: moduleId => _completeRoleplay(moduleId),
@@ -85,7 +86,10 @@ window.createRoleplayFlow = (ctx) => {
     const activeIndex = practiceLines.findIndex((_, idx) => !outputDone[idx]);
     const activeLine = activeIndex >= 0 ? practiceLines[activeIndex] : null;
     const speakerOptions = _comicView.speakerRoles(dialogues);
-    const speakerLabels = { A: 'A · 나', B: 'B · 상대', C: 'C · 제3자' };
+    const gameUi = !!ctx.gameUi;
+    const speakerLabels = gameUi
+      ? { A: 'A', B: 'B', C: 'C' }
+      : { A: 'A · 나', B: 'B · 상대', C: 'C · 제3자' };
     const roleSelectorHtml = !ctx.lockPracticeSpeaker && speakerOptions.length > 1 ? `
       <div class="roleplay-role-selector">
         <span class="roleplay-role-label">연습 역할</span>
@@ -182,49 +186,49 @@ window.createRoleplayFlow = (ctx) => {
         <div class="roleplay-panel">
           <div class="roleplay-panel-head">
             <div>
-              <div class="roleplay-panel-title">내 대사 ${idx + 1}</div>
+          <div class="roleplay-panel-title">${gameUi ? `LINE ${idx + 1}` : `내 대사 ${idx + 1}`}</div>
               <div class="roleplay-panel-subtitle">${escHtml(line.korean || '')}</div>
             </div>
-            <div class="roleplay-panel-status">${outputOk ? '완료' : '연습 중'}</div>
+            <div class="roleplay-panel-status">${outputOk ? (gameUi ? 'CLEAR' : '완료') : (gameUi ? 'TRY' : '연습 중')}</div>
           </div>
           <div class="roleplay-answer-box">
-            ${answerVisible ? ruby(line.japanese || '') : '먼저 한국어 힌트를 보고 일본어로 말해보세요.'}
+            ${answerVisible ? ruby(line.japanese || '') : (gameUi ? 'Read the subtitle, then say it in Japanese.' : '먼저 한국어 힌트를 보고 일본어로 말해보세요.')}
           </div>
           <div class="roleplay-actions">
-            <button class="btn btn-outline" onclick="App._toggleRoleplayReveal(${idx})">${answerVisible ? '정답 가리기' : '정답 보기'}</button>
-            <button class="btn btn-outline" onclick="App._speakDialogueLine('${line.id}')">${ctx.uiLabeledIcon('audio')} 정답 듣기</button>
-            <button class="btn btn-outline" onclick="App._speakDialogueLineSlow('${line.id}')">${ctx.uiLabeledIcon('audio')} 느리게</button>
-            <button class="btn ${outputOk ? 'btn-success' : 'btn-outline'}" onclick="App._markRoleplayOutput(${idx})">${outputOk ? '말하기 완료' : '힌트 보고 말했어요'}</button>
+            <button class="btn btn-outline" onclick="App._toggleRoleplayReveal(${idx})">${answerVisible ? (gameUi ? 'HIDE' : '정답 가리기') : (gameUi ? 'SHOW' : '정답 보기')}</button>
+            <button class="btn btn-outline" onclick="App._speakDialogueLine('${line.id}')">${ctx.uiLabeledIcon('audio')} ${gameUi ? 'MODEL' : '정답 듣기'}</button>
+            <button class="btn btn-outline" onclick="App._speakDialogueLineSlow('${line.id}')">${ctx.uiLabeledIcon('audio')} ${gameUi ? 'SLOW' : '느리게'}</button>
+            <button class="btn ${outputOk ? 'btn-success' : 'btn-outline'}" onclick="App._markRoleplayOutput(${idx})">${outputOk ? (gameUi ? 'DONE' : '말하기 완료') : (gameUi ? 'SPOKEN' : '힌트 보고 말했어요')}</button>
           </div>
         </div>
       `;
     }).join('') : `
       <div class="roleplay-panel">
-        <div class="roleplay-panel-title" style="margin-bottom:6px">자동 완료형 롤플레이</div>
-        <div class="roleplay-helper-text">이 대화에는 학습자 A 대사가 없어서 전체 흐름을 듣고 마무리할 수 있습니다.</div>
+        <div class="roleplay-panel-title" style="margin-bottom:6px">${gameUi ? 'AUTO SCENE' : '자동 완료형 롤플레이'}</div>
+        <div class="roleplay-helper-text">${gameUi ? 'Listen through the scene and clear it.' : '이 대화에는 학습자 A 대사가 없어서 전체 흐름을 듣고 마무리할 수 있습니다.'}</div>
       </div>
     `;
 
     const currentTurnHtml = activeLine ? `
         <div class="roleplay-panel roleplay-panel-highlight">
-        <div class="roleplay-section-heading">지금 내 차례</div>
-        <div class="roleplay-progress-text">대사 ${activeIndex + 1} / ${practiceLines.length}</div>
+        <div class="roleplay-section-heading">${gameUi ? 'YOUR TURN' : '지금 내 차례'}</div>
+        <div class="roleplay-progress-text">${gameUi ? 'LINE' : '대사'} ${activeIndex + 1} / ${practiceLines.length}</div>
         <div class="roleplay-prompt">${escHtml(activeLine.korean || '')}</div>
         <div class="roleplay-answer-box">
-          ${revealed[activeIndex] ? ruby(activeLine.japanese || '') : '먼저 스스로 말해 보고, 막히면 정답을 확인해 보세요.'}
+          ${revealed[activeIndex] ? ruby(activeLine.japanese || '') : (gameUi ? 'Say it first. Open the model line only if you need it.' : '먼저 스스로 말해 보고, 막히면 정답을 확인해 보세요.')}
         </div>
         <div class="roleplay-actions">
-          <button class="btn btn-outline" onclick="App._replayRoleplayCurrentTurn()">${ctx.uiLabeledIcon('audio')} 현재부터 듣기</button>
-          <button class="btn btn-outline" onclick="App._speakDialogueLineSlow('${activeLine.id}')">${ctx.uiLabeledIcon('audio')} 느리게 듣기</button>
-          <button class="btn btn-outline" onclick="App._speakDialogueLine('${activeLine.id}')">${ctx.uiLabeledIcon('audio')} 정답 듣기</button>
-          <button class="btn btn-outline" onclick="App._toggleRoleplayReveal(${activeIndex})">${revealed[activeIndex] ? '정답 가리기' : '정답 보기'}</button>
-          <button class="btn ${outputDone[activeIndex] ? 'btn-success' : 'btn-outline'}" onclick="App._markRoleplayOutput(${activeIndex})">${outputDone[activeIndex] ? '말하기 완료' : '힌트 보고 말했어요'}</button>
+          <button class="btn btn-outline" onclick="App._replayRoleplayCurrentTurn()">${ctx.uiLabeledIcon('audio')} ${gameUi ? 'FROM HERE' : '현재부터 듣기'}</button>
+          <button class="btn btn-outline" onclick="App._speakDialogueLineSlow('${activeLine.id}')">${ctx.uiLabeledIcon('audio')} ${gameUi ? 'SLOW' : '느리게 듣기'}</button>
+          <button class="btn btn-outline" onclick="App._speakDialogueLine('${activeLine.id}')">${ctx.uiLabeledIcon('audio')} ${gameUi ? 'MODEL' : '정답 듣기'}</button>
+          <button class="btn btn-outline" onclick="App._toggleRoleplayReveal(${activeIndex})">${revealed[activeIndex] ? (gameUi ? 'HIDE' : '정답 가리기') : (gameUi ? 'SHOW' : '정답 보기')}</button>
+          <button class="btn ${outputDone[activeIndex] ? 'btn-success' : 'btn-outline'}" onclick="App._markRoleplayOutput(${activeIndex})">${outputDone[activeIndex] ? (gameUi ? 'DONE' : '말하기 완료') : (gameUi ? 'SPOKEN' : '힌트 보고 말했어요')}</button>
         </div>
       </div>
     ` : `
       <div class="roleplay-panel roleplay-panel-success">
-        <div class="roleplay-section-heading">모든 내 대사 연습 완료</div>
-        <div class="roleplay-helper-text">전체 대화를 한 번 더 재생한 뒤 완료하면 마무리됩니다.</div>
+        <div class="roleplay-section-heading">${gameUi ? 'SPEAK CLEAR' : '모든 내 대사 연습 완료'}</div>
+        <div class="roleplay-helper-text">${gameUi ? 'Replay once, then claim the reward.' : '전체 대화를 한 번 더 재생한 뒤 완료하면 마무리됩니다.'}</div>
       </div>
     `;
     if (phase === 'preview') {
@@ -233,14 +237,14 @@ window.createRoleplayFlow = (ctx) => {
         <div class="roleplay-hero" style="--roleplay-hero-bg:url('${ctx.cssUrlValue(roleplayCover)}')">
           <div class="roleplay-hero-bg" aria-hidden="true"></div>
           <div class="roleplay-hero-content">
-            <div class="roleplay-hero-kicker">${ctx.uiIconSvg('roleplay', 'scene-title-icon')} 롤플레이 장면</div>
+            <div class="roleplay-hero-kicker">${ctx.uiIconSvg('roleplay', 'scene-title-icon')} ${gameUi ? 'ROLEPLAY SCENE' : '롤플레이 장면'}</div>
             <div class="roleplay-hero-title">${escHtml(rp.name)}</div>
             <div class="roleplay-hero-desc">${escHtml(rp.desc)}</div>
             <div class="roleplay-hero-chips">
-              <span>${dialogues.length}개 대화</span>
-              <span>${practiceLines.length || '자동'} 미션</span>
-              <span>${escHtml(speakerLabels[practiceSpeaker] || practiceSpeaker)} 역할</span>
-              <span>말풍선 분석</span>
+              <span>${dialogues.length}${gameUi ? ' LINES' : '개 대화'}</span>
+              <span>${practiceLines.length || (gameUi ? 'AUTO' : '자동')} ${gameUi ? 'MISSIONS' : '미션'}</span>
+              <span>${escHtml(speakerLabels[practiceSpeaker] || practiceSpeaker)}</span>
+              <span>${gameUi ? 'SCRIPT DETAIL' : '말풍선 분석'}</span>
             </div>
           </div>
         </div>` : ''}
@@ -249,27 +253,27 @@ window.createRoleplayFlow = (ctx) => {
           ${escHtml(rp.desc)}
         </div>
         <div class="roleplay-panel roleplay-mission-card">
-          <div class="roleplay-panel-title" style="margin-bottom:8px">이렇게 사용합니다</div>
+          <div class="roleplay-panel-title" style="margin-bottom:8px">${gameUi ? 'MISSION ROUTE' : '이렇게 사용합니다'}</div>
           ${roleSelectorHtml}
           <div class="roleplay-guide-grid">
-            <span><b>1</b>전체 흐름 듣기</span>
-            <span><b>2</b>말풍선 눌러 분석</span>
-            <span><b>3</b>내 역할로 말하기</span>
+            <span><b>1</b>${gameUi ? 'LISTEN' : '전체 흐름 듣기'}</span>
+            <span><b>2</b>${gameUi ? 'CHECK SCRIPT' : '말풍선 눌러 분석'}</span>
+            <span><b>3</b>${gameUi ? 'SPEAK' : '내 역할로 말하기'}</span>
           </div>
         </div>
         <div class="roleplay-conversation">
           <div class="roleplay-conversation-head">
-            <span>대화 장면</span>
-            <b>말풍선을 누르면 단어·문장 소리를 확인할 수 있습니다</b>
+            <span>${gameUi ? 'SCENE SCRIPT' : '대화 장면'}</span>
+            <b>${gameUi ? 'Tap a line for detail and audio.' : '말풍선을 누르면 단어·문장 소리를 확인할 수 있습니다'}</b>
           </div>
           <div class="dialogue-list ${conversationClass}" id="dialogueList" ${isComicDemo && comicSceneAsset ? `style="--comic-bg:url('${ctx.cssUrlValue(comicSceneAsset)}')"` : ''}>${dialogueHtml}</div>
         </div>
       `;
       document.getElementById('flowFooter').innerHTML = `
         <div class="roleplay-actions">
-          <button class="btn btn-outline" id="btnReplayAll" onclick="App._replayAll('${mod.id}')">${ctx.uiLabeledIcon('audio')} 전체 재생</button>
-          <button class="btn btn-outline" id="btnStopPlay" style="display:none" onclick="App._stopRoleplay()">정지</button>
-          <button class="btn btn-primary" onclick="App._beginRoleplayPractice()">역할 연습 시작 →</button>
+          <button class="btn btn-outline" id="btnReplayAll" onclick="App._replayAll('${mod.id}')">${ctx.uiLabeledIcon('audio')} ${gameUi ? 'PLAY ALL' : '전체 재생'}</button>
+          <button class="btn btn-outline" id="btnStopPlay" style="display:none" onclick="App._stopRoleplay()">${gameUi ? 'STOP' : '정지'}</button>
+          <button class="btn btn-primary" onclick="App._beginRoleplayPractice()">${gameUi ? 'START SPEAK →' : '역할 연습 시작 →'}</button>
         </div>
       `;
       return;
@@ -278,36 +282,35 @@ window.createRoleplayFlow = (ctx) => {
     document.getElementById('flowBody').innerHTML = `
       <div class="dialogue-scene">
         <div class="scene-title">${ctx.uiIconSvg('roleplay', 'scene-title-icon')} ${escHtml(rp.name)}</div>
-        방금 들은 흐름을 바탕으로, 이제 내 대사를 직접 말해 보세요.
+        ${gameUi ? 'Use the subtitle as a cue and speak the Japanese line.' : '방금 들은 흐름을 바탕으로, 이제 내 대사를 직접 말해 보세요.'}
       </div>
       <div class="roleplay-panel roleplay-mission-card">
-        <div class="roleplay-panel-title" style="margin-bottom:8px">말하기 미션</div>
+        <div class="roleplay-panel-title" style="margin-bottom:8px">${gameUi ? 'SPEAK MISSION' : '말하기 미션'}</div>
         ${roleSelectorHtml}
         <div class="roleplay-helper-text">
-          정답을 바로 보기 전에 먼저 입으로 말하고, 필요할 때만 듣거나 확인해 주세요.<br>
-          한 대사씩 끝낼수록 아래 진행 상태가 채워집니다.
+          ${gameUi ? 'Say it first. Use model audio only when you need a reset.' : '정답을 바로 보기 전에 먼저 입으로 말하고, 필요할 때만 듣거나 확인해 주세요.<br>한 대사씩 끝낼수록 아래 진행 상태가 채워집니다.'}
         </div>
       </div>
       ${currentTurnHtml}
       <div class="roleplay-conversation">
         <div class="roleplay-conversation-head">
-          <span>대화 장면</span>
-          <b>현재 차례부터 듣거나 한 줄씩 분석할 수 있습니다</b>
+          <span>${gameUi ? 'SCENE SCRIPT' : '대화 장면'}</span>
+          <b>${gameUi ? 'Replay from the current line or inspect each line.' : '현재 차례부터 듣거나 한 줄씩 분석할 수 있습니다'}</b>
         </div>
         <div class="dialogue-list ${conversationClass}" id="dialogueList" ${isComicDemo && comicSceneAsset ? `style="--comic-bg:url('${ctx.cssUrlValue(comicSceneAsset)}')"` : ''}>${dialogueHtml}</div>
       </div>
       <div style="height:12px"></div>
-      <div class="scene-title">${ctx.uiIconSvg('voice', 'scene-title-icon')} 내 말하기 연습</div>
-      <div class="roleplay-helper-text" style="margin:6px 0 12px">힌트를 보고 먼저 말한 뒤, 필요하면 정답을 열어 확인하세요.</div>
+      <div class="scene-title">${ctx.uiIconSvg('voice', 'scene-title-icon')} ${gameUi ? 'SPEAK LOOP' : '내 말하기 연습'}</div>
+      <div class="roleplay-helper-text" style="margin:6px 0 12px">${gameUi ? 'Subtitle first, Japanese output next.' : '힌트를 보고 먼저 말한 뒤, 필요하면 정답을 열어 확인하세요.'}</div>
       <div>${practiceHtml}</div>
     `;
 
     document.getElementById('flowFooter').innerHTML = `
       <div class="roleplay-actions">
-        <button class="btn btn-outline" id="btnReplayAll" onclick="App._replayAll('${mod.id}')">${ctx.uiLabeledIcon('audio')} 전체 재생</button>
-        ${activeLine ? `<button class="btn btn-outline" onclick="App._replayRoleplayCurrentTurn()">${ctx.uiLabeledIcon('audio')} 현재부터</button>` : ''}
-        <button class="btn btn-outline" id="btnStopPlay" style="display:none" onclick="App._stopRoleplay()">정지</button>
-        <button class="btn ${allReady ? 'btn-success' : 'btn-outline'}" onclick="App._completeRoleplay('${mod.id}')">${allReady ? '완료 ✓' : `말하기 ${readyCount}/${practiceLines.length}`}</button>
+        <button class="btn btn-outline" id="btnReplayAll" onclick="App._replayAll('${mod.id}')">${ctx.uiLabeledIcon('audio')} ${gameUi ? 'PLAY ALL' : '전체 재생'}</button>
+        ${activeLine ? `<button class="btn btn-outline" onclick="App._replayRoleplayCurrentTurn()">${ctx.uiLabeledIcon('audio')} ${gameUi ? 'FROM HERE' : '현재부터'}</button>` : ''}
+        <button class="btn btn-outline" id="btnStopPlay" style="display:none" onclick="App._stopRoleplay()">${gameUi ? 'STOP' : '정지'}</button>
+        <button class="btn ${allReady ? 'btn-success' : 'btn-outline'}" onclick="App._completeRoleplay('${mod.id}')">${allReady ? (gameUi ? 'CLEAR ✓' : '완료 ✓') : (gameUi ? `SPEAK ${readyCount}/${practiceLines.length}` : `말하기 ${readyCount}/${practiceLines.length}`)}</button>
       </div>
     `;
   }
@@ -638,26 +641,26 @@ window.createRoleplayFlow = (ctx) => {
     const next = getNextModule(Store.get());
     const nextAction = next
       ? `<button class="btn btn-primary" onclick="App.openModule('${next.mod.id}', ${next.roleplay ? 'true' : 'false'})">
-           ${next.roleplay ? '다음 롤플레이로 →' : `다음 레슨: ${escHtml(next.mod.name)} →`}
+           ${gameUi ? (next.roleplay ? 'NEXT ROLEPLAY →' : `NEXT QUEST: ${escHtml(next.mod.name)} →`) : (next.roleplay ? '다음 롤플레이로 →' : `다음 레슨: ${escHtml(next.mod.name)} →`)}
          </button>`
-      : `<button class="btn btn-primary" onclick="App.closeFlow()">홈으로 →</button>`;
+      : `<button class="btn btn-primary" onclick="App.closeFlow()">${gameUi ? 'HOME →' : '홈으로 →'}</button>`;
 
     document.getElementById('flowBody').innerHTML = `
       <div class="completion-screen">
         <div class="completion-emoji">${ctx.uiIconSvg('roleplay', 'completion-main-icon')}</div>
-        <div class="completion-title">롤플레이 완료!</div>
-        <div class="completion-sub">${escHtml(mod?.roleplay?.name || '')} 마스터 완료!<br>이제 흐름을 이해하는 단계에서 직접 말하는 단계까지 잘 마쳤어요.</div>
+        <div class="completion-title">${gameUi ? 'ROLEPLAY CLEAR' : '롤플레이 완료!'}</div>
+        <div class="completion-sub">${escHtml(mod?.roleplay?.name || '')} ${gameUi ? 'cleared.' : '마스터 완료!'}<br>${gameUi ? 'Listening and speaking loop finished.' : '이제 흐름을 이해하는 단계에서 직접 말하는 단계까지 잘 마쳤어요.'}</div>
         <div class="completion-unlocks">
-          <div class="cu-title">획득</div>
+          <div class="cu-title">${gameUi ? 'REWARD' : '획득'}</div>
           <div class="completion-unlock-item"><span class="cui-icon">${ctx.uiIconSvg('xp', 'completion-inline-icon')}</span> +${xp} XP</div>
-          <div class="completion-unlock-item"><span class="cui-icon">${ctx.uiIconSvg('roleplay', 'completion-inline-icon')}</span> 롤플레이 뱃지</div>
+          <div class="completion-unlock-item"><span class="cui-icon">${ctx.uiIconSvg('roleplay', 'completion-inline-icon')}</span> ${gameUi ? 'Roleplay badge' : '롤플레이 뱃지'}</div>
         </div>
       </div>
     `;
     document.getElementById('flowFooter').innerHTML = `
       <div style="display:flex;gap:10px;flex-wrap:wrap">
         ${nextAction}
-        <button class="btn btn-outline" onclick="App.closeFlow()">홈으로</button>
+        <button class="btn btn-outline" onclick="App.closeFlow()">${gameUi ? 'HOME' : '홈으로'}</button>
       </div>
     `;
   }

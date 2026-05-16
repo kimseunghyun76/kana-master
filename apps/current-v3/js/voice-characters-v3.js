@@ -1,22 +1,22 @@
 /* ============================================================
-   V3 Voice Characters — Japanese coach game personas
+   V3 Voice Characters — Japanese coach personas
    ============================================================ */
 
 'use strict';
 
 window.VoiceCharacters = (() => {
   const AVATARS = {
-    nanami: '/images/v3-game/characters/yuna-face.webp',
-    aoi:    '/images/v3-game/characters/mika-face.webp',
-    mayu:   '/images/v3-game/characters/akari-face.webp',
-    keita:  '/images/v3-game/characters/ren-face.webp',
+    nanami: '/images/v3-cute/characters/yuna-face.webp',
+    aoi:    '/images/v3-cute/characters/mika-face.webp',
+    mayu:   '/images/v3-cute/characters/akari-face.webp',
+    keita:  '/images/v3-cute/characters/ren-face.webp',
   };
 
   const META = {
     nanami: { age: 'JP', role: 'Yuna · calm coach', pos: 'center' },
     aoi:    { age: 'JP', role: 'Mika · bright coach', pos: 'center' },
     mayu:   { age: 'JP', role: 'Akari · friendly coach', pos: 'center' },
-    keita:  { age: 'JP', role: 'Ren · tough coach', pos: 'center' },
+    keita:  { age: 'JP', role: 'Ren · kind coach', pos: 'center' },
   };
 
   function meta(key) {

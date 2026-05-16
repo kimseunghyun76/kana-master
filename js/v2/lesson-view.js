@@ -5,6 +5,7 @@
 'use strict';
 
 window.createLessonView = (ctx) => {
+  const gameUi = !!ctx.gameUi;
   const {
     Store,
     Entitlements,
@@ -40,7 +41,7 @@ window.createLessonView = (ctx) => {
             <div class="lesson-stage-dot" style="background:${locked ? '#475569' : dotColor}"></div>
             <span class="lesson-stage-title">STAGE ${stage.id}: ${escHtml(stage.name)}</span>
             <span class="lesson-stage-badge" style="background:${badgeBg};color:${badgeColor};padding:3px 8px;border-radius:20px;font-size:10px;font-weight:700;">
-              ${locked ? `${uiIconWrap('lock', 'badge-icon')}${formatNum(stage.unlockXP)} XP` : (stage.jlpt || '심화 학습')}
+              ${locked ? `${uiIconWrap('lock', 'badge-icon')}${formatNum(stage.unlockXP)} XP` : (stage.jlpt || (gameUi ? 'OPEN' : '심화 학습'))}
             </span>
           </div>
           <div class="lesson-stage-progress">
@@ -70,13 +71,13 @@ window.createLessonView = (ctx) => {
     return `
       <section class="lesson-overview">
         <div>
-          <div class="lesson-overview-kicker">전체 커리큘럼</div>
-          <h2>${nextTitle ? escHtml(nextTitle) : '모든 레슨 완료'}</h2>
-          <p>${nextTitle ? '현재 이어서 진행할 레슨입니다.' : '복습과 롤플레이로 유지 학습을 이어가세요.'}</p>
+          <div class="lesson-overview-kicker">${gameUi ? 'QUEST MAP' : '전체 커리큘럼'}</div>
+          <h2>${nextTitle ? escHtml(nextTitle) : (gameUi ? 'ALL QUESTS CLEAR' : '모든 레슨 완료')}</h2>
+          <p>${nextTitle ? (gameUi ? 'Current route is ready.' : '현재 이어서 진행할 레슨입니다.') : (gameUi ? 'Use TRAIN mode for review and roleplay loops.' : '복습과 롤플레이로 유지 학습을 이어가세요.')}</p>
         </div>
         <div class="lesson-overview-stats">
-          <span><b>${doneMods}</b>완료</span>
-          <span><b>${MODULES.length}</b>전체</span>
+          <span><b>${doneMods}</b>${gameUi ? 'CLEAR' : '완료'}</span>
+          <span><b>${MODULES.length}</b>${gameUi ? 'TOTAL' : '전체'}</span>
           <span><b>${formatNum(prog.xp)}</b>XP</span>
         </div>
       </section>
@@ -112,7 +113,7 @@ window.createLessonView = (ctx) => {
             <div class="module-name">${escHtml(mod.name)}</div>
             <span class="access-tier-badge ${requiredTier}">${requiredTier.toUpperCase()}</span>
           </div>
-          <div class="module-sub">${escHtml(mod.nameJp || '')} · ${totalSteps}단계</div>
+          <div class="module-sub">${escHtml(mod.nameJp || '')} · ${totalSteps}${gameUi ? ' STEPS' : '단계'}</div>
           <div class="module-focus-tag">${escHtml(visual.focus)}</div>
           ${!modLocked ? `
           <div class="module-prog">
@@ -144,7 +145,7 @@ window.createLessonView = (ctx) => {
         <span class="rp-icon">${uiIconSvg('roleplay', 'rp-icon-svg')}</span>
         <div class="rp-info">
           <div class="rp-name">${escHtml(mod.roleplay.name)}</div>
-          <div class="rp-hint">${rpUnlocked ? escHtml(mod.roleplay.desc) : `위 ${totalSteps}단계 완료 후 해금`}</div>
+          <div class="rp-hint">${rpUnlocked ? escHtml(mod.roleplay.desc) : (gameUi ? `CLEAR ${totalSteps} STEPS TO OPEN` : `위 ${totalSteps}단계 완료 후 해금`)}</div>
         </div>
         <span class="rp-lock">${rpDone ? uiIconSvg('check', 'rp-lock-icon') : (rpUnlocked ? uiIconSvg('progress', 'rp-lock-icon') : uiIconSvg('lock', 'rp-lock-icon'))}</span>
       </div>

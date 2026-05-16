@@ -233,40 +233,40 @@
 }
 
 /* ============================================================
-   V3 game skin
+   V3 cute game skin
    ============================================================ */
 
 body.app-v3 {
-  --bg: #07090c;
-  --bg2: #0d1117;
-  --bg3: #171b22;
-  --card: rgba(13, 17, 23, .88);
-  --card2: rgba(22, 27, 34, .94);
-  --border: rgba(255, 255, 255, .12);
-  --text: #f8fafc;
-  --text2: #cbd5e1;
-  --text3: #7f8794;
-  --accent: #ef2b2d;
-  --accent2: #ff4a3d;
-  --success: #2dd4bf;
-  --warning: #f8c14a;
-  --danger: #ef2b2d;
+  --bg: #fff7fb;
+  --bg2: #f1fbff;
+  --bg3: #fff0f6;
+  --card: rgba(255, 255, 255, .9);
+  --card2: rgba(255, 255, 255, .96);
+  --border: rgba(115, 137, 168, .22);
+  --text: #263247;
+  --text2: #526174;
+  --text3: #8291a6;
+  --accent: #ff7aa2;
+  --accent2: #38b6c9;
+  --success: #5ac99b;
+  --warning: #f6b84f;
+  --danger: #f26d8f;
   background:
-    radial-gradient(circle at 80% 0%, rgba(239, 43, 45, .12), transparent 30%),
-    #05070a;
+    linear-gradient(180deg, rgba(255, 247, 251, .96), rgba(241, 251, 255, .96)),
+    #fff7fb;
 }
 
 body.app-v3 #app {
   background:
-    linear-gradient(180deg, rgba(5, 7, 10, .86), rgba(5, 7, 10, .96)),
-    url("/images/v3-game/home-urban-night.webp") center / cover fixed;
-  border-left: 1px solid rgba(255,255,255,.08);
-  border-right: 1px solid rgba(255,255,255,.08);
+    linear-gradient(180deg, rgba(255, 255, 255, .44), rgba(255, 247, 251, .86)),
+    url("/images/v3-cute/home-sakura-street.webp") center / cover fixed;
+  border-left: 1px solid rgba(255,255,255,.75);
+  border-right: 1px solid rgba(255,255,255,.75);
 }
 
 body.app-v3 .app-header {
-  background: rgba(5, 7, 10, .86);
-  border-bottom: 1px solid rgba(239, 43, 45, .28);
+  background: rgba(255, 255, 255, .82);
+  border-bottom: 1px solid rgba(255, 122, 162, .24);
   backdrop-filter: blur(14px);
 }
 
@@ -275,28 +275,30 @@ body.app-v3 .app-title {
   font-size: 16px;
   font-weight: 900;
   letter-spacing: .08em;
+  color: #263247;
 }
 
 body.app-v3 .app-title b {
-  color: var(--accent2);
+  color: var(--accent);
   font-size: 11px;
   letter-spacing: 0;
 }
 
 body.app-v3 .stat-pill,
 body.app-v3 .bottom-nav {
-  background: rgba(9, 12, 18, .86);
-  border-color: rgba(255, 255, 255, .1);
+  background: rgba(255, 255, 255, .86);
+  border-color: rgba(115, 137, 168, .18);
   backdrop-filter: blur(14px);
+  color: #526174;
 }
 
 body.app-v3 .nav-btn.active {
-  color: #fff;
+  color: #28364c;
 }
 
 body.app-v3 .nav-btn.active::before {
-  background: var(--accent);
-  box-shadow: 0 0 18px rgba(239, 43, 45, .8);
+  background: linear-gradient(90deg, #ff8db1, #65d8cf);
+  box-shadow: 0 0 18px rgba(255, 141, 177, .38);
 }
 
 body.app-v3 .nav-label {
@@ -311,23 +313,23 @@ body.app-v3 .stage-card,
 body.app-v3 .module-card,
 body.app-v3 .profile-section,
 body.app-v3 .pstat {
-  border-color: rgba(255, 255, 255, .12);
+  border-color: rgba(255, 255, 255, .78);
   background:
-    linear-gradient(135deg, rgba(239, 43, 45, .13), transparent 42%),
-    rgba(7, 9, 12, .84);
-  box-shadow: 0 18px 44px rgba(0, 0, 0, .36);
+    linear-gradient(135deg, rgba(255, 141, 177, .2), rgba(101, 216, 207, .13) 58%, rgba(255, 255, 255, .86)),
+    rgba(255, 255, 255, .86);
+  box-shadow: 0 18px 42px rgba(92, 120, 160, .18);
 }
 
 body.app-v3 .welcome-card-cinematic {
   min-height: 430px;
   align-items: flex-end;
-  border: 1px solid rgba(239, 43, 45, .28);
+  border: 1px solid rgba(255, 255, 255, .82);
 }
 
 body.app-v3 .welcome-card-cinematic::before {
   background:
-    radial-gradient(circle at 18% 18%, rgba(239, 43, 45, .24), transparent 22%),
-    linear-gradient(90deg, rgba(5, 7, 10, .92), rgba(5, 7, 10, .4) 58%, rgba(5, 7, 10, .88));
+    linear-gradient(90deg, rgba(255, 255, 255, .92), rgba(255, 255, 255, .38) 58%, rgba(255, 247, 251, .74)),
+    radial-gradient(circle at 18% 18%, rgba(255, 210, 224, .46), transparent 24%);
 }
 
 body.app-v3 .welcome-title,
@@ -336,44 +338,123 @@ body.app-v3 .dashboard-main h1 {
   font-weight: 900;
   letter-spacing: 0;
   text-transform: none;
+  color: #263247;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, .82);
+}
+
+body.app-v3 .welcome-copy,
+body.app-v3 .dashboard-main p {
+  color: #526174;
+}
+
+body.app-v3 .welcome-plan-row span,
+body.app-v3 .dashboard-metric {
+  background: rgba(255, 255, 255, .82);
+  border-color: rgba(115, 137, 168, .18);
+  color: #526174;
+}
+
+body.app-v3 .welcome-plan-row b,
+body.app-v3 .dashboard-metric span {
+  color: #263247;
+}
+
+body.app-v3 .home-step-guide,
+body.app-v3 .home-step-guide.compact {
+  background: rgba(255, 255, 255, .76);
+  border-color: rgba(115, 137, 168, .18);
+  box-shadow: 0 12px 28px rgba(92, 120, 160, .12);
+}
+
+body.app-v3 .home-step-guide-title,
+body.app-v3 .home-step-guide-copy b {
+  color: #263247;
+}
+
+body.app-v3 .home-step-guide-copy em {
+  color: #6a788c;
+}
+
+body.app-v3 .home-step-guide-btn {
+  background: rgba(255, 255, 255, .72);
+  border-color: rgba(115, 137, 168, .18);
+  color: #263247;
+}
+
+body.app-v3 .home-step-guide-icon {
+  color: #38b6c9;
 }
 
 body.app-v3 .welcome-eyebrow,
 body.app-v3 .dashboard-kicker,
 body.app-v3 .program-topline,
 body.app-v3 .section-title {
-  color: #ff584d;
+  color: #e9578a;
   letter-spacing: .09em;
+}
+
+body.app-v3 .program-card {
+  color: #263247;
+  background:
+    linear-gradient(135deg, rgba(255,255,255,.96), rgba(241,251,255,.86)),
+    rgba(255, 255, 255, .92);
+}
+
+body.app-v3 .program-topline {
+  background: rgba(255, 141, 177, .15);
+  color: #e9578a;
+}
+
+body.app-v3 .program-day-count {
+  background: rgba(82, 196, 201, .16);
+  color: #2b8190;
+}
+
+body.app-v3 .program-desc {
+  color: #647187;
+}
+
+body.app-v3 .program-outcome {
+  border-color: rgba(115, 137, 168, .18);
+  background: rgba(255, 255, 255, .72);
+  color: #526174;
+}
+
+body.app-v3 .program-foot {
+  color: #526174;
 }
 
 body.app-v3 .dashboard-primary,
 body.app-v3 .btn.btn-primary,
 body.app-v3 .program-start-btn,
 body.app-v3 .lec-pick-start {
-  background: linear-gradient(135deg, #ef2b2d, #8f1119);
-  box-shadow: 0 12px 28px rgba(239, 43, 45, .28);
+  background: linear-gradient(135deg, #ff8db1, #55cfd0);
+  box-shadow: 0 12px 28px rgba(255, 141, 177, .28);
+  color: #fff;
 }
 
 body.app-v3 .btn.btn-outline,
 body.app-v3 .lec-display-toggle {
-  background: rgba(9, 12, 18, .88);
-  border-color: rgba(255, 255, 255, .16);
-  color: #e5e7eb;
+  background: rgba(255, 255, 255, .9);
+  border-color: rgba(115, 137, 168, .22);
+  color: #526174;
 }
 
 body.app-v3 .module-visual.red,
-body.app-v3 .continue-visual.red {
+body.app-v3 .module-visual.cute,
+body.app-v3 .continue-visual.red,
+body.app-v3 .continue-visual.cute {
   background:
-    radial-gradient(circle at 28% 24%, rgba(255,255,255,.22), transparent 34%),
-    linear-gradient(145deg, rgba(239,43,45,.54), rgba(20,184,166,.16));
-  box-shadow: 0 16px 32px rgba(239, 43, 45, .2);
+    radial-gradient(circle at 28% 24%, rgba(255,255,255,.72), transparent 34%),
+    linear-gradient(145deg, rgba(255,141,177,.72), rgba(101,216,207,.44));
+  box-shadow: 0 16px 32px rgba(92, 120, 160, .16);
 }
 
 body.app-v3 .module-cover-thumb {
-  border-color: rgba(239, 43, 45, .24);
+  border-color: rgba(255, 255, 255, .72);
   box-shadow:
-    inset 0 0 0 999px rgba(2, 6, 23, .18),
-    0 10px 24px rgba(0, 0, 0, .32);
+    inset 0 0 0 999px rgba(255, 255, 255, .1),
+    0 10px 24px rgba(92, 120, 160, .18);
 }
 
 body.app-v3 .roleplay-hero,
@@ -382,14 +463,48 @@ body.app-v3 .comic-preview-list,
 body.app-v3 .comic-player-visual,
 body.app-v3 .comic-subtitle-overlay,
 body.app-v3 .comic-practice-prompt {
-  border-color: rgba(239, 43, 45, .24);
-  background-color: rgba(5, 7, 10, .82);
+  border-color: rgba(255, 255, 255, .78);
+  background-color: rgba(255, 255, 255, .86);
+}
+
+body.app-v3 .roleplay-hero {
+  box-shadow: 0 18px 38px rgba(92, 120, 160, .18);
+  background: #fff7fb;
+}
+
+body.app-v3 .roleplay-hero-bg,
+body.app-v3 .flow-screen.roleplay-comic-mode .comic-intro-hero .roleplay-hero-bg {
+  opacity: 1;
+  filter: saturate(1.02) contrast(1);
+}
+
+body.app-v3 .roleplay-hero::before,
+body.app-v3 .flow-screen.roleplay-comic-mode .comic-intro-hero::before {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.32) 48%, rgba(255,247,251,.9)),
+    linear-gradient(90deg, rgba(255,255,255,.82), rgba(255,255,255,.16) 54%, rgba(255,255,255,.64));
+}
+
+body.app-v3 .roleplay-hero-title {
+  color: #263247;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, .9);
+}
+
+body.app-v3 .roleplay-hero-desc {
+  color: #526174;
+}
+
+body.app-v3 .roleplay-hero-kicker,
+body.app-v3 .roleplay-hero-chips span {
+  background: rgba(255, 255, 255, .72);
+  border-color: rgba(115, 137, 168, .18);
+  color: #526174;
 }
 
 body.app-v3 .comic-player-visual::after {
   background:
-    radial-gradient(circle at var(--speaker-glow-x, 50%) 42%, rgba(255, 255, 255, .16), transparent 23%),
-    linear-gradient(180deg, rgba(2,6,23,.04), rgba(2,6,23,.12) 42%, rgba(2,6,23,.72));
+    radial-gradient(circle at var(--speaker-glow-x, 50%) 42%, rgba(255, 255, 255, .34), transparent 24%),
+    linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.08) 45%, rgba(255,247,251,.58));
 }
 
 body.app-v3 .vn-character {
@@ -397,8 +512,8 @@ body.app-v3 .vn-character {
   height: 74%;
   bottom: 1%;
   filter:
-    drop-shadow(0 20px 30px rgba(0, 0, 0, .55))
-    drop-shadow(0 0 12px rgba(239, 43, 45, .14));
+    drop-shadow(0 20px 28px rgba(92, 120, 160, .32))
+    drop-shadow(0 0 10px rgba(255, 255, 255, .58));
 }
 
 body.app-v3 .vn-character-A { left: -8%; }
@@ -410,8 +525,8 @@ body.app-v3 .comic-player-visual.speaker-focus-B .vn-character-B,
 body.app-v3 .comic-player-visual.speaker-focus-C .vn-character-C {
   transform: scale(1.08);
   filter:
-    drop-shadow(0 24px 36px rgba(0, 0, 0, .62))
-    drop-shadow(0 0 18px rgba(239, 43, 45, .26));
+    drop-shadow(0 24px 34px rgba(92, 120, 160, .34))
+    drop-shadow(0 0 18px rgba(255, 141, 177, .34));
 }
 
 body.app-v3 .comic-player-visual.speaker-focus-A .vn-character-B,
@@ -423,17 +538,56 @@ body.app-v3 .comic-player-visual.speaker-focus-C .vn-character-B {
 }
 
 body.app-v3 .comic-script-line.active {
-  border-color: rgba(239, 43, 45, .5);
-  box-shadow: 0 0 0 1px rgba(239, 43, 45, .2);
+  border-color: rgba(255, 141, 177, .62);
+  box-shadow: 0 0 0 1px rgba(255, 141, 177, .2);
+}
+
+body.app-v3 .comic-subtitle-overlay,
+body.app-v3 .comic-script-dock,
+body.app-v3 .comic-script-dock-external {
+  border-color: rgba(115, 137, 168, .18);
+  background: rgba(255, 255, 255, .86);
+  box-shadow: 0 16px 34px rgba(92, 120, 160, .18);
+}
+
+body.app-v3 .comic-script-line,
+body.app-v3 .comic-preview-line {
+  border-color: rgba(115, 137, 168, .18);
+  background: rgba(255, 255, 255, .78);
+  color: #263247;
+}
+
+body.app-v3 .comic-script-dock-external .comic-script-line.active {
+  background: rgba(255, 255, 255, .94);
+}
+
+body.app-v3 .comic-script-jp,
+body.app-v3 .comic-script-line.active .comic-script-jp,
+body.app-v3 .comic-preview-copy b {
+  color: #263247;
+  text-shadow: none;
+}
+
+body.app-v3 .comic-script-ko,
+body.app-v3 .comic-script-line.active .comic-script-ko,
+body.app-v3 .comic-preview-copy em {
+  color: #2f8795;
+}
+
+body.app-v3 .comic-script-dock-external .comic-script-speaker,
+body.app-v3 .comic-script-avatar,
+body.app-v3 .comic-preview-face {
+  border-color: rgba(115, 137, 168, .18);
+  background-color: rgba(255, 247, 251, .84);
 }
 
 body.app-v3 .comic-intro-brief {
   display: grid;
   gap: 8px;
   padding: 14px;
-  border: 1px solid rgba(255,255,255,.12);
+  border: 1px solid rgba(115, 137, 168, .18);
   border-radius: 8px;
-  background: rgba(255,255,255,.06);
+  background: rgba(255,255,255,.72);
 }
 
 body.app-v3 .comic-intro-brief span {
@@ -444,7 +598,7 @@ body.app-v3 .comic-intro-brief span {
 }
 
 body.app-v3 .comic-intro-brief b {
-  color: #fff;
+  color: var(--text);
   font-size: 16px;
   line-height: 1.25;
 }
@@ -457,25 +611,25 @@ body.app-v3 .comic-intro-brief em {
 }
 
 body.app-v3 .lec-reel {
-  border-color: rgba(239, 43, 45, .24);
-  background: #05070a;
+  border-color: rgba(255, 255, 255, .78);
+  background: rgba(255, 255, 255, .78);
 }
 
 body.app-v3 .lec-board {
-  background: rgba(5, 7, 10, .78);
-  border-color: rgba(255, 255, 255, .14);
+  background: rgba(255, 255, 255, .8);
+  border-color: rgba(115, 137, 168, .18);
 }
 
 body.app-v3 .lec-instructor-avatar {
-  border-color: rgba(239, 43, 45, .44);
-  box-shadow: 0 12px 26px rgba(0, 0, 0, .32), 0 0 18px rgba(239, 43, 45, .18);
+  border-color: rgba(255, 141, 177, .52);
+  box-shadow: 0 12px 26px rgba(92, 120, 160, .2), 0 0 18px rgba(255, 141, 177, .18);
 }
 
 body.app-v3 .lec-pick-card {
-  border-color: rgba(239, 43, 45, .32);
-  background: rgba(5, 7, 10, .78);
+  border-color: rgba(255, 141, 177, .32);
+  background: rgba(255, 255, 255, .78);
 }
 
 body.app-v3 .lec-pick-card.lec-pick-jp {
-  border-left-color: #ef2b2d;
+  border-left-color: #ff8db1;
 }
