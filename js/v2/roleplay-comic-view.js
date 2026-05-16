@@ -150,6 +150,7 @@ window.createRoleplayComicView = (ctx, deps) => {
   }
 
   function renderIntro(mod, rp, dialogues, roleplayCover, speakerOptions, practiceSpeaker) {
+    const locked = !!deps.lockVoiceSelection;
     const voices = typeof TTS.getAvailableVoices === 'function'
       ? TTS.getAvailableVoices().filter(v => v.lang === 'ja-JP' || ['nanami','aoi','mayu','keita'].includes(v.key))
       : [];
@@ -174,7 +175,7 @@ window.createRoleplayComicView = (ctx, deps) => {
         </div>
       `;
     };
-    const roleSelectorHtml = speakerOptions.length > 1 ? `
+    const roleSelectorHtml = !locked && speakerOptions.length > 1 ? `
       <div class="comic-practice-role-row">
         <span class="roleplay-role-label">내가 연습할 역할</span>
         ${speakerOptions.map(s => `
@@ -186,7 +187,7 @@ window.createRoleplayComicView = (ctx, deps) => {
         ${speakerOptions.map(voiceSelect).join('')}
       </div>
     ` : '';
-    document.getElementById('flowStep').textContent = '1 / 2 · 씬과 화자 선택';
+    document.getElementById('flowStep').textContent = locked ? '1 / 2 · Scene brief' : '1 / 2 · 씬과 화자 선택';
     document.getElementById('flowProgressFill').style.width = '20%';
     document.getElementById('flowBody').innerHTML = `
       <div class="comic-intro-shell">
@@ -198,14 +199,20 @@ window.createRoleplayComicView = (ctx, deps) => {
           </div>
         </div>
         <div class="comic-intro-panel">
-          <div class="comic-intro-label">역할과 화자 선택</div>
-          ${roleSelectorHtml}
+          <div class="comic-intro-label">${locked ? 'Scene brief' : '역할과 화자 선택'}</div>
+          ${locked ? `
+            <div class="comic-intro-brief">
+              <span>LISTEN</span>
+              <b>${escHtml(rp?.name || 'Roleplay')}</b>
+              <em>${introDesc(rp, dialogues)}</em>
+            </div>
+          ` : roleSelectorHtml}
         </div>
       </div>
     `;
     document.getElementById('flowFooter').innerHTML = `
       <div class="roleplay-actions comic-intro-actions">
-        <button class="btn btn-outline" onclick="App.closeFlow()">나중에</button>
+        <button class="btn btn-outline" onclick="App.closeFlow()">Later</button>
         <button class="btn btn-primary" onclick="App._startRoleplayComicPlayer()">대화 미리보기 →</button>
       </div>
     `;
@@ -238,7 +245,7 @@ window.createRoleplayComicView = (ctx, deps) => {
     `;
     document.getElementById('flowFooter').innerHTML = `
       <div class="comic-player-actions">
-        <button class="btn btn-outline" onclick="App._returnRoleplayComicIntro()">← 화자 선택</button>
+        <button class="btn btn-outline" onclick="App._returnRoleplayComicIntro()">← 장면 소개</button>
         <button class="btn btn-outline" onclick="App._replayAll('${mod.id}')">${ctx.uiLabeledIcon('audio')} 먼저 듣기</button>
         <button class="btn btn-primary" onclick="App._startRoleplayComicPlayback()">영상 시작 →</button>
       </div>

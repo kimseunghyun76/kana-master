@@ -27,3 +27,6 @@ dist/
 test-results/
 playwright-report/
 images/roleplay-comics/generated/characters/*-src.png
+images/v3-game/*.png
+images/v3-game/characters/*.png
+images/v3-game/characters/*-src.png

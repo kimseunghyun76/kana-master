@@ -32,6 +32,7 @@ window.App = (() => {
   });
 
   const _appSettings = createAppSettings({
+    voiceLangFilter: 'ja',
     refreshHome: () => _renderHome(),
     refreshLesson: () => _renderLesson(),
     refreshPractice: () => _renderPractice(),
@@ -92,6 +93,7 @@ window.App = (() => {
   async function init() {
     await Store.load();
     await TTS.init();  // 사전생성 매니페스트 로드
+    _ensureJapaneseVoiceDefaults();
     _shell.build();
     _shell.bindNav();
     _renderHome();
@@ -101,6 +103,18 @@ window.App = (() => {
     // Subscribe to store changes
     Store.subscribe(_onStoreChange);
     window.addEventListener('entitlements:change', _onEntitlementsChange);
+  }
+
+  function _ensureJapaneseVoiceDefaults() {
+    const voices = typeof TTS.getAvailableVoices === 'function' ? TTS.getAvailableVoices('ja') : [];
+    const keys = new Set(voices.map(v => v.key));
+    if (!keys.size) return;
+    const firstFemale = voices.find(v => v.gender !== 'M')?.key || voices[0].key;
+    const firstMale = voices.find(v => v.gender === 'M')?.key || voices[0].key;
+    if (!keys.has(TTS.getDefaultVoice?.())) TTS.setDefaultVoice(firstFemale);
+    if (!keys.has(TTS.getRoleVoice?.('A'))) TTS.setRoleVoice('A', firstFemale);
+    if (!keys.has(TTS.getRoleVoice?.('B'))) TTS.setRoleVoice('B', firstMale);
+    if (!keys.has(TTS.getRoleVoice?.('C'))) TTS.setRoleVoice('C', firstFemale);
   }
 
   function _onStoreChange(type) {
@@ -519,6 +533,8 @@ window.App = (() => {
   }
 
   const _lectureFlow = createLectureFlow({
+    japaneseOnlyInstructor: true,
+    preferModuleVisuals: true,
     getFlow: () => _flow,
     advanceStep: _advanceStep,
     updateFlowProgress: _updateFlowProgress,
@@ -596,6 +612,8 @@ window.App = (() => {
 
   // ── Roleplay ──────────────────────────────────────────────
   const _roleplayFlow = createRoleplayFlow({
+    lockPracticeSpeaker: true,
+    lockVoiceSelection: true,
     getFlow: () => _flow,
     setFlow: (nextFlow) => { _flow = nextFlow; },
     getDialogue: _getDialogue,

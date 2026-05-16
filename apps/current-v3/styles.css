@@ -231,3 +231,251 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* ============================================================
+   V3 game skin
+   ============================================================ */
+
+body.app-v3 {
+  --bg: #07090c;
+  --bg2: #0d1117;
+  --bg3: #171b22;
+  --card: rgba(13, 17, 23, .88);
+  --card2: rgba(22, 27, 34, .94);
+  --border: rgba(255, 255, 255, .12);
+  --text: #f8fafc;
+  --text2: #cbd5e1;
+  --text3: #7f8794;
+  --accent: #ef2b2d;
+  --accent2: #ff4a3d;
+  --success: #2dd4bf;
+  --warning: #f8c14a;
+  --danger: #ef2b2d;
+  background:
+    radial-gradient(circle at 80% 0%, rgba(239, 43, 45, .12), transparent 30%),
+    #05070a;
+}
+
+body.app-v3 #app {
+  background:
+    linear-gradient(180deg, rgba(5, 7, 10, .86), rgba(5, 7, 10, .96)),
+    url("/images/v3-game/home-urban-night.webp") center / cover fixed;
+  border-left: 1px solid rgba(255,255,255,.08);
+  border-right: 1px solid rgba(255,255,255,.08);
+}
+
+body.app-v3 .app-header {
+  background: rgba(5, 7, 10, .86);
+  border-bottom: 1px solid rgba(239, 43, 45, .28);
+  backdrop-filter: blur(14px);
+}
+
+body.app-v3 .app-title {
+  font-family: "Noto Sans JP", "Noto Sans KR", sans-serif;
+  font-size: 16px;
+  font-weight: 900;
+  letter-spacing: .08em;
+}
+
+body.app-v3 .app-title b {
+  color: var(--accent2);
+  font-size: 11px;
+  letter-spacing: 0;
+}
+
+body.app-v3 .stat-pill,
+body.app-v3 .bottom-nav {
+  background: rgba(9, 12, 18, .86);
+  border-color: rgba(255, 255, 255, .1);
+  backdrop-filter: blur(14px);
+}
+
+body.app-v3 .nav-btn.active {
+  color: #fff;
+}
+
+body.app-v3 .nav-btn.active::before {
+  background: var(--accent);
+  box-shadow: 0 0 18px rgba(239, 43, 45, .8);
+}
+
+body.app-v3 .nav-label {
+  font-size: 9px;
+  letter-spacing: .08em;
+}
+
+body.app-v3 .welcome-card,
+body.app-v3 .home-dashboard,
+body.app-v3 .program-card,
+body.app-v3 .stage-card,
+body.app-v3 .module-card,
+body.app-v3 .profile-section,
+body.app-v3 .pstat {
+  border-color: rgba(255, 255, 255, .12);
+  background:
+    linear-gradient(135deg, rgba(239, 43, 45, .13), transparent 42%),
+    rgba(7, 9, 12, .84);
+  box-shadow: 0 18px 44px rgba(0, 0, 0, .36);
+}
+
+body.app-v3 .welcome-card-cinematic {
+  min-height: 430px;
+  align-items: flex-end;
+  border: 1px solid rgba(239, 43, 45, .28);
+}
+
+body.app-v3 .welcome-card-cinematic::before {
+  background:
+    radial-gradient(circle at 18% 18%, rgba(239, 43, 45, .24), transparent 22%),
+    linear-gradient(90deg, rgba(5, 7, 10, .92), rgba(5, 7, 10, .4) 58%, rgba(5, 7, 10, .88));
+}
+
+body.app-v3 .welcome-title,
+body.app-v3 .dashboard-main h1 {
+  font-family: "Noto Sans JP", "Noto Sans KR", sans-serif;
+  font-weight: 900;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+body.app-v3 .welcome-eyebrow,
+body.app-v3 .dashboard-kicker,
+body.app-v3 .program-topline,
+body.app-v3 .section-title {
+  color: #ff584d;
+  letter-spacing: .09em;
+}
+
+body.app-v3 .dashboard-primary,
+body.app-v3 .btn.btn-primary,
+body.app-v3 .program-start-btn,
+body.app-v3 .lec-pick-start {
+  background: linear-gradient(135deg, #ef2b2d, #8f1119);
+  box-shadow: 0 12px 28px rgba(239, 43, 45, .28);
+}
+
+body.app-v3 .btn.btn-outline,
+body.app-v3 .lec-display-toggle {
+  background: rgba(9, 12, 18, .88);
+  border-color: rgba(255, 255, 255, .16);
+  color: #e5e7eb;
+}
+
+body.app-v3 .module-visual.red,
+body.app-v3 .continue-visual.red {
+  background:
+    radial-gradient(circle at 28% 24%, rgba(255,255,255,.22), transparent 34%),
+    linear-gradient(145deg, rgba(239,43,45,.54), rgba(20,184,166,.16));
+  box-shadow: 0 16px 32px rgba(239, 43, 45, .2);
+}
+
+body.app-v3 .module-cover-thumb {
+  border-color: rgba(239, 43, 45, .24);
+  box-shadow:
+    inset 0 0 0 999px rgba(2, 6, 23, .18),
+    0 10px 24px rgba(0, 0, 0, .32);
+}
+
+body.app-v3 .roleplay-hero,
+body.app-v3 .comic-intro-panel,
+body.app-v3 .comic-preview-list,
+body.app-v3 .comic-player-visual,
+body.app-v3 .comic-subtitle-overlay,
+body.app-v3 .comic-practice-prompt {
+  border-color: rgba(239, 43, 45, .24);
+  background-color: rgba(5, 7, 10, .82);
+}
+
+body.app-v3 .comic-player-visual::after {
+  background:
+    radial-gradient(circle at var(--speaker-glow-x, 50%) 42%, rgba(255, 255, 255, .16), transparent 23%),
+    linear-gradient(180deg, rgba(2,6,23,.04), rgba(2,6,23,.12) 42%, rgba(2,6,23,.72));
+}
+
+body.app-v3 .vn-character {
+  width: 49%;
+  height: 74%;
+  bottom: 1%;
+  filter:
+    drop-shadow(0 20px 30px rgba(0, 0, 0, .55))
+    drop-shadow(0 0 12px rgba(239, 43, 45, .14));
+}
+
+body.app-v3 .vn-character-A { left: -8%; }
+body.app-v3 .vn-character-B { right: -8%; }
+body.app-v3 .vn-character-C { left: 27%; width: 48%; }
+
+body.app-v3 .comic-player-visual.speaker-focus-A .vn-character-A,
+body.app-v3 .comic-player-visual.speaker-focus-B .vn-character-B,
+body.app-v3 .comic-player-visual.speaker-focus-C .vn-character-C {
+  transform: scale(1.08);
+  filter:
+    drop-shadow(0 24px 36px rgba(0, 0, 0, .62))
+    drop-shadow(0 0 18px rgba(239, 43, 45, .26));
+}
+
+body.app-v3 .comic-player-visual.speaker-focus-A .vn-character-B,
+body.app-v3 .comic-player-visual.speaker-focus-B .vn-character-A,
+body.app-v3 .comic-player-visual.speaker-focus-C .vn-character-A,
+body.app-v3 .comic-player-visual.speaker-focus-C .vn-character-B {
+  transform: scale(.84);
+  opacity: .66;
+}
+
+body.app-v3 .comic-script-line.active {
+  border-color: rgba(239, 43, 45, .5);
+  box-shadow: 0 0 0 1px rgba(239, 43, 45, .2);
+}
+
+body.app-v3 .comic-intro-brief {
+  display: grid;
+  gap: 8px;
+  padding: 14px;
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 8px;
+  background: rgba(255,255,255,.06);
+}
+
+body.app-v3 .comic-intro-brief span {
+  color: var(--accent2);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: .12em;
+}
+
+body.app-v3 .comic-intro-brief b {
+  color: #fff;
+  font-size: 16px;
+  line-height: 1.25;
+}
+
+body.app-v3 .comic-intro-brief em {
+  color: var(--text2);
+  font-size: 12px;
+  font-style: normal;
+  line-height: 1.45;
+}
+
+body.app-v3 .lec-reel {
+  border-color: rgba(239, 43, 45, .24);
+  background: #05070a;
+}
+
+body.app-v3 .lec-board {
+  background: rgba(5, 7, 10, .78);
+  border-color: rgba(255, 255, 255, .14);
+}
+
+body.app-v3 .lec-instructor-avatar {
+  border-color: rgba(239, 43, 45, .44);
+  box-shadow: 0 12px 26px rgba(0, 0, 0, .32), 0 0 18px rgba(239, 43, 45, .18);
+}
+
+body.app-v3 .lec-pick-card {
+  border-color: rgba(239, 43, 45, .32);
+  background: rgba(5, 7, 10, .78);
+}
+
+body.app-v3 .lec-pick-card.lec-pick-jp {
+  border-left-color: #ef2b2d;
+}

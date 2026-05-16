@@ -21,6 +21,7 @@ window.createRoleplayFlow = (ctx) => {
   const _comicView = createRoleplayComicView(ctx, {
     roleplayArt: ROLEPLAY_ART,
     firstMeetingArt: FIRST_MEETING_ART,
+    lockVoiceSelection: !!ctx.lockVoiceSelection,
     getState: mod => _getRoleplayState(mod),
     voiceForSpeaker: speaker => _voiceForSpeaker(speaker),
     completeRoleplay: moduleId => _completeRoleplay(moduleId),
@@ -85,7 +86,7 @@ window.createRoleplayFlow = (ctx) => {
     const activeLine = activeIndex >= 0 ? practiceLines[activeIndex] : null;
     const speakerOptions = _comicView.speakerRoles(dialogues);
     const speakerLabels = { A: 'A · 나', B: 'B · 상대', C: 'C · 제3자' };
-    const roleSelectorHtml = speakerOptions.length > 1 ? `
+    const roleSelectorHtml = !ctx.lockPracticeSpeaker && speakerOptions.length > 1 ? `
       <div class="roleplay-role-selector">
         <span class="roleplay-role-label">연습 역할</span>
         ${speakerOptions.map(s => `

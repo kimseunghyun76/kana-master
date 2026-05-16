@@ -170,7 +170,7 @@ test('root entry opens current v3 app shell', async ({ page }) => {
   await page.goto('/');
 
   await expect(page).toHaveURL(/\/apps\/current-v3\/?$/);
-  await expect(page.locator('.app-title')).toHaveText('일본어 마스터 v3');
+  await expect(page.locator('.app-title')).toHaveText('KANA QUEST v3');
 
   const dataSummary = await page.evaluate(() => ({
     modules: typeof MODULES !== 'undefined' ? MODULES.length : 0,

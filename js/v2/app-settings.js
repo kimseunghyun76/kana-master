@@ -12,6 +12,7 @@ function createAppSettings(deps = {}) {
   const getFlow = deps.getFlow || (() => null);
   const setFlowStep = deps.setFlowStep || (() => {});
   const runCurrentStep = deps.runCurrentStep || (() => {});
+  const voiceLangFilter = deps.voiceLangFilter || '';
 
   function refreshAll() {
     refreshHome();
@@ -22,7 +23,7 @@ function createAppSettings(deps = {}) {
 
   function buildTTSSettingsHtml() {
     const engine  = TTS.getEngineName();
-    const voices  = TTS.getAvailableVoices();
+    const voices  = TTS.getAvailableVoices(voiceLangFilter);
     const curDef  = TTS.getDefaultVoice();
     const curA    = TTS.getRoleVoice('A');
     const curB    = TTS.getRoleVoice('B');

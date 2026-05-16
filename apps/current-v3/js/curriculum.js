@@ -253,6 +253,201 @@ const V3_CAFE_QA_CARDS = [
   { id:'v3cafe_10', japanese:'かしこまりました', romaji:'kashikomarimashita', korean:'알겠습니다' },
 ];
 
+const V3_IZAKAYA_QA_CARDS = [
+  { id:'v3iz_01', japanese:'二人です', romaji:'futari desu', korean:'두 명이에요' },
+  { id:'v3iz_02', japanese:'禁煙席でお願いします', romaji:'kinen seki de onegai shimasu', korean:'금연석으로 부탁해요' },
+  { id:'v3iz_03', japanese:'ビールを二つください', romaji:'biiru wo futatsu kudasai', korean:'맥주 두 잔 주세요' },
+  { id:'v3iz_04', japanese:'おすすめは何ですか', romaji:'osusume wa nan desu ka', korean:'추천은 뭐예요?' },
+  { id:'v3iz_05', japanese:'焼き鳥がおすすめです', romaji:'yakitori ga osusume desu', korean:'야키토리가 추천이에요' },
+  { id:'v3iz_06', japanese:'それもお願いします', romaji:'sore mo onegai shimasu', korean:'그것도 부탁해요' },
+  { id:'v3iz_07', japanese:'お水をください', romaji:'omizu wo kudasai', korean:'물 주세요' },
+  { id:'v3iz_08', japanese:'お会計をお願いします', romaji:'okaikei wo onegai shimasu', korean:'계산 부탁해요' },
+  { id:'v3iz_09', japanese:'カードは使えますか', romaji:'kaado wa tsukaemasu ka', korean:'카드 쓸 수 있어요?' },
+  { id:'v3iz_10', japanese:'ごちそうさまでした', romaji:'gochisou sama deshita', korean:'잘 먹었습니다' },
+];
+
+const V3_SHOPPING_QA_CARDS = [
+  { id:'v3shop_01', japanese:'見ているだけです', romaji:'mite iru dake desu', korean:'그냥 보고 있어요' },
+  { id:'v3shop_02', japanese:'これを試着してもいいですか', romaji:'kore wo shichaku shite mo ii desu ka', korean:'이거 입어봐도 돼요?' },
+  { id:'v3shop_03', japanese:'Mサイズはありますか', romaji:'emu saizu wa arimasu ka', korean:'M 사이즈 있어요?' },
+  { id:'v3shop_04', japanese:'少し大きいです', romaji:'sukoshi ookii desu', korean:'조금 커요' },
+  { id:'v3shop_05', japanese:'少し小さいです', romaji:'sukoshi chiisai desu', korean:'조금 작아요' },
+  { id:'v3shop_06', japanese:'色違いはありますか', romaji:'iro chigai wa arimasu ka', korean:'다른 색 있어요?' },
+  { id:'v3shop_07', japanese:'いくらですか', romaji:'ikura desu ka', korean:'얼마예요?' },
+  { id:'v3shop_08', japanese:'これにします', romaji:'kore ni shimasu', korean:'이걸로 할게요' },
+  { id:'v3shop_09', japanese:'もう少し考えます', romaji:'mou sukoshi kangaemasu', korean:'조금 더 생각할게요' },
+  { id:'v3shop_10', japanese:'ありがとうございます', romaji:'arigatou gozaimasu', korean:'고마워요' },
+];
+
+const V3_PAYMENT_QA_CARDS = [
+  { id:'v3pay_01', japanese:'これにします', romaji:'kore ni shimasu', korean:'이걸로 할게요' },
+  { id:'v3pay_02', japanese:'袋は要りますか', romaji:'fukuro wa irimasu ka', korean:'봉투 필요하세요?' },
+  { id:'v3pay_03', japanese:'大丈夫です', romaji:'daijoubu desu', korean:'괜찮아요' },
+  { id:'v3pay_04', japanese:'カードでお願いします', romaji:'kaado de onegai shimasu', korean:'카드로 부탁해요' },
+  { id:'v3pay_05', japanese:'現金でお願いします', romaji:'genkin de onegai shimasu', korean:'현금으로 부탁해요' },
+  { id:'v3pay_06', japanese:'レシートをください', romaji:'reshiito wo kudasai', korean:'영수증 주세요' },
+  { id:'v3pay_07', japanese:'免税できますか', romaji:'menzei dekimasu ka', korean:'면세 가능해요?' },
+  { id:'v3pay_08', japanese:'ここにサインをお願いします', romaji:'koko ni sain wo onegai shimasu', korean:'여기에 사인 부탁드려요' },
+  { id:'v3pay_09', japanese:'暗証番号をお願いします', romaji:'anshou bangou wo onegai shimasu', korean:'비밀번호 눌러 주세요' },
+  { id:'v3pay_10', japanese:'ありがとうございました', romaji:'arigatou gozaimashita', korean:'감사합니다' },
+];
+
+const V3_DUTY_FREE_QA_CARDS = [
+  { id:'v3df_01', japanese:'お土産を探しています', romaji:'omiyage wo sagashite imasu', korean:'선물을 찾고 있어요' },
+  { id:'v3df_02', japanese:'人気のものはどれですか', romaji:'ninki no mono wa dore desu ka', korean:'인기 있는 건 뭐예요?' },
+  { id:'v3df_03', japanese:'これはいくらですか', romaji:'kore wa ikura desu ka', korean:'이건 얼마예요?' },
+  { id:'v3df_04', japanese:'機内に持ち込めますか', romaji:'kinai ni mochikomemasu ka', korean:'기내에 가지고 탈 수 있어요?' },
+  { id:'v3df_05', japanese:'パスポートをお願いします', romaji:'pasupooto wo onegai shimasu', korean:'여권 부탁드려요' },
+  { id:'v3df_06', japanese:'搭乗券はありますか', romaji:'toujouken wa arimasu ka', korean:'탑승권 있어요?' },
+  { id:'v3df_07', japanese:'これを二つください', romaji:'kore wo futatsu kudasai', korean:'이거 두 개 주세요' },
+  { id:'v3df_08', japanese:'プレゼント用にできますか', romaji:'purezento you ni dekimasu ka', korean:'선물용으로 가능해요?' },
+  { id:'v3df_09', japanese:'袋をください', romaji:'fukuro wo kudasai', korean:'봉투 주세요' },
+  { id:'v3df_10', japanese:'ありがとうございます', romaji:'arigatou gozaimasu', korean:'고마워요' },
+];
+
+const V3_HOTEL_QA_CARDS = [
+  { id:'v3hotel_01', japanese:'チェックインをお願いします', romaji:'chekku in wo onegai shimasu', korean:'체크인 부탁해요' },
+  { id:'v3hotel_02', japanese:'予約しています', romaji:'yoyaku shite imasu', korean:'예약했어요' },
+  { id:'v3hotel_03', japanese:'名前はキムです', romaji:'namae wa kimu desu', korean:'이름은 김이에요' },
+  { id:'v3hotel_04', japanese:'パスポートをお願いします', romaji:'pasupooto wo onegai shimasu', korean:'여권 부탁드려요' },
+  { id:'v3hotel_05', japanese:'朝食は何時からですか', romaji:'choushoku wa nan ji kara desu ka', korean:'조식은 몇 시부터예요?' },
+  { id:'v3hotel_06', japanese:'チェックアウトは何時ですか', romaji:'chekku auto wa nan ji desu ka', korean:'체크아웃은 몇 시예요?' },
+  { id:'v3hotel_07', japanese:'鍵はこちらです', romaji:'kagi wa kochira desu', korean:'열쇠는 여기예요' },
+  { id:'v3hotel_08', japanese:'部屋は何階ですか', romaji:'heya wa nan gai desu ka', korean:'방은 몇 층이에요?' },
+  { id:'v3hotel_09', japanese:'わかりました', romaji:'wakarimashita', korean:'알겠어요' },
+  { id:'v3hotel_10', japanese:'ありがとうございます', romaji:'arigatou gozaimasu', korean:'고마워요' },
+];
+
+const V3_HOTEL_REQUEST_QA_CARDS = [
+  { id:'v3hreq_01', japanese:'タオルをください', romaji:'taoru wo kudasai', korean:'수건 주세요' },
+  { id:'v3hreq_02', japanese:'部屋番号は五〇二です', romaji:'heya bangou wa go maru ni desu', korean:'방 번호는 502호예요' },
+  { id:'v3hreq_03', japanese:'Wi-Fiのパスワードは何ですか', romaji:'waifai no pasuwaado wa nan desu ka', korean:'와이파이 비밀번호는 뭐예요?' },
+  { id:'v3hreq_04', japanese:'エアコンが動きません', romaji:'eakon ga ugokimasen', korean:'에어컨이 작동하지 않아요' },
+  { id:'v3hreq_05', japanese:'確認します', romaji:'kakunin shimasu', korean:'확인할게요' },
+  { id:'v3hreq_06', japanese:'少し待ってください', romaji:'sukoshi matte kudasai', korean:'잠깐 기다려 주세요' },
+  { id:'v3hreq_07', japanese:'毛布はありますか', romaji:'moufu wa arimasu ka', korean:'담요 있어요?' },
+  { id:'v3hreq_08', japanese:'鍵をなくしました', romaji:'kagi wo nakushimashita', korean:'열쇠를 잃어버렸어요' },
+  { id:'v3hreq_09', japanese:'助かりました', romaji:'tasukarimashita', korean:'도움이 됐어요' },
+  { id:'v3hreq_10', japanese:'ありがとうございます', romaji:'arigatou gozaimasu', korean:'고마워요' },
+];
+
+const V3_ONSEN_QA_CARDS = [
+  { id:'v3onsen_01', japanese:'温泉は何時までですか', romaji:'onsen wa nan ji made desu ka', korean:'온천은 몇 시까지예요?' },
+  { id:'v3onsen_02', japanese:'タオルはありますか', romaji:'taoru wa arimasu ka', korean:'수건 있어요?' },
+  { id:'v3onsen_03', japanese:'部屋のタオルを使ってください', romaji:'heya no taoru wo tsukatte kudasai', korean:'객실 수건을 사용해 주세요' },
+  { id:'v3onsen_04', japanese:'ここで靴を脱ぎますか', romaji:'koko de kutsu wo nugimasu ka', korean:'여기서 신발 벗어요?' },
+  { id:'v3onsen_05', japanese:'写真はだめです', romaji:'shashin wa dame desu', korean:'사진은 안 돼요' },
+  { id:'v3onsen_06', japanese:'ロッカーはどこですか', romaji:'rokkaa wa doko desu ka', korean:'락커는 어디예요?' },
+  { id:'v3onsen_07', japanese:'この鍵を使ってください', romaji:'kono kagi wo tsukatte kudasai', korean:'이 열쇠를 사용해 주세요' },
+  { id:'v3onsen_08', japanese:'わかりました', romaji:'wakarimashita', korean:'알겠어요' },
+  { id:'v3onsen_09', japanese:'ありがとうございます', romaji:'arigatou gozaimasu', korean:'고마워요' },
+  { id:'v3onsen_10', japanese:'ゆっくりしてください', romaji:'yukkuri shite kudasai', korean:'편히 쉬세요' },
+];
+
+const V3_HEALTH_QA_CARDS = [
+  { id:'v3health_01', japanese:'お腹が痛いです', romaji:'onaka ga itai desu', korean:'배가 아파요' },
+  { id:'v3health_02', japanese:'頭が痛いです', romaji:'atama ga itai desu', korean:'머리가 아파요' },
+  { id:'v3health_03', japanese:'熱があります', romaji:'netsu ga arimasu', korean:'열이 있어요' },
+  { id:'v3health_04', japanese:'今日の朝からです', romaji:'kyou no asa kara desu', korean:'오늘 아침부터요' },
+  { id:'v3health_05', japanese:'薬はありますか', romaji:'kusuri wa arimasu ka', korean:'약 있어요?' },
+  { id:'v3health_06', japanese:'食後に飲んでください', romaji:'shokugo ni nonde kudasai', korean:'식후에 드세요' },
+  { id:'v3health_07', japanese:'一日三回です', romaji:'ichinichi sankai desu', korean:'하루 세 번이에요' },
+  { id:'v3health_08', japanese:'病院は近くにありますか', romaji:'byouin wa chikaku ni arimasu ka', korean:'병원은 근처에 있어요?' },
+  { id:'v3health_09', japanese:'わかりました', romaji:'wakarimashita', korean:'알겠어요' },
+  { id:'v3health_10', japanese:'ありがとうございます', romaji:'arigatou gozaimasu', korean:'고마워요' },
+];
+
+const V3_HOSPITAL_QA_CARDS = [
+  { id:'v3hos_01', japanese:'診てもらえますか', romaji:'mite moraemasu ka', korean:'진료 받을 수 있어요?' },
+  { id:'v3hos_02', japanese:'どうしましたか', romaji:'dou shimashita ka', korean:'어디가 안 좋으세요?' },
+  { id:'v3hos_03', japanese:'熱があります', romaji:'netsu ga arimasu', korean:'열이 있어요' },
+  { id:'v3hos_04', japanese:'お腹も痛いです', romaji:'onaka mo itai desu', korean:'배도 아파요' },
+  { id:'v3hos_05', japanese:'旅行保険があります', romaji:'ryokou hoken ga arimasu', korean:'여행자 보험이 있어요' },
+  { id:'v3hos_06', japanese:'パスポートをお願いします', romaji:'pasupooto wo onegai shimasu', korean:'여권 부탁드려요' },
+  { id:'v3hos_07', japanese:'この紙に書いてください', romaji:'kono kami ni kaite kudasai', korean:'이 종이에 써 주세요' },
+  { id:'v3hos_08', japanese:'どのくらい待ちますか', romaji:'dono kurai machimasu ka', korean:'얼마나 기다려요?' },
+  { id:'v3hos_09', japanese:'三十分くらいです', romaji:'sanjuppun kurai desu', korean:'30분 정도예요' },
+  { id:'v3hos_10', japanese:'わかりました', romaji:'wakarimashita', korean:'알겠어요' },
+];
+
+const V3_LOST_QA_CARDS = [
+  { id:'v3lost_01', japanese:'かばんをなくしました', romaji:'kaban wo nakushimashita', korean:'가방을 잃어버렸어요' },
+  { id:'v3lost_02', japanese:'財布をなくしました', romaji:'saifu wo nakushimashita', korean:'지갑을 잃어버렸어요' },
+  { id:'v3lost_03', japanese:'どこでなくしましたか', romaji:'doko de nakushimashita ka', korean:'어디에서 잃어버렸어요?' },
+  { id:'v3lost_04', japanese:'電車の中だと思います', romaji:'densha no naka da to omoimasu', korean:'전철 안인 것 같아요' },
+  { id:'v3lost_05', japanese:'黒いかばんです', romaji:'kuroi kaban desu', korean:'검은 가방이에요' },
+  { id:'v3lost_06', japanese:'中にパスポートがあります', romaji:'naka ni pasupooto ga arimasu', korean:'안에 여권이 있어요' },
+  { id:'v3lost_07', japanese:'少し待ってください', romaji:'sukoshi matte kudasai', korean:'잠깐 기다려 주세요' },
+  { id:'v3lost_08', japanese:'連絡先を書いてください', romaji:'renrakusaki wo kaite kudasai', korean:'연락처를 써 주세요' },
+  { id:'v3lost_09', japanese:'お願いします', romaji:'onegai shimasu', korean:'부탁해요' },
+  { id:'v3lost_10', japanese:'見つかったら連絡します', romaji:'mitsukattara renraku shimasu', korean:'찾으면 연락할게요' },
+];
+
+const V3_RENTACAR_QA_CARDS = [
+  { id:'v3car_01', japanese:'予約しています', romaji:'yoyaku shite imasu', korean:'예약했어요' },
+  { id:'v3car_02', japanese:'名前はキムです', romaji:'namae wa kimu desu', korean:'이름은 김이에요' },
+  { id:'v3car_03', japanese:'免許証をお願いします', romaji:'menkyoshou wo onegai shimasu', korean:'면허증 부탁드려요' },
+  { id:'v3car_04', japanese:'保険は入っていますか', romaji:'hoken wa haitte imasu ka', korean:'보험은 들어 있어요?' },
+  { id:'v3car_05', japanese:'返却は何時ですか', romaji:'henkyaku wa nan ji desu ka', korean:'반납은 몇 시예요?' },
+  { id:'v3car_06', japanese:'ガソリンは満タンで返しますか', romaji:'gasorin wa mantan de kaeshimasu ka', korean:'기름은 가득 채워 반납해요?' },
+  { id:'v3car_07', japanese:'ナビは日本語ですか', romaji:'nabi wa nihongo desu ka', korean:'내비는 일본어예요?' },
+  { id:'v3car_08', japanese:'ここにサインをお願いします', romaji:'koko ni sain wo onegai shimasu', korean:'여기에 사인 부탁드려요' },
+  { id:'v3car_09', japanese:'わかりました', romaji:'wakarimashita', korean:'알겠어요' },
+  { id:'v3car_10', japanese:'ありがとうございます', romaji:'arigatou gozaimasu', korean:'고마워요' },
+];
+
+const V3_TOURIST_QA_CARDS = [
+  { id:'v3photo_01', japanese:'写真を撮ってもらえますか', romaji:'shashin wo totte moraemasu ka', korean:'사진 찍어 주실 수 있어요?' },
+  { id:'v3photo_02', japanese:'ここでお願いします', romaji:'koko de onegai shimasu', korean:'여기서 부탁해요' },
+  { id:'v3photo_03', japanese:'もう一枚お願いします', romaji:'mou ichi mai onegai shimasu', korean:'한 장 더 부탁해요' },
+  { id:'v3photo_04', japanese:'縦でお願いします', romaji:'tate de onegai shimasu', korean:'세로로 부탁해요' },
+  { id:'v3photo_05', japanese:'横でお願いします', romaji:'yoko de onegai shimasu', korean:'가로로 부탁해요' },
+  { id:'v3photo_06', japanese:'入場券はどこで買えますか', romaji:'nyuujouken wa doko de kaemasu ka', korean:'입장권은 어디서 살 수 있어요?' },
+  { id:'v3photo_07', japanese:'おすすめの場所はありますか', romaji:'osusume no basho wa arimasu ka', korean:'추천 장소 있어요?' },
+  { id:'v3photo_08', japanese:'助かりました', romaji:'tasukarimashita', korean:'도움이 됐어요' },
+  { id:'v3photo_09', japanese:'ありがとうございます', romaji:'arigatou gozaimasu', korean:'고마워요' },
+  { id:'v3photo_10', japanese:'楽しんでください', romaji:'tanoshinde kudasai', korean:'즐겁게 보내세요' },
+];
+
+const V3_RESERVATION_QA_CARDS = [
+  { id:'v3res_01', japanese:'予約しています', romaji:'yoyaku shite imasu', korean:'예약했어요' },
+  { id:'v3res_02', japanese:'名前はキムです', romaji:'namae wa kimu desu', korean:'이름은 김이에요' },
+  { id:'v3res_03', japanese:'七時の予約です', romaji:'shichi ji no yoyaku desu', korean:'7시 예약이에요' },
+  { id:'v3res_04', japanese:'二人です', romaji:'futari desu', korean:'두 명이에요' },
+  { id:'v3res_05', japanese:'時間を変えられますか', romaji:'jikan wo kaeraremasu ka', korean:'시간을 바꿀 수 있어요?' },
+  { id:'v3res_06', japanese:'明日の同じ時間でお願いします', romaji:'ashita no onaji jikan de onegai shimasu', korean:'내일 같은 시간으로 부탁해요' },
+  { id:'v3res_07', japanese:'電話番号はこれです', romaji:'denwa bangou wa kore desu', korean:'전화번호는 이거예요' },
+  { id:'v3res_08', japanese:'確認しました', romaji:'kakunin shimashita', korean:'확인했습니다' },
+  { id:'v3res_09', japanese:'お願いします', romaji:'onegai shimasu', korean:'부탁해요' },
+  { id:'v3res_10', japanese:'ありがとうございます', romaji:'arigatou gozaimasu', korean:'고마워요' },
+];
+
+const V3_WEATHER_QA_CARDS = [
+  { id:'v3weather_01', japanese:'雨が降っています', romaji:'ame ga futte imasu', korean:'비가 오고 있어요' },
+  { id:'v3weather_02', japanese:'明日に変えられますか', romaji:'ashita ni kaeraremasu ka', korean:'내일로 바꿀 수 있어요?' },
+  { id:'v3weather_03', japanese:'時間は同じでいいですか', romaji:'jikan wa onaji de ii desu ka', korean:'시간은 같아도 돼요?' },
+  { id:'v3weather_04', japanese:'同じ時間でお願いします', romaji:'onaji jikan de onegai shimasu', korean:'같은 시간으로 부탁해요' },
+  { id:'v3weather_05', japanese:'キャンセルできますか', romaji:'kyanseru dekimasu ka', korean:'취소할 수 있어요?' },
+  { id:'v3weather_06', japanese:'返金はありますか', romaji:'henkin wa arimasu ka', korean:'환불 있어요?' },
+  { id:'v3weather_07', japanese:'晴れたら行きたいです', romaji:'haretara ikitai desu', korean:'맑으면 가고 싶어요' },
+  { id:'v3weather_08', japanese:'大丈夫です', romaji:'daijoubu desu', korean:'괜찮아요' },
+  { id:'v3weather_09', japanese:'わかりました', romaji:'wakarimashita', korean:'알겠어요' },
+  { id:'v3weather_10', japanese:'ありがとうございます', romaji:'arigatou gozaimasu', korean:'고마워요' },
+];
+
+const V3_WRAPUP_QA_CARDS = [
+  { id:'v3wrap_01', japanese:'大丈夫です', romaji:'daijoubu desu', korean:'괜찮아요' },
+  { id:'v3wrap_02', japanese:'助かりました', romaji:'tasukarimashita', korean:'도움이 됐어요' },
+  { id:'v3wrap_03', japanese:'ありがとうございます', romaji:'arigatou gozaimasu', korean:'고마워요' },
+  { id:'v3wrap_04', japanese:'また来ます', romaji:'mata kimasu', korean:'또 올게요' },
+  { id:'v3wrap_05', japanese:'楽しかったです', romaji:'tanoshikatta desu', korean:'즐거웠어요' },
+  { id:'v3wrap_06', japanese:'気をつけてください', romaji:'ki wo tsukete kudasai', korean:'조심하세요' },
+  { id:'v3wrap_07', japanese:'お気をつけて', romaji:'oki wo tsukete', korean:'조심히 가세요' },
+  { id:'v3wrap_08', japanese:'こちらこそ', romaji:'kochira koso', korean:'저야말로요' },
+  { id:'v3wrap_09', japanese:'失礼します', romaji:'shitsurei shimasu', korean:'실례하겠습니다' },
+  { id:'v3wrap_10', japanese:'では、また', romaji:'dewa, mata', korean:'그럼 또 봐요' },
+];
+
 const MODULES = [
   {
     id: 'v3_kana_map',
@@ -576,6 +771,7 @@ const MODULES = [
     steps: [
       { type: 'lecture', title: '🎬 회화는 리액션으로 이어진다', lectureKey: 'v3_reaction_shadowing' },
       { type: 'vocab_learn', title: '리액션 한마디', categoryIds: ['w1_reactions','first_expressions'], limit: 18 },
+      { type: 'vocab_learn', title: '다시 묻고 확인하기', categoryIds: ['basic_questions','first_expressions'], limit: 12 },
       { type: 'vocab_quiz', title: '리액션 즉답 퀴즈', categoryIds: ['w1_reactions','first_expressions'], limit: 19 },
       { type: 'lecture', title: '💡 리액션은 통째로 자동화하기', lectureKey: 'v3_reaction_shadowing_tip' },
     ],
@@ -768,8 +964,10 @@ const MODULES = [
     xp: 320,
     unlockAfter: ['v3_restaurant'],
     steps: [
-      { type: 'dialogue_study', title: '이자카야 미리보기', dialogueKey: 'izakaya_order' },
+      { type: 'vocab_learn', title: '첫 잔·추천 즉답 카드', items: V3_IZAKAYA_QA_CARDS },
       { type: 'vocab_learn', title: '술집 주문 표현', categoryIds: ['food_ordering','food_restaurant'], limit: 24 },
+      { type: 'dialogue_study', title: '이자카야 미리보기', dialogueKey: 'izakaya_order' },
+      { type: 'vocab_quiz', title: '이자카야 즉답 퀴즈', items: V3_IZAKAYA_QA_CARDS },
       { type: 'vocab_quiz', title: '술집 표현 퀴즈', categoryIds: ['food_ordering','food_restaurant'], limit: 24 },
     ],
     roleplay: { id: 'rp_izakaya_order', name: '이자카야 주문', nameJp: '居酒屋で注文', icon: '🍺', desc: '맥주와 추천 메뉴 주문하기', dialogueKey: 'izakaya_order' }
@@ -786,9 +984,11 @@ const MODULES = [
     unlockAfter: ['v3_izakaya'],
     steps: [
       { type: 'lecture', title: '🎬 쇼핑은 세 문장으로 시작', lectureKey: 'v3_shopping' },
+      { type: 'vocab_learn', title: '사이즈·입어보기 즉답 카드', items: V3_SHOPPING_QA_CARDS },
       { type: 'vocab_learn', title: '쇼핑 표현', categoryId: 'shopping_phrases', limit: 14 },
-      { type: 'vocab_quiz', title: '쇼핑 퀴즈', categoryId: 'shopping_phrases', limit: 18 },
       { type: 'dialogue_study', title: '옷가게 미리보기', dialogueKey: 'clothes_size' },
+      { type: 'vocab_quiz', title: '사이즈 즉답 퀴즈', items: V3_SHOPPING_QA_CARDS },
+      { type: 'vocab_quiz', title: '쇼핑 퀴즈', categoryId: 'shopping_phrases', limit: 18 },
     ],
     roleplay: { id: 'rp_clothes_size', name: '사이즈 묻기', nameJp: 'サイズを聞く', icon: '👕', desc: '입어보기, 사이즈, 가격 묻기', dialogueKey: 'clothes_size' }
   },
@@ -803,8 +1003,10 @@ const MODULES = [
     xp: 300,
     unlockAfter: ['v3_shopping'],
     steps: [
-      { type: 'dialogue_study', title: '상점 결제 미리보기', dialogueKey: 'store_payment' },
+      { type: 'vocab_learn', title: '카드·봉투·영수증 즉답 카드', items: V3_PAYMENT_QA_CARDS },
       { type: 'vocab_learn', title: '결제·면세 표현', categoryId: 'shopping_phrases', limit: 18 },
+      { type: 'dialogue_study', title: '상점 결제 미리보기', dialogueKey: 'store_payment' },
+      { type: 'vocab_quiz', title: '결제 즉답 퀴즈', items: V3_PAYMENT_QA_CARDS },
       { type: 'vocab_quiz', title: '결제 표현 퀴즈', categoryId: 'shopping_phrases', limit: 22 },
     ],
     roleplay: { id: 'rp_store_payment', name: '상점에서 결제', nameJp: 'お店で会計', icon: '💳', desc: '카드 되나요, 봉투 필요 없어요', dialogueKey: 'store_payment' }
@@ -820,8 +1022,10 @@ const MODULES = [
     xp: 300,
     unlockAfter: ['v3_store_payment'],
     steps: [
-      { type: 'dialogue_study', title: '면세점 미리보기', dialogueKey: 'duty_free_shop' },
+      { type: 'vocab_learn', title: '선물·기내 반입 즉답 카드', items: V3_DUTY_FREE_QA_CARDS },
       { type: 'vocab_learn', title: '상점·선물 표현', categoryIds: ['shopping_phrases','basic_questions'], limit: 22 },
+      { type: 'dialogue_study', title: '면세점 미리보기', dialogueKey: 'duty_free_shop' },
+      { type: 'vocab_quiz', title: '면세점 즉답 퀴즈', items: V3_DUTY_FREE_QA_CARDS },
       { type: 'vocab_quiz', title: '면세점 표현 퀴즈', categoryIds: ['shopping_phrases','basic_questions'], limit: 24 },
     ],
     roleplay: { id: 'rp_duty_free_shop', name: '면세점에서 선물 사기', nameJp: '免税店で買い物', icon: '🛍️', desc: '추천과 기내 반입 가능 여부 묻기', dialogueKey: 'duty_free_shop' }
@@ -838,9 +1042,11 @@ const MODULES = [
     unlockAfter: ['v3_duty_free'],
     steps: [
       { type: 'lecture', title: '🎬 숙소에서 듣는 말', lectureKey: 'v3_hotel' },
+      { type: 'vocab_learn', title: '체크인 즉답 카드', items: V3_HOTEL_QA_CARDS },
       { type: 'vocab_learn', title: '호텔·숙박 표현', categoryId: 'hotel_phrases', limit: 14 },
-      { type: 'vocab_quiz', title: '호텔 표현 퀴즈', categoryId: 'hotel_phrases', limit: 18 },
       { type: 'dialogue_study', title: '호텔 체크인 미리보기', dialogueKey: 'hotel_checkin' },
+      { type: 'vocab_quiz', title: '체크인 즉답 퀴즈', items: V3_HOTEL_QA_CARDS },
+      { type: 'vocab_quiz', title: '호텔 표현 퀴즈', categoryId: 'hotel_phrases', limit: 18 },
     ],
     roleplay: { id: 'rp_hotel_checkin', name: '체크인하기', nameJp: 'チェックイン', icon: '🏨', desc: '예약 확인과 기본 질문', dialogueKey: 'hotel_checkin' }
   },
@@ -855,8 +1061,10 @@ const MODULES = [
     xp: 300,
     unlockAfter: ['v3_hotel'],
     steps: [
-      { type: 'dialogue_study', title: '객실 요청 미리보기', dialogueKey: 'hotel_request' },
+      { type: 'vocab_learn', title: '객실 요청 즉답 카드', items: V3_HOTEL_REQUEST_QA_CARDS },
       { type: 'vocab_learn', title: '객실·시설 표현', categoryId: 'hotel_phrases', limit: 18 },
+      { type: 'dialogue_study', title: '객실 요청 미리보기', dialogueKey: 'hotel_request' },
+      { type: 'vocab_quiz', title: '객실 요청 즉답 퀴즈', items: V3_HOTEL_REQUEST_QA_CARDS },
       { type: 'vocab_quiz', title: '객실 요청 퀴즈', categoryId: 'hotel_phrases', limit: 22 },
     ],
     roleplay: { id: 'rp_hotel_request', name: '프런트에 요청하기', nameJp: 'フロントにお願い', icon: '🛎️', desc: '수건과 와이파이를 부탁하기', dialogueKey: 'hotel_request' }
@@ -872,8 +1080,10 @@ const MODULES = [
     xp: 300,
     unlockAfter: ['v3_hotel_request'],
     steps: [
-      { type: 'dialogue_study', title: '온천 이용 미리보기', dialogueKey: 'onsen_rules' },
+      { type: 'vocab_learn', title: '온천 규칙 즉답 카드', items: V3_ONSEN_QA_CARDS },
       { type: 'vocab_learn', title: '온천·시설 표현', categoryIds: ['hotel_phrases','basic_questions'], limit: 22 },
+      { type: 'dialogue_study', title: '온천 이용 미리보기', dialogueKey: 'onsen_rules' },
+      { type: 'vocab_quiz', title: '온천 규칙 즉답 퀴즈', items: V3_ONSEN_QA_CARDS },
       { type: 'vocab_quiz', title: '온천 표현 퀴즈', categoryIds: ['hotel_phrases','basic_questions'], limit: 24 },
     ],
     roleplay: { id: 'rp_onsen_rules', name: '온천 규칙 묻기', nameJp: '温泉のルール', icon: '♨️', desc: '수건과 이용 시간을 묻기', dialogueKey: 'onsen_rules' }
@@ -891,7 +1101,10 @@ const MODULES = [
     steps: [
       { type: 'lecture', title: '🎬 아픈 곳부터 말하기', lectureKey: 'v3_health' },
       { type: 'vocab_learn', title: '신체 부위', categoryId: 'body_parts', limit: 12 },
+      { type: 'vocab_learn', title: '약국 증상 즉답 카드', items: V3_HEALTH_QA_CARDS },
       { type: 'vocab_learn', title: '증상·도움 표현', categoryIds: ['health_symptoms','medical_care','emergency_sos'], limit: 18 },
+      { type: 'dialogue_study', title: '약국 증상 미리보기', dialogueKey: 'health_help' },
+      { type: 'vocab_quiz', title: '약국 즉답 퀴즈', items: V3_HEALTH_QA_CARDS },
       { type: 'vocab_quiz', title: '건강·긴급 퀴즈', categoryIds: ['body_parts','health_symptoms','medical_care','emergency_sos'], limit: 28 },
     ],
     roleplay: { id: 'rp_health_help', name: '몸이 안 좋아요', nameJp: '体調が悪いです', icon: '💊', desc: '증상 말하고 도움 받기', dialogueKey: 'health_help' }
@@ -907,8 +1120,10 @@ const MODULES = [
     xp: 320,
     unlockAfter: ['v3_health'],
     steps: [
-      { type: 'dialogue_study', title: '병원 접수 미리보기', dialogueKey: 'hospital_reception' },
+      { type: 'vocab_learn', title: '병원 접수 즉답 카드', items: V3_HOSPITAL_QA_CARDS },
       { type: 'vocab_learn', title: '병원·증상 표현', categoryIds: ['medical_care','health_symptoms','body_parts'], limit: 24 },
+      { type: 'dialogue_study', title: '병원 접수 미리보기', dialogueKey: 'hospital_reception' },
+      { type: 'vocab_quiz', title: '병원 접수 즉답 퀴즈', items: V3_HOSPITAL_QA_CARDS },
       { type: 'vocab_quiz', title: '병원 표현 퀴즈', categoryIds: ['medical_care','health_symptoms','body_parts'], limit: 26 },
     ],
     roleplay: { id: 'rp_hospital_reception', name: '병원에서 접수하기', nameJp: '病院で受付', icon: '🏥', desc: '열이 있고 배가 아프다고 말하기', dialogueKey: 'hospital_reception' }
@@ -925,10 +1140,12 @@ const MODULES = [
     unlockAfter: ['v3_hospital'],
     steps: [
       { type: 'lecture', title: '🎬 당황했을 때는 잃어버린 것부터', lectureKey: 'v3_lost_and_help' },
+      { type: 'vocab_learn', title: '분실물 즉답 카드', items: V3_LOST_QA_CARDS },
       { type: 'vocab_learn', title: '도움 요청 표현', categoryIds: ['emergency_sos','basic_questions'], limit: 18 },
       { type: 'vocab_learn', title: '장소·이동 재확인', categoryIds: ['place_transport','directions'], limit: 20 },
-      { type: 'vocab_quiz', title: '분실·도움 요청 퀴즈', categoryIds: ['emergency_sos','basic_questions','place_transport','directions'], limit: 28 },
       { type: 'dialogue_study', title: '분실물 문의 미리보기', dialogueKey: 'lost_item_help' },
+      { type: 'vocab_quiz', title: '분실물 즉답 퀴즈', items: V3_LOST_QA_CARDS },
+      { type: 'vocab_quiz', title: '분실·도움 요청 퀴즈', categoryIds: ['emergency_sos','basic_questions','place_transport','directions'], limit: 28 },
     ],
     roleplay: { id: 'rp_lost_item_help', name: '물건을 잃어버렸어요', nameJp: '忘れ物をしました', icon: '🎒', desc: '가방을 잃어버렸다고 말하고 안내받기', dialogueKey: 'lost_item_help' }
   },
@@ -944,8 +1161,10 @@ const MODULES = [
     xp: 340,
     unlockAfter: ['v3_lost_and_help'],
     steps: [
-      { type: 'dialogue_study', title: '렌트카 미리보기', dialogueKey: 'rentacar_pickup' },
+      { type: 'vocab_learn', title: '렌트카 즉답 카드', items: V3_RENTACAR_QA_CARDS },
       { type: 'vocab_learn', title: '예약·이동 표현', categoryIds: ['transport_phrases','basic_questions','date_basic'], limit: 24 },
+      { type: 'dialogue_study', title: '렌트카 미리보기', dialogueKey: 'rentacar_pickup' },
+      { type: 'vocab_quiz', title: '렌트카 즉답 퀴즈', items: V3_RENTACAR_QA_CARDS },
       { type: 'vocab_quiz', title: '렌트카 표현 퀴즈', categoryIds: ['transport_phrases','basic_questions','date_basic'], limit: 26 },
     ],
     roleplay: { id: 'rp_rentacar_pickup', name: '렌트카 빌리기', nameJp: 'レンタカーを借りる', icon: '🚗', desc: '예약 확인과 반납 시간을 묻기', dialogueKey: 'rentacar_pickup' }
@@ -961,8 +1180,10 @@ const MODULES = [
     xp: 320,
     unlockAfter: ['v3_rentacar'],
     steps: [
-      { type: 'dialogue_study', title: '관광지 대화 미리보기', dialogueKey: 'tourist_photo' },
+      { type: 'vocab_learn', title: '사진·관광 즉답 카드', items: V3_TOURIST_QA_CARDS },
       { type: 'vocab_learn', title: '관광·사진 표현', categoryIds: ['basic_questions','directions','first_expressions'], limit: 24 },
+      { type: 'dialogue_study', title: '관광지 대화 미리보기', dialogueKey: 'tourist_photo' },
+      { type: 'vocab_quiz', title: '사진 부탁 즉답 퀴즈', items: V3_TOURIST_QA_CARDS },
       { type: 'vocab_quiz', title: '관광지 표현 퀴즈', categoryIds: ['basic_questions','directions','first_expressions'], limit: 26 },
     ],
     roleplay: { id: 'rp_tourist_photo', name: '사진 부탁하기', nameJp: '写真をお願いする', icon: '📷', desc: '사진 한 장 부탁하고 감사하기', dialogueKey: 'tourist_photo' }
@@ -978,8 +1199,10 @@ const MODULES = [
     xp: 320,
     unlockAfter: ['v3_tourist_spot'],
     steps: [
-      { type: 'dialogue_study', title: '예약 확인 미리보기', dialogueKey: 'reservation_check' },
+      { type: 'vocab_learn', title: '예약 확인 즉답 카드', items: V3_RESERVATION_QA_CARDS },
       { type: 'vocab_learn', title: '예약·시간 표현', categoryIds: ['hotel_phrases','date_basic','time_clock','basic_questions'], limit: 26 },
+      { type: 'dialogue_study', title: '예약 확인 미리보기', dialogueKey: 'reservation_check' },
+      { type: 'vocab_quiz', title: '예약 확인 즉답 퀴즈', items: V3_RESERVATION_QA_CARDS },
       { type: 'vocab_quiz', title: '예약 확인 퀴즈', categoryIds: ['hotel_phrases','date_basic','time_clock','basic_questions'], limit: 28 },
     ],
     roleplay: { id: 'rp_reservation_check', name: '예약 확인하기', nameJp: '予約を確認する', icon: '📅', desc: '예약 이름과 시간을 확인하기', dialogueKey: 'reservation_check' }
@@ -995,8 +1218,10 @@ const MODULES = [
     xp: 300,
     unlockAfter: ['v3_reservation_call'],
     steps: [
-      { type: 'dialogue_study', title: '일정 변경 미리보기', dialogueKey: 'weather_plan_change' },
+      { type: 'vocab_learn', title: '날씨·일정 변경 즉답 카드', items: V3_WEATHER_QA_CARDS },
       { type: 'vocab_learn', title: '날짜·감정·질문 표현', categoryIds: ['date_basic','adj_emotion','basic_questions'], limit: 24 },
+      { type: 'dialogue_study', title: '일정 변경 미리보기', dialogueKey: 'weather_plan_change' },
+      { type: 'vocab_quiz', title: '일정 변경 즉답 퀴즈', items: V3_WEATHER_QA_CARDS },
       { type: 'vocab_quiz', title: '일정 변경 퀴즈', categoryIds: ['date_basic','adj_emotion','basic_questions'], limit: 26 },
     ],
     roleplay: { id: 'rp_weather_plan_change', name: '비 와서 일정 바꾸기', nameJp: '予定を変える', icon: '🌦️', desc: '내일로 바꿀 수 있는지 묻기', dialogueKey: 'weather_plan_change' }
@@ -1012,8 +1237,10 @@ const MODULES = [
     xp: 280,
     unlockAfter: ['v3_weather_plan'],
     steps: [
-      { type: 'dialogue_study', title: '감사 마무리 미리보기', dialogueKey: 'polite_wrapup' },
+      { type: 'vocab_learn', title: '마무리 즉답 카드', items: V3_WRAPUP_QA_CARDS },
       { type: 'vocab_learn', title: '감사·마무리 표현', categoryIds: ['first_expressions','w1_reactions'], limit: 20 },
+      { type: 'dialogue_study', title: '감사 마무리 미리보기', dialogueKey: 'polite_wrapup' },
+      { type: 'vocab_quiz', title: '마무리 즉답 퀴즈', items: V3_WRAPUP_QA_CARDS },
       { type: 'vocab_quiz', title: '마무리 표현 퀴즈', categoryIds: ['first_expressions','w1_reactions'], limit: 22 },
     ],
     roleplay: { id: 'rp_polite_wrapup', name: '도움받고 마무리하기', nameJp: 'お礼を言う', icon: '🙏', desc: '정중하지만 길지 않게 감사하기', dialogueKey: 'polite_wrapup' }
@@ -1032,7 +1259,9 @@ const MODULES = [
     steps: [
       { type: 'lecture', title: '🎬 자막보다 먼저 들리는 말', lectureKey: 'v3_drama_reactions' },
       { type: 'vocab_learn', title: '짧은 반응어', categoryIds: ['w1_reactions', 'youth_slang'], limit: 18 },
+      { type: 'vocab_learn', title: '감정으로 받는 말', categoryIds: ['adj_emotion','small_talk'], limit: 12 },
       { type: 'vocab_quiz', title: '리액션 듣기 전 퀴즈', categoryIds: ['w1_reactions', 'youth_slang'], limit: 20 },
+      { type: 'vocab_quiz', title: '감정 리액션 퀴즈', categoryIds: ['adj_emotion','small_talk'], limit: 16 },
     ],
     roleplay: null
   },

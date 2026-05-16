@@ -14,7 +14,7 @@ window.createAppShell = (ctx) => {
         <div class="header-left">
           <button class="btn-back hidden" id="btnBack" onclick="App.goBack()">←</button>
           <div>
-            <span class="app-title">일본어 마스터 v3</span>
+            <span class="app-title">KANA QUEST <b>v3</b></span>
           </div>
         </div>
         <div class="header-right">
@@ -47,19 +47,19 @@ window.createAppShell = (ctx) => {
       <nav class="bottom-nav" id="bottomNav">
         <button class="nav-btn active" data-tab="home">
           <span class="nav-icon">${ctx.uiIconSvg('home', 'nav-icon-svg')}</span>
-          <span class="nav-label">홈</span>
+          <span class="nav-label">HOME</span>
         </button>
         <button class="nav-btn" data-tab="lesson">
           <span class="nav-icon">${ctx.uiIconSvg('lesson', 'nav-icon-svg')}</span>
-          <span class="nav-label">레슨</span>
+          <span class="nav-label">LESSON</span>
         </button>
         <button class="nav-btn" data-tab="practice">
           <span class="nav-icon">${ctx.uiIconSvg('practice', 'nav-icon-svg')}</span>
-          <span class="nav-label">연습</span>
+          <span class="nav-label">TRAIN</span>
         </button>
         <button class="nav-btn" data-tab="profile">
           <span class="nav-icon">${ctx.uiIconSvg('profile', 'nav-icon-svg')}</span>
-          <span class="nav-label">나</span>
+          <span class="nav-label">PROFILE</span>
         </button>
       </nav>
 

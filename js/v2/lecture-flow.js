@@ -5,6 +5,8 @@
 'use strict';
 
 window.createLectureFlow = (ctx) => {
+  const japaneseOnlyInstructor = !!ctx.japaneseOnlyInstructor;
+
   function _lectureState() {
     return ctx.getFlow()?._lecture || null;
   }
@@ -85,10 +87,12 @@ window.createLectureFlow = (ctx) => {
 
   // ── 강의 강사 언어 (라디오: 항상 정확히 하나) ─────────────
   function _lectureInstructor() {
+    if (japaneseOnlyInstructor) return 'jp';
     const v = Store.getSetting('lectureInstructor');
     return (v === 'jp' || v === 'ko') ? v : 'ko';
   }
   function _lectureInstructorToggleButton() {
+    if (japaneseOnlyInstructor) return '';
     const cur = _lectureInstructor();
     const nextLabel = cur === 'jp' ? '한국어' : '일본어';
     return `
@@ -102,6 +106,7 @@ window.createLectureFlow = (ctx) => {
     `;
   }
   function _lecToggleInstructor() {
+    if (japaneseOnlyInstructor) return;
     const next = _lectureInstructor() === 'ko' ? 'jp' : 'ko';
     _lecSetInstructor(next);
   }
@@ -186,6 +191,7 @@ window.createLectureFlow = (ctx) => {
   }
 
   function _lectureVisualSource(mod, slide) {
+    if (ctx.preferModuleVisuals) return ctx.getModuleVisual(mod).image;
     if (slide?.image) return slide.image;
     return ctx.getModuleVisual(mod).image;
   }
@@ -212,8 +218,8 @@ window.createLectureFlow = (ctx) => {
     const flow = ctx.getFlow();
     if (!flow) return;
     flow._lecture = { slides, idx: 0, paused: false, stepIndex, mod, step, timerId: null };
-    // 강의 진입 시 자막은 OFF로 리셋 (학습자가 원할 때만 켜기)
-    Store.setSetting('lectureCaptionShow', 'off');
+    // v3는 일본어 강의 + 한국어 자막을 기본값으로 둔다.
+    Store.setSetting('lectureCaptionShow', japaneseOnlyInstructor ? 'ko' : 'off');
     // 강사 선택 화면 항상 표시 — 이전 선택은 "최근" 배지로 강조
     _renderInstructorPickInline(mod, slides[0]);
   }
@@ -221,7 +227,7 @@ window.createLectureFlow = (ctx) => {
   // 강사 + 성우 + 모드 통합 선택 화면 — 큰 카드 디자인
   function _renderInstructorPickInline(mod, firstSlide) {
     const visualSrc = _lectureVisualSource(mod, firstSlide);
-    const prevLang = (Store.getSetting('lectureInstructor') === 'jp' || Store.getSetting('lectureInstructor') === 'ko')
+    const prevLang = japaneseOnlyInstructor ? 'jp' : (Store.getSetting('lectureInstructor') === 'jp' || Store.getSetting('lectureInstructor') === 'ko')
       ? Store.getSetting('lectureInstructor') : 'ko';
     const prevFont = Store.getSetting('lectureBoardFont') === 'plain' ? 'plain' : 'chalk';
     window.__lecPickState = { lang: prevLang, font: prevFont };
@@ -234,13 +240,13 @@ window.createLectureFlow = (ctx) => {
             <div class="lec-reel-dim"></div>
           </div>
           <div class="lec-pick-top">
-            <div class="lec-pick-greeting">잘 오셨어요! 👋</div>
+            <div class="lec-pick-greeting">${japaneseOnlyInstructor ? 'JP COACH READY' : '잘 오셨어요! 👋'}</div>
             <div class="lec-pick-title">${escHtml(mod.name || '강의')}</div>
-            <div class="lec-pick-sub">이번 강의를 설명해 줄 강사만 골라주세요</div>
+            <div class="lec-pick-sub">${japaneseOnlyInstructor ? '日本語の音声で 듣고, 한국어 자막으로 확인합니다' : '이번 강의를 설명해 줄 강사만 골라주세요'}</div>
           </div>
           <div class="lec-pick-bottom">
             <div class="lec-pick-cards">
-              ${_lecPickCardHTML('ko', prevLang === 'ko')}
+              ${japaneseOnlyInstructor ? '' : _lecPickCardHTML('ko', prevLang === 'ko')}
               ${_lecPickCardHTML('jp', prevLang === 'jp')}
             </div>
             <button class="lec-pick-start" type="button" onclick="App._lecPickStart()">
@@ -255,8 +261,8 @@ window.createLectureFlow = (ctx) => {
   }
 
   function _lecPickCardHTML(lang, active) {
-    const langName = lang === 'ko' ? '한국어 강사' : '일본어 강사';
-    const langDesc = lang === 'ko' ? '처음 배우는 분께' : '귀를 일본어에 익히기';
+    const langName = lang === 'ko' ? '한국어 강사' : '日本語 COACH';
+    const langDesc = lang === 'ko' ? '처음 배우는 분께' : '자막으로 뜻을 확인';
     const accent = lang === 'ko' ? 'lec-pick-ko' : 'lec-pick-jp';
     return `
       <div class="lec-pick-card ${accent} ${active ? 'is-active' : ''}" data-lang="${lang}"
@@ -275,6 +281,7 @@ window.createLectureFlow = (ctx) => {
   function _lecPickSet(field, value, langScope) {
     if (!window.__lecPickState) return;
     if (field === 'lang') {
+      if (japaneseOnlyInstructor && value !== 'jp') return;
       window.__lecPickState.lang = value;
       document.querySelectorAll('.lec-pick-card').forEach(c => {
         c.classList.toggle('is-active', c.dataset.lang === value);
@@ -776,6 +783,7 @@ window.createLectureFlow = (ctx) => {
   }
 
   function _lecSetInstructor(lang) {
+    if (japaneseOnlyInstructor) return;
     if (lang !== 'jp' && lang !== 'ko') return;
     if (_lectureInstructor() === lang) return;
     Store.setSetting('lectureInstructor', lang);
