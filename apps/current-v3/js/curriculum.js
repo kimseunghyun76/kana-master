@@ -149,6 +149,25 @@ const V3_BASIC_STRUCTURE_CARDS = [
   { id:'v3str_10', japanese:'日本語は少しだけです', romaji:'nihongo wa sukoshi dake desu', korean:'일본어는 조금만 해요' },
 ];
 
+const V3_TENSE_MATRIX_CARDS = [
+  { id:'v3tense_01', japanese:'学生です', romaji:'gakusei desu', korean:'학생이에요' },
+  { id:'v3tense_02', japanese:'学生ではありません', romaji:'gakusei dewa arimasen', korean:'학생이 아니에요' },
+  { id:'v3tense_03', japanese:'学生でした', romaji:'gakusei deshita', korean:'학생이었어요' },
+  { id:'v3tense_04', japanese:'学生ではありませんでした', romaji:'gakusei dewa arimasen deshita', korean:'학생이 아니었어요' },
+  { id:'v3tense_05', japanese:'おいしいです', romaji:'oishii desu', korean:'맛있어요' },
+  { id:'v3tense_06', japanese:'おいしくないです', romaji:'oishikunai desu', korean:'맛있지 않아요' },
+  { id:'v3tense_07', japanese:'おいしかったです', romaji:'oishikatta desu', korean:'맛있었어요' },
+  { id:'v3tense_08', japanese:'おいしくなかったです', romaji:'oishikunakatta desu', korean:'맛있지 않았어요' },
+  { id:'v3tense_09', japanese:'食べます', romaji:'tabemasu', korean:'먹어요 / 먹습니다' },
+  { id:'v3tense_10', japanese:'食べません', romaji:'tabemasen', korean:'먹지 않아요' },
+  { id:'v3tense_11', japanese:'食べました', romaji:'tabemashita', korean:'먹었어요' },
+  { id:'v3tense_12', japanese:'食べませんでした', romaji:'tabemasen deshita', korean:'먹지 않았어요' },
+  { id:'v3tense_13', japanese:'行きます', romaji:'ikimasu', korean:'가요 / 갑니다' },
+  { id:'v3tense_14', japanese:'行きません', romaji:'ikimasen', korean:'가지 않아요' },
+  { id:'v3tense_15', japanese:'行きました', romaji:'ikimashita', korean:'갔어요' },
+  { id:'v3tense_16', japanese:'行きませんでした', romaji:'ikimasen deshita', korean:'가지 않았어요' },
+];
+
 const V3_AIRPORT_QA_CARDS = [
   { id:'v3air_01', japanese:'パスポートをお願いします', romaji:'pasupooto wo onegai shimasu', korean:'여권 부탁드려요' },
   { id:'v3air_02', japanese:'はい、どうぞ', romaji:'hai, douzo', korean:'네, 여기요' },
@@ -467,7 +486,14 @@ const MODULES = [
       { type: 'kana_learn', title: 'かさたなは 첫 줄 찾기', kanaType: 'hiragana', chars: ['か','さ','た','な','は'], customLabel: '자음 가족 입구' },
       { type: 'lecture', title: '💡 표를 외우지 말고 길을 찾기', lectureKey: 'v3_kana_map_tip' },
     ],
-    roleplay: null
+    roleplay: {
+      id: 'rp_kana_map_practice',
+      name: '오십음도 표 읽기',
+      nameJp: '五十音図を読む',
+      icon: '五',
+      desc: 'あ행부터 か행까지 소리 위치를 묻고 답하기',
+      dialogueKey: 'kana_map_practice'
+    }
   },
   {
     id: 'kana_hira',
@@ -491,7 +517,14 @@ const MODULES = [
       { type: 'kana_quiz', title: '히라가나 46자 최종 퀴즈', kanaType: 'hiragana', chars: HIRAGANA_BASE },
       { type: 'lecture', title: '💡 히라가나는 하루에 끝내지 말기', lectureKey: 'v3_hiragana_tip' },
     ],
-    roleplay: null
+    roleplay: {
+      id: 'rp_hiragana_reading',
+      name: '히라가나로 이름 읽기',
+      nameJp: 'ひらがなを読む',
+      icon: 'あ',
+      desc: '간단한 히라가나 글자를 보고 소리 내기',
+      dialogueKey: 'hiragana_reading'
+    }
   },
   {
     id: 'kana_kata',
@@ -527,7 +560,14 @@ const MODULES = [
       { type: 'kana_quiz', title: '가타가나 46자 최종 퀴즈', kanaType: 'katakana', chars: KATAKANA_BASE },
       { type: 'lecture', title: '💡 가타가나는 단어째로 외우기', lectureKey: 'v3_katakana_tip' },
     ],
-    roleplay: null
+    roleplay: {
+      id: 'rp_katakana_signs',
+      name: '가타가나 간판 읽기',
+      nameJp: 'カタカナの看板',
+      icon: 'ア',
+      desc: '호텔, 카드, 커피처럼 여행 간판 읽기',
+      dialogueKey: 'katakana_signs'
+    }
   },
   {
     id: 'v3_kana_sound_rules',
@@ -551,7 +591,14 @@ const MODULES = [
       { type: 'kana_quiz', title: '소리 변신 퀴즈', kanaType: 'special', levelId: 15 },
       { type: 'lecture', title: '💡 단어 안에서만 진짜로 외워진다', lectureKey: 'v3_kana_sound_tip' },
     ],
-    roleplay: null
+    roleplay: {
+      id: 'rp_sound_rules_counter',
+      name: '소리 변신 듣고 확인',
+      nameJp: '音の変化を確認',
+      icon: '🔊',
+      desc: '탁음, 장음, 작은 つ를 다시 물어보기',
+      dialogueKey: 'sound_rules_counter'
+    }
   },
 
   {
@@ -599,7 +646,14 @@ const MODULES = [
       { type: 'vocab_quiz', title: '문장 전 재료 퀴즈', items: V3_PRE_SENTENCE_CARDS },
       { type: 'lecture', title: '💡 모르면 これ와 ここ로 버티기', lectureKey: 'v3_survival_objects_tip' },
     ],
-    roleplay: null
+    roleplay: {
+      id: 'rp_pre_sentence_survival',
+      name: '단어만으로 버티기',
+      nameJp: '単語で伝える',
+      icon: '🎒',
+      desc: '이거, 여기, 물, 괜찮아요로 첫 상황 버티기',
+      dialogueKey: 'pre_sentence_survival'
+    }
   },
   {
     id: 'v3_pronouns_places',
@@ -620,7 +674,14 @@ const MODULES = [
       { type: 'vocab_quiz', title: '대명사 퀴즈', categoryIds: ['pronouns_thing','pronouns_place','pronouns_personal'], limit: 19 },
       { type: 'lecture', title: '💡 こそあど는 거리감이다', lectureKey: 'v3_pronouns_places_tip' },
     ],
-    roleplay: null
+    roleplay: {
+      id: 'rp_pointing_pronouns',
+      name: '손가락으로 가리키기',
+      nameJp: 'これ・それ・あれ',
+      icon: '📍',
+      desc: '이것, 저것, 여기, 저기를 실제 가게에서 쓰기',
+      dialogueKey: 'pointing_pronouns'
+    }
   },
   {
     id: 'v3_numbers_time',
@@ -641,7 +702,14 @@ const MODULES = [
       { type: 'vocab_quiz', title: '숫자·시간·요일 퀴즈', categoryIds: ['numbers_basic','numbers_applied','date_basic','time_clock','days_of_week','num_dates'], limit: 19 },
       { type: 'lecture', title: '💡 숫자는 귀로 먼저 잡기', lectureKey: 'v3_numbers_time_tip' },
     ],
-    roleplay: null
+    roleplay: {
+      id: 'rp_numbers_time_check',
+      name: '가격과 시간 확인',
+      nameJp: '値段と時間',
+      icon: '🔢',
+      desc: '얼마예요, 몇 시부터예요, 두 장 부탁해요',
+      dialogueKey: 'numbers_time_check'
+    }
   },
   {
     id: 'v3_money_counting',
@@ -660,7 +728,14 @@ const MODULES = [
       { type: 'vocab_quiz', title: '돈·수량·날짜 퀴즈', categoryIds: ['numbers_basic','numbers_applied','date_basic','days_of_week','num_dates'], limit: 19 },
       { type: 'lecture', title: '💡 가격은 엔화 단위로 외우기', lectureKey: 'v3_money_counting_tip' },
     ],
-    roleplay: null
+    roleplay: {
+      id: 'rp_money_counting_check',
+      name: '돈과 수량 확인',
+      nameJp: 'お金と数',
+      icon: '💴',
+      desc: '몇 개, 며칠, 몇 명인지 결제 전에 확인하기',
+      dialogueKey: 'money_counting_check'
+    }
   },
   {
     id: 'v3_directions_body',
@@ -681,7 +756,14 @@ const MODULES = [
       { type: 'vocab_quiz', title: '방향·장소·몸 퀴즈', categoryIds: ['directions','place_transport','body_parts'], limit: 19 },
       { type: 'lecture', title: '💡 방향과 몸은 손으로 외우기', lectureKey: 'v3_directions_body_tip' },
     ],
-    roleplay: null
+    roleplay: {
+      id: 'rp_direction_body_check',
+      name: '방향과 몸 상태 말하기',
+      nameJp: '方向と体',
+      icon: '🧭',
+      desc: '오른쪽, 왼쪽, 배가 아파요를 안내소에서 쓰기',
+      dialogueKey: 'direction_body_check'
+    }
   },
 
   {
@@ -702,7 +784,41 @@ const MODULES = [
       { type: 'vocab_quiz', title: '문장 구조 퀴즈', items: V3_BASIC_STRUCTURE_CARDS },
       { type: 'lecture', title: '💡 조사부터 완벽할 필요 없다', lectureKey: 'v3_particle_basics_tip' },
     ],
-    roleplay: null
+    roleplay: {
+      id: 'rp_basic_structure_check',
+      name: '짧은 문장 뼈대 쓰기',
+      nameJp: '短い文を作る',
+      icon: '🧷',
+      desc: 'は, を, に를 넣어 역 위치와 목적지를 말하기',
+      dialogueKey: 'basic_structure_check'
+    }
+  },
+  {
+    id: 'v3_tense_matrix',
+    stageId: 3,
+    accessTier: 'free',
+    name: '현재·부정·과거 4칸',
+    nameJp: '現在・否定・過去',
+    icon: '四',
+    iconIsText: true,
+    desc: '명사, 형용사, 동사를 현재·현재부정·과거·과거부정 네 칸으로 바꾸는 초급 핵심',
+    xp: 320,
+    unlockAfter: ['v3_particle_basics'],
+    steps: [
+      { type: 'lecture', title: '🎬 일본어 문장은 4칸으로 바뀐다', lectureKey: 'v3_tense_matrix' },
+      { type: 'vocab_learn', title: '명사·형용사·동사 4칸 카드', items: V3_TENSE_MATRIX_CARDS },
+      { type: 'dialogue_study', title: '먹었어요·안 갔어요 미리보기', dialogueKey: 'tense_matrix_check' },
+      { type: 'vocab_quiz', title: '현재·부정·과거 변환 퀴즈', items: V3_TENSE_MATRIX_CARDS },
+      { type: 'lecture', title: '💡 어미만 바꾸면 말이 늘어난다', lectureKey: 'v3_tense_matrix_tip' },
+    ],
+    roleplay: {
+      id: 'rp_tense_matrix_check',
+      name: '먹었어요·안 갔어요',
+      nameJp: '食べました・行きませんでした',
+      icon: '四',
+      desc: '여행 일정과 식사 경험을 현재, 부정, 과거로 말하기',
+      dialogueKey: 'tense_matrix_check'
+    }
   },
   {
     id: 'v3_question_engine',
@@ -713,7 +829,7 @@ const MODULES = [
     icon: '❓',
     desc: '뭐예요, 어디예요, 얼마예요, 되나요, 있나요',
     xp: 300,
-    unlockAfter: ['v3_money_counting'],
+    unlockAfter: ['v3_tense_matrix'],
     steps: [
       { type: 'lecture', title: '🎬 질문은 끝에 か', lectureKey: 'v3_question_engine' },
       { type: 'vocab_learn', title: '기초 질문 패턴', categoryId: 'basic_questions', limit: 12 },
@@ -775,7 +891,14 @@ const MODULES = [
       { type: 'vocab_quiz', title: '리액션 즉답 퀴즈', categoryIds: ['w1_reactions','first_expressions'], limit: 19 },
       { type: 'lecture', title: '💡 리액션은 통째로 자동화하기', lectureKey: 'v3_reaction_shadowing_tip' },
     ],
-    roleplay: null
+    roleplay: {
+      id: 'rp_reaction_shadowing',
+      name: '리액션으로 이어가기',
+      nameJp: 'リアクション',
+      icon: '🎙️',
+      desc: '네, 잠깐만요, 다시 부탁해요를 바로 말하기',
+      dialogueKey: 'reaction_shadowing'
+    }
   },
 
   {
@@ -1263,7 +1386,14 @@ const MODULES = [
       { type: 'vocab_quiz', title: '리액션 듣기 전 퀴즈', categoryIds: ['w1_reactions', 'youth_slang'], limit: 20 },
       { type: 'vocab_quiz', title: '감정 리액션 퀴즈', categoryIds: ['adj_emotion','small_talk'], limit: 16 },
     ],
-    roleplay: null
+    roleplay: {
+      id: 'rp_drama_reactions',
+      name: '드라마 짧은 반응',
+      nameJp: 'ドラマの反応',
+      icon: '🎬',
+      desc: 'え, うそ, まじで처럼 짧은 반응을 듣고 따라 하기',
+      dialogueKey: 'drama_reactions'
+    }
   },
   {
     id: 'v3_drama_daily',

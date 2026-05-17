@@ -560,7 +560,7 @@ window.App = (() => {
   function _lecSetInstructor(lang) { return _lectureFlow.setInstructor(lang); }
   function _lecToggleInstructor() { return _lectureFlow.toggleInstructor(); }
   function _lecPickInstructor(lang) { return _lectureFlow.pickInstructor(lang); }
-  function _lecPickSet(field, value) { return _lectureFlow.pickSet(field, value); }
+  function _lecPickSet(field, value, langScope, sourceEl) { return _lectureFlow.pickSet(field, value, langScope, sourceEl); }
   function _lecPickStart() { return _lectureFlow.pickStart(); }
   function _lecToggleCaptionShow() { return _lectureFlow.toggleCaptionShow(); }
   function _lecToggleBoardFont() { return _lectureFlow.toggleBoardFont(); }
@@ -675,23 +675,23 @@ window.App = (() => {
     document.getElementById('flowBody').innerHTML = `
       <div class="completion-screen">
         <div class="completion-emoji">${_uiIconSvg('check', 'completion-main-icon')}</div>
-        <div class="completion-title">QUEST CLEAR</div>
-        <div class="completion-sub">${escHtml(mod.name)} route cleared.<br>
-          ${mod.roleplay ? 'ROLEPLAY unlocked.' : 'Next quest is ready.'}
+        <div class="completion-title">학습 완료</div>
+        <div class="completion-sub">${escHtml(mod.name)}의 핵심 학습을 마쳤습니다.<br>
+          ${mod.roleplay ? '이제 배운 문장으로 롤플레이를 이어갑니다.' : '다음 강좌로 이어서 학습할 수 있습니다.'}
         </div>
         <div class="completion-unlocks">
-          <div class="cu-title">REWARD</div>
-          <div class="completion-unlock-item"><span class="cui-icon">${_uiIconSvg('xp', 'completion-inline-icon')}</span> +50 XP bonus</div>
-          ${mod.roleplay ? `<div class="completion-unlock-item"><span class="cui-icon">${_uiIconSvg('roleplay', 'completion-inline-icon')}</span> ${escHtml(mod.roleplay.name)} unlocked</div>` : ''}
+          <div class="cu-title">이번 복습</div>
+          <div class="completion-unlock-item"><span class="cui-icon">${_uiIconSvg('xp', 'completion-inline-icon')}</span> +50 XP 보너스</div>
+          ${mod.roleplay ? `<div class="completion-unlock-item"><span class="cui-icon">${_uiIconSvg('roleplay', 'completion-inline-icon')}</span> ${escHtml(mod.roleplay.name)} 열림</div>` : ''}
         </div>
       </div>
     `;
 
     document.getElementById('flowFooter').innerHTML = `
       <div style="display:flex;gap:10px">
-        ${mod.roleplay ? `<button class="btn btn-primary" onclick="App._startRoleplay(App._getMod('${mod.id}'))">START ROLEPLAY →</button>` : ''}
+        ${mod.roleplay ? `<button class="btn btn-primary" onclick="App._startRoleplay(App._getMod('${mod.id}'))">롤플레이 시작 →</button>` : ''}
         <button class="btn ${mod.roleplay ? 'btn-outline' : 'btn-primary'}" onclick="App.closeFlow()">
-          ${mod.roleplay ? 'LATER' : 'HOME →'}
+          ${mod.roleplay ? '나중에' : '홈으로 →'}
         </button>
       </div>
     `;

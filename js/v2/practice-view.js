@@ -21,12 +21,14 @@ window.createPracticeView = (ctx) => {
     vocabQuiz: window.V3GameAssets?.shop || 'images/lecture-scenes/slevel3-convenience-store-checkout.webp',
     listening: window.V3GameAssets?.transit || 'images/lecture-scenes/slevel4-train-station-transfer.webp',
     speaking: window.V3GameAssets?.local || 'images/lecture-scenes/slevel2-self-introduction-office-lobby.webp',
+    shop: window.V3GameAssets?.shop || 'images/lecture-scenes/slevel3-convenience-store-checkout.webp',
+    local: window.V3GameAssets?.local || 'images/lecture-scenes/slevel2-self-introduction-office-lobby.webp',
   };
 
   function render() {
     const prog = Store.get();
-    const vocabUnlocked = prog.xp >= 400;
-    const quizUnlocked = prog.xp >= 800;
+    const vocabUnlocked = gameUi ? true : prog.xp >= 400;
+    const quizUnlocked = gameUi ? true : prog.xp >= 800;
     const allKanaChars = Object.keys(KANA_MAP || {});
     const allVocabIds = getAllVocabItems().map(item => item.id).filter(Boolean);
     const dueKanaCount = Store.countDueKana(allKanaChars);
@@ -35,85 +37,107 @@ window.createPracticeView = (ctx) => {
     document.getElementById('practiceContent').innerHTML = `
       <section class="practice-overview">
         <div>
-          <div class="practice-overview-kicker">${gameUi ? 'TRAIN MODE' : '연습 센터'}</div>
-          <h2>${gameUi ? 'Daily drills unlocked' : '오늘 필요한 복습을 바로 실행'}</h2>
-          <p>${gameUi ? 'Cards, quizzes, listening, and shadowing stay ready here.' : '카드, 퀴즈, 듣기, 쉐도잉을 학습 상태에 맞게 선택하세요.'}</p>
+          <div class="practice-overview-kicker">${gameUi ? '연습 센터' : '연습 센터'}</div>
+          <h2>${gameUi ? '오늘 필요한 복습을 바로 실행' : '오늘 필요한 복습을 바로 실행'}</h2>
+          <p>${gameUi ? '문자, 어휘, 문장 소리를 짧게 반복해서 여행 회화 반응 속도를 올립니다.' : '카드, 퀴즈, 듣기, 쉐도잉을 학습 상태에 맞게 선택하세요.'}</p>
         </div>
         <div class="practice-overview-stats">
-          <span><b>${dueKanaCount}</b>${gameUi ? 'KANA' : '가나 복습'}</span>
-          <span><b>${dueVocabCount}</b>${gameUi ? 'WORDS' : '어휘 복습'}</span>
+          <span><b>${dueKanaCount}</b>${gameUi ? '가나 복습' : '가나 복습'}</span>
+          <span><b>${dueVocabCount}</b>${gameUi ? '어휘 복습' : '어휘 복습'}</span>
           <span><b>${prog.xp}</b>XP</span>
         </div>
       </section>
-      <div class="practice-section-title">${gameUi ? 'QUICK TRAIN' : '빠른 복습'}</div>
-      <div class="practice-grid">
+      <div class="practice-section-title">${gameUi ? '빠른 복습' : '빠른 복습'}</div>
+      <div class="practice-grid compact-practice-grid">
         ${_renderCard({
           bg: PRACTICE_BG.kana,
           action: 'App.startKanaReview()',
-          iconHtml: '<div class="pi-icon pi-icon-text">あア</div>',
-          name: gameUi ? 'KANA CARDS' : '가나 플래시카드',
-          stage: dueKanaCount > 0 ? (gameUi ? `${dueKanaCount} due today` : `오늘 복습 ${dueKanaCount}개`) : (gameUi ? 'Hiragana · Katakana' : '히라가나 · 가타가나 전체'),
+          name: gameUi ? '가나 카드' : '가나 플래시카드',
+          stage: dueKanaCount > 0 ? (gameUi ? `오늘 복습 ${dueKanaCount}개` : `오늘 복습 ${dueKanaCount}개`) : (gameUi ? '히라가나 · 가타가나 전체' : '히라가나 · 가타가나 전체'),
         })}
         ${_renderCard({
           bg: PRACTICE_BG.vocab,
           locked: !vocabUnlocked,
           action: 'App.startVocabReview()',
-          iconKey: 'book',
-          name: gameUi ? 'WORD DECK' : '어휘 복습',
-          stage: dueVocabCount > 0 ? (gameUi ? `${dueVocabCount} due today` : `오늘 복습 ${dueVocabCount}개`) : (gameUi ? 'learned words' : '학습한 단어 전체'),
+          name: gameUi ? '어휘 카드' : '어휘 복습',
+          stage: dueVocabCount > 0 ? (gameUi ? `오늘 복습 ${dueVocabCount}개` : `오늘 복습 ${dueVocabCount}개`) : (gameUi ? '학습한 단어 전체' : '학습한 단어 전체'),
         })}
         ${_renderCard({
           bg: PRACTICE_BG.kanaQuiz,
           locked: !quizUnlocked,
           action: "App.startRandomQuiz('kana')",
-          iconKey: 'quiz',
-          name: gameUi ? 'KANA QUIZ' : '가나 퀴즈',
-          stage: gameUi ? 'random 20' : '랜덤 20문제',
+          name: gameUi ? '가나 퀴즈' : '가나 퀴즈',
+          stage: gameUi ? '랜덤 20문제' : '랜덤 20문제',
         })}
         ${_renderCard({
           bg: PRACTICE_BG.vocabQuiz,
           locked: !quizUnlocked,
           action: "App.startRandomQuiz('vocab')",
-          iconKey: 'practice',
-          name: gameUi ? 'WORD QUIZ' : '어휘 퀴즈',
-          stage: gameUi ? 'random 20' : '랜덤 20문제',
+          name: gameUi ? '어휘 퀴즈' : '어휘 퀴즈',
+          stage: gameUi ? '랜덤 20문제' : '랜덤 20문제',
+        })}
+        ${_renderCard({
+          bg: PRACTICE_BG.shop,
+          locked: !vocabUnlocked,
+          action: 'App.startVocabReview()',
+          name: '여행 필수 표현',
+          stage: '부탁·질문·대답만 빠르게',
+        })}
+        ${_renderCard({
+          bg: PRACTICE_BG.local,
+          locked: !vocabUnlocked,
+          action: "App.startRandomQuiz('vocab')",
+          name: '헷갈림 체크',
+          stage: '비슷한 뜻 보기로 점검',
         })}
       </div>
 
       ${renderGroupLearningSection ? renderGroupLearningSection() : ''}
 
-      <div class="practice-section-title" style="margin-top:8px">${gameUi ? 'VOICE TRAIN' : '청취 연습'}</div>
-      <div class="practice-grid">
+      <div class="practice-section-title" style="margin-top:8px">${gameUi ? '소리 연습' : '청취 연습'}</div>
+      <div class="practice-grid compact-practice-grid">
         ${_renderCard({
           bg: PRACTICE_BG.listening,
           locked: !quizUnlocked,
           action: 'App.startListeningQuiz()',
-          iconKey: 'headphones',
-          name: gameUi ? 'LISTEN QUIZ' : '듣기 퀴즈',
-          stage: gameUi ? 'sound → kana' : '음성 → 글자 맞추기',
+          name: gameUi ? '듣기 퀴즈' : '듣기 퀴즈',
+          stage: gameUi ? '음성 → 글자 맞추기' : '음성 → 글자 맞추기',
         })}
         ${_renderCard({
           bg: PRACTICE_BG.speaking,
           locked: !quizUnlocked,
           action: 'App.startSpeakingPractice()',
-          iconKey: 'mic',
-          name: gameUi ? 'SHADOWING' : '따라 말하기',
-          stage: gameUi ? 'speak loop' : '쉐도잉 연습',
+          name: gameUi ? '따라 말하기' : '따라 말하기',
+          stage: gameUi ? '문장 따라 말하기' : '쉐도잉 연습',
+        })}
+        ${_renderCard({
+          bg: PRACTICE_BG.listening,
+          locked: !quizUnlocked,
+          action: 'App.startListeningQuiz()',
+          name: '느린 소리 듣기',
+          stage: '처음 듣는 속도로 분해',
+        })}
+        ${_renderCard({
+          bg: PRACTICE_BG.speaking,
+          locked: !quizUnlocked,
+          action: 'App.startSpeakingPractice()',
+          name: '리액션 말하기',
+          stage: 'はい · いいえ · もう一度',
         })}
       </div>
     `;
   }
 
   function _renderCard({ bg, locked = false, action, iconHtml, iconKey, name, stage }) {
-    const icon = iconHtml || `<div class="pi-icon">${uiIconSvg(iconKey, 'pi-icon-svg')}</div>`;
+    const icon = iconHtml || (iconKey ? `<div class="pi-icon">${uiIconSvg(iconKey, 'pi-icon-svg')}</div>` : '');
     return `
       <div class="practice-item practice-tool-card ${locked ? 'locked' : ''}"
            onclick="${locked ? '' : action}">
         <div class="practice-thumb" style="--practice-bg:url('${cssUrlValue(bg)}')" aria-hidden="true"></div>
         <div class="practice-card-content">
-          <div class="practice-card-head">
+          <div class="practice-card-head ${icon ? '' : 'no-icon'}">
             ${icon}
-            ${locked ? `<span class="pi-lock">${uiIconSvg('lock', 'pi-lock-icon')}</span>` : ''}
+            ${locked ? `<span class="pi-lock-text">잠김</span>` : ''}
           </div>
           <div class="pi-name">${name}</div>
           <div class="pi-stage">${stage}</div>

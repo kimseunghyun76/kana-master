@@ -6,17 +6,17 @@
 
 window.VoiceCharacters = (() => {
   const AVATARS = {
-    nanami: '/images/v3-cute/characters/yuna-face.webp',
-    aoi:    '/images/v3-cute/characters/mika-face.webp',
-    mayu:   '/images/v3-cute/characters/akari-face.webp',
-    keita:  '/images/v3-cute/characters/ren-face.webp',
+    nanami: '/images/voices/voice-avatar-nanami.png',
+    aoi:    '/images/voices/voice-avatar-aoi.png',
+    mayu:   '/images/voices/voice-avatar-mayu.png',
+    keita:  '/images/voices/voice-avatar-keita.png',
   };
 
   const META = {
-    nanami: { age: 'JP', role: 'Yuna · calm coach', pos: 'center' },
-    aoi:    { age: 'JP', role: 'Mika · bright coach', pos: 'center' },
-    mayu:   { age: 'JP', role: 'Akari · friendly coach', pos: 'center' },
-    keita:  { age: 'JP', role: 'Ren · kind coach', pos: 'center' },
+    nanami: { age: 'JP', role: '차분한 강사', pos: 'center' },
+    aoi:    { age: 'JP', role: '밝은 강사', pos: 'center' },
+    mayu:   { age: 'JP', role: '친근한 튜터', pos: 'center' },
+    keita:  { age: 'JP', role: '또렷한 남성 강사', pos: 'center' },
   };
 
   function meta(key) {

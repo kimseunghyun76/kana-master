@@ -237,6 +237,9 @@
    ============================================================ */
 
 body.app-v3 {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display",
+               "Apple SD Gothic Neo", "Hiragino Sans", "Noto Sans KR",
+               "Noto Sans JP", sans-serif;
   --bg: #fff7fb;
   --bg2: #f1fbff;
   --bg3: #fff0f6;
@@ -259,7 +262,7 @@ body.app-v3 {
 body.app-v3 #app {
   background:
     linear-gradient(180deg, rgba(255, 255, 255, .44), rgba(255, 247, 251, .86)),
-    url("/images/v3-cute/home-sakura-street.webp") center / cover fixed;
+    url("/images/v3-generated/bg-home-street.webp") center / cover fixed;
   border-left: 1px solid rgba(255,255,255,.75);
   border-right: 1px solid rgba(255,255,255,.75);
 }
@@ -271,7 +274,7 @@ body.app-v3 .app-header {
 }
 
 body.app-v3 .app-title {
-  font-family: "Noto Sans JP", "Noto Sans KR", sans-serif;
+  font-family: inherit;
   font-size: 16px;
   font-weight: 900;
   letter-spacing: .08em;
@@ -297,8 +300,8 @@ body.app-v3 .nav-btn.active {
 }
 
 body.app-v3 .nav-btn.active::before {
-  background: linear-gradient(90deg, #ff8db1, #65d8cf);
-  box-shadow: 0 0 18px rgba(255, 141, 177, .38);
+  background: #2f8f9f;
+  box-shadow: 0 0 14px rgba(47, 143, 159, .22);
 }
 
 body.app-v3 .nav-label {
@@ -334,7 +337,7 @@ body.app-v3 .welcome-card-cinematic::before {
 
 body.app-v3 .welcome-title,
 body.app-v3 .dashboard-main h1 {
-  font-family: "Noto Sans JP", "Noto Sans KR", sans-serif;
+  font-family: inherit;
   font-weight: 900;
   letter-spacing: 0;
   text-transform: none;
@@ -428,8 +431,8 @@ body.app-v3 .dashboard-primary,
 body.app-v3 .btn.btn-primary,
 body.app-v3 .program-start-btn,
 body.app-v3 .lec-pick-start {
-  background: linear-gradient(135deg, #ff8db1, #55cfd0);
-  box-shadow: 0 12px 28px rgba(255, 141, 177, .28);
+  background: #2f8f9f;
+  box-shadow: 0 10px 22px rgba(47, 143, 159, .22);
   color: #fff;
 }
 
@@ -438,6 +441,766 @@ body.app-v3 .lec-display-toggle {
   background: rgba(255, 255, 255, .9);
   border-color: rgba(115, 137, 168, .22);
   color: #526174;
+}
+
+/* V3 Home redesign: readable pastel quest map */
+body.app-v3 .home-view {
+  padding: 0 0 30px;
+}
+
+body.app-v3 .v3-home-shell {
+  display: grid;
+  gap: 18px;
+  padding: 14px 0 22px;
+}
+
+body.app-v3 .v3-home-shell .section-title {
+  padding: 0 18px 0;
+  color: #31415a;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: .08em;
+}
+
+body.app-v3 .v3-home-hero,
+body.app-v3 .v3-home-next-card {
+  margin: 0 14px;
+  border-radius: 8px;
+  border: 1px solid rgba(82, 105, 140, .16);
+  box-shadow: 0 18px 42px rgba(71, 99, 136, .16);
+}
+
+body.app-v3 .v3-home-hero {
+  min-height: 456px;
+  padding: 16px;
+  align-items: flex-end;
+  justify-content: stretch;
+  background: #f8fbff;
+}
+
+body.app-v3 .v3-home-hero .welcome-bg {
+  background-position: center 28%;
+  filter: saturate(1.04) contrast(.98) brightness(1.03);
+}
+
+body.app-v3 .v3-home-hero::before {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, .08), rgba(255, 255, 255, .22) 42%, rgba(255, 250, 253, .66) 72%, rgba(255, 250, 253, .92)),
+    linear-gradient(90deg, rgba(255, 255, 255, .34), rgba(255, 255, 255, .04) 55%, rgba(255, 255, 255, .32));
+}
+
+body.app-v3 .v3-home-hero .welcome-content {
+  width: 100%;
+  max-width: none;
+  padding: 18px;
+  border: 1px solid rgba(82, 105, 140, .16);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, .94);
+  box-shadow: 0 14px 36px rgba(71, 99, 136, .16);
+  text-align: left;
+}
+
+body.app-v3 .welcome-eyebrow,
+body.app-v3 .dashboard-kicker {
+  color: #287f8e;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: .1em;
+}
+
+body.app-v3 .v3-home-hero .welcome-title,
+body.app-v3 .v3-home-next-card .dashboard-main h1 {
+  margin: 6px 0 8px;
+  color: #243047;
+  font-size: 28px;
+  line-height: 1.1;
+  text-shadow: none;
+}
+
+body.app-v3 .v3-home-hero {
+  min-height: 0;
+  padding: 12px;
+}
+
+body.app-v3 .v3-home-hero .welcome-content {
+  gap: 9px;
+  padding: 16px;
+}
+
+body.app-v3 .v3-home-hero .welcome-title {
+  font-size: 24px;
+  line-height: 1.08;
+}
+
+body.app-v3 .v3-home-hero .welcome-copy {
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+body.app-v3 .welcome-plan-row {
+  gap: 6px;
+}
+
+body.app-v3 .welcome-plan-row span {
+  padding: 8px 10px;
+}
+
+body.app-v3 .v3-home-hero .welcome-copy,
+body.app-v3 .v3-home-next-card .dashboard-main p {
+  color: #4f5f75;
+  font-size: 14px;
+  font-weight: 650;
+  line-height: 1.55;
+}
+
+body.app-v3 .welcome-plan-row {
+  justify-content: flex-start;
+  gap: 7px;
+  margin: 0 0 14px;
+}
+
+body.app-v3 .welcome-plan-row span,
+body.app-v3 .dashboard-metric {
+  min-width: 0;
+  border: 1px solid rgba(82, 105, 140, .15);
+  background: #f7fbff;
+  color: #596a80;
+  box-shadow: none;
+}
+
+body.app-v3 .welcome-plan-row b,
+body.app-v3 .dashboard-metric span {
+  color: #243047;
+}
+
+body.app-v3 .home-step-guide,
+body.app-v3 .home-step-guide.compact {
+  margin: 0 0 14px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+
+body.app-v3 .home-step-guide-title {
+  margin-bottom: 8px;
+  color: #596a80;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: .09em;
+}
+
+body.app-v3 .home-step-guide-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+body.app-v3 .home-step-guide-btn {
+  min-height: 62px;
+  grid-template-columns: 34px minmax(0, 1fr);
+  gap: 9px;
+  padding: 10px;
+  border: 1px solid rgba(82, 105, 140, .16);
+  border-radius: 8px;
+  background: #ffffff;
+  color: #243047;
+  box-shadow: 0 8px 18px rgba(71, 99, 136, .08);
+}
+
+body.app-v3 .home-step-guide-btn.done {
+  border-color: rgba(73, 198, 189, .42);
+  background: #f1fffc;
+}
+
+body.app-v3 .home-step-guide-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  background: #eefbff;
+  color: #287f8e;
+}
+
+body.app-v3 .home-step-guide-copy b {
+  color: #243047;
+  font-size: 12px;
+  letter-spacing: 0;
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+}
+
+body.app-v3 .home-step-guide-copy em {
+  color: #617087;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+body.app-v3 .dashboard-primary {
+  width: 100%;
+  min-height: 48px;
+  border-radius: 8px;
+  background: #2f8f9f;
+  color: #ffffff;
+  font-weight: 950;
+  letter-spacing: 0;
+  text-shadow: none;
+  box-shadow: 0 10px 22px rgba(47, 143, 159, .2);
+}
+
+body.app-v3 .dashboard-primary:active {
+  transform: translateY(1px);
+  background: #287f8e;
+}
+
+body.app-v3 .v3-home-next-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 14px;
+  padding: 16px;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, .98), rgba(241, 251, 255, .94)),
+    #ffffff;
+}
+
+body.app-v3 .v3-home-next-card .dashboard-side {
+  width: auto;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+body.app-v3 .v3-home-next-card .dashboard-metric {
+  padding: 10px 8px;
+}
+
+body.app-v3 .v3-home-next-card .dashboard-metric b {
+  color: #69788d;
+}
+
+body.app-v3 .program-section {
+  margin: 0;
+}
+
+body.app-v3 .program-strip {
+  grid-auto-flow: row;
+  grid-auto-columns: unset;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  overflow: visible;
+  padding: 0 14px;
+}
+
+body.app-v3 .program-card {
+  min-height: 156px;
+  padding: 15px;
+  border: 1px solid rgba(82, 105, 140, .16);
+  border-left: 6px solid #ff8db1;
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: 0 12px 28px rgba(71, 99, 136, .11);
+}
+
+body.app-v3 .program-card.blue {
+  border-left-color: #62b6f0;
+}
+
+body.app-v3 .program-card.amber {
+  border-left-color: #f4bb57;
+}
+
+body.app-v3 .program-card::before {
+  background: linear-gradient(135deg, rgba(255, 141, 177, .11), rgba(101, 216, 207, .07));
+}
+
+body.app-v3 .program-card-head {
+  align-items: flex-start;
+}
+
+body.app-v3 .program-topline,
+body.app-v3 .program-day-count {
+  color: #31415a;
+  font-size: 10px;
+}
+
+body.app-v3 .program-title {
+  color: #243047;
+  font-size: 17px;
+  line-height: 1.25;
+}
+
+body.app-v3 .program-desc {
+  min-height: 0;
+  color: #526174;
+  font-size: 12px;
+  -webkit-line-clamp: 3;
+}
+
+body.app-v3 .program-outcome {
+  min-height: 0;
+  border-color: rgba(82, 105, 140, .14);
+  background: #f7fbff;
+  color: #31415a;
+}
+
+body.app-v3 .program-foot {
+  color: #536176;
+}
+
+body.app-v3 .program-bar {
+  background: #e8eef6;
+}
+
+body.app-v3 .program-bar span {
+  background: #2f8f9f;
+}
+
+body.app-v3 .stage-map {
+  display: grid;
+  gap: 10px;
+  padding: 0 14px;
+}
+
+body.app-v3 .stage-card {
+  border: 1px solid rgba(82, 105, 140, .16);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, .96);
+  box-shadow: 0 10px 24px rgba(71, 99, 136, .1);
+}
+
+body.app-v3 .stage-card.locked {
+  opacity: .72;
+}
+
+body.app-v3 .stage-index {
+  background: #fff6fa;
+  border-color: rgba(244, 95, 146, .18);
+  color: #d84d7d;
+}
+
+body.app-v3 .stage-name {
+  color: #243047;
+  font-weight: 900;
+}
+
+body.app-v3 .stage-sub,
+body.app-v3 .stage-progress-text {
+  color: #617087;
+}
+
+body.app-v3 .stage-progress-text {
+  gap: 12px;
+  align-items: flex-start;
+  line-height: 1.45;
+}
+
+body.app-v3 .stage-progress-text span:first-child {
+  flex: 1;
+}
+
+body.app-v3 .stage-tag {
+  background: #eefbff;
+  color: #287f8e;
+}
+
+body.app-v3 .stage-progress-bar-bg {
+  background: #e8eef6;
+}
+
+body.app-v3 .program-panel {
+  border-color: rgba(82, 105, 140, .18);
+  background: #ffffff;
+  color: #243047;
+  box-shadow: 0 -24px 60px rgba(71, 99, 136, .28);
+}
+
+body.app-v3 .program-close,
+body.app-v3 .program-day,
+body.app-v3 .program-value-grid span {
+  border-color: rgba(82, 105, 140, .16);
+  background: #f7fbff;
+  color: #243047;
+}
+
+body.app-v3 .program-panel-head p,
+body.app-v3 .program-day-desc,
+body.app-v3 .program-value-grid span {
+  color: #526174;
+}
+
+body.app-v3 .program-value-grid b,
+body.app-v3 .program-day-title,
+body.app-v3 .program-panel-head h2 {
+  color: #243047;
+}
+
+body.app-v3 .program-outcome-panel {
+  border-color: rgba(73, 198, 189, .22);
+  background: #f1fffc;
+  color: #287f8e;
+}
+
+body.app-v3 .program-day-num,
+body.app-v3 .program-day-phase {
+  background: #ffffff;
+  color: #31415a;
+}
+
+@media (min-width: 720px) {
+  body.app-v3 #app {
+    max-width: 520px;
+  }
+
+  body.app-v3 .v3-home-hero {
+    min-height: 480px;
+  }
+}
+
+@media (max-width: 340px) {
+  body.app-v3 .v3-home-hero .welcome-title,
+  body.app-v3 .v3-home-next-card .dashboard-main h1 {
+    font-size: 25px;
+  }
+
+  body.app-v3 .home-step-guide-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* V3 Lesson redesign: same readable map language as Home */
+body.app-v3 .lesson-view {
+  padding: 0 0 30px;
+}
+
+body.app-v3 .v3-lesson-shell {
+  display: grid;
+  gap: 16px;
+  padding: 14px 0 22px;
+}
+
+body.app-v3 .lesson-overview {
+  margin: 0 14px;
+  padding: 16px;
+  border: 1px solid rgba(82, 105, 140, .16);
+  border-radius: 8px;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, .98), rgba(241, 251, 255, .94)),
+    #ffffff;
+  box-shadow: 0 18px 42px rgba(71, 99, 136, .14);
+  color: #243047;
+}
+
+body.app-v3 .lesson-overview-kicker {
+  color: #287f8e;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: .08em;
+}
+
+body.app-v3 .lesson-overview h2 {
+  margin: 6px 0 6px;
+  color: #243047;
+  font-size: 24px;
+  line-height: 1.18;
+}
+
+body.app-v3 .lesson-overview p {
+  color: #526174;
+  font-size: 13px;
+  font-weight: 650;
+  line-height: 1.55;
+}
+
+body.app-v3 .lesson-overview-start {
+  width: 100%;
+  min-height: 44px;
+  margin-top: 14px;
+  border: 0;
+  border-radius: 8px;
+  background: #2f8f9f;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 900;
+  box-shadow: 0 10px 22px rgba(47, 143, 159, .18);
+}
+
+body.app-v3 .lesson-overview-stats span {
+  border: 1px solid rgba(82, 105, 140, .15);
+  background: #f7fbff;
+  color: #617087;
+  box-shadow: none;
+}
+
+body.app-v3 .lesson-overview-stats b {
+  color: #243047;
+}
+
+body.app-v3 .lesson-stage-section {
+  margin: 0;
+}
+
+body.app-v3 .lesson-stage-header {
+  padding: 8px 18px 6px;
+  align-items: flex-start;
+}
+
+body.app-v3 .lesson-stage-dot {
+  width: 8px;
+  height: 28px;
+  margin-top: 2px;
+  border-radius: 999px;
+}
+
+body.app-v3 .lesson-stage-title {
+  flex: 1;
+  color: #243047;
+  font-size: 15px;
+  font-weight: 900;
+  line-height: 1.35;
+}
+
+body.app-v3 .lesson-stage-badge {
+  border: 1px solid rgba(82, 105, 140, .14);
+  background: #eefbff !important;
+  color: #287f8e !important;
+  white-space: nowrap;
+}
+
+body.app-v3 .lesson-stage-progress {
+  padding: 0 18px 10px 34px;
+  color: #617087;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+body.app-v3 .lesson-stage-progress span {
+  overflow: visible;
+  white-space: normal;
+  text-overflow: clip;
+}
+
+body.app-v3 .lesson-stage-progress b {
+  color: #31415a;
+}
+
+body.app-v3 .module-list {
+  gap: 10px;
+  padding: 0 14px;
+}
+
+body.app-v3 .module-card {
+  min-height: 112px;
+  align-items: stretch;
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid rgba(82, 105, 140, .16);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, .96);
+  color: #243047;
+  box-shadow: 0 12px 28px rgba(71, 99, 136, .1);
+}
+
+body.app-v3 .module-card:not(.locked):hover {
+  background: #ffffff;
+  border-color: rgba(47, 143, 159, .32);
+  box-shadow: 0 14px 32px rgba(71, 99, 136, .14);
+}
+
+body.app-v3 .module-card.locked {
+  opacity: .82;
+  background: rgba(255, 255, 255, .76);
+}
+
+body.app-v3 .module-card.completed {
+  border-color: rgba(73, 198, 189, .42);
+  background: #f7fffc;
+}
+
+body.app-v3 .module-cover-thumb {
+  width: 86px;
+  height: auto;
+  min-height: 86px;
+  border: 1px solid rgba(82, 105, 140, .14);
+  border-radius: 8px;
+  box-shadow: inset 0 0 0 999px rgba(255, 255, 255, .12);
+}
+
+body.app-v3 .module-info {
+  display: flex;
+  flex-direction: column;
+}
+
+body.app-v3 .module-name-row {
+  align-items: flex-start;
+}
+
+body.app-v3 .module-name {
+  color: #243047;
+  font-size: 15px;
+  font-weight: 900;
+  line-height: 1.28;
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+}
+
+body.app-v3 .module-sub {
+  color: #617087;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+body.app-v3 .module-focus-tag {
+  width: fit-content;
+  max-width: 100%;
+  background: #f7fbff;
+  border: 1px solid rgba(82, 105, 140, .14);
+  color: #31415a;
+  font-size: 11px;
+  letter-spacing: 0;
+}
+
+body.app-v3 .module-prog {
+  margin-top: auto;
+  padding-top: 8px;
+}
+
+body.app-v3 .module-prog-bar {
+  height: 6px;
+  background: #e8eef6;
+}
+
+body.app-v3 .module-prog-fill {
+  background: #2f8f9f !important;
+}
+
+body.app-v3 .module-prog-pct {
+  color: #617087;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+body.app-v3 .module-action-label {
+  width: fit-content;
+  margin-top: 8px;
+  padding: 5px 9px;
+  border-radius: 999px;
+  background: #eefbff;
+  color: #287f8e;
+  font-size: 11px;
+  font-weight: 900;
+}
+
+body.app-v3 .module-card.locked .module-action-label {
+  background: #f3f6fb;
+  color: #7a8798;
+}
+
+body.app-v3 .module-status {
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  background: #f7fbff;
+  color: #2f8f9f;
+}
+
+body.app-v3 .module-status.lock {
+  background: #f3f6fb;
+  color: #7a8798;
+}
+
+body.app-v3 .module-status.done {
+  background: #eafff8;
+  color: #279a74;
+}
+
+body.app-v3 .access-tier-badge {
+  min-width: auto;
+  border: 1px solid rgba(82, 105, 140, .14);
+  background: #fff6fa;
+  color: #d84d7d;
+  font-size: 10px;
+}
+
+body.app-v3 .access-tier-badge.free {
+  background: #eafff8;
+  color: #279a74;
+}
+
+body.app-v3 .access-tier-badge.plus {
+  background: #eefbff;
+  color: #287f8e;
+}
+
+body.app-v3 .access-tier-badge.pro {
+  background: #fff8e7;
+  color: #a66d00;
+}
+
+body.app-v3 .roleplay-card {
+  margin: 0 14px 0 36px;
+  min-height: 78px;
+  border: 1px solid rgba(47, 143, 159, .18);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, .9);
+  box-shadow: 0 10px 22px rgba(71, 99, 136, .08);
+}
+
+body.app-v3 .roleplay-card.has-cover {
+  background: rgba(255, 255, 255, .92);
+  border-color: rgba(47, 143, 159, .2);
+}
+
+body.app-v3 .roleplay-card.locked {
+  opacity: .78;
+}
+
+body.app-v3 .roleplay-thumb {
+  border-color: rgba(82, 105, 140, .14);
+  box-shadow: inset 0 0 0 999px rgba(255, 255, 255, .1);
+}
+
+body.app-v3 .roleplay-card .rp-icon {
+  background: #eefbff;
+  color: #287f8e;
+}
+
+body.app-v3 .roleplay-card .rp-name {
+  color: #243047;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+body.app-v3 .roleplay-card .rp-hint {
+  color: #617087;
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+body.app-v3 .roleplay-card .rp-lock {
+  color: #287f8e;
+}
+
+@media (max-width: 420px) {
+  body.app-v3 .lesson-overview {
+    grid-template-columns: 1fr;
+  }
+
+  body.app-v3 .lesson-overview-stats {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  body.app-v3 .module-card {
+    gap: 10px;
+  }
+
+  body.app-v3 .module-cover-thumb {
+    width: 74px;
+    min-height: 92px;
+  }
+
+  body.app-v3 .module-name {
+    font-size: 14px;
+  }
 }
 
 body.app-v3 .module-visual.red,
@@ -632,4 +1395,2147 @@ body.app-v3 .lec-pick-card {
 
 body.app-v3 .lec-pick-card.lec-pick-jp {
   border-left-color: #ff8db1;
+}
+
+/* ============================================================
+   V3 readability guard
+   Keep content readable over pastel/background imagery.
+   ============================================================ */
+
+body.app-v3 {
+  --card: #ffffff;
+  --card2: #f7fbff;
+  --border: rgba(82, 105, 140, .2);
+  --text: #243047;
+  --text2: #4f5f75;
+  --text3: #68788e;
+  --accent: #2f8f9f;
+  --accent2: #287f8e;
+}
+
+body.app-v3 #app {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, .9), rgba(255, 247, 251, .95)),
+    url("/images/v3-generated/bg-home-street.webp") center / cover fixed;
+}
+
+body.app-v3 .app-header,
+body.app-v3 .bottom-nav,
+body.app-v3 .stat-pill {
+  background: #ffffff;
+  border-color: rgba(82, 105, 140, .18);
+  color: #243047;
+}
+
+body.app-v3 .view,
+body.app-v3 .app-main {
+  color: #243047;
+}
+
+body.app-v3 .welcome-card,
+body.app-v3 .home-dashboard,
+body.app-v3 .program-card,
+body.app-v3 .stage-card,
+body.app-v3 .lesson-overview,
+body.app-v3 .module-card,
+body.app-v3 .roleplay-card,
+body.app-v3 .practice-overview,
+body.app-v3 .practice-card,
+body.app-v3 .profile-section,
+body.app-v3 .pstat,
+body.app-v3 .flow-screen:not(.roleplay-comic-mode) .flow-body > section,
+body.app-v3 .quiz-primer,
+body.app-v3 .quiz-card,
+body.app-v3 .kana-card,
+body.app-v3 .kana-face,
+body.app-v3 .kana-back,
+body.app-v3 .kana-tip-main,
+body.app-v3 .kana-stroke-block,
+body.app-v3 .kana-examples-block,
+body.app-v3 .kana-quiz-primer-card,
+body.app-v3 .detail-sheet,
+body.app-v3 .breakdown-card {
+  background-color: #ffffff;
+  color: #243047;
+  border-color: rgba(82, 105, 140, .2);
+  box-shadow: 0 12px 28px rgba(71, 99, 136, .12);
+}
+
+body.app-v3 .welcome-title,
+body.app-v3 .dashboard-main h1,
+body.app-v3 .lesson-overview h2,
+body.app-v3 .practice-overview h2,
+body.app-v3 .profile-name,
+body.app-v3 .module-name,
+body.app-v3 .stage-name,
+body.app-v3 .program-title,
+body.app-v3 .roleplay-card .rp-name,
+body.app-v3 .quiz-question,
+body.app-v3 .kana-char,
+body.app-v3 .kana-back-char,
+body.app-v3 .kana-korean,
+body.app-v3 .kana-korean-sm,
+body.app-v3 .kana-tip-body,
+body.app-v3 .detail-title,
+body.app-v3 .detail-japanese,
+body.app-v3 .breakdown-main {
+  color: #243047;
+  text-shadow: none;
+}
+
+body.app-v3 .welcome-copy,
+body.app-v3 .dashboard-main p,
+body.app-v3 .program-desc,
+body.app-v3 .program-foot,
+body.app-v3 .program-outcome,
+body.app-v3 .stage-sub,
+body.app-v3 .stage-progress-text,
+body.app-v3 .lesson-overview p,
+body.app-v3 .lesson-stage-progress,
+body.app-v3 .module-sub,
+body.app-v3 .module-prog-pct,
+body.app-v3 .roleplay-card .rp-hint,
+body.app-v3 .practice-overview p,
+body.app-v3 .practice-card-sub,
+body.app-v3 .profile-level,
+body.app-v3 .kana-tap-hint,
+body.app-v3 .kana-tip-label,
+body.app-v3 .kana-ex-meaning,
+body.app-v3 .detail-korean,
+body.app-v3 .breakdown-sub {
+  color: #4f5f75;
+  text-shadow: none;
+}
+
+body.app-v3 .section-title,
+body.app-v3 .welcome-eyebrow,
+body.app-v3 .dashboard-kicker,
+body.app-v3 .lesson-overview-kicker,
+body.app-v3 .practice-section-title,
+body.app-v3 .profile-section-title,
+body.app-v3 .module-focus-tag,
+body.app-v3 .program-topline,
+body.app-v3 .program-day-count,
+body.app-v3 .stage-tag,
+body.app-v3 .lesson-stage-badge,
+body.app-v3 .access-tier-badge,
+body.app-v3 .module-action-label {
+  color: #287f8e;
+  background-color: #eefbff;
+  border-color: rgba(47, 143, 159, .18);
+  text-shadow: none;
+}
+
+body.app-v3 .dashboard-primary,
+body.app-v3 .btn.btn-primary,
+body.app-v3 .btn.btn-success,
+body.app-v3 .program-start-btn,
+body.app-v3 .lesson-overview-start,
+body.app-v3 .lec-pick-start {
+  background: #2f8f9f;
+  color: #ffffff;
+  text-shadow: none;
+}
+
+body.app-v3 .btn.btn-outline,
+body.app-v3 .lec-display-toggle,
+body.app-v3 .kana-nav-btn,
+body.app-v3 .kana-icon-btn,
+body.app-v3 .quiz-choice,
+body.app-v3 .settings-row,
+body.app-v3 .program-day {
+  background: #ffffff;
+  color: #243047;
+  border-color: rgba(82, 105, 140, .22);
+}
+
+body.app-v3 .module-cover-thumb,
+body.app-v3 .roleplay-thumb {
+  box-shadow: inset 0 0 0 999px rgba(255, 255, 255, .04), 0 8px 18px rgba(71, 99, 136, .12);
+}
+
+body.app-v3 .roleplay-hero::before,
+body.app-v3 .flow-screen.roleplay-comic-mode .comic-intro-hero::before {
+  background:
+    linear-gradient(180deg, rgba(245, 248, 250, .08), rgba(245, 248, 250, .18) 42%, rgba(245, 248, 250, .72)),
+    linear-gradient(90deg, rgba(245, 248, 250, .66), rgba(245, 248, 250, .18) 58%, rgba(245, 248, 250, .52));
+}
+
+body.app-v3 .roleplay-hero-title,
+body.app-v3 .roleplay-hero-desc,
+body.app-v3 .roleplay-hero-kicker,
+body.app-v3 .roleplay-hero-chips span {
+  color: #243047;
+  text-shadow: none;
+}
+
+body.app-v3 .comic-subtitle-overlay,
+body.app-v3 .comic-script-dock,
+body.app-v3 .comic-script-dock-external,
+body.app-v3 .comic-intro-panel,
+body.app-v3 .comic-preview-list,
+body.app-v3 .comic-practice-prompt,
+body.app-v3 .roleplay-panel,
+body.app-v3 .roleplay-dialogue-line,
+body.app-v3 .roleplay-output-card {
+  background: #ffffff;
+  color: #243047;
+  border-color: rgba(82, 105, 140, .2);
+  box-shadow: 0 12px 28px rgba(71, 99, 136, .14);
+}
+
+body.app-v3 .comic-script-jp,
+body.app-v3 .comic-preview-copy b,
+body.app-v3 .roleplay-panel-title,
+body.app-v3 .roleplay-section-heading {
+  color: #243047;
+  text-shadow: none;
+}
+
+body.app-v3 .comic-script-ko,
+body.app-v3 .comic-preview-copy em,
+body.app-v3 .roleplay-helper-text,
+body.app-v3 .roleplay-progress-text {
+  color: #4f5f75;
+  text-shadow: none;
+}
+
+body.app-v3 .lec-reel,
+body.app-v3 .lec-board,
+body.app-v3 .lec-pick-card,
+body.app-v3 .lec-caption,
+body.app-v3 .lec-toolbar {
+  background: #ffffff;
+  border-color: rgba(82, 105, 140, .2);
+  color: #243047;
+  box-shadow: 0 12px 28px rgba(71, 99, 136, .12);
+}
+
+body.app-v3 .lec-board-title,
+body.app-v3 .lec-board-body,
+body.app-v3 .lec-pick-title,
+body.app-v3 .chk-japanese,
+body.app-v3 .chk-katakana {
+  color: #243047;
+  text-shadow: none;
+}
+
+body.app-v3 .chk-korean,
+body.app-v3 .lec-pick-desc,
+body.app-v3 .lec-caption {
+  color: #4f5f75;
+  text-shadow: none;
+}
+
+body.app-v3 .practice-overview,
+body.app-v3 .group-learning-band,
+body.app-v3 .profile-hero {
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, .98), rgba(241, 251, 255, .94)),
+    #ffffff;
+  border: 1px solid rgba(82, 105, 140, .18);
+  color: #243047;
+  box-shadow: 0 14px 32px rgba(71, 99, 136, .12);
+}
+
+body.app-v3 .practice-overview-stats span,
+body.app-v3 .profile-stats-grid .pstat {
+  background: #f7fbff;
+  border-color: rgba(82, 105, 140, .18);
+  color: #4f5f75;
+}
+
+body.app-v3 .practice-overview-stats b,
+body.app-v3 .profile-stats-grid .ps-num {
+  color: #243047 !important;
+}
+
+body.app-v3 .practice-overview-kicker,
+body.app-v3 .group-kicker {
+  color: #287f8e;
+  background: #eefbff;
+}
+
+body.app-v3 .practice-tool-card {
+  background: #ffffff;
+  border-color: rgba(82, 105, 140, .18);
+  color: #243047;
+  box-shadow: 0 12px 28px rgba(71, 99, 136, .1);
+}
+
+body.app-v3 .practice-tool-card.locked {
+  opacity: .7;
+}
+
+body.app-v3 .practice-thumb {
+  border-color: rgba(82, 105, 140, .16);
+  box-shadow: inset 0 0 0 999px rgba(255, 255, 255, .18);
+}
+
+body.app-v3 .practice-tool-card .pi-icon {
+  background: #eefbff;
+  color: #287f8e;
+  border-color: rgba(47, 143, 159, .16);
+}
+
+body.app-v3 .practice-tool-card .pi-name,
+body.app-v3 .group-title,
+body.app-v3 .profile-name,
+body.app-v3 .settings-item .si-label {
+  color: #243047;
+  text-shadow: none;
+}
+
+body.app-v3 .practice-tool-card .pi-stage,
+body.app-v3 .group-desc,
+body.app-v3 .profile-level,
+body.app-v3 .pstat .ps-name,
+body.app-v3 .xp-bar-label {
+  color: #4f5f75;
+  text-shadow: none;
+}
+
+body.app-v3 .streak-calendar,
+body.app-v3 .settings-list {
+  background: #ffffff;
+  border-color: rgba(82, 105, 140, .18);
+  box-shadow: 0 12px 28px rgba(71, 99, 136, .1);
+}
+
+body.app-v3 .settings-item {
+  background: #ffffff;
+  color: #243047;
+  border-color: rgba(82, 105, 140, .14);
+}
+
+body.app-v3 .settings-item:hover {
+  background: #f7fbff;
+}
+
+body.app-v3 .cal-day {
+  background: #fff0f6;
+  color: #536176;
+}
+
+/* ============================================================
+   V3 compact home, lesson roleplay slot, and flow readability
+   ============================================================ */
+
+body.app-v3 .v3-home-hero {
+  min-height: 360px;
+  padding: 12px;
+}
+
+body.app-v3 .v3-home-hero .welcome-content {
+  gap: 10px;
+  padding: 14px;
+}
+
+body.app-v3 .v3-home-hero .welcome-title {
+  font-size: clamp(23px, 5vw, 34px);
+  line-height: 1.12;
+}
+
+body.app-v3 .v3-home-hero .welcome-copy {
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+body.app-v3 .welcome-plan-row {
+  gap: 6px;
+}
+
+body.app-v3 .welcome-plan-row span,
+body.app-v3 .home-step-guide-btn,
+body.app-v3 .program-day {
+  min-height: auto;
+  padding: 7px 9px;
+}
+
+body.app-v3 .home-step-guide,
+body.app-v3 .program-card {
+  gap: 8px;
+  padding: 12px;
+}
+
+body.app-v3 .program-desc,
+body.app-v3 .program-outcome,
+body.app-v3 .lesson-stage-progress span,
+body.app-v3 .module-roleplay-copy em {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+body.app-v3 .module-card {
+  align-items: stretch;
+  gap: 12px;
+}
+
+body.app-v3 .module-info {
+  min-width: 0;
+}
+
+body.app-v3 .module-roleplay-inline {
+  display: grid;
+  grid-template-columns: 42px 28px minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  margin-top: 10px;
+  padding: 8px;
+  border: 1px solid rgba(47, 143, 159, .18);
+  border-radius: 12px;
+  background: #f3fbff;
+  color: #243047;
+  text-align: left;
+  cursor: pointer;
+}
+
+body.app-v3 .module-roleplay-inline.locked {
+  cursor: default;
+  opacity: .72;
+}
+
+body.app-v3 .module-roleplay-thumb {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  background: var(--module-roleplay-thumb) center / cover;
+  box-shadow: inset 0 0 0 999px rgba(255, 255, 255, .12);
+}
+
+body.app-v3 .module-roleplay-icon {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  background: #ffffff;
+  color: #287f8e;
+  border: 1px solid rgba(47, 143, 159, .18);
+}
+
+body.app-v3 .module-roleplay-icon-svg {
+  width: 15px;
+  height: 15px;
+}
+
+body.app-v3 .module-roleplay-copy {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+body.app-v3 .module-roleplay-kicker {
+  font-size: 10px;
+  font-weight: 800;
+  color: #287f8e;
+}
+
+body.app-v3 .module-roleplay-copy strong {
+  overflow: hidden;
+  color: #243047;
+  font-size: 13px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+body.app-v3 .module-roleplay-copy em {
+  color: #4f5f75;
+  font-size: 11px;
+  font-style: normal;
+  line-height: 1.35;
+}
+
+body.app-v3 .flow-screen.module-intro-mode .flow-body {
+  overflow-y: auto;
+  padding: 0;
+  background: #f7fbff;
+}
+
+body.app-v3 .flow-screen.module-intro-mode .flow-footer {
+  background: #ffffff;
+  border-top: 1px solid rgba(82, 105, 140, .18);
+}
+
+body.app-v3 .module-intro {
+  display: flex;
+  min-height: 100%;
+  flex-direction: column;
+  overflow: visible;
+  background: #f7fbff;
+  color: #243047;
+}
+
+body.app-v3 .module-intro-bg {
+  opacity: .12;
+  filter: saturate(1.06);
+}
+
+body.app-v3 .module-intro-art {
+  min-height: 176px;
+  max-height: 30dvh;
+  flex: 0 0 auto;
+  overflow: hidden;
+  background: #eaf7fb;
+}
+
+body.app-v3 .module-intro-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 42%;
+}
+
+body.app-v3 .module-intro-art::after {
+  background: linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.58));
+}
+
+body.app-v3 .module-intro-art-caption {
+  background: rgba(255, 255, 255, .92);
+  color: #243047;
+  border: 1px solid rgba(82, 105, 140, .18);
+  text-shadow: none;
+}
+
+body.app-v3 .module-intro-content {
+  overflow: visible;
+  background: #ffffff;
+  color: #243047;
+  border-top: 1px solid rgba(82, 105, 140, .16);
+  box-shadow: 0 -14px 26px rgba(71, 99, 136, .1);
+}
+
+body.app-v3 .module-intro-title,
+body.app-v3 .module-intro-stage strong,
+body.app-v3 .intro-item-title,
+body.app-v3 .lec-preview-main,
+body.app-v3 .completion-title {
+  color: #243047;
+  text-shadow: none;
+}
+
+body.app-v3 .module-intro-sub,
+body.app-v3 .intro-item-meta,
+body.app-v3 .lec-preview-sub,
+body.app-v3 .lec-preview-slides,
+body.app-v3 .completion-sub {
+  color: #4f5f75;
+  text-shadow: none;
+}
+
+body.app-v3 .module-intro-icon,
+body.app-v3 .ii-check,
+body.app-v3 .lec-preview-badge {
+  background: #eefbff;
+  color: #287f8e;
+  border-color: rgba(47, 143, 159, .18);
+}
+
+body.app-v3 .module-intro-section-title,
+body.app-v3 .module-intro-stage span {
+  color: #287f8e;
+}
+
+body.app-v3 .module-intro-items {
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 8px;
+}
+
+body.app-v3 .intro-item,
+body.app-v3 .lec-preview-card,
+body.app-v3 .completion-screen,
+body.app-v3 .completion-unlocks {
+  background: #ffffff;
+  color: #243047;
+  border-color: rgba(82, 105, 140, .18);
+  box-shadow: 0 10px 24px rgba(71, 99, 136, .1);
+}
+
+body.app-v3 .intro-item.current,
+body.app-v3 .intro-item:hover {
+  background: #f3fbff;
+  border-color: rgba(47, 143, 159, .3);
+}
+
+body.app-v3 .flow-screen.quiz-mode .flow-body {
+  background: #f7fbff;
+  color: #243047;
+}
+
+body.app-v3 .quiz-hud,
+body.app-v3 .quiz-question,
+body.app-v3 .quiz-feedback,
+body.app-v3 .kana-quiz-primer,
+body.app-v3 .vc-face,
+body.app-v3 .vc-back,
+body.app-v3 .shadowing-card,
+body.app-v3 .shadowing-note {
+  background: #ffffff;
+  color: #243047;
+  border-color: rgba(82, 105, 140, .18);
+  box-shadow: 0 12px 28px rgba(71, 99, 136, .1);
+}
+
+body.app-v3 .quiz-q-type,
+body.app-v3 .quiz-feedback,
+body.app-v3 .vc-type-label,
+body.app-v3 .vc-back-meaning,
+body.app-v3 .shadowing-ko {
+  color: #4f5f75;
+  text-shadow: none;
+}
+
+body.app-v3 .quiz-q-text,
+body.app-v3 .vc-jp,
+body.app-v3 .vc-back-jp,
+body.app-v3 .shadowing-jp {
+  color: #243047;
+  text-shadow: none;
+}
+
+body.app-v3 .quiz-choice {
+  min-height: 54px;
+  background: #ffffff;
+  color: #243047;
+  border: 1px solid rgba(82, 105, 140, .2);
+  box-shadow: 0 8px 18px rgba(71, 99, 136, .08);
+}
+
+body.app-v3 .quiz-choice:hover:not(:disabled) {
+  background: #f3fbff;
+  border-color: rgba(47, 143, 159, .36);
+}
+
+body.app-v3 .quiz-choice.correct {
+  background: #e6fbef;
+  border-color: rgba(26, 137, 77, .32);
+  color: #14532d;
+}
+
+body.app-v3 .quiz-choice.wrong {
+  background: #fff0f2;
+  border-color: rgba(210, 70, 90, .32);
+  color: #8f1d2c;
+}
+
+body.app-v3 .quiz-feedback.correct {
+  background: #e6fbef;
+  color: #14532d;
+}
+
+body.app-v3 .quiz-feedback.wrong {
+  background: #fff7ed;
+  color: #7c2d12;
+}
+
+body.app-v3 .quiz-q-listen .quiz-listening-icon,
+body.app-v3 .quiz-listening-icon {
+  width: 58px;
+  height: 58px;
+  color: #287f8e;
+}
+
+@media (max-width: 520px) {
+  body.app-v3 .module-intro-art {
+    min-height: 148px;
+    max-height: 24dvh;
+  }
+
+  body.app-v3 .module-intro-items {
+    grid-template-columns: 1fr;
+  }
+
+  body.app-v3 .module-roleplay-inline {
+    grid-template-columns: 36px 26px minmax(0, 1fr);
+  }
+
+  body.app-v3 .module-roleplay-thumb {
+    width: 36px;
+    height: 36px;
+  }
+}
+
+/* ============================================================
+   V3 lesson/lecture hard fixes after mobile review
+   ============================================================ */
+
+body.app-v3 .v3-lesson-shell {
+  padding-bottom: 18px;
+}
+
+body.app-v3 .lesson-stage-section {
+  margin-bottom: 18px;
+}
+
+body.app-v3 .lesson-stage-section:last-child {
+  margin-bottom: 0;
+}
+
+body.app-v3 .module-list {
+  padding-bottom: 4px;
+}
+
+body.app-v3 .module-card {
+  min-height: 0;
+  overflow: visible;
+}
+
+body.app-v3 .module-cover-thumb {
+  width: 82px;
+  min-width: 82px;
+  height: 104px;
+  min-height: 0;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-color: #edf6fb;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .72), 0 8px 18px rgba(71, 99, 136, .1);
+}
+
+body.app-v3 .flow-screen.lecture-mode .flow-body {
+  overflow: hidden;
+  padding: 0;
+  background: #eef4f8;
+}
+
+body.app-v3 .flow-header,
+body.app-v3 .flow-footer {
+  background: #fff8fb;
+  border-color: rgba(82, 105, 140, .18);
+}
+
+body.app-v3 .flow-title {
+  color: #243047;
+  text-shadow: none;
+}
+
+body.app-v3 .flow-step {
+  color: #4f5f75;
+}
+
+body.app-v3 .lecture-slide {
+  min-height: 100%;
+  height: 100%;
+  gap: 0;
+  padding: 0;
+}
+
+body.app-v3 .lec-pick-slide {
+  min-height: 100%;
+  height: 100%;
+}
+
+body.app-v3 .lec-reel.lec-reel-pick {
+  width: 100%;
+  min-height: 100%;
+  max-height: none;
+  height: 100%;
+  aspect-ratio: auto;
+  border: 0;
+  border-radius: 0;
+  background: #eaf4f7;
+  box-shadow: none;
+}
+
+body.app-v3 .lec-reel-pick .lec-scene-img {
+  opacity: 1;
+  filter: saturate(1.08) contrast(1.04) brightness(.98);
+  transform: none;
+  animation: none;
+}
+
+body.app-v3 .lec-reel-pick .lec-reel-dim {
+  background:
+    linear-gradient(180deg, rgba(247, 251, 253, .34), rgba(247, 251, 253, .2) 44%, rgba(238, 246, 250, .52)),
+    linear-gradient(90deg, rgba(255,255,255,.42), rgba(255,255,255,.14));
+}
+
+body.app-v3 .lec-pick-top {
+  top: 20px;
+  left: 18px;
+  right: 18px;
+  padding: 14px;
+  border: 1px solid rgba(82, 105, 140, .16);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, .84);
+  color: #243047;
+  text-align: left;
+  box-shadow: 0 12px 28px rgba(71, 99, 136, .1);
+}
+
+body.app-v3 .lec-pick-greeting,
+body.app-v3 .lec-pick-title {
+  color: #243047;
+  text-shadow: none;
+}
+
+body.app-v3 .lec-pick-greeting {
+  margin-bottom: 6px;
+  font-size: 22px;
+  line-height: 1.16;
+}
+
+body.app-v3 .lec-pick-title {
+  margin-bottom: 6px;
+  font-size: 15px;
+}
+
+body.app-v3 .lec-pick-sub {
+  color: #4f5f75;
+  line-height: 1.45;
+  text-shadow: none;
+}
+
+body.app-v3 .lec-pick-bottom {
+  left: 18px;
+  right: 18px;
+  bottom: 18px;
+  gap: 10px;
+}
+
+body.app-v3 .lec-pick-cards {
+  gap: 10px;
+}
+
+body.app-v3 .lec-pick-card {
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid rgba(82, 105, 140, .18);
+  border-left: 5px solid #2f8f9f;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, .9);
+  color: #243047;
+  opacity: .92;
+  filter: none;
+  box-shadow: 0 12px 28px rgba(71, 99, 136, .1);
+}
+
+body.app-v3 .lec-pick-card.is-active {
+  border-color: rgba(47, 143, 159, .46);
+  border-left-color: #2f8f9f;
+  background: #f3fbff;
+  box-shadow: 0 0 0 3px rgba(47, 143, 159, .14), 0 14px 30px rgba(71, 99, 136, .14);
+}
+
+body.app-v3 .lec-pick-card-code {
+  color: #287f8e;
+}
+
+body.app-v3 .lec-pick-card-main {
+  color: #243047;
+}
+
+body.app-v3 .lec-pick-card-sub {
+  color: #4f5f75;
+}
+
+body.app-v3 .lec-pick-card-voices {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+body.app-v3 .lec-pick-voice-chip {
+  min-height: 38px;
+  border-color: rgba(82, 105, 140, .18);
+  background: #ffffff;
+  color: #31415a;
+}
+
+body.app-v3 .lec-pick-voice-chip.active {
+  border-color: rgba(47, 143, 159, .42);
+  background: #e8f8fc;
+  color: #236f7b;
+}
+
+body.app-v3 .lec-pick-start {
+  min-height: 52px;
+  border: 0;
+  border-radius: 12px;
+  background: #2f8f9f;
+  color: #ffffff;
+  box-shadow: 0 14px 28px rgba(47, 143, 159, .18);
+}
+
+body.app-v3 .lec-pick-start:hover {
+  background: #287f8e;
+  box-shadow: 0 16px 30px rgba(47, 143, 159, .22);
+}
+
+body.app-v3 .lec-reel:not(.lec-reel-pick) {
+  background: #eef4f8;
+  border-color: rgba(82, 105, 140, .18);
+  box-shadow: none;
+}
+
+body.app-v3 .lec-board {
+  background:
+    radial-gradient(ellipse at top, rgba(255,255,255,.055), transparent 58%),
+    linear-gradient(170deg, #315448 0%, #263f36 55%, #20332c 100%);
+  border: 1px solid rgba(255,255,255,.14);
+  color: #f7fafc;
+  box-shadow:
+    inset 0 0 0 4px rgba(126, 91, 55, .26),
+    inset 0 0 28px rgba(0,0,0,.34),
+    0 14px 30px rgba(44, 67, 86, .2);
+}
+
+body.app-v3 .lec-board-title-chalk,
+body.app-v3 .lec-board-body {
+  color: #f7fafc;
+  text-shadow: 0 0 2px rgba(255,255,255,.45), 0 0 8px rgba(255,255,255,.16);
+}
+
+body.app-v3 .lec-board-body .chk-korean {
+  color: #f7fafc;
+}
+
+body.app-v3 .lec-board-body .chk-hiragana {
+  color: #fff6cf;
+}
+
+body.app-v3 .lec-board-body .chk-katakana {
+  color: #9ee8ff;
+}
+
+body.app-v3 .lec-board-body .chk-kanji,
+body.app-v3 .lec-board-body ruby.chk-ruby {
+  color: #ffe36d;
+}
+
+body.app-v3 .lec-board.font-plain {
+  background:
+    repeating-linear-gradient(180deg, transparent 0, transparent 28px, rgba(84, 111, 132, .09) 28px, rgba(84, 111, 132, .09) 29px),
+    linear-gradient(180deg, #f3f7fb 0%, #edf3f7 100%);
+  border-color: rgba(82, 105, 140, .22);
+  color: #243047;
+  box-shadow: 0 14px 30px rgba(71, 99, 136, .16);
+}
+
+body.app-v3 .lec-board.font-plain .lec-board-title-chalk,
+body.app-v3 .lec-board.font-plain .lec-board-body,
+body.app-v3 .lec-board.font-plain .chk-korean,
+body.app-v3 .lec-board.font-plain .chk-hiragana {
+  color: #243047;
+  text-shadow: none;
+}
+
+body.app-v3 .lec-board.font-plain .chk-katakana {
+  color: #0d7182;
+  text-shadow: none;
+}
+
+body.app-v3 .lec-board.font-plain .chk-kanji,
+body.app-v3 .lec-board.font-plain ruby.chk-ruby {
+  color: #9b5b00;
+  text-shadow: none;
+}
+
+body.app-v3 .kana-card,
+body.app-v3 .kana-face,
+body.app-v3 .kana-back,
+body.app-v3 .vc-face,
+body.app-v3 .vc-back {
+  background: #f3f7fb;
+  color: #243047;
+  border-color: rgba(82, 105, 140, .2);
+}
+
+body.app-v3 .kana-tip-main,
+body.app-v3 .kana-stroke-block,
+body.app-v3 .kana-examples-block,
+body.app-v3 .vc-coach-panel,
+body.app-v3 .vc-tip-panel,
+body.app-v3 .vc-ex-block {
+  background: #ffffff;
+  color: #243047;
+  border-color: rgba(82, 105, 140, .16);
+}
+
+body.app-v3 .vc-tip-panel {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid rgba(82, 105, 140, .16);
+  border-radius: 10px;
+  background: #f8fbfd;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .7);
+}
+
+body.app-v3 .vc-tip-label {
+  width: max-content;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: #dfe8ee;
+  color: #243047;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0;
+}
+
+body.app-v3 .vc-tip-content {
+  display: grid;
+  gap: 10px;
+}
+
+body.app-v3 .kana-char,
+body.app-v3 .kana-back-char,
+body.app-v3 .kana-romaji-sm,
+body.app-v3 .kana-korean-sm,
+body.app-v3 .kana-tip-body,
+body.app-v3 .kana-ex-word,
+body.app-v3 .vc-jp,
+body.app-v3 .vc-back-jp,
+body.app-v3 .vc-back-meaning {
+  color: #243047;
+  text-shadow: none;
+}
+
+body.app-v3 .kana-ex-row {
+  background: #f8fbfd;
+  border-color: rgba(82, 105, 140, .14);
+  color: #243047;
+}
+
+body.app-v3 .kana-ex-meaning,
+body.app-v3 .vc-back-english,
+body.app-v3 .vc-ex-body,
+body.app-v3 .vc-explain-body {
+  color: #4f5f75;
+}
+
+/* ============================================================
+   V3 muted visual pass: softer images, lower glare, clearer cards
+   ============================================================ */
+
+body.app-v3 {
+  --card: #f5f7f8;
+  --card2: #edf2f5;
+  --bg: #e9eff3;
+  --bg2: #eef3f6;
+  --bg3: #dce5eb;
+  --text: #243047;
+  --text2: #4b596b;
+  --text3: #647286;
+  --accent: #287f8e;
+  --accent2: #236f7b;
+}
+
+body.app-v3 #app {
+  background:
+    linear-gradient(180deg, rgba(235, 242, 246, .88), rgba(230, 236, 241, .94)),
+    url("/images/v3-generated/bg-home-street.webp") center / cover fixed;
+}
+
+body.app-v3 .view,
+body.app-v3 .app-main,
+body.app-v3 .flow-body {
+  background-color: transparent;
+}
+
+body.app-v3 .welcome-card,
+body.app-v3 .home-dashboard,
+body.app-v3 .program-card,
+body.app-v3 .stage-card,
+body.app-v3 .lesson-overview,
+body.app-v3 .module-card,
+body.app-v3 .practice-overview,
+body.app-v3 .practice-tool-card,
+body.app-v3 .profile-section,
+body.app-v3 .flow-screen:not(.roleplay-comic-mode) .flow-body > section,
+body.app-v3 .module-intro-content,
+body.app-v3 .intro-item,
+body.app-v3 .lec-preview-card,
+body.app-v3 .quiz-question,
+body.app-v3 .quiz-hud,
+body.app-v3 .quiz-choice,
+body.app-v3 .kana-card,
+body.app-v3 .kana-face,
+body.app-v3 .kana-back,
+body.app-v3 .vc-face,
+body.app-v3 .vc-back {
+  background-color: rgba(245, 247, 248, .94);
+  color: #243047;
+  border-color: rgba(82, 105, 140, .18);
+  box-shadow: 0 10px 24px rgba(60, 82, 112, .1);
+}
+
+body.app-v3 .module-cover-thumb,
+body.app-v3 .module-roleplay-thumb,
+body.app-v3 .roleplay-thumb,
+body.app-v3 .practice-thumb,
+body.app-v3 .module-intro-image,
+body.app-v3 .lec-scene-img,
+body.app-v3 .comic-scene-bg,
+body.app-v3 .roleplay-hero-bg {
+  filter: brightness(.86) saturate(.96) contrast(1);
+}
+
+body.app-v3 .v3-kana-chart-hero,
+body.app-v3 .v3-kana-memory div {
+  background: #f3f7f8;
+  border-color: rgba(82, 105, 140, .18);
+}
+
+body.app-v3 .v3-kana-axis span,
+body.app-v3 .v3-kana-row-head {
+  background: #dfe8ee;
+  color: #243047;
+  border-color: rgba(82, 105, 140, .16);
+}
+
+body.app-v3 .v3-kana-cell {
+  background: #e5ebef;
+  color: #243047;
+  border-color: rgba(82, 105, 140, .16);
+}
+
+/* ============================================================
+   V3 roleplay player hard fix: top dialogue rail + readable text
+   ============================================================ */
+
+body.app-v3 .flow-screen.roleplay-comic-mode .flow-body {
+  background: transparent;
+}
+
+body.app-v3 .flow-screen.roleplay-comic-mode .comic-player-shell {
+  min-height: 100%;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 10px;
+  padding: 10px;
+  background: transparent;
+}
+
+body.app-v3 .flow-screen.roleplay-comic-mode .comic-phase-nav {
+  display: none;
+}
+
+body.app-v3 .flow-screen.roleplay-comic-mode .comic-script-dock-external {
+  position: relative;
+  z-index: 5;
+  max-height: 178px;
+  overflow-y: auto;
+  display: grid;
+  gap: 8px;
+  padding: 10px;
+  background: rgba(247, 250, 252, .96);
+  color: #172033;
+  border: 1px solid rgba(70, 90, 118, .2);
+  border-radius: 12px;
+  box-shadow: 0 12px 26px rgba(45, 64, 92, .16);
+}
+
+body.app-v3 .comic-script-context {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  color: #526174;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+body.app-v3 .comic-script-context b {
+  min-width: 52px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: #dfe8ee;
+  color: #172033;
+  text-align: center;
+}
+
+body.app-v3 .flow-screen.roleplay-comic-mode .comic-script-line {
+  width: 100%;
+  background: #ffffff;
+  color: #172033;
+  border: 1px solid rgba(70, 90, 118, .18);
+  box-shadow: 0 6px 14px rgba(45, 64, 92, .08);
+}
+
+body.app-v3 .flow-screen.roleplay-comic-mode .comic-script-line.active {
+  background: #eef7f8;
+  border-color: rgba(40, 127, 142, .46);
+  box-shadow: 0 0 0 2px rgba(40, 127, 142, .14);
+}
+
+body.app-v3 .flow-screen.roleplay-comic-mode .comic-script-jp,
+body.app-v3 .flow-screen.roleplay-comic-mode .comic-script-line.active .comic-script-jp {
+  color: #121a29;
+  font-weight: 900;
+}
+
+body.app-v3 .flow-screen.roleplay-comic-mode .comic-script-ko,
+body.app-v3 .flow-screen.roleplay-comic-mode .comic-script-line.active .comic-script-ko {
+  color: #3f5066;
+  font-weight: 700;
+}
+
+body.app-v3 .flow-screen.roleplay-comic-mode .comic-player-visual {
+  height: 100%;
+  min-height: 0;
+  aspect-ratio: auto;
+  width: 100%;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, .02), rgba(17, 24, 39, .1)),
+    var(--comic-bg) center / cover no-repeat;
+  background-size: cover;
+  background-position: center;
+  border: 1px solid rgba(70, 90, 118, .2);
+  box-shadow: inset 0 -80px 100px rgba(35, 47, 66, .18), 0 14px 28px rgba(45, 64, 92, .16);
+}
+
+body.app-v3 .flow-screen.roleplay-comic-mode .comic-play-indicator {
+  display: none;
+}
+
+body.app-v3 .flow-screen.roleplay-comic-mode .vn-character {
+  object-fit: contain;
+  object-position: center bottom;
+  mix-blend-mode: normal;
+  background: transparent;
+  animation: none;
+  --char-dir: 1;
+  transform: scaleX(var(--char-dir)) scale(1);
+}
+
+body.app-v3 .flow-screen.roleplay-comic-mode .vn-character-B {
+  --char-dir: -1;
+}
+
+body.app-v3 .flow-screen.roleplay-comic-mode .comic-player-visual.speaker-focus-A .vn-character-A,
+body.app-v3 .flow-screen.roleplay-comic-mode .comic-player-visual.speaker-focus-B .vn-character-B,
+body.app-v3 .flow-screen.roleplay-comic-mode .comic-player-visual.speaker-focus-C .vn-character-C {
+  transform: scaleX(var(--char-dir)) scale(1.08);
+}
+
+body.app-v3 .flow-screen.roleplay-comic-mode .comic-player-visual.speaker-focus-A .vn-character-B,
+body.app-v3 .flow-screen.roleplay-comic-mode .comic-player-visual.speaker-focus-B .vn-character-A,
+body.app-v3 .flow-screen.roleplay-comic-mode .comic-player-visual.speaker-focus-C .vn-character-A,
+body.app-v3 .flow-screen.roleplay-comic-mode .comic-player-visual.speaker-focus-C .vn-character-B {
+  transform: scaleX(var(--char-dir)) scale(.84);
+}
+
+body.app-v3 .flow-screen.roleplay-comic-mode .comic-practice-prompt {
+  background: rgba(247, 250, 252, .96);
+  color: #172033;
+  border-color: rgba(70, 90, 118, .2);
+}
+
+body.app-v3 .flow-screen.roleplay-comic-mode .comic-practice-prompt b,
+body.app-v3 .flow-screen.roleplay-comic-mode .comic-practice-prompt em {
+  color: #172033;
+  text-shadow: none;
+}
+
+body.app-v3 .v3-kana-cell:hover {
+  background: #dceff3;
+  border-color: rgba(40, 127, 142, .38);
+}
+
+body.app-v3 .v3-kana-cell.is-empty {
+  background: #d8e1e8;
+}
+
+body.app-v3 .v3-kana-hira,
+body.app-v3 .v3-kana-row-head strong,
+body.app-v3 .v3-kana-memory b {
+  color: #243047;
+}
+
+body.app-v3 .v3-kana-kata,
+body.app-v3 .v3-kana-kicker {
+  color: #236f7b;
+}
+
+body.app-v3 .v3-kana-chart-hero p,
+body.app-v3 .v3-kana-row-head span,
+body.app-v3 .v3-kana-memory span {
+  color: #4b596b;
+}
+
+body.app-v3 .lec-footer-tools-unified {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+body.app-v3 .lec-voice-select-wrap {
+  min-width: 0;
+}
+
+body.app-v3 .lec-tool-voice-name {
+  overflow: hidden;
+  max-width: 52px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+body.app-v3 .lec-pick-voice-chip {
+  touch-action: manipulation;
+}
+
+@media (max-width: 420px) {
+  body.app-v3 .module-cover-thumb {
+    width: 78px;
+    min-width: 78px;
+    height: 102px;
+  }
+
+  body.app-v3 .lec-pick-top {
+    top: 14px;
+    left: 14px;
+    right: 14px;
+  }
+
+  body.app-v3 .lec-pick-bottom {
+    left: 14px;
+    right: 14px;
+    bottom: 14px;
+  }
+}
+
+/* ============================================================
+   V3 product pass: compact home, immersive intro, practice density
+   ============================================================ */
+
+body.app-v3 .v3-home-next-card {
+  min-height: 0;
+  padding: 14px;
+}
+
+body.app-v3 .v3-home-next-card .dashboard-main {
+  gap: 10px;
+}
+
+body.app-v3 .dashboard-row-top {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+}
+
+body.app-v3 .v3-home-next-card .dashboard-main h1 {
+  margin: 2px 0 3px;
+  font-size: 22px;
+  line-height: 1.12;
+}
+
+body.app-v3 .v3-home-next-card .dashboard-main p {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+body.app-v3 .dashboard-primary.compact {
+  min-width: 86px;
+  min-height: 42px;
+  padding: 0 14px;
+  border-radius: 10px;
+}
+
+body.app-v3 .home-daily-tabs {
+  padding: 9px;
+  border: 1px solid rgba(82, 105, 140, .14);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, .72);
+}
+
+body.app-v3 .home-daily-tab-head {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+body.app-v3 .home-daily-tab-head span {
+  flex: 1;
+  padding: 6px 8px;
+  border-radius: 8px;
+  background: #edf3f7;
+  color: #4f5f75;
+  font-size: 11px;
+  font-weight: 900;
+  text-align: center;
+}
+
+body.app-v3 .home-daily-tab-head span.active {
+  background: #dff4f8;
+  color: #236f7b;
+}
+
+body.app-v3 .home-mission-inline {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+
+body.app-v3 .home-mission-pill {
+  display: flex;
+  min-width: 0;
+  min-height: 34px;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 8px;
+  border: 1px solid rgba(82, 105, 140, .14);
+  border-radius: 9px;
+  background: #ffffff;
+  color: #243047;
+  text-align: left;
+}
+
+body.app-v3 .home-mission-pill b {
+  overflow: hidden;
+  font-size: 11px;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+body.app-v3 .mission-inline-icon {
+  width: 15px;
+  height: 15px;
+  color: #287f8e;
+}
+
+body.app-v3 .home-step-guide {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+body.app-v3 .home-step-guide-title {
+  display: none;
+}
+
+body.app-v3 .home-step-guide-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+}
+
+body.app-v3 .home-step-guide-btn {
+  min-height: 42px;
+  padding: 7px 8px;
+}
+
+body.app-v3 .home-step-guide-icon {
+  display: none;
+}
+
+body.app-v3 .home-step-guide-copy b {
+  font-size: 11px;
+  word-break: keep-all;
+}
+
+body.app-v3 .home-step-guide-copy em {
+  display: none;
+}
+
+body.app-v3 .program-section {
+  order: 20;
+}
+
+body.app-v3 .flow-screen.module-intro-mode .flow-body {
+  background: #dfe9ee;
+  overflow-y: auto;
+}
+
+body.app-v3 .module-intro {
+  position: relative;
+  min-height: 100%;
+  justify-content: flex-start;
+  background: transparent;
+}
+
+body.app-v3 .module-intro-bg {
+  position: absolute;
+  inset: 0;
+  opacity: 1;
+  background-image: var(--module-intro-bg);
+  background-position: center;
+  background-size: cover;
+  filter: brightness(.92) saturate(1.1) contrast(1.06);
+}
+
+body.app-v3 .module-intro-bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(17, 31, 46, .06), rgba(17, 31, 46, .18) 42%, rgba(235, 242, 246, .34)),
+    linear-gradient(90deg, rgba(235, 242, 246, .32), rgba(235, 242, 246, .12) 62%, rgba(235, 242, 246, .28));
+}
+
+body.app-v3 .module-intro-art {
+  display: none;
+}
+
+body.app-v3 .module-intro-content {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 12px;
+  height: auto !important;
+  min-height: 0;
+  margin: 14px 12px 10px;
+  padding: 13px;
+  border: 1px solid rgba(255, 255, 255, .58);
+  border-radius: 16px;
+  background: rgba(246, 249, 251, .76);
+  backdrop-filter: none;
+  box-shadow: 0 18px 36px rgba(47, 70, 96, .22);
+}
+
+body.app-v3 .module-intro-topline {
+  align-items: center;
+}
+
+body.app-v3 .module-intro-icon {
+  width: 38px;
+  height: 38px;
+}
+
+body.app-v3 .module-intro-stage strong {
+  font-size: 20px;
+  line-height: 1.16;
+}
+
+body.app-v3 .module-intro-sub {
+  margin-top: -4px;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+body.app-v3 .module-intro-section-title {
+  margin-top: 2px;
+  font-size: 12px;
+}
+
+body.app-v3 .module-intro-sequence {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 7px;
+  margin: 0 12px 12px;
+  padding: 0;
+}
+
+body.app-v3 .module-intro-sequence .module-intro-section-title {
+  width: fit-content;
+  padding: 6px 10px;
+  border: 1px solid rgba(255, 255, 255, .52);
+  border-radius: 999px;
+  background: rgba(246, 249, 251, .66);
+  backdrop-filter: none;
+  box-shadow: 0 8px 18px rgba(47, 70, 96, .1);
+}
+
+body.app-v3 .module-intro-items {
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+
+body.app-v3 .intro-item {
+  min-height: 54px;
+  padding: 10px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, .68);
+  backdrop-filter: none;
+}
+
+body.app-v3 .intro-item.compact {
+  grid-template-columns: 34px minmax(0, 1fr);
+}
+
+body.app-v3 .intro-item.compact .intro-item-title {
+  font-size: 13px;
+}
+
+body.app-v3 .intro-item.compact .intro-item-meta {
+  display: block;
+  overflow: hidden;
+  margin-top: 2px;
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+body.app-v3 .intro-item.done {
+  border-color: rgba(35, 111, 123, .34);
+  background: #e8f8f5;
+}
+
+body.app-v3 .intro-item.current {
+  border-color: rgba(40, 127, 142, .46);
+  background: #e4f6fb;
+  box-shadow: 0 0 0 3px rgba(40, 127, 142, .12);
+}
+
+body.app-v3 .ii-check {
+  width: 34px;
+  height: 34px;
+  font-size: 14px;
+  font-weight: 900;
+}
+
+body.app-v3 .lec-preview-card {
+  margin-top: 0;
+  padding: 13px;
+  border-radius: 12px;
+  background: #ffffff;
+}
+
+body.app-v3 .intro-item .lec-preview-card {
+  margin-top: 8px;
+  padding: 9px 10px;
+  border-radius: 10px;
+  background: #f8fbfd;
+  border-color: rgba(82, 105, 140, .12);
+  box-shadow: none;
+}
+
+body.app-v3 .intro-item .lec-preview-badge {
+  width: fit-content;
+  padding: 4px 7px;
+  font-size: 10px;
+}
+
+body.app-v3 .intro-item .lec-preview-main {
+  margin-top: 6px;
+  font-size: 14px;
+}
+
+body.app-v3 .intro-item .lec-preview-sub {
+  display: -webkit-box;
+  overflow: hidden;
+  margin-top: 4px;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  font-size: 11px;
+}
+
+body.app-v3 .intro-item .lec-preview-slides {
+  margin-top: 5px;
+  font-size: 10px;
+}
+
+body.app-v3 .lec-pick-top {
+  top: 14px;
+  padding: 11px 12px;
+  background: rgba(246, 249, 251, .72);
+  backdrop-filter: none;
+}
+
+body.app-v3 .lec-pick-sub {
+  word-break: keep-all;
+}
+
+body.app-v3 .lec-pick-greeting {
+  margin-bottom: 2px;
+  font-size: 20px;
+}
+
+body.app-v3 .lec-pick-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+body.app-v3 .lec-pick-badge {
+  display: inline-flex;
+  min-width: 42px;
+  height: 34px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(40, 127, 142, .26);
+  border-radius: 999px;
+  background: #e4f6fb;
+  color: #236f7b;
+  font-size: 12px;
+  font-weight: 950;
+}
+
+body.app-v3 .lec-pick-bottom {
+  gap: 8px;
+}
+
+body.app-v3 .lec-pick-card {
+  padding: 10px;
+}
+
+body.app-v3 .lec-pick-card-head {
+  display: none;
+}
+
+body.app-v3 .lec-pick-card-voices {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+body.app-v3 .lec-pick-voice-chip {
+  min-height: 48px;
+  grid-template-columns: 34px auto;
+  align-items: center;
+  text-align: left;
+  row-gap: 1px;
+}
+
+body.app-v3 .lec-pick-voice-face {
+  display: block;
+  width: 34px;
+  height: 34px;
+  grid-row: span 2;
+  border: 1px solid rgba(82, 105, 140, .16);
+  border-radius: 50%;
+  background-image: var(--voice-avatar);
+  background-position: var(--voice-avatar-pos, center);
+  background-size: var(--voice-avatar-size, cover);
+}
+
+body.app-v3 .lec-pick-voice-sym {
+  display: none;
+}
+
+body.app-v3 .lec-pick-voice-meta {
+  display: block;
+  min-width: 0;
+  color: #5f6d80;
+  font-size: 11px;
+  font-weight: 750;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+body.app-v3 .lec-pick-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 7px;
+}
+
+body.app-v3 .lec-pick-option-group {
+  display: grid;
+  grid-template-columns: auto 1fr 1fr;
+  gap: 6px;
+  align-items: center;
+  padding: 7px;
+  border: 1px solid rgba(82, 105, 140, .16);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, .88);
+}
+
+body.app-v3 .lec-pick-option-group span {
+  color: #4f5f75;
+  font-size: 11px;
+  font-weight: 900;
+}
+
+body.app-v3 .lec-pick-mode-btn {
+  min-height: 32px;
+  border: 1px solid rgba(82, 105, 140, .16);
+  border-radius: 9px;
+  background: #ffffff;
+  color: #31415a;
+  font-weight: 900;
+}
+
+body.app-v3 .lec-pick-mode-btn.active {
+  border-color: rgba(40, 127, 142, .44);
+  background: #dff4f8;
+  color: #236f7b;
+}
+
+body.app-v3 .lec-caption-box-solo {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr);
+  gap: 10px;
+  align-items: center;
+}
+
+body.app-v3 .lec-caption-speaker-face {
+  width: 42px;
+  height: 42px;
+  border: 2px solid rgba(255, 255, 255, .86);
+  border-radius: 50%;
+  background-image: var(--voice-avatar);
+  background-position: center;
+  background-size: cover;
+  box-shadow: 0 8px 18px rgba(42, 62, 82, .2);
+}
+
+body.app-v3 .practice-grid.compact-practice-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+body.app-v3 .practice-grid.compact-practice-grid .practice-tool-card {
+  min-height: 88px;
+}
+
+body.app-v3 .practice-grid.compact-practice-grid .practice-thumb {
+  display: none;
+}
+
+body.app-v3 .practice-grid.compact-practice-grid .practice-card-content {
+  padding: 12px;
+}
+
+body.app-v3 .practice-card-head.no-icon {
+  min-height: 0;
+  margin: 0;
+}
+
+body.app-v3 .group-learning-band {
+  margin: 14px 12px;
+  padding: 14px;
+  border: 1px solid rgba(82, 105, 140, .16);
+  border-radius: 16px;
+  background: rgba(246, 249, 251, .94);
+}
+
+body.app-v3 .group-title {
+  font-size: 15px;
+  line-height: 1.25;
+}
+
+body.app-v3 .group-set-grid {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(168px, 46%);
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scroll-snap-type: x mandatory;
+}
+
+body.app-v3 .group-set-card {
+  min-height: 132px;
+  padding: 12px;
+  border-radius: 12px;
+  background: #ffffff;
+  scroll-snap-align: start;
+}
+
+body.app-v3 .group-set-thumb {
+  display: none;
+}
+
+body.app-v3 .group-set-content {
+  gap: 7px;
+}
+
+body.app-v3 .group-set-title {
+  font-size: 14px;
+}
+
+body.app-v3 .group-set-sub,
+body.app-v3 .group-preview-chip {
+  font-size: 11px;
+}
+
+body.app-v3 .profile-voice-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+body.app-v3 .profile-voice-card {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr);
+  gap: 8px;
+  align-items: center;
+  padding: 10px;
+  border: 1px solid rgba(82, 105, 140, .16);
+  border-radius: 12px;
+  background: #ffffff;
+  color: #243047;
+  text-align: left;
+}
+
+body.app-v3 .profile-voice-card.active {
+  border-color: rgba(40, 127, 142, .42);
+  background: #e8f8fc;
+}
+
+body.app-v3 .profile-voice-face {
+  width: 42px;
+  height: 42px;
+  grid-row: span 2;
+  border-radius: 50%;
+  background-image: var(--voice-avatar);
+  background-position: center;
+  background-size: cover;
+}
+
+body.app-v3 .profile-voice-card b {
+  font-size: 13px;
+}
+
+body.app-v3 .profile-voice-card em {
+  color: #647286;
+  font-size: 11px;
+  font-style: normal;
+}
+
+body.app-v3 .profile-mode-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 10px;
+}
+
+body.app-v3 .profile-mode-row button {
+  min-height: 38px;
+  border: 1px solid rgba(82, 105, 140, .16);
+  border-radius: 10px;
+  background: #f3f7fb;
+  color: #31415a;
+  font-weight: 900;
+}
+
+/* ============================================================
+   V3 polish pass: unified section labels and roleplay bubbles
+   ============================================================ */
+
+body.app-v3 .dashboard-kicker,
+body.app-v3 .welcome-eyebrow,
+body.app-v3 .section-title,
+body.app-v3 .home-step-guide-title,
+body.app-v3 .lesson-overview-kicker,
+body.app-v3 .practice-section-title,
+body.app-v3 .profile-section-title {
+  width: max-content;
+  max-width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #31415a;
+  font-size: 13px;
+  font-weight: 950;
+  letter-spacing: 0;
+  text-transform: none;
+  box-shadow: none;
+}
+
+body.app-v3 .section-title {
+  margin: 18px 0 10px;
+}
+
+body.app-v3 .dashboard-kicker::before,
+body.app-v3 .welcome-eyebrow::before,
+body.app-v3 .section-title::before,
+body.app-v3 .practice-section-title::before,
+body.app-v3 .profile-section-title::before {
+  content: "";
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-right: 7px;
+  border-radius: 50%;
+  background: #287f8e;
+  vertical-align: 2px;
+}
+
+body.app-v3 .flow-screen.roleplay-comic-mode .comic-script-dock-external {
+  max-height: min(34vh, 230px);
+  align-content: start;
+  background: rgba(245, 249, 251, .92);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scroll-padding: 68px 0;
+}
+
+body.app-v3 .flow-screen.roleplay-comic-mode .comic-script-line {
+  position: relative;
+  width: 100%;
+  max-width: none;
+  border-radius: 10px;
+  padding: 9px 10px;
+  text-align: left;
+}
+
+body.app-v3 .flow-screen.roleplay-comic-mode .comic-script-line.speaker-A,
+body.app-v3 .flow-screen.roleplay-comic-mode .comic-script-line.speaker-C {
+  justify-self: start;
+  border-bottom-left-radius: 10px;
+}
+
+body.app-v3 .flow-screen.roleplay-comic-mode .comic-script-line.speaker-B {
+  justify-self: start;
+  border-bottom-right-radius: 10px;
+  background: #e8f8fc;
+}
+
+body.app-v3 .flow-screen.roleplay-comic-mode .comic-script-line::after {
+  display: none;
+}
+
+body.app-v3 .flow-screen.roleplay-comic-mode .comic-script-line.speaker-A::after,
+body.app-v3 .flow-screen.roleplay-comic-mode .comic-script-line.speaker-C::after {
+  left: 14px;
+}
+
+body.app-v3 .flow-screen.roleplay-comic-mode .comic-script-line.speaker-B::after {
+  right: 14px;
+}
+
+body.app-v3 .flow-screen.roleplay-comic-mode .comic-script-copy,
+body.app-v3 .flow-screen.roleplay-comic-mode .comic-script-speaker,
+body.app-v3 .flow-screen.roleplay-comic-mode .comic-script-audio {
+  position: relative;
+  z-index: 1;
+}
+
+body.app-v3 .flow-screen.roleplay-comic-mode .comic-scene-speech-bubble {
+  position: absolute;
+  z-index: 6;
+  top: 12%;
+  max-width: min(76%, 360px);
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr);
+  gap: 8px;
+  align-items: start;
+  padding: 10px 12px;
+  border: 1px solid rgba(70, 90, 118, .18);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, .94);
+  color: #172033;
+  box-shadow: 0 12px 26px rgba(35, 47, 66, .18);
+  text-align: left;
+  transform: translateY(0);
+  transition: transform .22s ease, opacity .22s ease;
+}
+
+body.app-v3 .flow-screen.roleplay-comic-mode .comic-scene-speech-bubble.speaker-A,
+body.app-v3 .flow-screen.roleplay-comic-mode .comic-scene-speech-bubble.speaker-C {
+  left: 8%;
+  border-bottom-left-radius: 6px;
+}
+
+body.app-v3 .flow-screen.roleplay-comic-mode .comic-scene-speech-bubble.speaker-B {
+  right: 8%;
+  border-bottom-right-radius: 6px;
+  background: rgba(232, 248, 252, .96);
+}
+
+body.app-v3 .flow-screen.roleplay-comic-mode .comic-scene-speech-bubble.current {
+  top: 15%;
+}
+
+body.app-v3 .flow-screen.roleplay-comic-mode .comic-scene-speech-bubble.previous {
+  top: 3%;
+  max-width: min(66%, 320px);
+  opacity: .72;
+  transform: translateY(-4px) scale(.94);
+  filter: saturate(.92);
+}
+
+body.app-v3 .flow-screen.roleplay-comic-mode .comic-scene-speech-bubble::after {
+  content: "";
+  position: absolute;
+  bottom: -5px;
+  width: 13px;
+  height: 13px;
+  background: inherit;
+  border-right: inherit;
+  border-bottom: inherit;
+  transform: rotate(45deg);
+}
+
+body.app-v3 .flow-screen.roleplay-comic-mode .comic-scene-speech-bubble.speaker-A::after,
+body.app-v3 .flow-screen.roleplay-comic-mode .comic-scene-speech-bubble.speaker-C::after {
+  left: 24px;
+}
+
+body.app-v3 .flow-screen.roleplay-comic-mode .comic-scene-speech-bubble.speaker-B::after {
+  right: 24px;
+}
+
+body.app-v3 .comic-scene-speech-face {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background-position: center;
+  background-size: cover;
+}
+
+body.app-v3 .comic-scene-speech-copy {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+body.app-v3 .comic-scene-speech-copy b {
+  color: #121a29;
+  font-size: 15px;
+  line-height: 1.32;
+}
+
+body.app-v3 .comic-scene-speech-copy em {
+  color: #3f5066;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 750;
+  line-height: 1.35;
+}
+
+body.app-v3 .flow-screen.roleplay-comic-mode .comic-practice-prompt {
+  background: linear-gradient(135deg, rgba(23, 32, 51, .98), rgba(36, 48, 71, .97));
+  border: 1px solid rgba(255, 255, 255, .18);
+  box-shadow: 0 16px 34px rgba(15, 23, 42, .28);
+  color: #f8fbfd;
+  gap: 8px;
+  padding: 10px 12px;
+}
+
+body.app-v3 .flow-screen.roleplay-comic-mode .comic-practice-prompt b {
+  color: #ffffff;
+  font-size: 13px;
+}
+
+body.app-v3 .flow-screen.roleplay-comic-mode .comic-practice-prompt em {
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 900;
+}
+
+body.app-v3 .flow-screen.roleplay-comic-mode .comic-practice-note {
+  color: rgba(248, 251, 253, .76);
+  font-size: 12px;
+  font-weight: 750;
+  line-height: 1.35;
+}
+
+body.app-v3 .flow-screen.roleplay-comic-mode .comic-practice-head span {
+  color: rgba(248, 251, 253, .78);
+}
+
+body.app-v3 .flow-screen.roleplay-comic-mode .comic-practice-steps i {
+  background: rgba(255, 255, 255, .1);
+  color: rgba(248, 251, 253, .72);
+}
+
+body.app-v3 .flow-screen.roleplay-comic-mode .comic-practice-steps i.active {
+  background: #e8f8fc;
+  color: #172033;
+}
+
+body.app-v3 .flow-screen.roleplay-comic-mode .comic-player-actions {
+  padding: 10px;
+  border: 1px solid rgba(255, 255, 255, .14);
+  border-radius: 16px;
+  background: #172033;
+  box-shadow: 0 14px 30px rgba(15, 23, 42, .24);
+}
+
+body.app-v3 .flow-screen.roleplay-comic-mode .comic-player-actions .btn-outline {
+  border-color: rgba(255, 255, 255, .2);
+  background: rgba(255, 255, 255, .09);
+  color: #f8fbfd;
+}
+
+body.app-v3 .flow-screen.roleplay-comic-mode .comic-player-actions .btn-primary {
+  border-color: #e8f8fc;
+  background: #e8f8fc;
+  color: #172033;
 }

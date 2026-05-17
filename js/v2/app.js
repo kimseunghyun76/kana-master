@@ -458,7 +458,7 @@ window.App = (() => {
   function _lecSetInstructor(lang) { return _lectureFlow.setInstructor(lang); }
   function _lecToggleInstructor() { return _lectureFlow.toggleInstructor(); }
   function _lecPickInstructor(lang) { return _lectureFlow.pickInstructor(lang); }
-  function _lecPickSet(field, value) { return _lectureFlow.pickSet(field, value); }
+  function _lecPickSet(field, value, langScope, sourceEl) { return _lectureFlow.pickSet(field, value, langScope, sourceEl); }
   function _lecPickStart() { return _lectureFlow.pickStart(); }
   function _lecToggleCaptionShow() { return _lectureFlow.toggleCaptionShow(); }
   function _lecToggleBoardFont() { return _lectureFlow.toggleBoardFont(); }

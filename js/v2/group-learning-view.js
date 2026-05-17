@@ -11,8 +11,10 @@ window.createGroupLearningView = (ctx) => {
     jsString,
     uiIconSvg,
   } = ctx;
+  const gameUi = !!ctx.gameUi;
 
   const sets = window.GROUP_LEARNING_SETS || [];
+  const visibleSets = () => gameUi ? sets : sets.slice(0, 5);
   let openSetId = null;
 
   function renderSection() {
@@ -23,12 +25,12 @@ window.createGroupLearningView = (ctx) => {
             <div class="group-kicker">묶음 학습</div>
             <div class="group-title">따로 외우면 헷갈리는 단어를 한 화면에서 정리</div>
           </div>
-          <button class="group-play-all" onclick="App.playGroupLearning('${jsString(sets[0]?.id || '')}')">
-            ${uiIconSvg('play', 'group-play-icon')} 첫 묶음 듣기
+          <button class="group-play-all" onclick="App.playGroupLearning('${jsString(visibleSets()[0]?.id || '')}')">
+            ${uiIconSvg('play', 'group-play-icon')} 추천 묶음 듣기
           </button>
         </div>
         <div class="group-set-grid">
-          ${sets.map(set => _renderSetCard(set)).join('')}
+          ${visibleSets().map(set => _renderSetCard(set)).join('')}
         </div>
       </section>
     `;
@@ -40,7 +42,6 @@ window.createGroupLearningView = (ctx) => {
     `).join('');
     return `
       <button class="group-set-card" onclick="App.openGroupLearning('${jsString(set.id)}')">
-        <span class="group-set-thumb" style="--group-bg:url('${cssUrlValue(set.image)}')" aria-hidden="true"></span>
         <span class="group-set-content">
           <span class="group-set-top">
             <span class="group-set-icon">${escHtml(set.icon)}</span>

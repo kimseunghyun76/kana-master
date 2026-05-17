@@ -9,34 +9,34 @@
   const base = window.RoleplayArt || { byModule: {} };
   const V = {
     nanami: {
-      body: 'images/v3-cute/characters/yuna-body.webp',
-      face: 'images/v3-cute/characters/yuna-face.webp',
-    },
-    aoi: {
-      body: 'images/v3-cute/characters/mika-body.webp',
-      face: 'images/v3-cute/characters/mika-face.webp',
-    },
-    mayu: {
       body: 'images/v3-cute/characters/akari-body.webp',
       face: 'images/v3-cute/characters/akari-face.webp',
     },
-    keita: {
-      body: 'images/v3-cute/characters/ren-body.webp',
-      face: 'images/v3-cute/characters/ren-face.webp',
+    aoi: {
+      body: 'images/v3-cute/characters/yuna-body.webp',
+      face: 'images/v3-cute/characters/yuna-face.webp',
     },
-    takumi: {
+    mayu: {
+      body: 'images/v3-cute/characters/mika-body.webp',
+      face: 'images/v3-cute/characters/mika-face.webp',
+    },
+    keita: {
       body: 'images/v3-cute/characters/takumi-body.webp',
       face: 'images/v3-cute/characters/takumi-face.webp',
     },
+    takumi: {
+      body: 'images/v3-cute/characters/ren-body.webp',
+      face: 'images/v3-cute/characters/ren-face.webp',
+    },
   };
   const BG = {
-    airport: 'images/v3-cute/bg-airport-pastel.webp',
-    transit: 'images/v3-cute/bg-station-pastel.webp',
-    food: 'images/v3-cute/bg-shop-cafe-pastel.webp',
-    shop: 'images/v3-cute/bg-shop-cafe-pastel.webp',
-    hotel: 'images/v3-cute/bg-hotel-ryokan-pastel.webp',
+    airport: 'images/v3-generated/bg-station.webp',
+    transit: 'images/v3-generated/bg-station.webp',
+    food: 'images/v3-generated/bg-shop-cafe.webp',
+    shop: 'images/v3-generated/bg-shop-cafe.webp',
+    hotel: 'images/v3-generated/bg-hotel-ryokan.webp',
     trouble: 'images/v3-cute/bg-pharmacy-clinic-pastel.webp',
-    local: 'images/v3-cute/home-sakura-street.webp',
+    local: 'images/v3-generated/bg-home-street.webp',
     fallbackAirport: 'images/lecture-scenes/slevel4-train-station-transfer.webp',
     fallbackTransit: 'images/roleplay-comics/generated/transport-bg.webp',
     fallbackFood: 'images/roleplay-comics/generated/food-bg.webp',
@@ -46,14 +46,29 @@
     fallbackLocal: 'images/roleplay-comics/generated/sightseeing-bg.webp',
   };
 
-  const pair = (bg, a = V.nanami, b = V.mayu, c = V.keita) => ({
-    bg,
-    characters: { A: a.body, B: b.body, C: c.body },
-    faces: { A: a.face, B: b.face, C: c.face },
-  });
+  const distinctPair = (a, b) => (a.body === b.body ? V.keita : b);
+  const pair = (bg, a = V.nanami, b = V.keita, c = V.mayu) => {
+    const second = distinctPair(a, b);
+    return {
+      bg,
+      characters: { A: a.body, B: second.body, C: c.body },
+      faces: { A: a.face, B: second.face, C: c.face },
+    };
+  };
 
   const byModule = {
     ...base.byModule,
+    v3_kana_map: pair(BG.local, V.nanami, V.mayu),
+    kana_hira: pair(BG.local, V.aoi, V.nanami),
+    kana_kata: pair(BG.shop, V.nanami, V.keita),
+    v3_kana_sound_rules: pair(BG.transit, V.aoi, V.keita),
+    v3_survival_objects: pair(BG.shop, V.nanami, V.mayu),
+    v3_particle_basics: pair(BG.local, V.aoi, V.nanami),
+    v3_tense_matrix: pair(BG.food, V.nanami, V.keita),
+    v3_pronouns_places: pair(BG.shop, V.nanami, V.mayu),
+    v3_directions_body: pair(BG.transit, V.aoi, V.takumi),
+    v3_numbers_time: pair(BG.local, V.nanami, V.keita),
+    v3_money_counting: pair(BG.shop, V.aoi, V.mayu),
     v3_first_greetings: pair(BG.local, V.aoi, V.nanami),
     v3_question_engine: pair(BG.shop, V.nanami, V.mayu),
     v3_answer_engine: pair(BG.local, V.nanami, V.keita),
@@ -81,6 +96,8 @@
     v3_reservation_call: pair(BG.local, V.aoi, V.mayu),
     v3_weather_plan: pair(BG.local, V.nanami, V.keita),
     v3_polite_wrapup: pair(BG.local, V.aoi, V.nanami),
+    v3_reaction_shadowing: pair(BG.local, V.nanami, V.keita),
+    v3_drama_reactions: pair(BG.local, V.aoi, V.keita),
     v3_drama_daily: pair(BG.local, V.aoi, V.keita),
   };
 

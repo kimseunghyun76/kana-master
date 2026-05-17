@@ -7,6 +7,7 @@
 window.createQuizFlow = (ctx) => {
   let _autoNextTimer = null;
   const _resultFlow = createQuizResultFlow(ctx);
+  const VOCAB_QUIZ_MODES = ['jpToKo', 'koToJp', 'listen'];
 
   // ── Kana Quiz ─────────────────────────────────────────────
   function _renderKanaQuiz(mod, step, stepIndex) {
@@ -22,7 +23,7 @@ window.createQuizFlow = (ctx) => {
       return;
     }
     ctx.setFlowBodyMode('quiz-mode');
-    const maxQuestions = ctx.isKanaReviewLevel(level?.id) ? Math.min(20, sourceChars.length) : sourceChars.length;
+    const maxQuestions = Math.min(5, sourceChars.length);
     const chars = shuffle(sourceChars).slice(0, maxQuestions);
 
     // renderQ는 반드시 ctx.getFlow()._kanaQuiz에서 읽어야 다음 문제로 넘어감 (클로저 버그 방지)
@@ -92,6 +93,7 @@ window.createQuizFlow = (ctx) => {
       missed: [],
       isReview: false,
       totalCount: chars.length,
+      attempts: {},
       stepIndex,
       renderQ
     };
@@ -143,45 +145,56 @@ window.createQuizFlow = (ctx) => {
   function _kanaQuizAnswer(btn, isCorrect) {
     const fq = ctx.getFlow()._kanaQuiz;
     if (!fq) return;
-    document.querySelectorAll('.quiz-choice').forEach(b => {
-      b.classList.add('answered');
-      b.onclick = null;
-      if (b.dataset.correct === 'true') b.classList.add('correct');
-    });
-    btn.classList.add(isCorrect ? 'correct' : 'wrong');
+    const c = fq.chars[fq.qIdx];
+    const info = KANA_MAP[c] || {};
+    const key = String(fq.qIdx);
+    const attempt = fq.attempts[key] || 0;
     if (isCorrect) {
       fq.correct++;
     } else {
+      btn.classList.add('wrong');
+      btn.disabled = true;
+      fq.attempts[key] = attempt + 1;
+      Store.reviewKanaItem(c, 'again');
+      TTS.speak(c);
+      ctx.playQuizEffect(false);
+      const fb = document.getElementById('quizFeedback');
+      if (fb && attempt === 0) {
+        fb.className = 'quiz-feedback show wrong';
+        fb.innerHTML = `${ctx.uiIconSvg('target', 'quiz-feedback-icon')} <span>한 번 더 볼게요. 힌트: <strong>${escHtml(info.romaji || '')}</strong> 소리와 가까운 선택지를 찾아보세요.</span>`;
+      }
+      if (attempt === 0) return;
       fq.wrong++;
       // 첫 풀이(not review)에서만 오답 목록에 추가
-      if (!fq.isReview) fq.missed.push(fq.chars[fq.qIdx]);
+      if (!fq.isReview) fq.missed.push(c);
     }
-    Store.reviewKanaItem(fq.chars[fq.qIdx], isCorrect ? 'good' : 'again');
+    document.querySelectorAll('.quiz-choice').forEach(b => {
+      b.classList.add('answered');
+      b.onclick = null;
+      b.disabled = true;
+      if (b.dataset.correct === 'true') b.classList.add('correct');
+    });
+    btn.classList.add(isCorrect ? 'correct' : 'wrong');
+    Store.reviewKanaItem(c, isCorrect ? 'good' : 'again');
     // 정답·오답 모두 음성 재생
-    TTS.speak(fq.chars[fq.qIdx]);
+    TTS.speak(c);
     ctx.playQuizEffect(isCorrect);
 
     const fb = document.getElementById('quizFeedback');
     if (fb) {
-      const c = fq.chars[fq.qIdx];
-      const info = KANA_MAP[c] || {};
       fb.className = `quiz-feedback show ${isCorrect ? 'correct' : 'wrong'}`;
       fb.innerHTML = isCorrect
-        ? `${ctx.uiIconSvg('check', 'quiz-feedback-icon')} <span>정답! <strong>${escHtml(c)}</strong> = ${escHtml(info.romaji)} (${escHtml(info.korean)})</span>`
-        : `${ctx.uiIconSvg('close', 'quiz-feedback-icon')} <span>오답. 정답: <strong>${escHtml(c)}</strong> = ${escHtml(info.romaji)} (${escHtml(info.korean)})</span>`;
+        ? `${ctx.uiIconSvg('check', 'quiz-feedback-icon')} <span>좋아요. <strong>${escHtml(c)}</strong> = ${escHtml(info.romaji)} (${escHtml(info.korean)})</span>`
+        : `${ctx.uiIconSvg('close', 'quiz-feedback-icon')} <span>여기서 정답은 <strong>${escHtml(c)}</strong> = ${escHtml(info.romaji)} (${escHtml(info.korean)})예요.</span>`;
     }
     const btnNext = document.getElementById('btnNextQ');
     show(btnNext);
-    // 5초 후 자동 다음 (정답일 때만)
     if (isCorrect) {
-      if (btnNext) {
-        btnNext.innerHTML = '다음 → <div class="auto-next-bar"></div>';
-      }
       clearTimeout(_autoNextTimer);
       _autoNextTimer = setTimeout(() => {
         const btn = document.getElementById('btnNextQ');
         if (btn && !btn.classList.contains('hidden')) _kanaQuizNext();
-      }, 5000);
+      }, 250);
     } else {
       if (btnNext) btnNext.innerHTML = '다음 →';
     }
@@ -200,7 +213,7 @@ window.createQuizFlow = (ctx) => {
   // ── Kana Listening Quiz ───────────────────────────────────
   function _renderKanaListening(mod, step, stepIndex) {
     ctx.setFlowBodyMode('quiz-mode');
-    const chars = shuffle(step.chars || Object.keys(KANA_MAP)).slice(0, step.limit || 20);
+    const chars = shuffle(step.chars || Object.keys(KANA_MAP)).slice(0, Math.min(5, step.limit || 5));
 
     function renderQ() {
       const fq = ctx.getFlow()._listeningQuiz;
@@ -269,6 +282,7 @@ window.createQuizFlow = (ctx) => {
       missed: [],
       isReview: false,
       totalCount: chars.length,
+      attempts: {},
       stepIndex,
       renderQ
     };
@@ -278,41 +292,53 @@ window.createQuizFlow = (ctx) => {
   function _listeningQuizAnswer(btn, isCorrect, correctChar) {
     const fq = ctx.getFlow()._listeningQuiz;
     if (!fq) return;
-    document.querySelectorAll('.quiz-choice').forEach(b => {
-      b.classList.add('answered');
-      b.onclick = null;
-      if (b.dataset.correct === 'true') b.classList.add('correct');
-    });
-    btn.classList.add(isCorrect ? 'correct' : 'wrong');
+    const info = KANA_MAP[correctChar] || {};
+    const key = String(fq.qIdx);
+    const attempt = fq.attempts[key] || 0;
     if (isCorrect) {
       fq.correct++;
     } else {
+      btn.classList.add('wrong');
+      btn.disabled = true;
+      fq.attempts[key] = attempt + 1;
+      Store.reviewKanaItem(correctChar, 'again');
+      TTS.speak(correctChar);
+      ctx.playQuizEffect(false);
+      const fb = document.getElementById('quizFeedback');
+      if (fb && attempt === 0) {
+        fb.className = 'quiz-feedback show wrong';
+        fb.innerHTML = `${ctx.uiIconSvg('audio', 'quiz-feedback-icon')} <span>다시 들어보세요. 힌트: <strong>${escHtml(info.romaji || '')}</strong>에 가까운 글자입니다.</span>`;
+      }
+      if (attempt === 0) return;
       fq.wrong++;
       if (!fq.isReview) fq.missed.push(fq.chars[fq.qIdx]);
     }
+    document.querySelectorAll('.quiz-choice').forEach(b => {
+      b.classList.add('answered');
+      b.onclick = null;
+      b.disabled = true;
+      if (b.dataset.correct === 'true') b.classList.add('correct');
+    });
+    btn.classList.add(isCorrect ? 'correct' : 'wrong');
     Store.reviewKanaItem(correctChar, isCorrect ? 'good' : 'again');
     TTS.speak(correctChar);
     ctx.playQuizEffect(isCorrect);
 
-    const info = KANA_MAP[correctChar] || {};
     const fb = document.getElementById('quizFeedback');
     if (fb) {
       fb.className = `quiz-feedback show ${isCorrect ? 'correct' : 'wrong'}`;
       fb.innerHTML = isCorrect
-        ? `${ctx.uiIconSvg('check', 'quiz-feedback-icon')} <span>정답! <strong>${escHtml(correctChar)}</strong> = ${escHtml(info.romaji)} (${escHtml(info.korean)})</span>`
-        : `${ctx.uiIconSvg('close', 'quiz-feedback-icon')} <span>오답. 정답: <strong>${escHtml(correctChar)}</strong> = ${escHtml(info.romaji)} (${escHtml(info.korean)})</span>`;
+        ? `${ctx.uiIconSvg('check', 'quiz-feedback-icon')} <span>맞았어요. <strong>${escHtml(correctChar)}</strong> = ${escHtml(info.romaji)} (${escHtml(info.korean)})</span>`
+        : `${ctx.uiIconSvg('close', 'quiz-feedback-icon')} <span>정답은 <strong>${escHtml(correctChar)}</strong> = ${escHtml(info.romaji)} (${escHtml(info.korean)})예요.</span>`;
     }
     const btnNext = document.getElementById('btnNextQ');
     show(btnNext);
     if (isCorrect) {
-      if (btnNext) {
-        btnNext.innerHTML = '다음 → <div class="auto-next-bar"></div>';
-      }
       clearTimeout(_autoNextTimer);
       _autoNextTimer = setTimeout(() => {
         const btn = document.getElementById('btnNextQ');
         if (btn && !btn.classList.contains('hidden')) _listeningQuizNext();
-      }, 5000);
+      }, 250);
     } else {
       if (btnNext) btnNext.innerHTML = '다음 →';
     }
@@ -436,8 +462,6 @@ window.createQuizFlow = (ctx) => {
     const coachKeys = ['nanami', 'aoi', 'mayu', 'keita'];
     const coachKey = coachKeys[idx % coachKeys.length];
     st.coachKey = coachKey;
-    const coachMeta = VoiceCharacters.meta(coachKey);
-    const coachName = ({ nanami: '나나미', aoi: '아오이', mayu: '마유', keita: '케이타' })[coachKey] || '가이드';
 
     ctx.updateFlowProgress(stepIndex, mod.steps.length, step.title);
     document.getElementById('flowBody').innerHTML = `
@@ -459,13 +483,9 @@ window.createQuizFlow = (ctx) => {
                 ${item.english ? `<div class="vc-back-english">${escHtml(item.english)}</div>` : ''}
               </div>
               ${(tipText || exampleText) ? `
-              <div class="vc-coach-panel">
-                <div class="vc-coach-person">
-                  <div class="vc-coach-avatar" style="${VoiceCharacters.avatarStyle(coachKey)}"></div>
-                  <div class="vc-coach-name">${escHtml(coachName)}</div>
-                </div>
-                <div class="vc-coach-content">
-                  <div class="vc-coach-role">${escHtml(coachMeta.role || '해설')}</div>
+              <div class="vc-tip-panel">
+                <div class="vc-tip-label">TIP</div>
+                <div class="vc-tip-content">
                   ${tipText ? `<div class="vc-explain-body">${ruby(tipText)}</div>` : ''}
                   ${exampleText ? `
                   <div class="vc-ex-block compact">
@@ -585,7 +605,9 @@ window.createQuizFlow = (ctx) => {
     const items = ctx.getVocabItems(step);
     if (!items.length) { ctx.advanceStep(); return; }
 
-    const questions = shuffle(items).slice(0, Math.min(15, items.length));
+    const questions = shuffle(items)
+      .slice(0, Math.min(5, items.length))
+      .map((item, index) => ({ ...item, quizMode: VOCAB_QUIZ_MODES[index % VOCAB_QUIZ_MODES.length] }));
 
     // Build all-items pool for distractors
     const allItems = ctx.getAllVocabItems();
@@ -609,24 +631,42 @@ window.createQuizFlow = (ctx) => {
         return;
       }
       const item = fq.questions[qIdx];
-      const distractors = sample(allItems.filter(x => x.id !== item.id), 3);
+      const mode = item.quizMode || 'jpToKo';
+      const correctText = mode === 'koToJp'
+        ? stripFuri(item.japanese || item.kanji || '')
+        : (item.korean || '');
+      const distractors = getVocabDistractors(item, allItems, mode, 3);
       const choices = shuffle([
-        { text: item.korean, correct: true },
-        ...distractors.map(d => ({ text: d.korean, correct: false }))
+        { text: correctText, correct: true },
+        ...distractors.map(d => ({
+          text: mode === 'koToJp'
+            ? stripFuri(d.japanese || d.kanji || '')
+            : (d.korean || ''),
+          correct: false
+        }))
       ]);
+      const jpSafe = (item.japanese || '').replace(/\\/g, '\\\\').replace(/'/g,"\\'");
+      const questionType = mode === 'koToJp'
+        ? '일본어 표현은?'
+        : (mode === 'listen' ? '듣고 맞는 뜻을 고르세요' : '뜻은 무엇인가요?');
+      const questionText = mode === 'koToJp'
+        ? escHtml(item.korean || '')
+        : (mode === 'listen'
+          ? ctx.uiIconSvg('headphones', 'quiz-listening-icon')
+          : formatJp(item));
 
       ctx.updateFlowProgress(stepIndex, mod.steps.length, step.title);
       document.getElementById('flowBody').innerHTML = `
         ${ctx.renderQuizHud(qIdx + 1, fq.questions.length, correct, wrong)}
         <div class="quiz-question">
-          <div class="quiz-q-type">뜻은 무엇인가요?</div>
-          <div class="quiz-q-text">${formatJp(item)}</div>
-          <button class="quiz-audio-btn" onclick="TTS.speak('${(item.japanese||'').replace(/'/g,"\\'")}')">${ctx.uiLabeledIcon('audio', 'quiz-audio-icon')} 발음 듣기</button>
+          <div class="quiz-q-type">${questionType}</div>
+          <div class="quiz-q-text ${mode === 'listen' ? 'quiz-q-listen' : ''}">${questionText}</div>
+          <button class="quiz-audio-btn" onclick="TTS.speak('${jpSafe}')">${ctx.uiLabeledIcon('audio', 'quiz-audio-icon')} ${mode === 'listen' ? '다시 듣기' : '발음 듣기'}</button>
         </div>
         <div class="quiz-choices">
           ${choices.map((ch, i) => `
             <button class="quiz-choice" data-correct="${ch.correct}"
-                    onclick="App._vocabQuizAnswer(this, ${ch.correct}, '${(item.japanese||'').replace(/'/g,"\\'")}', '${(item.korean||'').replace(/'/g,"\\'")}')">
+                    onclick="App._vocabQuizAnswer(this, ${ch.correct})">
               <span class="qc-label">${['A','B','C','D'][i]}</span>
               <span>${escHtml(ch.text || '')}</span>
             </button>
@@ -639,6 +679,7 @@ window.createQuizFlow = (ctx) => {
           다음 →
         </button>
       `;
+      if (mode === 'listen') setTimeout(() => TTS.speak(item.japanese || ''), 300);
     }
 
     ctx.getFlow()._vocabQuiz = {
@@ -649,29 +690,52 @@ window.createQuizFlow = (ctx) => {
       missed: [],
       isReview: false,
       totalCount: questions.length,
+      attempts: {},
       stepIndex,
       renderQ
     };
     renderQ();
   }
 
-  function _vocabQuizAnswer(btn, isCorrect, jp, ko) {
+  function _vocabQuizAnswer(btn, isCorrect) {
     const fq = ctx.getFlow()._vocabQuiz;
     if (!fq) return;
-    document.querySelectorAll('.quiz-choice').forEach(b => {
-      b.classList.add('answered');
-      b.onclick = null;
-      if (b.dataset.correct === 'true') b.classList.add('correct');
-    });
-    btn.classList.add(isCorrect ? 'correct' : 'wrong');
+    const item = fq.questions[fq.qIdx] || {};
+    const jp = item.japanese || item.kanji || '';
+    const ko = item.korean || '';
+    const mode = item.quizMode || 'jpToKo';
+    const key = String(fq.qIdx);
+    const attempt = fq.attempts[key] || 0;
     if (isCorrect) {
       fq.correct++;
     } else {
+      btn.classList.add('wrong');
+      btn.disabled = true;
+      fq.attempts[key] = attempt + 1;
+      if (item.id) Store.reviewVocabItem(item.id, 'again');
+      TTS.speak(stripFuri(jp));
+      ctx.playQuizEffect(false);
+      const fb = document.getElementById('quizFeedback');
+      if (fb && attempt === 0) {
+        const hint = mode === 'koToJp'
+          ? `힌트: 일본어는 <strong>${escHtml(stripFuri(jp).slice(0, 1))}</strong>로 시작해요.`
+          : `힌트: 한국어 뜻은 <strong>${escHtml((ko || '').slice(0, 2))}</strong>로 시작해요.`;
+        fb.className = 'quiz-feedback show wrong';
+        fb.innerHTML = `${ctx.uiIconSvg('target', 'quiz-feedback-icon')} <span>아직 확정하지 않을게요. ${hint}</span>`;
+      }
+      if (attempt === 0) return;
       fq.wrong++;
       if (!fq.isReview) fq.missed.push(fq.questions[fq.qIdx]);
     }
-    if (fq.questions[fq.qIdx]?.id) {
-      Store.reviewVocabItem(fq.questions[fq.qIdx].id, isCorrect ? 'good' : 'again');
+    document.querySelectorAll('.quiz-choice').forEach(b => {
+      b.classList.add('answered');
+      b.onclick = null;
+      b.disabled = true;
+      if (b.dataset.correct === 'true') b.classList.add('correct');
+    });
+    btn.classList.add(isCorrect ? 'correct' : 'wrong');
+    if (item.id) {
+      Store.reviewVocabItem(item.id, isCorrect ? 'good' : 'again');
     }
     TTS.speak(stripFuri(jp));
     ctx.playQuizEffect(isCorrect);
@@ -680,20 +744,17 @@ window.createQuizFlow = (ctx) => {
     if (fb) {
       fb.className = `quiz-feedback show ${isCorrect ? 'correct' : 'wrong'}`;
       fb.innerHTML = isCorrect
-        ? `${ctx.uiIconSvg('check', 'quiz-feedback-icon')} <span>정답! <strong>${ruby(jp)}</strong> = ${escHtml(ko)}</span>`
-        : `${ctx.uiIconSvg('close', 'quiz-feedback-icon')} <span>오답. 정답: <strong>${ruby(jp)}</strong> = ${escHtml(ko)}</span>`;
+        ? `${ctx.uiIconSvg('check', 'quiz-feedback-icon')} <span>${quizPraise()} <strong>${ruby(jp)}</strong> = ${escHtml(ko)}</span>`
+        : `${ctx.uiIconSvg('close', 'quiz-feedback-icon')} <span>이번 정답은 <strong>${ruby(jp)}</strong> = ${escHtml(ko)}예요.</span>`;
     }
     const btnNext = document.getElementById('btnNextQ');
     show(btnNext);
     if (isCorrect) {
-      if (btnNext) {
-        btnNext.innerHTML = '다음 → <div class="auto-next-bar"></div>';
-      }
       clearTimeout(_autoNextTimer);
       _autoNextTimer = setTimeout(() => {
         const btn = document.getElementById('btnNextQ');
         if (btn && !btn.classList.contains('hidden')) _vocabQuizNext();
-      }, 5000);
+      }, 250);
     } else {
       if (btnNext) btnNext.innerHTML = '다음 →';
     }
@@ -707,6 +768,32 @@ window.createQuizFlow = (ctx) => {
     if (!fq) return;
     fq.qIdx++;
     fq.renderQ();
+  }
+
+  function getVocabDistractors(item, allItems, mode, count) {
+    const correct = mode === 'koToJp'
+      ? stripFuri(item.japanese || item.kanji || '')
+      : (item.korean || '');
+    const pool = allItems
+      .filter(candidate => candidate.id !== item.id)
+      .map(candidate => {
+        const text = mode === 'koToJp'
+          ? stripFuri(candidate.japanese || candidate.kanji || '')
+          : (candidate.korean || '');
+        const sameHead = text && correct && text[0] === correct[0];
+        const lengthGap = Math.abs(Array.from(text).length - Array.from(correct).length);
+        const sameBucket = candidate.category && candidate.category === item.category;
+        return { candidate, score: (sameBucket ? 0 : 4) + (sameHead ? 0 : 2) + lengthGap };
+      })
+      .filter(entry => entry.candidate && (mode === 'koToJp'
+        ? stripFuri(entry.candidate.japanese || entry.candidate.kanji || '')
+        : entry.candidate.korean));
+    const sorted = pool.sort((a, b) => a.score - b.score).map(entry => entry.candidate);
+    return sample(sorted.slice(0, Math.max(count * 4, count)), count);
+  }
+
+  function quizPraise() {
+    return sample(['좋아요.', '방금 감각 좋았어요.', '이건 바로 써먹을 수 있어요.', '정확해요.'], 1)[0] || '좋아요.';
   }
 
   function clearTimers() {

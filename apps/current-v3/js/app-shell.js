@@ -47,26 +47,26 @@ window.createAppShell = (ctx) => {
       <nav class="bottom-nav" id="bottomNav">
         <button class="nav-btn active" data-tab="home">
           <span class="nav-icon">${ctx.uiIconSvg('home', 'nav-icon-svg')}</span>
-          <span class="nav-label">HOME</span>
+          <span class="nav-label">홈</span>
         </button>
         <button class="nav-btn" data-tab="lesson">
           <span class="nav-icon">${ctx.uiIconSvg('lesson', 'nav-icon-svg')}</span>
-          <span class="nav-label">LESSON</span>
+          <span class="nav-label">레슨</span>
         </button>
         <button class="nav-btn" data-tab="practice">
           <span class="nav-icon">${ctx.uiIconSvg('practice', 'nav-icon-svg')}</span>
-          <span class="nav-label">TRAIN</span>
+          <span class="nav-label">연습</span>
         </button>
         <button class="nav-btn" data-tab="profile">
           <span class="nav-icon">${ctx.uiIconSvg('profile', 'nav-icon-svg')}</span>
-          <span class="nav-label">PROFILE</span>
+          <span class="nav-label">나</span>
         </button>
       </nav>
 
       <div class="flow-screen" id="flowScreen">
         <div class="flow-header">
           <button class="btn-back" onclick="App.closeFlow()">←</button>
-          <div class="flow-title" id="flowTitle">QUEST</div>
+          <div class="flow-title" id="flowTitle">학습 중...</div>
           <div class="flow-step" id="flowStep"></div>
         </div>
         <div class="flow-progress">
