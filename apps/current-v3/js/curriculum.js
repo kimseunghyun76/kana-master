@@ -177,8 +177,6 @@ const V3_AIRPORT_QA_CARDS = [
   { id:'v3air_06', japanese:'搭乗口はどこですか', romaji:'toujouguchi wa doko desu ka', korean:'탑승구는 어디예요?' },
   { id:'v3air_07', japanese:'何時から搭乗ですか', romaji:'nan ji kara toujou desu ka', korean:'몇 시부터 탑승이에요?' },
   { id:'v3air_08', japanese:'この荷物を預けたいです', romaji:'kono nimotsu wo azuketai desu', korean:'이 짐을 맡기고 싶어요' },
-  { id:'v3air_09', japanese:'ありがとうございます', romaji:'arigatou gozaimasu', korean:'고마워요' },
-  { id:'v3air_10', japanese:'わかりました', romaji:'wakarimashita', korean:'알겠어요' },
 ];
 
 const V3_IMMIGRATION_QA_CARDS = [
@@ -202,9 +200,6 @@ const V3_AIRPLANE_QA_CARDS = [
   { id:'v3plane_05', japanese:'席を変えられますか', romaji:'seki wo kaeraremasu ka', korean:'자리 바꿀 수 있어요?' },
   { id:'v3plane_06', japanese:'少々お待ちください', romaji:'shoushou omachi kudasai', korean:'잠시 기다려 주세요' },
   { id:'v3plane_07', japanese:'大丈夫です', romaji:'daijoubu desu', korean:'괜찮아요' },
-  { id:'v3plane_08', japanese:'ありがとうございます', romaji:'arigatou gozaimasu', korean:'고마워요' },
-  { id:'v3plane_09', japanese:'すみません', romaji:'sumimasen', korean:'저기요' },
-  { id:'v3plane_10', japanese:'お願いします', romaji:'onegai shimasu', korean:'부탁해요' },
 ];
 
 const V3_STATION_QA_CARDS = [
@@ -216,7 +211,6 @@ const V3_STATION_QA_CARDS = [
   { id:'v3st_06', japanese:'二番線です', romaji:'ni bansen desu', korean:'2번 승강장이에요' },
   { id:'v3st_07', japanese:'乗り換えはありますか', romaji:'norikae wa arimasu ka', korean:'환승 있어요?' },
   { id:'v3st_08', japanese:'山手線に乗ってください', romaji:'yamanote sen ni notte kudasai', korean:'야마노테선을 타세요' },
-  { id:'v3st_09', japanese:'ありがとうございます', romaji:'arigatou gozaimasu', korean:'고마워요' },
   { id:'v3st_10', japanese:'気をつけてください', romaji:'ki wo tsukete kudasai', korean:'조심하세요' },
 ];
 
@@ -229,8 +223,6 @@ const V3_BUS_QA_CARDS = [
   { id:'v3bus_06', japanese:'どこで降りますか', romaji:'doko de orimasu ka', korean:'어디에서 내려요?' },
   { id:'v3bus_07', japanese:'次の次です', romaji:'tsugi no tsugi desu', korean:'다음 다음이에요' },
   { id:'v3bus_08', japanese:'ボタンを押してください', romaji:'botan wo oshite kudasai', korean:'버튼을 눌러 주세요' },
-  { id:'v3bus_09', japanese:'わかりました', romaji:'wakarimashita', korean:'알겠어요' },
-  { id:'v3bus_10', japanese:'ありがとうございます', romaji:'arigatou gozaimasu', korean:'고마워요' },
 ];
 
 const V3_TAXI_QA_CARDS = [
@@ -243,7 +235,6 @@ const V3_TAXI_QA_CARDS = [
   { id:'v3taxi_07', japanese:'高速道路は使わないでください', romaji:'kousoku douro wa tsukawanaide kudasai', korean:'고속도로는 쓰지 말아 주세요' },
   { id:'v3taxi_08', japanese:'はい、わかりました', romaji:'hai, wakarimashita', korean:'네, 알겠습니다' },
   { id:'v3taxi_09', japanese:'料金はいくらですか', romaji:'ryoukin wa ikura desu ka', korean:'요금은 얼마예요?' },
-  { id:'v3taxi_10', japanese:'ありがとうございます', romaji:'arigatou gozaimasu', korean:'고마워요' },
 ];
 
 const V3_KONBINI_QA_CARDS = [
@@ -256,7 +247,6 @@ const V3_KONBINI_QA_CARDS = [
   { id:'v3kon_07', japanese:'大丈夫です', romaji:'daijoubu desu', korean:'괜찮아요' },
   { id:'v3kon_08', japanese:'Suicaでお願いします', romaji:'suika de onegai shimasu', korean:'스이카로 부탁해요' },
   { id:'v3kon_09', japanese:'六百円です', romaji:'roppyaku en desu', korean:'600엔이에요' },
-  { id:'v3kon_10', japanese:'ありがとうございました', romaji:'arigatou gozaimashita', korean:'감사합니다' },
 ];
 
 const V3_CAFE_QA_CARDS = [
@@ -295,7 +285,6 @@ const V3_SHOPPING_QA_CARDS = [
   { id:'v3shop_07', japanese:'いくらですか', romaji:'ikura desu ka', korean:'얼마예요?' },
   { id:'v3shop_08', japanese:'これにします', romaji:'kore ni shimasu', korean:'이걸로 할게요' },
   { id:'v3shop_09', japanese:'もう少し考えます', romaji:'mou sukoshi kangaemasu', korean:'조금 더 생각할게요' },
-  { id:'v3shop_10', japanese:'ありがとうございます', romaji:'arigatou gozaimasu', korean:'고마워요' },
 ];
 
 const V3_PAYMENT_QA_CARDS = [
@@ -308,7 +297,6 @@ const V3_PAYMENT_QA_CARDS = [
   { id:'v3pay_07', japanese:'免税できますか', romaji:'menzei dekimasu ka', korean:'면세 가능해요?' },
   { id:'v3pay_08', japanese:'ここにサインをお願いします', romaji:'koko ni sain wo onegai shimasu', korean:'여기에 사인 부탁드려요' },
   { id:'v3pay_09', japanese:'暗証番号をお願いします', romaji:'anshou bangou wo onegai shimasu', korean:'비밀번호 눌러 주세요' },
-  { id:'v3pay_10', japanese:'ありがとうございました', romaji:'arigatou gozaimashita', korean:'감사합니다' },
 ];
 
 const V3_DUTY_FREE_QA_CARDS = [
@@ -321,7 +309,6 @@ const V3_DUTY_FREE_QA_CARDS = [
   { id:'v3df_07', japanese:'これを二つください', romaji:'kore wo futatsu kudasai', korean:'이거 두 개 주세요' },
   { id:'v3df_08', japanese:'プレゼント用にできますか', romaji:'purezento you ni dekimasu ka', korean:'선물용으로 가능해요?' },
   { id:'v3df_09', japanese:'袋をください', romaji:'fukuro wo kudasai', korean:'봉투 주세요' },
-  { id:'v3df_10', japanese:'ありがとうございます', romaji:'arigatou gozaimasu', korean:'고마워요' },
 ];
 
 const V3_HOTEL_QA_CARDS = [
@@ -333,8 +320,6 @@ const V3_HOTEL_QA_CARDS = [
   { id:'v3hotel_06', japanese:'チェックアウトは何時ですか', romaji:'chekku auto wa nan ji desu ka', korean:'체크아웃은 몇 시예요?' },
   { id:'v3hotel_07', japanese:'鍵はこちらです', romaji:'kagi wa kochira desu', korean:'열쇠는 여기예요' },
   { id:'v3hotel_08', japanese:'部屋は何階ですか', romaji:'heya wa nan gai desu ka', korean:'방은 몇 층이에요?' },
-  { id:'v3hotel_09', japanese:'わかりました', romaji:'wakarimashita', korean:'알겠어요' },
-  { id:'v3hotel_10', japanese:'ありがとうございます', romaji:'arigatou gozaimasu', korean:'고마워요' },
 ];
 
 const V3_HOTEL_REQUEST_QA_CARDS = [
@@ -347,7 +332,6 @@ const V3_HOTEL_REQUEST_QA_CARDS = [
   { id:'v3hreq_07', japanese:'毛布はありますか', romaji:'moufu wa arimasu ka', korean:'담요 있어요?' },
   { id:'v3hreq_08', japanese:'鍵をなくしました', romaji:'kagi wo nakushimashita', korean:'열쇠를 잃어버렸어요' },
   { id:'v3hreq_09', japanese:'助かりました', romaji:'tasukarimashita', korean:'도움이 됐어요' },
-  { id:'v3hreq_10', japanese:'ありがとうございます', romaji:'arigatou gozaimasu', korean:'고마워요' },
 ];
 
 const V3_ONSEN_QA_CARDS = [
@@ -358,8 +342,6 @@ const V3_ONSEN_QA_CARDS = [
   { id:'v3onsen_05', japanese:'写真はだめです', romaji:'shashin wa dame desu', korean:'사진은 안 돼요' },
   { id:'v3onsen_06', japanese:'ロッカーはどこですか', romaji:'rokkaa wa doko desu ka', korean:'락커는 어디예요?' },
   { id:'v3onsen_07', japanese:'この鍵を使ってください', romaji:'kono kagi wo tsukatte kudasai', korean:'이 열쇠를 사용해 주세요' },
-  { id:'v3onsen_08', japanese:'わかりました', romaji:'wakarimashita', korean:'알겠어요' },
-  { id:'v3onsen_09', japanese:'ありがとうございます', romaji:'arigatou gozaimasu', korean:'고마워요' },
   { id:'v3onsen_10', japanese:'ゆっくりしてください', romaji:'yukkuri shite kudasai', korean:'편히 쉬세요' },
 ];
 
@@ -372,8 +354,6 @@ const V3_HEALTH_QA_CARDS = [
   { id:'v3health_06', japanese:'食後に飲んでください', romaji:'shokugo ni nonde kudasai', korean:'식후에 드세요' },
   { id:'v3health_07', japanese:'一日三回です', romaji:'ichinichi sankai desu', korean:'하루 세 번이에요' },
   { id:'v3health_08', japanese:'病院は近くにありますか', romaji:'byouin wa chikaku ni arimasu ka', korean:'병원은 근처에 있어요?' },
-  { id:'v3health_09', japanese:'わかりました', romaji:'wakarimashita', korean:'알겠어요' },
-  { id:'v3health_10', japanese:'ありがとうございます', romaji:'arigatou gozaimasu', korean:'고마워요' },
 ];
 
 const V3_HOSPITAL_QA_CARDS = [
@@ -386,7 +366,6 @@ const V3_HOSPITAL_QA_CARDS = [
   { id:'v3hos_07', japanese:'この紙に書いてください', romaji:'kono kami ni kaite kudasai', korean:'이 종이에 써 주세요' },
   { id:'v3hos_08', japanese:'どのくらい待ちますか', romaji:'dono kurai machimasu ka', korean:'얼마나 기다려요?' },
   { id:'v3hos_09', japanese:'三十分くらいです', romaji:'sanjuppun kurai desu', korean:'30분 정도예요' },
-  { id:'v3hos_10', japanese:'わかりました', romaji:'wakarimashita', korean:'알겠어요' },
 ];
 
 const V3_LOST_QA_CARDS = [
@@ -411,8 +390,6 @@ const V3_RENTACAR_QA_CARDS = [
   { id:'v3car_06', japanese:'ガソリンは満タンで返しますか', romaji:'gasorin wa mantan de kaeshimasu ka', korean:'기름은 가득 채워 반납해요?' },
   { id:'v3car_07', japanese:'ナビは日本語ですか', romaji:'nabi wa nihongo desu ka', korean:'내비는 일본어예요?' },
   { id:'v3car_08', japanese:'ここにサインをお願いします', romaji:'koko ni sain wo onegai shimasu', korean:'여기에 사인 부탁드려요' },
-  { id:'v3car_09', japanese:'わかりました', romaji:'wakarimashita', korean:'알겠어요' },
-  { id:'v3car_10', japanese:'ありがとうございます', romaji:'arigatou gozaimasu', korean:'고마워요' },
 ];
 
 const V3_TOURIST_QA_CARDS = [
@@ -424,7 +401,6 @@ const V3_TOURIST_QA_CARDS = [
   { id:'v3photo_06', japanese:'入場券はどこで買えますか', romaji:'nyuujouken wa doko de kaemasu ka', korean:'입장권은 어디서 살 수 있어요?' },
   { id:'v3photo_07', japanese:'おすすめの場所はありますか', romaji:'osusume no basho wa arimasu ka', korean:'추천 장소 있어요?' },
   { id:'v3photo_08', japanese:'助かりました', romaji:'tasukarimashita', korean:'도움이 됐어요' },
-  { id:'v3photo_09', japanese:'ありがとうございます', romaji:'arigatou gozaimasu', korean:'고마워요' },
   { id:'v3photo_10', japanese:'楽しんでください', romaji:'tanoshinde kudasai', korean:'즐겁게 보내세요' },
 ];
 
@@ -437,8 +413,6 @@ const V3_RESERVATION_QA_CARDS = [
   { id:'v3res_06', japanese:'明日の同じ時間でお願いします', romaji:'ashita no onaji jikan de onegai shimasu', korean:'내일 같은 시간으로 부탁해요' },
   { id:'v3res_07', japanese:'電話番号はこれです', romaji:'denwa bangou wa kore desu', korean:'전화번호는 이거예요' },
   { id:'v3res_08', japanese:'確認しました', romaji:'kakunin shimashita', korean:'확인했습니다' },
-  { id:'v3res_09', japanese:'お願いします', romaji:'onegai shimasu', korean:'부탁해요' },
-  { id:'v3res_10', japanese:'ありがとうございます', romaji:'arigatou gozaimasu', korean:'고마워요' },
 ];
 
 const V3_WEATHER_QA_CARDS = [
@@ -449,9 +423,6 @@ const V3_WEATHER_QA_CARDS = [
   { id:'v3weather_05', japanese:'キャンセルできますか', romaji:'kyanseru dekimasu ka', korean:'취소할 수 있어요?' },
   { id:'v3weather_06', japanese:'返金はありますか', romaji:'henkin wa arimasu ka', korean:'환불 있어요?' },
   { id:'v3weather_07', japanese:'晴れたら行きたいです', romaji:'haretara ikitai desu', korean:'맑으면 가고 싶어요' },
-  { id:'v3weather_08', japanese:'大丈夫です', romaji:'daijoubu desu', korean:'괜찮아요' },
-  { id:'v3weather_09', japanese:'わかりました', romaji:'wakarimashita', korean:'알겠어요' },
-  { id:'v3weather_10', japanese:'ありがとうございます', romaji:'arigatou gozaimasu', korean:'고마워요' },
 ];
 
 const V3_WRAPUP_QA_CARDS = [
@@ -1412,6 +1383,24 @@ const MODULES = [
     }
   },
   {
+    id: 'v3_drama_emotion',
+    stageId: 11,
+    accessTier: 'free',
+    name: '감정 표현',
+    nameJp: '気持ちの表現',
+    icon: '💗',
+    desc: '기쁘다, 걱정돼요, 깜짝 놀랐어요처럼 짧은 감정 문장 익히기',
+    xp: 260,
+    unlockAfter: ['v3_drama_reactions'],
+    steps: [
+      { type: 'lecture', title: '🎬 감정은 짧은 문장으로 던지기', lectureKey: 'v3_drama_emotion' },
+      { type: 'vocab_learn', title: '감정 형용사', categoryId: 'adj_emotion', limit: 14 },
+      { type: 'vocab_learn', title: '리액션·맞장구', categoryIds: ['w1_reactions','small_talk'], limit: 14 },
+      { type: 'vocab_quiz', title: '감정 표현 퀴즈', categoryIds: ['adj_emotion','small_talk'], limit: 22 },
+    ],
+    roleplay: null
+  },
+  {
     id: 'v3_drama_daily',
     stageId: 11,
     accessTier: 'free',
@@ -1420,7 +1409,7 @@ const MODULES = [
     icon: '📺',
     desc: '친구 말투, 감정 표현, 짧은 일상 문장',
     xp: 300,
-    unlockAfter: ['v3_drama_reactions'],
+    unlockAfter: ['v3_drama_emotion'],
     steps: [
       { type: 'lecture', title: '🎬 드라마 대사는 짧게 끊어 듣기', lectureKey: 'v3_drama_daily' },
       { type: 'vocab_learn', title: '감정·상태 표현', categoryIds: ['adj_emotion','small_talk'], limit: 18 },
