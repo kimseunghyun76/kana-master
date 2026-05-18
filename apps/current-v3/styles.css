@@ -3615,3 +3615,143 @@ body.app-v3 .v2-pass-badge.v2-pass-ng {
   background: #fde7ee;
   color: #a13256;
 }
+
+/* ============================================================
+   V3 vocab summary screen (pre-roleplay)
+   ============================================================ */
+
+body.app-v3 .vocab-summary-screen {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 4px 0 10px;
+}
+
+body.app-v3 .vocab-summary-head {
+  padding: 18px 18px 16px;
+  border: 1px solid rgba(82, 105, 140, .18);
+  border-radius: 18px;
+  background: linear-gradient(135deg, #f0fafd 0%, #fff 60%);
+  box-shadow: 0 10px 24px rgba(60, 82, 112, .08);
+}
+
+body.app-v3 .vocab-summary-eyebrow {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #dff4f8;
+  color: #1f6470;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+body.app-v3 .vocab-summary-eyebrow-icon {
+  width: 14px;
+  height: 14px;
+}
+
+body.app-v3 .vocab-summary-title {
+  margin: 10px 0 4px;
+  color: #243047;
+  font-size: 20px;
+  font-weight: 900;
+  letter-spacing: -.01em;
+}
+
+body.app-v3 .vocab-summary-sub {
+  margin: 0;
+  color: #4f5f75;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+body.app-v3 .vocab-summary-group {
+  padding: 14px 14px 8px;
+  border: 1px solid rgba(82, 105, 140, .18);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, .96);
+  box-shadow: 0 8px 18px rgba(60, 82, 112, .08);
+}
+
+body.app-v3 .vocab-summary-group-title {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin: 0 0 8px;
+  color: #243047;
+  font-size: 14px;
+  font-weight: 900;
+}
+
+body.app-v3 .vocab-summary-count {
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #edf3f7;
+  color: #4f5f75;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+body.app-v3 .vocab-summary-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+body.app-v3 .vocab-summary-row {
+  display: grid;
+  grid-template-columns: 40px 1fr;
+  gap: 10px;
+  align-items: center;
+  padding: 8px 4px;
+  border-top: 1px dashed rgba(82, 105, 140, .14);
+}
+
+body.app-v3 .vocab-summary-row:first-child {
+  border-top: 0;
+}
+
+body.app-v3 .vocab-summary-audio {
+  display: flex;
+  width: 40px;
+  height: 40px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(82, 105, 140, .18);
+  border-radius: 12px;
+  background: #f3f7f8;
+  color: #287f8e;
+  cursor: pointer;
+}
+
+body.app-v3 .vocab-summary-audio:active {
+  background: #dff4f8;
+}
+
+body.app-v3 .vocab-summary-audio-icon {
+  width: 18px;
+  height: 18px;
+}
+
+body.app-v3 .vocab-summary-text {
+  min-width: 0;
+}
+
+body.app-v3 .vocab-summary-jp {
+  color: #243047;
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+body.app-v3 .vocab-summary-ko {
+  margin-top: 2px;
+  color: #4f5f75;
+  font-size: 12px;
+  line-height: 1.4;
+}

@@ -677,13 +677,82 @@ window.App = (() => {
         <div class="completion-emoji">${_uiIconSvg('check', 'completion-main-icon')}</div>
         <div class="completion-title">학습 완료</div>
         <div class="completion-sub">${escHtml(mod.name)}의 핵심 학습을 마쳤습니다.<br>
-          ${mod.roleplay ? '이제 배운 문장으로 롤플레이를 이어갑니다.' : '다음 강좌로 이어서 학습할 수 있습니다.'}
+          ${mod.roleplay ? '배운 단어를 한 번 정리하고 롤플레이로 갑니다.' : '다음 강좌로 이어서 학습할 수 있습니다.'}
         </div>
         <div class="completion-unlocks">
           <div class="cu-title">이번 복습</div>
           <div class="completion-unlock-item"><span class="cui-icon">${_uiIconSvg('xp', 'completion-inline-icon')}</span> +50 XP 보너스</div>
           ${mod.roleplay ? `<div class="completion-unlock-item"><span class="cui-icon">${_uiIconSvg('roleplay', 'completion-inline-icon')}</span> ${escHtml(mod.roleplay.name)} 열림</div>` : ''}
         </div>
+      </div>
+    `;
+
+    document.getElementById('flowFooter').innerHTML = `
+      <div style="display:flex;gap:10px">
+        ${mod.roleplay ? `<button class="btn btn-primary" onclick="App._showVocabSummary('${mod.id}')">단어 정리 보기 →</button>` : ''}
+        <button class="btn ${mod.roleplay ? 'btn-outline' : 'btn-primary'}" onclick="App.closeFlow()">
+          ${mod.roleplay ? '나중에' : '홈으로 →'}
+        </button>
+      </div>
+    `;
+  }
+
+  // ── Module Vocab Summary (pre-roleplay) ────────────────────
+  function _buildModuleVocab(mod) {
+    const seen = new Set();
+    const groups = [];
+    (mod.steps || []).forEach(step => {
+      if (step.type !== 'vocab_learn') return;
+      let items = [];
+      try { items = _getVocabItems(step) || []; } catch { items = []; }
+      const fresh = items.filter(it => it && it.japanese && !seen.has(it.japanese));
+      fresh.forEach(it => seen.add(it.japanese));
+      if (fresh.length) groups.push({ title: step.title || '단어', items: fresh });
+    });
+    return { groups, total: seen.size };
+  }
+
+  function _showVocabSummary(moduleId) {
+    const mod = _getMod(moduleId);
+    if (!mod) return;
+    const { groups, total } = _buildModuleVocab(mod);
+
+    if (!total) {
+      // No vocab to summarize → go straight to roleplay
+      if (mod.roleplay) _startRoleplay(mod);
+      else _showModuleCompletion(mod);
+      return;
+    }
+
+    const groupsHtml = groups.map(g => `
+      <section class="vocab-summary-group">
+        <h3 class="vocab-summary-group-title">${escHtml(g.title)} <span class="vocab-summary-count">${g.items.length}</span></h3>
+        <ul class="vocab-summary-list">
+          ${g.items.map(it => {
+            const jp = (it.japanese || '').replace(/'/g,"\\'");
+            return `
+              <li class="vocab-summary-row">
+                <button class="vocab-summary-audio" onclick="TTS.speak('${jp}')" aria-label="발음">
+                  ${_uiIconSvg('audio', 'vocab-summary-audio-icon')}
+                </button>
+                <div class="vocab-summary-text">
+                  <div class="vocab-summary-jp">${ruby(it.japanese || '')}</div>
+                  <div class="vocab-summary-ko">${escHtml(it.korean || '')}</div>
+                </div>
+              </li>`;
+          }).join('')}
+        </ul>
+      </section>
+    `).join('');
+
+    document.getElementById('flowBody').innerHTML = `
+      <div class="vocab-summary-screen">
+        <header class="vocab-summary-head">
+          <div class="vocab-summary-eyebrow">${_uiIconSvg('book', 'vocab-summary-eyebrow-icon')} 단어 정리</div>
+          <h2 class="vocab-summary-title">롤플레이 전에 한 번 더</h2>
+          <p class="vocab-summary-sub">이번 강좌에서 다룬 ${total}개 단어예요. 발음을 듣고, 모르는 것만 한 번 더 본 뒤 롤플레이로 갑시다.</p>
+        </header>
+        ${groupsHtml}
       </div>
     `;
 
@@ -936,6 +1005,7 @@ window.App = (() => {
     showDialogueDetail,
     closeDialogueDetail,
     _getMod,
+    _showVocabSummary,
     // 획순 애니메이션
     _showStrokePanel,
     _closeStrokePanel,
