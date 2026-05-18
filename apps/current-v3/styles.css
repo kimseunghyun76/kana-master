@@ -4418,3 +4418,182 @@ body.app-v3 .flow-screen.roleplay-comic-mode .no-script-dock .comic-scene-speech
   font-weight: 700;
   line-height: 1.35;
 }
+
+/* ============================================================
+   V3 roleplay polish v2
+   - Intro card: light pastel + cast row introducing each speaker
+   - Player/Practice: static character size (no focus-driven scale),
+     gentle idle sway only, bubbles in a scrollable top strip that
+     never overlaps the character body
+   - Background covers the whole flow body (no gaps)
+   ============================================================ */
+
+/* INTRO card — light pastel + cast row -------------------- */
+body.app-v3 .comic-intro-shell.full-bleed .comic-intro-bottom-card {
+  background: rgba(255, 255, 255, .96);
+  backdrop-filter: blur(10px);
+  color: #243047;
+  border: 1px solid rgba(82, 105, 140, .2);
+  box-shadow: 0 14px 32px rgba(35, 47, 66, .22);
+}
+
+body.app-v3 .comic-intro-shell.full-bleed .comic-intro-label {
+  background: #dff4f8;
+  color: #1f6470;
+}
+
+body.app-v3 .comic-intro-shell.full-bleed .comic-intro-brief b {
+  color: #243047;
+}
+
+body.app-v3 .comic-intro-shell.full-bleed .comic-intro-brief em {
+  color: #4f5f75;
+}
+
+body.app-v3 .comic-intro-cast {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+
+body.app-v3 .comic-intro-cast-card {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding: 8px 10px;
+  border: 1px solid rgba(82, 105, 140, .18);
+  border-radius: 12px;
+  background: #f7fbfc;
+}
+
+body.app-v3 .comic-intro-cast-face {
+  width: 40px;
+  height: 40px;
+  flex: 0 0 40px;
+  border-radius: 50%;
+  border: 1.5px solid #fff;
+  background-position: center top;
+  background-size: cover;
+  box-shadow: 0 2px 6px rgba(60, 82, 112, .14);
+}
+
+body.app-v3 .comic-intro-cast-meta {
+  display: grid;
+  gap: 1px;
+  min-width: 0;
+}
+
+body.app-v3 .comic-intro-cast-meta b {
+  color: #243047;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+body.app-v3 .comic-intro-cast-meta em {
+  color: #4f5f75;
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 700;
+}
+
+/* PLAYER/PRACTICE — static chars, gentle idle, scrollable top bubbles -- */
+
+/* 1) Full-bleed background: ensure flow-screen and its body fill viewport
+   so the comic shell has 100% height to inherit. */
+body.app-v3 .flow-screen.roleplay-comic-mode,
+body.app-v3 .flow-screen.roleplay-comic-mode .flow-body {
+  height: 100%;
+  min-height: 100%;
+}
+
+/* 2) Kill the focus-driven scaling. The previous rules at ~2526-2537
+   pumped the active speaker up to 1.08 and the other down to 0.84;
+   per user request we keep the size constant. */
+body.app-v3 .flow-screen.roleplay-comic-mode .no-script-dock .vn-character,
+body.app-v3 .flow-screen.roleplay-comic-mode .no-script-dock .comic-player-visual.speaker-focus-A .vn-character-A,
+body.app-v3 .flow-screen.roleplay-comic-mode .no-script-dock .comic-player-visual.speaker-focus-B .vn-character-B,
+body.app-v3 .flow-screen.roleplay-comic-mode .no-script-dock .comic-player-visual.speaker-focus-C .vn-character-C,
+body.app-v3 .flow-screen.roleplay-comic-mode .no-script-dock .comic-player-visual.speaker-focus-A .vn-character-B,
+body.app-v3 .flow-screen.roleplay-comic-mode .no-script-dock .comic-player-visual.speaker-focus-B .vn-character-A,
+body.app-v3 .flow-screen.roleplay-comic-mode .no-script-dock .comic-player-visual.speaker-focus-C .vn-character-A,
+body.app-v3 .flow-screen.roleplay-comic-mode .no-script-dock .comic-player-visual.speaker-focus-C .vn-character-B {
+  transform: scaleX(var(--char-dir, 1)) scale(1);
+}
+
+/* 3) Smaller, fixed character footprint so the bubble strip on top has
+   real estate without overlap. ~52% of the frame height = bottom half. */
+body.app-v3 .flow-screen.roleplay-comic-mode .no-script-dock .vn-character {
+  height: 52%;
+  bottom: 0;
+  width: auto;
+  max-width: 46%;
+  animation: v3-char-idle 4.2s ease-in-out infinite;
+  transition: none;
+}
+
+body.app-v3 .flow-screen.roleplay-comic-mode .no-script-dock .vn-character-B {
+  animation-delay: 1.6s;
+}
+
+@keyframes v3-char-idle {
+  0%, 100% { transform: scaleX(var(--char-dir, 1)) translateY(0); }
+  50%      { transform: scaleX(var(--char-dir, 1)) translateY(-4px); }
+}
+
+/* Active speaker gets a soft glow halo instead of a scale change. */
+body.app-v3 .flow-screen.roleplay-comic-mode .no-script-dock .comic-player-visual.speaker-focus-A .vn-character-A,
+body.app-v3 .flow-screen.roleplay-comic-mode .no-script-dock .comic-player-visual.speaker-focus-B .vn-character-B,
+body.app-v3 .flow-screen.roleplay-comic-mode .no-script-dock .comic-player-visual.speaker-focus-C .vn-character-C {
+  filter: drop-shadow(0 4px 24px rgba(255, 240, 168, .55))
+          drop-shadow(0 0 12px rgba(255, 255, 255, .45));
+}
+
+body.app-v3 .flow-screen.roleplay-comic-mode .no-script-dock .comic-player-visual:not(.speaker-focus-A) .vn-character-A,
+body.app-v3 .flow-screen.roleplay-comic-mode .no-script-dock .comic-player-visual:not(.speaker-focus-B) .vn-character-B,
+body.app-v3 .flow-screen.roleplay-comic-mode .no-script-dock .comic-player-visual:not(.speaker-focus-C) .vn-character-C {
+  opacity: .82;
+}
+
+/* 4) Move bubble stack to a TOP scrollable strip that occupies the top
+   ~46% of the frame, leaving the lower 54% completely free for chars. */
+body.app-v3 .flow-screen.roleplay-comic-mode .no-script-dock .comic-bubble-stack {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  right: 10px;
+  bottom: auto;
+  height: 46%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 8px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  padding: 4px 2px;
+  pointer-events: auto;
+  /* Soft fade at the top edge so older bubbles look like they scroll off. */
+  mask-image: linear-gradient(180deg, transparent 0, #000 28px);
+  -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 28px);
+}
+
+/* Scrollbar styling for the top strip */
+body.app-v3 .flow-screen.roleplay-comic-mode .no-script-dock .comic-bubble-stack::-webkit-scrollbar {
+  width: 4px;
+}
+body.app-v3 .flow-screen.roleplay-comic-mode .no-script-dock .comic-bubble-stack::-webkit-scrollbar-thumb {
+  background: rgba(70, 90, 118, .35);
+  border-radius: 4px;
+}
+
+/* Make sure bubbles use full width-as-needed and bottom alignment so the
+   newest sits flush at the divider, older ones above. */
+body.app-v3 .flow-screen.roleplay-comic-mode .no-script-dock .comic-scene-speech-bubble {
+  flex: 0 0 auto;
+}
+
+/* Preview avatar shared on both sides (already present; no extra styles
+   needed thanks to the existing .kt-avatar rules). */

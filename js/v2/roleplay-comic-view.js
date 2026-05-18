@@ -230,6 +230,20 @@ window.createRoleplayComicView = (ctx, deps) => {
     document.getElementById('flowProgressFill').style.width = '20%';
     // Full-bleed background fills the entire body; only the scene-intro
     // card floats at the bottom edge so the artwork carries the moment.
+    // Cast row introduces each speaker with face + role chip in the card.
+    const castHtml = speakerOptions.length
+      ? `<div class="comic-intro-cast">
+          ${speakerOptions.map(s => `
+            <div class="comic-intro-cast-card speaker-${s}">
+              <span class="comic-intro-cast-face" style="background-image:url('${ctx.cssUrlValue(roleImage(s, mod, 'face'))}')" aria-hidden="true"></span>
+              <span class="comic-intro-cast-meta">
+                <b>${escHtml(roleLabel(s) || s)}</b>
+                <em>${s === practiceSpeaker ? '내 역할' : '상대'}</em>
+              </span>
+            </div>
+          `).join('')}
+        </div>`
+      : '';
     document.getElementById('flowBody').innerHTML = `
       <div class="comic-intro-shell full-bleed" style="--roleplay-hero-bg:url('${ctx.cssUrlValue(roleplayCover)}')">
         <div class="comic-intro-bg" aria-hidden="true"></div>
@@ -240,6 +254,7 @@ window.createRoleplayComicView = (ctx, deps) => {
               <b>${escHtml(introTitle(mod, rp, dialogues))}</b>
               <em>${introDesc(rp, dialogues)}</em>
             </div>
+            ${castHtml}
           ` : roleSelectorHtml}
         </div>
       </div>
@@ -260,9 +275,7 @@ window.createRoleplayComicView = (ctx, deps) => {
     // B/C (others) go left with a white bubble and an avatar.
     const chatHtml = lines.map((line, idx) => {
       const side = line.speaker === 'A' ? 'me' : 'other';
-      const avatar = side === 'other'
-        ? `<span class="kt-avatar" style="background-image:url('${ctx.cssUrlValue(roleImage(line.speaker, mod, 'face'))}')" aria-hidden="true"></span>`
-        : '';
+      const avatar = `<span class="kt-avatar" style="background-image:url('${ctx.cssUrlValue(roleImage(line.speaker, mod, 'face'))}')" aria-hidden="true"></span>`;
       return `
         <li class="kt-row ${side} speaker-${line.speaker}">
           ${avatar}
