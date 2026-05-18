@@ -4299,11 +4299,17 @@ body.app-v3 .flow-screen.roleplay-comic-mode .no-script-dock .comic-script-dock 
   display: none !important;
 }
 
-body.app-v3 .flow-screen.roleplay-comic-mode .no-script-dock .comic-player-visual {
-  position: relative;
+body.app-v3 .flow-screen.roleplay-comic-mode .no-script-dock .comic-player-visual,
+body.app-v3 .flow-screen.roleplay-comic-mode .no-script-dock .comic-player-visual.comic-video-scene {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
+  aspect-ratio: auto;
   background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
 }
 
 /* Bigger character stage so it carries the frame */
