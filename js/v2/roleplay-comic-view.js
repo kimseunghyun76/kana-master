@@ -77,6 +77,10 @@ window.createRoleplayComicView = (ctx, deps) => {
     return key === 'keita' ? firstMeetingArt.male : firstMeetingArt.female;
   }
 
+  function roleSpec(role, mod = null) {
+    return roleplayArt[mod?.id]?.characterSpecs?.[role] || {};
+  }
+
   function speakerRoles(dialogues = []) {
     const roles = [...new Set(dialogues.map(line => line.speaker).filter(s => s && s !== 'N'))];
     roles.sort((a, b) => ({ A: 1, B: 2, C: 3 }[a] || 9) - ({ A: 1, B: 2, C: 3 }[b] || 9));
@@ -84,9 +88,22 @@ window.createRoleplayComicView = (ctx, deps) => {
   }
 
   function renderCharacters(dialogues, classPrefix = 'vn-character', mod = null) {
-    return speakerRoles(dialogues).map(role => `
-      <img class="${classPrefix} ${classPrefix}-${role}" data-role="${role}" src="${roleImage(role, mod, 'body')}" alt="" aria-hidden="true">
-    `).join('');
+    return speakerRoles(dialogues).map(role => {
+      const spec = roleSpec(role, mod);
+      const anchor = spec.anchor || {};
+      const style = anchor.scale ? ` style="--character-scale:${anchor.scale}"` : '';
+      return `
+      <img class="${classPrefix} ${classPrefix}-${role}"
+           data-role="${role}"
+           data-character="${escHtml(spec.identity || '')}"
+           data-character-role="${escHtml(spec.role || '')}"
+           data-character-season="${escHtml(spec.season || '')}"
+           data-character-box="${escHtml(anchor.box || '')}"
+           data-character-feet-y="${escHtml(anchor.feetY || '')}"
+           data-character-eye-y="${escHtml(anchor.eyeY || '')}"
+           src="${roleImage(role, mod, 'body')}" alt="" aria-hidden="true"${style}>
+    `;
+    }).join('');
   }
 
   function renderScriptLine(line, isActive = false, mod = null) {
