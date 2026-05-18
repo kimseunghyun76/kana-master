@@ -240,29 +240,12 @@ body.app-v3 {
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display",
                "Apple SD Gothic Neo", "Hiragino Sans", "Noto Sans KR",
                "Noto Sans JP", sans-serif;
-  --bg: #fff7fb;
-  --bg2: #f1fbff;
-  --bg3: #fff0f6;
-  --card: rgba(255, 255, 255, .9);
-  --card2: rgba(255, 255, 255, .96);
-  --border: rgba(115, 137, 168, .22);
-  --text: #263247;
-  --text2: #526174;
-  --text3: #8291a6;
-  --accent: #ff7aa2;
-  --accent2: #38b6c9;
   --success: #5ac99b;
   --warning: #f6b84f;
   --danger: #f26d8f;
-  background:
-    linear-gradient(180deg, rgba(255, 247, 251, .96), rgba(241, 251, 255, .96)),
-    #fff7fb;
 }
 
 body.app-v3 #app {
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, .44), rgba(255, 247, 251, .86)),
-    url("/images/v3-generated/bg-home-street.webp") center / cover fixed;
   border-left: 1px solid rgba(255,255,255,.75);
   border-right: 1px solid rgba(255,255,255,.75);
 }
@@ -309,19 +292,8 @@ body.app-v3 .nav-label {
   letter-spacing: .08em;
 }
 
-body.app-v3 .welcome-card,
-body.app-v3 .home-dashboard,
-body.app-v3 .program-card,
-body.app-v3 .stage-card,
-body.app-v3 .module-card,
-body.app-v3 .profile-section,
-body.app-v3 .pstat {
-  border-color: rgba(255, 255, 255, .78);
-  background:
-    linear-gradient(135deg, rgba(255, 141, 177, .2), rgba(101, 216, 207, .13) 58%, rgba(255, 255, 255, .86)),
-    rgba(255, 255, 255, .86);
-  box-shadow: 0 18px 42px rgba(92, 120, 160, .18);
-}
+/* .welcome-card / .home-dashboard / .program-card / .stage-card / .module-card / .profile-section / .pstat
+   card-bg consolidated into the muted visual pass below. */
 
 body.app-v3 .welcome-card-cinematic {
   min-height: 430px;
@@ -1400,24 +1372,8 @@ body.app-v3 .lec-pick-card.lec-pick-jp {
 /* ============================================================
    V3 readability guard
    Keep content readable over pastel/background imagery.
+   (Palette + #app bg consolidated into the muted visual pass below.)
    ============================================================ */
-
-body.app-v3 {
-  --card: #ffffff;
-  --card2: #f7fbff;
-  --border: rgba(82, 105, 140, .2);
-  --text: #243047;
-  --text2: #4f5f75;
-  --text3: #68788e;
-  --accent: #2f8f9f;
-  --accent2: #287f8e;
-}
-
-body.app-v3 #app {
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, .9), rgba(255, 247, 251, .95)),
-    url("/images/v3-generated/bg-home-street.webp") center / cover fixed;
-}
 
 body.app-v3 .app-header,
 body.app-v3 .bottom-nav,
