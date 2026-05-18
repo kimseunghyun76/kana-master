@@ -3755,3 +3755,177 @@ body.app-v3 .vocab-summary-ko {
   font-size: 12px;
   line-height: 1.4;
 }
+
+/* ============================================================
+   V3 messenger-style dialogue preview (script preview)
+   Targets the dialogue_study step. Comic mode is excluded.
+   ============================================================ */
+
+body.app-v3 .flow-screen:not(.roleplay-comic-mode) .dialogue-scene {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 14px 8px;
+  border: 1px solid rgba(82, 105, 140, .18);
+  border-top-left-radius: 18px;
+  border-top-right-radius: 18px;
+  background: linear-gradient(180deg, #ffffff 0%, #f5f9fb 100%);
+  color: #243047;
+  font-size: 12px;
+  font-weight: 700;
+  text-align: center;
+}
+
+body.app-v3 .flow-screen:not(.roleplay-comic-mode) .dialogue-scene .scene-title {
+  display: inline-flex;
+  gap: 6px;
+  justify-content: center;
+  align-items: center;
+  color: #287f8e;
+  font-size: 11px;
+  letter-spacing: .04em;
+}
+
+body.app-v3 .flow-screen:not(.roleplay-comic-mode) .dialogue-list {
+  gap: 8px;
+  padding: 14px 12px 18px;
+  border: 1px solid rgba(82, 105, 140, .18);
+  border-top: 0;
+  border-bottom-left-radius: 18px;
+  border-bottom-right-radius: 18px;
+  background:
+    radial-gradient(circle at 18% 0, rgba(255, 247, 220, .55), transparent 28%),
+    radial-gradient(circle at 92% 6%, rgba(220, 240, 255, .55), transparent 30%),
+    #eef2f5;
+  box-shadow: 0 16px 32px rgba(60, 82, 112, .12);
+}
+
+body.app-v3 .flow-screen:not(.roleplay-comic-mode) .dialogue-line {
+  gap: 8px;
+  align-items: flex-end;
+}
+
+body.app-v3 .flow-screen:not(.roleplay-comic-mode) .dialogue-line.speaker-A {
+  flex-direction: row-reverse;
+}
+
+body.app-v3 .flow-screen:not(.roleplay-comic-mode) .dialogue-avatar {
+  width: 30px;
+  height: 30px;
+  border: 1px solid rgba(255, 255, 255, .9);
+  border-radius: 50%;
+  font-size: 12px;
+  font-weight: 900;
+  line-height: 28px;
+  text-align: center;
+  box-shadow: 0 2px 6px rgba(60, 82, 112, .14);
+}
+
+body.app-v3 .flow-screen:not(.roleplay-comic-mode) .dialogue-line.speaker-A .dialogue-avatar {
+  background: #fce28b;
+  color: #6b4f0a;
+}
+
+body.app-v3 .flow-screen:not(.roleplay-comic-mode) .dialogue-line.speaker-B .dialogue-avatar {
+  background: #c7e7f0;
+  color: #1f6470;
+}
+
+body.app-v3 .flow-screen:not(.roleplay-comic-mode) .dialogue-line.speaker-C .dialogue-avatar {
+  background: #f7c8cf;
+  color: #8a2f49;
+}
+
+body.app-v3 .flow-screen:not(.roleplay-comic-mode) .dialogue-bubble {
+  position: relative;
+  max-width: 78%;
+  padding: 9px 12px;
+  border: 0;
+  border-radius: 16px;
+  background: #ffffff;
+  color: #243047;
+  box-shadow: 0 2px 6px rgba(60, 82, 112, .1);
+}
+
+body.app-v3 .flow-screen:not(.roleplay-comic-mode) .dialogue-line.speaker-A .dialogue-bubble {
+  background: #fef0a8;
+  color: #3a2c0a;
+  border-bottom-right-radius: 4px;
+}
+
+body.app-v3 .flow-screen:not(.roleplay-comic-mode) .dialogue-line.speaker-B .dialogue-bubble {
+  background: #ffffff;
+  color: #243047;
+  border-bottom-left-radius: 4px;
+}
+
+body.app-v3 .flow-screen:not(.roleplay-comic-mode) .dialogue-line.speaker-C .dialogue-bubble {
+  background: #fff5f6;
+  color: #2a1320;
+  border-bottom-left-radius: 4px;
+}
+
+/* hide v2's tail pseudo-elements; KakaoTalk-style uses asymmetric corner radius */
+body.app-v3 .flow-screen:not(.roleplay-comic-mode) .dialogue-bubble::before,
+body.app-v3 .flow-screen:not(.roleplay-comic-mode) .dialogue-line.speaker-A .dialogue-bubble::before {
+  display: none;
+}
+
+body.app-v3 .flow-screen:not(.roleplay-comic-mode) .dialogue-line.speaker-N {
+  justify-content: center;
+  margin: 2px 0;
+}
+
+body.app-v3 .flow-screen:not(.roleplay-comic-mode) .dialogue-line.speaker-N .dialogue-narrator {
+  max-width: 80%;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: rgba(36, 48, 71, .08);
+  color: #4f5f75;
+  font-size: 11px;
+  font-weight: 700;
+  text-align: center;
+}
+
+body.app-v3 .flow-screen:not(.roleplay-comic-mode) .db-jp {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+body.app-v3 .flow-screen:not(.roleplay-comic-mode) .db-ko {
+  margin: 4px 0 0;
+  color: #4f5f75;
+  font-size: 11px;
+  line-height: 1.35;
+  opacity: .9;
+}
+
+body.app-v3 .flow-screen:not(.roleplay-comic-mode) .dialogue-line.speaker-A .db-ko {
+  color: #5a4310;
+}
+
+body.app-v3 .flow-screen:not(.roleplay-comic-mode) .db-tip {
+  margin-top: 6px;
+  padding: 4px 8px;
+  border-radius: 8px;
+  background: rgba(40, 127, 142, .08);
+  color: #1f6470;
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+body.app-v3 .flow-screen:not(.roleplay-comic-mode) .db-audio {
+  display: inline-flex;
+  margin-left: 4px;
+  padding: 2px;
+  color: #287f8e;
+  cursor: pointer;
+  vertical-align: middle;
+}
+
+body.app-v3 .flow-screen:not(.roleplay-comic-mode) .db-audio .audio-inline-icon {
+  width: 14px;
+  height: 14px;
+}
