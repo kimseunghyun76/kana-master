@@ -662,7 +662,108 @@ window.App = (() => {
   function _stopRoleplay() { return _roleplayFlow.stopRoleplay(); }
   function showDialogueDetail(lineId) { return _roleplayFlow.showDialogueDetail(lineId); }
   function closeDialogueDetail(shouldResume = true) { return _roleplayFlow.closeDialogueDetail(shouldResume); }
-  function _completeRoleplay(moduleId) { return _roleplayFlow.completeRoleplay(moduleId); }
+  function _completeRoleplay(moduleId) {
+    // v3: show a Summary screen first; user confirms → original completion.
+    const mod = _getMod(moduleId);
+    if (!mod || !mod.roleplay) {
+      return _roleplayFlow.completeRoleplay(moduleId);
+    }
+    _showRoleplaySummary(moduleId);
+  }
+
+  function _finalizeRoleplay(moduleId) {
+    return _roleplayFlow.completeRoleplay(moduleId);
+  }
+
+  function _showRoleplaySummary(moduleId) {
+    const mod = _getMod(moduleId);
+    if (!mod) return;
+
+    // Pull dialogue lines (key Japanese phrases user just practiced)
+    let dialogues = [];
+    try {
+      const key = mod.roleplay?.dialogueKey;
+      dialogues = (key && ContentIndex && ContentIndex.getDialogue)
+        ? (ContentIndex.getDialogue(key) || [])
+        : [];
+    } catch { dialogues = []; }
+
+    const keyLines = dialogues
+      .filter(l => l.speaker !== 'N' && l.japanese)
+      .slice(0, 6);
+
+    const linesHtml = keyLines.map(line => {
+      const jp = (line.japanese || '').replace(/'/g,"\\'");
+      return `
+        <li class="rp-summary-line">
+          <div class="rp-summary-line-text">
+            <div class="rp-summary-jp">${ruby(line.japanese || '')}</div>
+            <div class="rp-summary-ko">${escHtml(line.korean || '')}</div>
+          </div>
+          <button class="rp-summary-audio" onclick="TTS.speak('${jp}', {voice: TTS.getRoleVoice('${line.speaker || 'A'}')})" aria-label="발음">
+            ${_uiIconSvg('audio', 'rp-summary-audio-icon')}
+          </button>
+        </li>`;
+    }).join('');
+
+    const { total: vocabTotal } = _buildModuleVocab(mod);
+
+    // Pull a tip from the module's lecture or roleplay tip
+    let tipLine = '';
+    try {
+      const lec = (mod.steps || []).find(s => s.type === 'lecture' && /_tip$/.test(s.lectureKey || ''));
+      const data = lec && window.LECTURE_DATA?.[lec.lectureKey];
+      const slide = Array.isArray(data) ? data[0] : null;
+      tipLine = slide?.captionKo || slide?.main || '';
+    } catch { tipLine = ''; }
+    if (!tipLine) tipLine = '오늘 외운 문장은 다음 장면에서 그대로 다시 쓰입니다. 짧은 표현부터 입에 붙이는 게 가장 빠른 길이에요.';
+
+    document.getElementById('flowBody').innerHTML = `
+      <div class="rp-summary-screen">
+        <header class="rp-summary-head">
+          <div class="rp-summary-eyebrow">${_uiIconSvg('roleplay', 'rp-summary-eyebrow-icon')} ROLEPLAY SUMMARY</div>
+          <h2 class="rp-summary-title">${escHtml(mod.roleplay.name || mod.name)} 정리</h2>
+          <p class="rp-summary-sub">방금 끝낸 장면에서 꼭 가져갈 핵심만 모았습니다.</p>
+        </header>
+
+        ${keyLines.length ? `
+        <section class="rp-summary-card">
+          <h3 class="rp-summary-card-title">핵심 표현 <span class="rp-summary-count">${keyLines.length}</span></h3>
+          <ul class="rp-summary-lines">${linesHtml}</ul>
+        </section>` : ''}
+
+        <section class="rp-summary-card rp-summary-stats">
+          <h3 class="rp-summary-card-title">학습 결과</h3>
+          <div class="rp-summary-stat-grid">
+            <div class="rp-summary-stat">
+              <div class="rp-summary-stat-num">${vocabTotal}</div>
+              <div class="rp-summary-stat-label">익힌 단어</div>
+            </div>
+            <div class="rp-summary-stat">
+              <div class="rp-summary-stat-num">${dialogues.filter(l => l.speaker !== 'N').length}</div>
+              <div class="rp-summary-stat-label">대화 라인</div>
+            </div>
+            <div class="rp-summary-stat">
+              <div class="rp-summary-stat-num">+${mod.xp || 200}</div>
+              <div class="rp-summary-stat-label">XP 예정</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="rp-summary-card rp-summary-tip">
+          <h3 class="rp-summary-card-title">기억할 한 줄</h3>
+          <p class="rp-summary-tip-body">${escHtml(tipLine)}</p>
+        </section>
+      </div>
+    `;
+
+    document.getElementById('flowFooter').innerHTML = `
+      <div style="display:flex;gap:10px">
+        <button class="btn btn-primary" onclick="App._finalizeRoleplay('${mod.id}')">완료하고 보상 받기 →</button>
+        <button class="btn btn-outline" onclick="App.closeFlow()">나중에</button>
+      </div>
+    `;
+  }
 
   // ── Module Completion ─────────────────────────────────────
   function _showModuleCompletion(mod) {
@@ -1006,6 +1107,8 @@ window.App = (() => {
     closeDialogueDetail,
     _getMod,
     _showVocabSummary,
+    _showRoleplaySummary,
+    _finalizeRoleplay,
     // 획순 애니메이션
     _showStrokePanel,
     _closeStrokePanel,

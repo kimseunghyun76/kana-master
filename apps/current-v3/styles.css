@@ -3929,3 +3929,180 @@ body.app-v3 .flow-screen:not(.roleplay-comic-mode) .db-audio .audio-inline-icon 
   width: 14px;
   height: 14px;
 }
+
+/* ============================================================
+   V3 post-roleplay summary screen
+   ============================================================ */
+
+body.app-v3 .rp-summary-screen {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 4px 0 10px;
+}
+
+body.app-v3 .rp-summary-head {
+  padding: 22px 18px 18px;
+  border: 1px solid rgba(82, 105, 140, .18);
+  border-radius: 18px;
+  background: linear-gradient(135deg, #fff7e3 0%, #ffffff 55%, #e9f5f7 100%);
+  box-shadow: 0 12px 28px rgba(60, 82, 112, .12);
+  text-align: center;
+}
+
+body.app-v3 .rp-summary-eyebrow {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #f7e0a5;
+  color: #6b4f0a;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .05em;
+}
+
+body.app-v3 .rp-summary-eyebrow-icon {
+  width: 14px;
+  height: 14px;
+}
+
+body.app-v3 .rp-summary-title {
+  margin: 10px 0 4px;
+  color: #243047;
+  font-size: 20px;
+  font-weight: 900;
+  letter-spacing: -.01em;
+}
+
+body.app-v3 .rp-summary-sub {
+  margin: 0;
+  color: #4f5f75;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+body.app-v3 .rp-summary-card {
+  padding: 14px 14px 12px;
+  border: 1px solid rgba(82, 105, 140, .18);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, .96);
+  box-shadow: 0 8px 18px rgba(60, 82, 112, .08);
+}
+
+body.app-v3 .rp-summary-card-title {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin: 0 0 10px;
+  color: #243047;
+  font-size: 14px;
+  font-weight: 900;
+}
+
+body.app-v3 .rp-summary-count {
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #fef0a8;
+  color: #6b4f0a;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+body.app-v3 .rp-summary-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+body.app-v3 .rp-summary-line {
+  display: grid;
+  grid-template-columns: 1fr 36px;
+  gap: 10px;
+  align-items: center;
+  padding: 9px 4px;
+  border-top: 1px dashed rgba(82, 105, 140, .14);
+}
+
+body.app-v3 .rp-summary-line:first-child {
+  border-top: 0;
+}
+
+body.app-v3 .rp-summary-jp {
+  color: #243047;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+body.app-v3 .rp-summary-ko {
+  margin-top: 2px;
+  color: #4f5f75;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+body.app-v3 .rp-summary-audio {
+  display: flex;
+  width: 36px;
+  height: 36px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(82, 105, 140, .18);
+  border-radius: 10px;
+  background: #f3f7f8;
+  color: #287f8e;
+  cursor: pointer;
+}
+
+body.app-v3 .rp-summary-audio:active {
+  background: #dff4f8;
+}
+
+body.app-v3 .rp-summary-audio-icon {
+  width: 16px;
+  height: 16px;
+}
+
+body.app-v3 .rp-summary-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+body.app-v3 .rp-summary-stat {
+  padding: 12px 6px;
+  border: 1px solid rgba(82, 105, 140, .14);
+  border-radius: 12px;
+  background: #f7fbfc;
+  text-align: center;
+}
+
+body.app-v3 .rp-summary-stat-num {
+  color: #287f8e;
+  font-size: 22px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+body.app-v3 .rp-summary-stat-label {
+  margin-top: 6px;
+  color: #4f5f75;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+body.app-v3 .rp-summary-tip-body {
+  margin: 0;
+  padding: 12px 14px;
+  border-left: 3px solid #287f8e;
+  border-radius: 8px;
+  background: #f0f9fb;
+  color: #243047;
+  font-size: 13px;
+  line-height: 1.6;
+}
