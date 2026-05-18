@@ -217,8 +217,9 @@ window.createHomeView = (ctx) => {
       return mod && mp.stepsCompleted >= mod.steps.length;
     }).length;
 
+    const emptyCls = (!prog.streak && !prog.xp && !doneMods) ? ' is-empty' : '';
     return `
-      <div class="stats-row" style="margin-top:16px">
+      <div class="stats-row${emptyCls}" style="margin-top:16px">
         <div class="stat-card streak">
           <div class="stat-num">${prog.streak}</div>
           <div class="stat-name stat-name-row">${uiIconWrap('streak', 'mini-stat-icon')}${gameUi ? '연속 일수' : '연속 일수'}</div>

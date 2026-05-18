@@ -2006,7 +2006,8 @@ body.app-v3 .module-cover-thumb {
   min-width: 82px;
   height: 104px;
   min-height: 0;
-  background-size: contain;
+  background-size: cover;
+  background-position: center;
   background-repeat: no-repeat;
   background-color: #edf6fb;
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .72), 0 8px 18px rgba(71, 99, 136, .1);
@@ -3513,6 +3514,16 @@ body.app-v3 .stat-card .stat-name {
 body.app-v3 .stat-card.streak .stat-num { color: #d97a3a; }
 body.app-v3 .stat-card.xp .stat-num     { color: #287f8e; }
 body.app-v3 .stat-card.done .stat-num   { color: #2e9c6e; }
+
+/* First-run polish: when the user has no progress yet, soften the big "0"s
+   so they read as "not started" rather than "you scored zero". */
+body.app-v3 .stats-row.is-empty .stat-card .stat-num {
+  color: #8b97a9;
+  font-size: 18px;
+}
+body.app-v3 .stats-row.is-empty .stat-card .stat-name {
+  color: #6c7a8e;
+}
 
 body.app-v3 .completion-screen,
 body.app-v3 .score-screen {

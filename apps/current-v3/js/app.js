@@ -772,13 +772,16 @@ window.App = (() => {
     confetti(40);
 
     const nextItem = _getNextInModule(mod);
+    // Modules without any vocab_learn step (pure kana modules) skip the
+    // "단어 정리" detour — show the roleplay CTA directly.
+    const hasVocabToReview = mod.roleplay && _buildModuleVocab(mod).total > 0;
 
     document.getElementById('flowBody').innerHTML = `
       <div class="completion-screen">
         <div class="completion-emoji">${_uiIconSvg('check', 'completion-main-icon')}</div>
         <div class="completion-title">학습 완료</div>
         <div class="completion-sub">${escHtml(mod.name)}의 핵심 학습을 마쳤습니다.<br>
-          ${mod.roleplay ? '배운 단어를 한 번 정리하고 롤플레이로 갑니다.' : '다음 강좌로 이어서 학습할 수 있습니다.'}
+          ${mod.roleplay ? (hasVocabToReview ? '배운 단어를 한 번 정리하고 롤플레이로 갑니다.' : '이제 배운 흐름으로 롤플레이를 이어갑니다.') : '다음 강좌로 이어서 학습할 수 있습니다.'}
         </div>
         <div class="completion-unlocks">
           <div class="cu-title">이번 복습</div>
@@ -788,9 +791,15 @@ window.App = (() => {
       </div>
     `;
 
+    const primaryBtn = !mod.roleplay
+      ? ''
+      : hasVocabToReview
+        ? `<button class="btn btn-primary" onclick="App._showVocabSummary('${mod.id}')">단어 정리 보기 →</button>`
+        : `<button class="btn btn-primary" onclick="App._startRoleplay(App._getMod('${mod.id}'))">롤플레이 시작 →</button>`;
+
     document.getElementById('flowFooter').innerHTML = `
       <div style="display:flex;gap:10px">
-        ${mod.roleplay ? `<button class="btn btn-primary" onclick="App._showVocabSummary('${mod.id}')">단어 정리 보기 →</button>` : ''}
+        ${primaryBtn}
         <button class="btn ${mod.roleplay ? 'btn-outline' : 'btn-primary'}" onclick="App.closeFlow()">
           ${mod.roleplay ? '나중에' : '홈으로 →'}
         </button>
