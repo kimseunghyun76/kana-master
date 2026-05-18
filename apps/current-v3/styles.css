@@ -67,8 +67,19 @@
 .v3-kana-columns,
 .v3-kana-row {
   display: grid;
-  grid-template-columns: 180px repeat(5, minmax(64px, 1fr));
-  gap: 8px;
+  grid-template-columns: minmax(120px, 180px) repeat(5, minmax(40px, 1fr));
+  gap: 6px;
+}
+
+@media (max-width: 420px) {
+  .v3-kana-columns,
+  .v3-kana-row {
+    grid-template-columns: minmax(100px, 130px) repeat(5, minmax(34px, 1fr));
+    gap: 4px;
+  }
+  .v3-kana-axis {
+    min-width: 0;
+  }
 }
 
 .v3-kana-columns {
@@ -443,11 +454,10 @@ body.app-v3 .v3-home-next-card {
 }
 
 body.app-v3 .v3-home-hero {
-  min-height: 456px;
-  padding: 16px;
   align-items: flex-end;
   justify-content: stretch;
   background: #f8fbff;
+  /* min-height + padding consolidated below */
 }
 
 body.app-v3 .v3-home-hero .welcome-bg {
@@ -489,25 +499,7 @@ body.app-v3 .v3-home-next-card .dashboard-main h1 {
   text-shadow: none;
 }
 
-body.app-v3 .v3-home-hero {
-  min-height: 0;
-  padding: 12px;
-}
-
-body.app-v3 .v3-home-hero .welcome-content {
-  gap: 9px;
-  padding: 16px;
-}
-
-body.app-v3 .v3-home-hero .welcome-title {
-  font-size: 24px;
-  line-height: 1.08;
-}
-
-body.app-v3 .v3-home-hero .welcome-copy {
-  font-size: 13px;
-  line-height: 1.45;
-}
+/* duplicate v3-home-hero / welcome-content / welcome-title / welcome-copy block removed; final values live near line ~1690 */
 
 body.app-v3 .welcome-plan-row {
   gap: 6px;
@@ -1046,7 +1038,7 @@ body.app-v3 .module-prog-fill {
 }
 
 body.app-v3 .module-prog-pct {
-  color: #617087;
+  color: #3a4860;
   font-size: 11px;
   font-weight: 800;
 }
@@ -1175,9 +1167,7 @@ body.app-v3 .roleplay-card .rp-lock {
   }
 }
 
-body.app-v3 .module-visual.red,
 body.app-v3 .module-visual.cute,
-body.app-v3 .continue-visual.red,
 body.app-v3 .continue-visual.cute {
   background:
     radial-gradient(circle at 28% 24%, rgba(255,255,255,.72), transparent 34%),
@@ -1670,7 +1660,7 @@ body.app-v3 .settings-item:hover {
 
 body.app-v3 .cal-day {
   background: #fff0f6;
-  color: #536176;
+  color: #3a4860;
 }
 
 /* ============================================================
@@ -1830,31 +1820,8 @@ body.app-v3 .module-intro-bg {
   filter: saturate(1.06);
 }
 
-body.app-v3 .module-intro-art {
-  min-height: 176px;
-  max-height: 30dvh;
-  flex: 0 0 auto;
-  overflow: hidden;
-  background: #eaf7fb;
-}
-
-body.app-v3 .module-intro-image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center 42%;
-}
-
-body.app-v3 .module-intro-art::after {
-  background: linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.58));
-}
-
-body.app-v3 .module-intro-art-caption {
-  background: rgba(255, 255, 255, .92);
-  color: #243047;
-  border: 1px solid rgba(82, 105, 140, .18);
-  text-shadow: none;
-}
+/* .module-intro-art is set to display:none later in this file (~line 2790),
+   so its sizing/image/caption styles previously here were dead and removed. */
 
 body.app-v3 .module-intro-content {
   overflow: visible;
@@ -1995,11 +1962,6 @@ body.app-v3 .quiz-listening-icon {
 }
 
 @media (max-width: 520px) {
-  body.app-v3 .module-intro-art {
-    min-height: 148px;
-    max-height: 24dvh;
-  }
-
   body.app-v3 .module-intro-items {
     grid-template-columns: 1fr;
   }
