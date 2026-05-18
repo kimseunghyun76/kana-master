@@ -64,24 +64,45 @@
         winter: 'images/v3-cute/characters/variants/nanami-tourist-winter.webp',
       },
     },
+    aoi: {
+      tourist: {
+        spring: 'images/v3-cute/characters/variants/aoi-tourist-spring.webp',
+        summer: 'images/v3-cute/characters/variants/aoi-tourist-summer.webp',
+        autumn: 'images/v3-cute/characters/variants/aoi-tourist-autumn.webp',
+        winter: 'images/v3-cute/characters/variants/aoi-tourist-winter.webp',
+      },
+    },
     mayu: {
       cafe_staff: { default: 'images/v3-cute/characters/variants/mayu-cafe_staff-default.webp' },
+      duty_free_staff: { default: 'images/v3-cute/characters/variants/mayu-duty_free_staff-default.webp' },
       konbini_staff: { default: 'images/v3-cute/characters/variants/mayu-konbini_staff-default.webp' },
       pharmacist: { default: 'images/v3-cute/characters/variants/mayu-pharmacist-default.webp' },
     },
     keita: {
+      doctor: { default: 'images/v3-cute/characters/variants/keita-doctor-default.webp' },
+      izakaya_staff: { default: 'images/v3-cute/characters/variants/keita-restaurant_staff-default.webp' },
+      local: { default: ['images/v3-cute/characters/variants/keita-local-fashion-default.webp'] },
+      restaurant_staff: { default: 'images/v3-cute/characters/variants/keita-restaurant_staff-default.webp' },
       taxi_driver: { default: 'images/v3-cute/characters/variants/keita-taxi_driver-default.webp' },
     },
     takumi: {
       hotel_staff: { default: 'images/v3-cute/characters/variants/takumi-hotel_staff-default.webp' },
+      local: { default: ['images/v3-cute/characters/variants/takumi-local-fashion-default.webp'] },
+      police_staff: { default: 'images/v3-cute/characters/variants/takumi-police_staff-default.webp' },
       station_staff: { default: 'images/v3-cute/characters/variants/takumi-station_staff-default.webp' },
     },
+  };
+
+  const selectVariant = (value, seed) => {
+    if (!Array.isArray(value)) return value;
+    if (!value.length) return '';
+    return value[Math.abs(hashText(seed)) % value.length];
   };
 
   const roleVariant = (identity, role, season = CURRENT_SEASON) => {
     const variants = CHARACTER_VARIANTS[identity.key] || {};
     const byRole = variants[role] || {};
-    return byRole[season] || byRole.default || identity.body;
+    return selectVariant(byRole[season] || byRole.default, `${identity.key}:${role}:${season}`) || identity.body;
   };
 
   const character = (identity, role = 'tourist', opts = {}) => ({
@@ -97,6 +118,11 @@
   const BG = {
     airport: 'images/v3-cute/bg-airport-checkin-cute.webp',
     airplane: 'images/v3-cute/bg-airplane-cabin-cute.webp',
+    bus: 'images/v3-cute/bg-bus-stop-cute.webp',
+    dutyFree: 'images/v3-cute/bg-duty-free-shop-cute.webp',
+    hospital: 'images/v3-cute/bg-hospital-reception-cute.webp',
+    immigration: 'images/v3-cute/bg-immigration-booth-cute.webp',
+    koban: 'images/v3-cute/bg-koban-lost-found-cute.webp',
     transit: 'images/v3-cute/bg-station-platform-cute.webp',
     taxi: 'images/v3-cute/bg-rentacar-taxi-cute.webp',
     konbini: 'images/v3-cute/bg-konbini-checkout-cute.webp',
@@ -148,10 +174,10 @@
     v3_question_engine: pair(BG.shop, tourist(V.nanami), staff(V.mayu, 'shop_staff')),
     v3_answer_engine: pair(BG.local, tourist(V.nanami), local(V.keita)),
     v3_airport: pair(BG.airport, tourist(V.nanami), staff(V.keita, 'airport_staff')),
-    v3_immigration: pair(BG.airport, tourist(V.aoi), staff(V.takumi, 'immigration_officer')),
+    v3_immigration: pair(BG.immigration, tourist(V.aoi), staff(V.takumi, 'immigration_officer')),
     v3_airplane_request: pair(BG.airplane, tourist(V.nanami), staff(V.mayu, 'cabin_crew')),
     v3_transport: pair(BG.transit, tourist(V.aoi), staff(V.takumi, 'station_staff')),
-    v3_bus_ride: pair(BG.transit, tourist(V.nanami), staff(V.keita, 'bus_driver')),
+    v3_bus_ride: pair(BG.bus, tourist(V.nanami), staff(V.keita, 'bus_driver')),
     v3_taxi_ride: pair(BG.taxi, tourist(V.aoi), staff(V.keita, 'taxi_driver')),
     v3_konbini: pair(BG.konbini, tourist(V.nanami), staff(V.mayu, 'konbini_staff')),
     v3_cafe_breakfast: pair(BG.food, tourist(V.aoi), staff(V.mayu, 'cafe_staff')),
@@ -159,13 +185,13 @@
     v3_izakaya: pair(BG.izakaya, tourist(V.nanami), staff(V.keita, 'izakaya_staff'), staff(V.mayu, 'izakaya_staff')),
     v3_shopping: pair(BG.shop, tourist(V.aoi), staff(V.mayu, 'shop_staff')),
     v3_store_payment: pair(BG.shop, tourist(V.nanami), staff(V.mayu, 'cashier')),
-    v3_duty_free: pair(BG.airport, tourist(V.aoi), staff(V.mayu, 'duty_free_staff')),
+    v3_duty_free: pair(BG.dutyFree, tourist(V.aoi), staff(V.mayu, 'duty_free_staff')),
     v3_hotel: pair(BG.hotel, tourist(V.nanami), staff(V.takumi, 'hotel_staff')),
     v3_hotel_request: pair(BG.hotel, tourist(V.aoi), staff(V.takumi, 'hotel_staff')),
     v3_onsen: pair(BG.onsen, tourist(V.nanami), staff(V.mayu, 'onsen_staff')),
     v3_health: pair(BG.trouble, tourist(V.aoi), staff(V.mayu, 'pharmacist')),
-    v3_hospital: pair(BG.trouble, tourist(V.nanami), staff(V.mayu, 'clinic_staff'), staff(V.keita, 'doctor')),
-    v3_lost_and_help: pair(BG.trouble, tourist(V.aoi), staff(V.takumi, 'police_staff')),
+    v3_hospital: pair(BG.hospital, tourist(V.nanami), staff(V.mayu, 'clinic_staff'), staff(V.keita, 'doctor')),
+    v3_lost_and_help: pair(BG.koban, tourist(V.aoi), staff(V.takumi, 'police_staff')),
     v3_rentacar: pair(BG.taxi, tourist(V.keita), staff(V.nanami, 'rental_staff')),
     v3_tourist_spot: pair(BG.local, tourist(V.nanami), local(V.keita)),
     v3_reservation_call: pair(BG.local, tourist(V.aoi), staff(V.mayu, 'reservation_staff')),

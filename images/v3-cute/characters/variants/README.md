@@ -37,14 +37,24 @@ After adding real variant files, register them in
 Current first batch:
 
 ```text
+aoi-tourist-spring.webp
+aoi-tourist-summer.webp
+aoi-tourist-autumn.webp
+aoi-tourist-winter.webp
 nanami-tourist-spring.webp
 nanami-tourist-summer.webp
 nanami-tourist-autumn.webp
 nanami-tourist-winter.webp
 mayu-konbini_staff-default.webp
 mayu-cafe_staff-default.webp
+mayu-duty_free_staff-default.webp
 mayu-pharmacist-default.webp
-takumi-hotel_staff-default.webp
-takumi-station_staff-default.webp
+keita-doctor-default.webp
+keita-local-fashion-default.webp
+keita-restaurant_staff-default.webp
 keita-taxi_driver-default.webp
+takumi-hotel_staff-default.webp
+takumi-local-fashion-default.webp
+takumi-police_staff-default.webp
+takumi-station_staff-default.webp
 ```
