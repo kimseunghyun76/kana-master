@@ -4501,12 +4501,15 @@ body.app-v3 .comic-intro-cast-meta em {
 
 /* PLAYER/PRACTICE — static chars, gentle idle, scrollable top bubbles -- */
 
-/* 1) Full-bleed background: ensure flow-screen and its body fill viewport
-   so the comic shell has 100% height to inherit. */
-body.app-v3 .flow-screen.roleplay-comic-mode,
-body.app-v3 .flow-screen.roleplay-comic-mode .flow-body {
-  height: 100%;
-  min-height: 100%;
+/* 1) Full-bleed background: the flow-screen is already flex-column with
+   flow-body flex:1, so DON'T force height:100% on flow-body (it pushes
+   the footer below the viewport). Instead make the comic shell itself
+   stretch as a flex child. */
+body.app-v3 .flow-screen.roleplay-comic-mode .flow-body > .comic-intro-shell.full-bleed,
+body.app-v3 .flow-screen.roleplay-comic-mode .flow-body > .comic-player-shell.no-script-dock {
+  flex: 1 1 auto;
+  min-height: 0;
+  align-self: stretch;
 }
 
 /* 2) Kill the focus-driven scaling. The previous rules at ~2526-2537
