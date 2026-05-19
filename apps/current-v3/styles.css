@@ -257,6 +257,9 @@ body.app-v3 {
 }
 
 body.app-v3 #app {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, .44), rgba(255, 247, 251, .86)),
+    url("/images/v3-cute/bg-tourist-street-cute.webp") center / cover fixed;
   border-left: 1px solid rgba(255,255,255,.75);
   border-right: 1px solid rgba(255,255,255,.75);
 }
@@ -1365,6 +1368,17 @@ body.app-v3 .lec-pick-card.lec-pick-jp {
    (Palette + #app bg consolidated into the muted visual pass below.)
    ============================================================ */
 
+body.app-v3 {
+  --card: #ffffff;
+  --card2: #f7fbff;
+  --border: rgba(82, 105, 140, .2);
+  --text: #243047;
+  --text2: #4f5f75;
+  --text3: #68788e;
+  --accent: #2f8f9f;
+  --accent2: #287f8e;
+}
+
 body.app-v3 .app-header,
 body.app-v3 .bottom-nav,
 body.app-v3 .stat-pill {
@@ -2344,7 +2358,7 @@ body.app-v3 {
 body.app-v3 #app {
   background:
     linear-gradient(180deg, rgba(235, 242, 246, .88), rgba(230, 236, 241, .94)),
-    url("/images/v3-generated/bg-home-street.webp") center / cover fixed;
+    url("/images/v3-cute/bg-tourist-street-cute.webp") center / cover fixed;
 }
 
 body.app-v3 .view,
@@ -2516,7 +2530,7 @@ body.app-v3 .flow-screen.roleplay-comic-mode .vn-character {
   background: transparent;
   animation: none;
   --char-dir: 1;
-  transform: scaleX(var(--char-dir)) scale(1);
+  transform: scaleX(var(--char-dir)) scale(var(--character-scale, 1));
 }
 
 body.app-v3 .flow-screen.roleplay-comic-mode .vn-character-B {
@@ -2526,14 +2540,14 @@ body.app-v3 .flow-screen.roleplay-comic-mode .vn-character-B {
 body.app-v3 .flow-screen.roleplay-comic-mode .comic-player-visual.speaker-focus-A .vn-character-A,
 body.app-v3 .flow-screen.roleplay-comic-mode .comic-player-visual.speaker-focus-B .vn-character-B,
 body.app-v3 .flow-screen.roleplay-comic-mode .comic-player-visual.speaker-focus-C .vn-character-C {
-  transform: scaleX(var(--char-dir)) scale(1.08);
+  transform: scaleX(var(--char-dir)) scale(calc(var(--character-scale, 1) * 1.08));
 }
 
 body.app-v3 .flow-screen.roleplay-comic-mode .comic-player-visual.speaker-focus-A .vn-character-B,
 body.app-v3 .flow-screen.roleplay-comic-mode .comic-player-visual.speaker-focus-B .vn-character-A,
 body.app-v3 .flow-screen.roleplay-comic-mode .comic-player-visual.speaker-focus-C .vn-character-A,
 body.app-v3 .flow-screen.roleplay-comic-mode .comic-player-visual.speaker-focus-C .vn-character-B {
-  transform: scaleX(var(--char-dir)) scale(.84);
+  transform: scaleX(var(--char-dir)) scale(calc(var(--character-scale, 1) * .84));
 }
 
 body.app-v3 .flow-screen.roleplay-comic-mode .comic-practice-prompt {
