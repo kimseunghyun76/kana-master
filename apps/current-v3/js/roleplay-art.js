@@ -11,27 +11,27 @@
     nanami: {
       key: 'nanami',
       body: 'images/v3-cute/characters/akari-body.webp',
-      face: 'images/v3-cute/characters/akari-face.webp',
+      face: 'images/v3-cute/characters/faces-mask/nanami-mask-face.webp',
     },
     aoi: {
       key: 'aoi',
       body: 'images/v3-cute/characters/yuna-body.webp',
-      face: 'images/v3-cute/characters/yuna-face.webp',
+      face: 'images/v3-cute/characters/faces-mask/aoi-mask-face.webp',
     },
     mayu: {
       key: 'mayu',
-      body: 'images/v3-cute/characters/mika-body.webp',
-      face: 'images/v3-cute/characters/mika-face.webp',
+      body: 'images/v3-cute/characters/seasonal/mayu-realistic-base.webp',
+      face: 'images/v3-cute/characters/faces-mask/mayu-mask-face.webp',
     },
     keita: {
       key: 'keita',
       body: 'images/v3-cute/characters/takumi-body.webp',
-      face: 'images/v3-cute/characters/takumi-face.webp',
+      face: 'images/v3-cute/characters/faces-mask/keita-mask-face.webp',
     },
     takumi: {
       key: 'takumi',
       body: 'images/v3-cute/characters/ren-body.webp',
-      face: 'images/v3-cute/characters/ren-face.webp',
+      face: 'images/v3-cute/characters/faces-mask/takumi-mask-face.webp',
     },
   };
 
@@ -77,6 +77,10 @@
       duty_free_staff: { default: 'images/v3-cute/characters/variants/mayu-duty_free_staff-default.webp' },
       konbini_staff: { default: 'images/v3-cute/characters/variants/mayu-konbini_staff-default.webp' },
       pharmacist: { default: 'images/v3-cute/characters/variants/mayu-pharmacist-default.webp' },
+      tourist: {
+        spring: 'images/v3-cute/characters/seasonal/mayu-tourist-spring-real.webp',
+        summer: 'images/v3-cute/characters/seasonal/mayu-tourist-summer-real.webp',
+      },
     },
     keita: {
       doctor: { default: 'images/v3-cute/characters/variants/keita-doctor-default.webp' },
@@ -84,12 +88,18 @@
       local: { default: ['images/v3-cute/characters/variants/keita-local-fashion-default.webp'] },
       restaurant_staff: { default: 'images/v3-cute/characters/variants/keita-restaurant_staff-default.webp' },
       taxi_driver: { default: 'images/v3-cute/characters/variants/keita-taxi_driver-default.webp' },
+      tourist: {
+        autumn: 'images/v3-cute/characters/seasonal/keita-tourist-autumn-trend.webp',
+      },
     },
     takumi: {
       hotel_staff: { default: 'images/v3-cute/characters/variants/takumi-hotel_staff-default.webp' },
       local: { default: ['images/v3-cute/characters/variants/takumi-local-fashion-default.webp'] },
       police_staff: { default: 'images/v3-cute/characters/variants/takumi-police_staff-default.webp' },
       station_staff: { default: 'images/v3-cute/characters/variants/takumi-station_staff-default.webp' },
+      tourist: {
+        winter: 'images/v3-cute/characters/seasonal/takumi-tourist-winter-trend.webp',
+      },
     },
   };
 
@@ -116,30 +126,30 @@
 
   const V = IDENTITIES;
   const BG = {
-    airport: 'images/v3-cute/bg-airport-checkin-cute.webp',
-    airplane: 'images/v3-cute/bg-airplane-cabin-cute.webp',
+    airport: 'images/v3-cute/wide-life/bg-airport-checkin-wide-life.webp',
+    airplane: 'images/v3-cute/wide-life/bg-airplane-cabin-wide-life.webp',
     bus: 'images/v3-cute/bg-bus-stop-cute.webp',
     dutyFree: 'images/v3-cute/bg-duty-free-shop-cute.webp',
     hospital: 'images/v3-cute/bg-hospital-reception-cute.webp',
     immigration: 'images/v3-cute/bg-immigration-booth-cute.webp',
     koban: 'images/v3-cute/bg-koban-lost-found-cute.webp',
-    transit: 'images/v3-cute/bg-station-platform-cute.webp',
+    transit: 'images/v3-cute/wide-life/bg-station-platform-wide-life.webp',
     taxi: 'images/v3-cute/bg-rentacar-taxi-cute.webp',
-    konbini: 'images/v3-cute/bg-konbini-checkout-cute.webp',
-    food: 'images/v3-cute/bg-cafe-restaurant-cute.webp',
-    izakaya: 'images/v3-cute/bg-izakaya-cute.webp',
-    shop: 'images/v3-cute/bg-clothing-store-cute.webp',
-    hotel: 'images/v3-cute/bg-hotel-lobby-cute.webp',
+    konbini: 'images/v3-cute/wide-life/bg-konbini-checkout-wide-life.webp',
+    food: 'images/v3-cute/wide-life/bg-cafe-restaurant-wide-life.webp',
+    izakaya: 'images/v3-cute/wide-life/bg-izakaya-wide-life.webp',
+    shop: 'images/v3-cute/wide-life/bg-clothing-store-wide-life.webp',
+    hotel: 'images/v3-cute/wide-life/bg-hotel-lobby-wide-life.webp',
     onsen: 'images/v3-cute/bg-onsen-ryokan-cute.webp',
-    trouble: 'images/v3-cute/bg-pharmacy-clinic-cute.webp',
-    local: 'images/v3-cute/bg-tourist-street-cute.webp',
-    fallbackAirport: 'images/v3-cute/bg-airport-checkin-cute.webp',
-    fallbackTransit: 'images/v3-cute/bg-station-platform-cute.webp',
-    fallbackFood: 'images/v3-cute/bg-cafe-restaurant-cute.webp',
-    fallbackShop: 'images/v3-cute/bg-clothing-store-cute.webp',
-    fallbackHotel: 'images/v3-cute/bg-hotel-lobby-cute.webp',
-    fallbackTrouble: 'images/v3-cute/bg-pharmacy-clinic-cute.webp',
-    fallbackLocal: 'images/v3-cute/bg-tourist-street-cute.webp',
+    trouble: 'images/v3-cute/wide-life/bg-pharmacy-clinic-wide-life.webp',
+    local: 'images/v3-cute/wide-life/bg-tourist-street-wide-life.webp',
+    fallbackAirport: 'images/v3-cute/wide-life/bg-airport-checkin-wide-life.webp',
+    fallbackTransit: 'images/v3-cute/wide-life/bg-station-platform-wide-life.webp',
+    fallbackFood: 'images/v3-cute/wide-life/bg-cafe-restaurant-wide-life.webp',
+    fallbackShop: 'images/v3-cute/wide-life/bg-clothing-store-wide-life.webp',
+    fallbackHotel: 'images/v3-cute/wide-life/bg-hotel-lobby-wide-life.webp',
+    fallbackTrouble: 'images/v3-cute/wide-life/bg-pharmacy-clinic-wide-life.webp',
+    fallbackLocal: 'images/v3-cute/wide-life/bg-tourist-street-wide-life.webp',
   };
 
   const distinctPair = (a, b) => (a.identity === b.identity ? character(V.keita, b.role, b) : b);
