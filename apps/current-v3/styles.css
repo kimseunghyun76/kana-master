@@ -227,15 +227,16 @@
   }
 
   .v3-kana-cell {
-    min-height: 58px;
+    min-height: 72px;
+    padding: 8px 4px;
   }
 
   .v3-kana-hira {
-    font-size: 23px;
+    font-size: 24px;
   }
 
   .v3-kana-kata {
-    font-size: 14px;
+    font-size: 20px;
   }
 
   .v3-kana-memory {
@@ -2620,7 +2621,21 @@ body.app-v3 .v3-kana-memory b {
 
 body.app-v3 .v3-kana-kata,
 body.app-v3 .v3-kana-kicker {
-  color: #236f7b;
+  color: #1f6470;
+}
+/* Make sure katakana glyph is clearly visible — used to be 14px teal
+   and effectively invisible. Now bold + larger + framed in a chip. */
+body.app-v3 .v3-kana-cell .v3-kana-kata {
+  margin-top: 4px;
+  padding: 2px 6px;
+  border-radius: 6px;
+  background: rgba(40, 127, 142, .12);
+  font-weight: 800;
+}
+/* Chart should comfortably scroll inside flow-body even on narrow shells. */
+body.app-v3 .v3-kana-chart {
+  overflow: visible;
+  padding-bottom: 24px;
 }
 
 body.app-v3 .v3-kana-chart-hero p,
