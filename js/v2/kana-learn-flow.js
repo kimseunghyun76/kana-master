@@ -131,25 +131,27 @@ function createKanaLearnFlow(deps = {}) {
                 <div class="kana-char ${isSmallKana(c) ? 'is-small' : ''}">${ruby(c)}</div>
               </div>
               <div class="kana-back">
-                <!-- 헤더: 좌측 글자/발음 + 우측 기억법 -->
+                <!-- 헤더: 좌측 강사 얼굴 + 우측 기억법 -->
                 <div class="kana-back-head">
-                  <div class="kana-back-id">
-                    <span class="kana-back-char">${escHtml(c)}</span>
-                    <div class="kana-back-reading">
-                      <span class="kana-romaji-sm">${escHtml(info.romaji || '')}</span>
-                      <span class="kana-korean-sm">${escHtml(info.korean || '')}</span>
-                    </div>
+                  <div class="kana-back-coach">
+                    <img class="kana-back-coach-face"
+                         src="/images/v3-cute/characters/variants/mayu-cafe_staff-default.webp"
+                         alt="" aria-hidden="true">
                   </div>
                   ${info.tip ? `
                   <div class="kana-tip-main">
                     <div class="kana-tip-label">${uiIconSvg('sparkle', 'kana-tip-icon')} 기억법</div>
                     <div class="kana-tip-body">${ruby(info.tip)}</div>
-                  </div>` : '<div></div>'}
+                  </div>` : `
+                  <div class="kana-tip-main kana-tip-empty">
+                    <div class="kana-tip-label">${uiIconSvg('sparkle', 'kana-tip-icon')} 기억법</div>
+                    <div class="kana-tip-body">소리 ${escHtml(info.romaji || '')} · ${escHtml(info.korean || '')}<br>한 줄 한 줄 따라 써 보세요.</div>
+                  </div>`}
                 </div>
                 ${canShowStroke ? `
                 <div class="kana-stroke-block">
                   <div class="kana-stroke-head">
-                    <span class="kana-stroke-title">${escHtml(c)} 예쁘게 쓰는 법</span>
+                    <span class="kana-stroke-title">${escHtml(c)} 쓰는 법 <span class="kana-stroke-meta" id="kanaStrokeMeta"></span></span>
                     <div class="kana-stroke-actions">
                       <button class="kana-icon-btn" type="button"
                               onclick="event.stopPropagation();TTS.speak('${safeC}')"

@@ -2634,14 +2634,34 @@ body.app-v3 .lec-footer-tools-unified {
 }
 
 body.app-v3 .lec-voice-select-wrap {
+  /* Make the instructor toggle prominent so users notice they can swap
+     강사 without leaving the lecture. Stretches across 2 footer cols. */
+  grid-column: span 2;
   min-width: 0;
+  padding: 6px 8px;
+  border: 1.5px solid rgba(40, 127, 142, .55);
+  border-radius: 12px;
+  background: linear-gradient(180deg, #ffffff 0%, #e8f8fc 100%);
+  color: #1f6470;
+  font-weight: 800;
+}
+body.app-v3 .lec-voice-select-wrap::before {
+  content: '강사';
+  display: block;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  color: #287f8e;
+  opacity: .85;
 }
 
 body.app-v3 .lec-tool-voice-name {
   overflow: hidden;
-  max-width: 52px;
+  max-width: 80px;
   text-overflow: ellipsis;
   white-space: nowrap;
+  font-size: 13px;
+  font-weight: 900;
 }
 
 body.app-v3 .lec-pick-voice-chip {
@@ -3966,7 +3986,12 @@ body.app-v3 .rp-summary-screen {
   display: flex;
   flex-direction: column;
   gap: 14px;
-  padding: 4px 0 10px;
+  padding: 4px 0 24px;
+  /* Guarantee scrollability even if flow-body is height-locked under
+     roleplay-comic-mode. Touch momentum on iOS. */
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  max-height: 100%;
 }
 
 body.app-v3 .rp-summary-head {
@@ -4144,7 +4169,13 @@ body.app-v3 .rp-summary-tip-body {
    ============================================================ */
 
 /* INTRO ----------------------------------------------------- */
-body.app-v3 .flow-screen.roleplay-comic-mode .flow-body {
+/* Dark flow-body only inside the actual cinematic phases of roleplay
+   (intro/preview/player/practice). The class can stick around after the
+   user navigates back to a vocab card, so leaving it global would tint
+   word-card backgrounds and kill border-radius contrast. */
+body.app-v3 .flow-screen.roleplay-comic-mode .flow-body:has(> .comic-intro-shell),
+body.app-v3 .flow-screen.roleplay-comic-mode .flow-body:has(> .comic-preview-shell),
+body.app-v3 .flow-screen.roleplay-comic-mode .flow-body:has(> .comic-player-shell) {
   padding: 0;
   background: #0c1320;
 }
@@ -4925,18 +4956,189 @@ body.app-v3 .quiz-question .quiz-q-type {
   color: #4f5f75;
 }
 
+/* Countdown bar + footer skip row */
+body.app-v3 .quiz-countdown {
+  margin-top: 12px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+body.app-v3 .quiz-countdown-bar {
+  flex: 1;
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(82, 105, 140, .15);
+  overflow: hidden;
+}
+body.app-v3 .quiz-countdown-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #5ac99b, #287f8e);
+  transition: width 1s linear;
+}
+body.app-v3 .quiz-countdown-fill.low {
+  background: linear-gradient(90deg, #f59e0b, #ef4444);
+  animation: v3-cd-blink .6s ease-in-out infinite;
+}
+@keyframes v3-cd-blink {
+  50% { opacity: .55; }
+}
+body.app-v3 .quiz-countdown-num {
+  font-size: 12px;
+  font-weight: 800;
+  color: #4f5f75;
+  min-width: 36px;
+  text-align: right;
+}
+body.app-v3 .quiz-footer-row {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+}
+body.app-v3 .quiz-footer-row .btn {
+  flex: 1;
+}
+
+/* ============================================================
+   V3 step intro (vocab_learn / vocab_quiz interstitial)
+   ============================================================ */
+body.app-v3 .step-intro {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 28px 22px 32px;
+  margin: 12px 12px;
+  border: 1px solid rgba(82, 105, 140, .2);
+  border-radius: 22px;
+  background: linear-gradient(135deg, #fff7e3 0%, #ffffff 55%, #e8f8fc 100%);
+  box-shadow: 0 18px 36px rgba(60, 82, 112, .14);
+  overflow: hidden;
+  min-height: calc(100% - 24px);
+}
+body.app-v3 .step-intro-eyebrow {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: #287f8e;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: .06em;
+  align-self: flex-start;
+}
+body.app-v3 .step-intro-title {
+  margin: 6px 0 0;
+  color: #243047;
+  font-size: 24px;
+  font-weight: 900;
+  line-height: 1.25;
+  word-break: keep-all;
+}
+body.app-v3 .step-intro-meta {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+body.app-v3 .step-intro-pill {
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(40, 127, 142, .12);
+  color: #1f6470;
+  font-size: 12px;
+  font-weight: 800;
+}
+body.app-v3 .step-intro-pill.alt {
+  background: rgba(216, 180, 100, .25);
+  color: #6b4f0a;
+}
+body.app-v3 .step-intro-tip {
+  margin: 16px 0 0;
+  padding: 12px 14px;
+  border-left: 3px solid #287f8e;
+  border-radius: 8px;
+  background: rgba(40, 127, 142, .06);
+  color: #243047;
+  font-size: 13px;
+  line-height: 1.55;
+}
+body.app-v3 .step-intro-mascot {
+  position: absolute;
+  right: -14px;
+  bottom: -10px;
+  width: 38%;
+  max-width: 180px;
+  height: auto;
+  pointer-events: none;
+  filter: drop-shadow(0 8px 16px rgba(0,0,0,.18));
+  opacity: .9;
+}
+
 /* ============================================================
    V3 kana primer mascot + quiz result mascot
    ============================================================ */
 body.app-v3 .kana-quiz-primer.has-mascot {
   position: relative;
-  overflow: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  max-height: 100%;
   min-height: 100%;
 }
+/* Unified primer CTA card combining 캐릭터 + tip */
+body.app-v3 .kana-quiz-primer-cta {
+  display: grid;
+  grid-template-columns: 84px minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 12px;
+  padding: 12px 14px 12px 12px;
+  border: 1.5px solid rgba(40, 127, 142, .4);
+  border-radius: 18px;
+  background: linear-gradient(135deg, #fff7e3 0%, #ffffff 50%, #e8f8fc 100%);
+  box-shadow: 0 12px 24px rgba(40, 127, 142, .14);
+  cursor: pointer;
+  text-align: left;
+}
+body.app-v3 .kana-quiz-primer-cta:hover { box-shadow: 0 16px 30px rgba(40, 127, 142, .22); }
+body.app-v3 .kana-quiz-primer-cta-mascot {
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #fff;
+  border: 1.5px solid rgba(40, 127, 142, .25);
+}
+body.app-v3 .kana-quiz-primer-cta-mascot img {
+  width: 100%; height: 100%; object-fit: cover; object-position: center top;
+}
+body.app-v3 .kana-quiz-primer-cta-body { min-width: 0; }
+body.app-v3 .kana-quiz-primer-cta-bubble b {
+  display: block;
+  color: #1f6470;
+  font-size: 13px;
+  font-weight: 900;
+}
+body.app-v3 .kana-quiz-primer-cta-bubble span {
+  color: #243047;
+  font-size: 12px;
+  line-height: 1.4;
+}
+body.app-v3 .kana-quiz-primer-cta-arrow {
+  margin-top: 6px;
+  color: #287f8e;
+  font-size: 11px;
+  font-weight: 800;
+}
+
 body.app-v3 .kana-quiz-primer-mascot {
-  position: absolute;
-  right: -18px;
-  bottom: -10px;
+  /* Stick to viewport bottom-right (not the scrollable card) so the
+     mascot stays put while the user scrolls the kana grid above. */
+  position: sticky;
+  bottom: 0;
+  margin-left: auto;
+  margin-top: -160px;
+  display: block;
   width: 42%;
   max-width: 200px;
   height: auto;
@@ -4944,6 +5146,7 @@ body.app-v3 .kana-quiz-primer-mascot {
   pointer-events: none;
   filter: drop-shadow(0 6px 12px rgba(0,0,0,.18));
   animation: v3-char-idle 4.4s ease-in-out infinite;
+  z-index: 2;
 }
 body.app-v3 .kana-quiz-primer-tip {
   position: absolute;
@@ -4970,18 +5173,48 @@ body.app-v3 .kana-quiz-primer-grid {
 
 body.app-v3 .score-screen.has-mascot {
   position: relative;
-  overflow: hidden;
-  padding-right: 100px;
+  overflow: visible;
+  padding-right: 0;
+}
+body.app-v3 .score-mascot-row {
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+  margin: 0 0 10px;
+  min-height: 120px;
 }
 body.app-v3 .score-mascot {
-  position: absolute;
-  right: -16px;
-  bottom: -6px;
-  width: 44%;
-  max-width: 220px;
+  flex: 0 0 auto;
+  width: 110px;
   height: auto;
   pointer-events: none;
   filter: drop-shadow(0 8px 16px rgba(0,0,0,.18));
+}
+body.app-v3 .score-mascot-bubble {
+  position: relative;
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 12px 14px;
+  border-radius: 16px 16px 16px 4px;
+  background: #ffffff;
+  border: 1px solid rgba(40, 127, 142, .35);
+  box-shadow: 0 10px 24px rgba(40, 127, 142, .15);
+  color: #243047;
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.4;
+  align-self: center;
+}
+body.app-v3 .score-mascot-tail {
+  position: absolute;
+  left: -8px;
+  bottom: 12px;
+  width: 14px;
+  height: 14px;
+  background: #ffffff;
+  border-left: 1px solid rgba(40, 127, 142, .35);
+  border-bottom: 1px solid rgba(40, 127, 142, .35);
+  transform: rotate(45deg);
 }
 
 /* ============================================================
@@ -4999,12 +5232,44 @@ body.app-v3 .kana-card-inner {
 }
 body.app-v3 .kana-tip-main {
   position: relative;
-  padding-left: 50px;
-  background:
-    url('/images/v3-cute/characters/variants/mayu-cafe_staff-default.webp') left center / 42px auto no-repeat,
-    var(--card2, #f7fbff);
+  padding: 10px 12px;
+  background: var(--card2, #f7fbff);
   border-radius: 12px;
   min-height: 64px;
+}
+/* Replace 좌측 hiragana/발음 with a coach face image */
+body.app-v3 .kana-back-coach {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: linear-gradient(180deg, #fff7e3, #e8f8fc);
+  border: 1.5px solid rgba(40, 127, 142, .25);
+  box-shadow: 0 6px 12px rgba(40, 127, 142, .14);
+  flex: 0 0 60px;
+}
+body.app-v3 .kana-back-coach-face {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+}
+body.app-v3 .kana-back-head {
+  display: flex;
+  gap: 10px;
+  align-items: stretch;
+}
+body.app-v3 .kana-back-head .kana-tip-main {
+  flex: 1 1 auto;
+}
+body.app-v3 .kana-stroke-meta {
+  color: #287f8e;
+  font-weight: 800;
+  font-size: 12px;
+  margin-left: 4px;
 }
 body.app-v3 .kana-tip-label {
   color: #1f6470;
@@ -5123,7 +5388,24 @@ body.app-v3 .flow-screen.roleplay-comic-mode .comic-player-actions .btn {
    ============================================================ */
 body.app-v3 .vc-face {
   background: linear-gradient(140deg, #fff7e3 0%, #ffffff 60%);
-  border: 1px solid rgba(216, 180, 100, .35);
+  border: 1px solid rgba(216, 180, 100, .55);
+  box-shadow: 0 14px 28px rgba(140, 100, 30, .18);
+}
+/* Ensure the card surface (not just face/back) stays visible against any
+   parent bg, so the border-radius actually frames something. */
+body.app-v3 .vc-flip-card {
+  background: transparent;
+  border-radius: 24px;
+  box-shadow: 0 18px 36px rgba(0, 0, 0, .12);
+}
+body.app-v3 .vc-card-inner {
+  border-radius: 24px;
+  overflow: hidden;
+}
+body.app-v3 .vc-back {
+  background: linear-gradient(180deg, #ffffff, #f7fbfc);
+  border: 1px solid rgba(82, 105, 140, .25);
+  box-shadow: 0 14px 28px rgba(60, 82, 112, .14);
 }
 body.app-v3 .vc-type-label {
   display: inline-block;

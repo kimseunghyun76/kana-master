@@ -593,7 +593,7 @@ window.createRoleplayFlow = (ctx) => {
 
     TTS.speakQueue(lines, {
       rate: 0.92,
-      gapMs: 1000,
+      gapMs: 3000,
       onLineStart: (idx, line) => {
         const livePlayback = _getRoleplayPlaybackState();
         if (livePlayback) {
@@ -729,15 +729,29 @@ window.createRoleplayFlow = (ctx) => {
   }
 
   function _showRoleplayPreviewModal() {
+    // idempotent — re-clicking the trigger shouldn't stack multiple modals.
+    _hideRoleplayPreviewModal();
     const flow = ctx.getFlow();
     const mod = ctx.getMod(flow?.moduleId);
     if (!mod?.roleplay) return;
-    const dialogues = ctx.getDialogue(mod.roleplay.dialogueKey);
+    let dialogues = [];
+    try { dialogues = ctx.getDialogue(mod.roleplay.dialogueKey) || []; } catch { dialogues = []; }
+    if (!dialogues.length) {
+      // No dialogue data — still surface a soft modal so the user knows.
+      const empty = document.createElement('div');
+      empty.id = 'rpPreviewModal';
+      empty.className = 'rp-preview-modal-backdrop';
+      empty.onclick = (e) => { if (e.target === empty) _hideRoleplayPreviewModal(); };
+      empty.innerHTML = '<div class="rp-preview-modal"><header class="rp-preview-modal-head"><b class="rp-preview-modal-title">대화 데이터가 없습니다</b><button class="rp-preview-modal-close" type="button" onclick="App._hideRoleplayPreviewModal()" aria-label="닫기">×</button></header><div style="padding:24px;text-align:center;color:#4f5f75">이 모듈은 대화 미리보기를 제공하지 않습니다.</div></div>';
+      document.body.appendChild(empty);
+      return;
+    }
     const cover = ctx.getRoleplayCoverAsset(mod);
     const html = _comicView.renderPreviewModal(mod, mod.roleplay, dialogues, _comicView.sceneAsset(mod, cover));
     const wrap = document.createElement('div');
     wrap.innerHTML = html;
-    document.body.appendChild(wrap.firstElementChild);
+    const modal = wrap.firstElementChild;
+    if (modal) document.body.appendChild(modal);
   }
   function _hideRoleplayPreviewModal() {
     document.getElementById('rpPreviewModal')?.remove();

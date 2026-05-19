@@ -112,6 +112,18 @@ window.createQuizFlow = (ctx) => {
           </div>
           <div class="kana-quiz-primer-count">${chars.length}자</div>
         </div>
+        <button class="kana-quiz-primer-cta" type="button" onclick="App._startKanaQuizFromPrimer()" aria-label="복습 카드 열기">
+          <div class="kana-quiz-primer-cta-mascot">
+            <img src="/images/v3-cute/characters/variants/nanami-tourist-spring.webp" alt="" aria-hidden="true">
+          </div>
+          <div class="kana-quiz-primer-cta-body">
+            <div class="kana-quiz-primer-cta-bubble">
+              <b>30초 동안 한 번씩</b>
+              <span>읽어 보고, 들어 본 다음 퀴즈로 가요.</span>
+            </div>
+            <div class="kana-quiz-primer-cta-arrow">탭해서 복습 →</div>
+          </div>
+        </button>
         <div class="kana-quiz-primer-grid">
           ${chars.map(ch => {
             const info = KANA_MAP[ch] || {};
@@ -123,11 +135,6 @@ window.createQuizFlow = (ctx) => {
               </button>
             `;
           }).join('')}
-        </div>
-        <img class="kana-quiz-primer-mascot" src="/images/v3-cute/characters/variants/nanami-tourist-spring.webp" alt="" aria-hidden="true">
-        <div class="kana-quiz-primer-tip">
-          <b>30초 동안 한 번씩</b>
-          <span>읽어 보고, 들어 본 다음 퀴즈로 가요.</span>
         </div>
       </div>
     `;
@@ -704,13 +711,22 @@ window.createQuizFlow = (ctx) => {
           `).join('')}
         </div>
         <div class="quiz-feedback" id="quizFeedback"></div>
+        <div class="quiz-countdown" id="quizCountdown" aria-live="polite">
+          <div class="quiz-countdown-bar"><div class="quiz-countdown-fill" id="quizCountdownFill"></div></div>
+          <div class="quiz-countdown-num"><span id="quizCountdownNum">10</span>초</div>
+        </div>
       `;
       document.getElementById('flowFooter').innerHTML = `
-        <button class="btn btn-primary hidden" id="btnNextQ" onclick="App._vocabQuizNext()">
-          다음 →
-        </button>
+        <div class="quiz-footer-row">
+          <button class="btn btn-outline" id="btnDontKnow" type="button" onclick="App._vocabQuizSkip()">모르겠습니다</button>
+          <button class="btn btn-primary hidden" id="btnNextQ" type="button" onclick="App._vocabQuizNext()">
+            다음 →
+          </button>
+        </div>
       `;
       if (mode === 'listen') setTimeout(() => TTS.speak(item.japanese || ''), 300);
+      // start 10-second countdown
+      _startQuizCountdown(10);
     }
 
     ctx.getFlow()._vocabQuiz = {
@@ -729,8 +745,12 @@ window.createQuizFlow = (ctx) => {
   }
 
   function _vocabQuizAnswer(btn, isCorrect) {
+    _stopQuizCountdown();
     const fq = ctx.getFlow()._vocabQuiz;
     if (!fq) return;
+    // hide the "모르겠습니다" button once an answer is committed
+    const btnSkip = document.getElementById('btnDontKnow');
+    if (btnSkip) btnSkip.style.display = 'none';
     const item = fq.questions[fq.qIdx] || {};
     const jp = item.japanese || item.kanji || '';
     const ko = item.korean || '';
@@ -793,12 +813,77 @@ window.createQuizFlow = (ctx) => {
 
   function _vocabQuizNext() {
     clearTimeout(_autoNextTimer);
+    _stopQuizCountdown();
     const btn = document.getElementById('btnNextQ');
     if (btn) btn.innerHTML = '다음 →';
     const fq = ctx.getFlow()._vocabQuiz;
     if (!fq) return;
     fq.qIdx++;
     fq.renderQ();
+  }
+
+  // ── Countdown + "모르겠습니다" skip ───────────────────────
+  let _quizCountdownTimer = null;
+  function _startQuizCountdown(seconds) {
+    _stopQuizCountdown();
+    let remaining = seconds;
+    const fill = document.getElementById('quizCountdownFill');
+    const num = document.getElementById('quizCountdownNum');
+    if (fill) fill.style.width = '100%';
+    if (num) num.textContent = String(remaining);
+    _quizCountdownTimer = setInterval(() => {
+      remaining--;
+      if (num) num.textContent = String(Math.max(0, remaining));
+      if (fill) fill.style.width = `${Math.max(0, (remaining / seconds) * 100)}%`;
+      if (remaining <= 3 && fill) fill.classList.add('low');
+      if (remaining <= 0) {
+        _stopQuizCountdown();
+        // Time's up — treat as wrong without animation; reveal then advance.
+        const fq = ctx.getFlow()._vocabQuiz;
+        if (!fq) return;
+        const stillAnswering = !document.querySelector('.quiz-choice.answered');
+        if (stillAnswering) _vocabQuizSkip();
+      }
+    }, 1000);
+  }
+  function _stopQuizCountdown() {
+    if (_quizCountdownTimer) { clearInterval(_quizCountdownTimer); _quizCountdownTimer = null; }
+    const fill = document.getElementById('quizCountdownFill');
+    if (fill) fill.classList.remove('low');
+  }
+  function _vocabQuizSkip() {
+    const fq = ctx.getFlow()._vocabQuiz;
+    if (!fq) return;
+    // Mark wrong (without picking a choice) and reveal correct.
+    const item = fq.questions[fq.qIdx] || {};
+    fq.wrong++;
+    if (!fq.isReview && item) fq.missed.push(item);
+    if (item.id) Store.reviewVocabItem(item.id, 'again');
+    const jp = item.japanese || item.kanji || '';
+    const ko = item.korean || '';
+    document.querySelectorAll('.quiz-choice').forEach(b => {
+      b.classList.add('answered');
+      b.onclick = null;
+      b.disabled = true;
+      if (b.dataset.correct === 'true') b.classList.add('correct');
+    });
+    const fb = document.getElementById('quizFeedback');
+    if (fb) {
+      fb.className = 'quiz-feedback show wrong';
+      fb.innerHTML = `${ctx.uiIconSvg('close', 'quiz-feedback-icon')} <span>정답은 <strong>${ruby(jp)}</strong> = ${escHtml(ko)}예요.</span>`;
+    }
+    TTS.speak(stripFuri(jp));
+    ctx.playQuizEffect(false);
+    _stopQuizCountdown();
+    const btnNext = document.getElementById('btnNextQ');
+    const btnSkip = document.getElementById('btnDontKnow');
+    show(btnNext);
+    if (btnSkip) btnSkip.style.display = 'none';
+    // auto-advance 3s
+    clearTimeout(_autoNextTimer);
+    _autoNextTimer = setTimeout(() => {
+      if (!document.getElementById('btnNextQ')?.classList.contains('hidden')) _vocabQuizNext();
+    }, 3000);
   }
 
   function getVocabDistractors(item, allItems, mode, count) {
@@ -851,6 +936,7 @@ window.createQuizFlow = (ctx) => {
     renderVocabQuiz: _renderVocabQuiz,
     vocabQuizAnswer: _vocabQuizAnswer,
     vocabQuizNext: _vocabQuizNext,
+    vocabQuizSkip: _vocabQuizSkip,
     startRetryPhase: _resultFlow.startRetryPhase,
     afterQuiz: _resultFlow.afterQuiz,
     clearTimers,

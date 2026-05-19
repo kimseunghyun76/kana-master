@@ -342,6 +342,15 @@ window.App = (() => {
     document.getElementById('flowScreen')?.classList.toggle('lecture-mode', s.type === 'lecture');
     _updateFlowProgress(step, total, s.title);
 
+    // Interstitial intro for vocab_learn / vocab_quiz so the user gets a
+    // "what am I about to do" beat before the screen suddenly changes.
+    // Skipped if the user just clicked through this same step's intro.
+    const needsIntro = ['vocab_learn', 'vocab_quiz'].includes(s.type) && !_flow._introShown?.[step];
+    if (needsIntro) {
+      _showStepIntro(mod, s, step);
+      return;
+    }
+
     switch (s.type) {
       case 'lecture':         _renderLecture(mod, s, step); break;
       case 'kana_chart':      _renderKanaChart(mod, s, step); break;
@@ -354,6 +363,45 @@ window.App = (() => {
       case 'dialogue_study':  _renderDialogueStudy(mod, s, step); break;
       default:                _advanceStep(); break;
     }
+  }
+
+  function _showStepIntro(mod, step, stepIndex) {
+    _flow._introShown = _flow._introShown || {};
+    let items = [];
+    try { items = _getVocabItems(step) || []; } catch { items = []; }
+    const count = items.length;
+    const isQuiz = step.type === 'vocab_quiz';
+    const mode = ContentIndex.getStepMode ? ContentIndex.getStepMode(step) : 'mixed';
+    const kindLabel = isQuiz ? '퀴즈' : (mode === 'sentence' ? '문장 학습' : mode === 'word' ? '단어 학습' : '카드 학습');
+    const tip = isQuiz
+      ? '4지선다 ' + count + '문제 · 정답 후 3초, 미답 10초 자동 진행'
+      : (mode === 'sentence' ? '문장을 듣고 따라 읽기. 해석은 펼쳐서 확인.' : '단어 뒷면에 한자·영문·관련 단어 정리');
+    document.getElementById('flowBody').innerHTML = `
+      <div class="step-intro">
+        <div class="step-intro-eyebrow">${kindLabel}</div>
+        <h2 class="step-intro-title">${escHtml(step.title || (isQuiz ? '퀴즈' : '카드 학습'))}</h2>
+        <div class="step-intro-meta">
+          <span class="step-intro-pill">${count}${isQuiz ? '문제' : '카드'}</span>
+          <span class="step-intro-pill alt">${kindLabel}</span>
+        </div>
+        <p class="step-intro-tip">${escHtml(tip)}</p>
+        <img class="step-intro-mascot"
+             src="/images/v3-cute/characters/variants/nanami-tourist-spring.webp"
+             alt="" aria-hidden="true">
+      </div>
+    `;
+    document.getElementById('flowFooter').innerHTML = `
+      <button class="btn btn-primary" type="button" onclick="App._dismissStepIntro(${stepIndex})">
+        ${isQuiz ? '퀴즈 시작 →' : '학습 시작 →'}
+      </button>
+    `;
+  }
+
+  function _dismissStepIntro(stepIndex) {
+    if (!_flow) return;
+    _flow._introShown = _flow._introShown || {};
+    _flow._introShown[stepIndex] = true;
+    _runCurrentStep();
   }
 
   function _showPracticeComplete(mod) {
@@ -656,6 +704,9 @@ window.App = (() => {
   }
   function _vocabQuizNext() {
     return _quizFlow.vocabQuizNext();
+  }
+  function _vocabQuizSkip() {
+    return _quizFlow.vocabQuizSkip();
   }
   function _startRetryPhase() {
     return _quizFlow.startRetryPhase();
@@ -1199,6 +1250,7 @@ window.App = (() => {
     _vocabEval,
     _vocabQuizAnswer,
     _vocabQuizNext,
+    _vocabQuizSkip,
     _dialogueStudyDone,
     _startFlowFromStep,
     _afterQuiz,
@@ -1248,6 +1300,7 @@ window.App = (() => {
     _showRoleplaySummary,
     _showRoleplayPreviewModal,
     _hideRoleplayPreviewModal,
+    _dismissStepIntro,
     _restartRoleplayPractice,
     _reopenLastPracticeLine,
     _openKanaChartStandalone,

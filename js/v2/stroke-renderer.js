@@ -265,6 +265,9 @@ window.StrokeRenderer = (() => {
       total, stepIdx: -1,
       paths: strokePaths, activeG, tipG, ns
     });
+    // Surface the stroke count in the card title meta slot
+    const meta = document.getElementById('kanaStrokeMeta');
+    if (meta) meta.textContent = `· ${total}획`;
     _inlineStrokeState.animTimer = setTimeout(() => _inlinePlay(), 150);
   }
 

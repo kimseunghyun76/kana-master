@@ -97,10 +97,19 @@ function createQuizResultFlow(ctx) {
       : ['/images/v3-cute/characters/variants/nanami-tourist-autumn.webp',
          '/images/v3-cute/characters/variants/aoi-tourist-winter.webp'];
     const mascotSrc = mascots[Math.floor(Math.random() * mascots.length)];
+    const speech = passed
+      ? (pct >= 90 ? '완벽해요! 다음 단계로 가요 ✨' : pct >= 70 ? '잘했어요! 살짝만 다듬어요 💪' : '통과! 한 번 더 복습하면 더 좋아요 🌱')
+      : '괜찮아요, 다시 한 번 가볼게요! 핵심만 짚어서 짧게 가요 🌿';
     document.getElementById('flowBody').innerHTML = `
       <div class="score-screen fanfare-burst ${passed ? 'score-screen-passed' : ''} has-mascot">
         ${passed ? '<div class="score-fanfare-ring score-fanfare-ring-a"></div><div class="score-fanfare-ring score-fanfare-ring-b"></div>' : ''}
-        <img class="score-mascot" src="${mascotSrc}" alt="" aria-hidden="true">
+        <div class="score-mascot-row">
+          <img class="score-mascot" src="${mascotSrc}" alt="" aria-hidden="true">
+          <div class="score-mascot-bubble">
+            <b>${speech}</b>
+            <span class="score-mascot-tail" aria-hidden="true"></span>
+          </div>
+        </div>
         <div class="score-emoji">${ctx.uiIconSvg(res.icon, 'score-tier-icon')}</div>
         <div class="score-title">${res.title}</div>
         <div class="score-exclamation">${ruby(res.jp)}</div>
