@@ -468,30 +468,53 @@ window.createQuizFlow = (ctx) => {
     const coachKey = coachKeys[idx % coachKeys.length];
     st.coachKey = coachKey;
 
+    // P4: enrich word-card back face with kanji / english / related words
+    // pulled from the same category, so the back actually fills with
+    // useful context instead of one short Korean gloss.
+    const hasKanji = !!(item.kanji && item.kanji !== item.japanese);
+    const related = (window.ContentIndex?.relatedItems?.(item, window.ContentIndex.getAllVocabItems?.() || [], 3) || []);
+    const relatedHtml = related.length
+      ? `<div class="vc-related">
+           <div class="vc-related-label">관련 단어</div>
+           <ul class="vc-related-list">
+             ${related.map(r => `
+               <li class="vc-related-item">
+                 <button type="button" class="vc-related-jp" onclick="event.stopPropagation();TTS.speak('${(r.japanese||'').replace(/'/g,"\\'")}')">${ruby(r.japanese || '')}</button>
+                 <span class="vc-related-ko">${escHtml(r.korean || '')}</span>
+               </li>
+             `).join('')}
+           </ul>
+         </div>`
+      : '';
+    const isSeen = window.ContentIndex?.isSeen?.(item);
+    if (window.ContentIndex?.markSeen) window.ContentIndex.markSeen([item]);
+
     ctx.updateFlowProgress(stepIndex, mod.steps.length, step.title);
     document.getElementById('flowBody').innerHTML = `
       <div class="vc-stack">
         <div style="font-size:12px;color:var(--text3);text-align:center;margin-bottom:10px">
-          ${idx + 1} / ${items.length}
+          ${idx + 1} / ${items.length}${isSeen ? ' <span class="vc-revisit-pill">복습</span>' : ''}
         </div>
         <div class="vc-flip-card ${showMeaning ? 'flipped' : ''}" id="vcCard"
              onclick="App._vocabSpeak()" style="--vc-len:${charLen}">
           <div class="vc-card-inner">
             <div class="vc-face">
-              <div class="vc-type-label">어휘</div>
+              <div class="vc-type-label">단어</div>
               <div class="vc-jp">${jpHtml}</div>
+              ${item.romaji ? `<div class="vc-face-romaji">${escHtml(item.romaji)}</div>` : ''}
             </div>
             <div class="vc-back">
               <div class="vc-back-head">
                 <div class="vc-back-jp">${jpHtml}</div>
+                ${hasKanji ? `<div class="vc-back-kanji">한자 표기 · ${escHtml(item.kanji)}</div>` : ''}
                 <div class="vc-back-meaning">${escHtml(item.korean || '')}</div>
-                ${item.english ? `<div class="vc-back-english">${escHtml(item.english)}</div>` : ''}
+                ${item.english ? `<div class="vc-back-english">EN · ${escHtml(item.english)}</div>` : ''}
               </div>
-              ${(tipText || exampleText) ? `
+              ${tipText ? `
               <div class="vc-tip-panel">
                 <div class="vc-tip-label">TIP</div>
                 <div class="vc-tip-content">
-                  ${tipText ? `<div class="vc-explain-body">${ruby(tipText)}</div>` : ''}
+                  <div class="vc-explain-body">${ruby(tipText)}</div>
                   ${exampleText ? `
                   <div class="vc-ex-block compact">
                     <div class="vc-ex-label">예시</div>
@@ -499,6 +522,7 @@ window.createQuizFlow = (ctx) => {
                   </div>` : ''}
                 </div>
               </div>` : ''}
+              ${relatedHtml}
             </div>
           </div>
         </div>

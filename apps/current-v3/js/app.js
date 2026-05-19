@@ -522,7 +522,116 @@ window.App = (() => {
     return _quizFlow.shadowingNext();
   }
   function _renderVocabLearn(mod, step, stepIndex) {
+    // Route by intended kind so 단어 학습 and 문장 학습 use distinct UIs.
+    const mode = ContentIndex.getStepMode(step);
+    const items = _getVocabItems(step) || [];
+    // If a mixed step contains both word and sentence items, prefer
+    // sentence UI when sentence items dominate; otherwise word UI.
+    let resolved = mode;
+    if (mode === 'mixed') {
+      const sentenceCount = items.filter(it => (it._kind || ContentIndex.inferKindFromText(it.japanese)) === 'sentence').length;
+      resolved = sentenceCount > items.length / 2 ? 'sentence' : 'word';
+    }
+    if (resolved === 'sentence') return _renderSentenceLearn(mod, step, stepIndex, items);
     return _quizFlow.renderVocabLearn(mod, step, stepIndex);
+  }
+
+  // ── Sentence-learn renderer (P5): jp 본문 큰 글씨, 두세줄 자동 줄바꿈,
+  //    아래 "해석 보기" 클릭 시 ko + tip 슬라이드다운. 카드 외 영역으로
+  //    내용이 넘치지 않도록 max-width / overflow 제어. ───────────────
+  function _renderSentenceLearn(mod, step, stepIndex, items) {
+    if (!items?.length) { _advanceStep(); return; }
+    const flow = _flow;
+    if (!flow) return;
+    flow._sentenceLearn = { items, idx: 0, revealed: [], stepIndex };
+
+    function render() {
+      const st = flow._sentenceLearn;
+      const it = st.items[st.idx];
+      if (!it) return;
+      const total = st.items.length;
+      const isSeen = ContentIndex.isSeen(it);
+      _updateFlowProgress(stepIndex, mod.steps.length, step.title);
+      // Break long jp into 2-3 lines via word breaks for readability.
+      const jp = it.japanese || '';
+      const ko = it.korean || '';
+      const tip = it.tip || '';
+      const safe = jp.replace(/'/g, "\\'");
+      const revealed = !!st.revealed[st.idx];
+
+      document.getElementById('flowBody').innerHTML = `
+        <div class="sentence-learn">
+          <div class="sentence-learn-head">
+            <span class="sentence-learn-kicker">${escHtml(step.title || '문장 학습')}</span>
+            <span class="sentence-learn-count">${st.idx + 1} / ${total}</span>
+            ${isSeen ? '<span class="sentence-learn-revisit">복습</span>' : ''}
+          </div>
+          <div class="sentence-learn-card">
+            <button class="sentence-learn-audio" type="button" onclick="TTS.speak('${safe}')" aria-label="발음 듣기">
+              ${_uiIconSvg('audio', 'sentence-learn-audio-icon')}
+            </button>
+            <div class="sentence-learn-jp">${ruby(jp)}</div>
+            <button class="sentence-learn-reveal-btn ${revealed ? 'is-open' : ''}" type="button"
+                    onclick="App._sentenceLearnToggle()">
+              ${revealed ? '해석 닫기 ▴' : '해석 보기 ▾'}
+            </button>
+            <div class="sentence-learn-reveal ${revealed ? 'is-open' : ''}">
+              <div class="sentence-learn-ko">${escHtml(ko)}</div>
+              ${tip ? `<div class="sentence-learn-tip">${_uiIconSvg('sparkle', 'sentence-learn-tip-icon')} <span>${ruby(tip)}</span></div>` : ''}
+            </div>
+          </div>
+          <div class="sentence-learn-pager">
+            ${st.items.slice(0, 30).map((_, i) => `
+              <span class="sentence-learn-pip${i === st.idx ? ' is-current' : ''}${i < st.idx ? ' is-done' : ''}"></span>
+            `).join('')}
+          </div>
+        </div>
+      `;
+
+      document.getElementById('flowFooter').innerHTML = `
+        <div class="sentence-learn-actions">
+          <button class="btn btn-outline" type="button" ${st.idx === 0 ? 'disabled' : ''}
+                  onclick="App._sentenceLearnPrev()">← 이전</button>
+          <button class="btn btn-outline" type="button" onclick="TTS.speak('${safe}')">${_uiLabeledIcon('audio')} 다시 듣기</button>
+          <button class="btn btn-primary" type="button" onclick="App._sentenceLearnNext()">
+            ${st.idx === total - 1 ? '완료 ✓' : '다음 →'}
+          </button>
+        </div>
+      `;
+      // record after first paint so quick skim still counts as seen on advance
+    }
+
+    flow._sentenceLearn.render = render;
+    render();
+  }
+
+  function _sentenceLearnToggle() {
+    const st = _flow?._sentenceLearn;
+    if (!st) return;
+    st.revealed[st.idx] = !st.revealed[st.idx];
+    st.render();
+  }
+  function _sentenceLearnPrev() {
+    const st = _flow?._sentenceLearn;
+    if (!st || st.idx === 0) return;
+    st.idx--;
+    st.render();
+  }
+  function _sentenceLearnNext() {
+    const st = _flow?._sentenceLearn;
+    if (!st) return;
+    // mark this card as seen so other modules show a 복습 badge
+    const it = st.items[st.idx];
+    if (it) ContentIndex.markSeen([it]);
+    if (st.idx >= st.items.length - 1) {
+      Store.completeStep(_flow.moduleId, st.stepIndex);
+      Store.addXP(15);
+      _flow.step = st.stepIndex + 1;
+      _runCurrentStep();
+      return;
+    }
+    st.idx++;
+    st.render();
   }
   function _vocabSpeak() {
     return _quizFlow.vocabSpeak();
@@ -1142,6 +1251,9 @@ window.App = (() => {
     _restartRoleplayPractice,
     _reopenLastPracticeLine,
     _openKanaChartStandalone,
+    _sentenceLearnToggle,
+    _sentenceLearnPrev,
+    _sentenceLearnNext,
     _finalizeRoleplay,
     // 획순 애니메이션
     _showStrokePanel,

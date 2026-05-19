@@ -5065,3 +5065,247 @@ body.app-v3 .flow-screen.roleplay-comic-mode .comic-player-actions .btn-primary 
 body.app-v3 .flow-screen.roleplay-comic-mode .comic-player-actions .btn {
   font-size: 13px;
 }
+
+/* ============================================================
+   V3 단어 카드 (vocab_learn word mode) — 뒷면 보강
+   ============================================================ */
+body.app-v3 .vc-face {
+  background: linear-gradient(140deg, #fff7e3 0%, #ffffff 60%);
+  border: 1px solid rgba(216, 180, 100, .35);
+}
+body.app-v3 .vc-type-label {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: #fce28b;
+  color: #6b4f0a;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: .04em;
+}
+body.app-v3 .vc-face-romaji {
+  margin-top: 6px;
+  color: #6b4f0a;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: .03em;
+  text-align: center;
+}
+body.app-v3 .vc-back {
+  background: linear-gradient(180deg, #ffffff, #f7fbfc);
+  border: 1px solid rgba(82, 105, 140, .2);
+}
+body.app-v3 .vc-back-kanji {
+  margin-top: 4px;
+  padding: 4px 10px;
+  display: inline-block;
+  border-radius: 8px;
+  background: rgba(40, 127, 142, .08);
+  color: #1f6470;
+  font-size: 13px;
+  font-weight: 800;
+}
+body.app-v3 .vc-back-english {
+  margin-top: 4px;
+  color: #4f5f75;
+  font-size: 12px;
+  font-style: italic;
+}
+body.app-v3 .vc-revisit-pill {
+  padding: 2px 8px;
+  margin-left: 4px;
+  border-radius: 999px;
+  background: rgba(216, 180, 100, .25);
+  color: #6b4f0a;
+  font-size: 10px;
+  font-weight: 800;
+}
+body.app-v3 .vc-related {
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px dashed rgba(82, 105, 140, .2);
+}
+body.app-v3 .vc-related-label {
+  color: #1f6470;
+  font-size: 11px;
+  font-weight: 800;
+  margin-bottom: 4px;
+}
+body.app-v3 .vc-related-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 4px;
+}
+body.app-v3 .vc-related-item {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  font-size: 12px;
+}
+body.app-v3 .vc-related-jp {
+  background: none;
+  border: 0;
+  padding: 0;
+  color: #243047;
+  font-weight: 700;
+  cursor: pointer;
+}
+body.app-v3 .vc-related-ko {
+  color: #4f5f75;
+}
+
+/* ============================================================
+   V3 문장 카드 (sentence_learn) — 펼침 reveal, no flip
+   Visually distinct: paper-card look + teal accent (vs word card's
+   honey-yellow), so the two modes are obviously different.
+   ============================================================ */
+body.app-v3 .sentence-learn {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 4px 8px 8px;
+}
+body.app-v3 .sentence-learn-head {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+body.app-v3 .sentence-learn-kicker {
+  flex: 1 1 auto;
+  color: #1f6470;
+  font-size: 12px;
+  font-weight: 800;
+}
+body.app-v3 .sentence-learn-count {
+  color: #4f5f75;
+  font-size: 12px;
+  font-weight: 700;
+}
+body.app-v3 .sentence-learn-revisit {
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(216, 180, 100, .25);
+  color: #6b4f0a;
+  font-size: 10px;
+  font-weight: 800;
+}
+body.app-v3 .sentence-learn-card {
+  position: relative;
+  padding: 28px 18px 20px;
+  border: 1px solid rgba(40, 127, 142, .3);
+  border-radius: 18px;
+  background:
+    linear-gradient(180deg, #eef9fb 0%, #ffffff 50%, #f7fbfc 100%);
+  box-shadow: 0 16px 32px rgba(40, 127, 142, .14);
+  overflow: hidden;
+  min-height: 240px;
+}
+body.app-v3 .sentence-learn-audio {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 36px;
+  height: 36px;
+  border: 1px solid rgba(40, 127, 142, .35);
+  border-radius: 50%;
+  background: #ffffff;
+  color: #1f6470;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+body.app-v3 .sentence-learn-audio-icon {
+  width: 18px;
+  height: 18px;
+}
+body.app-v3 .sentence-learn-jp {
+  color: #122533;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.45;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+  max-width: 100%;
+}
+body.app-v3 .sentence-learn-reveal-btn {
+  margin: 16px 0 0;
+  padding: 8px 14px;
+  border: 1px dashed rgba(40, 127, 142, .42);
+  border-radius: 10px;
+  background: #ffffff;
+  color: #1f6470;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+}
+body.app-v3 .sentence-learn-reveal-btn.is-open {
+  background: #e8f8fc;
+  border-style: solid;
+}
+body.app-v3 .sentence-learn-reveal {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: max-height .25s ease, opacity .2s ease;
+}
+body.app-v3 .sentence-learn-reveal.is-open {
+  max-height: 400px;
+  opacity: 1;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px dashed rgba(82, 105, 140, .2);
+}
+body.app-v3 .sentence-learn-ko {
+  color: #243047;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+body.app-v3 .sentence-learn-tip {
+  margin-top: 10px;
+  display: grid;
+  grid-template-columns: 20px 1fr;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(40, 127, 142, .08);
+  color: #1f6470;
+  font-size: 12px;
+  line-height: 1.55;
+}
+body.app-v3 .sentence-learn-tip-icon {
+  width: 18px;
+  height: 18px;
+  fill: #287f8e;
+}
+body.app-v3 .sentence-learn-pager {
+  display: flex;
+  gap: 5px;
+  justify-content: center;
+  margin-top: 6px;
+}
+body.app-v3 .sentence-learn-pip {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: rgba(82, 105, 140, .18);
+}
+body.app-v3 .sentence-learn-pip.is-current {
+  background: #287f8e;
+  transform: scale(1.2);
+}
+body.app-v3 .sentence-learn-pip.is-done {
+  background: #5ac99b;
+}
+body.app-v3 .sentence-learn-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  width: 100%;
+}
+body.app-v3 .sentence-learn-actions .btn-primary {
+  grid-column: 1 / -1;
+}

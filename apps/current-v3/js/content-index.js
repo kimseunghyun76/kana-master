@@ -52,18 +52,117 @@ window.ContentIndex = (() => {
     return sources.flat();
   }
 
+  // ── Word vs Sentence classification ────────────────────────
+  // Sentence markers (verb endings / question / particles)
+  const _SENT_RE = /(ですか|ますか|ました|ません|でした|ください|お願いします|です。?$|ます。?$|よ$|ね$|か。?$)/;
+  const _PARTICLE_RE = /[をにでがはへ]\s*[ぁ-んァ-ン一-龥]/;
+
+  function inferKindFromText(jp) {
+    if (!jp) return 'word';
+    const t = String(jp).trim();
+    if (t.length === 0) return 'word';
+    if (_SENT_RE.test(t)) return 'sentence';
+    if (_PARTICLE_RE.test(t)) return 'sentence';
+    // long phrases with spaces are typically sentences
+    if (/\s/.test(t) && t.length >= 8) return 'sentence';
+    return 'word';
+  }
+
+  function categoryKind(categoryId) {
+    const cats = typeof VOCAB_CATEGORIES !== 'undefined' ? VOCAB_CATEGORIES : [];
+    const cat = cats.find(c => c.id === categoryId);
+    if (!cat) return null;
+    if (cat.type === 'sentence' || cat.type === 'dialogue') return 'sentence';
+    if (cat.type === 'word') return 'word';
+    return null;
+  }
+
+  function annotateKind(item, hint) {
+    if (!item) return item;
+    if (item._kind) return item;
+    item._kind = hint || inferKindFromText(item.japanese);
+    return item;
+  }
+
+  // Decide a step's intended mode. Precedence:
+  //   1. explicit step.mode
+  //   2. step.categoryId / categoryIds → category.type
+  //   3. fallback "mixed" — split by item heuristic at render time
+  function getStepMode(step) {
+    if (!step) return 'mixed';
+    if (step.mode === 'word' || step.mode === 'sentence' || step.mode === 'mixed') return step.mode;
+    if (step.categoryId) {
+      const k = categoryKind(step.categoryId);
+      if (k) return k;
+    }
+    if (step.categoryIds?.length) {
+      const kinds = step.categoryIds.map(categoryKind).filter(Boolean);
+      if (kinds.length && kinds.every(k => k === kinds[0])) return kinds[0];
+      if (kinds.length) return 'mixed';
+    }
+    return 'mixed';
+  }
+
+  // ── Session "seen" memory: avoids the same card popping up across
+  //    multiple modules within one session (without dropping it from
+  //    quizzes — we just badge it so the user knows it's revision).
+  const _seenIds = new Set();
+  const _seenJp = new Set();
+  function markSeen(items) {
+    (items || []).forEach(it => {
+      if (!it) return;
+      if (it.id) _seenIds.add(it.id);
+      if (it.japanese) _seenJp.add(it.japanese);
+    });
+  }
+  function isSeen(item) {
+    if (!item) return false;
+    if (item.id && _seenIds.has(item.id)) return true;
+    if (item.japanese && _seenJp.has(item.japanese)) return true;
+    return false;
+  }
+  function clearSeen() {
+    _seenIds.clear();
+    _seenJp.clear();
+  }
+
+  // ── Related / opposite estimation ──────────────────────────
+  // No explicit related field on items → use neighbours in the same
+  // explicit category (cat.items list) as soft "관련 단어".
+  function relatedItems(item, all, max = 4) {
+    if (!item) return [];
+    const cats = typeof VOCAB_CATEGORIES !== 'undefined' ? VOCAB_CATEGORIES : [];
+    const owning = cats.find(c => c.items?.includes(item.id));
+    if (!owning?.items?.length) return [];
+    const byId = new Map(all.map(x => [x.id, x]));
+    const here = owning.items.indexOf(item.id);
+    const ring = [];
+    for (let d = 1; ring.length < max && d < owning.items.length; d++) {
+      const a = owning.items[here - d];
+      const b = owning.items[here + d];
+      if (a && byId.get(a)) ring.push(byId.get(a));
+      if (b && byId.get(b) && ring.length < max) ring.push(byId.get(b));
+    }
+    return ring;
+  }
+
   function getVocabItems(step) {
-    if (step?.items) return step.items;
+    if (step?.items) return step.items.map(it => annotateKind(it, inferKindFromText(it.japanese)));
     const all = getAllVocabItems();
     const byId = new Map(all.map(item => [item.id, item]));
 
     if (step?.categoryId) {
+      const kind = categoryKind(step.categoryId);
       const items = getCategoryItems(step.categoryId, byId, all);
-      return normalizeVocabCards(uniqueItems(items), step, all);
+      return normalizeVocabCards(uniqueItems(items), step, all)
+        .map(it => annotateKind(it, kind));
     }
 
     if (step?.categoryIds) {
-      const items = step.categoryIds.flatMap(cid => getCategoryItems(cid, byId, all));
+      const items = step.categoryIds.flatMap(cid => {
+        const kind = categoryKind(cid);
+        return getCategoryItems(cid, byId, all).map(it => annotateKind(it, kind));
+      });
       return normalizeVocabCards(uniqueItems(items), step, all);
     }
 
@@ -775,5 +874,14 @@ window.ContentIndex = (() => {
     getVocabItemsByCategory,
     itemMatchesCategory,
     uniqueItems,
+    // P2/P3: classification + memory + relations
+    inferKindFromText,
+    categoryKind,
+    getStepMode,
+    annotateKind,
+    markSeen,
+    isSeen,
+    clearSeen,
+    relatedItems,
   };
 })();

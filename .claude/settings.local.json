@@ -103,7 +103,9 @@
       "Bash(git checkout:*)",
       "Bash(node -e \"new Function\\(require\\(''fs''\\).readFileSync\\(''js/v2/app.js'',''utf8''\\)\\); console.log\\(''✅ syntax OK''\\);\")",
       "Bash(node -e \"new Function\\(require\\(''fs''\\).readFileSync\\(''js/v2/app.js'',''utf8''\\)\\); console.log\\(''✅ app.js OK''\\);\")",
-      "Bash(git push *)"
+      "Bash(git push *)",
+      "Bash(awk -F: '{print $1, $2}')",
+      "Bash(grep -n \"^  return {\\\\|getVocabItems,\" apps/current-v3/js/content-index.js)"
     ]
   }
 }
