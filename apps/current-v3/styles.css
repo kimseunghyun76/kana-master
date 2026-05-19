@@ -262,11 +262,39 @@ body.app-v3 {
 }
 
 body.app-v3 #app {
+  /* Override the base shell's 480 cap with an iPad-Mini-portrait ceiling
+     so all views (home/lesson/practice/profile) have a consistent width
+     instead of feeling cramped at desktop sizes. Body bg flanks both sides. */
+  max-width: 720px;
   background:
     linear-gradient(180deg, rgba(255, 255, 255, .44), rgba(255, 247, 251, .86)),
     url("/images/v3-cute/bg-tourist-street-cute.webp") center / cover fixed;
   border-left: 1px solid rgba(255,255,255,.75);
   border-right: 1px solid rgba(255,255,255,.75);
+}
+
+/* Flow screen (lesson/roleplay/quiz overlay) is fixed inset:0 by default,
+   so it ignores #app's max-width and goes 100% on desktop. Cap it to the
+   same 720 ceiling and center it. The base slide-in transition uses
+   transform:translateX(100%) which prevents margin:auto centering, so
+   we swap to a fade transition under v3 only. */
+body.app-v3 .flow-screen {
+  max-width: 720px;
+  left: 0;
+  right: 0;
+  margin: 0 auto;
+  transform: none;
+  transition: opacity .25s ease, visibility .25s ease;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+body.app-v3 .flow-screen.open {
+  transform: none;
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
 }
 
 body.app-v3 .app-header {
@@ -818,7 +846,7 @@ body.app-v3 .program-day-phase {
 
 @media (min-width: 720px) {
   body.app-v3 #app {
-    max-width: 520px;
+    max-width: 720px;
   }
 
   body.app-v3 .v3-home-hero {

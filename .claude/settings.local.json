@@ -102,7 +102,8 @@
       "Bash(sort -k2)",
       "Bash(git checkout:*)",
       "Bash(node -e \"new Function\\(require\\(''fs''\\).readFileSync\\(''js/v2/app.js'',''utf8''\\)\\); console.log\\(''✅ syntax OK''\\);\")",
-      "Bash(node -e \"new Function\\(require\\(''fs''\\).readFileSync\\(''js/v2/app.js'',''utf8''\\)\\); console.log\\(''✅ app.js OK''\\);\")"
+      "Bash(node -e \"new Function\\(require\\(''fs''\\).readFileSync\\(''js/v2/app.js'',''utf8''\\)\\); console.log\\(''✅ app.js OK''\\);\")",
+      "Bash(git push *)"
     ]
   }
 }
