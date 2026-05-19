@@ -376,6 +376,9 @@ window.createRoleplayComicView = (ctx, deps) => {
     state.comicPanelIndex = panelIndex;
     document.getElementById('flowStep').textContent = '2 / 2 · 영상 재생';
     document.getElementById('flowProgressFill').style.width = `${32 + Math.round(((panelIndex + 1) / panelGroups.length) * 60)}%`;
+    // Hoist the bg to flow-screen so it never re-paints between panels
+    // and fills the full overlay (behind header + footer too).
+    document.getElementById('flowScreen')?.style.setProperty('--comic-bg', `url('${ctx.cssUrlValue(comicSceneAsset)}')`);
     // No-flicker: keep the shell and characters mounted; only swap the
     // bubble stack inside the frame when the panel changes.
     const existingShell = document.querySelector('.comic-player-shell.no-script-dock:not(.comic-practice-shell)');
@@ -432,6 +435,7 @@ window.createRoleplayComicView = (ctx, deps) => {
     state.comicPanelIndex = panelIndex;
     document.getElementById('flowStep').textContent = `한 문장씩 따라 읽기 · ${activeIndex + 1}/${practiceLines.length} · ${escHtml(speakerLabel)}`;
     document.getElementById('flowProgressFill').style.width = `${55 + Math.round(((activeIndex + 1) / practiceLines.length) * 40)}%`;
+    document.getElementById('flowScreen')?.style.setProperty('--comic-bg', `url('${ctx.cssUrlValue(comicSceneAsset)}')`);
     // No-flicker: keep the practice shell + characters mounted across
     // line transitions. Only replace the inner bubble-stack so prev /
     // next never blank the screen.

@@ -593,7 +593,7 @@ window.createRoleplayFlow = (ctx) => {
 
     TTS.speakQueue(lines, {
       rate: 0.92,
-      gapMs: 3000,
+      gapMs: 1000,
       onLineStart: (idx, line) => {
         const livePlayback = _getRoleplayPlaybackState();
         if (livePlayback) {
