@@ -201,14 +201,31 @@ window.ContentIndex = (() => {
   function normalizeVocabCards(items, step, all) {
     const limit = getCardLimit(step);
     if (!['vocab_learn', 'vocab_quiz'].includes(step?.type)) return items.slice(0, limit);
-    const out = items.slice(0, limit);
+
+    // Session dedup: vocab_learn moves previously-seen cards to the back
+    // so the user encounters net-new content first. Quizzes don't dedup
+    // (a quiz should validate prior learning). Disable with step.dedup=false.
+    let pool = items;
+    if (step?.type === 'vocab_learn' && step?.dedup !== false) {
+      const fresh = items.filter(it => !isSeen(it));
+      const stale = items.filter(it => isSeen(it));
+      pool = fresh.concat(stale);
+    }
+
+    // Optional offset so the same category can yield different slices in
+    // different modules (e.g., transport_phrases first 8 for bus,
+    // next 8 for taxi). Honors step.offset (item index).
+    const offset = Math.max(0, Number(step?.offset) || 0);
+    const sliced = pool.slice(offset);
+
+    const out = sliced.slice(0, limit);
     if (out.length >= 10) return out;
 
-    const seen = new Set(out.map(item => item.id || item.japanese));
-    const safeFillers = all.filter(item => isBeginnerSafeItem(item) && !seen.has(item.id || item.japanese));
+    const seenIds = new Set(out.map(item => item.id || item.japanese));
+    const safeFillers = all.filter(item => isBeginnerSafeItem(item) && !seenIds.has(item.id || item.japanese));
     for (const item of safeFillers) {
       out.push(item);
-      seen.add(item.id || item.japanese);
+      seenIds.add(item.id || item.japanese);
       if (out.length >= 10) break;
     }
     return out;

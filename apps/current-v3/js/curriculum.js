@@ -611,7 +611,7 @@ const MODULES = [
     unlockAfter: ['v3_kana_sound_rules'],
     steps: [
       { type: 'lecture', title: '🎬 문장 전에 단어 재료부터', lectureKey: 'v3_survival_objects' },
-      { type: 'vocab_learn', title: '문장 전 필수 재료 12개', items: V3_PRE_SENTENCE_CARDS },
+      { type: 'vocab_learn', title: '문장 전 필수 재료 12개', items: V3_PRE_SENTENCE_CARDS, mode: 'sentence' },
       { type: 'vocab_learn', title: '기초 물건과 장소', categoryIds: ['basic_words','essential_phrases','place_transport'], limit: 19 },
       { type: 'dialogue_study', title: '모르는 말 버티기 미리보기', dialogueKey: 'pre_sentence_survival' },
       { type: 'vocab_quiz', title: '문장 전 재료 퀴즈', items: V3_PRE_SENTENCE_CARDS },
@@ -749,7 +749,7 @@ const MODULES = [
     unlockAfter: ['v3_survival_objects'],
     steps: [
       { type: 'lecture', title: '🎬 문장 전에 꼭 알아야 할 뼈대', lectureKey: 'v3_particle_basics' },
-      { type: 'vocab_learn', title: '문장 구조 공식 10개', items: V3_BASIC_STRUCTURE_CARDS },
+      { type: 'vocab_learn', title: '문장 구조 공식 10개', items: V3_BASIC_STRUCTURE_CARDS, mode: 'sentence' },
       { type: 'vocab_learn', title: '자기소개와 は/です', categoryId: 'self_intro', limit: 12 },
       { type: 'dialogue_study', title: '짧은 구조 응용 미리보기', dialogueKey: 'basic_structure_check' },
       { type: 'vocab_quiz', title: '문장 구조 퀴즈', items: V3_BASIC_STRUCTURE_CARDS },
@@ -777,7 +777,7 @@ const MODULES = [
     unlockAfter: ['v3_particle_basics'],
     steps: [
       { type: 'lecture', title: '🎬 일본어 문장은 4칸으로 바뀐다', lectureKey: 'v3_tense_matrix' },
-      { type: 'vocab_learn', title: '명사·형용사·동사 4칸 카드', items: V3_TENSE_MATRIX_CARDS },
+      { type: 'vocab_learn', title: '명사·형용사·동사 4칸 카드', items: V3_TENSE_MATRIX_CARDS, mode: 'sentence' },
       { type: 'dialogue_study', title: '먹었어요·안 갔어요 미리보기', dialogueKey: 'tense_matrix_check' },
       { type: 'vocab_quiz', title: '현재·부정·과거 변환 퀴즈', items: V3_TENSE_MATRIX_CARDS },
       { type: 'lecture', title: '💡 어미만 바꾸면 말이 늘어난다', lectureKey: 'v3_tense_matrix_tip' },
@@ -885,7 +885,7 @@ const MODULES = [
     steps: [
       { type: 'lecture', title: '🎬 공항에서는 짧게 답하기', lectureKey: 'v3_airport' },
       { type: 'vocab_learn', title: '공항·이동 기본어', categoryId: 'place_transport', limit: 14 },
-      { type: 'vocab_learn', title: '체크인 질문·답변 카드', items: V3_AIRPORT_QA_CARDS },
+      { type: 'vocab_learn', title: '체크인 질문·답변 카드', items: V3_AIRPORT_QA_CARDS, mode: 'sentence' },
       { type: 'dialogue_study', title: '공항 대화 미리보기', dialogueKey: 'airport_checkin' },
       { type: 'vocab_quiz', title: '공항 체크인 즉답 퀴즈', items: V3_AIRPORT_QA_CARDS },
       { type: 'vocab_quiz', title: '공항·이동 퀴즈', categoryId: 'place_transport', limit: 14 },
@@ -904,7 +904,7 @@ const MODULES = [
     unlockAfter: ['v3_airport'],
     steps: [
       { type: 'lecture', title: '🎬 입국 심사는 단답이 정답', lectureKey: 'v3_immigration' },
-      { type: 'vocab_learn', title: '입국 질문·답변 카드', items: V3_IMMIGRATION_QA_CARDS },
+      { type: 'vocab_learn', title: '입국 질문·답변 카드', items: V3_IMMIGRATION_QA_CARDS, mode: 'sentence' },
       { type: 'vocab_learn', title: '목적·기간·숙소 답변', categoryIds: ['self_intro','hotel_phrases','date_basic'], limit: 20 },
       { type: 'dialogue_study', title: '입국 심사 미리보기', dialogueKey: 'immigration_short' },
       { type: 'vocab_quiz', title: '입국 즉답 퀴즈', items: V3_IMMIGRATION_QA_CARDS },
@@ -924,7 +924,7 @@ const MODULES = [
     unlockAfter: ['v3_immigration'],
     steps: [
       { type: 'lecture', title: '🎬 기내 부탁은 단어 + ください', lectureKey: 'v3_airplane_request' },
-      { type: 'vocab_learn', title: '기내 요청 질문·답변 카드', items: V3_AIRPLANE_QA_CARDS },
+      { type: 'vocab_learn', title: '기내 요청 질문·답변 카드', items: V3_AIRPLANE_QA_CARDS, mode: 'sentence' },
       { type: 'vocab_learn', title: '부탁과 필요한 물건', categoryIds: ['basic_words','first_expressions'], limit: 18 },
       { type: 'dialogue_study', title: '기내 요청 미리보기', dialogueKey: 'airplane_request' },
       { type: 'vocab_quiz', title: '기내 요청 즉답 퀴즈', items: V3_AIRPLANE_QA_CARDS },
@@ -945,7 +945,7 @@ const MODULES = [
     steps: [
       { type: 'lecture', title: '🎬 역에서 살아남기', lectureKey: 'v3_transport' },
       { type: 'vocab_learn', title: '교통·이동 표현', categoryId: 'transport_phrases', limit: 14 },
-      { type: 'vocab_learn', title: '역·환승 질문 카드', items: V3_STATION_QA_CARDS },
+      { type: 'vocab_learn', title: '역·환승 질문 카드', items: V3_STATION_QA_CARDS, mode: 'sentence' },
       { type: 'vocab_learn', title: '시각·소요시간 묻기', categoryId: 's4_time_asking', limit: 8 },
       { type: 'dialogue_study', title: '택시·목적지 미리보기', dialogueKey: 'station_direction' },
       { type: 'vocab_quiz', title: '역·환승 즉답 퀴즈', items: V3_STATION_QA_CARDS },
@@ -965,7 +965,7 @@ const MODULES = [
     unlockAfter: ['v3_transport'],
     steps: [
       { type: 'lecture', title: '🎬 버스는 타기 전에 한 문장', lectureKey: 'v3_bus_ride' },
-      { type: 'vocab_learn', title: '버스 질문·답변 카드', items: V3_BUS_QA_CARDS },
+      { type: 'vocab_learn', title: '버스 질문·답변 카드', items: V3_BUS_QA_CARDS, mode: 'sentence' },
       { type: 'vocab_learn', title: '버스·목적지 표현', categoryIds: ['transport_phrases','directions'], limit: 20 },
       { type: 'dialogue_study', title: '버스 대화 미리보기', dialogueKey: 'bus_ride' },
       { type: 'vocab_quiz', title: '버스 즉답 퀴즈', items: V3_BUS_QA_CARDS },
@@ -985,7 +985,7 @@ const MODULES = [
     unlockAfter: ['v3_bus_ride'],
     steps: [
       { type: 'lecture', title: '🎬 택시는 첫 한 줄이 90%', lectureKey: 'v3_taxi_ride' },
-      { type: 'vocab_learn', title: '택시 질문·답변 카드', items: V3_TAXI_QA_CARDS },
+      { type: 'vocab_learn', title: '택시 질문·답변 카드', items: V3_TAXI_QA_CARDS, mode: 'sentence' },
       { type: 'vocab_learn', title: '택시·결제 표현', categoryIds: ['transport_phrases','shopping_phrases'], limit: 20 },
       { type: 'dialogue_study', title: '택시 대화 미리보기', dialogueKey: 'taxi_ride' },
       { type: 'vocab_quiz', title: '택시 즉답 퀴즈', items: V3_TAXI_QA_CARDS },
@@ -1006,7 +1006,7 @@ const MODULES = [
     steps: [
       { type: 'lecture', title: '🎬 편의점은 선택지만 들으면 된다', lectureKey: 'v3_konbini' },
       { type: 'vocab_learn', title: '편의점·결제 표현', categoryId: 'shopping_phrases', limit: 12 },
-      { type: 'vocab_learn', title: '도시락·봉투·결제 카드', items: V3_KONBINI_QA_CARDS },
+      { type: 'vocab_learn', title: '도시락·봉투·결제 카드', items: V3_KONBINI_QA_CARDS, mode: 'sentence' },
       { type: 'dialogue_study', title: '편의점 대화 미리보기', dialogueKey: 'konbini_bento' },
       { type: 'vocab_quiz', title: '편의점 즉답 퀴즈', items: V3_KONBINI_QA_CARDS },
       { type: 'vocab_quiz', title: '편의점 표현 퀴즈', categoryId: 'shopping_phrases', limit: 16 },
@@ -1025,7 +1025,7 @@ const MODULES = [
     unlockAfter: ['v3_konbini'],
     steps: [
       { type: 'lecture', title: '🎬 카페는 메뉴 + ください', lectureKey: 'v3_cafe_breakfast' },
-      { type: 'vocab_learn', title: '조식·카페 질문 카드', items: V3_CAFE_QA_CARDS },
+      { type: 'vocab_learn', title: '조식·카페 질문 카드', items: V3_CAFE_QA_CARDS, mode: 'sentence' },
       { type: 'vocab_learn', title: '카페·아침 표현', categoryIds: ['food_ordering','food_restaurant','hotel_phrases'], limit: 24 },
       { type: 'dialogue_study', title: '카페·조식 미리보기', dialogueKey: 'cafe_breakfast' },
       { type: 'vocab_quiz', title: '카페·조식 즉답 퀴즈', items: V3_CAFE_QA_CARDS },
@@ -1064,7 +1064,7 @@ const MODULES = [
     unlockAfter: ['v3_restaurant'],
     steps: [
       { type: 'lecture', title: '🎬 이자카야는 순서가 정해져 있다', lectureKey: 'v3_izakaya' },
-      { type: 'vocab_learn', title: '첫 잔·추천 즉답 카드', items: V3_IZAKAYA_QA_CARDS },
+      { type: 'vocab_learn', title: '첫 잔·추천 즉답 카드', items: V3_IZAKAYA_QA_CARDS, mode: 'sentence' },
       { type: 'vocab_learn', title: '술집 주문 표현', categoryIds: ['food_ordering','food_restaurant'], limit: 24 },
       { type: 'dialogue_study', title: '이자카야 미리보기', dialogueKey: 'izakaya_order' },
       { type: 'vocab_quiz', title: '이자카야 즉답 퀴즈', items: V3_IZAKAYA_QA_CARDS },
@@ -1084,7 +1084,7 @@ const MODULES = [
     unlockAfter: ['v3_izakaya'],
     steps: [
       { type: 'lecture', title: '🎬 쇼핑은 세 문장으로 시작', lectureKey: 'v3_shopping' },
-      { type: 'vocab_learn', title: '사이즈·입어보기 즉답 카드', items: V3_SHOPPING_QA_CARDS },
+      { type: 'vocab_learn', title: '사이즈·입어보기 즉답 카드', items: V3_SHOPPING_QA_CARDS, mode: 'sentence' },
       { type: 'vocab_learn', title: '쇼핑 표현', categoryId: 'shopping_phrases', limit: 14 },
       { type: 'dialogue_study', title: '옷가게 미리보기', dialogueKey: 'clothes_size' },
       { type: 'vocab_quiz', title: '사이즈 즉답 퀴즈', items: V3_SHOPPING_QA_CARDS },
@@ -1104,7 +1104,7 @@ const MODULES = [
     unlockAfter: ['v3_shopping'],
     steps: [
       { type: 'lecture', title: '🎬 결제는 한 문장이 표준', lectureKey: 'v3_store_payment' },
-      { type: 'vocab_learn', title: '카드·봉투·영수증 즉답 카드', items: V3_PAYMENT_QA_CARDS },
+      { type: 'vocab_learn', title: '카드·봉투·영수증 즉답 카드', items: V3_PAYMENT_QA_CARDS, mode: 'sentence' },
       { type: 'vocab_learn', title: '결제·면세 표현', categoryId: 'shopping_phrases', limit: 18 },
       { type: 'dialogue_study', title: '상점 결제 미리보기', dialogueKey: 'store_payment' },
       { type: 'vocab_quiz', title: '결제 즉답 퀴즈', items: V3_PAYMENT_QA_CARDS },
@@ -1124,7 +1124,7 @@ const MODULES = [
     unlockAfter: ['v3_store_payment'],
     steps: [
       { type: 'lecture', title: '🎬 면세는 여권이 시작', lectureKey: 'v3_duty_free' },
-      { type: 'vocab_learn', title: '선물·기내 반입 즉답 카드', items: V3_DUTY_FREE_QA_CARDS },
+      { type: 'vocab_learn', title: '선물·기내 반입 즉답 카드', items: V3_DUTY_FREE_QA_CARDS, mode: 'sentence' },
       { type: 'vocab_learn', title: '상점·선물 표현', categoryIds: ['shopping_phrases','basic_questions'], limit: 22 },
       { type: 'dialogue_study', title: '면세점 미리보기', dialogueKey: 'duty_free_shop' },
       { type: 'vocab_quiz', title: '면세점 즉답 퀴즈', items: V3_DUTY_FREE_QA_CARDS },
@@ -1144,7 +1144,7 @@ const MODULES = [
     unlockAfter: ['v3_duty_free'],
     steps: [
       { type: 'lecture', title: '🎬 숙소에서 듣는 말', lectureKey: 'v3_hotel' },
-      { type: 'vocab_learn', title: '체크인 즉답 카드', items: V3_HOTEL_QA_CARDS },
+      { type: 'vocab_learn', title: '체크인 즉답 카드', items: V3_HOTEL_QA_CARDS, mode: 'sentence' },
       { type: 'vocab_learn', title: '호텔·숙박 표현', categoryId: 'hotel_phrases', limit: 14 },
       { type: 'dialogue_study', title: '호텔 체크인 미리보기', dialogueKey: 'hotel_checkin' },
       { type: 'vocab_quiz', title: '체크인 즉답 퀴즈', items: V3_HOTEL_QA_CARDS },
@@ -1164,7 +1164,7 @@ const MODULES = [
     unlockAfter: ['v3_hotel'],
     steps: [
       { type: 'lecture', title: '🎬 객실 요청은 두 가지 패턴', lectureKey: 'v3_hotel_request' },
-      { type: 'vocab_learn', title: '객실 요청 즉답 카드', items: V3_HOTEL_REQUEST_QA_CARDS },
+      { type: 'vocab_learn', title: '객실 요청 즉답 카드', items: V3_HOTEL_REQUEST_QA_CARDS, mode: 'sentence' },
       { type: 'vocab_learn', title: '객실·시설 표현', categoryId: 'hotel_phrases', limit: 18 },
       { type: 'dialogue_study', title: '객실 요청 미리보기', dialogueKey: 'hotel_request' },
       { type: 'vocab_quiz', title: '객실 요청 즉답 퀴즈', items: V3_HOTEL_REQUEST_QA_CARDS },
@@ -1184,7 +1184,7 @@ const MODULES = [
     unlockAfter: ['v3_hotel_request'],
     steps: [
       { type: 'lecture', title: '🎬 온천은 첫 5분이 중요', lectureKey: 'v3_onsen' },
-      { type: 'vocab_learn', title: '온천 규칙 즉답 카드', items: V3_ONSEN_QA_CARDS },
+      { type: 'vocab_learn', title: '온천 규칙 즉답 카드', items: V3_ONSEN_QA_CARDS, mode: 'sentence' },
       { type: 'vocab_learn', title: '온천·시설 표현', categoryIds: ['hotel_phrases','basic_questions'], limit: 22 },
       { type: 'dialogue_study', title: '온천 이용 미리보기', dialogueKey: 'onsen_rules' },
       { type: 'vocab_quiz', title: '온천 규칙 즉답 퀴즈', items: V3_ONSEN_QA_CARDS },
@@ -1205,7 +1205,7 @@ const MODULES = [
     steps: [
       { type: 'lecture', title: '🎬 아픈 곳부터 말하기', lectureKey: 'v3_health' },
       { type: 'vocab_learn', title: '신체 부위', categoryId: 'body_parts', limit: 12 },
-      { type: 'vocab_learn', title: '약국 증상 즉답 카드', items: V3_HEALTH_QA_CARDS },
+      { type: 'vocab_learn', title: '약국 증상 즉답 카드', items: V3_HEALTH_QA_CARDS, mode: 'sentence' },
       { type: 'vocab_learn', title: '증상·도움 표현', categoryIds: ['health_symptoms','medical_care','emergency_sos'], limit: 18 },
       { type: 'dialogue_study', title: '약국 증상 미리보기', dialogueKey: 'health_help' },
       { type: 'vocab_quiz', title: '약국 즉답 퀴즈', items: V3_HEALTH_QA_CARDS },
@@ -1225,7 +1225,7 @@ const MODULES = [
     unlockAfter: ['v3_health'],
     steps: [
       { type: 'lecture', title: '🎬 병원 접수는 보험 → 증상', lectureKey: 'v3_hospital' },
-      { type: 'vocab_learn', title: '병원 접수 즉답 카드', items: V3_HOSPITAL_QA_CARDS },
+      { type: 'vocab_learn', title: '병원 접수 즉답 카드', items: V3_HOSPITAL_QA_CARDS, mode: 'sentence' },
       { type: 'vocab_learn', title: '병원·증상 표현', categoryIds: ['medical_care','health_symptoms','body_parts'], limit: 24 },
       { type: 'dialogue_study', title: '병원 접수 미리보기', dialogueKey: 'hospital_reception' },
       { type: 'vocab_quiz', title: '병원 접수 즉답 퀴즈', items: V3_HOSPITAL_QA_CARDS },
@@ -1245,7 +1245,7 @@ const MODULES = [
     unlockAfter: ['v3_hospital'],
     steps: [
       { type: 'lecture', title: '🎬 당황했을 때는 잃어버린 것부터', lectureKey: 'v3_lost_and_help' },
-      { type: 'vocab_learn', title: '분실물 즉답 카드', items: V3_LOST_QA_CARDS },
+      { type: 'vocab_learn', title: '분실물 즉답 카드', items: V3_LOST_QA_CARDS, mode: 'sentence' },
       { type: 'vocab_learn', title: '도움 요청 표현', categoryIds: ['emergency_sos','basic_questions'], limit: 18 },
       { type: 'vocab_learn', title: '장소·이동 재확인', categoryIds: ['place_transport','directions'], limit: 20 },
       { type: 'dialogue_study', title: '분실물 문의 미리보기', dialogueKey: 'lost_item_help' },
@@ -1267,7 +1267,7 @@ const MODULES = [
     unlockAfter: ['v3_lost_and_help'],
     steps: [
       { type: 'lecture', title: '🎬 렌트카는 예약 → 면허 → 보험', lectureKey: 'v3_rentacar' },
-      { type: 'vocab_learn', title: '렌트카 즉답 카드', items: V3_RENTACAR_QA_CARDS },
+      { type: 'vocab_learn', title: '렌트카 즉답 카드', items: V3_RENTACAR_QA_CARDS, mode: 'sentence' },
       { type: 'vocab_learn', title: '예약·이동 표현', categoryIds: ['transport_phrases','basic_questions','date_basic'], limit: 24 },
       { type: 'dialogue_study', title: '렌트카 미리보기', dialogueKey: 'rentacar_pickup' },
       { type: 'vocab_quiz', title: '렌트카 즉답 퀴즈', items: V3_RENTACAR_QA_CARDS },
@@ -1287,7 +1287,7 @@ const MODULES = [
     unlockAfter: ['v3_rentacar'],
     steps: [
       { type: 'lecture', title: '🎬 사진 부탁은 한 문장', lectureKey: 'v3_tourist_spot' },
-      { type: 'vocab_learn', title: '사진·관광 즉답 카드', items: V3_TOURIST_QA_CARDS },
+      { type: 'vocab_learn', title: '사진·관광 즉답 카드', items: V3_TOURIST_QA_CARDS, mode: 'sentence' },
       { type: 'vocab_learn', title: '관광·사진 표현', categoryIds: ['basic_questions','directions','first_expressions'], limit: 24 },
       { type: 'dialogue_study', title: '관광지 대화 미리보기', dialogueKey: 'tourist_photo' },
       { type: 'vocab_quiz', title: '사진 부탁 즉답 퀴즈', items: V3_TOURIST_QA_CARDS },
@@ -1307,7 +1307,7 @@ const MODULES = [
     unlockAfter: ['v3_tourist_spot'],
     steps: [
       { type: 'lecture', title: '🎬 예약은 이름과 시간이 중심', lectureKey: 'v3_reservation_call' },
-      { type: 'vocab_learn', title: '예약 확인 즉답 카드', items: V3_RESERVATION_QA_CARDS },
+      { type: 'vocab_learn', title: '예약 확인 즉답 카드', items: V3_RESERVATION_QA_CARDS, mode: 'sentence' },
       { type: 'vocab_learn', title: '예약·시간 표현', categoryIds: ['hotel_phrases','date_basic','time_clock','basic_questions'], limit: 26 },
       { type: 'dialogue_study', title: '예약 확인 미리보기', dialogueKey: 'reservation_check' },
       { type: 'vocab_quiz', title: '예약 확인 즉답 퀴즈', items: V3_RESERVATION_QA_CARDS },
@@ -1327,7 +1327,7 @@ const MODULES = [
     unlockAfter: ['v3_reservation_call'],
     steps: [
       { type: 'lecture', title: '🎬 일정 변경은 이유 + 부탁', lectureKey: 'v3_weather_plan' },
-      { type: 'vocab_learn', title: '날씨·일정 변경 즉답 카드', items: V3_WEATHER_QA_CARDS },
+      { type: 'vocab_learn', title: '날씨·일정 변경 즉답 카드', items: V3_WEATHER_QA_CARDS, mode: 'sentence' },
       { type: 'vocab_learn', title: '날짜·감정·질문 표현', categoryIds: ['date_basic','adj_emotion','basic_questions'], limit: 24 },
       { type: 'dialogue_study', title: '일정 변경 미리보기', dialogueKey: 'weather_plan_change' },
       { type: 'vocab_quiz', title: '일정 변경 즉답 퀴즈', items: V3_WEATHER_QA_CARDS },
@@ -1347,7 +1347,7 @@ const MODULES = [
     unlockAfter: ['v3_weather_plan'],
     steps: [
       { type: 'lecture', title: '🎬 감사는 짧을수록 정중', lectureKey: 'v3_polite_wrapup' },
-      { type: 'vocab_learn', title: '마무리 즉답 카드', items: V3_WRAPUP_QA_CARDS },
+      { type: 'vocab_learn', title: '마무리 즉답 카드', items: V3_WRAPUP_QA_CARDS, mode: 'sentence' },
       { type: 'vocab_learn', title: '감사·마무리 표현', categoryIds: ['first_expressions','w1_reactions'], limit: 20 },
       { type: 'dialogue_study', title: '감사 마무리 미리보기', dialogueKey: 'polite_wrapup' },
       { type: 'vocab_quiz', title: '마무리 즉답 퀴즈', items: V3_WRAPUP_QA_CARDS },
