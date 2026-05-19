@@ -625,6 +625,19 @@ window.createRoleplayFlow = (ctx) => {
       },
       onDone: () => {
         _setRoleplayPlaying(false);
+        // Surface a clear next-step guide so the user knows playback ended.
+        const screen = document.getElementById('flowScreen');
+        if (screen?.classList.contains('roleplay-comic-player-mode')) {
+          const frame = document.getElementById('comicVisualFrame');
+          if (frame && !frame.querySelector('.comic-playback-done-tag')) {
+            const tag = document.createElement('div');
+            tag.className = 'comic-playback-done-tag';
+            tag.innerHTML = '<b>대화가 끝났어요</b><span>이제 직접 말해 보세요 →</span>';
+            frame.appendChild(tag);
+          }
+          const footer = document.getElementById('flowFooter');
+          if (footer) footer.classList.add('player-playback-done');
+        }
       }
     });
   }
@@ -697,7 +710,23 @@ window.createRoleplayFlow = (ctx) => {
     completeRoleplay: _completeRoleplay,
     showPreviewModal: _showRoleplayPreviewModal,
     hidePreviewModal: _hideRoleplayPreviewModal,
+    restartPractice: _restartRoleplayPractice,
+    reopenLastPracticeLine: _reopenLastPracticeLine,
   };
+
+  function _restartRoleplayPractice() {
+    const state = ctx.getFlow()?.roleplayState;
+    if (!state?.practiceLines) return;
+    state.outputDone = state.practiceLines.map(() => false);
+    state.revealed = state.practiceLines.map(() => false);
+    _renderRoleplay(ctx.getMod(ctx.getFlow().moduleId));
+  }
+  function _reopenLastPracticeLine() {
+    const state = ctx.getFlow()?.roleplayState;
+    if (!state?.practiceLines?.length) return;
+    state.outputDone[state.practiceLines.length - 1] = false;
+    _renderRoleplay(ctx.getMod(ctx.getFlow().moduleId));
+  }
 
   function _showRoleplayPreviewModal() {
     const flow = ctx.getFlow();

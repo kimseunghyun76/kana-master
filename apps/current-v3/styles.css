@@ -4158,8 +4158,11 @@ body.app-v3 .comic-intro-shell.full-bleed {
 body.app-v3 .comic-intro-shell.full-bleed .comic-intro-bg {
   position: absolute;
   inset: 0;
+  /* Strong cinematic vignette on top + bottom so any flat sky/wall area
+     in the bg art reads as intentional "dark" rather than gray crop. */
   background:
-    linear-gradient(180deg, rgba(7, 14, 26, .15) 0%, rgba(7, 14, 26, .55) 70%, rgba(7, 14, 26, .92) 100%),
+    radial-gradient(ellipse at 50% 50%, transparent 25%, rgba(7, 14, 26, .35) 75%, rgba(7, 14, 26, .68) 100%),
+    linear-gradient(180deg, rgba(7, 14, 26, .55) 0%, rgba(7, 14, 26, .05) 22%, rgba(7, 14, 26, .05) 60%, rgba(7, 14, 26, .82) 100%),
     var(--roleplay-hero-bg) center / cover no-repeat;
   z-index: 0;
 }
@@ -4338,7 +4341,8 @@ body.app-v3 .flow-screen.roleplay-comic-mode .comic-player-shell.no-script-dock 
   height: 100%;
   padding: 0;
   background:
-    linear-gradient(180deg, rgba(7, 14, 26, .08) 0%, rgba(7, 14, 26, .25) 65%, rgba(7, 14, 26, .55) 100%),
+    radial-gradient(ellipse at 50% 50%, transparent 28%, rgba(7, 14, 26, .25) 75%, rgba(7, 14, 26, .5) 100%),
+    linear-gradient(180deg, rgba(7, 14, 26, .35) 0%, rgba(7, 14, 26, .04) 22%, rgba(7, 14, 26, .04) 60%, rgba(7, 14, 26, .55) 100%),
     var(--comic-bg) center / cover no-repeat;
   overflow: hidden;
 }
@@ -4692,21 +4696,31 @@ body.app-v3 .comic-intro-stage {
   pointer-events: none;
 }
 
-/* Intro characters sit larger and side-by-side centered on the stage. */
+/* Intro characters sit larger and side-by-side centered on the stage.
+   Width sized so the two characters never overlap in the middle. */
 body.app-v3 .comic-intro-stage .intro-character {
   position: absolute;
   bottom: 0;
-  width: 50%;
-  height: 70%;
+  width: 48%;
+  height: 80%;
   object-fit: contain;
   object-position: center bottom;
   filter:
-    drop-shadow(0 24px 36px rgba(0, 0, 0, .35))
-    drop-shadow(0 0 12px rgba(255, 255, 255, .35));
+    drop-shadow(0 24px 36px rgba(0, 0, 0, .4))
+    drop-shadow(0 0 16px rgba(255, 255, 255, .42));
 }
-body.app-v3 .comic-intro-stage .intro-character.vn-character-A { left: 0%; transform: scaleX(1); }
-body.app-v3 .comic-intro-stage .intro-character.vn-character-B { right: 0%; transform: scaleX(-1); }
-body.app-v3 .comic-intro-stage .intro-character.vn-character-C { left: 25%; transform: scaleX(1); }
+body.app-v3 .comic-intro-stage .intro-character.intro-character-A {
+  left: 0;
+  transform: scaleX(1);
+}
+body.app-v3 .comic-intro-stage .intro-character.intro-character-B {
+  right: 0;
+  transform: scaleX(-1);
+}
+body.app-v3 .comic-intro-stage .intro-character.intro-character-C {
+  left: 26%;
+  transform: scaleX(1);
+}
 
 /* Bottom card sits above the characters with a softer translucent fill. */
 body.app-v3 .comic-intro-shell.full-bleed.has-stage .comic-intro-bottom-card {
@@ -4966,4 +4980,88 @@ body.app-v3 .kana-tip-label {
 body.app-v3 .kana-stroke-title {
   font-weight: 800;
   color: #1f6470;
+}
+
+/* ============================================================
+   V3 roleplay: end-of-dialogue tag + practice wrap-up + bubble stack
+   ============================================================ */
+
+/* End-of-playback overlay tag inside the player frame */
+body.app-v3 .comic-playback-done-tag {
+  position: absolute;
+  left: 50%;
+  top: 14%;
+  transform: translateX(-50%);
+  z-index: 8;
+  padding: 12px 18px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, .96);
+  border: 1px solid rgba(40, 127, 142, .45);
+  box-shadow: 0 14px 28px rgba(0, 0, 0, .25);
+  text-align: center;
+  pointer-events: none;
+}
+body.app-v3 .comic-playback-done-tag b {
+  display: block;
+  color: #1f6470;
+  font-size: 14px;
+  font-weight: 900;
+}
+body.app-v3 .comic-playback-done-tag span {
+  display: block;
+  margin-top: 2px;
+  color: #4f5f75;
+  font-size: 12px;
+}
+
+body.app-v3 .flow-footer.player-playback-done .btn-primary {
+  animation: v3-cta-pulse 1.4s ease-in-out infinite;
+}
+@keyframes v3-cta-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255, 240, 168, .9); }
+  50%      { box-shadow: 0 0 0 10px rgba(255, 240, 168, 0); }
+}
+
+/* Practice wrap-up card */
+body.app-v3 .comic-practice-wrap-card {
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  bottom: 14px;
+  padding: 18px 18px 16px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, .96);
+  border: 1px solid rgba(82, 105, 140, .2);
+  box-shadow: 0 18px 36px rgba(0, 0, 0, .3);
+  text-align: center;
+  z-index: 9;
+}
+body.app-v3 .comic-practice-wrap-emoji {
+  font-size: 32px;
+  line-height: 1;
+}
+body.app-v3 .comic-practice-wrap-title {
+  margin: 6px 0 4px;
+  font-size: 18px;
+  font-weight: 900;
+  color: #243047;
+}
+body.app-v3 .comic-practice-wrap-sub {
+  margin: 0;
+  color: #4f5f75;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+/* Practice wrap-up footer button arrangement */
+body.app-v3 .flow-screen.roleplay-comic-mode .comic-player-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+body.app-v3 .flow-screen.roleplay-comic-mode .comic-player-actions .btn-primary {
+  grid-column: 1 / -1;
+}
+body.app-v3 .flow-screen.roleplay-comic-mode .comic-player-actions .btn {
+  font-size: 13px;
 }

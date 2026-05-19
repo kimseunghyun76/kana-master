@@ -170,14 +170,15 @@ window.createRoleplayComicView = (ctx, deps) => {
       ? (lines.find(line => line.speaker !== 'N') || lines[0])
       : lines.find(line => line.sourceIndex === activeSourceIndex);
     const activeSpeaker = selectedLine?.speaker && selectedLine.speaker !== 'N' ? selectedLine.speaker : '';
-    // Collect up to 2 previously-shown speaker lines (older first → newer)
-    // so bubbles stack upward like a chat thread above the active speaker.
+    // Accumulate every previously-spoken line (no cap). The bubble stack
+    // is scrollable, so older bubbles simply stay above and the user can
+    // scroll up to review them.
     const history = [];
     if (Number.isFinite(selectedLine?.sourceIndex)) {
-      for (let i = selectedLine.sourceIndex - 1; i >= 0 && history.length < 2; i--) {
+      for (let i = 0; i < selectedLine.sourceIndex; i++) {
         const c = dialogues[i];
         if (c?.speaker && c.speaker !== 'N' && (c.japanese || '').trim()) {
-          history.unshift({ ...c, sourceIndex: i });
+          history.push({ ...c, sourceIndex: i });
         }
       }
     }
@@ -185,9 +186,12 @@ window.createRoleplayComicView = (ctx, deps) => {
     const cinematicClass = `cinematic-panel-${(panelIndex % 6) + 1}`;
     const lineMood = selectedLine?.id || '';
     const moodClass = /3|4|7|8/.test(lineMood) ? 'mood-warm' : /9|10|11/.test(lineMood) ? 'mood-close' : 'mood-formal';
-    const historyTones = ['older', 'previous'];
+    // The newest non-current historical bubble = "previous"; the rest = "older".
     const historyBubbles = history
-      .map((line, idx) => renderSceneSpeechBubble(line, line.speaker, mod, historyTones[historyTones.length - history.length + idx] || 'previous'))
+      .map((line, idx) => {
+        const tone = idx === history.length - 1 ? 'previous' : 'older';
+        return renderSceneSpeechBubble(line, line.speaker, mod, tone);
+      })
       .join('');
     return `
       <div class="comic-player-visual comic-video-scene comic-cinematic-frame comic-panel-${panelIndex + 1} ${cinematicClass} ${moodClass} ${focusClass}" id="comicVisualFrame" data-panel="${panelIndex + 1}" data-speaker="${escHtml(activeSpeaker)}">
@@ -196,7 +200,7 @@ window.createRoleplayComicView = (ctx, deps) => {
         <div class="comic-cinematic-depth depth-front" aria-hidden="true"></div>
         <div class="comic-light-sweep" aria-hidden="true"></div>
         ${renderCharacters(dialogues, 'vn-character', mod)}
-        <div class="comic-bubble-stack" aria-hidden="false">
+        <div class="comic-bubble-stack" id="comicBubbleStack" aria-hidden="false">
           ${historyBubbles}
           ${renderSceneSpeechBubble(selectedLine, activeSpeaker, mod, 'current')}
         </div>
@@ -372,17 +376,40 @@ window.createRoleplayComicView = (ctx, deps) => {
     state.comicPanelIndex = panelIndex;
     document.getElementById('flowStep').textContent = '2 / 2 · 영상 재생';
     document.getElementById('flowProgressFill').style.width = `${32 + Math.round(((panelIndex + 1) / panelGroups.length) * 60)}%`;
-    document.getElementById('flowBody').innerHTML = `
-      <div class="comic-player-shell no-script-dock" style="--comic-bg:url('${ctx.cssUrlValue(comicSceneAsset)}')">
-        ${renderFrameHtml(dialogues, panelIndex, null, mod)}
-      </div>
-    `;
+    // No-flicker: keep the shell and characters mounted; only swap the
+    // bubble stack inside the frame when the panel changes.
+    const existingShell = document.querySelector('.comic-player-shell.no-script-dock:not(.comic-practice-shell)');
+    const existingStack = existingShell?.querySelector('#comicBubbleStack');
+    if (existingShell && existingStack) {
+      const tmp = document.createElement('div');
+      tmp.innerHTML = renderFrameHtml(dialogues, panelIndex, null, mod);
+      const freshStack = tmp.querySelector('#comicBubbleStack');
+      if (freshStack) {
+        existingStack.replaceWith(freshStack);
+        // Auto-scroll the stack to its bottom so the newest current
+        // bubble is in view (older bubbles scroll up out of frame).
+        requestAnimationFrame(() => {
+          const stack = document.getElementById('comicBubbleStack');
+          if (stack) stack.scrollTop = stack.scrollHeight;
+        });
+      }
+      // Update the speaker-focus class on the visual frame too
+      const focusFrame = existingShell.querySelector('#comicVisualFrame');
+      const freshFrame = tmp.querySelector('#comicVisualFrame');
+      if (focusFrame && freshFrame) focusFrame.className = freshFrame.className;
+    } else {
+      document.getElementById('flowBody').innerHTML = `
+        <div class="comic-player-shell no-script-dock" style="--comic-bg:url('${ctx.cssUrlValue(comicSceneAsset)}')">
+          ${renderFrameHtml(dialogues, panelIndex, null, mod)}
+        </div>
+      `;
+    }
     document.getElementById('flowFooter').innerHTML = `
       <div class="comic-player-actions">
-        <button class="btn btn-outline" onclick="App._roleplayComicPrev()">← ${panelIndex === 0 ? '처음' : '이전'}</button>
-        <button class="btn btn-outline" id="btnReplayAll" onclick="App._roleplayComicSpeakPanel()">${ctx.uiLabeledIcon('audio')} 다시 듣기</button>
-        <button class="btn btn-outline" id="btnStopPlay" style="display:none" onclick="App._stopRoleplay()">정지</button>
-        <button class="btn btn-primary" onclick="App._roleplayComicNext()">${panelIndex >= panelGroups.length - 1 ? '역할 연습 →' : '다음 →'}</button>
+        <button class="btn btn-outline" type="button" onclick="App._roleplayComicPrev()">← 이전 장면</button>
+        <button class="btn btn-outline" id="btnReplayAll" type="button" onclick="App._roleplayComicSpeakPanel()">${ctx.uiLabeledIcon('audio')} 다시 듣기</button>
+        <button class="btn btn-outline" id="btnStopPlay" type="button" style="display:none" onclick="App._stopRoleplay()">정지</button>
+        <button class="btn btn-primary" type="button" onclick="App._roleplayComicNext()">${panelIndex >= panelGroups.length - 1 ? '말하기 연습 →' : '다음 →'}</button>
       </div>
     `;
   }
@@ -393,7 +420,9 @@ window.createRoleplayComicView = (ctx, deps) => {
     const outputDone = state.outputDone || [];
     const activeIndex = practiceLines.findIndex((_, idx) => !outputDone[idx]);
     if (activeIndex < 0) {
-      deps.completeRoleplay(mod.id);
+      // Practice finished. Don't jump straight to completion — give the
+      // user a chance to retry the whole thing or review one line again.
+      renderPracticeWrap(mod, dialogues, comicSceneAsset);
       return;
     }
     const activeLine = practiceLines[activeIndex];
@@ -403,13 +432,25 @@ window.createRoleplayComicView = (ctx, deps) => {
     state.comicPanelIndex = panelIndex;
     document.getElementById('flowStep').textContent = `한 문장씩 따라 읽기 · ${activeIndex + 1}/${practiceLines.length} · ${escHtml(speakerLabel)}`;
     document.getElementById('flowProgressFill').style.width = `${55 + Math.round(((activeIndex + 1) / practiceLines.length) * 40)}%`;
-    // No-flicker: if shell already exists, only swap the frame in place.
+    // No-flicker: keep the practice shell + characters mounted across
+    // line transitions. Only replace the inner bubble-stack so prev /
+    // next never blank the screen.
     const existingShell = document.querySelector('.comic-player-shell.comic-practice-shell.no-script-dock');
-    if (existingShell) {
-      const oldFrame = existingShell.querySelector('#comicVisualFrame');
+    const existingStack = existingShell?.querySelector('#comicBubbleStack');
+    if (existingShell && existingStack) {
       const tmp = document.createElement('div');
       tmp.innerHTML = renderFrameHtml(dialogues, panelIndex, activeLine.sourceIndex, mod);
-      if (oldFrame && tmp.firstElementChild) oldFrame.replaceWith(tmp.firstElementChild);
+      const freshStack = tmp.querySelector('#comicBubbleStack');
+      if (freshStack) {
+        existingStack.replaceWith(freshStack);
+        requestAnimationFrame(() => {
+          const stack = document.getElementById('comicBubbleStack');
+          if (stack) stack.scrollTop = stack.scrollHeight;
+        });
+      }
+      const focusFrame = existingShell.querySelector('#comicVisualFrame');
+      const freshFrame = tmp.querySelector('#comicVisualFrame');
+      if (focusFrame && freshFrame) focusFrame.className = freshFrame.className;
     } else {
       document.getElementById('flowBody').innerHTML = `
         <div class="comic-player-shell comic-practice-shell no-script-dock" style="--comic-bg:url('${ctx.cssUrlValue(comicSceneAsset)}')">
@@ -422,6 +463,31 @@ window.createRoleplayComicView = (ctx, deps) => {
         <button class="btn btn-outline" onclick="App._roleplayComicPracticePrev()" ${activeIndex === 0 ? 'disabled' : ''}>← 이전</button>
         <button class="btn btn-outline" onclick="App._speakDialogueLine('${activeLine.id}')">${ctx.uiLabeledIcon('audio')} 다시 듣기</button>
         <button class="btn btn-primary" onclick="App._roleplayComicPracticeNext()">말했어요 →</button>
+      </div>
+    `;
+  }
+
+  function renderPracticeWrap(mod, dialogues, comicSceneAsset) {
+    const total = (deps.getState(mod).practiceLines || []).length;
+    document.getElementById('flowStep').textContent = '한 문장씩 따라 읽기 · 완료';
+    document.getElementById('flowProgressFill').style.width = '95%';
+    document.getElementById('flowBody').innerHTML = `
+      <div class="comic-player-shell comic-practice-shell comic-practice-wrap no-script-dock"
+           style="--comic-bg:url('${ctx.cssUrlValue(comicSceneAsset)}')">
+        <div class="comic-practice-wrap-card">
+          <div class="comic-practice-wrap-emoji">🎤</div>
+          <h2 class="comic-practice-wrap-title">${total}문장 모두 따라 읽었어요</h2>
+          <p class="comic-practice-wrap-sub">
+            완료하면 보상을 받습니다. 처음부터 다시 연습하거나, 마지막 라인부터 한 번 더 듣고 마무리할 수도 있어요.
+          </p>
+        </div>
+      </div>
+    `;
+    document.getElementById('flowFooter').innerHTML = `
+      <div class="comic-player-actions">
+        <button class="btn btn-outline" type="button" onclick="App._restartRoleplayPractice()">↺ 처음부터 다시</button>
+        <button class="btn btn-outline" type="button" onclick="App._reopenLastPracticeLine()">← 마지막 라인 한 번 더</button>
+        <button class="btn btn-primary" type="button" onclick="App._completeRoleplay('${mod.id}')">완료 ✓</button>
       </div>
     `;
   }

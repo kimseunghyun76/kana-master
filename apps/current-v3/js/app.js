@@ -675,6 +675,8 @@ window.App = (() => {
   function _startRoleplay(mod) { return _roleplayFlow.startRoleplay(mod); }
   function _showRoleplayPreviewModal() { return _roleplayFlow.showPreviewModal(); }
   function _hideRoleplayPreviewModal() { return _roleplayFlow.hidePreviewModal(); }
+  function _restartRoleplayPractice() { return _roleplayFlow.restartPractice(); }
+  function _reopenLastPracticeLine() { return _roleplayFlow.reopenLastPracticeLine(); }
   function _replayAll(moduleId, startIndex = 0) { return _roleplayFlow.replayAll(moduleId, startIndex); }
   function _replayRoleplayCurrentTurn() { return _roleplayFlow.replayCurrentTurn(); }
   function _stopRoleplay() { return _roleplayFlow.stopRoleplay(); }
@@ -1137,6 +1139,8 @@ window.App = (() => {
     _showRoleplaySummary,
     _showRoleplayPreviewModal,
     _hideRoleplayPreviewModal,
+    _restartRoleplayPractice,
+    _reopenLastPracticeLine,
     _openKanaChartStandalone,
     _finalizeRoleplay,
     // 획순 애니메이션
