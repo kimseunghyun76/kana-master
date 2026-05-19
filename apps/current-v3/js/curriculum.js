@@ -136,6 +136,19 @@ const V3_PRE_SENTENCE_CARDS = [
   { id:'v3pre_12', japanese:'もう一度', romaji:'mou ichido', korean:'한 번 더' },
 ];
 
+const V3_KATAW_CARDS = [
+  { id:'v3kataw_01', japanese:'ホテル', romaji:'hoteru', korean:'호텔' },
+  { id:'v3kataw_02', japanese:'カード', romaji:'kaado', korean:'카드' },
+  { id:'v3kataw_03', japanese:'コーヒー', romaji:'koohii', korean:'커피' },
+  { id:'v3kataw_04', japanese:'タクシー', romaji:'takushii', korean:'택시' },
+  { id:'v3kataw_05', japanese:'レストラン', romaji:'resutoran', korean:'레스토랑' },
+  { id:'v3kataw_06', japanese:'トイレ', romaji:'toire', korean:'화장실' },
+  { id:'v3kataw_07', japanese:'コンビニ', romaji:'konbini', korean:'편의점' },
+  { id:'v3kataw_08', japanese:'ビール', romaji:'biiru', korean:'맥주' },
+  { id:'v3kataw_09', japanese:'メニュー', romaji:'menyuu', korean:'메뉴' },
+  { id:'v3kataw_10', japanese:'サービス', romaji:'saabisu', korean:'서비스' },
+];
+
 const V3_BASIC_STRUCTURE_CARDS = [
   { id:'v3str_01', japanese:'A は B です', romaji:'A wa B desu', korean:'A는 B예요' },
   { id:'v3str_02', japanese:'A は どこですか', romaji:'A wa doko desu ka', korean:'A는 어디예요?' },
@@ -510,18 +523,8 @@ const MODULES = [
     unlockAfter: ['kana_hira'],
     steps: [
       { type: 'lecture', title: '🎬 가타가나는 여행 간판 문자', lectureKey: 'v3_katakana_intro' },
-      { type: 'vocab_learn', title: '이미 아는 외래어 10개', items: [
-        { id:'v3kataw_01', japanese:'ホテル', romaji:'hoteru', korean:'호텔' },
-        { id:'v3kataw_02', japanese:'カード', romaji:'kaado', korean:'카드' },
-        { id:'v3kataw_03', japanese:'コーヒー', romaji:'koohii', korean:'커피' },
-        { id:'v3kataw_04', japanese:'タクシー', romaji:'takushii', korean:'택시' },
-        { id:'v3kataw_05', japanese:'レストラン', romaji:'resutoran', korean:'레스토랑' },
-        { id:'v3kataw_06', japanese:'トイレ', romaji:'toire', korean:'화장실' },
-        { id:'v3kataw_07', japanese:'コンビニ', romaji:'konbini', korean:'편의점' },
-        { id:'v3kataw_08', japanese:'ビール', romaji:'biiru', korean:'맥주' },
-        { id:'v3kataw_09', japanese:'メニュー', romaji:'menyuu', korean:'메뉴' },
-        { id:'v3kataw_10', japanese:'サービス', romaji:'saabisu', korean:'서비스' },
-      ] },
+      { type: 'vocab_learn', title: '이미 아는 외래어 10개', mode: 'word', items: V3_KATAW_CARDS },
+      { type: 'vocab_quiz', title: '외래어 의미 퀴즈', items: V3_KATAW_CARDS },
       { type: 'kana_learn', title: '1묶음: ア행·カ행 10자', levelId: 8, customLabel: '가타가나 1/4' },
       { type: 'kana_learn', title: '2묶음: サ행·タ행 10자', levelId: 9, customLabel: '가타가나 2/4' },
       { type: 'kana_learn', title: '3묶음: ナ행·ハ행 10자', levelId: 10, customLabel: '가타가나 3/4' },
@@ -858,7 +861,8 @@ const MODULES = [
     unlockAfter: ['v3_first_greetings'],
     steps: [
       { type: 'lecture', title: '🎬 회화는 리액션으로 이어진다', lectureKey: 'v3_reaction_shadowing' },
-      { type: 'vocab_learn', title: '리액션 한마디', categoryIds: ['w1_reactions','first_expressions'], limit: 18 },
+      { type: 'vocab_learn', title: '리액션 단어', categoryId: 'w1_reactions', limit: 8, mode: 'word' },
+      { type: 'vocab_learn', title: '리액션 문장', categoryId: 'first_expressions', limit: 10, mode: 'sentence' },
       { type: 'vocab_learn', title: '다시 묻고 확인하기', categoryIds: ['basic_questions','first_expressions'], limit: 12 },
       { type: 'vocab_quiz', title: '리액션 즉답 퀴즈', categoryIds: ['w1_reactions','first_expressions'], limit: 19 },
       { type: 'lecture', title: '💡 리액션은 통째로 자동화하기', lectureKey: 'v3_reaction_shadowing_tip' },
@@ -1068,7 +1072,8 @@ const MODULES = [
     steps: [
       { type: 'lecture', title: '🎬 이자카야는 순서가 정해져 있다', lectureKey: 'v3_izakaya' },
       { type: 'vocab_learn', title: '첫 잔·추천 즉답 카드', items: V3_IZAKAYA_QA_CARDS, mode: 'sentence' },
-      { type: 'vocab_learn', title: '술집 주문 표현', categoryIds: ['food_ordering','food_restaurant'], limit: 24 },
+      { type: 'vocab_learn', title: '음식·식당 단어', categoryId: 'food_restaurant', limit: 10, mode: 'word' },
+      { type: 'vocab_learn', title: '주문 문장', categoryId: 'food_ordering', limit: 10, mode: 'sentence' },
       { type: 'dialogue_study', title: '이자카야 미리보기', dialogueKey: 'izakaya_order' },
       { type: 'vocab_quiz', title: '이자카야 즉답 퀴즈', items: V3_IZAKAYA_QA_CARDS },
       { type: 'vocab_quiz', title: '술집 표현 퀴즈', categoryIds: ['food_ordering','food_restaurant'], limit: 24 },
@@ -1209,7 +1214,8 @@ const MODULES = [
       { type: 'lecture', title: '🎬 아픈 곳부터 말하기', lectureKey: 'v3_health' },
       { type: 'vocab_learn', title: '신체 부위', categoryId: 'body_parts', limit: 12 },
       { type: 'vocab_learn', title: '약국 증상 즉답 카드', items: V3_HEALTH_QA_CARDS, mode: 'sentence' },
-      { type: 'vocab_learn', title: '증상·도움 표현', categoryIds: ['health_symptoms','medical_care','emergency_sos'], limit: 18 },
+      { type: 'vocab_learn', title: '증상·의료 단어', categoryIds: ['health_symptoms','medical_care'], limit: 14, mode: 'word' },
+      { type: 'vocab_learn', title: '긴급·도움 문장', categoryId: 'emergency_sos', limit: 8, mode: 'sentence' },
       { type: 'dialogue_study', title: '약국 증상 미리보기', dialogueKey: 'health_help' },
       { type: 'vocab_quiz', title: '약국 즉답 퀴즈', items: V3_HEALTH_QA_CARDS },
       { type: 'vocab_quiz', title: '건강·긴급 퀴즈', categoryIds: ['body_parts','health_symptoms','medical_care','emergency_sos'], limit: 28 },
@@ -1272,7 +1278,8 @@ const MODULES = [
     steps: [
       { type: 'lecture', title: '🎬 렌트카는 예약 → 면허 → 보험', lectureKey: 'v3_rentacar' },
       { type: 'vocab_learn', title: '렌트카 즉답 카드', items: V3_RENTACAR_QA_CARDS, mode: 'sentence' },
-      { type: 'vocab_learn', title: '예약·이동 표현', categoryIds: ['transport_phrases','basic_questions','date_basic'], limit: 24 },
+      { type: 'vocab_learn', title: '교통·날짜 단어', categoryId: 'date_basic', limit: 8, mode: 'word' },
+      { type: 'vocab_learn', title: '교통·예약 문장', categoryIds: ['transport_phrases','basic_questions'], limit: 16, mode: 'sentence' },
       { type: 'dialogue_study', title: '렌트카 미리보기', dialogueKey: 'rentacar_pickup' },
       { type: 'vocab_quiz', title: '렌트카 즉답 퀴즈', items: V3_RENTACAR_QA_CARDS },
       { type: 'vocab_quiz', title: '렌트카 표현 퀴즈', categoryIds: ['transport_phrases','basic_questions','date_basic'], limit: 26 },
@@ -1333,7 +1340,8 @@ const MODULES = [
     steps: [
       { type: 'lecture', title: '🎬 일정 변경은 이유 + 부탁', lectureKey: 'v3_weather_plan' },
       { type: 'vocab_learn', title: '날씨·일정 변경 즉답 카드', items: V3_WEATHER_QA_CARDS, mode: 'sentence' },
-      { type: 'vocab_learn', title: '날짜·감정·질문 표현', categoryIds: ['date_basic','adj_emotion','basic_questions'], limit: 24 },
+      { type: 'vocab_learn', title: '날짜·감정 단어', categoryIds: ['date_basic','adj_emotion'], limit: 14, mode: 'word' },
+      { type: 'vocab_learn', title: '일정 변경 문장', categoryId: 'basic_questions', limit: 10, mode: 'sentence' },
       { type: 'dialogue_study', title: '일정 변경 미리보기', dialogueKey: 'weather_plan_change' },
       { type: 'vocab_quiz', title: '일정 변경 즉답 퀴즈', items: V3_WEATHER_QA_CARDS },
       { type: 'vocab_quiz', title: '일정 변경 퀴즈', categoryIds: ['date_basic','adj_emotion','basic_questions'], limit: 26 },
@@ -1402,7 +1410,8 @@ const MODULES = [
     steps: [
       { type: 'lecture', title: '🎬 감정은 짧은 문장으로 던지기', lectureKey: 'v3_drama_emotion' },
       { type: 'vocab_learn', title: '감정 형용사', categoryId: 'adj_emotion', limit: 14 },
-      { type: 'vocab_learn', title: '리액션·맞장구', categoryIds: ['w1_reactions','small_talk'], limit: 14 },
+      { type: 'vocab_learn', title: '맞장구 단어', categoryId: 'w1_reactions', limit: 8, mode: 'word' },
+      { type: 'vocab_learn', title: '스몰토크 문장', categoryId: 'small_talk', limit: 8, mode: 'sentence' },
       { type: 'vocab_quiz', title: '감정 표현 퀴즈', categoryIds: ['adj_emotion','small_talk'], limit: 22 },
     ],
     roleplay: null
