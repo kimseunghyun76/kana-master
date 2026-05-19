@@ -254,6 +254,11 @@ body.app-v3 {
   --success: #5ac99b;
   --warning: #f6b84f;
   --danger: #f26d8f;
+  /* Body bg fills the area outside the centered #app so desktop/tablet
+     don't show the bare grey html background flanking the 480/520px shell. */
+  background:
+    linear-gradient(180deg, rgba(255, 247, 251, .55), rgba(241, 251, 255, .65)),
+    url("/images/v3-cute/bg-tourist-street-cute.webp") center / cover fixed;
 }
 
 body.app-v3 #app {
@@ -2016,10 +2021,13 @@ body.app-v3 .module-card {
 }
 
 body.app-v3 .module-cover-thumb {
-  width: 82px;
-  min-width: 82px;
-  height: 104px;
+  /* Background art is 16:9 (1672×941); use the same ratio for the thumb
+     so cover-fit doesn't crop the meaningful center of every scene. */
+  width: 124px;
+  min-width: 124px;
+  height: 70px;
   min-height: 0;
+  aspect-ratio: 16 / 9;
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -2609,9 +2617,9 @@ body.app-v3 .lec-pick-voice-chip {
 
 @media (max-width: 420px) {
   body.app-v3 .module-cover-thumb {
-    width: 78px;
-    min-width: 78px;
-    height: 102px;
+    width: 108px;
+    min-width: 108px;
+    height: 61px;
   }
 
   body.app-v3 .lec-pick-top {
@@ -4541,11 +4549,13 @@ body.app-v3 .flow-screen.roleplay-comic-mode .no-script-dock .comic-player-visua
 }
 
 /* 3) Smaller, fixed character footprint so the bubble strip on top has
-   real estate without overlap. ~52% of the frame height = bottom half. */
+   real estate without overlap. ~52% of the frame height = bottom half.
+   width must be explicit on absolutely-positioned <img> or it collapses
+   to 0 in some engines (intrinsic sizing isn't picked up with %-height). */
 body.app-v3 .flow-screen.roleplay-comic-mode .no-script-dock .vn-character {
+  width: 46%;
   height: 52%;
   bottom: 0;
-  width: auto;
   max-width: 46%;
   animation: v3-char-idle 4.2s ease-in-out infinite;
   transition: none;
