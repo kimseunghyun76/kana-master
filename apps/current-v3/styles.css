@@ -5581,6 +5581,27 @@ body.app-v3 .sentence-learn-jp {
   overflow-wrap: anywhere;
   max-width: 100%;
 }
+
+/* Romaji always visible right under JP */
+body.app-v3 .sentence-learn-romaji {
+  margin-top: 6px;
+  color: #1f6470;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: .03em;
+}
+
+/* Korean meaning shown by default (no toggle) */
+body.app-v3 .sentence-learn-ko-fixed {
+  margin-top: 10px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: rgba(40, 127, 142, .08);
+  color: #243047;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.45;
+}
 body.app-v3 .sentence-learn-reveal-btn {
   margin: 16px 0 0;
   padding: 8px 14px;

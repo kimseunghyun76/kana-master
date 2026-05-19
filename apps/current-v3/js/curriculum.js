@@ -585,7 +585,8 @@ const MODULES = [
     steps: [
       { type: 'lecture', title: '🎬 여행 첫날 말문 트기', lectureKey: 'v3_first_greetings' },
       { type: 'vocab_learn', title: '인사 필수 단어', categoryId: 'basic_words', limit: 10 },
-      { type: 'vocab_learn', title: '리액션과 버티기 표현', categoryIds: ['first_expressions', 'w1_reactions'], limit: 14 },
+      { type: 'vocab_learn', title: '맞장구·반응 단어', categoryId: 'w1_reactions', limit: 8, mode: 'word' },
+      { type: 'vocab_learn', title: '인사·기초 회화 문장', categoryId: 'first_expressions', limit: 10, mode: 'sentence' },
       { type: 'dialogue_study', title: '사진 부탁 대화 미리보기', dialogueKey: 'first_photo_greeting' },
       { type: 'vocab_quiz', title: '첫 반응 퀴즈', categoryIds: ['basic_words', 'first_expressions', 'w1_reactions'], limit: 19 },
       { type: 'lecture', title: '💡 인사는 세트로 외우기', lectureKey: 'v3_first_greetings_tip' },
@@ -612,7 +613,7 @@ const MODULES = [
     steps: [
       { type: 'lecture', title: '🎬 문장 전에 단어 재료부터', lectureKey: 'v3_survival_objects' },
       { type: 'vocab_learn', title: '문장 전 필수 재료 12개', items: V3_PRE_SENTENCE_CARDS, mode: 'sentence' },
-      { type: 'vocab_learn', title: '기초 물건과 장소', categoryIds: ['basic_words','essential_phrases','place_transport'], limit: 19 },
+      { type: 'vocab_learn', title: '기초 사물·장소 단어', categoryIds: ['pronouns_thing','place_transport','food_nouns'], limit: 19, mode: 'word' },
       { type: 'dialogue_study', title: '모르는 말 버티기 미리보기', dialogueKey: 'pre_sentence_survival' },
       { type: 'vocab_quiz', title: '문장 전 재료 퀴즈', items: V3_PRE_SENTENCE_CARDS },
       { type: 'lecture', title: '💡 모르면 これ와 ここ로 버티기', lectureKey: 'v3_survival_objects_tip' },
@@ -905,7 +906,8 @@ const MODULES = [
     steps: [
       { type: 'lecture', title: '🎬 입국 심사는 단답이 정답', lectureKey: 'v3_immigration' },
       { type: 'vocab_learn', title: '입국 질문·답변 카드', items: V3_IMMIGRATION_QA_CARDS, mode: 'sentence' },
-      { type: 'vocab_learn', title: '목적·기간·숙소 답변', categoryIds: ['self_intro','hotel_phrases','date_basic'], limit: 20 },
+      { type: 'vocab_learn', title: '날짜·기간 단어', categoryId: 'date_basic', limit: 8, mode: 'word' },
+      { type: 'vocab_learn', title: '자기소개·숙소 답변 문장', categoryIds: ['self_intro','hotel_phrases'], limit: 14, mode: 'sentence' },
       { type: 'dialogue_study', title: '입국 심사 미리보기', dialogueKey: 'immigration_short' },
       { type: 'vocab_quiz', title: '입국 즉답 퀴즈', items: V3_IMMIGRATION_QA_CARDS },
       { type: 'vocab_quiz', title: '입국 답변 퀴즈', categoryIds: ['self_intro','hotel_phrases','date_basic'], limit: 22 },
@@ -925,7 +927,7 @@ const MODULES = [
     steps: [
       { type: 'lecture', title: '🎬 기내 부탁은 단어 + ください', lectureKey: 'v3_airplane_request' },
       { type: 'vocab_learn', title: '기내 요청 질문·답변 카드', items: V3_AIRPLANE_QA_CARDS, mode: 'sentence' },
-      { type: 'vocab_learn', title: '부탁과 필요한 물건', categoryIds: ['basic_words','first_expressions'], limit: 18 },
+      { type: 'vocab_learn', title: '부탁·요청 문장', categoryId: 'first_expressions', limit: 12, mode: 'sentence' },
       { type: 'dialogue_study', title: '기내 요청 미리보기', dialogueKey: 'airplane_request' },
       { type: 'vocab_quiz', title: '기내 요청 즉답 퀴즈', items: V3_AIRPLANE_QA_CARDS },
       { type: 'vocab_quiz', title: '기내 요청 퀴즈', categoryIds: ['basic_words','first_expressions'], limit: 20 },
@@ -1026,7 +1028,8 @@ const MODULES = [
     steps: [
       { type: 'lecture', title: '🎬 카페는 메뉴 + ください', lectureKey: 'v3_cafe_breakfast' },
       { type: 'vocab_learn', title: '조식·카페 질문 카드', items: V3_CAFE_QA_CARDS, mode: 'sentence' },
-      { type: 'vocab_learn', title: '카페·아침 표현', categoryIds: ['food_ordering','food_restaurant','hotel_phrases'], limit: 24 },
+      { type: 'vocab_learn', title: '음식·식당 어휘', categoryId: 'food_restaurant', limit: 10, mode: 'word' },
+      { type: 'vocab_learn', title: '주문·조식 문장', categoryIds: ['food_ordering','hotel_phrases'], limit: 16, mode: 'sentence' },
       { type: 'dialogue_study', title: '카페·조식 미리보기', dialogueKey: 'cafe_breakfast' },
       { type: 'vocab_quiz', title: '카페·조식 즉답 퀴즈', items: V3_CAFE_QA_CARDS },
       { type: 'vocab_quiz', title: '카페·조식 퀴즈', categoryIds: ['food_ordering','food_restaurant','hotel_phrases'], limit: 24 },
@@ -1247,7 +1250,8 @@ const MODULES = [
       { type: 'lecture', title: '🎬 당황했을 때는 잃어버린 것부터', lectureKey: 'v3_lost_and_help' },
       { type: 'vocab_learn', title: '분실물 즉답 카드', items: V3_LOST_QA_CARDS, mode: 'sentence' },
       { type: 'vocab_learn', title: '도움 요청 표현', categoryIds: ['emergency_sos','basic_questions'], limit: 18 },
-      { type: 'vocab_learn', title: '장소·이동 재확인', categoryIds: ['place_transport','directions'], limit: 20 },
+      { type: 'vocab_learn', title: '장소·교통 단어', categoryId: 'place_transport', limit: 12, mode: 'word' },
+      { type: 'vocab_learn', title: '길 묻기 문장', categoryId: 'directions', limit: 10, mode: 'sentence' },
       { type: 'dialogue_study', title: '분실물 문의 미리보기', dialogueKey: 'lost_item_help' },
       { type: 'vocab_quiz', title: '분실물 즉답 퀴즈', items: V3_LOST_QA_CARDS },
       { type: 'vocab_quiz', title: '분실·도움 요청 퀴즈', categoryIds: ['emergency_sos','basic_questions','place_transport','directions'], limit: 28 },
@@ -1308,7 +1312,8 @@ const MODULES = [
     steps: [
       { type: 'lecture', title: '🎬 예약은 이름과 시간이 중심', lectureKey: 'v3_reservation_call' },
       { type: 'vocab_learn', title: '예약 확인 즉답 카드', items: V3_RESERVATION_QA_CARDS, mode: 'sentence' },
-      { type: 'vocab_learn', title: '예약·시간 표현', categoryIds: ['hotel_phrases','date_basic','time_clock','basic_questions'], limit: 26 },
+      { type: 'vocab_learn', title: '날짜·시각 단어', categoryIds: ['date_basic','time_clock'], limit: 14, mode: 'word' },
+      { type: 'vocab_learn', title: '예약·확인 문장', categoryIds: ['hotel_phrases','basic_questions'], limit: 14, mode: 'sentence' },
       { type: 'dialogue_study', title: '예약 확인 미리보기', dialogueKey: 'reservation_check' },
       { type: 'vocab_quiz', title: '예약 확인 즉답 퀴즈', items: V3_RESERVATION_QA_CARDS },
       { type: 'vocab_quiz', title: '예약 확인 퀴즈', categoryIds: ['hotel_phrases','date_basic','time_clock','basic_questions'], limit: 28 },
@@ -1348,7 +1353,8 @@ const MODULES = [
     steps: [
       { type: 'lecture', title: '🎬 감사는 짧을수록 정중', lectureKey: 'v3_polite_wrapup' },
       { type: 'vocab_learn', title: '마무리 즉답 카드', items: V3_WRAPUP_QA_CARDS, mode: 'sentence' },
-      { type: 'vocab_learn', title: '감사·마무리 표현', categoryIds: ['first_expressions','w1_reactions'], limit: 20 },
+      { type: 'vocab_learn', title: '맞장구 단어', categoryId: 'w1_reactions', limit: 8, mode: 'word' },
+      { type: 'vocab_learn', title: '감사·마무리 문장', categoryId: 'first_expressions', limit: 12, mode: 'sentence' },
       { type: 'dialogue_study', title: '감사 마무리 미리보기', dialogueKey: 'polite_wrapup' },
       { type: 'vocab_quiz', title: '마무리 즉답 퀴즈', items: V3_WRAPUP_QA_CARDS },
       { type: 'vocab_quiz', title: '마무리 표현 퀴즈', categoryIds: ['first_expressions','w1_reactions'], limit: 22 },
@@ -1369,7 +1375,8 @@ const MODULES = [
     steps: [
       { type: 'lecture', title: '🎬 자막보다 먼저 들리는 말', lectureKey: 'v3_drama_reactions' },
       { type: 'vocab_learn', title: '짧은 반응어', categoryIds: ['w1_reactions', 'youth_slang'], limit: 18 },
-      { type: 'vocab_learn', title: '감정으로 받는 말', categoryIds: ['adj_emotion','small_talk'], limit: 12 },
+      { type: 'vocab_learn', title: '감정 형용사', categoryId: 'adj_emotion', limit: 8, mode: 'word' },
+      { type: 'vocab_learn', title: '스몰토크 문장', categoryId: 'small_talk', limit: 8, mode: 'sentence' },
       { type: 'vocab_quiz', title: '리액션 듣기 전 퀴즈', categoryIds: ['w1_reactions', 'youth_slang'], limit: 20 },
       { type: 'vocab_quiz', title: '감정 리액션 퀴즈', categoryIds: ['adj_emotion','small_talk'], limit: 16 },
     ],
@@ -1412,7 +1419,8 @@ const MODULES = [
     unlockAfter: ['v3_drama_emotion'],
     steps: [
       { type: 'lecture', title: '🎬 드라마 대사는 짧게 끊어 듣기', lectureKey: 'v3_drama_daily' },
-      { type: 'vocab_learn', title: '감정·상태 표현', categoryIds: ['adj_emotion','small_talk'], limit: 18 },
+      { type: 'vocab_learn', title: '감정·상태 단어', categoryId: 'adj_emotion', limit: 10, mode: 'word' },
+      { type: 'vocab_learn', title: '드라마 일상 문장', categoryId: 'small_talk', limit: 10, mode: 'sentence' },
       { type: 'vocab_learn', title: '취미·관심사', categoryId: 's2_hobbies', limit: 10 },
       { type: 'vocab_quiz', title: '드라마 입문 퀴즈', categoryIds: ['adj_emotion','small_talk','s2_hobbies'], limit: 24 },
       { type: 'dialogue_study', title: '일상 대화 미리보기', dialogueKey: 'daily_chat' },

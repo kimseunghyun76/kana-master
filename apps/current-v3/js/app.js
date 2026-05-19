@@ -607,6 +607,9 @@ window.App = (() => {
       const safe = jp.replace(/'/g, "\\'");
       const revealed = !!st.revealed[st.idx];
 
+      // Korean 해석은 default visible (사용자 요청: 한 장씩 보여줄 거면
+      // 충분히 정보를 채우라). 팁만 reveal로 가둠.
+      const romaji = it.romaji || '';
       document.getElementById('flowBody').innerHTML = `
         <div class="sentence-learn">
           <div class="sentence-learn-head">
@@ -619,14 +622,17 @@ window.App = (() => {
               ${_uiIconSvg('audio', 'sentence-learn-audio-icon')}
             </button>
             <div class="sentence-learn-jp">${ruby(jp)}</div>
-            <button class="sentence-learn-reveal-btn ${revealed ? 'is-open' : ''}" type="button"
-                    onclick="App._sentenceLearnToggle()">
-              ${revealed ? '해석 닫기 ▴' : '해석 보기 ▾'}
-            </button>
-            <div class="sentence-learn-reveal ${revealed ? 'is-open' : ''}">
-              <div class="sentence-learn-ko">${escHtml(ko)}</div>
-              ${tip ? `<div class="sentence-learn-tip">${_uiIconSvg('sparkle', 'sentence-learn-tip-icon')} <span>${ruby(tip)}</span></div>` : ''}
-            </div>
+            ${romaji ? `<div class="sentence-learn-romaji">${escHtml(romaji)}</div>` : ''}
+            <div class="sentence-learn-ko-fixed">${escHtml(ko)}</div>
+            ${tip ? `
+              <button class="sentence-learn-reveal-btn ${revealed ? 'is-open' : ''}" type="button"
+                      onclick="App._sentenceLearnToggle()">
+                ${revealed ? '팁 닫기 ▴' : '팁 보기 ▾'}
+              </button>
+              <div class="sentence-learn-reveal ${revealed ? 'is-open' : ''}">
+                <div class="sentence-learn-tip">${_uiIconSvg('sparkle', 'sentence-learn-tip-icon')} <span>${ruby(tip)}</span></div>
+              </div>
+            ` : ''}
           </div>
           <div class="sentence-learn-pager">
             ${st.items.slice(0, 30).map((_, i) => `
