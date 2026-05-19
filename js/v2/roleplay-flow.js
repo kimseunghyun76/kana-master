@@ -695,5 +695,22 @@ window.createRoleplayFlow = (ctx) => {
     showDialogueDetail: _detailFlow.showDialogueDetail,
     closeDialogueDetail: _detailFlow.closeDialogueDetail,
     completeRoleplay: _completeRoleplay,
+    showPreviewModal: _showRoleplayPreviewModal,
+    hidePreviewModal: _hideRoleplayPreviewModal,
   };
+
+  function _showRoleplayPreviewModal() {
+    const flow = ctx.getFlow();
+    const mod = ctx.getMod(flow?.moduleId);
+    if (!mod?.roleplay) return;
+    const dialogues = ctx.getDialogue(mod.roleplay.dialogueKey);
+    const cover = ctx.getRoleplayCoverAsset(mod);
+    const html = _comicView.renderPreviewModal(mod, mod.roleplay, dialogues, _comicView.sceneAsset(mod, cover));
+    const wrap = document.createElement('div');
+    wrap.innerHTML = html;
+    document.body.appendChild(wrap.firstElementChild);
+  }
+  function _hideRoleplayPreviewModal() {
+    document.getElementById('rpPreviewModal')?.remove();
+  }
 };

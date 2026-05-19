@@ -4424,13 +4424,34 @@ body.app-v3 .flow-screen.roleplay-comic-mode .no-script-dock .comic-scene-speech
 }
 
 body.app-v3 .flow-screen.roleplay-comic-mode .no-script-dock .comic-scene-speech-bubble.older {
-  opacity: .55;
-  transform: scale(.92);
+  opacity: .35;
+  transform: scale(.88);
+  filter: saturate(.6);
 }
 
 body.app-v3 .flow-screen.roleplay-comic-mode .no-script-dock .comic-scene-speech-bubble.previous {
-  opacity: .78;
-  transform: scale(.96);
+  opacity: .6;
+  transform: scale(.94);
+  filter: saturate(.8);
+}
+
+/* Current line is bigger, bolder, and has a soft halo. */
+body.app-v3 .flow-screen.roleplay-comic-mode .no-script-dock .comic-scene-speech-bubble.current {
+  padding: 12px 16px;
+  border-color: rgba(40, 127, 142, .35);
+  box-shadow: 0 16px 32px rgba(35, 47, 66, .22);
+  transform: scale(1);
+}
+
+body.app-v3 .flow-screen.roleplay-comic-mode .no-script-dock .comic-scene-speech-bubble.current .comic-scene-speech-copy b {
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1.34;
+}
+
+body.app-v3 .flow-screen.roleplay-comic-mode .no-script-dock .comic-scene-speech-bubble.current .comic-scene-speech-copy em {
+  font-size: 13px;
+  font-weight: 700;
 }
 
 /* Bubble tail (no avatar to compensate for any longer) */
@@ -4581,10 +4602,11 @@ body.app-v3 .flow-screen.roleplay-comic-mode .no-script-dock .comic-player-visua
    width must be explicit on absolutely-positioned <img> or it collapses
    to 0 in some engines (intrinsic sizing isn't picked up with %-height). */
 body.app-v3 .flow-screen.roleplay-comic-mode .no-script-dock .vn-character {
-  width: 46%;
-  height: 52%;
+  /* +10% over the prior 46×52% — characters carry more weight in playback. */
+  width: 51%;
+  height: 57%;
   bottom: 0;
-  max-width: 46%;
+  max-width: 51%;
   animation: v3-char-idle 4.2s ease-in-out infinite;
   transition: none;
 }
@@ -4652,3 +4674,296 @@ body.app-v3 .flow-screen.roleplay-comic-mode .no-script-dock .comic-scene-speech
 
 /* Preview avatar shared on both sides (already present; no extra styles
    needed thanks to the existing .kt-avatar rules). */
+
+/* ============================================================
+   V3 intro stage (full-body characters centered) + preview modal
+   ============================================================ */
+
+body.app-v3 .comic-intro-shell.full-bleed.has-stage {
+  position: relative;
+}
+
+/* Stage fills the entire shell so characters get a stable %-based box,
+   independent of the bottom card's height. */
+body.app-v3 .comic-intro-stage {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* Intro characters sit larger and side-by-side centered on the stage. */
+body.app-v3 .comic-intro-stage .intro-character {
+  position: absolute;
+  bottom: 0;
+  width: 50%;
+  height: 70%;
+  object-fit: contain;
+  object-position: center bottom;
+  filter:
+    drop-shadow(0 24px 36px rgba(0, 0, 0, .35))
+    drop-shadow(0 0 12px rgba(255, 255, 255, .35));
+}
+body.app-v3 .comic-intro-stage .intro-character.vn-character-A { left: 0%; transform: scaleX(1); }
+body.app-v3 .comic-intro-stage .intro-character.vn-character-B { right: 0%; transform: scaleX(-1); }
+body.app-v3 .comic-intro-stage .intro-character.vn-character-C { left: 25%; transform: scaleX(1); }
+
+/* Bottom card sits above the characters with a softer translucent fill. */
+body.app-v3 .comic-intro-shell.full-bleed.has-stage .comic-intro-bottom-card {
+  position: relative;
+  z-index: 2;
+}
+
+/* PREVIEW MODAL -------------------------------------------- */
+body.app-v3 .rp-preview-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 14px;
+  background: rgba(7, 14, 26, .58);
+  backdrop-filter: blur(4px);
+}
+
+body.app-v3 .rp-preview-modal {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 460px;
+  max-height: calc(100% - 28px);
+  border-radius: 18px;
+  background: #ffffff;
+  box-shadow: 0 28px 60px rgba(0, 0, 0, .45);
+  overflow: hidden;
+}
+
+body.app-v3 .rp-preview-modal-head {
+  position: relative;
+  padding: 14px 44px 12px 16px;
+  border-bottom: 1px solid rgba(82, 105, 140, .14);
+  background: linear-gradient(180deg, #f7fbfc, #ffffff);
+}
+
+body.app-v3 .rp-preview-modal-eyebrow {
+  display: block;
+  color: #1f6470;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .04em;
+}
+
+body.app-v3 .rp-preview-modal-title {
+  display: block;
+  color: #243047;
+  font-size: 15px;
+  font-weight: 900;
+  margin-top: 2px;
+}
+
+body.app-v3 .rp-preview-modal-close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(36, 48, 71, .08);
+  color: #243047;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+body.app-v3 .rp-preview-modal-chat {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  margin: 0;
+  padding: 14px 12px 18px;
+  background:
+    radial-gradient(circle at 16% 0, rgba(255, 247, 220, .55), transparent 28%),
+    radial-gradient(circle at 90% 6%, rgba(220, 240, 255, .55), transparent 30%),
+    #eef2f5;
+}
+
+body.app-v3 .rp-preview-modal-footer {
+  padding: 12px 16px;
+  border-top: 1px solid rgba(82, 105, 140, .14);
+  background: #fff;
+}
+
+body.app-v3 .rp-preview-modal-footer .btn {
+  width: 100%;
+}
+
+/* ============================================================
+   V3 kana chart polish: 1-line footer + breathing room + home entry
+   ============================================================ */
+
+body.app-v3 .kana-chart-actions {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+}
+body.app-v3 .kana-chart-actions .btn {
+  flex: 1 1 0;
+  white-space: nowrap;
+  font-size: 13px;
+}
+
+/* Add left/right padding inside the chart so it doesn't kiss the shell edges */
+body.app-v3 .v3-kana-chart {
+  padding: 0 12px;
+}
+body.app-v3 .v3-kana-columns,
+body.app-v3 .v3-kana-row,
+body.app-v3 .v3-kana-chart-hero {
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+/* Home: quick entry link for the chart */
+body.app-v3 .home-kana-chart-link {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  width: 100%;
+  margin-top: 8px;
+  padding: 10px 12px;
+  border: 1px dashed rgba(40, 127, 142, .35);
+  border-radius: 12px;
+  background: rgba(223, 244, 248, .55);
+  color: #1f6470;
+  font-weight: 800;
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+}
+body.app-v3 .home-kana-chart-link .home-kana-chart-text {
+  flex: 1 1 auto;
+}
+body.app-v3 .home-kana-chart-link .home-kana-chart-arrow {
+  font-weight: 900;
+}
+body.app-v3 .home-kana-chart-link:hover {
+  background: rgba(223, 244, 248, .8);
+}
+
+/* ============================================================
+   V3 quiz: bigger question card
+   ============================================================ */
+body.app-v3 .quiz-question {
+  min-height: 180px;
+  padding: 22px 18px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 10px;
+}
+body.app-v3 .quiz-question .quiz-q-text {
+  font-size: 28px;
+  font-weight: 800;
+  line-height: 1.35;
+}
+body.app-v3 .quiz-question .quiz-q-text.quiz-q-listen {
+  min-height: 64px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+body.app-v3 .quiz-question .quiz-q-type {
+  font-size: 12px;
+  font-weight: 700;
+  color: #4f5f75;
+}
+
+/* ============================================================
+   V3 kana primer mascot + quiz result mascot
+   ============================================================ */
+body.app-v3 .kana-quiz-primer.has-mascot {
+  position: relative;
+  overflow: hidden;
+  min-height: 100%;
+}
+body.app-v3 .kana-quiz-primer-mascot {
+  position: absolute;
+  right: -18px;
+  bottom: -10px;
+  width: 42%;
+  max-width: 200px;
+  height: auto;
+  opacity: .92;
+  pointer-events: none;
+  filter: drop-shadow(0 6px 12px rgba(0,0,0,.18));
+  animation: v3-char-idle 4.4s ease-in-out infinite;
+}
+body.app-v3 .kana-quiz-primer-tip {
+  position: absolute;
+  left: 14px;
+  bottom: 12px;
+  max-width: 50%;
+  padding: 8px 12px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, .92);
+  border: 1px solid rgba(82, 105, 140, .18);
+  box-shadow: 0 8px 16px rgba(35, 47, 66, .12);
+  font-size: 12px;
+  color: #243047;
+}
+body.app-v3 .kana-quiz-primer-tip b {
+  display: block;
+  margin-bottom: 2px;
+  color: #1f6470;
+  font-weight: 800;
+}
+body.app-v3 .kana-quiz-primer-grid {
+  padding-bottom: 130px;
+}
+
+body.app-v3 .score-screen.has-mascot {
+  position: relative;
+  overflow: hidden;
+  padding-right: 100px;
+}
+body.app-v3 .score-mascot {
+  position: absolute;
+  right: -16px;
+  bottom: -6px;
+  width: 44%;
+  max-width: 220px;
+  height: auto;
+  pointer-events: none;
+  filter: drop-shadow(0 8px 16px rgba(0,0,0,.18));
+}
+
+/* ============================================================
+   V3 kana card: narrower side padding + character header
+   ============================================================ */
+body.app-v3 .kana-card-stack {
+  padding: 0 4px;
+}
+body.app-v3 .kana-card {
+  width: 100%;
+  max-width: none;
+}
+body.app-v3 .kana-card-inner {
+  padding: 14px 12px;
+}
+body.app-v3 .kana-tip-main {
+  position: relative;
+  padding-left: 50px;
+  background:
+    url('/images/v3-cute/characters/variants/mayu-cafe_staff-default.webp') left center / 42px auto no-repeat,
+    var(--card2, #f7fbff);
+  border-radius: 12px;
+  min-height: 64px;
+}
+body.app-v3 .kana-tip-label {
+  color: #1f6470;
+  font-weight: 800;
+}
+body.app-v3 .kana-stroke-title {
+  font-weight: 800;
+  color: #1f6470;
+}

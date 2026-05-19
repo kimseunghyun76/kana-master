@@ -220,8 +220,14 @@ window.createLectureFlow = (ctx) => {
     flow._lecture = { slides, idx: 0, paused: false, stepIndex, mod, step, timerId: null };
     // v3는 일본어 강의 + 한국어 자막을 기본값으로 둔다.
     Store.setSetting('lectureCaptionShow', Store.getSetting('lectureCaptionShow') === 'jp' ? 'jp' : 'ko');
-    // 강사 선택 화면 항상 표시 — 이전 선택은 "최근" 배지로 강조
-    _renderInstructorPickInline(mod, slides[0]);
+    // 강사/모드는 이전 선택을 그대로 사용한다. 첫 진입에만 안전 기본값을 둔다.
+    if (!Store.getSetting('lectureInstructor')) {
+      Store.setSetting('lectureInstructor', japaneseOnlyInstructor ? 'jp' : 'ko');
+    }
+    if (!Store.getSetting('lectureBoardFont')) {
+      Store.setSetting('lectureBoardFont', 'chalk');
+    }
+    _lectureRenderSlide();
   }
 
   // 강사 + 성우 + 모드 통합 선택 화면 — 큰 카드 디자인

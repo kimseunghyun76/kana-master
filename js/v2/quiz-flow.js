@@ -104,7 +104,7 @@ window.createQuizFlow = (ctx) => {
     const typeLabel = (step.title || level?.name || '가나 퀴즈').replace(/^[🎯📝\s]+/, '');
     ctx.updateFlowProgress(stepIndex, mod.steps.length, step.title);
     document.getElementById('flowBody').innerHTML = `
-      <div class="kana-quiz-primer">
+      <div class="kana-quiz-primer has-mascot">
         <div class="kana-quiz-primer-head">
           <div>
             <div class="kana-quiz-primer-kicker">퀴즈 전 30초 복습</div>
@@ -123,6 +123,11 @@ window.createQuizFlow = (ctx) => {
               </button>
             `;
           }).join('')}
+        </div>
+        <img class="kana-quiz-primer-mascot" src="/images/v3-cute/characters/variants/nanami-tourist-spring.webp" alt="" aria-hidden="true">
+        <div class="kana-quiz-primer-tip">
+          <b>30초 동안 한 번씩</b>
+          <span>읽어 보고, 들어 본 다음 퀴즈로 가요.</span>
         </div>
       </div>
     `;
@@ -658,10 +663,12 @@ window.createQuizFlow = (ctx) => {
       ctx.updateFlowProgress(stepIndex, mod.steps.length, step.title);
       document.getElementById('flowBody').innerHTML = `
         ${ctx.renderQuizHud(qIdx + 1, fq.questions.length, correct, wrong)}
-        <div class="quiz-question">
+        <div class="quiz-question ${mode === 'listen' ? 'quiz-question-listen' : ''}">
           <div class="quiz-q-type">${questionType}</div>
           <div class="quiz-q-text ${mode === 'listen' ? 'quiz-q-listen' : ''}">${questionText}</div>
-          <button class="quiz-audio-btn" onclick="TTS.speak('${jpSafe}')">${ctx.uiLabeledIcon('audio', 'quiz-audio-icon')} ${mode === 'listen' ? '다시 듣기' : '발음 듣기'}</button>
+          ${mode === 'listen'
+            ? `<button class="quiz-audio-btn" onclick="TTS.speak('${jpSafe}')">${ctx.uiLabeledIcon('audio', 'quiz-audio-icon')} 다시 듣기</button>`
+            : ''}
         </div>
         <div class="quiz-choices">
           ${choices.map((ch, i) => `
@@ -754,7 +761,7 @@ window.createQuizFlow = (ctx) => {
       _autoNextTimer = setTimeout(() => {
         const btn = document.getElementById('btnNextQ');
         if (btn && !btn.classList.contains('hidden')) _vocabQuizNext();
-      }, 250);
+      }, 3000);
     } else {
       if (btnNext) btnNext.innerHTML = '다음 →';
     }

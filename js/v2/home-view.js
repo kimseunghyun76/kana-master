@@ -130,6 +130,13 @@ window.createHomeView = (ctx) => {
       <div class="home-step-guide ${compact ? 'compact' : ''}">
         <div class="home-step-guide-title">${gameUi ? '바로 학습하기' : '원하는 방식으로 바로 시작'}</div>
         <div class="home-step-guide-grid">${cards}</div>
+        ${gameUi && typeof window.App?._openKanaChartStandalone === 'function' ? `
+          <button class="home-kana-chart-link" type="button" onclick="App._openKanaChartStandalone()">
+            <span class="home-kana-chart-icon">📋</span>
+            <span class="home-kana-chart-text">오십음도 빠른 보기</span>
+            <span class="home-kana-chart-arrow">→</span>
+          </button>
+        ` : ''}
       </div>
     `;
   }

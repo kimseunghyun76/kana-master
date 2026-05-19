@@ -89,9 +89,18 @@ function createQuizResultFlow(ctx) {
       setTimeout(() => TTS.speak(stripFuri(res.jp)), 600);
     }
 
+    // Pick a speaker-character variant matching the tier so result feels
+    // staged rather than a bare info card.
+    const mascots = passed
+      ? ['/images/v3-cute/characters/variants/nanami-tourist-spring.webp',
+         '/images/v3-cute/characters/variants/aoi-tourist-summer.webp']
+      : ['/images/v3-cute/characters/variants/nanami-tourist-autumn.webp',
+         '/images/v3-cute/characters/variants/aoi-tourist-winter.webp'];
+    const mascotSrc = mascots[Math.floor(Math.random() * mascots.length)];
     document.getElementById('flowBody').innerHTML = `
-      <div class="score-screen fanfare-burst ${passed ? 'score-screen-passed' : ''}">
+      <div class="score-screen fanfare-burst ${passed ? 'score-screen-passed' : ''} has-mascot">
         ${passed ? '<div class="score-fanfare-ring score-fanfare-ring-a"></div><div class="score-fanfare-ring score-fanfare-ring-b"></div>' : ''}
+        <img class="score-mascot" src="${mascotSrc}" alt="" aria-hidden="true">
         <div class="score-emoji">${ctx.uiIconSvg(res.icon, 'score-tier-icon')}</div>
         <div class="score-title">${res.title}</div>
         <div class="score-exclamation">${ruby(res.jp)}</div>

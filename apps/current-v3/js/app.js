@@ -430,10 +430,26 @@ window.App = (() => {
       </section>
     `;
 
+    const isStandalone = stepIndex < 0;
     document.getElementById('flowFooter').innerHTML = `
-      <button class="btn btn-outline" onclick="App._startFlowFromStep('${mod.id}', ${Math.max(0, stepIndex - 1)})">← 강의 다시 보기</button>
-      <button class="btn btn-primary" onclick="App._completeKanaChart(${stepIndex})">표 구조 이해했어 →</button>
+      <div class="kana-chart-actions">
+        ${isStandalone
+          ? `<button class="btn btn-outline" type="button" onclick="App.closeFlow()">← 닫기</button>
+             <button class="btn btn-primary" type="button" onclick="App.closeFlow()">확인</button>`
+          : `<button class="btn btn-outline" type="button" onclick="App._startFlowFromStep('${mod.id}', ${Math.max(0, stepIndex - 1)})">← 강의</button>
+             <button class="btn btn-primary" type="button" onclick="App._completeKanaChart(${stepIndex})">이해했어 →</button>`}
+      </div>
     `;
+  }
+
+  function _openKanaChartStandalone() {
+    // Anywhere-accessible quick reference. Uses a virtual module so the
+    // existing flow renderer can host the chart without polluting curriculum.
+    const dummy = { id: '_quick_kana_chart', name: '오십음도', steps: [{ type: 'kana_chart', title: '오십음도' }] };
+    _flow = { moduleId: dummy.id, step: 0, _virtMod: dummy };
+    document.getElementById('flowScreen')?.classList.add('open');
+    document.getElementById('flowTitle').textContent = '오십음도';
+    _renderKanaChart(dummy, dummy.steps[0], -1);
   }
 
   function _kanaChartSpeak(char) {
@@ -657,6 +673,8 @@ window.App = (() => {
   function _speakDialogueLine(lineId) { return _roleplayFlow.speakLine(lineId); }
   function _speakDialogueLineSlow(lineId) { return _roleplayFlow.speakLineSlow(lineId); }
   function _startRoleplay(mod) { return _roleplayFlow.startRoleplay(mod); }
+  function _showRoleplayPreviewModal() { return _roleplayFlow.showPreviewModal(); }
+  function _hideRoleplayPreviewModal() { return _roleplayFlow.hidePreviewModal(); }
   function _replayAll(moduleId, startIndex = 0) { return _roleplayFlow.replayAll(moduleId, startIndex); }
   function _replayRoleplayCurrentTurn() { return _roleplayFlow.replayCurrentTurn(); }
   function _stopRoleplay() { return _roleplayFlow.stopRoleplay(); }
@@ -1117,6 +1135,9 @@ window.App = (() => {
     _getMod,
     _showVocabSummary,
     _showRoleplaySummary,
+    _showRoleplayPreviewModal,
+    _hideRoleplayPreviewModal,
+    _openKanaChartStandalone,
     _finalizeRoleplay,
     // 획순 애니메이션
     _showStrokePanel,

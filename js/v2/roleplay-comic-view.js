@@ -261,9 +261,16 @@ window.createRoleplayComicView = (ctx, deps) => {
           `).join('')}
         </div>`
       : '';
+    // Intro now stages the full-body characters in the bg (no speech
+    // bubbles at this phase), with the scene-info card pinned at the
+    // bottom. The primary CTA jumps straight into the playback; the
+    // preview is moved into a modal accessible from a secondary button.
     document.getElementById('flowBody').innerHTML = `
-      <div class="comic-intro-shell full-bleed" style="--roleplay-hero-bg:url('${ctx.cssUrlValue(roleplayCover)}')">
+      <div class="comic-intro-shell full-bleed has-stage" style="--roleplay-hero-bg:url('${ctx.cssUrlValue(roleplayCover)}')">
         <div class="comic-intro-bg" aria-hidden="true"></div>
+        <div class="comic-intro-stage" aria-hidden="false">
+          ${renderCharacters(dialogues, 'vn-character intro-character', mod)}
+        </div>
         <div class="comic-intro-bottom-card">
           <div class="comic-intro-label">${locked ? '장면 소개' : '역할과 화자 선택'}</div>
           ${locked ? `
@@ -278,8 +285,42 @@ window.createRoleplayComicView = (ctx, deps) => {
     `;
     document.getElementById('flowFooter').innerHTML = `
       <div class="roleplay-actions comic-intro-actions">
-        <button class="btn btn-outline" onclick="App.closeFlow()">나중에</button>
-        <button class="btn btn-primary" onclick="App._startRoleplayComicPlayer()">대화 미리보기 →</button>
+        <button class="btn btn-outline" type="button" onclick="App._showRoleplayPreviewModal()">대화 미리보기</button>
+        <button class="btn btn-primary" type="button" onclick="App._startRoleplayComicPlayback()">롤플레이 시작 →</button>
+      </div>
+    `;
+  }
+
+  function renderPreviewModal(mod, rp, dialogues, comicSceneAsset) {
+    const lines = (dialogues || []).filter(line => line.speaker !== 'N');
+    const chatHtml = lines.map(line => {
+      const side = line.speaker === 'A' ? 'me' : 'other';
+      const avatar = `<span class="kt-avatar" style="background-image:url('${ctx.cssUrlValue(roleImage(line.speaker, mod, 'face'))}')" aria-hidden="true"></span>`;
+      return `
+        <li class="kt-row ${side} speaker-${line.speaker}">
+          ${avatar}
+          <button class="kt-bubble" type="button" onclick="App.showDialogueDetail('${line.id}')">
+            <span class="kt-jp">${ruby(line.japanese || '')}</span>
+            <span class="kt-ko">${escHtml(line.korean || '')}</span>
+          </button>
+        </li>
+      `;
+    }).join('');
+    return `
+      <div class="rp-preview-modal-backdrop" id="rpPreviewModal" onclick="if(event.target===this) App._hideRoleplayPreviewModal()">
+        <div class="rp-preview-modal" role="dialog" aria-modal="true" aria-label="대화 미리보기">
+          <header class="rp-preview-modal-head">
+            <span class="rp-preview-modal-eyebrow">대화 미리보기</span>
+            <b class="rp-preview-modal-title">${escHtml(introTitle(mod, rp, dialogues))}</b>
+            <button class="rp-preview-modal-close" type="button" onclick="App._hideRoleplayPreviewModal()" aria-label="닫기">×</button>
+          </header>
+          <ul class="kt-chat rp-preview-modal-chat" aria-label="대화 미리보기">
+            ${chatHtml}
+          </ul>
+          <footer class="rp-preview-modal-footer">
+            <button class="btn btn-primary" type="button" onclick="App._hideRoleplayPreviewModal(); App._startRoleplayComicPlayback();">롤플레이 시작 →</button>
+          </footer>
+        </div>
       </div>
     `;
   }
@@ -360,17 +401,26 @@ window.createRoleplayComicView = (ctx, deps) => {
     const speakerLabel = roleLabel(activeLine.speaker) || activeLine.speaker || '';
     state.phase = 'comic_practice';
     state.comicPanelIndex = panelIndex;
-    document.getElementById('flowStep').textContent = `말하기 · ${activeIndex + 1}/${practiceLines.length} · ${escHtml(speakerLabel)}`;
+    document.getElementById('flowStep').textContent = `한 문장씩 따라 읽기 · ${activeIndex + 1}/${practiceLines.length} · ${escHtml(speakerLabel)}`;
     document.getElementById('flowProgressFill').style.width = `${55 + Math.round(((activeIndex + 1) / practiceLines.length) * 40)}%`;
-    document.getElementById('flowBody').innerHTML = `
-      <div class="comic-player-shell comic-practice-shell no-script-dock" style="--comic-bg:url('${ctx.cssUrlValue(comicSceneAsset)}')">
-        ${renderFrameHtml(dialogues, panelIndex, activeLine.sourceIndex, mod)}
-      </div>
-    `;
+    // No-flicker: if shell already exists, only swap the frame in place.
+    const existingShell = document.querySelector('.comic-player-shell.comic-practice-shell.no-script-dock');
+    if (existingShell) {
+      const oldFrame = existingShell.querySelector('#comicVisualFrame');
+      const tmp = document.createElement('div');
+      tmp.innerHTML = renderFrameHtml(dialogues, panelIndex, activeLine.sourceIndex, mod);
+      if (oldFrame && tmp.firstElementChild) oldFrame.replaceWith(tmp.firstElementChild);
+    } else {
+      document.getElementById('flowBody').innerHTML = `
+        <div class="comic-player-shell comic-practice-shell no-script-dock" style="--comic-bg:url('${ctx.cssUrlValue(comicSceneAsset)}')">
+          ${renderFrameHtml(dialogues, panelIndex, activeLine.sourceIndex, mod)}
+        </div>
+      `;
+    }
     document.getElementById('flowFooter').innerHTML = `
       <div class="comic-player-actions">
         <button class="btn btn-outline" onclick="App._roleplayComicPracticePrev()" ${activeIndex === 0 ? 'disabled' : ''}>← 이전</button>
-        <button class="btn btn-outline" onclick="App._speakDialogueLine('${activeLine.id}')">${ctx.uiLabeledIcon('audio')} 모범 듣기</button>
+        <button class="btn btn-outline" onclick="App._speakDialogueLine('${activeLine.id}')">${ctx.uiLabeledIcon('audio')} 다시 듣기</button>
         <button class="btn btn-primary" onclick="App._roleplayComicPracticeNext()">말했어요 →</button>
       </div>
     `;
@@ -400,6 +450,7 @@ window.createRoleplayComicView = (ctx, deps) => {
     speakerRoles,
     renderIntro,
     renderPreview,
+    renderPreviewModal,
     renderPlayer,
     renderPractice,
     rerenderPlayerShell,
