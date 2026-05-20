@@ -15,6 +15,7 @@ node_modules/
 
 # Claude scheduling state
 .claude/scheduled_tasks.lock
+.claude/worktrees/
 
 # Logs
 *.log
