@@ -1,5 +1,5 @@
 /* ============================================================
-   V3 STORE — Progress & State Management
+   STORE — Progress & State Management (v3 전용)
    chrome.storage.local 저장 + in-memory reactive store
    ============================================================ */
 

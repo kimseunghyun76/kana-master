@@ -42,6 +42,17 @@ function resolveExistingPath(requestPath) {
   return path.join(BASE, requestPath);
 }
 
+// 캐시 정책: 불변 에셋(mp3, svg, webp, 폰트)은 1년, JS/CSS는 no-cache(항상 재검증), manifest.json은 no-store
+const IMMUTABLE_EXTS = new Set(['.mp3', '.wav', '.svg', '.webp', '.png', '.woff2', '.woff', '.ico']);
+const NO_CACHE_EXTS  = new Set(['.js', '.css', '.html']);
+
+function getCacheControl(filePath, ext) {
+  if (filePath.endsWith('manifest.json')) return 'no-store';
+  if (IMMUTABLE_EXTS.has(ext)) return 'public, max-age=31536000, immutable';
+  if (NO_CACHE_EXTS.has(ext)) return 'no-cache';
+  return 'public, max-age=3600';
+}
+
 const server = http.createServer((req, res) => {
   let urlPath = req.url.split('?')[0];
   try {
@@ -71,6 +82,7 @@ const server = http.createServer((req, res) => {
       'Content-Type': MIME[ext] || 'application/octet-stream',
       // PWA Service Worker: 같은 출처에서만 등록 허용
       'Service-Worker-Allowed': '/',
+      'Cache-Control': getCacheControl(filePath, ext),
     };
     res.writeHead(200, headers);
     res.end(data);

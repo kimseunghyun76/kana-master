@@ -1,4 +1,4 @@
-# 가나 학습 (Kana Master) — 프로젝트 가이드
+# 가나 학습 (KANA QUEST v3) — 프로젝트 가이드
 
 ## ⚠️ 음성 재생성이 필요한 변경 (필수)
 
@@ -38,8 +38,8 @@ npm run audio:all
 ## 아키텍처 핵심
 
 ```
-js/v2/tts.js             # 사전 mp3 우선, Web Speech 폴백
-js/v2/lecture-flow.js    # 강의: 슬라이드당 단일 mp3 (가갭리스 재생)
+js/v2/tts.js             # 사전 mp3 우선, Web Speech 폴백 (v3 공유 엔진)
+js/v2/lecture-flow.js    # 강의: 슬라이드당 단일 mp3 (가갭리스 재생) (v3 공유 엔진)
 public/audio/manifest.json  # voices, items, textIndex, lectures 매핑
 public/audio/{voice}/{id}.mp3  # 화자별 mp3
 public/strokes/{hex}.svg     # KanjiVG 사전 다운로드 (네트워크 호출 0)
