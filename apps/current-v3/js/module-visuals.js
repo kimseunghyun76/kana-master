@@ -11,48 +11,89 @@ window.ModuleVisuals = (() => {
     return list[Math.floor(Math.random() * list.length)];
   };
 
+  const isPortraitViewport = () => Number(window.innerHeight || 0) > Number(window.innerWidth || 0);
+  const orientedPick = ({ landscape, portrait }, seed) => pick(isPortraitViewport() ? (portrait || landscape) : landscape, seed);
+  const STREET = {
+    landscape: [
+      'images/v3/backgrounds/landscape/wide-life/tourist-street/default.webp',
+      'images/v3/backgrounds/landscape/wide-life/tourist-street/street-cafe-01.webp',
+      'images/v3/backgrounds/landscape/wide-life/tourist-street/street-cafe-02.webp',
+    ],
+    portrait: [
+      'images/v3/backgrounds/portrait/wide-life/tourist-street/street-cafe-portrait-01.webp',
+      'images/v3/backgrounds/portrait/wide-life/tourist-street/street-cafe-portrait-02.webp',
+    ],
+  };
+  const STATION = {
+    landscape: [
+      'images/v3/backgrounds/landscape/wide-life/station-platform/default.webp',
+      'images/v3/backgrounds/landscape/wide-life/station-plaza/station-bus-01.webp',
+      'images/v3/backgrounds/landscape/wide-life/station-plaza/station-bus-02.webp',
+    ],
+    portrait: [
+      'images/v3/backgrounds/portrait/wide-life/station-plaza/station-konbini-portrait-01.webp',
+      'images/v3/backgrounds/portrait/wide-life/station-plaza/station-konbini-portrait-02.webp',
+    ],
+  };
+  const FOOD = {
+    landscape: [
+      'images/v3/backgrounds/landscape/wide-life/cafe-restaurant/default.webp',
+      'images/v3/backgrounds/landscape/wide-life/tourist-street/street-cafe-01.webp',
+      'images/v3/backgrounds/landscape/wide-life/tourist-street/street-cafe-02.webp',
+    ],
+    portrait: STREET.portrait,
+  };
+  const SHOP = {
+    landscape: [
+      'images/v3/backgrounds/landscape/wide-life/clothing-store/default.webp',
+      'images/v3/backgrounds/landscape/wide-life/tourist-street/street-cafe-01.webp',
+      'images/v3/backgrounds/landscape/wide-life/tourist-street/street-cafe-02.webp',
+    ],
+    portrait: STREET.portrait,
+  };
+
   window.V3GameAssets = {
-    home: pick(['images/v3/backgrounds/landscape/wide-life/tourist-street/default.webp', 'images/v3/backgrounds/landscape/wide-life/tourist-street/street-cafe-01.webp', 'images/v3/backgrounds/landscape/wide-life/tourist-street/street-cafe-02.webp'], 'home'),
+    home: orientedPick(STREET, 'home'),
     airport: 'images/v3/backgrounds/landscape/wide-life/airport-checkin/default.webp',
     airplane: 'images/v3/backgrounds/landscape/wide-life/airplane-cabin/default.webp',
-    bus: pick(['images/v3/backgrounds/landscape/wide-life/bus-stop/default.webp', 'images/v3/backgrounds/landscape/wide-life/station-plaza/station-bus-01.webp', 'images/v3/backgrounds/landscape/wide-life/station-plaza/station-bus-02.webp'], 'bus'),
+    bus: orientedPick({ landscape: ['images/v3/backgrounds/landscape/wide-life/bus-stop/default.webp', ...STATION.landscape], portrait: STATION.portrait }, 'bus'),
     dutyFree: 'images/v3/backgrounds/landscape/wide-life/duty-free-shop/default.webp',
     hospital: 'images/v3/backgrounds/landscape/wide-life/hospital-reception/default.webp',
     immigration: 'images/v3/backgrounds/landscape/wide-life/immigration-booth/default.webp',
     koban: 'images/v3/backgrounds/landscape/wide-life/koban-lost-found/default.webp',
-    transit: pick(['images/v3/backgrounds/landscape/wide-life/station-platform/default.webp', 'images/v3/backgrounds/landscape/wide-life/station-plaza/station-bus-01.webp', 'images/v3/backgrounds/landscape/wide-life/station-plaza/station-bus-02.webp'], 'transit'),
+    transit: orientedPick(STATION, 'transit'),
     taxi: 'images/v3/backgrounds/landscape/wide-life/rentacar-taxi/default.webp',
-    shop: pick(['images/v3/backgrounds/landscape/wide-life/clothing-store/default.webp', 'images/v3/backgrounds/landscape/wide-life/tourist-street/street-cafe-01.webp', 'images/v3/backgrounds/landscape/wide-life/tourist-street/street-cafe-02.webp'], 'shop'),
-    food: pick(['images/v3/backgrounds/landscape/wide-life/cafe-restaurant/default.webp', 'images/v3/backgrounds/landscape/wide-life/tourist-street/street-cafe-01.webp', 'images/v3/backgrounds/landscape/wide-life/tourist-street/street-cafe-02.webp'], 'food'),
+    shop: orientedPick(SHOP, 'shop'),
+    food: orientedPick(FOOD, 'food'),
     izakaya: 'images/v3/backgrounds/landscape/wide-life/izakaya/default.webp',
     konbini: 'images/v3/backgrounds/landscape/wide-life/konbini-checkout/default.webp',
     hotel: 'images/v3/backgrounds/landscape/wide-life/hotel-lobby/default.webp',
     onsen: 'images/v3/backgrounds/landscape/wide-life/onsen-ryokan/default.webp',
     trouble: 'images/v3/backgrounds/landscape/wide-life/pharmacy-clinic/default.webp',
-    local: pick(['images/v3/backgrounds/landscape/wide-life/tourist-street/default.webp', 'images/v3/backgrounds/landscape/wide-life/tourist-street/street-cafe-01.webp', 'images/v3/backgrounds/landscape/wide-life/tourist-street/street-cafe-02.webp'], 'local'),
-    kanaDesk: pick(['images/v3/backgrounds/landscape/wide-life/tourist-street/default.webp', 'images/v3/backgrounds/landscape/wide-life/tourist-street/street-cafe-01.webp', 'images/v3/backgrounds/landscape/wide-life/tourist-street/street-cafe-02.webp'], 'kanaDesk'),
-    katakanaCafe: pick(['images/v3/backgrounds/landscape/wide-life/cafe-restaurant/default.webp', 'images/v3/backgrounds/landscape/wide-life/tourist-street/street-cafe-01.webp', 'images/v3/backgrounds/landscape/wide-life/tourist-street/street-cafe-02.webp'], 'katakanaCafe'),
-    greetingClass: pick(['images/v3/backgrounds/landscape/wide-life/tourist-street/default.webp', 'images/v3/backgrounds/landscape/wide-life/tourist-street/street-cafe-01.webp', 'images/v3/backgrounds/landscape/wide-life/tourist-street/street-cafe-02.webp'], 'greetingClass'),
-    mapHelp: pick(['images/v3/backgrounds/landscape/wide-life/tourist-street/default.webp', 'images/v3/backgrounds/landscape/wide-life/tourist-street/street-cafe-01.webp', 'images/v3/backgrounds/landscape/wide-life/tourist-street/street-cafe-02.webp'], 'mapHelp'),
-    introLobby: pick(['images/v3/backgrounds/landscape/wide-life/tourist-street/default.webp', 'images/v3/backgrounds/landscape/wide-life/tourist-street/street-cafe-01.webp', 'images/v3/backgrounds/landscape/wide-life/tourist-street/street-cafe-02.webp'], 'introLobby'),
-    stationTransfer: pick(['images/v3/backgrounds/landscape/wide-life/station-platform/default.webp', 'images/v3/backgrounds/landscape/wide-life/station-plaza/station-bus-01.webp', 'images/v3/backgrounds/landscape/wide-life/station-plaza/station-bus-02.webp'], 'stationTransfer'),
+    local: orientedPick(STREET, 'local'),
+    kanaDesk: orientedPick(STREET, 'kanaDesk'),
+    katakanaCafe: orientedPick(FOOD, 'katakanaCafe'),
+    greetingClass: orientedPick(STREET, 'greetingClass'),
+    mapHelp: orientedPick(STREET, 'mapHelp'),
+    introLobby: orientedPick(STREET, 'introLobby'),
+    stationTransfer: orientedPick(STATION, 'stationTransfer'),
     ryokanLobby: 'images/v3/backgrounds/landscape/wide-life/hotel-lobby/default.webp',
     kobanHelp: 'images/v3/backgrounds/landscape/wide-life/koban-lost-found/default.webp',
-    sightseeing: pick(['images/v3/backgrounds/landscape/wide-life/tourist-street/default.webp', 'images/v3/backgrounds/landscape/wide-life/tourist-street/street-cafe-01.webp', 'images/v3/backgrounds/landscape/wide-life/tourist-street/street-cafe-02.webp'], 'sightseeing'),
+    sightseeing: orientedPick(STREET, 'sightseeing'),
     counter: 'images/v3/backgrounds/landscape/wide-life/konbini-checkout/default.webp',
-    calendar: pick(['images/v3/backgrounds/landscape/wide-life/tourist-street/default.webp', 'images/v3/backgrounds/landscape/wide-life/tourist-street/street-cafe-01.webp', 'images/v3/backgrounds/landscape/wide-life/tourist-street/street-cafe-02.webp'], 'calendar'),
-    cityDirections: pick(['images/v3/backgrounds/landscape/wide-life/tourist-street/default.webp', 'images/v3/backgrounds/landscape/wide-life/tourist-street/street-cafe-01.webp', 'images/v3/backgrounds/landscape/wide-life/tourist-street/street-cafe-02.webp'], 'cityDirections'),
-    stationHelp: pick(['images/v3/backgrounds/landscape/wide-life/station-platform/default.webp', 'images/v3/backgrounds/landscape/wide-life/station-plaza/station-bus-01.webp', 'images/v3/backgrounds/landscape/wide-life/station-plaza/station-bus-02.webp'], 'stationHelp'),
-    dining: pick(['images/v3/backgrounds/landscape/wide-life/cafe-restaurant/default.webp', 'images/v3/backgrounds/landscape/wide-life/tourist-street/street-cafe-01.webp', 'images/v3/backgrounds/landscape/wide-life/tourist-street/street-cafe-02.webp'], 'dining'),
-    cafeCompare: pick(['images/v3/backgrounds/landscape/wide-life/cafe-restaurant/default.webp', 'images/v3/backgrounds/landscape/wide-life/tourist-street/street-cafe-01.webp', 'images/v3/backgrounds/landscape/wide-life/tourist-street/street-cafe-02.webp'], 'cafeCompare'),
-    cafeOrder: pick(['images/v3/backgrounds/landscape/wide-life/cafe-restaurant/default.webp', 'images/v3/backgrounds/landscape/wide-life/tourist-street/street-cafe-01.webp', 'images/v3/backgrounds/landscape/wide-life/tourist-street/street-cafe-02.webp'], 'cafeOrder'),
+    calendar: orientedPick(STREET, 'calendar'),
+    cityDirections: orientedPick(STREET, 'cityDirections'),
+    stationHelp: orientedPick(STATION, 'stationHelp'),
+    dining: orientedPick(FOOD, 'dining'),
+    cafeCompare: orientedPick(FOOD, 'cafeCompare'),
+    cafeOrder: orientedPick(FOOD, 'cafeOrder'),
     hotelFront: 'images/v3/backgrounds/landscape/wide-life/hotel-lobby/default.webp',
     clinic: 'images/v3/backgrounds/landscape/wide-life/pharmacy-clinic/default.webp',
-    foodScene: pick(['images/v3/backgrounds/landscape/wide-life/cafe-restaurant/default.webp', 'images/v3/backgrounds/landscape/wide-life/tourist-street/street-cafe-01.webp', 'images/v3/backgrounds/landscape/wide-life/tourist-street/street-cafe-02.webp'], 'foodScene'),
-    localScene: pick(['images/v3/backgrounds/landscape/wide-life/tourist-street/default.webp', 'images/v3/backgrounds/landscape/wide-life/tourist-street/street-cafe-01.webp', 'images/v3/backgrounds/landscape/wide-life/tourist-street/street-cafe-02.webp'], 'localScene'),
-    transitScene: pick(['images/v3/backgrounds/landscape/wide-life/station-platform/default.webp', 'images/v3/backgrounds/landscape/wide-life/station-plaza/station-bus-01.webp', 'images/v3/backgrounds/landscape/wide-life/station-plaza/station-bus-02.webp'], 'transitScene'),
+    foodScene: orientedPick(FOOD, 'foodScene'),
+    localScene: orientedPick(STREET, 'localScene'),
+    transitScene: orientedPick(STATION, 'transitScene'),
     airportScene: 'images/v3/backgrounds/landscape/wide-life/airport-checkin/default.webp',
-    shopScene: pick(['images/v3/backgrounds/landscape/wide-life/clothing-store/default.webp', 'images/v3/backgrounds/landscape/wide-life/tourist-street/street-cafe-01.webp', 'images/v3/backgrounds/landscape/wide-life/tourist-street/street-cafe-02.webp'], 'shopScene'),
+    shopScene: orientedPick(SHOP, 'shopScene'),
     hotelScene: 'images/v3/backgrounds/landscape/wide-life/hotel-lobby/default.webp',
     troubleScene: 'images/v3/backgrounds/landscape/wide-life/pharmacy-clinic/default.webp',
   };

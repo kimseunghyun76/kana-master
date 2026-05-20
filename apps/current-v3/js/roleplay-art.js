@@ -176,10 +176,20 @@
     return value[Math.floor(Math.random() * value.length)];
   };
 
+  const isPortraitViewport = () => {
+    if (typeof window === 'undefined') return false;
+    return Number(window.innerHeight || 0) > Number(window.innerWidth || 0);
+  };
+
+  const orientedVariant = ({ landscape, portrait }) => {
+    const variants = isPortraitViewport() ? (portrait || landscape) : landscape;
+    return randomVariant(variants);
+  };
+
   const roleVariant = (identity, role, season = CURRENT_SEASON) => {
     const variants = CHARACTER_VARIANTS[identity.key] || {};
     const byRole = variants[role] || {};
-    return selectVariant(byRole[season] || byRole.default, `${identity.key}:${role}:${season}`) || identity.body;
+    return randomVariant(byRole[season] || byRole.default) || identity.body;
   };
 
   const character = (identity, role = 'tourist', opts = {}) => ({
@@ -200,32 +210,56 @@
     hospital: 'images/v3/backgrounds/landscape/wide-life/hospital-reception/default.webp',
     immigration: 'images/v3/backgrounds/landscape/wide-life/immigration-booth/default.webp',
     koban: 'images/v3/backgrounds/landscape/wide-life/koban-lost-found/default.webp',
-    transit: randomVariant([
-      'images/v3/backgrounds/landscape/wide-life/station-platform/default.webp',
-      'images/v3/backgrounds/landscape/wide-life/station-plaza/station-bus-01.webp',
-      'images/v3/backgrounds/landscape/wide-life/station-plaza/station-bus-02.webp',
-    ]),
+    transit: orientedVariant({
+      landscape: [
+        'images/v3/backgrounds/landscape/wide-life/station-platform/default.webp',
+        'images/v3/backgrounds/landscape/wide-life/station-plaza/station-bus-01.webp',
+        'images/v3/backgrounds/landscape/wide-life/station-plaza/station-bus-02.webp',
+      ],
+      portrait: [
+        'images/v3/backgrounds/portrait/wide-life/station-plaza/station-konbini-portrait-01.webp',
+        'images/v3/backgrounds/portrait/wide-life/station-plaza/station-konbini-portrait-02.webp',
+      ],
+    }),
     taxi: 'images/v3/backgrounds/landscape/wide-life/rentacar-taxi/default.webp',
     konbini: 'images/v3/backgrounds/landscape/wide-life/konbini-checkout/default.webp',
-    food: randomVariant([
-      'images/v3/backgrounds/landscape/wide-life/cafe-restaurant/default.webp',
-      'images/v3/backgrounds/landscape/wide-life/tourist-street/street-cafe-01.webp',
-      'images/v3/backgrounds/landscape/wide-life/tourist-street/street-cafe-02.webp',
-    ]),
+    food: orientedVariant({
+      landscape: [
+        'images/v3/backgrounds/landscape/wide-life/cafe-restaurant/default.webp',
+        'images/v3/backgrounds/landscape/wide-life/tourist-street/street-cafe-01.webp',
+        'images/v3/backgrounds/landscape/wide-life/tourist-street/street-cafe-02.webp',
+      ],
+      portrait: [
+        'images/v3/backgrounds/portrait/wide-life/tourist-street/street-cafe-portrait-01.webp',
+        'images/v3/backgrounds/portrait/wide-life/tourist-street/street-cafe-portrait-02.webp',
+      ],
+    }),
     izakaya: 'images/v3/backgrounds/landscape/wide-life/izakaya/default.webp',
-    shop: randomVariant([
-      'images/v3/backgrounds/landscape/wide-life/clothing-store/default.webp',
-      'images/v3/backgrounds/landscape/wide-life/tourist-street/street-cafe-01.webp',
-      'images/v3/backgrounds/landscape/wide-life/tourist-street/street-cafe-02.webp',
-    ]),
+    shop: orientedVariant({
+      landscape: [
+        'images/v3/backgrounds/landscape/wide-life/clothing-store/default.webp',
+        'images/v3/backgrounds/landscape/wide-life/tourist-street/street-cafe-01.webp',
+        'images/v3/backgrounds/landscape/wide-life/tourist-street/street-cafe-02.webp',
+      ],
+      portrait: [
+        'images/v3/backgrounds/portrait/wide-life/tourist-street/street-cafe-portrait-01.webp',
+        'images/v3/backgrounds/portrait/wide-life/tourist-street/street-cafe-portrait-02.webp',
+      ],
+    }),
     hotel: 'images/v3/backgrounds/landscape/wide-life/hotel-lobby/default.webp',
     onsen: 'images/v3/backgrounds/landscape/wide-life/onsen-ryokan/default.webp',
     trouble: 'images/v3/backgrounds/landscape/wide-life/pharmacy-clinic/default.webp',
-    local: randomVariant([
-      'images/v3/backgrounds/landscape/wide-life/tourist-street/default.webp',
-      'images/v3/backgrounds/landscape/wide-life/tourist-street/street-cafe-01.webp',
-      'images/v3/backgrounds/landscape/wide-life/tourist-street/street-cafe-02.webp',
-    ]),
+    local: orientedVariant({
+      landscape: [
+        'images/v3/backgrounds/landscape/wide-life/tourist-street/default.webp',
+        'images/v3/backgrounds/landscape/wide-life/tourist-street/street-cafe-01.webp',
+        'images/v3/backgrounds/landscape/wide-life/tourist-street/street-cafe-02.webp',
+      ],
+      portrait: [
+        'images/v3/backgrounds/portrait/wide-life/tourist-street/street-cafe-portrait-01.webp',
+        'images/v3/backgrounds/portrait/wide-life/tourist-street/street-cafe-portrait-02.webp',
+      ],
+    }),
     fallbackAirport: 'images/v3/backgrounds/landscape/wide-life/airport-checkin/default.webp',
     fallbackTransit: 'images/v3/backgrounds/landscape/wide-life/station-plaza/station-bus-01.webp',
     fallbackFood: 'images/v3/backgrounds/landscape/wide-life/tourist-street/street-cafe-01.webp',
