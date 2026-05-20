@@ -182,8 +182,13 @@ function cleanKoForTTS(text) {
   if (!text) return '';
   let t = text;
   // 「JP(KO)」 또는 『JP(KO)』 → KO
+  // [신규] 「한글(JP참고...)」 → 한글만 강조 (괄호 안 일본어 참고는 제거)
+  t = t.replace(/「([^「」(]+?)\(([^)]*[぀-ヿ一-鿿][^)]*)\)」/g, EMPH_OPEN + '$1' + EMPH_CLOSE);
+  // [신규] 한글(JP참고...) — 브래킷 없는 변형
+  t = t.replace(/([가-힣][가-힣\w \-·ㆍ]*?)\s*\(([^)]*[぀-ヿ一-鿿][^)]*)\)/g, EMPH_OPEN + '$1' + EMPH_CLOSE);
+  // [구포맷 호환] 「JP(KO)」 또는 『JP(KO)』 → KO
   t = t.replace(/[「『][^」』]*[」』]\s*\(([^)]*[가-힣][^)]*)\)/g, EMPH_OPEN + '$1' + EMPH_CLOSE);
-  // JP(KO) — 괄호 안 한글만 남기고 강조
+  // [구포맷 호환] JP(KO) — 괄호 안 한글만 남기고 강조
   t = t.replace(/[぀-ヿ一-鿿々ー]+\s*\(([^)]*[가-힣][^)]*)\)/g, EMPH_OPEN + '$1' + EMPH_CLOSE);
   // 남은 일본어 글자(가나/한자) + 일본식 따옴표 제거
   t = t.replace(/[　-〿぀-ヿ一-鿿○●～~]+/g, '');
