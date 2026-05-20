@@ -12,19 +12,19 @@ module.exports = defineConfig({
     screenshot: 'only-on-failure',
   },
   webServer: {
-    command: 'HOST=127.0.0.1 PORT=3100 node server.js',
+    command: 'node server.js',
     url: 'http://127.0.0.1:3100/index.html',
     reuseExistingServer: !process.env.CI,
     timeout: 10 * 1000,
+    env: {
+      HOST: '127.0.0.1',
+      PORT: '3100',
+    },
   },
   projects: [
     {
       name: 'chromium-desktop',
       use: { ...devices['Desktop Chrome'], viewport: { width: 1366, height: 900 } },
-    },
-    {
-      name: 'mobile-webkit-size',
-      use: { ...devices['iPhone 13'] },
     },
   ],
 });

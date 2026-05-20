@@ -1214,7 +1214,7 @@ const MODULES = [
   {
     id: 'v3_health',
     stageId: 9,
-    accessTier: 'free',
+    accessTier: 'plus',
     name: '아플 때',
     nameJp: '体調が悪い時',
     icon: '💊',
@@ -1235,7 +1235,7 @@ const MODULES = [
   {
     id: 'v3_hospital',
     stageId: 9,
-    accessTier: 'free',
+    accessTier: 'plus',
     name: '병원 접수',
     nameJp: '病院受付',
     icon: '🏥',
@@ -1254,7 +1254,7 @@ const MODULES = [
   {
     id: 'v3_lost_and_help',
     stageId: 9,
-    accessTier: 'free',
+    accessTier: 'plus',
     name: '분실·도움 요청',
     nameJp: '忘れ物・助けて',
     icon: '🧰',
@@ -1276,7 +1276,7 @@ const MODULES = [
   {
     id: 'v3_rentacar',
     stageId: 10,
-    accessTier: 'free',
+    accessTier: 'plus',
     name: '렌트카',
     nameJp: 'レンタカー',
     icon: '🚗',
@@ -1295,7 +1295,7 @@ const MODULES = [
   {
     id: 'v3_tourist_spot',
     stageId: 10,
-    accessTier: 'free',
+    accessTier: 'plus',
     name: '관광지·사진',
     nameJp: '観光地と写真',
     icon: '📷',
@@ -1314,7 +1314,7 @@ const MODULES = [
   {
     id: 'v3_reservation_call',
     stageId: 10,
-    accessTier: 'free',
+    accessTier: 'plus',
     name: '예약 확인',
     nameJp: '予約確認',
     icon: '📅',
@@ -1333,7 +1333,7 @@ const MODULES = [
   {
     id: 'v3_weather_plan',
     stageId: 10,
-    accessTier: 'free',
+    accessTier: 'plus',
     name: '날씨·일정 변경',
     nameJp: '天気と予定変更',
     icon: '🌦️',
@@ -1352,7 +1352,7 @@ const MODULES = [
   {
     id: 'v3_polite_wrapup',
     stageId: 10,
-    accessTier: 'free',
+    accessTier: 'plus',
     name: '마무리·감사',
     nameJp: 'お礼と締め',
     icon: '🙏',
@@ -1372,7 +1372,7 @@ const MODULES = [
   {
     id: 'v3_drama_reactions',
     stageId: 11,
-    accessTier: 'free',
+    accessTier: 'plus',
     name: '드라마 리액션',
     nameJp: 'ドラマの反応',
     icon: '🎬',
@@ -1398,7 +1398,7 @@ const MODULES = [
   {
     id: 'v3_drama_daily',
     stageId: 11,
-    accessTier: 'free',
+    accessTier: 'plus',
     name: '드라마 일상 대사',
     nameJp: '日常セリフ',
     icon: '📺',
