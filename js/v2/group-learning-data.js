@@ -138,7 +138,7 @@ window.GROUP_LEARNING_SETS = [
     desc: '손으로 가리키듯 외우면 질문과 대답이 빨라지는 기본 대명사 묶음입니다.',
     pattern: 'こ=내 쪽, そ=상대 쪽, あ=먼 곳, ど=질문',
     icon: 'これ',
-    image: 'images/v3-generated/bg-home-street.webp',
+    image: 'images/v3/legacy/bg-home-street.webp',
     items: [
       { kanji: 'これ', jp: 'これ', ko: '이것' },
       { kanji: 'それ', jp: 'それ', ko: '그것' },
@@ -161,7 +161,7 @@ window.GROUP_LEARNING_SETS = [
     desc: '길, 시간, 가격, 사람, 이유를 물을 때 필요한 질문어입니다.',
     pattern: '질문어 + ですか / ありますか / 行きますか',
     icon: '何',
-    image: 'images/v3-generated/bg-station.webp',
+    image: 'images/v3/legacy/bg-station.webp',
     items: [
       { kanji: '何', jp: 'なに / なん', ko: '무엇' },
       { kanji: 'どこ', jp: 'どこ', ko: '어디' },
@@ -182,7 +182,7 @@ window.GROUP_LEARNING_SETS = [
     desc: '일본어를 길게 못해도 대화를 이어 주는 반응 표현입니다.',
     pattern: '짧게 듣고 바로 입으로 나와야 하는 안전장치',
     icon: 'はい',
-    image: 'images/v3-generated/bg-shop-cafe.webp',
+    image: 'images/v3/legacy/bg-shop-cafe.webp',
     items: [
       { kanji: 'はい', jp: 'はい', ko: '네' },
       { kanji: 'いいえ', jp: 'いいえ', ko: '아니요' },
@@ -203,7 +203,7 @@ window.GROUP_LEARNING_SETS = [
     desc: '아픈 부위와 증상을 짧게 말하기 위한 기본 묶음입니다.',
     pattern: '부위 + が痛いです / 증상 + があります',
     icon: '体',
-    image: 'images/v3-cute/bg-pharmacy-clinic-pastel.webp',
+    image: 'images/v3/bg-pharmacy-clinic-pastel.webp',
     items: [
       { kanji: '頭', jp: 'あたま', ko: '머리' },
       { kanji: '目', jp: 'め', ko: '눈' },
@@ -224,7 +224,7 @@ window.GROUP_LEARNING_SETS = [
     desc: '이동할 때 표지판과 안내방송에서 반복되는 단어입니다.',
     pattern: '장소 + まで / 교통수단 + で行きます',
     icon: '駅',
-    image: 'images/v3-generated/bg-station.webp',
+    image: 'images/v3/legacy/bg-station.webp',
     items: [
       { kanji: '空港', jp: 'くうこう', ko: '공항' },
       { kanji: '駅', jp: 'えき', ko: '역' },
@@ -245,7 +245,7 @@ window.GROUP_LEARNING_SETS = [
     desc: '가격 확인부터 결제 방식까지 자주 쓰는 말입니다.',
     pattern: 'これをください / カードでお願いします',
     icon: '円',
-    image: 'images/v3-generated/bg-shop-cafe.webp',
+    image: 'images/v3/legacy/bg-shop-cafe.webp',
     items: [
       { kanji: 'これ', jp: 'これ', ko: '이것' },
       { kanji: 'いくらですか', jp: 'いくらですか', ko: '얼마예요?' },
@@ -266,7 +266,7 @@ window.GROUP_LEARNING_SETS = [
     desc: '숙소에서 직원에게 묻거나 요청할 때 필요한 말입니다.',
     pattern: '予約しています / 何時からですか',
     icon: '宿',
-    image: 'images/v3-generated/bg-hotel-ryokan.webp',
+    image: 'images/v3/legacy/bg-hotel-ryokan.webp',
     items: [
       { kanji: '予約', jp: 'よやく', ko: '예약' },
       { kanji: 'チェックイン', jp: 'チェックイン', ko: '체크인' },
@@ -285,7 +285,7 @@ window.GROUP_LEARNING_SETS = [
     desc: '메뉴를 고르고 수량을 말하고 계산까지 이어지는 표현입니다.',
     pattern: 'これを一つお願いします / お会計お願いします',
     icon: '食',
-    image: 'images/v3-generated/bg-shop-cafe.webp',
+    image: 'images/v3/legacy/bg-shop-cafe.webp',
     items: [
       { kanji: 'メニュー', jp: 'メニュー', ko: '메뉴' },
       { kanji: 'おすすめ', jp: 'おすすめ', ko: '추천' },

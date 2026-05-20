@@ -386,7 +386,7 @@ window.App = (() => {
         </div>
         <p class="step-intro-tip">${escHtml(tip)}</p>
         <img class="step-intro-mascot"
-             src="/images/v3-cute/characters/variants/nanami-tourist-spring.webp"
+             src="/images/v3/characters/variants/nanami-tourist-spring.webp"
              alt="" aria-hidden="true">
       </div>
     `;

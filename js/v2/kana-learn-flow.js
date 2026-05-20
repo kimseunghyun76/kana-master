@@ -135,7 +135,7 @@ function createKanaLearnFlow(deps = {}) {
                 <div class="kana-back-head">
                   <div class="kana-back-coach">
                     <img class="kana-back-coach-face"
-                         src="/images/v3-cute/characters/variants/mayu-cafe_staff-default.webp"
+                         src="/images/v3/characters/variants/mayu-cafe_staff-default.webp"
                          alt="" aria-hidden="true">
                   </div>
                   ${info.tip ? `

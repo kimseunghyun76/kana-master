@@ -92,10 +92,10 @@ function createQuizResultFlow(ctx) {
     // Pick a speaker-character variant matching the tier so result feels
     // staged rather than a bare info card.
     const mascots = passed
-      ? ['/images/v3-cute/characters/variants/nanami-tourist-spring.webp',
-         '/images/v3-cute/characters/variants/aoi-tourist-summer.webp']
-      : ['/images/v3-cute/characters/variants/nanami-tourist-autumn.webp',
-         '/images/v3-cute/characters/variants/aoi-tourist-winter.webp'];
+      ? ['/images/v3/characters/variants/nanami-tourist-spring.webp',
+         '/images/v3/characters/variants/aoi-tourist-summer.webp']
+      : ['/images/v3/characters/variants/nanami-tourist-autumn.webp',
+         '/images/v3/characters/variants/aoi-tourist-winter.webp'];
     const mascotSrc = mascots[Math.floor(Math.random() * mascots.length)];
     const speech = passed
       ? (pct >= 90 ? '완벽해요! 다음 단계로 가요 ✨' : pct >= 70 ? '잘했어요! 살짝만 다듬어요 💪' : '통과! 한 번 더 복습하면 더 좋아요 🌱')

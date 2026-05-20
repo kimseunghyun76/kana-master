@@ -114,7 +114,7 @@ window.createQuizFlow = (ctx) => {
         </div>
         <button class="kana-quiz-primer-cta" type="button" onclick="App._startKanaQuizFromPrimer()" aria-label="복습 카드 열기">
           <div class="kana-quiz-primer-cta-mascot">
-            <img src="/images/v3-cute/characters/variants/nanami-tourist-spring.webp" alt="" aria-hidden="true">
+            <img src="/images/v3/characters/variants/nanami-tourist-spring.webp" alt="" aria-hidden="true">
           </div>
           <div class="kana-quiz-primer-cta-body">
             <div class="kana-quiz-primer-cta-bubble">
