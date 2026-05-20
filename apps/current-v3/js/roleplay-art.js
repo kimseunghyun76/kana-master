@@ -10,28 +10,48 @@
   const IDENTITIES = {
     nanami: {
       key: 'nanami',
-      body: 'images/v3/characters/akari-body.webp',
-      face: 'images/v3/characters/faces-mask/nanami-mask-face.webp',
+      body: 'images/v3/characters/speakers/nanami/body/base-legacy.webp',
+      face: [
+        'images/v3/characters/speakers/nanami/face/mic-01.webp',
+        'images/v3/characters/speakers/nanami/face/mic-02.webp',
+        'images/v3/characters/speakers/nanami/face/mic-03.webp',
+      ],
     },
     aoi: {
       key: 'aoi',
-      body: 'images/v3/characters/yuna-body.webp',
-      face: 'images/v3/characters/faces-mask/aoi-mask-face.webp',
+      body: 'images/v3/characters/speakers/aoi/body/base-legacy.webp',
+      face: [
+        'images/v3/characters/speakers/aoi/face/mic-01.webp',
+        'images/v3/characters/speakers/aoi/face/mic-02.webp',
+        'images/v3/characters/speakers/aoi/face/mic-03.webp',
+      ],
     },
     mayu: {
       key: 'mayu',
-      body: 'images/v3/characters/seasonal/mayu-realistic-base.webp',
-      face: 'images/v3/characters/faces-mask/mayu-mask-face.webp',
+      body: 'images/v3/characters/speakers/mayu/body/base-realistic.webp',
+      face: [
+        'images/v3/characters/speakers/mayu/face/mic-01.webp',
+        'images/v3/characters/speakers/mayu/face/mic-02.webp',
+        'images/v3/characters/speakers/mayu/face/mic-03.webp',
+      ],
     },
     keita: {
       key: 'keita',
-      body: 'images/v3/characters/takumi-body.webp',
-      face: 'images/v3/characters/faces-mask/keita-mask-face.webp',
+      body: 'images/v3/characters/speakers/keita/body/base-legacy.webp',
+      face: [
+        'images/v3/characters/speakers/keita/face/mic-01.webp',
+        'images/v3/characters/speakers/keita/face/mic-02.webp',
+        'images/v3/characters/speakers/keita/face/mic-03.webp',
+      ],
     },
     takumi: {
       key: 'takumi',
-      body: 'images/v3/characters/ren-body.webp',
-      face: 'images/v3/characters/faces-mask/takumi-mask-face.webp',
+      body: 'images/v3/characters/speakers/takumi/body/base-legacy.webp',
+      face: [
+        'images/v3/characters/speakers/takumi/face/mic-01.webp',
+        'images/v3/characters/speakers/takumi/face/mic-02.webp',
+        'images/v3/characters/speakers/takumi/face/mic-03.webp',
+      ],
     },
   };
 
@@ -57,48 +77,89 @@
   const DEFAULT_ANCHOR = { box: '1024x1536', feetY: 1480, eyeY: 430, scale: 1 };
   const CHARACTER_VARIANTS = {
     nanami: {
+      local: {
+        default: [
+          'images/v3/roleplay/roles/local/nanami-fashion-01.webp',
+          'images/v3/roleplay/roles/local/nanami-fashion-02.webp',
+        ],
+      },
       tourist: {
-        spring: 'images/v3/characters/variants/nanami-tourist-spring.webp',
-        summer: 'images/v3/characters/variants/nanami-tourist-summer.webp',
-        autumn: 'images/v3/characters/variants/nanami-tourist-autumn.webp',
-        winter: 'images/v3/characters/variants/nanami-tourist-winter.webp',
+        spring: 'images/v3/roleplay/roles/tourist/nanami-spring.webp',
+        summer: 'images/v3/roleplay/roles/tourist/nanami-summer.webp',
+        autumn: 'images/v3/roleplay/roles/tourist/nanami-autumn.webp',
+        winter: 'images/v3/roleplay/roles/tourist/nanami-winter.webp',
       },
     },
     aoi: {
+      local: {
+        default: [
+          'images/v3/roleplay/roles/local/aoi-fashion-01.webp',
+          'images/v3/roleplay/roles/local/aoi-fashion-02.webp',
+        ],
+      },
       tourist: {
-        spring: 'images/v3/characters/variants/aoi-tourist-spring.webp',
-        summer: 'images/v3/characters/variants/aoi-tourist-summer.webp',
-        autumn: 'images/v3/characters/variants/aoi-tourist-autumn.webp',
-        winter: 'images/v3/characters/variants/aoi-tourist-winter.webp',
+        spring: 'images/v3/roleplay/roles/tourist/aoi-spring.webp',
+        summer: 'images/v3/roleplay/roles/tourist/aoi-summer.webp',
+        autumn: 'images/v3/roleplay/roles/tourist/aoi-autumn.webp',
+        winter: 'images/v3/roleplay/roles/tourist/aoi-winter.webp',
       },
     },
     mayu: {
-      cafe_staff: { default: 'images/v3/characters/variants/mayu-cafe_staff-default.webp' },
-      duty_free_staff: { default: 'images/v3/characters/variants/mayu-duty_free_staff-default.webp' },
-      konbini_staff: { default: 'images/v3/characters/variants/mayu-konbini_staff-default.webp' },
-      pharmacist: { default: 'images/v3/characters/variants/mayu-pharmacist-default.webp' },
+      cafe_staff: { default: 'images/v3/roleplay/roles/cafe_staff/mayu-default.webp' },
+      cashier: { default: 'images/v3/roleplay/roles/konbini_staff/mayu-default.webp' },
+      clinic_staff: { default: 'images/v3/roleplay/roles/pharmacist/mayu-default.webp' },
+      duty_free_staff: { default: 'images/v3/roleplay/roles/duty_free_staff/mayu-default.webp' },
+      konbini_staff: { default: 'images/v3/roleplay/roles/konbini_staff/mayu-default.webp' },
+      onsen_staff: { default: 'images/v3/roleplay/roles/cafe_staff/mayu-default.webp' },
+      pharmacist: { default: 'images/v3/roleplay/roles/pharmacist/mayu-default.webp' },
+      reservation_staff: { default: 'images/v3/roleplay/roles/cafe_staff/mayu-default.webp' },
+      restaurant_staff: { default: 'images/v3/roleplay/roles/cafe_staff/mayu-default.webp' },
+      shop_staff: { default: 'images/v3/roleplay/roles/cafe_staff/mayu-default.webp' },
+      local: {
+        default: [
+          'images/v3/roleplay/roles/local/mayu-fashion-01.webp',
+          'images/v3/roleplay/roles/local/mayu-fashion-02.webp',
+        ],
+      },
       tourist: {
-        spring: 'images/v3/characters/seasonal/mayu-tourist-spring-real.webp',
-        summer: 'images/v3/characters/seasonal/mayu-tourist-summer-real.webp',
+        spring: 'images/v3/roleplay/roles/tourist/mayu-spring-real.webp',
+        summer: 'images/v3/roleplay/roles/tourist/mayu-summer-real.webp',
       },
     },
     keita: {
-      doctor: { default: 'images/v3/characters/variants/keita-doctor-default.webp' },
-      izakaya_staff: { default: 'images/v3/characters/variants/keita-restaurant_staff-default.webp' },
-      local: { default: ['images/v3/characters/variants/keita-local-fashion-default.webp'] },
-      restaurant_staff: { default: 'images/v3/characters/variants/keita-restaurant_staff-default.webp' },
-      taxi_driver: { default: 'images/v3/characters/variants/keita-taxi_driver-default.webp' },
+      airport_staff: { default: 'images/v3/roleplay/roles/local/keita-fashion-default.webp' },
+      bus_driver: { default: 'images/v3/roleplay/roles/taxi_driver/keita-default.webp' },
+      doctor: { default: 'images/v3/roleplay/roles/doctor/keita-default.webp' },
+      izakaya_staff: { default: 'images/v3/roleplay/roles/izakaya_staff/keita-default.webp' },
+      local: {
+        default: [
+          'images/v3/roleplay/roles/local/keita-fashion-default.webp',
+          'images/v3/roleplay/roles/local/keita-fashion-01.webp',
+          'images/v3/roleplay/roles/local/keita-fashion-02.webp',
+        ],
+      },
+      restaurant_staff: { default: 'images/v3/roleplay/roles/restaurant_staff/keita-default.webp' },
+      shop_staff: { default: 'images/v3/roleplay/roles/local/keita-fashion-default.webp' },
+      taxi_driver: { default: 'images/v3/roleplay/roles/taxi_driver/keita-default.webp' },
       tourist: {
-        autumn: 'images/v3/characters/seasonal/keita-tourist-autumn-trend.webp',
+        autumn: 'images/v3/roleplay/roles/tourist/keita-autumn-trend.webp',
       },
     },
     takumi: {
-      hotel_staff: { default: 'images/v3/characters/variants/takumi-hotel_staff-default.webp' },
-      local: { default: ['images/v3/characters/variants/takumi-local-fashion-default.webp'] },
-      police_staff: { default: 'images/v3/characters/variants/takumi-police_staff-default.webp' },
-      station_staff: { default: 'images/v3/characters/variants/takumi-station_staff-default.webp' },
+      hotel_staff: { default: 'images/v3/roleplay/roles/hotel_staff/takumi-default.webp' },
+      immigration_officer: { default: 'images/v3/roleplay/roles/police_staff/takumi-default.webp' },
+      local: {
+        default: [
+          'images/v3/roleplay/roles/local/takumi-fashion-default.webp',
+          'images/v3/roleplay/roles/local/takumi-fashion-01.webp',
+          'images/v3/roleplay/roles/local/takumi-fashion-02.webp',
+        ],
+      },
+      police_staff: { default: 'images/v3/roleplay/roles/police_staff/takumi-default.webp' },
+      rental_staff: { default: 'images/v3/roleplay/roles/hotel_staff/takumi-default.webp' },
+      station_staff: { default: 'images/v3/roleplay/roles/station_staff/takumi-default.webp' },
       tourist: {
-        winter: 'images/v3/characters/seasonal/takumi-tourist-winter-trend.webp',
+        winter: 'images/v3/roleplay/roles/tourist/takumi-winter-trend.webp',
       },
     },
   };
@@ -107,6 +168,12 @@
     if (!Array.isArray(value)) return value;
     if (!value.length) return '';
     return value[Math.abs(hashText(seed)) % value.length];
+  };
+
+  const randomVariant = value => {
+    if (!Array.isArray(value)) return value;
+    if (!value.length) return '';
+    return value[Math.floor(Math.random() * value.length)];
   };
 
   const roleVariant = (identity, role, season = CURRENT_SEASON) => {
@@ -120,36 +187,52 @@
     role,
     season: opts.season || CURRENT_SEASON,
     body: roleVariant(identity, role, opts.season || CURRENT_SEASON),
-    face: identity.face,
+    face: selectVariant(identity.face, `${identity.key}:${role}:${opts.season || CURRENT_SEASON}:face`),
     anchor: DEFAULT_ANCHOR,
   });
 
   const V = IDENTITIES;
   const BG = {
-    airport: 'images/v3/wide-life/bg-airport-checkin-wide-life.webp',
-    airplane: 'images/v3/wide-life/bg-airplane-cabin-wide-life.webp',
-    bus: 'images/v3/bg-bus-stop-cute.webp',
-    dutyFree: 'images/v3/bg-duty-free-shop-cute.webp',
-    hospital: 'images/v3/bg-hospital-reception-cute.webp',
-    immigration: 'images/v3/bg-immigration-booth-cute.webp',
-    koban: 'images/v3/bg-koban-lost-found-cute.webp',
-    transit: 'images/v3/wide-life/bg-station-platform-wide-life.webp',
-    taxi: 'images/v3/bg-rentacar-taxi-cute.webp',
-    konbini: 'images/v3/wide-life/bg-konbini-checkout-wide-life.webp',
-    food: 'images/v3/wide-life/bg-cafe-restaurant-wide-life.webp',
-    izakaya: 'images/v3/wide-life/bg-izakaya-wide-life.webp',
-    shop: 'images/v3/wide-life/bg-clothing-store-wide-life.webp',
-    hotel: 'images/v3/wide-life/bg-hotel-lobby-wide-life.webp',
-    onsen: 'images/v3/bg-onsen-ryokan-cute.webp',
-    trouble: 'images/v3/wide-life/bg-pharmacy-clinic-wide-life.webp',
-    local: 'images/v3/wide-life/bg-tourist-street-wide-life.webp',
-    fallbackAirport: 'images/v3/wide-life/bg-airport-checkin-wide-life.webp',
-    fallbackTransit: 'images/v3/wide-life/bg-station-platform-wide-life.webp',
-    fallbackFood: 'images/v3/wide-life/bg-cafe-restaurant-wide-life.webp',
-    fallbackShop: 'images/v3/wide-life/bg-clothing-store-wide-life.webp',
-    fallbackHotel: 'images/v3/wide-life/bg-hotel-lobby-wide-life.webp',
-    fallbackTrouble: 'images/v3/wide-life/bg-pharmacy-clinic-wide-life.webp',
-    fallbackLocal: 'images/v3/wide-life/bg-tourist-street-wide-life.webp',
+    airport: 'images/v3/backgrounds/landscape/wide-life/airport-checkin/default.webp',
+    airplane: 'images/v3/backgrounds/landscape/wide-life/airplane-cabin/default.webp',
+    bus: 'images/v3/backgrounds/landscape/wide-life/bus-stop/default.webp',
+    dutyFree: 'images/v3/backgrounds/landscape/wide-life/duty-free-shop/default.webp',
+    hospital: 'images/v3/backgrounds/landscape/wide-life/hospital-reception/default.webp',
+    immigration: 'images/v3/backgrounds/landscape/wide-life/immigration-booth/default.webp',
+    koban: 'images/v3/backgrounds/landscape/wide-life/koban-lost-found/default.webp',
+    transit: randomVariant([
+      'images/v3/backgrounds/landscape/wide-life/station-platform/default.webp',
+      'images/v3/backgrounds/landscape/wide-life/station-plaza/station-bus-01.webp',
+      'images/v3/backgrounds/landscape/wide-life/station-plaza/station-bus-02.webp',
+    ]),
+    taxi: 'images/v3/backgrounds/landscape/wide-life/rentacar-taxi/default.webp',
+    konbini: 'images/v3/backgrounds/landscape/wide-life/konbini-checkout/default.webp',
+    food: randomVariant([
+      'images/v3/backgrounds/landscape/wide-life/cafe-restaurant/default.webp',
+      'images/v3/backgrounds/landscape/wide-life/tourist-street/street-cafe-01.webp',
+      'images/v3/backgrounds/landscape/wide-life/tourist-street/street-cafe-02.webp',
+    ]),
+    izakaya: 'images/v3/backgrounds/landscape/wide-life/izakaya/default.webp',
+    shop: randomVariant([
+      'images/v3/backgrounds/landscape/wide-life/clothing-store/default.webp',
+      'images/v3/backgrounds/landscape/wide-life/tourist-street/street-cafe-01.webp',
+      'images/v3/backgrounds/landscape/wide-life/tourist-street/street-cafe-02.webp',
+    ]),
+    hotel: 'images/v3/backgrounds/landscape/wide-life/hotel-lobby/default.webp',
+    onsen: 'images/v3/backgrounds/landscape/wide-life/onsen-ryokan/default.webp',
+    trouble: 'images/v3/backgrounds/landscape/wide-life/pharmacy-clinic/default.webp',
+    local: randomVariant([
+      'images/v3/backgrounds/landscape/wide-life/tourist-street/default.webp',
+      'images/v3/backgrounds/landscape/wide-life/tourist-street/street-cafe-01.webp',
+      'images/v3/backgrounds/landscape/wide-life/tourist-street/street-cafe-02.webp',
+    ]),
+    fallbackAirport: 'images/v3/backgrounds/landscape/wide-life/airport-checkin/default.webp',
+    fallbackTransit: 'images/v3/backgrounds/landscape/wide-life/station-plaza/station-bus-01.webp',
+    fallbackFood: 'images/v3/backgrounds/landscape/wide-life/tourist-street/street-cafe-01.webp',
+    fallbackShop: 'images/v3/backgrounds/landscape/wide-life/tourist-street/street-cafe-01.webp',
+    fallbackHotel: 'images/v3/backgrounds/landscape/wide-life/hotel-lobby/default.webp',
+    fallbackTrouble: 'images/v3/backgrounds/landscape/wide-life/pharmacy-clinic/default.webp',
+    fallbackLocal: 'images/v3/backgrounds/landscape/wide-life/tourist-street/street-cafe-01.webp',
   };
 
   const distinctPair = (a, b) => (a.identity === b.identity ? character(V.keita, b.role, b) : b);

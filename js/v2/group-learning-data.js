@@ -203,7 +203,7 @@ window.GROUP_LEARNING_SETS = [
     desc: '아픈 부위와 증상을 짧게 말하기 위한 기본 묶음입니다.',
     pattern: '부위 + が痛いです / 증상 + があります',
     icon: '体',
-    image: 'images/v3/bg-pharmacy-clinic-pastel.webp',
+    image: 'images/v3/backgrounds/landscape/wide-life/pharmacy-clinic/default.webp',
     items: [
       { kanji: '頭', jp: 'あたま', ko: '머리' },
       { kanji: '目', jp: 'め', ko: '눈' },

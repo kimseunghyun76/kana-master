@@ -259,7 +259,7 @@ body.app-v3 {
      don't show the bare grey html background flanking the 480/520px shell. */
   background:
     linear-gradient(180deg, rgba(255, 247, 251, .55), rgba(241, 251, 255, .65)),
-    url("/images/v3/wide-life/bg-tourist-street-wide-life.webp") center / cover fixed;
+    url("/images/v3/backgrounds/landscape/wide-life/tourist-street/street-cafe-01.webp") center / cover fixed;
 }
 
 body.app-v3 #app {
@@ -269,7 +269,7 @@ body.app-v3 #app {
   max-width: 720px;
   background:
     linear-gradient(180deg, rgba(255, 255, 255, .44), rgba(255, 247, 251, .86)),
-    url("/images/v3/wide-life/bg-tourist-street-wide-life.webp") center / cover fixed;
+    url("/images/v3/backgrounds/landscape/wide-life/tourist-street/street-cafe-01.webp") center / cover fixed;
   border-left: 1px solid rgba(255,255,255,.75);
   border-right: 1px solid rgba(255,255,255,.75);
 }
@@ -1416,7 +1416,7 @@ body.app-v3 {
 body.app-v3 #app {
   background:
     linear-gradient(180deg, rgba(255, 255, 255, .9), rgba(255, 247, 251, .95)),
-    url("/images/v3/wide-life/bg-tourist-street-wide-life.webp") center / cover fixed;
+    url("/images/v3/backgrounds/landscape/wide-life/tourist-street/street-cafe-01.webp") center / cover fixed;
 }
 
 body.app-v3 .app-header,
@@ -2406,7 +2406,7 @@ body.app-v3 {
 body.app-v3 #app {
   background:
     linear-gradient(180deg, rgba(235, 242, 246, .88), rgba(230, 236, 241, .94)),
-    url("/images/v3/wide-life/bg-tourist-street-wide-life.webp") center / cover fixed;
+    url("/images/v3/backgrounds/landscape/wide-life/tourist-street/street-cafe-01.webp") center / cover fixed;
 }
 
 body.app-v3 .view,
