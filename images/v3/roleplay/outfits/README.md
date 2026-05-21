@@ -17,7 +17,7 @@ Examples:
 tourist/nanami-spring.webp
 tourist/nanami-summer.webp
 konbini_staff/mayu-default.webp
-hotel_staff/takumi-default.webp
+hotel_staff/keita-default.webp
 ```
 
 All body cutouts should keep the same production box:
@@ -43,14 +43,15 @@ Current active folders:
 cafe_staff/
 doctor/
 duty_free_staff/
-hotel_staff/
 izakaya_staff/
 konbini_staff/
 local/
 pharmacist/
-police_staff/
 restaurant_staff/
-station_staff/
 taxi_driver/
 tourist/
 ```
+
+Active speaker identities are `nanami`, `aoi`, `mayu`, and `keita`. Keep any
+older speaker files in `images/v3/legacy/` unless they are being reworked into
+one of these four identities.

@@ -1,101 +1,88 @@
 /* ============================================================
-   V3 MODULE VISUALS — bright beginner travel imagery
+   V3 MODULE VISUALS - portrait-first beginner travel imagery
    ============================================================ */
 
 'use strict';
 
 window.ModuleVisuals = (() => {
-  const pick = (values, seed = '') => {
+  const pick = values => {
     const list = Array.isArray(values) ? values : [values];
-    void seed;
     return list[Math.floor(Math.random() * list.length)];
   };
 
-  const isPortraitViewport = () => Number(window.innerHeight || 0) > Number(window.innerWidth || 0);
-  const orientedPick = ({ landscape, portrait }, seed) => pick(isPortraitViewport() ? (portrait || landscape) : landscape, seed);
-  const STREET = {
-    landscape: [
-      'images/v3/backgrounds/landscape/wide-life/tourist-street/default.webp',
-      'images/v3/backgrounds/landscape/wide-life/tourist-street/street-cafe-01.webp',
-      'images/v3/backgrounds/landscape/wide-life/tourist-street/street-cafe-02.webp',
-    ],
-    portrait: [
-      'images/v3/backgrounds/portrait/wide-life/tourist-street/street-cafe-portrait-01.webp',
-      'images/v3/backgrounds/portrait/wide-life/tourist-street/street-cafe-portrait-02.webp',
-    ],
-  };
-  const STATION = {
-    landscape: [
-      'images/v3/backgrounds/landscape/wide-life/station-platform/default.webp',
-      'images/v3/backgrounds/landscape/wide-life/station-plaza/station-bus-01.webp',
-      'images/v3/backgrounds/landscape/wide-life/station-plaza/station-bus-02.webp',
-    ],
-    portrait: [
-      'images/v3/backgrounds/portrait/wide-life/station-plaza/station-konbini-portrait-01.webp',
-      'images/v3/backgrounds/portrait/wide-life/station-plaza/station-konbini-portrait-02.webp',
-    ],
-  };
-  const FOOD = {
-    landscape: [
-      'images/v3/backgrounds/landscape/wide-life/cafe-restaurant/default.webp',
-      'images/v3/backgrounds/landscape/wide-life/tourist-street/street-cafe-01.webp',
-      'images/v3/backgrounds/landscape/wide-life/tourist-street/street-cafe-02.webp',
-    ],
-    portrait: STREET.portrait,
-  };
-  const SHOP = {
-    landscape: [
-      'images/v3/backgrounds/landscape/wide-life/clothing-store/default.webp',
-      'images/v3/backgrounds/landscape/wide-life/tourist-street/street-cafe-01.webp',
-      'images/v3/backgrounds/landscape/wide-life/tourist-street/street-cafe-02.webp',
-    ],
-    portrait: STREET.portrait,
-  };
+  const bgRoot = 'images/v3/backgrounds/portrait';
+  const STREET = [
+    `${bgRoot}/tourist-street/street-cafe-portrait-01.webp`,
+    `${bgRoot}/tourist-street/street-cafe-portrait-02.webp`,
+    `${bgRoot}/daily-life/friends-casual-talk-01.webp`,
+  ];
+  const STATION = [
+    `${bgRoot}/station/station-konbini-portrait-01.webp`,
+    `${bgRoot}/station/station-konbini-portrait-02.webp`,
+    `${bgRoot}/bus/bus-stop-01.webp`,
+  ];
+  const FOOD = [
+    `${bgRoot}/cafe/cafe-breakfast-01.webp`,
+    `${bgRoot}/restaurant/restaurant-order-01.webp`,
+    ...STREET,
+  ];
+  const SHOP = [
+    `${bgRoot}/shopping/clothing-store-01.webp`,
+    `${bgRoot}/duty-free/duty-free-shop-01.webp`,
+    ...STREET,
+  ];
+  const DRAMA = [
+    `${bgRoot}/drama/drama-sofa-01.webp`,
+    `${bgRoot}/drama/emotion-reactions-01.webp`,
+    `${bgRoot}/daily-life/friends-casual-talk-01.webp`,
+  ];
 
   window.V3GameAssets = {
-    home: orientedPick(STREET, 'home'),
-    airport: 'images/v3/backgrounds/landscape/wide-life/airport-checkin/default.webp',
-    airplane: 'images/v3/backgrounds/landscape/wide-life/airplane-cabin/default.webp',
-    bus: orientedPick({ landscape: ['images/v3/backgrounds/landscape/wide-life/bus-stop/default.webp', ...STATION.landscape], portrait: STATION.portrait }, 'bus'),
-    dutyFree: 'images/v3/backgrounds/landscape/wide-life/duty-free-shop/default.webp',
-    hospital: 'images/v3/backgrounds/landscape/wide-life/hospital-reception/default.webp',
-    immigration: 'images/v3/backgrounds/landscape/wide-life/immigration-booth/default.webp',
-    koban: 'images/v3/backgrounds/landscape/wide-life/koban-lost-found/default.webp',
-    transit: orientedPick(STATION, 'transit'),
-    taxi: 'images/v3/backgrounds/landscape/wide-life/rentacar-taxi/default.webp',
-    shop: orientedPick(SHOP, 'shop'),
-    food: orientedPick(FOOD, 'food'),
-    izakaya: 'images/v3/backgrounds/landscape/wide-life/izakaya/default.webp',
-    konbini: 'images/v3/backgrounds/landscape/wide-life/konbini-checkout/default.webp',
-    hotel: 'images/v3/backgrounds/landscape/wide-life/hotel-lobby/default.webp',
-    onsen: 'images/v3/backgrounds/landscape/wide-life/onsen-ryokan/default.webp',
-    trouble: 'images/v3/backgrounds/landscape/wide-life/pharmacy-clinic/default.webp',
-    local: orientedPick(STREET, 'local'),
-    kanaDesk: orientedPick(STREET, 'kanaDesk'),
-    katakanaCafe: orientedPick(FOOD, 'katakanaCafe'),
-    greetingClass: orientedPick(STREET, 'greetingClass'),
-    mapHelp: orientedPick(STREET, 'mapHelp'),
-    introLobby: orientedPick(STREET, 'introLobby'),
-    stationTransfer: orientedPick(STATION, 'stationTransfer'),
-    ryokanLobby: 'images/v3/backgrounds/landscape/wide-life/hotel-lobby/default.webp',
-    kobanHelp: 'images/v3/backgrounds/landscape/wide-life/koban-lost-found/default.webp',
-    sightseeing: orientedPick(STREET, 'sightseeing'),
-    counter: 'images/v3/backgrounds/landscape/wide-life/konbini-checkout/default.webp',
-    calendar: orientedPick(STREET, 'calendar'),
-    cityDirections: orientedPick(STREET, 'cityDirections'),
-    stationHelp: orientedPick(STATION, 'stationHelp'),
-    dining: orientedPick(FOOD, 'dining'),
-    cafeCompare: orientedPick(FOOD, 'cafeCompare'),
-    cafeOrder: orientedPick(FOOD, 'cafeOrder'),
-    hotelFront: 'images/v3/backgrounds/landscape/wide-life/hotel-lobby/default.webp',
-    clinic: 'images/v3/backgrounds/landscape/wide-life/pharmacy-clinic/default.webp',
-    foodScene: orientedPick(FOOD, 'foodScene'),
-    localScene: orientedPick(STREET, 'localScene'),
-    transitScene: orientedPick(STATION, 'transitScene'),
-    airportScene: 'images/v3/backgrounds/landscape/wide-life/airport-checkin/default.webp',
-    shopScene: orientedPick(SHOP, 'shopScene'),
-    hotelScene: 'images/v3/backgrounds/landscape/wide-life/hotel-lobby/default.webp',
-    troubleScene: 'images/v3/backgrounds/landscape/wide-life/pharmacy-clinic/default.webp',
+    home: pick(STREET),
+    airport: `${bgRoot}/airport/airport-checkin-01.webp`,
+    airplane: `${bgRoot}/airplane/airplane-cabin-01.webp`,
+    bus: pick(STATION),
+    dutyFree: `${bgRoot}/duty-free/duty-free-shop-01.webp`,
+    hospital: `${bgRoot}/pharmacy/pharmacy-clinic-01.webp`,
+    immigration: `${bgRoot}/immigration/immigration-01.webp`,
+    koban: `${bgRoot}/koban/koban-lost-found-01.webp`,
+    transit: pick(STATION),
+    taxi: `${bgRoot}/taxi/taxi-ride-01.webp`,
+    rentacar: `${bgRoot}/rentacar/rentacar-counter-01.webp`,
+    shop: pick(SHOP),
+    food: pick(FOOD),
+    izakaya: `${bgRoot}/izakaya/izakaya-01.webp`,
+    konbini: `${bgRoot}/konbini/konbini-checkout-01.webp`,
+    hotel: `${bgRoot}/hotel/hotel-lobby-01.webp`,
+    onsen: `${bgRoot}/onsen/onsen-ryokan-rules-01.webp`,
+    trouble: `${bgRoot}/pharmacy/pharmacy-clinic-01.webp`,
+    local: pick(STREET),
+    drama: pick(DRAMA),
+    kanaDesk: pick(STREET),
+    katakanaCafe: pick(FOOD),
+    greetingClass: pick(STREET),
+    mapHelp: pick(STREET),
+    introLobby: pick(STREET),
+    stationTransfer: pick(STATION),
+    ryokanLobby: `${bgRoot}/hotel/hotel-lobby-01.webp`,
+    kobanHelp: `${bgRoot}/koban/koban-lost-found-01.webp`,
+    sightseeing: pick(STREET),
+    counter: `${bgRoot}/konbini/konbini-checkout-01.webp`,
+    calendar: pick(STREET),
+    cityDirections: pick(STREET),
+    stationHelp: pick(STATION),
+    dining: pick(FOOD),
+    cafeCompare: pick(FOOD),
+    cafeOrder: `${bgRoot}/cafe/cafe-breakfast-01.webp`,
+    hotelFront: `${bgRoot}/hotel/hotel-lobby-01.webp`,
+    clinic: `${bgRoot}/pharmacy/pharmacy-clinic-01.webp`,
+    foodScene: pick(FOOD),
+    localScene: pick(STREET),
+    transitScene: pick(STATION),
+    airportScene: `${bgRoot}/airport/airport-checkin-01.webp`,
+    shopScene: pick(SHOP),
+    hotelScene: `${bgRoot}/hotel/hotel-lobby-01.webp`,
+    troubleScene: `${bgRoot}/pharmacy/pharmacy-clinic-01.webp`,
   };
 
   const G = window.V3GameAssets;
@@ -114,7 +101,7 @@ window.ModuleVisuals = (() => {
     v3_tense_matrix:      { image: G.cafeCompare, focus: '현재·부정·과거', tone: 'cute', iconKey: 'module-talk', coverImage: G.cafeCompare, roleplayImage: G.cafeCompare },
     v3_question_engine:   { image: G.transitScene, focus: '질문 만들기', tone: 'cute', iconKey: 'module-talk', coverImage: G.transitScene, roleplayImage: G.transitScene },
     v3_answer_engine:     { image: G.localScene, focus: '짧게 대답', tone: 'cute', iconKey: 'module-talk', coverImage: G.localScene, roleplayImage: G.localScene },
-    v3_reaction_shadowing:{ image: G.sightseeing, focus: '리액션 쉐도잉', tone: 'cute', iconKey: 'module-talk', coverImage: G.sightseeing, roleplayImage: G.sightseeing },
+    v3_reaction_shadowing:{ image: G.drama, focus: '리액션 쉐도잉', tone: 'cute', iconKey: 'module-talk', coverImage: G.drama, roleplayImage: G.drama },
     v3_airport:           { image: G.airport, focus: '공항 체크인', tone: 'cute', iconKey: 'module-map', coverImage: G.airport, roleplayImage: G.airportScene },
     v3_immigration:       { image: G.immigration, focus: '입국 심사', tone: 'cute', iconKey: 'module-talk', coverImage: G.immigration, roleplayImage: G.immigration },
     v3_airplane_request:  { image: G.airplane, focus: '기내 요청', tone: 'cute', iconKey: 'module-talk', coverImage: G.airplane, roleplayImage: G.airplane },
@@ -134,51 +121,19 @@ window.ModuleVisuals = (() => {
     v3_health:            { image: G.trouble, focus: '약국 증상', tone: 'cute', iconKey: 'module-health', coverImage: G.trouble, roleplayImage: G.troubleScene },
     v3_hospital:          { image: G.hospital, focus: '병원 접수', tone: 'cute', iconKey: 'module-health', coverImage: G.hospital, roleplayImage: G.hospital },
     v3_lost_and_help:     { image: G.koban, focus: '분실·도움 요청', tone: 'cute', iconKey: 'module-map', coverImage: G.koban, roleplayImage: G.koban },
-    v3_rentacar:          { image: G.taxi, focus: '렌트카', tone: 'cute', iconKey: 'module-map', coverImage: G.taxi, roleplayImage: G.taxi },
+    v3_rentacar:          { image: G.rentacar, focus: '렌트카', tone: 'cute', iconKey: 'module-map', coverImage: G.rentacar, roleplayImage: G.rentacar },
     v3_tourist_spot:      { image: G.sightseeing, focus: '관광지·사진', tone: 'cute', iconKey: 'module-map', coverImage: G.sightseeing, roleplayImage: G.sightseeing },
     v3_reservation_call:  { image: G.hotelFront, focus: '예약 확인', tone: 'cute', iconKey: 'module-talk', coverImage: G.hotelFront, roleplayImage: G.hotelFront },
     v3_weather_plan:      { image: G.local, focus: '일정 변경', tone: 'cute', iconKey: 'module-time', coverImage: G.local, roleplayImage: G.localScene },
     v3_polite_wrapup:     { image: G.introLobby, focus: '감사 마무리', tone: 'cute', iconKey: 'module-talk', coverImage: G.introLobby, roleplayImage: G.introLobby },
-    v3_drama_reactions:   { image: G.cafeCompare, focus: '짧은 반응어', tone: 'cute', iconKey: 'module-talk', coverImage: G.cafeCompare, roleplayImage: G.cafeCompare },
-    v3_drama_daily:       { image: G.greetingClass, focus: '일상 대사', tone: 'cute', iconKey: 'module-talk', coverImage: G.greetingClass, roleplayImage: G.greetingClass },
+    v3_drama_reactions:   { image: G.drama, focus: '짧은 반응어', tone: 'cute', iconKey: 'module-talk', coverImage: G.drama, roleplayImage: G.drama },
+    v3_drama_daily:       { image: G.drama, focus: '일상 대사', tone: 'cute', iconKey: 'module-talk', coverImage: G.drama, roleplayImage: G.drama },
   };
-
-  // Topic-specific lesson-card covers so each module gets a distinct, relevant
-  // image instead of repeating the generic street/food/station pools.
-  const LESSON_COVER = {
-    kana_hira: 'kana-hiragana-study-desk',
-    kana_kata: 'kana-katakana-loanword-cafe',
-    v3_first_greetings: 'slevel1-first-phrases-classroom-greeting',
-    v3_pronouns_places: 'wlevel4-kosoado-city-directions',
-    v3_numbers_time: 'wlevel3-calendar-time-study',
-    v3_money_counting: 'wlevel2-elevator-number-culture',
-    v3_directions_body: 'wlevel4b-station-location-help',
-    v3_particle_basics: 'slevel2-self-introduction-office-lobby',
-    v3_tense_matrix: 'wlevel5-verb-dining-action',
-    v3_question_engine: 'wlevel1-sumimasen-restaurant-call',
-    v3_answer_engine: 'wlevel1-first-meeting-yoroshiku',
-    v3_reaction_shadowing: 'wlevel1-arigatou-kindness-scene',
-    v3_transport: 'slevel4-train-station-transfer',
-    v3_cafe_breakfast: 'wlevel7b-cafe-order-counter',
-    v3_hotel: 'slevel5-ryokan-checkin-lobby',
-    v3_health: 'wlevel8-clinic-health-help',
-    v3_lost_and_help: 'slevel6-koban-lost-item-help',
-    v3_tourist_spot: 'slevel7-sightseeing-cultural-directions',
-    v3_polite_wrapup: 'wlevel1-polite-greeting-mentor',
-    v3_drama_reactions: 'wlevel6-adjective-cafe-comparison',
-    v3_drama_daily: 'wlevel1-greeting-office-lobby',
-  };
-  Object.entries(LESSON_COVER).forEach(([id, name]) => {
-    if (!VISUALS[id]) return;
-    const p = `images/lecture-scenes/${name}.webp`;
-    VISUALS[id].coverImage = p;
-    VISUALS[id].image = p;
-  });
 
   const FALLBACK = {
-    image: 'assets/visuals/advanced-ribbon.svg',
+    image: G.local || 'assets/visuals/advanced-ribbon.svg',
     focus: 'v3 학습',
-    tone: 'slate',
+    tone: 'cute',
     iconKey: 'module-advanced'
   };
 
