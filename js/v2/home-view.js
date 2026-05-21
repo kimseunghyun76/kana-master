@@ -4,6 +4,39 @@
 
 'use strict';
 
+// Stage → representative scene image (images/lecture-scenes/*, v3 bg for gaps)
+const STAGE_SCENE = {
+  1: 'images/lecture-scenes/kana-hiragana-study-desk.webp',
+  2: 'images/lecture-scenes/kana-katakana-loanword-cafe.webp',
+  3: 'images/lecture-scenes/slevel1-first-phrases-classroom-greeting.webp',
+  4: 'images/v3/backgrounds/landscape/wide-life/airport-checkin/default.webp',
+  5: 'images/lecture-scenes/slevel4-train-station-transfer.webp',
+  6: 'images/lecture-scenes/wlevel7-izakaya-ordering-table.webp',
+  7: 'images/lecture-scenes/slevel3-convenience-store-checkout.webp',
+  8: 'images/lecture-scenes/slevel5-ryokan-checkin-lobby.webp',
+  9: 'images/lecture-scenes/wlevel8-clinic-health-help.webp',
+  10: 'images/lecture-scenes/slevel7-sightseeing-cultural-directions.webp',
+  11: 'images/lecture-scenes/wlevel1-arigatou-kindness-scene.webp',
+};
+
+// Program → representative scene (fallback when manifest pool is empty)
+const PROGRAM_SCENE = {
+  v3_letters_7_days: 'images/lecture-scenes/kana-hiragana-study-desk.webp',
+  v3_survival_21_days: 'images/lecture-scenes/wlevel3-calendar-time-study.webp',
+  v3_travel_30_days: 'images/v3/backgrounds/landscape/wide-life/airport-checkin/default.webp',
+  v3_local_plus_14_days: 'images/lecture-scenes/slevel7-sightseeing-cultural-directions.webp',
+  v3_drama_starter: 'images/lecture-scenes/wlevel1-arigatou-kindness-scene.webp',
+};
+
+// Pick a random image from the scanned manifest pool, else fall back.
+function pickScene(group, key, fallback) {
+  const pool = window.V3_SCENES?.[group]?.[key];
+  if (Array.isArray(pool) && pool.length) {
+    return pool[Math.floor(Math.random() * pool.length)];
+  }
+  return fallback;
+}
+
 window.createHomeView = (ctx) => {
   const gameUi = !!ctx.gameUi;
   const {
@@ -26,13 +59,72 @@ window.createHomeView = (ctx) => {
 
     if (gameUi) html += '<div class="v3-home-shell">';
     html += _renderDashboardHero(next, prog, isFirstVisit);
-    if (!isFirstVisit) html += _renderStats(prog);
+    if (!isFirstVisit && !gameUi) html += _renderStats(prog);
     if (isFirstVisit) html += _renderPrograms(prog);
     html += _renderRoadmap(prog);
     if (!isFirstVisit) html += _renderPrograms(prog, true);
     if (gameUi) html += '</div>';
 
     document.getElementById('homeContent').innerHTML = html;
+    if (gameUi) _bindTrackScroll();
+  }
+
+  function _bindTrackScroll() {
+    document.querySelectorAll('.v3-poster-carousel, .v3-stage-carousel').forEach(track => {
+      const wrap = track.closest('.v3-poster-wrap, .v3-stage-carousel-wrap');
+      if (wrap) _bindDragScroll(track, wrap);
+    });
+  }
+
+  function _bindDragScroll(track, wrap) {
+    const update = () => {
+      const atEnd = track.scrollLeft + track.clientWidth >= track.scrollWidth - 4;
+      wrap.classList.toggle('at-end', atEnd);
+    };
+    track.addEventListener('scroll', update, { passive: true });
+    requestAnimationFrame(update);
+
+    // Vertical wheel → horizontal scroll (desktop convenience)
+    track.addEventListener('wheel', (e) => {
+      if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+        track.scrollLeft += e.deltaY;
+        e.preventDefault();
+      }
+    }, { passive: false });
+
+    // Click-drag to scroll (mouse / pen). Touch keeps native momentum scroll.
+    let down = false, moved = false, startX = 0, startScroll = 0;
+    track.addEventListener('pointerdown', (e) => {
+      if (e.pointerType === 'touch') return;
+      down = true;
+      moved = false;
+      startX = e.clientX;
+      startScroll = track.scrollLeft;
+    });
+    track.addEventListener('pointermove', (e) => {
+      if (!down) return;
+      const dx = e.clientX - startX;
+      if (Math.abs(dx) > 4) {
+        moved = true;
+        wrap.classList.add('dragging');
+      }
+      track.scrollLeft = startScroll - dx;
+    });
+    const end = () => {
+      down = false;
+      wrap.classList.remove('dragging');
+    };
+    track.addEventListener('pointerup', end);
+    track.addEventListener('pointercancel', end);
+    track.addEventListener('pointerleave', end);
+    // Swallow the click that follows a drag so a node doesn't navigate.
+    track.addEventListener('click', (e) => {
+      if (moved) {
+        e.preventDefault();
+        e.stopPropagation();
+        moved = false;
+      }
+    }, true);
   }
 
   function _renderDashboardHero(next, prog, isFirstVisit) {
@@ -43,14 +135,43 @@ window.createHomeView = (ctx) => {
       const title = next.roleplay ? next.mod.roleplay.name : next.mod.name;
       const visual = getModuleVisual(next.mod);
       const todayXP = prog.todayXP || 0;
+
+      if (gameUi) {
+        // 시네마틱 이어보기 카드 — 현재 모듈 고유 장면(큰 이미지) 배너 + 진행률 + CTA
+        const scene = visual.coverImage || visual.image
+          || pickScene('stagesFull', next.mod.stageId, STAGE_SCENE[next.mod.stageId] || STAGE_SCENE[1]);
+        return `
+          <section class="v3-resume-card" style="--resume-scene:url('/${scene}')">
+            <span class="v3-resume-img" aria-hidden="true"></span>
+            <img class="v3-home-mascot cat resume" src="/images/v3/mascot/cat-shiba-240.webp" alt="" aria-hidden="true">
+            <div class="v3-resume-body">
+              <div class="v3-resume-kicker">오늘 이어서 학습 · ${pct}%</div>
+              <div class="v3-resume-title">${escHtml(title)}</div>
+              <div class="v3-resume-sub">${escHtml(stage.name)} · ${escHtml(visual.focus)}</div>
+              <div class="v3-resume-bar"><span style="width:${pct}%"></span></div>
+              <div class="v3-resume-actions">
+                <button class="v3-resume-cta" onclick="App.openModule('${next.mod.id}', ${next.roleplay ? 'true' : 'false'})">
+                  ${next.roleplay ? '롤플레이 시작' : '이어하기'}
+                </button>
+                <div class="v3-resume-stats">
+                  <span><b>${formatNum(prog.xp)}</b>XP</span>
+                  <span><b>${prog.streak}</b>연속</span>
+                  <span><b>${Math.min(todayXP, 100)}%</b>목표</span>
+                </div>
+              </div>
+            </div>
+          </section>
+        `;
+      }
+
       const guideHtml = !next.roleplay ? _renderStepGuide(next.mod, prog) : '';
       const missionHtml = _renderMissionTabs(prog);
       return `
-        <section class="home-dashboard welcome-card ${gameUi ? 'v3-home-next-card' : ''}">
+        <section class="home-dashboard welcome-card">
           <div class="dashboard-main">
             <div class="dashboard-row-top">
               <div>
-                <div class="dashboard-kicker">${gameUi ? '오늘 이어서 학습' : '오늘의 다음 행동'}</div>
+                <div class="dashboard-kicker">오늘의 다음 행동</div>
                 <h1>${escHtml(title)}</h1>
                 <p>${escHtml(stage.name)} · ${escHtml(visual.focus)} · ${pct}% 진행</p>
               </div>
@@ -62,9 +183,9 @@ window.createHomeView = (ctx) => {
             ${guideHtml}
           </div>
           <div class="dashboard-side">
-            <div class="dashboard-metric"><span>${formatNum(prog.xp)}</span><b>${gameUi ? '누적 XP' : '누적 XP'}</b></div>
-            <div class="dashboard-metric"><span>${prog.streak}</span><b>${gameUi ? '연속 학습' : '연속 학습'}</b></div>
-            <div class="dashboard-metric"><span>${Math.min(todayXP, 100)}%</span><b>${gameUi ? '오늘 목표' : '오늘 목표'}</b></div>
+            <div class="dashboard-metric"><span>${formatNum(prog.xp)}</span><b>누적 XP</b></div>
+            <div class="dashboard-metric"><span>${prog.streak}</span><b>연속 학습</b></div>
+            <div class="dashboard-metric"><span>${Math.min(todayXP, 100)}%</span><b>오늘 목표</b></div>
           </div>
         </section>
       `;
@@ -89,6 +210,7 @@ window.createHomeView = (ctx) => {
     return `
       <div class="welcome-card welcome-card-cinematic ${gameUi ? 'v3-home-hero' : ''}" style="--welcome-bg:url('${welcomeBg}')">
         <div class="welcome-bg" aria-hidden="true"></div>
+        ${gameUi ? `<img class="v3-home-mascot cat" src="/images/v3/mascot/cat-shiba-240.webp" alt="" aria-hidden="true">` : ''}
         <div class="welcome-content">
           <div class="welcome-eyebrow">${isV3 ? '첫날 학습 지도' : '처음 시작하는 학습자용 루트'}</div>
           <div class="welcome-title">${isV3 ? '五十音 MAP' : '오늘은 문자부터 시작하세요'}</div>
@@ -132,7 +254,7 @@ window.createHomeView = (ctx) => {
         <div class="home-step-guide-grid">${cards}</div>
         ${gameUi && typeof window.App?._openKanaChartStandalone === 'function' ? `
           <button class="home-kana-chart-link" type="button" onclick="App._openKanaChartStandalone()">
-            <span class="home-kana-chart-icon">📋</span>
+            <span class="home-kana-chart-icon">${uiIconSvg('grid', 'home-kana-chart-svg')}</span>
             <span class="home-kana-chart-text">오십음도 빠른 보기</span>
             <span class="home-kana-chart-arrow">→</span>
           </button>
@@ -168,20 +290,57 @@ window.createHomeView = (ctx) => {
   }
 
   function _renderPrograms(prog, tucked = false) {
+    if (!gameUi) return _renderProgramsList(prog, tucked);
+
+    const posters = LearningPrograms.list.map(program => {
+      const progress = LearningPrograms.getProgress(program, prog);
+      const scene = pickScene('programs', program.id, PROGRAM_SCENE[program.id]);
+      const started = progress.pct > 0;
+      return `
+        <button class="v3-poster ${program.tone}" type="button"
+                style="--poster-scene:url('/${scene}')"
+                onclick="App.openProgram('${program.id}')">
+          <span class="v3-poster-img" aria-hidden="true"></span>
+          <span class="v3-poster-top">
+            <span class="v3-poster-badge">${escHtml(program.label)}</span>
+            <span class="v3-poster-min">${program.dailyMinutes}분</span>
+          </span>
+          <span class="v3-poster-body">
+            <span class="v3-poster-title">${escHtml(program.title)}</span>
+            <span class="v3-poster-outcome">${escHtml(program.outcome)}</span>
+            <span class="v3-poster-bar"><span style="width:${progress.pct}%"></span></span>
+            <span class="v3-poster-foot">
+              <span>${started ? `${progress.completed}/${progress.total} 모듈` : `${program.days}일 · ${escHtml(program.audience)}`}</span>
+              <span>${started ? `${progress.pct}%` : '시작하기'}</span>
+            </span>
+          </span>
+        </button>
+      `;
+    }).join('');
+
+    return `
+      <div class="section-title v3-track-title">${tucked ? '처음 설계했던 목표별 코스' : '목표별 코스'}</div>
+      <div class="v3-poster-wrap">
+        <div class="v3-poster-carousel" role="list">${posters}</div>
+        <span class="v3-track-fade" aria-hidden="true"><span class="v3-track-chevron">›</span></span>
+      </div>
+    `;
+  }
+
+  function _renderProgramsList(prog, tucked = false) {
     const cards = LearningPrograms.list.map(program => {
       const progress = LearningPrograms.getProgress(program, prog);
       return `
-        <button class="program-card ${program.tone}"
-                onclick="App.openProgram('${program.id}')">
-            <span class="program-card-head">
-              <span class="program-topline">${escHtml(program.label)}</span>
-            <span class="program-day-count">${gameUi ? `하루 ${program.dailyMinutes}분` : `하루 ${program.dailyMinutes}분`}</span>
+        <button class="program-card ${program.tone}" onclick="App.openProgram('${program.id}')">
+          <span class="program-card-head">
+            <span class="program-topline">${escHtml(program.label)}</span>
+            <span class="program-day-count">하루 ${program.dailyMinutes}분</span>
           </span>
           <span class="program-title">${escHtml(program.title)}</span>
           <span class="program-desc">${escHtml(program.desc)}</span>
           <span class="program-outcome">${escHtml(program.outcome)}</span>
           <span class="program-foot">
-            <span>${progress.completed}/${progress.total} ${gameUi ? '모듈' : '모듈'}</span>
+            <span>${progress.completed}/${progress.total} 모듈</span>
             <span>${progress.pct}%</span>
           </span>
           <span class="program-bar"><span style="width:${progress.pct}%"></span></span>
@@ -191,7 +350,7 @@ window.createHomeView = (ctx) => {
 
     return `
       <div class="program-section">
-        <div class="section-title">${tucked ? '처음 설계했던 목표별 학습 루트' : (gameUi ? '목표별 학습 루트' : '완성 프로그램 · 목표별 플랜')}</div>
+        <div class="section-title">${tucked ? '처음 설계했던 목표별 학습 루트' : '완성 프로그램 · 목표별 플랜'}</div>
         <div class="program-strip">${cards}</div>
       </div>
     `;
@@ -244,7 +403,52 @@ window.createHomeView = (ctx) => {
   }
 
   function _renderRoadmap(prog) {
-    let html = `<div class="section-title">${gameUi ? '단계별 학습 지도' : '학습 로드맵'}</div><div class="stage-map">`;
+    if (!gameUi) return _renderRoadmapList(prog);
+
+    const next = getNextModule(prog);
+    const focusStageId = next ? next.mod.stageId : 1;
+
+    // 하나의 깔끔한 표현: 가로 스테이지 카드 캐러셀 (이미지+이모지+이름+진행률)
+    const cards = STAGES.map(stage => {
+      const pct = getStageProgressPct(stage.id, prog);
+      const locked = prog.xp < stage.unlockXP;
+      const done = pct === 100;
+      const isFocus = stage.id === focusStageId && !locked && !done;
+      const state = locked ? 'locked' : done ? 'done' : isFocus ? 'focus' : pct > 0 ? 'active' : 'open';
+      const modCount = getModulesByStage(stage.id).length;
+      const scene = pickScene('stages', stage.id, STAGE_SCENE[stage.id] || STAGE_SCENE[1]);
+      const badge = locked
+        ? `<span class="v3-stagecard-badge lock">${uiIconSvg('lock', 'v3-stagecard-badge-svg')}</span>`
+        : done
+          ? `<span class="v3-stagecard-badge done">${uiIconSvg('check', 'v3-stagecard-badge-svg')}</span>`
+          : '';
+      return `
+        <button class="v3-stagecard ${state}" type="button"
+                ${locked ? 'disabled aria-disabled="true"' : `onclick="App.openStage(${stage.id})"`}
+                style="--scene:url('/${scene}')">
+          <span class="v3-stagecard-img" aria-hidden="true"></span>
+          ${isFocus ? '<span class="v3-stagecard-flag">지금</span>' : ''}
+          ${badge}
+          <span class="v3-stagecard-body">
+            <span class="v3-stagecard-name">${escHtml(stage.name)}</span>
+            <span class="v3-stagecard-bar"><span style="width:${locked ? 0 : pct}%"></span></span>
+            <span class="v3-stagecard-meta">${locked ? `${formatNum(stage.unlockXP)} XP` : `${modCount}개 · ${pct}%`}</span>
+          </span>
+        </button>
+      `;
+    }).join('');
+
+    return `
+      <div class="section-title v3-track-title">단계별 학습 지도 <span class="v3-track-count">전체 ${STAGES.length}단계</span></div>
+      <div class="v3-stage-carousel-wrap">
+        <div class="v3-stage-carousel" role="list">${cards}</div>
+        <span class="v3-track-fade" aria-hidden="true"><span class="v3-track-chevron">›</span></span>
+      </div>
+    `;
+  }
+
+  function _renderRoadmapList(prog) {
+    let html = `<div class="section-title">학습 로드맵</div><div class="stage-map">`;
     STAGES.forEach(stage => {
       const pct = getStageProgressPct(stage.id, prog);
       const locked = prog.xp < stage.unlockXP;
@@ -254,10 +458,10 @@ window.createHomeView = (ctx) => {
         <div class="stage-card ${locked ? 'locked' : ''}" data-stage="${stage.id}"
              onclick="${!locked ? `App.switchTab('lesson')` : ''}">
           <div class="stage-header">
-            <div class="stage-index">${gameUi ? '단계' : 'STAGE'}<br><b>${stage.id}</b></div>
+            <div class="stage-index">STAGE<br><b>${stage.id}</b></div>
             <div class="stage-meta">
               <div class="stage-name">${escHtml(stage.name)}</div>
-              <div class="stage-sub">${stage.jlpt ? `JLPT ${stage.jlpt} · ` : ''}${modCount}${gameUi ? '개 모듈' : '개 모듈'}</div>
+              <div class="stage-sub">${stage.jlpt ? `JLPT ${stage.jlpt} · ` : ''}${modCount}개 모듈</div>
             </div>
             <span class="stage-tag">${locked ? `${uiIconWrap('lock', 'stage-tag-icon')}${formatNum(stage.unlockXP)} XP` : (pct === 100 ? uiIconWrap('check', 'stage-tag-icon') : `${pct}%`)}</span>
           </div>
@@ -266,7 +470,7 @@ window.createHomeView = (ctx) => {
               <div class="stage-progress-bar-fill" style="width:${pct}%"></div>
             </div>
             <div class="stage-progress-text">
-              <span>${locked ? `${formatNum(stage.unlockXP - prog.xp)} XP ${gameUi ? '더 필요' : '더 필요'}` : escHtml(stage.desc)}</span>
+              <span>${locked ? `${formatNum(stage.unlockXP - prog.xp)} XP 더 필요` : escHtml(stage.desc)}</span>
               <span>${pct}%</span>
             </div>
           </div>

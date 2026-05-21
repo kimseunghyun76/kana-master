@@ -258,8 +258,8 @@ body.app-v3 {
   /* Body bg fills the area outside the centered #app so desktop/tablet
      don't show the bare grey html background flanking the 480/520px shell. */
   background:
-    linear-gradient(180deg, rgba(255, 247, 251, .55), rgba(241, 251, 255, .65)),
-    url("/images/v3/backgrounds/landscape/wide-life/tourist-street/street-cafe-01.webp") center / cover fixed;
+    linear-gradient(180deg, rgba(255, 247, 251, .30), rgba(241, 251, 255, .42)),
+    url("/images/v3/backgrounds/landscape/wide-life/tourist-street/street-cafe-01.webp") center / cover;
 }
 
 body.app-v3 #app {
@@ -268,8 +268,8 @@ body.app-v3 #app {
      instead of feeling cramped at desktop sizes. Body bg flanks both sides. */
   max-width: 720px;
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, .44), rgba(255, 247, 251, .86)),
-    url("/images/v3/backgrounds/landscape/wide-life/tourist-street/street-cafe-01.webp") center / cover fixed;
+    linear-gradient(180deg, rgba(255, 255, 255, .18), rgba(255, 247, 251, .42)),
+    url("/images/v3/backgrounds/landscape/wide-life/tourist-street/street-cafe-01.webp") center / cover;
   border-left: 1px solid rgba(255,255,255,.75);
   border-right: 1px solid rgba(255,255,255,.75);
 }
@@ -804,6 +804,177 @@ body.app-v3 .stage-tag {
 
 body.app-v3 .stage-progress-bar-bg {
   background: #e8eef6;
+}
+
+/* ---- V3 horizontal level track (game world-map) ---- */
+body.app-v3 .v3-track-title {
+  margin-bottom: 0;
+}
+
+body.app-v3 .v3-stage-track {
+  position: relative;
+  display: flex;
+  gap: 10px;
+  padding: 8px 14px 14px;
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+body.app-v3 .v3-stage-track::-webkit-scrollbar {
+  height: 0;
+}
+
+body.app-v3 .v3-track-line {
+  position: absolute;
+  left: 24px;
+  right: 24px;
+  top: 50px;
+  height: 4px;
+  border-radius: 4px;
+  background: repeating-linear-gradient(90deg, rgba(120, 150, 190, .32) 0 9px, transparent 9px 17px);
+  z-index: 0;
+}
+
+body.app-v3 .v3-stage-node {
+  position: relative;
+  z-index: 1;
+  flex: 0 0 128px;
+  scroll-snap-align: center;
+  display: grid;
+  justify-items: center;
+  gap: 7px;
+  padding: 4px 6px 10px;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  text-align: center;
+}
+
+body.app-v3 .v3-stage-node[disabled] {
+  cursor: default;
+}
+
+body.app-v3 .v3-node-medal {
+  width: 60px;
+  height: 60px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  font-size: 23px;
+  font-weight: 900;
+  color: #fff;
+  background: linear-gradient(160deg, #9fb3cc, #7e93b0);
+  border: 3px solid rgba(255, 255, 255, .92);
+  box-shadow: 0 8px 18px rgba(71, 99, 136, .26), inset 0 2px 0 rgba(255, 255, 255, .45);
+  transition: transform .16s ease;
+}
+
+body.app-v3 .v3-node-medal-icon {
+  width: 25px;
+  height: 25px;
+}
+
+body.app-v3 .v3-stage-node.open .v3-node-medal {
+  background: linear-gradient(160deg, #7fcad4, #3f9fb0);
+}
+
+body.app-v3 .v3-stage-node.active .v3-node-medal {
+  background: linear-gradient(160deg, #ffc36b, #f59b3c);
+}
+
+body.app-v3 .v3-stage-node.done .v3-node-medal {
+  background: linear-gradient(160deg, #7fd9a8, #3aa86f);
+}
+
+body.app-v3 .v3-stage-node.locked .v3-node-medal {
+  background: linear-gradient(160deg, #cdd6e3, #aab6c8);
+  color: #7e8aa0;
+  box-shadow: none;
+}
+
+body.app-v3 .v3-stage-node.focus .v3-node-medal {
+  background: linear-gradient(160deg, #ff9bb8, #ec5a8b);
+  transform: scale(1.16);
+  box-shadow: 0 12px 26px rgba(236, 90, 139, .4), inset 0 2px 0 rgba(255, 255, 255, .5), 0 0 0 5px rgba(236, 90, 139, .16);
+}
+
+body.app-v3 .v3-stage-node:not([disabled]):hover .v3-node-medal {
+  transform: translateY(-2px) scale(1.06);
+}
+
+body.app-v3 .v3-stage-node.focus:not([disabled]):hover .v3-node-medal {
+  transform: scale(1.2);
+}
+
+body.app-v3 .v3-node-name {
+  font-size: 13px;
+  font-weight: 900;
+  line-height: 1.25;
+  color: #243047;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, .7);
+}
+
+body.app-v3 .v3-stage-node.locked .v3-node-name {
+  color: #8893a6;
+}
+
+body.app-v3 .v3-node-meta {
+  font-size: 11px;
+  font-weight: 800;
+  color: #5b6b82;
+}
+
+body.app-v3 .v3-node-bar {
+  width: 70px;
+  height: 5px;
+  border-radius: 4px;
+  background: rgba(180, 195, 215, .5);
+  overflow: hidden;
+}
+
+body.app-v3 .v3-node-bar > span {
+  display: block;
+  height: 100%;
+  border-radius: 4px;
+  background: linear-gradient(90deg, #5fb8c6, #3a9fb0);
+}
+
+body.app-v3 .v3-stage-node.focus .v3-node-bar > span {
+  background: linear-gradient(90deg, #ff9bb8, #ec5a8b);
+}
+
+body.app-v3 .v3-stage-node.done .v3-node-bar > span {
+  background: linear-gradient(90deg, #7fd9a8, #3aa86f);
+}
+
+/* ---- V3 home mascot ---- */
+body.app-v3 .v3-home-hero .welcome-content {
+  width: 80%;
+}
+
+body.app-v3 .v3-home-mascot {
+  position: absolute;
+  z-index: 1;
+  right: 2px;
+  bottom: 0;
+  height: 92%;
+  max-height: 360px;
+  object-fit: contain;
+  object-position: bottom right;
+  pointer-events: none;
+  filter: drop-shadow(0 12px 20px rgba(71, 99, 136, .3));
+}
+
+@media (max-width: 460px) {
+  body.app-v3 .v3-home-hero .welcome-content {
+    width: 86%;
+  }
+  body.app-v3 .v3-home-mascot {
+    height: 64%;
+    opacity: .96;
+  }
 }
 
 body.app-v3 .program-panel {
@@ -1416,7 +1587,7 @@ body.app-v3 {
 body.app-v3 #app {
   background:
     linear-gradient(180deg, rgba(255, 255, 255, .9), rgba(255, 247, 251, .95)),
-    url("/images/v3/backgrounds/landscape/wide-life/tourist-street/street-cafe-01.webp") center / cover fixed;
+    url("/images/v3/backgrounds/landscape/wide-life/tourist-street/street-cafe-01.webp") center / cover;
 }
 
 body.app-v3 .app-header,
@@ -2406,7 +2577,7 @@ body.app-v3 {
 body.app-v3 #app {
   background:
     linear-gradient(180deg, rgba(235, 242, 246, .88), rgba(230, 236, 241, .94)),
-    url("/images/v3/backgrounds/landscape/wide-life/tourist-street/street-cafe-01.webp") center / cover fixed;
+    url("/images/v3/backgrounds/landscape/wide-life/tourist-street/street-cafe-01.webp") center / cover;
 }
 
 body.app-v3 .view,
@@ -5331,11 +5502,7 @@ body.app-v3 .comic-playback-done-tag {
   100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
 }
 body.app-v3 .comic-playback-done-tag::before {
-  content: '🎬';
-  display: block;
-  font-size: 36px;
-  line-height: 1;
-  margin-bottom: 8px;
+  content: none;
 }
 body.app-v3 .comic-playback-done-tag b {
   display: block;
@@ -5686,4 +5853,1403 @@ body.app-v3 .sentence-learn-actions {
 }
 body.app-v3 .sentence-learn-actions .btn-primary {
   grid-column: 1 / -1;
+}
+
+/* ============================================================
+   V3 HOME POLISH — first-day hero (첫날 학습 지도) + stage track (단계별 학습 지도)
+   appended last so it wins the cascade over earlier home rules
+   ============================================================ */
+
+/* ---- first-day hero: softer, cuter, more depth ---- */
+body.app-v3 .v3-home-hero {
+  border-radius: 24px;
+  box-shadow: 0 24px 54px rgba(71, 99, 136, .22);
+  overflow: hidden;
+}
+
+body.app-v3 .v3-home-hero .welcome-bg {
+  border-radius: 24px;
+}
+
+body.app-v3 .v3-home-hero .welcome-content {
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, .92);
+  background: linear-gradient(180deg, rgba(255, 255, 255, .97), rgba(255, 250, 253, .95));
+  box-shadow: 0 16px 38px rgba(71, 99, 136, .15);
+}
+
+body.app-v3 .v3-home-hero .welcome-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 2px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #ffe2ed, #ffcee0);
+  color: #d8467a;
+  box-shadow: 0 5px 12px rgba(216, 70, 122, .16);
+}
+
+body.app-v3 .v3-home-hero .welcome-eyebrow::before {
+  content: none;
+}
+
+body.app-v3 .v3-home-hero .welcome-plan-row span {
+  border-radius: 14px;
+  border: 1px solid rgba(120, 150, 190, .16);
+  background: linear-gradient(160deg, #ffffff, #eef8ff);
+  box-shadow: 0 6px 14px rgba(71, 99, 136, .08);
+}
+
+body.app-v3 .v3-home-hero .welcome-plan-row b {
+  color: #e9578a;
+}
+
+body.app-v3 .v3-home-hero .home-step-guide-btn {
+  border-radius: 16px;
+  border: 1px solid rgba(120, 150, 190, .14);
+  background: linear-gradient(170deg, #ffffff, #f3fbff);
+  box-shadow: 0 8px 18px rgba(71, 99, 136, .1);
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+
+body.app-v3 .v3-home-hero .home-step-guide-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 13px 26px rgba(71, 99, 136, .17);
+}
+
+body.app-v3 .v3-home-hero .home-step-guide-icon {
+  border-radius: 12px;
+  background: linear-gradient(160deg, #d6f4f9, #b9e9f0);
+  color: #1f8294;
+}
+
+body.app-v3 .v3-home-hero .home-kana-chart-link {
+  border-radius: 14px;
+  background: rgba(255, 255, 255, .68);
+}
+
+body.app-v3 .v3-home-hero .dashboard-primary {
+  border-radius: 16px;
+  background: linear-gradient(135deg, #36a4b4, #2f8f9f 55%, #2a7c8b);
+  box-shadow: 0 13px 26px rgba(47, 143, 159, .34);
+  transition: transform .15s ease, filter .15s ease;
+}
+
+body.app-v3 .v3-home-hero .dashboard-primary:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.06);
+}
+
+/* ---- stage track: game-board panel ---- */
+body.app-v3 .v3-track-title {
+  margin: 6px 0 0;
+}
+
+body.app-v3 .v3-stage-track {
+  margin: 8px 14px 0;
+  padding: 24px 16px 18px;
+  border-radius: 22px;
+  border: 1px solid rgba(255, 255, 255, .82);
+  background: linear-gradient(180deg, rgba(255, 255, 255, .7), rgba(244, 251, 255, .82));
+  box-shadow: 0 18px 40px rgba(71, 99, 136, .15);
+  backdrop-filter: blur(7px);
+}
+
+body.app-v3 .v3-track-line {
+  left: 34px;
+  right: 34px;
+  top: 60px;
+  height: 6px;
+  border-radius: 6px;
+  background: linear-gradient(90deg, rgba(95, 184, 198, .55), rgba(236, 90, 139, .42));
+  opacity: .55;
+}
+
+body.app-v3 .v3-node-medal {
+  width: 64px;
+  height: 64px;
+  font-size: 25px;
+}
+
+body.app-v3 .v3-node-name {
+  padding: 3px 9px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, .72);
+}
+
+body.app-v3 .v3-stage-node.locked .v3-node-name {
+  background: rgba(255, 255, 255, .5);
+}
+
+body.app-v3 .v3-stage-node.focus .v3-node-medal {
+  animation: v3NodePulse 2s ease-in-out infinite;
+}
+
+@keyframes v3NodePulse {
+  0%, 100% {
+    box-shadow: 0 12px 26px rgba(236, 90, 139, .4), inset 0 2px 0 rgba(255, 255, 255, .5), 0 0 0 4px rgba(236, 90, 139, .18);
+  }
+  50% {
+    box-shadow: 0 14px 30px rgba(236, 90, 139, .5), inset 0 2px 0 rgba(255, 255, 255, .5), 0 0 0 9px rgba(236, 90, 139, .08);
+  }
+}
+
+body.app-v3 .v3-node-flag {
+  position: absolute;
+  top: -2px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 3;
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 900;
+  color: #fff;
+  white-space: nowrap;
+  background: linear-gradient(135deg, #ff8fb2, #ec5a8b);
+  box-shadow: 0 5px 12px rgba(236, 90, 139, .42);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body.app-v3 .v3-stage-node.focus .v3-node-medal {
+    animation: none;
+  }
+}
+
+/* ---- stage track: scroll affordance (전체 N단계 + right fade) ---- */
+body.app-v3 .v3-track-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+body.app-v3 .v3-track-count {
+  padding: 2px 9px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: .02em;
+  color: #2b7f8e;
+  background: rgba(82, 196, 201, .16);
+}
+
+body.app-v3 .v3-track-wrap {
+  position: relative;
+  min-width: 0;
+  margin: 8px 14px 0;
+}
+
+body.app-v3 .v3-track-wrap .v3-stage-track {
+  margin: 0;
+}
+
+body.app-v3 .v3-track-fade {
+  position: absolute;
+  top: 1px;
+  right: 1px;
+  bottom: 1px;
+  width: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 8px;
+  border-radius: 0 22px 22px 0;
+  background: linear-gradient(90deg, rgba(248, 252, 255, 0), rgba(248, 252, 255, .92) 70%);
+  pointer-events: none;
+  opacity: 1;
+  transition: opacity .25s ease;
+}
+
+body.app-v3 .v3-track-wrap.at-end .v3-track-fade {
+  opacity: 0;
+}
+
+body.app-v3 .v3-track-chevron {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  font-size: 18px;
+  font-weight: 900;
+  line-height: 1;
+  color: #2b7f8e;
+  background: #ffffff;
+  box-shadow: 0 4px 12px rgba(71, 99, 136, .2);
+  animation: v3ChevronNudge 1.4s ease-in-out infinite;
+}
+
+@keyframes v3ChevronNudge {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(3px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body.app-v3 .v3-track-chevron { animation: none; }
+}
+
+/* ---- stage node medals as scene avatars (lecture-scenes) ---- */
+body.app-v3 .v3-node-medal {
+  position: relative;
+  overflow: hidden;
+  width: 66px;
+  height: 66px;
+  padding: 0;
+  border-radius: 50%;
+  border: 3px solid #ffffff;
+  background: #dde6f2;
+  box-shadow: 0 8px 18px rgba(71, 99, 136, .26), 0 0 0 3px rgba(120, 150, 190, .28);
+}
+
+body.app-v3 .v3-node-medal::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: var(--node-scene);
+  background-size: cover;
+  background-position: center;
+  transition: transform .2s ease;
+}
+
+body.app-v3 .v3-stage-node:not([disabled]):hover .v3-node-medal::before {
+  transform: scale(1.08);
+}
+
+body.app-v3 .v3-node-num {
+  position: absolute;
+  z-index: 2;
+  top: 3px;
+  left: 3px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  display: grid;
+  place-items: center;
+  border-radius: 9px;
+  font-size: 11px;
+  font-weight: 900;
+  color: #fff;
+  background: rgba(20, 28, 44, .55);
+}
+
+body.app-v3 .v3-node-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  background: rgba(20, 30, 50, .42);
+}
+
+body.app-v3 .v3-node-overlay.done {
+  background: rgba(58, 168, 111, .5);
+}
+
+body.app-v3 .v3-node-medal-icon {
+  width: 24px;
+  height: 24px;
+}
+
+body.app-v3 .v3-stage-node.open .v3-node-medal {
+  box-shadow: 0 8px 18px rgba(71, 99, 136, .26), 0 0 0 3px rgba(63, 159, 176, .55);
+}
+
+body.app-v3 .v3-stage-node.active .v3-node-medal {
+  box-shadow: 0 8px 18px rgba(71, 99, 136, .26), 0 0 0 3px rgba(245, 155, 60, .6);
+}
+
+body.app-v3 .v3-stage-node.done .v3-node-medal {
+  box-shadow: 0 8px 18px rgba(71, 99, 136, .26), 0 0 0 3px rgba(58, 168, 111, .65);
+}
+
+body.app-v3 .v3-stage-node.locked .v3-node-medal {
+  box-shadow: 0 6px 14px rgba(71, 99, 136, .18), 0 0 0 3px rgba(150, 162, 180, .5);
+}
+
+body.app-v3 .v3-stage-node.locked .v3-node-medal::before {
+  filter: grayscale(1) brightness(.82);
+}
+
+body.app-v3 .v3-stage-node.focus .v3-node-medal {
+  transform: scale(1.14);
+  animation: v3NodePulseImg 2s ease-in-out infinite;
+}
+
+@keyframes v3NodePulseImg {
+  0%, 100% { box-shadow: 0 12px 26px rgba(236, 90, 139, .4), 0 0 0 4px rgba(236, 90, 139, .5); }
+  50% { box-shadow: 0 14px 30px rgba(236, 90, 139, .5), 0 0 0 9px rgba(236, 90, 139, .12); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body.app-v3 .v3-stage-node.focus .v3-node-medal { animation: none; }
+}
+
+/* drag-to-scroll cursor affordance */
+body.app-v3 .v3-stage-track {
+  cursor: grab;
+}
+
+body.app-v3 .v3-track-wrap.dragging .v3-stage-track {
+  cursor: grabbing;
+}
+
+body.app-v3 .v3-track-wrap.dragging .v3-node-name,
+body.app-v3 .v3-track-wrap.dragging .v3-node-medal {
+  pointer-events: none;
+}
+
+/* ============================================================
+   V3 PROGRAM POSTER CAROUSEL (목표별 코스) — full-image poster cards
+   ============================================================ */
+body.app-v3 .v3-poster-wrap {
+  position: relative;
+  min-width: 0;
+  margin: 8px 14px 0;
+}
+
+body.app-v3 .v3-poster-carousel {
+  display: flex;
+  gap: 12px;
+  padding: 6px 14px 16px;
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  cursor: grab;
+}
+
+body.app-v3 .v3-poster-carousel::-webkit-scrollbar {
+  height: 0;
+}
+
+body.app-v3 .v3-poster-wrap.dragging .v3-poster-carousel {
+  cursor: grabbing;
+}
+
+body.app-v3 .v3-poster-wrap.dragging .v3-poster {
+  pointer-events: none;
+}
+
+body.app-v3 .v3-poster {
+  position: relative;
+  flex: 0 0 158px;
+  height: 216px;
+  scroll-snap-align: start;
+  padding: 0;
+  border: 0;
+  border-radius: 18px;
+  overflow: hidden;
+  cursor: pointer;
+  color: #fff;
+  text-align: left;
+  box-shadow: 0 16px 32px rgba(71, 99, 136, .22);
+  transition: transform .18s ease, box-shadow .18s ease;
+}
+
+body.app-v3 .v3-poster:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 22px 40px rgba(71, 99, 136, .28);
+}
+
+body.app-v3 .v3-poster-img {
+  position: absolute;
+  inset: 0;
+  background-image: var(--poster-scene);
+  background-size: cover;
+  background-position: center;
+  transition: transform .35s ease;
+}
+
+body.app-v3 .v3-poster:hover .v3-poster-img {
+  transform: scale(1.07);
+}
+
+body.app-v3 .v3-poster::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(15, 20, 35, .04) 0 34%, rgba(15, 20, 35, .5) 66%, rgba(8, 12, 26, .9));
+}
+
+body.app-v3 .v3-poster-top {
+  position: absolute;
+  z-index: 2;
+  top: 10px;
+  left: 10px;
+  right: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+body.app-v3 .v3-poster-badge {
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: .04em;
+  color: #243047;
+  background: rgba(255, 255, 255, .94);
+  box-shadow: 0 3px 9px rgba(8, 12, 26, .28);
+}
+
+body.app-v3 .v3-poster.violet .v3-poster-badge { color: #7c3aed; }
+body.app-v3 .v3-poster.blue .v3-poster-badge { color: #2b7bbf; }
+body.app-v3 .v3-poster.emerald .v3-poster-badge { color: #1f9c74; }
+body.app-v3 .v3-poster.amber .v3-poster-badge { color: #c4881f; }
+body.app-v3 .v3-poster.rose .v3-poster-badge { color: #d8467a; }
+
+body.app-v3 .v3-poster-min {
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 9px;
+  font-weight: 800;
+  color: #fff;
+  background: rgba(12, 18, 32, .55);
+  backdrop-filter: blur(3px);
+}
+
+body.app-v3 .v3-poster-body {
+  position: absolute;
+  z-index: 2;
+  left: 12px;
+  right: 12px;
+  bottom: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+body.app-v3 .v3-poster-title {
+  font-size: 16px;
+  font-weight: 900;
+  line-height: 1.2;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, .55);
+}
+
+body.app-v3 .v3-poster-outcome {
+  font-size: 10.5px;
+  font-weight: 650;
+  line-height: 1.35;
+  color: rgba(255, 255, 255, .88);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, .5);
+}
+
+body.app-v3 .v3-poster-bar {
+  margin-top: 2px;
+  height: 5px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, .32);
+  overflow: hidden;
+}
+
+body.app-v3 .v3-poster-bar > span {
+  display: block;
+  height: 100%;
+  border-radius: 4px;
+  background: linear-gradient(90deg, #7fe0c0, #46c6bd);
+}
+
+body.app-v3 .v3-poster.violet .v3-poster-bar > span { background: linear-gradient(90deg, #c4a6ff, #8b5cf6); }
+body.app-v3 .v3-poster.blue .v3-poster-bar > span { background: linear-gradient(90deg, #8fd0ff, #4aa3e8); }
+body.app-v3 .v3-poster.amber .v3-poster-bar > span { background: linear-gradient(90deg, #ffd98a, #f4b13c); }
+body.app-v3 .v3-poster.rose .v3-poster-bar > span { background: linear-gradient(90deg, #ffb0c8, #ec5a8b); }
+
+body.app-v3 .v3-poster-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 9.5px;
+  font-weight: 800;
+  color: rgba(255, 255, 255, .85);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, .5);
+}
+
+/* ============================================================
+   V3 VERTICAL STAGE MAP (단계별 학습 지도) — winding left/right path
+   ============================================================ */
+body.app-v3 .v3-stage-map {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 10px 14px 8px;
+  padding: 10px 0 16px;
+}
+
+/* central road */
+body.app-v3 .v3-map-road {
+  position: absolute;
+  top: 32px;
+  bottom: 32px;
+  left: 50%;
+  width: 6px;
+  transform: translateX(-50%);
+  border-radius: 6px;
+  background: linear-gradient(180deg, rgba(95, 184, 198, .65), rgba(236, 90, 139, .55));
+  z-index: 0;
+}
+
+body.app-v3 .v3-map-road::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  transform: translateX(-50%);
+  background: repeating-linear-gradient(180deg, rgba(255, 255, 255, .85) 0 9px, transparent 9px 20px);
+}
+
+/* node row: half width, alternating side, medal hugs the central road */
+body.app-v3 .v3-stage-map .v3-stage-node {
+  position: relative;
+  z-index: 1;
+  width: 50%;
+  min-height: 86px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+  grid-template-columns: none;
+  justify-items: stretch;
+}
+
+body.app-v3 .v3-stage-map .v3-stage-node.side-left {
+  margin-right: 50%;
+  flex-direction: row-reverse;
+  text-align: right;
+  padding-right: 24px;
+}
+
+body.app-v3 .v3-stage-map .v3-stage-node.side-right {
+  margin-left: 50%;
+  flex-direction: row;
+  text-align: left;
+  padding-left: 24px;
+}
+
+/* connector stub from medal to road */
+body.app-v3 .v3-stage-map .v3-stage-node::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 24px;
+  height: 4px;
+  transform: translateY(-50%);
+  border-radius: 4px;
+  background: rgba(150, 170, 200, .5);
+  z-index: 0;
+}
+
+body.app-v3 .v3-stage-map .v3-stage-node.side-left::after { right: 0; }
+body.app-v3 .v3-stage-map .v3-stage-node.side-right::after { left: 0; }
+
+/* text block beside medal */
+body.app-v3 .v3-stage-map .v3-node-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  flex: 1;
+}
+
+body.app-v3 .v3-stage-map .v3-node-name {
+  display: inline-block;
+  padding: 2px 9px;
+  border-radius: 9px;
+  background: rgba(255, 255, 255, .72);
+}
+
+body.app-v3 .v3-stage-map .v3-stage-node.side-left .v3-node-name { align-self: flex-end; }
+body.app-v3 .v3-stage-map .v3-stage-node.side-right .v3-node-name { align-self: flex-start; }
+
+body.app-v3 .v3-stage-map .v3-node-meta {
+  padding: 0 3px;
+}
+
+body.app-v3 .v3-stage-map .v3-node-bar {
+  width: 100%;
+  max-width: 132px;
+}
+
+body.app-v3 .v3-stage-map .v3-stage-node.side-left .v3-node-bar { margin-left: auto; }
+
+body.app-v3 .v3-stage-map .v3-node-flag {
+  top: -11px;
+}
+
+/* ---- cat-shiba mascot (replaces human guide) ---- */
+/* first-visit hero: content reclaims full width; cat sits in the scenic top-right */
+body.app-v3 .v3-home-hero .welcome-content { width: 100%; }
+
+body.app-v3 .v3-home-mascot.cat {
+  top: 12px;
+  right: 12px;
+  bottom: auto;
+  width: 116px;
+  height: auto;
+  max-height: none;
+  object-position: center;
+  z-index: 2;
+  filter: drop-shadow(0 8px 14px rgba(71, 99, 136, .28));
+}
+
+@media (max-width: 460px) {
+  body.app-v3 .v3-home-hero .welcome-content { width: 100%; }
+  body.app-v3 .v3-home-mascot.cat { width: 94px; top: 10px; right: 10px; }
+}
+
+/* returning hero (compact next-card): reserve a right gutter on the metrics
+   row so the cat sits beside them instead of covering the 3rd metric. */
+body.app-v3 .v3-home-next-card {
+  position: relative;
+  overflow: hidden;
+}
+
+body.app-v3 .v3-home-next-card .dashboard-side {
+  padding-right: 64px;
+}
+
+body.app-v3 .v3-home-mascot.cat.next {
+  top: auto;
+  bottom: 10px;
+  right: 8px;
+  width: 58px;
+  height: 58px;
+  opacity: .97;
+}
+
+/* ============================================================
+   V3 RESUME CARD (오늘 이어서 학습) — cinematic continue banner
+   ============================================================ */
+body.app-v3 .v3-resume-card {
+  position: relative;
+  margin: 0 14px;
+  height: 210px;
+  border-radius: 22px;
+  overflow: hidden;
+  box-shadow: 0 20px 44px rgba(71, 99, 136, .24);
+}
+
+body.app-v3 .v3-resume-img {
+  position: absolute;
+  inset: 0;
+  background-image: var(--resume-scene);
+  background-size: cover;
+  background-position: center;
+}
+
+body.app-v3 .v3-resume-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(10, 14, 28, .06) 0 32%, rgba(10, 14, 28, .52) 62%, rgba(6, 9, 20, .9));
+}
+
+body.app-v3 .v3-home-mascot.cat.resume {
+  top: 10px;
+  right: 10px;
+  bottom: auto;
+  width: 62px;
+  height: 62px;
+  z-index: 3;
+}
+
+body.app-v3 .v3-resume-body {
+  position: absolute;
+  z-index: 2;
+  left: 18px;
+  right: 18px;
+  bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  color: #fff;
+}
+
+body.app-v3 .v3-resume-kicker {
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: .06em;
+  color: #ffe1ec;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, .5);
+}
+
+body.app-v3 .v3-resume-title {
+  font-size: 24px;
+  font-weight: 900;
+  line-height: 1.12;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, .55);
+}
+
+body.app-v3 .v3-resume-sub {
+  font-size: 12px;
+  font-weight: 650;
+  color: rgba(255, 255, 255, .85);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, .5);
+}
+
+body.app-v3 .v3-resume-bar {
+  height: 7px;
+  border-radius: 5px;
+  background: rgba(255, 255, 255, .3);
+  overflow: hidden;
+}
+
+body.app-v3 .v3-resume-bar > span {
+  display: block;
+  height: 100%;
+  border-radius: 5px;
+  background: linear-gradient(90deg, #7fe0c0, #46c6bd);
+}
+
+body.app-v3 .v3-resume-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+body.app-v3 .v3-resume-cta {
+  flex: 0 0 auto;
+  padding: 11px 22px;
+  border: 0;
+  border-radius: 14px;
+  font-size: 14px;
+  font-weight: 900;
+  color: #fff;
+  background: linear-gradient(135deg, #36a4b4, #2b7c8b);
+  box-shadow: 0 10px 22px rgba(0, 0, 0, .32);
+  cursor: pointer;
+  transition: transform .15s ease, filter .15s ease;
+}
+
+body.app-v3 .v3-resume-cta:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.06);
+}
+
+body.app-v3 .v3-resume-stats {
+  display: flex;
+  gap: 14px;
+}
+
+body.app-v3 .v3-resume-stats span {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 1.25;
+  color: rgba(255, 255, 255, .82);
+}
+
+body.app-v3 .v3-resume-stats b {
+  font-size: 15px;
+  font-weight: 900;
+  color: #fff;
+}
+
+/* ============================================================
+   V3 STAGE FOCUS + MINIMAP (단계별 학습 지도 — compact)
+   ============================================================ */
+body.app-v3 .v3-stage-focus {
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+  margin: 8px 14px 0;
+}
+
+body.app-v3 .v3-focus-card {
+  position: relative;
+  height: 152px;
+  padding: 0;
+  border: 0;
+  border-radius: 20px;
+  overflow: hidden;
+  cursor: pointer;
+  text-align: left;
+  color: #fff;
+  box-shadow: 0 16px 34px rgba(71, 99, 136, .2);
+}
+
+body.app-v3 .v3-focus-img {
+  position: absolute;
+  inset: 0;
+  background-image: var(--focus-scene);
+  background-size: cover;
+  background-position: center;
+  transition: transform .3s ease;
+}
+
+body.app-v3 .v3-focus-card:hover .v3-focus-img {
+  transform: scale(1.05);
+}
+
+body.app-v3 .v3-focus-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(10, 14, 28, .08) 0 38%, rgba(8, 10, 22, .82));
+}
+
+body.app-v3 .v3-focus-body {
+  position: absolute;
+  z-index: 2;
+  left: 16px;
+  right: 16px;
+  bottom: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+body.app-v3 .v3-focus-kicker {
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: .08em;
+  color: #ffd6e4;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, .5);
+}
+
+body.app-v3 .v3-focus-name {
+  font-size: 19px;
+  font-weight: 900;
+  line-height: 1.15;
+  text-shadow: 0 2px 5px rgba(0, 0, 0, .55);
+}
+
+body.app-v3 .v3-focus-desc {
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, .85);
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, .5);
+}
+
+body.app-v3 .v3-focus-bar {
+  margin-top: 2px;
+  height: 6px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, .3);
+  overflow: hidden;
+}
+
+body.app-v3 .v3-focus-bar > span {
+  display: block;
+  height: 100%;
+  border-radius: 4px;
+  background: linear-gradient(90deg, #ff9bb8, #ec5a8b);
+}
+
+body.app-v3 .v3-focus-foot {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  font-weight: 800;
+  color: rgba(255, 255, 255, .85);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, .5);
+}
+
+/* minimap chips */
+body.app-v3 .v3-stage-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+}
+
+body.app-v3 .v3-stage-chip {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, .9);
+  font-size: 13px;
+  font-weight: 900;
+  color: #fff;
+  background: linear-gradient(160deg, #7fcad4, #3f9fb0);
+  box-shadow: 0 6px 14px rgba(71, 99, 136, .2);
+  cursor: pointer;
+  transition: transform .15s ease;
+}
+
+body.app-v3 .v3-stage-chip:not([disabled]):hover { transform: translateY(-2px); }
+body.app-v3 .v3-stage-chip.active { background: linear-gradient(160deg, #ffc36b, #f59b3c); }
+body.app-v3 .v3-stage-chip.done { background: linear-gradient(160deg, #7fd9a8, #3aa86f); }
+body.app-v3 .v3-stage-chip.locked { background: linear-gradient(160deg, #cdd6e3, #aab6c8); color: #7e8aa0; box-shadow: none; cursor: default; }
+body.app-v3 .v3-stage-chip.focus {
+  background: linear-gradient(160deg, #ff9bb8, #ec5a8b);
+  transform: scale(1.12);
+  box-shadow: 0 8px 16px rgba(236, 90, 139, .4);
+}
+body.app-v3 .v3-chip-icon { width: 15px; height: 15px; }
+
+/* collapsible full vertical map */
+body.app-v3 .v3-map-details {
+  margin: 10px 14px 4px;
+}
+
+body.app-v3 .v3-map-summary {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 11px;
+  border-radius: 14px;
+  border: 1px solid rgba(120, 150, 190, .22);
+  background: rgba(255, 255, 255, .72);
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: .02em;
+  color: #31415a;
+  cursor: pointer;
+}
+
+body.app-v3 .v3-map-summary::-webkit-details-marker { display: none; }
+body.app-v3 .v3-map-summary::after { content: " ▾"; }
+body.app-v3 .v3-map-details[open] .v3-map-summary::after { content: " ▴"; }
+body.app-v3 .v3-map-details .v3-stage-map { margin: 8px 0 4px; }
+
+/* ---- header brand: mascot + nickname ---- */
+body.app-v3 .header-left {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+body.app-v3 .app-mascot-logo {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(255, 255, 255, .9);
+  box-shadow: 0 4px 10px rgba(71, 99, 136, .22);
+  background: #fff;
+  flex: 0 0 auto;
+}
+
+body.app-v3 .app-header .app-title {
+  font-size: 20px;
+  font-weight: 900;
+  letter-spacing: .01em;
+  color: #2a3550;
+}
+
+/* ---- stage emoji (replaces numbers) on chips & medal badge ---- */
+body.app-v3 .v3-stage-chip {
+  font-size: 17px;
+}
+
+body.app-v3 .v3-chip-emoji {
+  display: grid;
+  place-items: center;
+  line-height: 1;
+}
+
+body.app-v3 .v3-stage-chip.locked .v3-chip-emoji {
+  opacity: .85;
+}
+
+body.app-v3 .v3-node-num {
+  background: rgba(255, 255, 255, .92);
+  font-size: 13px;
+  line-height: 1;
+  box-shadow: 0 2px 5px rgba(20, 28, 44, .25);
+}
+
+/* ============================================================
+   V3 LESSON CARD — single cover + content summary chips
+   ============================================================ */
+body.app-v3 .v3-mod-card {
+  position: relative;
+  display: flex;
+  margin: 0;
+  border-radius: 18px;
+  overflow: hidden;
+  background: #fff;
+  border: 1px solid rgba(82, 105, 140, .14);
+  box-shadow: 0 10px 24px rgba(71, 99, 136, .1);
+  cursor: pointer;
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+
+body.app-v3 .v3-mod-card:not(.locked):hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 32px rgba(71, 99, 136, .17);
+}
+
+body.app-v3 .v3-mod-card.locked {
+  cursor: default;
+  opacity: .82;
+}
+
+body.app-v3 .v3-mod-cover {
+  position: relative;
+  flex: 0 0 104px;
+  align-self: stretch;
+  min-height: 124px;
+  background-image: var(--cover);
+  background-size: cover;
+  background-position: center;
+  background-color: #dde6f2;
+}
+
+body.app-v3 .v3-mod-card.locked .v3-mod-cover { filter: grayscale(.8) brightness(.92); }
+body.app-v3 .v3-mod-card.completed .v3-mod-cover::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(58, 168, 111, .18);
+}
+
+body.app-v3 .v3-mod-cover-badge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  z-index: 2;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, .28);
+}
+
+body.app-v3 .v3-mod-cover-badge.done { background: #3aa86f; }
+body.app-v3 .v3-mod-cover-badge.lock { background: rgba(60, 72, 92, .88); }
+body.app-v3 .v3-mod-cover-icon { width: 15px; height: 15px; }
+
+body.app-v3 .v3-mod-body {
+  flex: 1;
+  min-width: 0;
+  padding: 12px 13px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+body.app-v3 .v3-mod-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: space-between;
+}
+
+body.app-v3 .v3-mod-name {
+  font-size: 15px;
+  font-weight: 900;
+  line-height: 1.2;
+  color: #243047;
+}
+
+body.app-v3 .v3-mod-sub {
+  font-size: 11px;
+  font-weight: 650;
+  color: #647187;
+}
+
+body.app-v3 .v3-mod-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+body.app-v3 .v3-mod-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 9px;
+  border-radius: 999px;
+  border: 1px solid rgba(120, 150, 190, .2);
+  background: #f4f8ff;
+  color: #3a4a63;
+  font-size: 11px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: background .15s ease, transform .12s ease;
+}
+
+body.app-v3 .v3-mod-chip:not([disabled]):hover { transform: translateY(-1px); background: #e9f3ff; }
+body.app-v3 .v3-mod-chip[disabled] { cursor: default; opacity: .6; }
+body.app-v3 .v3-mod-chip b { font-weight: 900; }
+body.app-v3 .v3-mod-chip-emoji { font-size: 12px; line-height: 1; }
+
+body.app-v3 .v3-mod-chip.lecture { background: #fff1f5; border-color: rgba(236, 90, 139, .22); color: #c44e76; }
+body.app-v3 .v3-mod-chip.learn { background: #eefaff; border-color: rgba(63, 159, 176, .22); color: #2b7f8e; }
+body.app-v3 .v3-mod-chip.quiz { background: #fff6e8; border-color: rgba(245, 155, 60, .26); color: #b9791f; }
+body.app-v3 .v3-mod-chip.listen { background: #f1f0ff; border-color: rgba(124, 92, 237, .22); color: #6b4fd0; }
+body.app-v3 .v3-mod-chip.rp { background: #f3fff8; border-color: rgba(58, 168, 111, .26); color: #2f9c6e; }
+body.app-v3 .v3-mod-chip.rp.is-locked { background: #f1f3f6; border-color: rgba(120, 140, 170, .2); color: #8893a6; }
+
+body.app-v3 .v3-mod-foot {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-top: auto;
+  padding-top: 2px;
+}
+
+body.app-v3 .v3-mod-bar {
+  flex: 1;
+  height: 6px;
+  border-radius: 4px;
+  background: #e8eef6;
+  overflow: hidden;
+}
+
+body.app-v3 .v3-mod-bar > span {
+  display: block;
+  height: 100%;
+  border-radius: 4px;
+}
+
+body.app-v3 .v3-mod-foot-label {
+  font-size: 10px;
+  font-weight: 800;
+  color: #647187;
+  white-space: nowrap;
+}
+
+body.app-v3 .v3-mod-foot.locked-label {
+  font-size: 11px;
+  font-weight: 800;
+  color: #8893a6;
+}
+
+/* ============================================================
+   V3 STAGE CAROUSEL (단계별 학습 지도) — single clean swipe row
+   ============================================================ */
+body.app-v3 .v3-stage-carousel-wrap {
+  position: relative;
+  min-width: 0;
+  margin: 8px 14px 0;
+}
+
+body.app-v3 .v3-stage-carousel {
+  display: flex;
+  gap: 11px;
+  padding: 6px 14px 14px;
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  cursor: grab;
+}
+
+body.app-v3 .v3-stage-carousel::-webkit-scrollbar { height: 0; }
+body.app-v3 .v3-stage-carousel-wrap.dragging .v3-stage-carousel { cursor: grabbing; }
+body.app-v3 .v3-stage-carousel-wrap.dragging .v3-stagecard { pointer-events: none; }
+
+body.app-v3 .v3-stagecard {
+  position: relative;
+  flex: 0 0 150px;
+  height: 158px;
+  scroll-snap-align: start;
+  padding: 0;
+  border: 0;
+  border-radius: 18px;
+  overflow: hidden;
+  cursor: pointer;
+  text-align: left;
+  color: #fff;
+  box-shadow: 0 12px 26px rgba(71, 99, 136, .18);
+  transition: transform .16s ease, box-shadow .16s ease;
+}
+
+body.app-v3 .v3-stagecard:not([disabled]):hover {
+  transform: translateY(-3px);
+  box-shadow: 0 18px 34px rgba(71, 99, 136, .24);
+}
+
+body.app-v3 .v3-stagecard-img {
+  position: absolute;
+  inset: 0;
+  background-image: var(--scene);
+  background-size: cover;
+  background-position: center;
+  transition: transform .3s ease;
+}
+
+body.app-v3 .v3-stagecard:not([disabled]):hover .v3-stagecard-img { transform: scale(1.06); }
+
+body.app-v3 .v3-stagecard::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(10, 14, 28, .04) 0 36%, rgba(10, 14, 28, .52) 66%, rgba(8, 10, 22, .9));
+}
+
+body.app-v3 .v3-stagecard.locked { cursor: default; }
+body.app-v3 .v3-stagecard.locked .v3-stagecard-img { filter: grayscale(.85) brightness(.9); }
+
+body.app-v3 .v3-stagecard-emoji {
+  position: absolute;
+  z-index: 2;
+  top: 9px;
+  left: 9px;
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  font-size: 17px;
+  background: rgba(255, 255, 255, .92);
+  box-shadow: 0 3px 8px rgba(8, 12, 26, .28);
+}
+
+body.app-v3 .v3-stagecard-flag {
+  position: absolute;
+  z-index: 3;
+  top: 11px;
+  right: 9px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 900;
+  color: #fff;
+  background: linear-gradient(135deg, #ff8fb2, #ec5a8b);
+  box-shadow: 0 4px 10px rgba(236, 90, 139, .45);
+}
+
+body.app-v3 .v3-stagecard-body {
+  position: absolute;
+  z-index: 2;
+  left: 12px;
+  right: 12px;
+  bottom: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+body.app-v3 .v3-stagecard-name {
+  font-size: 15px;
+  font-weight: 900;
+  line-height: 1.2;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, .55);
+}
+
+body.app-v3 .v3-stagecard-bar {
+  height: 5px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, .32);
+  overflow: hidden;
+}
+
+body.app-v3 .v3-stagecard-bar > span {
+  display: block;
+  height: 100%;
+  border-radius: 4px;
+  background: linear-gradient(90deg, #7fe0c0, #46c6bd);
+}
+
+body.app-v3 .v3-stagecard.focus .v3-stagecard-bar > span { background: linear-gradient(90deg, #ff9bb8, #ec5a8b); }
+body.app-v3 .v3-stagecard.done .v3-stagecard-bar > span { background: linear-gradient(90deg, #7fd9a8, #3aa86f); }
+
+body.app-v3 .v3-stagecard-meta {
+  font-size: 10px;
+  font-weight: 800;
+  color: rgba(255, 255, 255, .85);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, .5);
+}
+
+body.app-v3 .v3-stagecard.focus {
+  outline: 3px solid rgba(236, 90, 139, .55);
+  outline-offset: -3px;
+}
+
+/* ---- emoji → SVG icon swaps (no emojis) ---- */
+body.app-v3 .v3-mod-chip-ico {
+  display: inline-flex;
+  align-items: center;
+}
+body.app-v3 .v3-mod-chip-svg {
+  width: 13px;
+  height: 13px;
+}
+
+body.app-v3 .v3-stagecard-badge {
+  position: absolute;
+  z-index: 2;
+  top: 9px;
+  left: 9px;
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: #fff;
+  box-shadow: 0 3px 8px rgba(8, 12, 26, .3);
+}
+body.app-v3 .v3-stagecard-badge.done { background: #3aa86f; }
+body.app-v3 .v3-stagecard-badge.lock { background: rgba(60, 72, 92, .9); }
+body.app-v3 .v3-stagecard-badge-svg { width: 15px; height: 15px; }
+
+body.app-v3 .home-kana-chart-svg { width: 15px; height: 15px; }
+
+/* ---- word card: flat (meaning + TIP always expanded, no flip) ---- */
+body.app-v3 .vc-flat {
+  background: #fff;
+  border: 1px solid rgba(82, 105, 140, .16);
+  border-radius: 20px;
+  padding: 22px 18px;
+  box-shadow: 0 14px 30px rgba(71, 99, 136, .12);
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  text-align: center;
+  cursor: pointer;
+}
+
+body.app-v3 .vc-flat .vc-jp {
+  font-size: clamp(30px, 8.5vw, 44px);
+  line-height: 1.12;
+  font-weight: 900;
+  color: #1f2a40;
+  margin: 2px 0;
+}
+
+body.app-v3 .vc-flat .vc-face-romaji {
+  font-size: 13px;
+  color: #6a788c;
+  font-weight: 700;
+}
+
+body.app-v3 .vc-flat-meaning {
+  font-size: 19px;
+  font-weight: 800;
+  color: #243047;
+}
+
+body.app-v3 .vc-flat .vc-back-kanji,
+body.app-v3 .vc-flat .vc-back-english {
+  font-size: 12px;
+  color: #647187;
+  font-weight: 700;
+}
+
+body.app-v3 .vc-flat .vc-tip-panel {
+  text-align: left;
+  margin-top: 6px;
+  border-top: 1px solid rgba(82, 105, 140, .12);
+  padding-top: 12px;
+}
+
+body.app-v3 .vc-flat .vc-related {
+  text-align: left;
 }

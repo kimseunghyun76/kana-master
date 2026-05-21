@@ -1,0 +1,104 @@
+{
+  "generatedAt": "2026-05-21T01:19:59.305Z",
+  "stages": {
+    "1": [
+      "images/scenes/stages/1/.thumbs/kana-hiragana-study-desk.webp"
+    ],
+    "2": [
+      "images/scenes/stages/2/.thumbs/kana-katakana-loanword-cafe.webp"
+    ],
+    "3": [
+      "images/scenes/stages/3/.thumbs/slevel1-first-phrases-classroom-greeting.webp",
+      "images/scenes/stages/3/.thumbs/wlevel1-first-meeting-yoroshiku.webp",
+      "images/scenes/stages/3/.thumbs/wlevel1-greeting-office-lobby.webp"
+    ],
+    "4": [
+      "images/scenes/stages/4/.thumbs/bg-airport-checkin-wide-life.webp"
+    ],
+    "5": [
+      "images/scenes/stages/5/.thumbs/slevel4-train-station-transfer.webp",
+      "images/scenes/stages/5/.thumbs/wlevel4b-station-location-help.webp"
+    ],
+    "6": [
+      "images/scenes/stages/6/.thumbs/wlevel5-verb-dining-action.webp",
+      "images/scenes/stages/6/.thumbs/wlevel7-izakaya-ordering-table.webp",
+      "images/scenes/stages/6/.thumbs/wlevel7b-cafe-order-counter.webp"
+    ],
+    "7": [
+      "images/scenes/stages/7/.thumbs/slevel3-convenience-store-checkout.webp"
+    ],
+    "8": [
+      "images/scenes/stages/8/.thumbs/slevel5-ryokan-checkin-lobby.webp",
+      "images/scenes/stages/8/.thumbs/wlevel7b-hotel-front-request.webp"
+    ],
+    "9": [
+      "images/scenes/stages/9/.thumbs/slevel6-koban-lost-item-help.webp",
+      "images/scenes/stages/9/.thumbs/wlevel8-clinic-health-help.webp"
+    ],
+    "10": [
+      "images/scenes/stages/10/.thumbs/slevel7-sightseeing-cultural-directions.webp"
+    ],
+    "11": [
+      "images/scenes/stages/11/.thumbs/wlevel1-arigatou-kindness-scene.webp"
+    ]
+  },
+  "stagesFull": {
+    "1": [
+      "images/scenes/stages/1/kana-hiragana-study-desk.webp"
+    ],
+    "2": [
+      "images/scenes/stages/2/kana-katakana-loanword-cafe.webp"
+    ],
+    "3": [
+      "images/scenes/stages/3/slevel1-first-phrases-classroom-greeting.webp",
+      "images/scenes/stages/3/wlevel1-first-meeting-yoroshiku.webp",
+      "images/scenes/stages/3/wlevel1-greeting-office-lobby.webp"
+    ],
+    "4": [
+      "images/scenes/stages/4/bg-airport-checkin-wide-life.webp"
+    ],
+    "5": [
+      "images/scenes/stages/5/slevel4-train-station-transfer.webp",
+      "images/scenes/stages/5/wlevel4b-station-location-help.webp"
+    ],
+    "6": [
+      "images/scenes/stages/6/wlevel5-verb-dining-action.webp",
+      "images/scenes/stages/6/wlevel7-izakaya-ordering-table.webp",
+      "images/scenes/stages/6/wlevel7b-cafe-order-counter.webp"
+    ],
+    "7": [
+      "images/scenes/stages/7/slevel3-convenience-store-checkout.webp"
+    ],
+    "8": [
+      "images/scenes/stages/8/slevel5-ryokan-checkin-lobby.webp",
+      "images/scenes/stages/8/wlevel7b-hotel-front-request.webp"
+    ],
+    "9": [
+      "images/scenes/stages/9/slevel6-koban-lost-item-help.webp",
+      "images/scenes/stages/9/wlevel8-clinic-health-help.webp"
+    ],
+    "10": [
+      "images/scenes/stages/10/slevel7-sightseeing-cultural-directions.webp"
+    ],
+    "11": [
+      "images/scenes/stages/11/wlevel1-arigatou-kindness-scene.webp"
+    ]
+  },
+  "programs": {
+    "v3_drama_starter": [
+      "images/scenes/programs/v3_drama_starter/wlevel1-arigatou-kindness-scene.webp"
+    ],
+    "v3_letters_7_days": [
+      "images/scenes/programs/v3_letters_7_days/kana-hiragana-study-desk.webp"
+    ],
+    "v3_local_plus_14_days": [
+      "images/scenes/programs/v3_local_plus_14_days/slevel7-sightseeing-cultural-directions.webp"
+    ],
+    "v3_survival_21_days": [
+      "images/scenes/programs/v3_survival_21_days/wlevel3-calendar-time-study.webp"
+    ],
+    "v3_travel_30_days": [
+      "images/scenes/programs/v3_travel_30_days/bg-airport-checkin-wide-life.webp"
+    ]
+  }
+}

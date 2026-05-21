@@ -13,9 +13,8 @@ window.createAppShell = (ctx) => {
       <header class="app-header" id="appHeader">
         <div class="header-left">
           <button class="btn-back hidden" id="btnBack" onclick="App.goBack()">←</button>
-          <div>
-            <span class="app-title">KANA QUEST <b>v3</b></span>
-          </div>
+          <img class="app-mascot-logo" src="/images/v3/mascot/cat-shiba-240.webp" alt="냥멍" />
+          <span class="app-title">냥멍</span>
         </div>
         <div class="header-right">
           <div class="stat-pill" id="xpPill">
@@ -58,8 +57,8 @@ window.createAppShell = (ctx) => {
           <span class="nav-label">연습</span>
         </button>
         <button class="nav-btn" data-tab="profile">
-          <span class="nav-icon">${ctx.uiIconSvg('profile', 'nav-icon-svg')}</span>
-          <span class="nav-label">나</span>
+          <span class="nav-icon">${ctx.uiIconSvg('settings', 'nav-icon-svg')}</span>
+          <span class="nav-label">설정</span>
         </button>
       </nav>
 
@@ -88,6 +87,8 @@ window.createAppShell = (ctx) => {
 
   function switchTab(tab) {
     currentTab = tab;
+    // 표시 전에 렌더 보장 (lazy 렌더 — 탭별 콘텐츠는 처음 보일 때 그림)
+    ctx.onTabChange?.(tab);
     document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
     document.getElementById('view' + ctx.capitalize(tab))?.classList.add('active');
     document.querySelectorAll('.nav-btn').forEach(b => {

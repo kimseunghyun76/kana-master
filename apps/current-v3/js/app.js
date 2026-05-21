@@ -22,6 +22,7 @@ window.App = (() => {
     formatNum: _formatNum,
     uiIconSvg: _uiIconSvg,
     uiIconWrap: _uiIconWrap,
+    onTabChange: (tab) => _ensureTabRendered(tab),
   });
   const _moduleIntroView = createModuleIntroView({
     gameUi: true,
@@ -96,16 +97,57 @@ window.App = (() => {
   async function init() {
     await Store.load();
     await TTS.init();  // 사전생성 매니페스트 로드
+    await _loadSceneIndex();  // 단계/프로그램 장면 이미지 풀 (랜덤)
     _ensureJapaneseVoiceDefaults();
     _shell.build();
     _shell.bindNav();
-    _renderHome();
-    _renderLesson();
-    _renderPractice();
-    _renderProfile();
+    _renderHome(); // 초기 보이는 탭만 렌더 (나머지는 전환 시 lazy)
     // Subscribe to store changes
     Store.subscribe(_onStoreChange);
     window.addEventListener('entitlements:change', _onEntitlementsChange);
+  }
+
+  // ── Render scheduling: only re-render the visible tab ──────
+  // 다른 탭은 dirty로 표시하고, 전환될 때 렌더해서 불필요한
+  // 재렌더/이미지 재디코딩(특히 이미지 많은 홈)을 막는다.
+  const _tabDirty = { home: false, lesson: false, practice: false, profile: false };
+
+  function _isTabRendered(tab) {
+    return tab === 'home' ? !!_homeView
+      : tab === 'lesson' ? !!_lessonView
+      : tab === 'practice' ? !!_practiceView
+      : tab === 'profile' ? !!_profileView
+      : false;
+  }
+
+  function _renderTab(tab) {
+    if (tab === 'home') _renderHome();
+    else if (tab === 'lesson') _renderLesson();
+    else if (tab === 'practice') _renderPractice();
+    else if (tab === 'profile') _renderProfile();
+    _tabDirty[tab] = false;
+  }
+
+  // 탭이 보이기 직전에 호출 — 아직 안 그렸거나 dirty면 렌더
+  function _ensureTabRendered(tab) {
+    if (!_isTabRendered(tab) || _tabDirty[tab]) _renderTab(tab);
+  }
+
+  function _refreshProgressViews() {
+    // 진도/XP 변화에 영향받는 탭: home, lesson, profile.
+    _shell.updateHeader(); // 헤더 XP/스트릭은 항상 싸게 갱신
+    const cur = _shell.getCurrentTab();
+    ['home', 'lesson', 'profile'].forEach(t => { if (t !== cur) _tabDirty[t] = true; });
+    if (['home', 'lesson', 'profile'].includes(cur)) _renderTab(cur);
+  }
+
+  async function _loadSceneIndex() {
+    try {
+      const res = await fetch('/images/scenes/manifest.json', { cache: 'no-cache' });
+      if (res.ok) window.V3_SCENES = await res.json();
+    } catch (_) {
+      // Fallback to home-view's built-in scene map if manifest is missing.
+    }
   }
 
   function _ensureJapaneseVoiceDefaults() {
@@ -122,16 +164,12 @@ window.App = (() => {
 
   function _onStoreChange(type) {
     if (type === 'xp' || type === 'module' || type === 'roleplay') {
-      _renderHome();
-      _renderLesson();
-      _renderProfile();
+      _refreshProgressViews();
     }
   }
 
   function _onEntitlementsChange() {
-    _renderHome();
-    _renderLesson();
-    _renderProfile();
+    _refreshProgressViews();
   }
 
   function _getModuleVisual(mod) {
@@ -139,7 +177,17 @@ window.App = (() => {
   }
 
   function switchTab(tab) {
+    // shell.switchTab → onTabChange → _ensureTabRendered 로 lazy 렌더 처리
     _shell.switchTab(tab);
+  }
+
+  // 단계별 지도에서 특정 단계를 누르면 레슨 탭의 해당 단계로 이동·스크롤
+  function openStage(stageId) {
+    _shell.switchTab('lesson');
+    requestAnimationFrame(() => {
+      const el = document.getElementById('lesson-stage-' + stageId);
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
   }
 
   function _updateHeader() {
@@ -274,12 +322,12 @@ window.App = (() => {
       return;
     }
     if (!isModuleUnlocked(moduleId, prog)) {
-      showToast('🔒 이전 모듈을 먼저 완료하세요!');
+      showToast('이전 모듈을 먼저 완료하세요!');
       return;
     }
     if (goRoleplay) {
       if (!isRoleplayUnlocked(moduleId, prog)) {
-        showToast('🔒 먼저 모든 학습 단계를 완료하세요!');
+        showToast('먼저 모든 학습 단계를 완료하세요!');
         return;
       }
       _startRoleplay(mod);
@@ -312,7 +360,7 @@ window.App = (() => {
     if (!mod) return;
     const prog = Store.get();
     if (!isModuleUnlocked(mod, prog)) {
-      showToast('🔒 이전 모듈을 먼저 완료하세요!');
+      showToast('이전 모듈을 먼저 완료하세요!');
       return;
     }
     const safeStep = Math.max(0, Math.min(Number(stepIndex) || 0, mod.steps.length - 1));
@@ -625,11 +673,7 @@ window.App = (() => {
             ${romaji ? `<div class="sentence-learn-romaji">${escHtml(romaji)}</div>` : ''}
             <div class="sentence-learn-ko-fixed">${escHtml(ko)}</div>
             ${tip ? `
-              <button class="sentence-learn-reveal-btn ${revealed ? 'is-open' : ''}" type="button"
-                      onclick="App._sentenceLearnToggle()">
-                ${revealed ? '팁 닫기 ▴' : '팁 보기 ▾'}
-              </button>
-              <div class="sentence-learn-reveal ${revealed ? 'is-open' : ''}">
+              <div class="sentence-learn-reveal is-open">
                 <div class="sentence-learn-tip">${_uiIconSvg('sparkle', 'sentence-learn-tip-icon')} <span>${ruby(tip)}</span></div>
               </div>
             ` : ''}
@@ -1079,8 +1123,8 @@ window.App = (() => {
     _shell.closeFlowScreen();
     TTS.stop();
     _flow = null;
-    _renderHome();
-    _renderLesson();
+    // 플로우 중 진도가 바뀌었으니 현재 탭만 갱신, 나머지는 dirty
+    _refreshProgressViews();
   }
 
   function goBack() { closeFlow(); }
@@ -1205,6 +1249,7 @@ window.App = (() => {
   return {
     init,
     switchTab,
+    openStage,
     goBack,
     closeFlow,
     openProgram,

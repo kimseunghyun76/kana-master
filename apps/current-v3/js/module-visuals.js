@@ -143,6 +143,38 @@ window.ModuleVisuals = (() => {
     v3_drama_daily:       { image: G.greetingClass, focus: '일상 대사', tone: 'cute', iconKey: 'module-talk', coverImage: G.greetingClass, roleplayImage: G.greetingClass },
   };
 
+  // Topic-specific lesson-card covers so each module gets a distinct, relevant
+  // image instead of repeating the generic street/food/station pools.
+  const LESSON_COVER = {
+    kana_hira: 'kana-hiragana-study-desk',
+    kana_kata: 'kana-katakana-loanword-cafe',
+    v3_first_greetings: 'slevel1-first-phrases-classroom-greeting',
+    v3_pronouns_places: 'wlevel4-kosoado-city-directions',
+    v3_numbers_time: 'wlevel3-calendar-time-study',
+    v3_money_counting: 'wlevel2-elevator-number-culture',
+    v3_directions_body: 'wlevel4b-station-location-help',
+    v3_particle_basics: 'slevel2-self-introduction-office-lobby',
+    v3_tense_matrix: 'wlevel5-verb-dining-action',
+    v3_question_engine: 'wlevel1-sumimasen-restaurant-call',
+    v3_answer_engine: 'wlevel1-first-meeting-yoroshiku',
+    v3_reaction_shadowing: 'wlevel1-arigatou-kindness-scene',
+    v3_transport: 'slevel4-train-station-transfer',
+    v3_cafe_breakfast: 'wlevel7b-cafe-order-counter',
+    v3_hotel: 'slevel5-ryokan-checkin-lobby',
+    v3_health: 'wlevel8-clinic-health-help',
+    v3_lost_and_help: 'slevel6-koban-lost-item-help',
+    v3_tourist_spot: 'slevel7-sightseeing-cultural-directions',
+    v3_polite_wrapup: 'wlevel1-polite-greeting-mentor',
+    v3_drama_reactions: 'wlevel6-adjective-cafe-comparison',
+    v3_drama_daily: 'wlevel1-greeting-office-lobby',
+  };
+  Object.entries(LESSON_COVER).forEach(([id, name]) => {
+    if (!VISUALS[id]) return;
+    const p = `images/lecture-scenes/${name}.webp`;
+    VISUALS[id].coverImage = p;
+    VISUALS[id].image = p;
+  });
+
   const FALLBACK = {
     image: 'assets/visuals/advanced-ribbon.svg',
     focus: 'v3 학습',

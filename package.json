@@ -9,18 +9,21 @@
     "size": "node scripts/check-size.js",
     "audit:content": "node scripts/audit-content.js",
     "audit:v3": "node scripts/audit-v3-content.js",
+    "audit:deep": "node scripts/audit-content-deep.js",
     "audio": "node scripts/generate-audio.js",
     "audio:lectures": "node scripts/generate-audio.js --lectures",
     "audio:kana": "node scripts/generate-audio.js --kana",
     "audio:all": "node scripts/generate-audio.js --all",
     "audio:strokes": "node scripts/download-kanjivg.js",
+    "scenes": "node scripts/build-scene-index.js",
     "zip": "node scripts/build-zip.js",
     "test:smoke": "playwright test",
-    "check": "npm run lint && npm run size && npm run test:smoke"
+    "check": "npm run lint && npm run size && npm run audit:v3 && npm run audit:deep && npm run test:smoke"
   },
   "devDependencies": {
     "@playwright/test": "^1.52.0",
     "archiver": "^7.0.1",
-    "serve": "^14.2.3"
+    "serve": "^14.2.3",
+    "sharp": "^0.34.5"
   }
 }

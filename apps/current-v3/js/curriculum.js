@@ -10,7 +10,7 @@ const STAGES = [
     id: 1, key: 'v3_letters',
     name: '문자 게임판',
     nameJp: '文字の地図',
-    icon: '🔤',
+    icon: '',
     color: '#8b5cf6',
     jlpt: null,
     desc: '오십음도, 모음 리듬, 히라가나·가타가나 역할을 게임판처럼 잡는 단계.',
@@ -20,7 +20,7 @@ const STAGES = [
     id: 2, key: 'v3_reading',
     name: '소리 조립',
     nameJp: '音の組み立て',
-    icon: '🔊',
+    icon: '',
     color: '#3b82f6',
     jlpt: null,
     desc: '탁음, 요음, 장음, 촉음, は/へ/を처럼 글자가 문장 소리로 바뀌는 규칙.',
@@ -30,7 +30,7 @@ const STAGES = [
     id: 3, key: 'v3_survival_words',
     name: '문장 전 준비',
     nameJp: '文の前の準備',
-    icon: '❓',
+    icon: '',
     color: '#06b6d4',
     jlpt: 'N5',
     desc: '문장 구조, 조사, 대명사, 숫자, 질문·대답의 뼈대를 인사 전에 정리하는 단계.',
@@ -40,7 +40,7 @@ const STAGES = [
     id: 4, key: 'v3_sentence_engine',
     name: '공항·비행기',
     nameJp: '空港と飛行機',
-    icon: '✈️',
+    icon: '',
     color: '#10b981',
     jlpt: 'N5',
     desc: '체크인, 입국, 기내 요청, 면세점처럼 일본 도착 전후의 질문과 답변.',
@@ -50,7 +50,7 @@ const STAGES = [
     id: 5, key: 'v3_travel_move',
     name: '교통·길 찾기',
     nameJp: '交通と道案内',
-    icon: '🚃',
+    icon: '',
     color: '#f59e0b',
     jlpt: 'N5',
     desc: '지하철, 버스, 택시, 길 찾기에서 바로 외워 쓰는 질문과 답변.',
@@ -60,7 +60,7 @@ const STAGES = [
     id: 6, key: 'v3_travel_life',
     name: '먹고 마시기',
     nameJp: '食事と飲み物',
-    icon: '🍜',
+    icon: '',
     color: '#ef4444',
     jlpt: 'N5',
     desc: '편의점, 식당, 카페, 술집, 조식에서 반복되는 주문 질문과 답변.',
@@ -70,7 +70,7 @@ const STAGES = [
     id: 7, key: 'v3_trouble',
     name: '쇼핑·결제',
     nameJp: '買い物と会計',
-    icon: '🛍️',
+    icon: '',
     color: '#64748b',
     jlpt: 'N5',
     desc: '옷가게, 상점, 면세, 교환, 결제에서 필요한 질문과 답변.',
@@ -80,7 +80,7 @@ const STAGES = [
     id: 8, key: 'v3_stay_onsen',
     name: '숙박·온천',
     nameJp: '宿泊と温泉',
-    icon: '🏨',
+    icon: '',
     color: '#14b8a6',
     jlpt: 'N5',
     desc: '호텔 체크인, 조식, 객실 요청, 온천 이용 규칙을 장면별로 외우는 단계.',
@@ -90,7 +90,7 @@ const STAGES = [
     id: 9, key: 'v3_health_trouble',
     name: '건강·문제 해결',
     nameJp: '健康とトラブル',
-    icon: '💊',
+    icon: '',
     color: '#a855f7',
     jlpt: 'N5',
     desc: '약국, 병원, 분실물, 경찰/안내소에서 당황하지 않게 말하는 단계.',
@@ -100,7 +100,7 @@ const STAGES = [
     id: 10, key: 'v3_local_plus',
     name: '현지 확장',
     nameJp: '現地応用',
-    icon: '🗾',
+    icon: '',
     color: '#f43f5e',
     jlpt: 'N5',
     desc: '렌트카, 관광지, 예약, 사진 부탁처럼 여행 만족도를 올리는 실전 장면.',
@@ -110,7 +110,7 @@ const STAGES = [
     id: 11, key: 'v3_drama',
     name: '드라마 귀 트기',
     nameJp: 'ドラマ聞き取り',
-    icon: '🎬',
+    icon: '',
     color: '#f97316',
     jlpt: null,
     desc: '자막 속 짧은 반응, 감정 표현, 친구 말투를 알아듣는 콘텐츠 학습 입문.',
@@ -190,6 +190,8 @@ const V3_AIRPORT_QA_CARDS = [
   { id:'v3air_06', japanese:'搭乗口はどこですか', romaji:'toujouguchi wa doko desu ka', korean:'탑승구는 어디예요?' },
   { id:'v3air_07', japanese:'何時から搭乗ですか', romaji:'nan ji kara toujou desu ka', korean:'몇 시부터 탑승이에요?' },
   { id:'v3air_08', japanese:'この荷物を預けたいです', romaji:'kono nimotsu wo azuketai desu', korean:'이 짐을 맡기고 싶어요' },
+  { id:'v3air_09', japanese:'重さは大丈夫ですか', romaji:'omosa wa daijoubu desu ka', korean:'무게는 괜찮아요?' },
+  { id:'v3air_10', japanese:'はい、大丈夫です', romaji:'hai, daijoubu desu', korean:'네, 괜찮아요' },
 ];
 
 const V3_IMMIGRATION_QA_CARDS = [
@@ -213,6 +215,9 @@ const V3_AIRPLANE_QA_CARDS = [
   { id:'v3plane_05', japanese:'席を変えられますか', romaji:'seki wo kaeraremasu ka', korean:'자리 바꿀 수 있어요?' },
   { id:'v3plane_06', japanese:'少々お待ちください', romaji:'shoushou omachi kudasai', korean:'잠시 기다려 주세요' },
   { id:'v3plane_07', japanese:'大丈夫です', romaji:'daijoubu desu', korean:'괜찮아요' },
+  { id:'v3plane_08', japanese:'食事は何がありますか', romaji:'shokuji wa nani ga arimasu ka', korean:'식사는 뭐가 있어요?' },
+  { id:'v3plane_09', japanese:'牛肉と魚があります', romaji:'gyuuniku to sakana ga arimasu', korean:'소고기와 생선이 있어요' },
+  { id:'v3plane_10', japanese:'魚をお願いします', romaji:'sakana wo onegai shimasu', korean:'생선으로 부탁해요' },
 ];
 
 const V3_STATION_QA_CARDS = [
@@ -225,6 +230,7 @@ const V3_STATION_QA_CARDS = [
   { id:'v3st_07', japanese:'乗り換えはありますか', romaji:'norikae wa arimasu ka', korean:'환승 있어요?' },
   { id:'v3st_08', japanese:'山手線に乗ってください', romaji:'yamanote sen ni notte kudasai', korean:'야마노테선을 타세요' },
   { id:'v3st_10', japanese:'気をつけてください', romaji:'ki wo tsukete kudasai', korean:'조심하세요' },
+  { id:'v3st_11', japanese:'ありがとうございます', romaji:'arigatou gozaimasu', korean:'감사합니다' },
 ];
 
 const V3_BUS_QA_CARDS = [
@@ -236,6 +242,8 @@ const V3_BUS_QA_CARDS = [
   { id:'v3bus_06', japanese:'どこで降りますか', romaji:'doko de orimasu ka', korean:'어디에서 내려요?' },
   { id:'v3bus_07', japanese:'次の次です', romaji:'tsugi no tsugi desu', korean:'다음 다음이에요' },
   { id:'v3bus_08', japanese:'ボタンを押してください', romaji:'botan wo oshite kudasai', korean:'버튼을 눌러 주세요' },
+  { id:'v3bus_09', japanese:'次で降ります', romaji:'tsugi de orimasu', korean:'다음에서 내려요' },
+  { id:'v3bus_10', japanese:'ありがとうございました', romaji:'arigatou gozaimashita', korean:'감사했습니다' },
 ];
 
 const V3_TAXI_QA_CARDS = [
@@ -248,6 +256,7 @@ const V3_TAXI_QA_CARDS = [
   { id:'v3taxi_07', japanese:'高速道路は使わないでください', romaji:'kousoku douro wa tsukawanaide kudasai', korean:'고속도로는 쓰지 말아 주세요' },
   { id:'v3taxi_08', japanese:'はい、わかりました', romaji:'hai, wakarimashita', korean:'네, 알겠습니다' },
   { id:'v3taxi_09', japanese:'料金はいくらですか', romaji:'ryoukin wa ikura desu ka', korean:'요금은 얼마예요?' },
+  { id:'v3taxi_10', japanese:'ありがとうございました', romaji:'arigatou gozaimashita', korean:'감사했습니다' },
 ];
 
 const V3_KONBINI_QA_CARDS = [
@@ -260,6 +269,7 @@ const V3_KONBINI_QA_CARDS = [
   { id:'v3kon_07', japanese:'大丈夫です', romaji:'daijoubu desu', korean:'괜찮아요' },
   { id:'v3kon_08', japanese:'Suicaでお願いします', romaji:'suika de onegai shimasu', korean:'스이카로 부탁해요' },
   { id:'v3kon_09', japanese:'六百円です', romaji:'roppyaku en desu', korean:'600엔이에요' },
+  { id:'v3kon_10', japanese:'ありがとうございました', romaji:'arigatou gozaimashita', korean:'감사했습니다' },
 ];
 
 const V3_CAFE_QA_CARDS = [
@@ -298,6 +308,7 @@ const V3_SHOPPING_QA_CARDS = [
   { id:'v3shop_07', japanese:'いくらですか', romaji:'ikura desu ka', korean:'얼마예요?' },
   { id:'v3shop_08', japanese:'これにします', romaji:'kore ni shimasu', korean:'이걸로 할게요' },
   { id:'v3shop_09', japanese:'もう少し考えます', romaji:'mou sukoshi kangaemasu', korean:'조금 더 생각할게요' },
+  { id:'v3shop_10', japanese:'これをください', romaji:'kore wo kudasai', korean:'이거 주세요' },
 ];
 
 const V3_PAYMENT_QA_CARDS = [
@@ -310,6 +321,7 @@ const V3_PAYMENT_QA_CARDS = [
   { id:'v3pay_07', japanese:'免税できますか', romaji:'menzei dekimasu ka', korean:'면세 가능해요?' },
   { id:'v3pay_08', japanese:'ここにサインをお願いします', romaji:'koko ni sain wo onegai shimasu', korean:'여기에 사인 부탁드려요' },
   { id:'v3pay_09', japanese:'暗証番号をお願いします', romaji:'anshou bangou wo onegai shimasu', korean:'비밀번호 눌러 주세요' },
+  { id:'v3pay_10', japanese:'ありがとうございました', romaji:'arigatou gozaimashita', korean:'감사했습니다' },
 ];
 
 const V3_DUTY_FREE_QA_CARDS = [
@@ -322,6 +334,7 @@ const V3_DUTY_FREE_QA_CARDS = [
   { id:'v3df_07', japanese:'これを二つください', romaji:'kore wo futatsu kudasai', korean:'이거 두 개 주세요' },
   { id:'v3df_08', japanese:'プレゼント用にできますか', romaji:'purezento you ni dekimasu ka', korean:'선물용으로 가능해요?' },
   { id:'v3df_09', japanese:'袋をください', romaji:'fukuro wo kudasai', korean:'봉투 주세요' },
+  { id:'v3df_10', japanese:'ありがとうございます', romaji:'arigatou gozaimasu', korean:'감사합니다' },
 ];
 
 const V3_HOTEL_QA_CARDS = [
@@ -333,6 +346,8 @@ const V3_HOTEL_QA_CARDS = [
   { id:'v3hotel_06', japanese:'チェックアウトは何時ですか', romaji:'chekku auto wa nan ji desu ka', korean:'체크아웃은 몇 시예요?' },
   { id:'v3hotel_07', japanese:'鍵はこちらです', romaji:'kagi wa kochira desu', korean:'열쇠는 여기예요' },
   { id:'v3hotel_08', japanese:'部屋は何階ですか', romaji:'heya wa nan gai desu ka', korean:'방은 몇 층이에요?' },
+  { id:'v3hotel_09', japanese:'荷物を預かってもらえますか', romaji:'nimotsu wo azukatte moraemasu ka', korean:'짐을 맡길 수 있어요?' },
+  { id:'v3hotel_10', japanese:'かしこまりました', romaji:'kashikomarimashita', korean:'알겠습니다' },
 ];
 
 const V3_HOTEL_REQUEST_QA_CARDS = [
@@ -345,6 +360,7 @@ const V3_HOTEL_REQUEST_QA_CARDS = [
   { id:'v3hreq_07', japanese:'毛布はありますか', romaji:'moufu wa arimasu ka', korean:'담요 있어요?' },
   { id:'v3hreq_08', japanese:'鍵をなくしました', romaji:'kagi wo nakushimashita', korean:'열쇠를 잃어버렸어요' },
   { id:'v3hreq_09', japanese:'助かりました', romaji:'tasukarimashita', korean:'도움이 됐어요' },
+  { id:'v3hreq_10', japanese:'すぐ持っていきます', romaji:'sugu motte ikimasu', korean:'바로 가져다 드릴게요' },
 ];
 
 const V3_ONSEN_QA_CARDS = [
@@ -355,6 +371,8 @@ const V3_ONSEN_QA_CARDS = [
   { id:'v3onsen_05', japanese:'写真はだめです', romaji:'shashin wa dame desu', korean:'사진은 안 돼요' },
   { id:'v3onsen_06', japanese:'ロッカーはどこですか', romaji:'rokkaa wa doko desu ka', korean:'락커는 어디예요?' },
   { id:'v3onsen_07', japanese:'この鍵を使ってください', romaji:'kono kagi wo tsukatte kudasai', korean:'이 열쇠를 사용해 주세요' },
+  { id:'v3onsen_08', japanese:'飲み物はどこですか', romaji:'nomimono wa doko desu ka', korean:'음료는 어디 있어요?' },
+  { id:'v3onsen_09', japanese:'あちらの自販機にあります', romaji:'achira no jihanki ni arimasu', korean:'저쪽 자판기에 있어요' },
   { id:'v3onsen_10', japanese:'ゆっくりしてください', romaji:'yukkuri shite kudasai', korean:'편히 쉬세요' },
 ];
 
@@ -367,6 +385,8 @@ const V3_HEALTH_QA_CARDS = [
   { id:'v3health_06', japanese:'食後に飲んでください', romaji:'shokugo ni nonde kudasai', korean:'식후에 드세요' },
   { id:'v3health_07', japanese:'一日三回です', romaji:'ichinichi sankai desu', korean:'하루 세 번이에요' },
   { id:'v3health_08', japanese:'病院は近くにありますか', romaji:'byouin wa chikaku ni arimasu ka', korean:'병원은 근처에 있어요?' },
+  { id:'v3health_09', japanese:'水で飲んでください', romaji:'mizu de nonde kudasai', korean:'물과 함께 드세요' },
+  { id:'v3health_10', japanese:'お大事に', romaji:'odaiji ni', korean:'몸조리 잘하세요' },
 ];
 
 const V3_HOSPITAL_QA_CARDS = [
@@ -379,6 +399,7 @@ const V3_HOSPITAL_QA_CARDS = [
   { id:'v3hos_07', japanese:'この紙に書いてください', romaji:'kono kami ni kaite kudasai', korean:'이 종이에 써 주세요' },
   { id:'v3hos_08', japanese:'どのくらい待ちますか', romaji:'dono kurai machimasu ka', korean:'얼마나 기다려요?' },
   { id:'v3hos_09', japanese:'三十分くらいです', romaji:'sanjuppun kurai desu', korean:'30분 정도예요' },
+  { id:'v3hos_10', japanese:'お大事に', romaji:'odaiji ni', korean:'몸조리 잘하세요' },
 ];
 
 const V3_LOST_QA_CARDS = [
@@ -403,6 +424,8 @@ const V3_RENTACAR_QA_CARDS = [
   { id:'v3car_06', japanese:'ガソリンは満タンで返しますか', romaji:'gasorin wa mantan de kaeshimasu ka', korean:'기름은 가득 채워 반납해요?' },
   { id:'v3car_07', japanese:'ナビは日本語ですか', romaji:'nabi wa nihongo desu ka', korean:'내비는 일본어예요?' },
   { id:'v3car_08', japanese:'ここにサインをお願いします', romaji:'koko ni sain wo onegai shimasu', korean:'여기에 사인 부탁드려요' },
+  { id:'v3car_09', japanese:'満タンで返してください', romaji:'mantan de kaeshite kudasai', korean:'가득 채워서 반납해 주세요' },
+  { id:'v3car_10', japanese:'気をつけて運転してください', romaji:'ki wo tsukete unten shite kudasai', korean:'조심히 운전하세요' },
 ];
 
 const V3_TOURIST_QA_CARDS = [
@@ -415,6 +438,7 @@ const V3_TOURIST_QA_CARDS = [
   { id:'v3photo_07', japanese:'おすすめの場所はありますか', romaji:'osusume no basho wa arimasu ka', korean:'추천 장소 있어요?' },
   { id:'v3photo_08', japanese:'助かりました', romaji:'tasukarimashita', korean:'도움이 됐어요' },
   { id:'v3photo_10', japanese:'楽しんでください', romaji:'tanoshinde kudasai', korean:'즐겁게 보내세요' },
+  { id:'v3photo_11', japanese:'ありがとうございます', romaji:'arigatou gozaimasu', korean:'감사합니다' },
 ];
 
 const V3_RESERVATION_QA_CARDS = [
@@ -426,6 +450,8 @@ const V3_RESERVATION_QA_CARDS = [
   { id:'v3res_06', japanese:'明日の同じ時間でお願いします', romaji:'ashita no onaji jikan de onegai shimasu', korean:'내일 같은 시간으로 부탁해요' },
   { id:'v3res_07', japanese:'電話番号はこれです', romaji:'denwa bangou wa kore desu', korean:'전화번호는 이거예요' },
   { id:'v3res_08', japanese:'確認しました', romaji:'kakunin shimashita', korean:'확인했습니다' },
+  { id:'v3res_09', japanese:'窓側の席はありますか', romaji:'madogawa no seki wa arimasu ka', korean:'창가 자리 있어요?' },
+  { id:'v3res_10', japanese:'ご用意します', romaji:'goyoui shimasu', korean:'준비해 드릴게요' },
 ];
 
 const V3_WEATHER_QA_CARDS = [
@@ -436,6 +462,9 @@ const V3_WEATHER_QA_CARDS = [
   { id:'v3weather_05', japanese:'キャンセルできますか', romaji:'kyanseru dekimasu ka', korean:'취소할 수 있어요?' },
   { id:'v3weather_06', japanese:'返金はありますか', romaji:'henkin wa arimasu ka', korean:'환불 있어요?' },
   { id:'v3weather_07', japanese:'晴れたら行きたいです', romaji:'haretara ikitai desu', korean:'맑으면 가고 싶어요' },
+  { id:'v3weather_08', japanese:'室内のおすすめはありますか', romaji:'shitsunai no osusume wa arimasu ka', korean:'실내 추천 있어요?' },
+  { id:'v3weather_09', japanese:'美術館はどうですか', romaji:'bijutsukan wa dou desu ka', korean:'미술관은 어때요?' },
+  { id:'v3weather_10', japanese:'いいですね', romaji:'ii desu ne', korean:'좋네요' },
 ];
 
 const V3_WRAPUP_QA_CARDS = [
@@ -463,12 +492,12 @@ const MODULES = [
     desc: '가로는 입 모양, 세로는 자음 가족. 표를 게임판처럼 읽는 첫 강의',
     xp: 180,
     steps: [
-      { type: 'lecture', title: '🎬 일본어 글자는 왜 50음도일까', lectureKey: 'v3_kana_map' },
+      { type: 'lecture', title: '일본어 글자는 왜 50음도일까', lectureKey: 'v3_kana_map' },
       { type: 'kana_chart', title: '가로 5모음·세로 자음 가족 보기' },
       { type: 'kana_learn', title: 'あいうえお 리듬 카드', kanaType: 'hiragana', chars: ['あ','い','う','え','お'], customLabel: '입 모양 5개' },
       { type: 'kana_quiz', title: '모음 리듬 퀴즈', kanaType: 'hiragana', chars: ['あ','い','う','え','お'] },
       { type: 'kana_learn', title: 'かさたなは 첫 줄 찾기', kanaType: 'hiragana', chars: ['か','さ','た','な','は'], customLabel: '자음 가족 입구' },
-      { type: 'lecture', title: '💡 표를 외우지 말고 길을 찾기', lectureKey: 'v3_kana_map_tip' },
+      { type: 'lecture', title: '표를 외우지 말고 길을 찾기', lectureKey: 'v3_kana_map_tip' },
     ],
     roleplay: {
       id: 'rp_kana_map_practice',
@@ -491,7 +520,7 @@ const MODULES = [
     xp: 520,
     unlockAfter: ['v3_kana_map'],
     steps: [
-      { type: 'lecture', title: '🎬 히라가나는 문장 바닥재', lectureKey: 'v3_hiragana_intro' },
+      { type: 'lecture', title: '히라가나는 문장 바닥재', lectureKey: 'v3_hiragana_intro' },
       { type: 'kana_learn', title: '1묶음: あ행·か행 10자', levelId: 1, customLabel: '히라가나 1/4' },
       { type: 'kana_learn', title: '2묶음: さ행·た행 10자', levelId: 2, customLabel: '히라가나 2/4' },
       { type: 'kana_learn', title: '3묶음: な행·は행 10자', levelId: 3, customLabel: '히라가나 3/4' },
@@ -499,7 +528,7 @@ const MODULES = [
       { type: 'kana_learn', title: '헷갈림 세트: あ/お·き/さ·ぬ/め', levelId: 5, customLabel: '모양 구분' },
       { type: 'kana_listening', title: '히라가나 46자 소리 찾기', chars: HIRAGANA_BASE },
       { type: 'kana_quiz', title: '히라가나 46자 최종 퀴즈', kanaType: 'hiragana', chars: HIRAGANA_BASE },
-      { type: 'lecture', title: '💡 히라가나는 하루에 끝내지 말기', lectureKey: 'v3_hiragana_tip' },
+      { type: 'lecture', title: '히라가나는 하루에 끝내지 말기', lectureKey: 'v3_hiragana_tip' },
     ],
     roleplay: {
       id: 'rp_hiragana_reading',
@@ -522,7 +551,7 @@ const MODULES = [
     xp: 520,
     unlockAfter: ['kana_hira'],
     steps: [
-      { type: 'lecture', title: '🎬 가타가나는 여행 간판 문자', lectureKey: 'v3_katakana_intro' },
+      { type: 'lecture', title: '가타가나는 여행 간판 문자', lectureKey: 'v3_katakana_intro' },
       { type: 'vocab_learn', title: '이미 아는 외래어 10개', mode: 'word', items: V3_KATAW_CARDS },
       { type: 'vocab_quiz', title: '외래어 의미 퀴즈', items: V3_KATAW_CARDS },
       { type: 'kana_learn', title: '1묶음: ア행·カ행 10자', levelId: 8, customLabel: '가타가나 1/4' },
@@ -532,7 +561,7 @@ const MODULES = [
       { type: 'kana_learn', title: '헷갈림 세트: シ・ツ・ソ・ン', kanaType: 'katakana', chars: ['シ','ツ','ソ','ン','ク','ケ','フ','ワ','ヌ','メ'], customLabel: '점 방향·선 방향 비교' },
       { type: 'kana_listening', title: '가타가나 46자 소리 찾기', chars: KATAKANA_BASE },
       { type: 'kana_quiz', title: '가타가나 46자 최종 퀴즈', kanaType: 'katakana', chars: KATAKANA_BASE },
-      { type: 'lecture', title: '💡 가타가나는 단어째로 외우기', lectureKey: 'v3_katakana_tip' },
+      { type: 'lecture', title: '가타가나는 단어째로 외우기', lectureKey: 'v3_katakana_tip' },
     ],
     roleplay: {
       id: 'rp_katakana_signs',
@@ -549,12 +578,12 @@ const MODULES = [
     accessTier: 'free',
     name: '소리 변신 규칙',
     nameJp: '発音と読み方',
-    icon: '🔊',
+    icon: '',
     desc: '점, 동그라미, 작은 글자, 긴 소리, 작은 つ가 단어를 어떻게 바꾸는지 익히기',
     xp: 420,
     unlockAfter: ['kana_kata'],
     steps: [
-      { type: 'lecture', title: '🎬 글자가 소리로 변하는 순간', lectureKey: 'v3_kana_sound_rules' },
+      { type: 'lecture', title: '글자가 소리로 변하는 순간', lectureKey: 'v3_kana_sound_rules' },
       { type: 'kana_learn', title: '히라가나 탁음·반탁음: がざだばぱ', levelId: 6, customLabel: '탁음 1/2' },
       { type: 'kana_learn', title: '가타가나 탁음·반탁음: ガザダバパ', levelId: 12, customLabel: '탁음 2/2' },
       { type: 'kana_learn', title: '히라가나 요음: きゃ・しゅ・ちょ', levelId: 7, customLabel: '작은 やゆよ 1/2' },
@@ -563,13 +592,13 @@ const MODULES = [
       { type: 'kana_learn', title: '장음·촉음: コーヒー·きって', levelId: 15, customLabel: '특수 박자' },
       { type: 'kana_learn', title: '조사 읽기: は→wa・へ→e・を→o', levelId: 16, customLabel: '문장 속 예외' },
       { type: 'kana_quiz', title: '소리 변신 퀴즈', kanaType: 'special', levelId: 15 },
-      { type: 'lecture', title: '💡 단어 안에서만 진짜로 외워진다', lectureKey: 'v3_kana_sound_tip' },
+      { type: 'lecture', title: '단어 안에서만 진짜로 외워진다', lectureKey: 'v3_kana_sound_tip' },
     ],
     roleplay: {
       id: 'rp_sound_rules_counter',
       name: '소리 변신 듣고 확인',
       nameJp: '音の変化を確認',
-      icon: '🔊',
+      icon: '',
       desc: '탁음, 장음, 작은 つ를 다시 물어보기',
       dialogueKey: 'sound_rules_counter'
     }
@@ -581,24 +610,24 @@ const MODULES = [
     accessTier: 'free',
     name: '첫 인사와 말 걸기',
     nameJp: '最初の挨拶',
-    icon: '👋',
+    icon: '',
     desc: '사람을 부르고, 짧게 부탁하고, 고맙게 마무리하는 첫 대화',
     xp: 220,
     unlockAfter: ['v3_answer_engine'],
     steps: [
-      { type: 'lecture', title: '🎬 여행 첫날 말문 트기', lectureKey: 'v3_first_greetings' },
+      { type: 'lecture', title: '여행 첫날 말문 트기', lectureKey: 'v3_first_greetings' },
       { type: 'vocab_learn', title: '인사 필수 단어', categoryId: 'basic_words', limit: 10 },
       { type: 'vocab_learn', title: '맞장구·반응 단어', categoryId: 'w1_reactions', limit: 8, mode: 'word' },
       { type: 'vocab_learn', title: '인사·기초 회화 문장', categoryId: 'first_expressions', limit: 10, mode: 'sentence' },
       { type: 'dialogue_study', title: '사진 부탁 대화 미리보기', dialogueKey: 'first_photo_greeting' },
       { type: 'vocab_quiz', title: '첫 반응 퀴즈', categoryIds: ['basic_words', 'first_expressions', 'w1_reactions'], limit: 19 },
-      { type: 'lecture', title: '💡 인사는 세트로 외우기', lectureKey: 'v3_first_greetings_tip' },
+      { type: 'lecture', title: '인사는 세트로 외우기', lectureKey: 'v3_first_greetings_tip' },
     ],
     roleplay: {
       id: 'rp_first_photo_greeting',
       name: '사진 부탁하며 말 걸기',
       nameJp: '写真をお願いする',
-      icon: '📷',
+      icon: '',
       desc: '저기요, 감사합니다, 일본은 처음이에요',
       dialogueKey: 'first_photo_greeting'
     }
@@ -609,23 +638,23 @@ const MODULES = [
     accessTier: 'free',
     name: '기본 물건·장소',
     nameJp: '基本の物と場所',
-    icon: '🎒',
+    icon: '',
     desc: '물, 화장실, 역, 호텔, 카드처럼 여행에서 손으로 가리킬 기본 단어',
     xp: 260,
     unlockAfter: ['v3_kana_sound_rules'],
     steps: [
-      { type: 'lecture', title: '🎬 문장 전에 단어 재료부터', lectureKey: 'v3_survival_objects' },
+      { type: 'lecture', title: '문장 전에 단어 재료부터', lectureKey: 'v3_survival_objects' },
       { type: 'vocab_learn', title: '문장 전 필수 재료 12개', items: V3_PRE_SENTENCE_CARDS, mode: 'sentence' },
       { type: 'vocab_learn', title: '기초 사물·장소 단어', categoryIds: ['pronouns_thing','place_transport','food_nouns'], limit: 19, mode: 'word' },
       { type: 'dialogue_study', title: '모르는 말 버티기 미리보기', dialogueKey: 'pre_sentence_survival' },
       { type: 'vocab_quiz', title: '문장 전 재료 퀴즈', items: V3_PRE_SENTENCE_CARDS },
-      { type: 'lecture', title: '💡 모르면 これ와 ここ로 버티기', lectureKey: 'v3_survival_objects_tip' },
+      { type: 'lecture', title: '모르면 これ와 ここ로 버티기', lectureKey: 'v3_survival_objects_tip' },
     ],
     roleplay: {
       id: 'rp_pre_sentence_survival',
       name: '단어만으로 버티기',
       nameJp: '単語で伝える',
-      icon: '🎒',
+      icon: '',
       desc: '이거, 여기, 물, 괜찮아요로 첫 상황 버티기',
       dialogueKey: 'pre_sentence_survival'
     }
@@ -636,24 +665,24 @@ const MODULES = [
     accessTier: 'free',
     name: '이것·저것·여기·저기',
     nameJp: 'これ・そこ・どこ',
-    icon: '📍',
+    icon: '',
     desc: '사람, 사물, 장소 대명사로 가리키고 묻기',
     xp: 260,
     unlockAfter: ['v3_particle_basics'],
     steps: [
-      { type: 'lecture', title: '🎬 대명사는 거리 감각', lectureKey: 'v3_pronouns_places' },
+      { type: 'lecture', title: '대명사는 거리 감각', lectureKey: 'v3_pronouns_places' },
       { type: 'vocab_learn', title: '사물 대명사', categoryId: 'pronouns_thing' },
       { type: 'vocab_learn', title: '장소 대명사', categoryId: 'pronouns_place' },
       { type: 'vocab_learn', title: '사람 대명사', categoryId: 'pronouns_personal' },
       { type: 'dialogue_study', title: '손가락으로 가리키기 미리보기', dialogueKey: 'pointing_pronouns' },
       { type: 'vocab_quiz', title: '대명사 퀴즈', categoryIds: ['pronouns_thing','pronouns_place','pronouns_personal'], limit: 19 },
-      { type: 'lecture', title: '💡 こそあど는 거리감이다', lectureKey: 'v3_pronouns_places_tip' },
+      { type: 'lecture', title: 'こそあど는 거리감이다', lectureKey: 'v3_pronouns_places_tip' },
     ],
     roleplay: {
       id: 'rp_pointing_pronouns',
       name: '손가락으로 가리키기',
       nameJp: 'これ・それ・あれ',
-      icon: '📍',
+      icon: '',
       desc: '이것, 저것, 여기, 저기를 실제 가게에서 쓰기',
       dialogueKey: 'pointing_pronouns'
     }
@@ -664,24 +693,24 @@ const MODULES = [
     accessTier: 'free',
     name: '숫자·시간·요일',
     nameJp: '数字・時間・曜日',
-    icon: '🔢',
+    icon: '',
     desc: '가격, 수량, 시간, 요일, 날짜를 알아듣기',
     xp: 320,
     unlockAfter: ['v3_directions_body'],
     steps: [
-      { type: 'lecture', title: '🎬 숫자는 여행의 안전장치', lectureKey: 'v3_numbers_time' },
+      { type: 'lecture', title: '숫자는 여행의 안전장치', lectureKey: 'v3_numbers_time' },
       { type: 'vocab_learn', title: '숫자 기본', categoryId: 'numbers_basic', limit: 13 },
       { type: 'vocab_learn', title: '가격·수량 표현', categoryId: 'numbers_applied', limit: 10 },
       { type: 'vocab_learn', title: '날짜·시각·요일', categoryIds: ['date_basic','time_clock','days_of_week','num_dates'], limit: 19 },
       { type: 'dialogue_study', title: '가격과 시간 묻기 미리보기', dialogueKey: 'numbers_time_check' },
       { type: 'vocab_quiz', title: '숫자·시간·요일 퀴즈', categoryIds: ['numbers_basic','numbers_applied','date_basic','time_clock','days_of_week','num_dates'], limit: 19 },
-      { type: 'lecture', title: '💡 숫자는 귀로 먼저 잡기', lectureKey: 'v3_numbers_time_tip' },
+      { type: 'lecture', title: '숫자는 귀로 먼저 잡기', lectureKey: 'v3_numbers_time_tip' },
     ],
     roleplay: {
       id: 'rp_numbers_time_check',
       name: '가격과 시간 확인',
       nameJp: '値段と時間',
-      icon: '🔢',
+      icon: '',
       desc: '얼마예요, 몇 시부터예요, 두 장 부탁해요',
       dialogueKey: 'numbers_time_check'
     }
@@ -692,22 +721,22 @@ const MODULES = [
     accessTier: 'free',
     name: '돈·수량·날짜',
     nameJp: 'お金・数・日付',
-    icon: '💴',
+    icon: '',
     desc: '엔화 가격, 몇 개, 며칠, 몇 명처럼 여행 결제와 예약에 필요한 숫자 확장',
     xp: 300,
     unlockAfter: ['v3_numbers_time'],
     steps: [
-      { type: 'lecture', title: '🎬 숫자는 돈과 예약에서 완성된다', lectureKey: 'v3_money_counting' },
+      { type: 'lecture', title: '숫자는 돈과 예약에서 완성된다', lectureKey: 'v3_money_counting' },
       { type: 'vocab_learn', title: '가격·수량 표현', categoryId: 'numbers_applied', limit: 14 },
       { type: 'vocab_learn', title: '날짜·요일·기간', categoryIds: ['date_basic','days_of_week','num_dates'], limit: 19 },
       { type: 'vocab_quiz', title: '돈·수량·날짜 퀴즈', categoryIds: ['numbers_basic','numbers_applied','date_basic','days_of_week','num_dates'], limit: 19 },
-      { type: 'lecture', title: '💡 가격은 엔화 단위로 외우기', lectureKey: 'v3_money_counting_tip' },
+      { type: 'lecture', title: '가격은 엔화 단위로 외우기', lectureKey: 'v3_money_counting_tip' },
     ],
     roleplay: {
       id: 'rp_money_counting_check',
       name: '돈과 수량 확인',
       nameJp: 'お金と数',
-      icon: '💴',
+      icon: '',
       desc: '몇 개, 며칠, 몇 명인지 결제 전에 확인하기',
       dialogueKey: 'money_counting_check'
     }
@@ -718,24 +747,24 @@ const MODULES = [
     accessTier: 'free',
     name: '방향·장소·신체부위',
     nameJp: '方向・場所・体',
-    icon: '🧭',
+    icon: '',
     desc: '오른쪽/왼쪽, 가까워요/멀어요, 머리/배/다리처럼 꼭 필요한 기본어',
     xp: 300,
     unlockAfter: ['v3_pronouns_places'],
     steps: [
-      { type: 'lecture', title: '🎬 방향과 몸은 직접 가리키기', lectureKey: 'v3_directions_body' },
+      { type: 'lecture', title: '방향과 몸은 직접 가리키기', lectureKey: 'v3_directions_body' },
       { type: 'vocab_learn', title: '길 찾기·방향', categoryId: 'directions', limit: 14 },
       { type: 'vocab_learn', title: '장소·교통 기본어', categoryId: 'place_transport', limit: 14 },
       { type: 'vocab_learn', title: '신체 부위', categoryId: 'body_parts', limit: 14 },
       { type: 'dialogue_study', title: '방향과 몸으로 설명하기 미리보기', dialogueKey: 'direction_body_check' },
       { type: 'vocab_quiz', title: '방향·장소·몸 퀴즈', categoryIds: ['directions','place_transport','body_parts'], limit: 19 },
-      { type: 'lecture', title: '💡 방향과 몸은 손으로 외우기', lectureKey: 'v3_directions_body_tip' },
+      { type: 'lecture', title: '방향과 몸은 손으로 외우기', lectureKey: 'v3_directions_body_tip' },
     ],
     roleplay: {
       id: 'rp_direction_body_check',
       name: '방향과 몸 상태 말하기',
       nameJp: '方向と体',
-      icon: '🧭',
+      icon: '',
       desc: '오른쪽, 왼쪽, 배가 아파요를 안내소에서 쓰기',
       dialogueKey: 'direction_body_check'
     }
@@ -747,23 +776,23 @@ const MODULES = [
     accessTier: 'free',
     name: '조사 감각',
     nameJp: '助詞の感覚',
-    icon: '🧷',
+    icon: '',
     desc: 'は, を, に, で, へ를 외우기보다 여행 문장 안에서 위치로 익히기',
     xp: 320,
     unlockAfter: ['v3_survival_objects'],
     steps: [
-      { type: 'lecture', title: '🎬 문장 전에 꼭 알아야 할 뼈대', lectureKey: 'v3_particle_basics' },
+      { type: 'lecture', title: '문장 전에 꼭 알아야 할 뼈대', lectureKey: 'v3_particle_basics' },
       { type: 'vocab_learn', title: '문장 구조 공식 10개', items: V3_BASIC_STRUCTURE_CARDS, mode: 'sentence' },
       { type: 'vocab_learn', title: '자기소개와 は/です', categoryId: 'self_intro', limit: 12 },
       { type: 'dialogue_study', title: '짧은 구조 응용 미리보기', dialogueKey: 'basic_structure_check' },
       { type: 'vocab_quiz', title: '문장 구조 퀴즈', items: V3_BASIC_STRUCTURE_CARDS },
-      { type: 'lecture', title: '💡 조사부터 완벽할 필요 없다', lectureKey: 'v3_particle_basics_tip' },
+      { type: 'lecture', title: '조사부터 완벽할 필요 없다', lectureKey: 'v3_particle_basics_tip' },
     ],
     roleplay: {
       id: 'rp_basic_structure_check',
       name: '짧은 문장 뼈대 쓰기',
       nameJp: '短い文を作る',
-      icon: '🧷',
+      icon: '',
       desc: 'は, を, に를 넣어 역 위치와 목적지를 말하기',
       dialogueKey: 'basic_structure_check'
     }
@@ -780,11 +809,11 @@ const MODULES = [
     xp: 320,
     unlockAfter: ['v3_particle_basics'],
     steps: [
-      { type: 'lecture', title: '🎬 일본어 문장은 4칸으로 바뀐다', lectureKey: 'v3_tense_matrix' },
+      { type: 'lecture', title: '일본어 문장은 4칸으로 바뀐다', lectureKey: 'v3_tense_matrix' },
       { type: 'vocab_learn', title: '명사·형용사·동사 4칸 카드', items: V3_TENSE_MATRIX_CARDS, mode: 'sentence' },
       { type: 'dialogue_study', title: '먹었어요·안 갔어요 미리보기', dialogueKey: 'tense_matrix_check' },
       { type: 'vocab_quiz', title: '현재·부정·과거 변환 퀴즈', items: V3_TENSE_MATRIX_CARDS },
-      { type: 'lecture', title: '💡 어미만 바꾸면 말이 늘어난다', lectureKey: 'v3_tense_matrix_tip' },
+      { type: 'lecture', title: '어미만 바꾸면 말이 늘어난다', lectureKey: 'v3_tense_matrix_tip' },
     ],
     roleplay: {
       id: 'rp_tense_matrix_check',
@@ -801,23 +830,23 @@ const MODULES = [
     accessTier: 'free',
     name: '질문하는 법',
     nameJp: '質問の作り方',
-    icon: '❓',
+    icon: '',
     desc: '뭐예요, 어디예요, 얼마예요, 되나요, 있나요',
     xp: 300,
     unlockAfter: ['v3_tense_matrix'],
     steps: [
-      { type: 'lecture', title: '🎬 질문은 끝에 か', lectureKey: 'v3_question_engine' },
+      { type: 'lecture', title: '질문은 끝에 か', lectureKey: 'v3_question_engine' },
       { type: 'vocab_learn', title: '기초 질문 패턴', categoryId: 'basic_questions', limit: 12 },
       { type: 'vocab_learn', title: '길 찾기 질문', categoryId: 'directions', limit: 10 },
       { type: 'dialogue_study', title: '못 알아들었을 때 미리보기', dialogueKey: 'ask_again_help' },
       { type: 'vocab_quiz', title: '질문 패턴 퀴즈', categoryIds: ['basic_questions','directions'], limit: 19 },
-      { type: 'lecture', title: '💡 질문은 끝을 올리고 か를 붙이기', lectureKey: 'v3_question_engine_tip' },
+      { type: 'lecture', title: '질문은 끝을 올리고 か를 붙이기', lectureKey: 'v3_question_engine_tip' },
     ],
     roleplay: {
       id: 'rp_ask_again_help',
       name: '못 알아들었을 때',
       nameJp: '聞き返す',
-      icon: '💬',
+      icon: '',
       desc: '천천히 말해 주세요, 조금 알아요',
       dialogueKey: 'ask_again_help'
     }
@@ -828,23 +857,23 @@ const MODULES = [
     accessTier: 'free',
     name: '대답하는 법',
     nameJp: '返事の作り方',
-    icon: '💬',
+    icon: '',
     desc: '한국인이에요, 여행으로 왔어요, 괜찮아요, 잘 모르겠어요',
     xp: 300,
     unlockAfter: ['v3_question_engine'],
     steps: [
-      { type: 'lecture', title: '🎬 짧게 답해도 대화는 이어진다', lectureKey: 'v3_answer_engine' },
+      { type: 'lecture', title: '짧게 답해도 대화는 이어진다', lectureKey: 'v3_answer_engine' },
       { type: 'vocab_learn', title: '자기소개 핵심 답변', categoryId: 'self_intro', limit: 10 },
       { type: 'vocab_learn', title: '리액션과 대답', categoryId: 'w1_reactions', limit: 10 },
       { type: 'dialogue_study', title: '어디서 왔어요 미리보기', dialogueKey: 'first_origin_chat' },
       { type: 'vocab_quiz', title: '대답 패턴 퀴즈', categoryIds: ['self_intro','w1_reactions'], limit: 19 },
-      { type: 'lecture', title: '💡 대답은 짧아도 괜찮다', lectureKey: 'v3_answer_engine_tip' },
+      { type: 'lecture', title: '대답은 짧아도 괜찮다', lectureKey: 'v3_answer_engine_tip' },
     ],
     roleplay: {
       id: 'rp_first_origin_chat',
       name: '어디서 왔어요?',
       nameJp: 'どこから来ましたか',
-      icon: '🗣️',
+      icon: '',
       desc: '한국에서 왔어요, 감사합니다',
       dialogueKey: 'first_origin_chat'
     }
@@ -855,23 +884,23 @@ const MODULES = [
     accessTier: 'free',
     name: '리액션·쉐도잉',
     nameJp: 'リアクション練習',
-    icon: '🎙️',
+    icon: '',
     desc: '네, 괜찮아요, 잠깐만요, 다시 부탁해요를 듣고 바로 따라 말하기',
     xp: 260,
     unlockAfter: ['v3_first_greetings'],
     steps: [
-      { type: 'lecture', title: '🎬 회화는 리액션으로 이어진다', lectureKey: 'v3_reaction_shadowing' },
+      { type: 'lecture', title: '회화는 리액션으로 이어진다', lectureKey: 'v3_reaction_shadowing' },
       { type: 'vocab_learn', title: '리액션 단어', categoryId: 'w1_reactions', limit: 8, mode: 'word' },
       { type: 'vocab_learn', title: '리액션 문장', categoryId: 'first_expressions', limit: 10, mode: 'sentence' },
       { type: 'vocab_learn', title: '다시 묻고 확인하기', categoryIds: ['basic_questions','first_expressions'], limit: 12 },
       { type: 'vocab_quiz', title: '리액션 즉답 퀴즈', categoryIds: ['w1_reactions','first_expressions'], limit: 19 },
-      { type: 'lecture', title: '💡 리액션은 통째로 자동화하기', lectureKey: 'v3_reaction_shadowing_tip' },
+      { type: 'lecture', title: '리액션은 통째로 자동화하기', lectureKey: 'v3_reaction_shadowing_tip' },
     ],
     roleplay: {
       id: 'rp_reaction_shadowing',
       name: '리액션으로 이어가기',
       nameJp: 'リアクション',
-      icon: '🎙️',
+      icon: '',
       desc: '네, 잠깐만요, 다시 부탁해요를 바로 말하기',
       dialogueKey: 'reaction_shadowing'
     }
@@ -883,19 +912,19 @@ const MODULES = [
     accessTier: 'free',
     name: '공항과 입국',
     nameJp: '空港',
-    icon: '✈️',
+    icon: '',
     desc: '여권, 좌석, 수하물, 탑승 시간을 알아듣기',
     xp: 320,
     unlockAfter: ['v3_reaction_shadowing'],
     steps: [
-      { type: 'lecture', title: '🎬 공항에서는 짧게 답하기', lectureKey: 'v3_airport' },
+      { type: 'lecture', title: '공항에서는 짧게 답하기', lectureKey: 'v3_airport' },
       { type: 'vocab_learn', title: '공항·이동 기본어', categoryId: 'place_transport', limit: 14 },
       { type: 'vocab_learn', title: '체크인 질문·답변 카드', items: V3_AIRPORT_QA_CARDS, mode: 'sentence' },
       { type: 'dialogue_study', title: '공항 대화 미리보기', dialogueKey: 'airport_checkin' },
       { type: 'vocab_quiz', title: '공항 체크인 즉답 퀴즈', items: V3_AIRPORT_QA_CARDS },
       { type: 'vocab_quiz', title: '공항·이동 퀴즈', categoryId: 'place_transport', limit: 14 },
     ],
-    roleplay: { id: 'rp_airport_checkin', name: '공항 체크인', nameJp: 'チェックイン', icon: '✈️', desc: '좌석과 수하물 확인하기', dialogueKey: 'airport_checkin' }
+    roleplay: { id: 'rp_airport_checkin', name: '공항 체크인', nameJp: 'チェックイン', icon: '', desc: '좌석과 수하물 확인하기', dialogueKey: 'airport_checkin' }
   },
   {
     id: 'v3_immigration',
@@ -903,12 +932,12 @@ const MODULES = [
     accessTier: 'free',
     name: '입국 심사',
     nameJp: '入国審査',
-    icon: '🛂',
+    icon: '',
     desc: '목적, 체류 기간, 숙소를 짧게 답하기',
     xp: 300,
     unlockAfter: ['v3_airport'],
     steps: [
-      { type: 'lecture', title: '🎬 입국 심사는 단답이 정답', lectureKey: 'v3_immigration' },
+      { type: 'lecture', title: '입국 심사는 단답이 정답', lectureKey: 'v3_immigration' },
       { type: 'vocab_learn', title: '입국 질문·답변 카드', items: V3_IMMIGRATION_QA_CARDS, mode: 'sentence' },
       { type: 'vocab_learn', title: '날짜·기간 단어', categoryId: 'date_basic', limit: 8, mode: 'word' },
       { type: 'vocab_learn', title: '자기소개·숙소 답변 문장', categoryIds: ['self_intro','hotel_phrases'], limit: 14, mode: 'sentence' },
@@ -916,7 +945,7 @@ const MODULES = [
       { type: 'vocab_quiz', title: '입국 즉답 퀴즈', items: V3_IMMIGRATION_QA_CARDS },
       { type: 'vocab_quiz', title: '입국 답변 퀴즈', categoryIds: ['self_intro','hotel_phrases','date_basic'], limit: 22 },
     ],
-    roleplay: { id: 'rp_immigration_short', name: '입국 심사 답하기', nameJp: '入国審査', icon: '🛂', desc: '여행이에요, 3일이에요, 호텔에 묵어요', dialogueKey: 'immigration_short' }
+    roleplay: { id: 'rp_immigration_short', name: '입국 심사 답하기', nameJp: '入国審査', icon: '', desc: '여행이에요, 3일이에요, 호텔에 묵어요', dialogueKey: 'immigration_short' }
   },
   {
     id: 'v3_airplane_request',
@@ -924,19 +953,19 @@ const MODULES = [
     accessTier: 'free',
     name: '기내 요청',
     nameJp: '機内でお願い',
-    icon: '🛫',
+    icon: '',
     desc: '물, 담요, 자리, 입국 카드처럼 비행기 안에서 부탁하기',
     xp: 280,
     unlockAfter: ['v3_immigration'],
     steps: [
-      { type: 'lecture', title: '🎬 기내 부탁은 단어 + ください', lectureKey: 'v3_airplane_request' },
+      { type: 'lecture', title: '기내 부탁은 단어 + ください', lectureKey: 'v3_airplane_request' },
       { type: 'vocab_learn', title: '기내 요청 질문·답변 카드', items: V3_AIRPLANE_QA_CARDS, mode: 'sentence' },
       { type: 'vocab_learn', title: '부탁·요청 문장', categoryId: 'first_expressions', limit: 12, mode: 'sentence' },
       { type: 'dialogue_study', title: '기내 요청 미리보기', dialogueKey: 'airplane_request' },
       { type: 'vocab_quiz', title: '기내 요청 즉답 퀴즈', items: V3_AIRPLANE_QA_CARDS },
       { type: 'vocab_quiz', title: '기내 요청 퀴즈', categoryIds: ['basic_words','first_expressions'], limit: 20 },
     ],
-    roleplay: { id: 'rp_airplane_request', name: '기내에서 부탁하기', nameJp: '機内でお願い', icon: '🛫', desc: '물 주세요, 담요 있어요?', dialogueKey: 'airplane_request' }
+    roleplay: { id: 'rp_airplane_request', name: '기내에서 부탁하기', nameJp: '機内でお願い', icon: '', desc: '물 주세요, 담요 있어요?', dialogueKey: 'airplane_request' }
   },
   {
     id: 'v3_transport',
@@ -944,12 +973,12 @@ const MODULES = [
     accessTier: 'free',
     name: '전철·길 찾기',
     nameJp: '電車・道案内',
-    icon: '🚃',
+    icon: '',
     desc: '역, 환승, 목적지, 몇 분 걸리는지 묻기',
     xp: 340,
     unlockAfter: ['v3_airplane_request'],
     steps: [
-      { type: 'lecture', title: '🎬 역에서 살아남기', lectureKey: 'v3_transport' },
+      { type: 'lecture', title: '역에서 살아남기', lectureKey: 'v3_transport' },
       { type: 'vocab_learn', title: '교통·이동 표현', categoryId: 'transport_phrases', limit: 14 },
       { type: 'vocab_learn', title: '역·환승 질문 카드', items: V3_STATION_QA_CARDS, mode: 'sentence' },
       { type: 'vocab_learn', title: '시각·소요시간 묻기', categoryId: 's4_time_asking', limit: 8 },
@@ -957,7 +986,7 @@ const MODULES = [
       { type: 'vocab_quiz', title: '역·환승 즉답 퀴즈', items: V3_STATION_QA_CARDS },
       { type: 'vocab_quiz', title: '전철·길 찾기 퀴즈', categoryIds: ['transport_phrases','s4_time_asking'], limit: 24 },
     ],
-    roleplay: { id: 'rp_station_direction', name: '목적지까지 가기', nameJp: '目的地まで', icon: '🧭', desc: '어디까지 가 주세요, 얼마나 걸려요', dialogueKey: 'station_direction' }
+    roleplay: { id: 'rp_station_direction', name: '목적지까지 가기', nameJp: '目的地まで', icon: '', desc: '어디까지 가 주세요, 얼마나 걸려요', dialogueKey: 'station_direction' }
   },
   {
     id: 'v3_bus_ride',
@@ -965,19 +994,19 @@ const MODULES = [
     accessTier: 'free',
     name: '버스 타기',
     nameJp: 'バスに乗る',
-    icon: '🚌',
+    icon: '',
     desc: '목적지 확인, 요금, 내릴 곳을 묻기',
     xp: 300,
     unlockAfter: ['v3_transport'],
     steps: [
-      { type: 'lecture', title: '🎬 버스는 타기 전에 한 문장', lectureKey: 'v3_bus_ride' },
+      { type: 'lecture', title: '버스는 타기 전에 한 문장', lectureKey: 'v3_bus_ride' },
       { type: 'vocab_learn', title: '버스 질문·답변 카드', items: V3_BUS_QA_CARDS, mode: 'sentence' },
       { type: 'vocab_learn', title: '버스·목적지 표현', categoryIds: ['transport_phrases','directions'], limit: 20 },
       { type: 'dialogue_study', title: '버스 대화 미리보기', dialogueKey: 'bus_ride' },
       { type: 'vocab_quiz', title: '버스 즉답 퀴즈', items: V3_BUS_QA_CARDS },
       { type: 'vocab_quiz', title: '버스 표현 퀴즈', categoryIds: ['transport_phrases','directions'], limit: 22 },
     ],
-    roleplay: { id: 'rp_bus_ride', name: '버스 목적지 확인', nameJp: 'バスの行き先', icon: '🚌', desc: '이 버스가 역에 가나요?', dialogueKey: 'bus_ride' }
+    roleplay: { id: 'rp_bus_ride', name: '버스 목적지 확인', nameJp: 'バスの行き先', icon: '', desc: '이 버스가 역에 가나요?', dialogueKey: 'bus_ride' }
   },
   {
     id: 'v3_taxi_ride',
@@ -985,19 +1014,19 @@ const MODULES = [
     accessTier: 'free',
     name: '택시 타기',
     nameJp: 'タクシー',
-    icon: '🚕',
+    icon: '',
     desc: '호텔까지, 여기서 세워 주세요, 카드 되나요',
     xp: 300,
     unlockAfter: ['v3_bus_ride'],
     steps: [
-      { type: 'lecture', title: '🎬 택시는 첫 한 줄이 90%', lectureKey: 'v3_taxi_ride' },
+      { type: 'lecture', title: '택시는 첫 한 줄이 90%', lectureKey: 'v3_taxi_ride' },
       { type: 'vocab_learn', title: '택시 질문·답변 카드', items: V3_TAXI_QA_CARDS, mode: 'sentence' },
       { type: 'vocab_learn', title: '택시·결제 표현', categoryIds: ['transport_phrases','shopping_phrases'], limit: 20 },
       { type: 'dialogue_study', title: '택시 대화 미리보기', dialogueKey: 'taxi_ride' },
       { type: 'vocab_quiz', title: '택시 즉답 퀴즈', items: V3_TAXI_QA_CARDS },
       { type: 'vocab_quiz', title: '택시 표현 퀴즈', categoryIds: ['transport_phrases','shopping_phrases'], limit: 22 },
     ],
-    roleplay: { id: 'rp_taxi_ride', name: '택시로 호텔 가기', nameJp: 'タクシーでホテルへ', icon: '🚕', desc: '호텔까지 부탁해요, 여기서 괜찮아요', dialogueKey: 'taxi_ride' }
+    roleplay: { id: 'rp_taxi_ride', name: '택시로 호텔 가기', nameJp: 'タクシーでホテルへ', icon: '', desc: '호텔까지 부탁해요, 여기서 괜찮아요', dialogueKey: 'taxi_ride' }
   },
   {
     id: 'v3_konbini',
@@ -1005,19 +1034,19 @@ const MODULES = [
     accessTier: 'free',
     name: '편의점',
     nameJp: 'コンビニ',
-    icon: '🏪',
+    icon: '',
     desc: '도시락 데우기, 봉투, 결제, 교통카드',
     xp: 300,
     unlockAfter: ['v3_taxi_ride'],
     steps: [
-      { type: 'lecture', title: '🎬 편의점은 선택지만 들으면 된다', lectureKey: 'v3_konbini' },
+      { type: 'lecture', title: '편의점은 선택지만 들으면 된다', lectureKey: 'v3_konbini' },
       { type: 'vocab_learn', title: '편의점·결제 표현', categoryId: 'shopping_phrases', limit: 12 },
       { type: 'vocab_learn', title: '도시락·봉투·결제 카드', items: V3_KONBINI_QA_CARDS, mode: 'sentence' },
       { type: 'dialogue_study', title: '편의점 대화 미리보기', dialogueKey: 'konbini_bento' },
       { type: 'vocab_quiz', title: '편의점 즉답 퀴즈', items: V3_KONBINI_QA_CARDS },
       { type: 'vocab_quiz', title: '편의점 표현 퀴즈', categoryId: 'shopping_phrases', limit: 16 },
     ],
-    roleplay: { id: 'rp_konbini_bento', name: '도시락 데우기', nameJp: 'お弁当を温める', icon: '🍱', desc: '데워 주세요, 봉투 필요 없어요', dialogueKey: 'konbini_bento' }
+    roleplay: { id: 'rp_konbini_bento', name: '도시락 데우기', nameJp: 'お弁当を温める', icon: '', desc: '데워 주세요, 봉투 필요 없어요', dialogueKey: 'konbini_bento' }
   },
   {
     id: 'v3_cafe_breakfast',
@@ -1025,12 +1054,12 @@ const MODULES = [
     accessTier: 'free',
     name: '카페·조식',
     nameJp: 'カフェ・朝食',
-    icon: '☕',
+    icon: '',
     desc: '커피 주문, 매장/포장, 조식 시간과 좌석 묻기',
     xp: 300,
     unlockAfter: ['v3_konbini'],
     steps: [
-      { type: 'lecture', title: '🎬 카페는 메뉴 + ください', lectureKey: 'v3_cafe_breakfast' },
+      { type: 'lecture', title: '카페는 메뉴 + ください', lectureKey: 'v3_cafe_breakfast' },
       { type: 'vocab_learn', title: '조식·카페 질문 카드', items: V3_CAFE_QA_CARDS, mode: 'sentence' },
       { type: 'vocab_learn', title: '음식·식당 어휘', categoryId: 'food_restaurant', limit: 10, mode: 'word' },
       { type: 'vocab_learn', title: '주문·조식 문장', categoryIds: ['food_ordering','hotel_phrases'], limit: 16, mode: 'sentence' },
@@ -1038,7 +1067,7 @@ const MODULES = [
       { type: 'vocab_quiz', title: '카페·조식 즉답 퀴즈', items: V3_CAFE_QA_CARDS },
       { type: 'vocab_quiz', title: '카페·조식 퀴즈', categoryIds: ['food_ordering','food_restaurant','hotel_phrases'], limit: 24 },
     ],
-    roleplay: { id: 'rp_cafe_breakfast', name: '카페에서 아침 주문', nameJp: 'カフェで朝食', icon: '☕', desc: '아이스커피와 토스트를 주문하기', dialogueKey: 'cafe_breakfast' }
+    roleplay: { id: 'rp_cafe_breakfast', name: '카페에서 아침 주문', nameJp: 'カフェで朝食', icon: '', desc: '아이스커피와 토스트를 주문하기', dialogueKey: 'cafe_breakfast' }
   },
   {
     id: 'v3_restaurant',
@@ -1046,18 +1075,18 @@ const MODULES = [
     accessTier: 'free',
     name: '식당 주문',
     nameJp: 'レストラン',
-    icon: '🍜',
+    icon: '',
     desc: '한 명이에요, 이거 주세요, 계산 부탁해요',
     xp: 340,
     unlockAfter: ['v3_cafe_breakfast'],
     steps: [
-      { type: 'lecture', title: '🎬 주세요와 부탁합니다', lectureKey: 'v3_restaurant' },
+      { type: 'lecture', title: '주세요와 부탁합니다', lectureKey: 'v3_restaurant' },
       { type: 'vocab_learn', title: '식당 주문 표현', categoryId: 'food_ordering', limit: 12 },
       { type: 'vocab_learn', title: '음식·식당 어휘', categoryId: 'food_restaurant', limit: 12 },
       { type: 'vocab_quiz', title: '식당 주문 퀴즈', categoryIds: ['food_ordering','food_restaurant'], limit: 24 },
       { type: 'dialogue_study', title: '혼밥 주문 미리보기', dialogueKey: 'restaurant_solo' },
     ],
-    roleplay: { id: 'rp_restaurant_solo', name: '혼자 식당 주문', nameJp: '一人で注文', icon: '🍜', desc: '입장부터 계산까지 한 상황만', dialogueKey: 'restaurant_solo' }
+    roleplay: { id: 'rp_restaurant_solo', name: '혼자 식당 주문', nameJp: '一人で注文', icon: '', desc: '입장부터 계산까지 한 상황만', dialogueKey: 'restaurant_solo' }
   },
   {
     id: 'v3_izakaya',
@@ -1065,12 +1094,12 @@ const MODULES = [
     accessTier: 'free',
     name: '술집·이자카야',
     nameJp: '居酒屋',
-    icon: '🍺',
+    icon: '',
     desc: '몇 명인지, 첫 잔, 추천, 추가 주문, 계산',
     xp: 320,
     unlockAfter: ['v3_restaurant'],
     steps: [
-      { type: 'lecture', title: '🎬 이자카야는 순서가 정해져 있다', lectureKey: 'v3_izakaya' },
+      { type: 'lecture', title: '이자카야는 순서가 정해져 있다', lectureKey: 'v3_izakaya' },
       { type: 'vocab_learn', title: '첫 잔·추천 즉답 카드', items: V3_IZAKAYA_QA_CARDS, mode: 'sentence' },
       { type: 'vocab_learn', title: '음식·식당 단어', categoryId: 'food_restaurant', limit: 10, mode: 'word' },
       { type: 'vocab_learn', title: '주문 문장', categoryId: 'food_ordering', limit: 10, mode: 'sentence' },
@@ -1078,7 +1107,7 @@ const MODULES = [
       { type: 'vocab_quiz', title: '이자카야 즉답 퀴즈', items: V3_IZAKAYA_QA_CARDS },
       { type: 'vocab_quiz', title: '술집 표현 퀴즈', categoryIds: ['food_ordering','food_restaurant'], limit: 24 },
     ],
-    roleplay: { id: 'rp_izakaya_order', name: '이자카야 주문', nameJp: '居酒屋で注文', icon: '🍺', desc: '맥주와 추천 메뉴 주문하기', dialogueKey: 'izakaya_order' }
+    roleplay: { id: 'rp_izakaya_order', name: '이자카야 주문', nameJp: '居酒屋で注文', icon: '', desc: '맥주와 추천 메뉴 주문하기', dialogueKey: 'izakaya_order' }
   },
   {
     id: 'v3_shopping',
@@ -1086,19 +1115,19 @@ const MODULES = [
     accessTier: 'free',
     name: '쇼핑·사이즈',
     nameJp: '買い物',
-    icon: '🛍️',
+    icon: '',
     desc: '그냥 볼게요, 입어봐도 돼요, 얼마예요',
     xp: 320,
     unlockAfter: ['v3_izakaya'],
     steps: [
-      { type: 'lecture', title: '🎬 쇼핑은 세 문장으로 시작', lectureKey: 'v3_shopping' },
+      { type: 'lecture', title: '쇼핑은 세 문장으로 시작', lectureKey: 'v3_shopping' },
       { type: 'vocab_learn', title: '사이즈·입어보기 즉답 카드', items: V3_SHOPPING_QA_CARDS, mode: 'sentence' },
       { type: 'vocab_learn', title: '쇼핑 표현', categoryId: 'shopping_phrases', limit: 14 },
       { type: 'dialogue_study', title: '옷가게 미리보기', dialogueKey: 'clothes_size' },
       { type: 'vocab_quiz', title: '사이즈 즉답 퀴즈', items: V3_SHOPPING_QA_CARDS },
       { type: 'vocab_quiz', title: '쇼핑 퀴즈', categoryId: 'shopping_phrases', limit: 18 },
     ],
-    roleplay: { id: 'rp_clothes_size', name: '사이즈 묻기', nameJp: 'サイズを聞く', icon: '👕', desc: '입어보기, 사이즈, 가격 묻기', dialogueKey: 'clothes_size' }
+    roleplay: { id: 'rp_clothes_size', name: '사이즈 묻기', nameJp: 'サイズを聞く', icon: '', desc: '입어보기, 사이즈, 가격 묻기', dialogueKey: 'clothes_size' }
   },
   {
     id: 'v3_store_payment',
@@ -1106,19 +1135,19 @@ const MODULES = [
     accessTier: 'free',
     name: '상점·결제',
     nameJp: 'お店と会計',
-    icon: '💳',
+    icon: '',
     desc: '카드, 현금, 봉투, 영수증, 면세 가능 여부',
     xp: 300,
     unlockAfter: ['v3_shopping'],
     steps: [
-      { type: 'lecture', title: '🎬 결제는 한 문장이 표준', lectureKey: 'v3_store_payment' },
+      { type: 'lecture', title: '결제는 한 문장이 표준', lectureKey: 'v3_store_payment' },
       { type: 'vocab_learn', title: '카드·봉투·영수증 즉답 카드', items: V3_PAYMENT_QA_CARDS, mode: 'sentence' },
       { type: 'vocab_learn', title: '결제·면세 표현', categoryId: 'shopping_phrases', limit: 18 },
       { type: 'dialogue_study', title: '상점 결제 미리보기', dialogueKey: 'store_payment' },
       { type: 'vocab_quiz', title: '결제 즉답 퀴즈', items: V3_PAYMENT_QA_CARDS },
       { type: 'vocab_quiz', title: '결제 표현 퀴즈', categoryId: 'shopping_phrases', limit: 22 },
     ],
-    roleplay: { id: 'rp_store_payment', name: '상점에서 결제', nameJp: 'お店で会計', icon: '💳', desc: '카드 되나요, 봉투 필요 없어요', dialogueKey: 'store_payment' }
+    roleplay: { id: 'rp_store_payment', name: '상점에서 결제', nameJp: 'お店で会計', icon: '', desc: '카드 되나요, 봉투 필요 없어요', dialogueKey: 'store_payment' }
   },
   {
     id: 'v3_duty_free',
@@ -1126,19 +1155,19 @@ const MODULES = [
     accessTier: 'free',
     name: '공항 상점·면세',
     nameJp: '免税店',
-    icon: '🛍️',
+    icon: '',
     desc: '여권 제시, 선물 추천, 기내 반입 가능 여부',
     xp: 300,
     unlockAfter: ['v3_store_payment'],
     steps: [
-      { type: 'lecture', title: '🎬 면세는 여권이 시작', lectureKey: 'v3_duty_free' },
+      { type: 'lecture', title: '면세는 여권이 시작', lectureKey: 'v3_duty_free' },
       { type: 'vocab_learn', title: '선물·기내 반입 즉답 카드', items: V3_DUTY_FREE_QA_CARDS, mode: 'sentence' },
       { type: 'vocab_learn', title: '상점·선물 표현', categoryIds: ['shopping_phrases','basic_questions'], limit: 22 },
       { type: 'dialogue_study', title: '면세점 미리보기', dialogueKey: 'duty_free_shop' },
       { type: 'vocab_quiz', title: '면세점 즉답 퀴즈', items: V3_DUTY_FREE_QA_CARDS },
       { type: 'vocab_quiz', title: '면세점 표현 퀴즈', categoryIds: ['shopping_phrases','basic_questions'], limit: 24 },
     ],
-    roleplay: { id: 'rp_duty_free_shop', name: '면세점에서 선물 사기', nameJp: '免税店で買い物', icon: '🛍️', desc: '추천과 기내 반입 가능 여부 묻기', dialogueKey: 'duty_free_shop' }
+    roleplay: { id: 'rp_duty_free_shop', name: '면세점에서 선물 사기', nameJp: '免税店で買い物', icon: '', desc: '추천과 기내 반입 가능 여부 묻기', dialogueKey: 'duty_free_shop' }
   },
   {
     id: 'v3_hotel',
@@ -1146,19 +1175,19 @@ const MODULES = [
     accessTier: 'free',
     name: '호텔 체크인',
     nameJp: 'ホテル',
-    icon: '🏨',
+    icon: '',
     desc: '체크인, 이름, 여권, 조식, 체크아웃 시간',
     xp: 320,
     unlockAfter: ['v3_duty_free'],
     steps: [
-      { type: 'lecture', title: '🎬 숙소에서 듣는 말', lectureKey: 'v3_hotel' },
+      { type: 'lecture', title: '숙소에서 듣는 말', lectureKey: 'v3_hotel' },
       { type: 'vocab_learn', title: '체크인 즉답 카드', items: V3_HOTEL_QA_CARDS, mode: 'sentence' },
       { type: 'vocab_learn', title: '호텔·숙박 표현', categoryId: 'hotel_phrases', limit: 14 },
       { type: 'dialogue_study', title: '호텔 체크인 미리보기', dialogueKey: 'hotel_checkin' },
       { type: 'vocab_quiz', title: '체크인 즉답 퀴즈', items: V3_HOTEL_QA_CARDS },
       { type: 'vocab_quiz', title: '호텔 표현 퀴즈', categoryId: 'hotel_phrases', limit: 18 },
     ],
-    roleplay: { id: 'rp_hotel_checkin', name: '체크인하기', nameJp: 'チェックイン', icon: '🏨', desc: '예약 확인과 기본 질문', dialogueKey: 'hotel_checkin' }
+    roleplay: { id: 'rp_hotel_checkin', name: '체크인하기', nameJp: 'チェックイン', icon: '', desc: '예약 확인과 기본 질문', dialogueKey: 'hotel_checkin' }
   },
   {
     id: 'v3_hotel_request',
@@ -1166,19 +1195,19 @@ const MODULES = [
     accessTier: 'free',
     name: '객실 요청',
     nameJp: '部屋のお願い',
-    icon: '🛎️',
+    icon: '',
     desc: '수건, 와이파이, 에어컨, 체크아웃 시간 묻기',
     xp: 300,
     unlockAfter: ['v3_hotel'],
     steps: [
-      { type: 'lecture', title: '🎬 객실 요청은 두 가지 패턴', lectureKey: 'v3_hotel_request' },
+      { type: 'lecture', title: '객실 요청은 두 가지 패턴', lectureKey: 'v3_hotel_request' },
       { type: 'vocab_learn', title: '객실 요청 즉답 카드', items: V3_HOTEL_REQUEST_QA_CARDS, mode: 'sentence' },
       { type: 'vocab_learn', title: '객실·시설 표현', categoryId: 'hotel_phrases', limit: 18 },
       { type: 'dialogue_study', title: '객실 요청 미리보기', dialogueKey: 'hotel_request' },
       { type: 'vocab_quiz', title: '객실 요청 즉답 퀴즈', items: V3_HOTEL_REQUEST_QA_CARDS },
       { type: 'vocab_quiz', title: '객실 요청 퀴즈', categoryId: 'hotel_phrases', limit: 22 },
     ],
-    roleplay: { id: 'rp_hotel_request', name: '프런트에 요청하기', nameJp: 'フロントにお願い', icon: '🛎️', desc: '수건과 와이파이를 부탁하기', dialogueKey: 'hotel_request' }
+    roleplay: { id: 'rp_hotel_request', name: '프런트에 요청하기', nameJp: 'フロントにお願い', icon: '', desc: '수건과 와이파이를 부탁하기', dialogueKey: 'hotel_request' }
   },
   {
     id: 'v3_onsen',
@@ -1186,19 +1215,19 @@ const MODULES = [
     accessTier: 'free',
     name: '온천 이용',
     nameJp: '温泉',
-    icon: '♨️',
+    icon: '',
     desc: '입장, 수건, 문신, 이용 시간, 규칙 묻기',
     xp: 300,
     unlockAfter: ['v3_hotel_request'],
     steps: [
-      { type: 'lecture', title: '🎬 온천은 첫 5분이 중요', lectureKey: 'v3_onsen' },
+      { type: 'lecture', title: '온천은 첫 5분이 중요', lectureKey: 'v3_onsen' },
       { type: 'vocab_learn', title: '온천 규칙 즉답 카드', items: V3_ONSEN_QA_CARDS, mode: 'sentence' },
       { type: 'vocab_learn', title: '온천·시설 표현', categoryIds: ['hotel_phrases','basic_questions'], limit: 22 },
       { type: 'dialogue_study', title: '온천 이용 미리보기', dialogueKey: 'onsen_rules' },
       { type: 'vocab_quiz', title: '온천 규칙 즉답 퀴즈', items: V3_ONSEN_QA_CARDS },
       { type: 'vocab_quiz', title: '온천 표현 퀴즈', categoryIds: ['hotel_phrases','basic_questions'], limit: 24 },
     ],
-    roleplay: { id: 'rp_onsen_rules', name: '온천 규칙 묻기', nameJp: '温泉のルール', icon: '♨️', desc: '수건과 이용 시간을 묻기', dialogueKey: 'onsen_rules' }
+    roleplay: { id: 'rp_onsen_rules', name: '온천 규칙 묻기', nameJp: '温泉のルール', icon: '', desc: '수건과 이용 시간을 묻기', dialogueKey: 'onsen_rules' }
   },
   {
     id: 'v3_health',
@@ -1206,12 +1235,12 @@ const MODULES = [
     accessTier: 'plus',
     name: '아플 때',
     nameJp: '体調が悪い時',
-    icon: '💊',
+    icon: '',
     desc: '머리, 배, 약국, 병원, 도움 요청',
     xp: 300,
     unlockAfter: ['v3_onsen'],
     steps: [
-      { type: 'lecture', title: '🎬 아픈 곳부터 말하기', lectureKey: 'v3_health' },
+      { type: 'lecture', title: '아픈 곳부터 말하기', lectureKey: 'v3_health' },
       { type: 'vocab_learn', title: '신체 부위', categoryId: 'body_parts', limit: 12 },
       { type: 'vocab_learn', title: '약국 증상 즉답 카드', items: V3_HEALTH_QA_CARDS, mode: 'sentence' },
       { type: 'vocab_learn', title: '증상·의료 단어', categoryIds: ['health_symptoms','medical_care'], limit: 14, mode: 'word' },
@@ -1220,7 +1249,7 @@ const MODULES = [
       { type: 'vocab_quiz', title: '약국 즉답 퀴즈', items: V3_HEALTH_QA_CARDS },
       { type: 'vocab_quiz', title: '건강·긴급 퀴즈', categoryIds: ['body_parts','health_symptoms','medical_care','emergency_sos'], limit: 28 },
     ],
-    roleplay: { id: 'rp_health_help', name: '몸이 안 좋아요', nameJp: '体調が悪いです', icon: '💊', desc: '증상 말하고 도움 받기', dialogueKey: 'health_help' }
+    roleplay: { id: 'rp_health_help', name: '몸이 안 좋아요', nameJp: '体調が悪いです', icon: '', desc: '증상 말하고 도움 받기', dialogueKey: 'health_help' }
   },
   {
     id: 'v3_hospital',
@@ -1228,19 +1257,19 @@ const MODULES = [
     accessTier: 'plus',
     name: '병원 접수',
     nameJp: '病院受付',
-    icon: '🏥',
+    icon: '',
     desc: '보험, 접수, 증상, 기다리는 시간 말하기',
     xp: 320,
     unlockAfter: ['v3_health'],
     steps: [
-      { type: 'lecture', title: '🎬 병원 접수는 보험 → 증상', lectureKey: 'v3_hospital' },
+      { type: 'lecture', title: '병원 접수는 보험 → 증상', lectureKey: 'v3_hospital' },
       { type: 'vocab_learn', title: '병원 접수 즉답 카드', items: V3_HOSPITAL_QA_CARDS, mode: 'sentence' },
       { type: 'vocab_learn', title: '병원·증상 표현', categoryIds: ['medical_care','health_symptoms','body_parts'], limit: 24 },
       { type: 'dialogue_study', title: '병원 접수 미리보기', dialogueKey: 'hospital_reception' },
       { type: 'vocab_quiz', title: '병원 접수 즉답 퀴즈', items: V3_HOSPITAL_QA_CARDS },
       { type: 'vocab_quiz', title: '병원 표현 퀴즈', categoryIds: ['medical_care','health_symptoms','body_parts'], limit: 26 },
     ],
-    roleplay: { id: 'rp_hospital_reception', name: '병원에서 접수하기', nameJp: '病院で受付', icon: '🏥', desc: '열이 있고 배가 아프다고 말하기', dialogueKey: 'hospital_reception' }
+    roleplay: { id: 'rp_hospital_reception', name: '병원에서 접수하기', nameJp: '病院で受付', icon: '', desc: '열이 있고 배가 아프다고 말하기', dialogueKey: 'hospital_reception' }
   },
   {
     id: 'v3_lost_and_help',
@@ -1248,12 +1277,12 @@ const MODULES = [
     accessTier: 'plus',
     name: '분실·도움 요청',
     nameJp: '忘れ物・助けて',
-    icon: '🧰',
+    icon: '',
     desc: '물건을 잃어버렸을 때, 장소를 찾을 때, 직원에게 도움을 요청하는 표현',
     xp: 300,
     unlockAfter: ['v3_hospital'],
     steps: [
-      { type: 'lecture', title: '🎬 당황했을 때는 잃어버린 것부터', lectureKey: 'v3_lost_and_help' },
+      { type: 'lecture', title: '당황했을 때는 잃어버린 것부터', lectureKey: 'v3_lost_and_help' },
       { type: 'vocab_learn', title: '분실물 즉답 카드', items: V3_LOST_QA_CARDS, mode: 'sentence' },
       { type: 'vocab_learn', title: '도움 요청 표현', categoryIds: ['emergency_sos','basic_questions'], limit: 18 },
       { type: 'vocab_learn', title: '장소·교통 단어', categoryId: 'place_transport', limit: 12, mode: 'word' },
@@ -1262,7 +1291,7 @@ const MODULES = [
       { type: 'vocab_quiz', title: '분실물 즉답 퀴즈', items: V3_LOST_QA_CARDS },
       { type: 'vocab_quiz', title: '분실·도움 요청 퀴즈', categoryIds: ['emergency_sos','basic_questions','place_transport','directions'], limit: 28 },
     ],
-    roleplay: { id: 'rp_lost_item_help', name: '물건을 잃어버렸어요', nameJp: '忘れ物をしました', icon: '🎒', desc: '가방을 잃어버렸다고 말하고 안내받기', dialogueKey: 'lost_item_help' }
+    roleplay: { id: 'rp_lost_item_help', name: '물건을 잃어버렸어요', nameJp: '忘れ物をしました', icon: '', desc: '가방을 잃어버렸다고 말하고 안내받기', dialogueKey: 'lost_item_help' }
   },
 
   {
@@ -1271,12 +1300,12 @@ const MODULES = [
     accessTier: 'plus',
     name: '렌트카',
     nameJp: 'レンタカー',
-    icon: '🚗',
+    icon: '',
     desc: '예약 확인, 면허증, 보험, 반납 시간 묻기',
     xp: 340,
     unlockAfter: ['v3_lost_and_help'],
     steps: [
-      { type: 'lecture', title: '🎬 렌트카는 예약 → 면허 → 보험', lectureKey: 'v3_rentacar' },
+      { type: 'lecture', title: '렌트카는 예약 → 면허 → 보험', lectureKey: 'v3_rentacar' },
       { type: 'vocab_learn', title: '렌트카 즉답 카드', items: V3_RENTACAR_QA_CARDS, mode: 'sentence' },
       { type: 'vocab_learn', title: '교통·날짜 단어', categoryId: 'date_basic', limit: 8, mode: 'word' },
       { type: 'vocab_learn', title: '교통·예약 문장', categoryIds: ['transport_phrases','basic_questions'], limit: 16, mode: 'sentence' },
@@ -1284,7 +1313,7 @@ const MODULES = [
       { type: 'vocab_quiz', title: '렌트카 즉답 퀴즈', items: V3_RENTACAR_QA_CARDS },
       { type: 'vocab_quiz', title: '렌트카 표현 퀴즈', categoryIds: ['transport_phrases','basic_questions','date_basic'], limit: 26 },
     ],
-    roleplay: { id: 'rp_rentacar_pickup', name: '렌트카 빌리기', nameJp: 'レンタカーを借りる', icon: '🚗', desc: '예약 확인과 반납 시간을 묻기', dialogueKey: 'rentacar_pickup' }
+    roleplay: { id: 'rp_rentacar_pickup', name: '렌트카 빌리기', nameJp: 'レンタカーを借りる', icon: '', desc: '예약 확인과 반납 시간을 묻기', dialogueKey: 'rentacar_pickup' }
   },
   {
     id: 'v3_tourist_spot',
@@ -1292,19 +1321,19 @@ const MODULES = [
     accessTier: 'plus',
     name: '관광지·사진',
     nameJp: '観光地と写真',
-    icon: '📷',
+    icon: '',
     desc: '입장권, 사진 부탁, 추천 장소 묻기',
     xp: 320,
     unlockAfter: ['v3_rentacar'],
     steps: [
-      { type: 'lecture', title: '🎬 사진 부탁은 한 문장', lectureKey: 'v3_tourist_spot' },
+      { type: 'lecture', title: '사진 부탁은 한 문장', lectureKey: 'v3_tourist_spot' },
       { type: 'vocab_learn', title: '사진·관광 즉답 카드', items: V3_TOURIST_QA_CARDS, mode: 'sentence' },
       { type: 'vocab_learn', title: '관광·사진 표현', categoryIds: ['basic_questions','directions','first_expressions'], limit: 24 },
       { type: 'dialogue_study', title: '관광지 대화 미리보기', dialogueKey: 'tourist_photo' },
       { type: 'vocab_quiz', title: '사진 부탁 즉답 퀴즈', items: V3_TOURIST_QA_CARDS },
       { type: 'vocab_quiz', title: '관광지 표현 퀴즈', categoryIds: ['basic_questions','directions','first_expressions'], limit: 26 },
     ],
-    roleplay: { id: 'rp_tourist_photo', name: '사진 부탁하기', nameJp: '写真をお願いする', icon: '📷', desc: '사진 한 장 부탁하고 감사하기', dialogueKey: 'tourist_photo' }
+    roleplay: { id: 'rp_tourist_photo', name: '사진 부탁하기', nameJp: '写真をお願いする', icon: '', desc: '사진 한 장 부탁하고 감사하기', dialogueKey: 'tourist_photo' }
   },
   {
     id: 'v3_reservation_call',
@@ -1312,12 +1341,12 @@ const MODULES = [
     accessTier: 'plus',
     name: '예약 확인',
     nameJp: '予約確認',
-    icon: '📅',
+    icon: '',
     desc: '예약했어요, 이름은 무엇입니다, 시간 변경 가능해요?',
     xp: 320,
     unlockAfter: ['v3_tourist_spot'],
     steps: [
-      { type: 'lecture', title: '🎬 예약은 이름과 시간이 중심', lectureKey: 'v3_reservation_call' },
+      { type: 'lecture', title: '예약은 이름과 시간이 중심', lectureKey: 'v3_reservation_call' },
       { type: 'vocab_learn', title: '예약 확인 즉답 카드', items: V3_RESERVATION_QA_CARDS, mode: 'sentence' },
       { type: 'vocab_learn', title: '날짜·시각 단어', categoryIds: ['date_basic','time_clock'], limit: 14, mode: 'word' },
       { type: 'vocab_learn', title: '예약·확인 문장', categoryIds: ['hotel_phrases','basic_questions'], limit: 14, mode: 'sentence' },
@@ -1325,7 +1354,7 @@ const MODULES = [
       { type: 'vocab_quiz', title: '예약 확인 즉답 퀴즈', items: V3_RESERVATION_QA_CARDS },
       { type: 'vocab_quiz', title: '예약 확인 퀴즈', categoryIds: ['hotel_phrases','date_basic','time_clock','basic_questions'], limit: 28 },
     ],
-    roleplay: { id: 'rp_reservation_check', name: '예약 확인하기', nameJp: '予約を確認する', icon: '📅', desc: '예약 이름과 시간을 확인하기', dialogueKey: 'reservation_check' }
+    roleplay: { id: 'rp_reservation_check', name: '예약 확인하기', nameJp: '予約を確認する', icon: '', desc: '예약 이름과 시간을 확인하기', dialogueKey: 'reservation_check' }
   },
   {
     id: 'v3_weather_plan',
@@ -1333,12 +1362,12 @@ const MODULES = [
     accessTier: 'plus',
     name: '날씨·일정 변경',
     nameJp: '天気と予定変更',
-    icon: '🌦️',
+    icon: '',
     desc: '비가 와요, 내일 가도 돼요?, 일정 바꾸고 싶어요',
     xp: 300,
     unlockAfter: ['v3_reservation_call'],
     steps: [
-      { type: 'lecture', title: '🎬 일정 변경은 이유 + 부탁', lectureKey: 'v3_weather_plan' },
+      { type: 'lecture', title: '일정 변경은 이유 + 부탁', lectureKey: 'v3_weather_plan' },
       { type: 'vocab_learn', title: '날씨·일정 변경 즉답 카드', items: V3_WEATHER_QA_CARDS, mode: 'sentence' },
       { type: 'vocab_learn', title: '날짜·감정 단어', categoryIds: ['date_basic','adj_emotion'], limit: 14, mode: 'word' },
       { type: 'vocab_learn', title: '일정 변경 문장', categoryId: 'basic_questions', limit: 10, mode: 'sentence' },
@@ -1346,7 +1375,7 @@ const MODULES = [
       { type: 'vocab_quiz', title: '일정 변경 즉답 퀴즈', items: V3_WEATHER_QA_CARDS },
       { type: 'vocab_quiz', title: '일정 변경 퀴즈', categoryIds: ['date_basic','adj_emotion','basic_questions'], limit: 26 },
     ],
-    roleplay: { id: 'rp_weather_plan_change', name: '비 와서 일정 바꾸기', nameJp: '予定を変える', icon: '🌦️', desc: '내일로 바꿀 수 있는지 묻기', dialogueKey: 'weather_plan_change' }
+    roleplay: { id: 'rp_weather_plan_change', name: '비 와서 일정 바꾸기', nameJp: '予定を変える', icon: '', desc: '내일로 바꿀 수 있는지 묻기', dialogueKey: 'weather_plan_change' }
   },
   {
     id: 'v3_polite_wrapup',
@@ -1354,12 +1383,12 @@ const MODULES = [
     accessTier: 'plus',
     name: '마무리·감사',
     nameJp: 'お礼と締め',
-    icon: '🙏',
+    icon: '',
     desc: '도움받은 뒤 감사, 괜찮아요, 또 올게요로 자연스럽게 끝내기',
     xp: 280,
     unlockAfter: ['v3_weather_plan'],
     steps: [
-      { type: 'lecture', title: '🎬 감사는 짧을수록 정중', lectureKey: 'v3_polite_wrapup' },
+      { type: 'lecture', title: '감사는 짧을수록 정중', lectureKey: 'v3_polite_wrapup' },
       { type: 'vocab_learn', title: '마무리 즉답 카드', items: V3_WRAPUP_QA_CARDS, mode: 'sentence' },
       { type: 'vocab_learn', title: '맞장구 단어', categoryId: 'w1_reactions', limit: 8, mode: 'word' },
       { type: 'vocab_learn', title: '감사·마무리 문장', categoryId: 'first_expressions', limit: 12, mode: 'sentence' },
@@ -1367,7 +1396,7 @@ const MODULES = [
       { type: 'vocab_quiz', title: '마무리 즉답 퀴즈', items: V3_WRAPUP_QA_CARDS },
       { type: 'vocab_quiz', title: '마무리 표현 퀴즈', categoryIds: ['first_expressions','w1_reactions'], limit: 22 },
     ],
-    roleplay: { id: 'rp_polite_wrapup', name: '도움받고 마무리하기', nameJp: 'お礼を言う', icon: '🙏', desc: '정중하지만 길지 않게 감사하기', dialogueKey: 'polite_wrapup' }
+    roleplay: { id: 'rp_polite_wrapup', name: '도움받고 마무리하기', nameJp: 'お礼を言う', icon: '', desc: '정중하지만 길지 않게 감사하기', dialogueKey: 'polite_wrapup' }
   },
 
   {
@@ -1376,12 +1405,12 @@ const MODULES = [
     accessTier: 'plus',
     name: '드라마 리액션',
     nameJp: 'ドラマの反応',
-    icon: '🎬',
+    icon: '',
     desc: 'え, うそ, まじで, なんで처럼 자막에서 계속 보이는 짧은 말',
     xp: 260,
     unlockAfter: ['v3_polite_wrapup'],
     steps: [
-      { type: 'lecture', title: '🎬 자막보다 먼저 들리는 말', lectureKey: 'v3_drama_reactions' },
+      { type: 'lecture', title: '자막보다 먼저 들리는 말', lectureKey: 'v3_drama_reactions' },
       { type: 'vocab_learn', title: '짧은 반응어', categoryIds: ['w1_reactions', 'youth_slang'], limit: 18 },
       { type: 'vocab_learn', title: '감정 형용사', categoryId: 'adj_emotion', limit: 8, mode: 'word' },
       { type: 'vocab_learn', title: '스몰토크 문장', categoryId: 'small_talk', limit: 8, mode: 'sentence' },
@@ -1392,7 +1421,7 @@ const MODULES = [
       id: 'rp_drama_reactions',
       name: '드라마 짧은 반응',
       nameJp: 'ドラマの反応',
-      icon: '🎬',
+      icon: '',
       desc: 'え, うそ, まじで처럼 짧은 반응을 듣고 따라 하기',
       dialogueKey: 'drama_reactions'
     }
@@ -1403,12 +1432,12 @@ const MODULES = [
     accessTier: 'free',
     name: '감정 표현',
     nameJp: '気持ちの表現',
-    icon: '💗',
+    icon: '',
     desc: '기쁘다, 걱정돼요, 깜짝 놀랐어요처럼 짧은 감정 문장 익히기',
     xp: 260,
     unlockAfter: ['v3_drama_reactions'],
     steps: [
-      { type: 'lecture', title: '🎬 감정은 짧은 문장으로 던지기', lectureKey: 'v3_drama_emotion' },
+      { type: 'lecture', title: '감정은 짧은 문장으로 던지기', lectureKey: 'v3_drama_emotion' },
       { type: 'vocab_learn', title: '감정 형용사', categoryId: 'adj_emotion', limit: 14 },
       { type: 'vocab_learn', title: '맞장구 단어', categoryId: 'w1_reactions', limit: 8, mode: 'word' },
       { type: 'vocab_learn', title: '스몰토크 문장', categoryId: 'small_talk', limit: 8, mode: 'sentence' },
@@ -1422,19 +1451,19 @@ const MODULES = [
     accessTier: 'plus',
     name: '드라마 일상 대사',
     nameJp: '日常セリフ',
-    icon: '📺',
+    icon: '',
     desc: '친구 말투, 감정 표현, 짧은 일상 문장',
     xp: 300,
     unlockAfter: ['v3_drama_emotion'],
     steps: [
-      { type: 'lecture', title: '🎬 드라마 대사는 짧게 끊어 듣기', lectureKey: 'v3_drama_daily' },
+      { type: 'lecture', title: '드라마 대사는 짧게 끊어 듣기', lectureKey: 'v3_drama_daily' },
       { type: 'vocab_learn', title: '감정·상태 단어', categoryId: 'adj_emotion', limit: 10, mode: 'word' },
       { type: 'vocab_learn', title: '드라마 일상 문장', categoryId: 'small_talk', limit: 10, mode: 'sentence' },
       { type: 'vocab_learn', title: '취미·관심사', categoryId: 's2_hobbies', limit: 10 },
       { type: 'vocab_quiz', title: '드라마 입문 퀴즈', categoryIds: ['adj_emotion','small_talk','s2_hobbies'], limit: 24 },
       { type: 'dialogue_study', title: '일상 대화 미리보기', dialogueKey: 'daily_chat' },
     ],
-    roleplay: { id: 'rp_daily_chat', name: '짧은 일상 대화', nameJp: '日常会話', icon: '💬', desc: '일본어 공부와 취미 이야기', dialogueKey: 'daily_chat' }
+    roleplay: { id: 'rp_daily_chat', name: '짧은 일상 대화', nameJp: '日常会話', icon: '', desc: '일본어 공부와 취미 이야기', dialogueKey: 'daily_chat' }
   },
 ];
 

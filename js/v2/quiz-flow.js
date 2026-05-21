@@ -444,7 +444,7 @@ window.createQuizFlow = (ctx) => {
     if (!items.length) { Store.completeStep(ctx.getFlow().moduleId, stepIndex); ctx.advanceStep(); return; }
 
     // Store ALL state on ctx.getFlow()._vocab so render() always reads fresh values
-    ctx.getFlow()._vocab = { items, idx: 0, showMeaning: false, stepIndex, mod, step };
+    ctx.getFlow()._vocab = { items, idx: 0, showMeaning: true, stepIndex, mod, step };
 
     _vocabRender();
   }
@@ -502,36 +502,26 @@ window.createQuizFlow = (ctx) => {
         <div style="font-size:12px;color:var(--text3);text-align:center;margin-bottom:10px">
           ${idx + 1} / ${items.length}${isSeen ? ' <span class="vc-revisit-pill">복습</span>' : ''}
         </div>
-        <div class="vc-flip-card ${showMeaning ? 'flipped' : ''}" id="vcCard"
-             onclick="App._vocabSpeak()" style="--vc-len:${charLen}">
-          <div class="vc-card-inner">
-            <div class="vc-face">
-              <div class="vc-type-label">단어</div>
-              <div class="vc-jp">${jpHtml}</div>
-              ${item.romaji ? `<div class="vc-face-romaji">${escHtml(item.romaji)}</div>` : ''}
-            </div>
-            <div class="vc-back">
-              <div class="vc-back-head">
-                <div class="vc-back-jp">${jpHtml}</div>
-                ${hasKanji ? `<div class="vc-back-kanji">한자 표기 · ${escHtml(item.kanji)}</div>` : ''}
-                <div class="vc-back-meaning">${escHtml(item.korean || '')}</div>
-                ${item.english ? `<div class="vc-back-english">EN · ${escHtml(item.english)}</div>` : ''}
-              </div>
-              ${tipText ? `
-              <div class="vc-tip-panel">
-                <div class="vc-tip-label">TIP</div>
-                <div class="vc-tip-content">
-                  <div class="vc-explain-body">${ruby(tipText)}</div>
-                  ${exampleText ? `
-                  <div class="vc-ex-block compact">
-                    <div class="vc-ex-label">예시</div>
-                    <div class="vc-ex-body">${ruby(exampleText)}</div>
-                  </div>` : ''}
-                </div>
+        <div class="vc-flat" id="vcCard" onclick="App._vocabSpeak()" style="--vc-len:${charLen}">
+          <div class="vc-type-label">단어</div>
+          <div class="vc-jp">${jpHtml}</div>
+          ${item.romaji ? `<div class="vc-face-romaji">${escHtml(item.romaji)}</div>` : ''}
+          <div class="vc-flat-meaning">${escHtml(item.korean || '')}</div>
+          ${hasKanji ? `<div class="vc-back-kanji">한자 표기 · ${escHtml(item.kanji)}</div>` : ''}
+          ${item.english ? `<div class="vc-back-english">EN · ${escHtml(item.english)}</div>` : ''}
+          ${tipText ? `
+          <div class="vc-tip-panel">
+            <div class="vc-tip-label">TIP</div>
+            <div class="vc-tip-content">
+              <div class="vc-explain-body">${ruby(tipText)}</div>
+              ${exampleText ? `
+              <div class="vc-ex-block compact">
+                <div class="vc-ex-label">예시</div>
+                <div class="vc-ex-body">${ruby(exampleText)}</div>
               </div>` : ''}
-              ${relatedHtml}
             </div>
-          </div>
+          </div>` : ''}
+          ${relatedHtml}
         </div>
         <div class="vocab-nav">
           <button class="vocab-nav-btn" onclick="App._vocabPrev()">←</button>
@@ -569,18 +559,13 @@ window.createQuizFlow = (ctx) => {
     if (!st) return;
     const footer = document.getElementById('flowFooter');
     if (!footer) return;
-    if (st.showMeaning) {
-      footer.innerHTML = `
-        <div class="vocab-footer-nav">
-          <button class="btn btn-outline" onclick="App._vocabPrev()">← ${st.idx === 0 ? '소개' : '이전'}</button>
-          <button class="btn btn-primary" onclick="App._vocabNext()">다음 →</button>
-        </div>
-      `;
-    } else {
-      footer.innerHTML = `
-        <button class="btn btn-outline" onclick="App._vocabFlip()">의미 확인하기</button>
-      `;
-    }
+    // 단어·의미·TIP을 처음부터 펼쳐 보여주므로 푸터는 항상 이동 버튼만.
+    footer.innerHTML = `
+      <div class="vocab-footer-nav">
+        <button class="btn btn-outline" onclick="App._vocabPrev()">← ${st.idx === 0 ? '소개' : '이전'}</button>
+        <button class="btn btn-primary" onclick="App._vocabNext()">다음 →</button>
+      </div>
+    `;
   }
 
   function _vocabNext() {

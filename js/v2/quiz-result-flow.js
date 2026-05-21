@@ -98,8 +98,8 @@ function createQuizResultFlow(ctx) {
          '/images/v3/roleplay/roles/tourist/aoi-winter.webp'];
     const mascotSrc = mascots[Math.floor(Math.random() * mascots.length)];
     const speech = passed
-      ? (pct >= 90 ? '완벽해요! 다음 단계로 가요 ✨' : pct >= 70 ? '잘했어요! 살짝만 다듬어요 💪' : '통과! 한 번 더 복습하면 더 좋아요 🌱')
-      : '괜찮아요, 다시 한 번 가볼게요! 핵심만 짚어서 짧게 가요 🌿';
+      ? (pct >= 90 ? '완벽해요! 다음 단계로 가요' : pct >= 70 ? '잘했어요! 살짝만 다듬어요' : '통과! 한 번 더 복습하면 더 좋아요')
+      : '괜찮아요, 다시 한 번 가볼게요! 핵심만 짚어서 짧게 가요';
     document.getElementById('flowBody').innerHTML = `
       <div class="score-screen fanfare-burst ${passed ? 'score-screen-passed' : ''} has-mascot">
         ${passed ? '<div class="score-fanfare-ring score-fanfare-ring-a"></div><div class="score-fanfare-ring score-fanfare-ring-b"></div>' : ''}

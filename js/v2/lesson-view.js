@@ -37,10 +37,10 @@ window.createLessonView = (ctx) => {
       const stagePct = getStageProgressPct(stage.id, prog);
 
       html += `
-        <div class="lesson-stage-section">
+        <div class="lesson-stage-section" id="lesson-stage-${stage.id}" data-stage="${stage.id}">
           <div class="lesson-stage-header">
             <div class="lesson-stage-dot" style="background:${locked ? '#475569' : dotColor}"></div>
-            <span class="lesson-stage-title">${gameUi ? `${stage.id}단계 · ` : `STAGE ${stage.id}: `}${escHtml(stage.name)}</span>
+            <span class="lesson-stage-title">${gameUi ? '' : `STAGE ${stage.id}: `}${escHtml(stage.name)}</span>
             <span class="lesson-stage-badge" style="background:${badgeBg};color:${badgeColor};padding:3px 8px;border-radius:20px;font-size:10px;font-weight:700;">
               ${locked ? `${uiIconWrap('lock', 'badge-icon')}${formatNum(stage.unlockXP)} XP` : (stage.jlpt || (gameUi ? '학습 가능' : '심화 학습'))}
             </span>
@@ -101,7 +101,8 @@ window.createLessonView = (ctx) => {
     const status = _getStatus(modLocked, completed);
     const statusLabel = modLocked ? _getLockedLabel(stageLocked, accessLocked, prog, mod, requiredTier) : (completed ? '완료' : (done > 0 ? '이어하기' : '시작하기'));
     const tierLabel = _getTierLabel(requiredTier);
-    const roleplayInline = gameUi ? _renderRoleplayInline(mod, mp, visual, modLocked, totalSteps) : '';
+
+    if (gameUi) return _renderModuleCardV3({ mod, stage, modLocked, mp, totalSteps, done, pct, completed, visual, moduleImage, statusLabel, requiredTier, tierLabel });
 
     let html = `
       <div class="module-card ${moduleImage ? 'has-cover' : ''} ${modLocked ? 'locked' : ''} ${completed ? 'completed' : ''}"
@@ -119,7 +120,7 @@ window.createLessonView = (ctx) => {
             <div class="module-name">${escHtml(mod.name)}</div>
             <span class="access-tier-badge ${requiredTier}">${tierLabel}</span>
           </div>
-          <div class="module-sub">${escHtml(mod.nameJp || '')} · ${totalSteps}${gameUi ? '단계' : '단계'}</div>
+          <div class="module-sub">${escHtml(mod.nameJp || '')} · ${totalSteps}단계</div>
           <div class="module-focus-tag">${escHtml(visual.focus)}</div>
           ${!modLocked ? `
           <div class="module-prog">
@@ -128,18 +129,87 @@ window.createLessonView = (ctx) => {
             </div>
             <span class="module-prog-pct">${done}/${totalSteps}</span>
           </div>` : ''}
-          ${roleplayInline}
           <div class="module-action-label">${statusLabel}</div>
         </div>
         <div class="module-status ${status.className}">${status.icon}</div>
       </div>
     `;
 
-    if (!gameUi && mod.roleplay && !modLocked) {
+    if (mod.roleplay && !modLocked) {
       html += _renderRoleplayCard(mod, mp, visual, totalSteps);
     }
 
     return html;
+  }
+
+  // V3 lesson card — single cover image + content summary chips (강의/카드/퀴즈/듣기/롤플레이)
+  function _renderModuleCardV3(d) {
+    const { mod, stage, modLocked, mp, totalSteps, done, pct, completed, visual, moduleImage, statusLabel, requiredTier, tierLabel } = d;
+    const summary = _summarizeSteps(mod);
+    const rpUnlocked = !!mod.roleplay && !modLocked && isRoleplayUnlocked(mod.id, Store.get());
+    const rpDone = mp.roleplayDone;
+
+    const contentChips = summary.map(c => `
+      <button class="v3-mod-chip ${c.key}" type="button"
+              ${modLocked ? 'disabled' : `onclick="event.stopPropagation();App.openModuleStep('${mod.id}', ${c.firstIndex})"`}>
+        <span class="v3-mod-chip-ico">${uiIconSvg(c.iconKey, 'v3-mod-chip-svg')}</span>${c.label}${c.count > 1 ? ` <b>${c.count}</b>` : ''}
+      </button>
+    `).join('');
+
+    const rpChip = mod.roleplay ? `
+      <button class="v3-mod-chip rp ${rpUnlocked ? '' : 'is-locked'} ${rpDone ? 'is-done' : ''}" type="button"
+              ${rpUnlocked ? `onclick="event.stopPropagation();App.openModule('${mod.id}', true)"` : 'disabled'}
+              title="${escHtml(mod.roleplay.name)}">
+        <span class="v3-mod-chip-ico">${uiIconSvg(rpDone ? 'check' : (rpUnlocked ? 'roleplay' : 'lock'), 'v3-mod-chip-svg')}</span>롤플레이
+      </button>` : '';
+
+    const coverState = modLocked
+      ? `<span class="v3-mod-cover-badge lock">${uiIconSvg('lock', 'v3-mod-cover-icon')}</span>`
+      : completed
+        ? `<span class="v3-mod-cover-badge done">${uiIconSvg('check', 'v3-mod-cover-icon')}</span>`
+        : '';
+
+    return `
+      <div class="v3-mod-card ${modLocked ? 'locked' : ''} ${completed ? 'completed' : ''}"
+           data-access-tier="${requiredTier}"
+           onclick="${!modLocked ? `App.openModule('${mod.id}')` : ''}">
+        <span class="v3-mod-cover" style="${moduleImage ? `--cover:url('${cssUrlValue(moduleImage)}')` : ''}" aria-hidden="true">
+          ${coverState}
+        </span>
+        <div class="v3-mod-body">
+          <div class="v3-mod-head">
+            <span class="v3-mod-name">${escHtml(mod.name)}</span>
+            <span class="access-tier-badge ${requiredTier}">${tierLabel}</span>
+          </div>
+          <div class="v3-mod-sub">${escHtml(mod.nameJp || '')} · ${escHtml(visual.focus)}</div>
+          <div class="v3-mod-chips">${contentChips}${rpChip}</div>
+          ${!modLocked ? `
+            <div class="v3-mod-foot">
+              <div class="v3-mod-bar"><span style="width:${pct}%;background:${stage.color}"></span></div>
+              <span class="v3-mod-foot-label">${done}/${totalSteps} · ${escHtml(statusLabel)}</span>
+            </div>
+          ` : `<div class="v3-mod-foot locked-label">${escHtml(statusLabel)}</div>`}
+        </div>
+      </div>
+    `;
+  }
+
+  function _summarizeSteps(mod) {
+    const cats = [
+      { key: 'lecture', label: '강의', iconKey: 'book', types: ['lecture'] },
+      { key: 'learn', label: '카드', iconKey: 'grid', types: ['vocab_learn', 'kana_learn', 'dialogue_study', 'kana_chart'] },
+      { key: 'quiz', label: '퀴즈', iconKey: 'quiz', types: ['vocab_quiz', 'kana_quiz'] },
+      { key: 'listen', label: '듣기', iconKey: 'voice', types: ['kana_listening', 'shadowing'] },
+    ];
+    const out = [];
+    cats.forEach(c => {
+      let count = 0, first = -1;
+      (mod.steps || []).forEach((s, i) => {
+        if (c.types.includes(s.type)) { count++; if (first < 0) first = i; }
+      });
+      if (count > 0) out.push({ key: c.key, label: c.label, iconKey: c.iconKey, count, firstIndex: first });
+    });
+    return out;
   }
 
   function _renderRoleplayInline(mod, moduleProgress, visual, modLocked, totalSteps) {
