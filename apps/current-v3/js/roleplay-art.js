@@ -14,7 +14,7 @@
   const IDENTITIES = {
     nanami: {
       key: 'nanami',
-      body: `${speakerRoot('nanami')}/body/base-legacy.webp`,
+      body: `${speakerRoot('nanami')}/body/tourist-2026-spring.webp`,
       face: [
         `${speakerRoot('nanami')}/face/mic-01.webp`,
         `${speakerRoot('nanami')}/face/mic-02.webp`,
@@ -23,7 +23,7 @@
     },
     aoi: {
       key: 'aoi',
-      body: `${speakerRoot('aoi')}/body/base-legacy.webp`,
+      body: `${speakerRoot('aoi')}/body/tourist-2026-summer.webp`,
       face: [
         `${speakerRoot('aoi')}/face/mic-01.webp`,
         `${speakerRoot('aoi')}/face/mic-02.webp`,
@@ -41,7 +41,7 @@
     },
     keita: {
       key: 'keita',
-      body: `${speakerRoot('keita')}/body/base-legacy.webp`,
+      body: `${speakerRoot('keita')}/body/tourist-2026-spring.webp`,
       face: [
         `${speakerRoot('keita')}/face/mic-01.webp`,
         `${speakerRoot('keita')}/face/mic-02.webp`,
@@ -101,7 +101,9 @@
           `${outfitRoot}/local/nanami-fashion-02.webp`,
         ],
       },
+      hotel_staff: { default: [`${outfitRoot}/hotel_staff/nanami-uniform-2026-autumn.webp`, `${outfitRoot}/hotel_staff/nanami-01.webp`] },
       rental_staff: { default: `${outfitRoot}/rentacar_staff/nanami-01.webp` },
+      shop_staff: { default: [`${outfitRoot}/shop_staff/nanami-uniform-2026-spring.webp`, `${outfitRoot}/shop_staff/nanami-01.webp`] },
       tourist: {
         spring: [`${outfitRoot}/tourist/nanami-spring.webp`, `${outfitRoot}/tourist/nanami-2026-spring.webp`],
         summer: `${outfitRoot}/tourist/nanami-summer.webp`,
@@ -123,6 +125,7 @@
           `${outfitRoot}/local/aoi-fashion-02.webp`,
         ],
       },
+      cafe_staff: { default: [`${outfitRoot}/cafe_staff/aoi-uniform-2026-summer.webp`, `${outfitRoot}/cafe_staff/aoi-01.webp`] },
       tourist: {
         spring: `${outfitRoot}/tourist/aoi-spring.webp`,
         summer: [`${outfitRoot}/tourist/aoi-summer.webp`, `${outfitRoot}/tourist/aoi-2026-summer.webp`],
@@ -139,20 +142,20 @@
     },
     mayu: {
       cafe_staff: { default: [`${outfitRoot}/cafe_staff/mayu-01.webp`, `${outfitRoot}/cafe_staff/mayu-uniform-01.webp`] },
-      cabin_crew: { default: `${outfitRoot}/cabin_crew/mayu-01.webp` },
-      cashier: { default: [`${outfitRoot}/konbini_staff/mayu-01.webp`, `${outfitRoot}/konbini_staff/mayu-uniform-01.webp`] },
+      cabin_crew: { default: [`${outfitRoot}/cabin_crew/mayu-uniform-2026-summer.webp`, `${outfitRoot}/cabin_crew/mayu-01.webp`] },
+      cashier: { default: [`${outfitRoot}/konbini_staff/mayu-uniform-2026-spring.webp`, `${outfitRoot}/konbini_staff/mayu-01.webp`, `${outfitRoot}/konbini_staff/mayu-uniform-01.webp`] },
       clinic_staff: { default: [`${outfitRoot}/pharmacist/mayu-01.webp`, `${outfitRoot}/pharmacist/mayu-uniform-01.webp`] },
-      duty_free_staff: { default: [`${outfitRoot}/duty_free_staff/mayu-01.webp`, `${outfitRoot}/duty_free_staff/mayu-uniform-01.webp`] },
+      duty_free_staff: { default: [`${outfitRoot}/duty_free_staff/mayu-uniform-2026-winter.webp`, `${outfitRoot}/duty_free_staff/mayu-01.webp`, `${outfitRoot}/duty_free_staff/mayu-uniform-01.webp`] },
       hotel_staff: { default: `${outfitRoot}/hotel_staff/mayu-01.webp` },
       izakaya_staff: { default: `${outfitRoot}/izakaya_staff/mayu-01.webp` },
-      konbini_staff: { default: [`${outfitRoot}/konbini_staff/mayu-01.webp`, `${outfitRoot}/konbini_staff/mayu-uniform-01.webp`] },
+      konbini_staff: { default: [`${outfitRoot}/konbini_staff/mayu-uniform-2026-spring.webp`, `${outfitRoot}/konbini_staff/mayu-01.webp`, `${outfitRoot}/konbini_staff/mayu-uniform-01.webp`] },
       local: {
         default: [
           `${outfitRoot}/local/mayu-fashion-01.webp`,
           `${outfitRoot}/local/mayu-fashion-02.webp`,
         ],
       },
-      onsen_staff: { default: `${outfitRoot}/onsen_staff/mayu-01.webp` },
+      onsen_staff: { default: [`${outfitRoot}/onsen_staff/mayu-uniform-2026-winter.webp`, `${outfitRoot}/onsen_staff/mayu-01.webp`] },
       pharmacist: { default: [`${outfitRoot}/pharmacist/mayu-01.webp`, `${outfitRoot}/pharmacist/mayu-uniform-01.webp`] },
       reservation_staff: { default: `${outfitRoot}/hotel_staff/mayu-01.webp` },
       restaurant_staff: { default: `${outfitRoot}/restaurant_staff/mayu-01.webp` },
@@ -169,11 +172,11 @@
       },
     },
     keita: {
-      airport_staff: { default: `${outfitRoot}/airport_staff/keita-01.webp` },
-      bus_driver: { default: `${outfitRoot}/bus_driver/keita-01.webp` },
+      airport_staff: { default: [`${outfitRoot}/airport_staff/keita-uniform-2026-spring.webp`, `${outfitRoot}/airport_staff/keita-01.webp`] },
+      bus_driver: { default: [`${outfitRoot}/bus_driver/keita-uniform-2026-spring.webp`, `${outfitRoot}/bus_driver/keita-01.webp`] },
       doctor: { default: [`${outfitRoot}/doctor/keita-01.webp`, `${outfitRoot}/doctor/keita-uniform-01.webp`] },
       hotel_staff: { default: `${outfitRoot}/hotel_staff/keita-01.webp` },
-      immigration_officer: { default: `${outfitRoot}/immigration_officer/keita-01.webp` },
+      immigration_officer: { default: [`${outfitRoot}/immigration_officer/keita-uniform-2026-autumn.webp`, `${outfitRoot}/immigration_officer/keita-01.webp`] },
       izakaya_staff: { default: [`${outfitRoot}/izakaya_staff/keita-01.webp`, `${outfitRoot}/izakaya_staff/keita-uniform-01.webp`] },
       local: {
         default: [
@@ -182,12 +185,12 @@
           `${outfitRoot}/local/keita-fashion-02.webp`,
         ],
       },
-      police_staff: { default: `${outfitRoot}/police_staff/keita-01.webp` },
-      rental_staff: { default: `${outfitRoot}/rentacar_staff/keita-01.webp` },
+      police_staff: { default: [`${outfitRoot}/police_staff/keita-uniform-2026-summer.webp`, `${outfitRoot}/police_staff/keita-01.webp`] },
+      rental_staff: { default: [`${outfitRoot}/rentacar_staff/keita-uniform-2026-autumn.webp`, `${outfitRoot}/rentacar_staff/keita-01.webp`] },
       restaurant_staff: { default: [`${outfitRoot}/restaurant_staff/keita-01.webp`, `${outfitRoot}/restaurant_staff/keita-uniform-01.webp`] },
       shop_staff: { default: `${outfitRoot}/shop_staff/keita-01.webp` },
-      station_staff: { default: `${outfitRoot}/station_staff/keita-01.webp` },
-      taxi_driver: { default: [`${outfitRoot}/taxi_driver/keita-01.webp`, `${outfitRoot}/taxi_driver/keita-uniform-01.webp`] },
+      station_staff: { default: [`${outfitRoot}/station_staff/keita-uniform-2026-summer.webp`, `${outfitRoot}/station_staff/keita-01.webp`] },
+      taxi_driver: { default: [`${outfitRoot}/taxi_driver/keita-uniform-2026-winter.webp`, `${outfitRoot}/taxi_driver/keita-01.webp`, `${outfitRoot}/taxi_driver/keita-uniform-01.webp`] },
       tourist: {
         spring: `${outfitRoot}/tourist/keita-2026-spring.webp`,
         autumn: `${outfitRoot}/tourist/keita-autumn-trend.webp`,
