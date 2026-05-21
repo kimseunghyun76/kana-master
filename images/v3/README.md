@@ -6,7 +6,7 @@ Active images are organized for incremental generation:
 backgrounds/
   portrait/<scene>/        active vertical roleplay/module backgrounds
 characters/
-  speakers/<speaker>/body/  base speaker bodies
+  speakers/<speaker>/body/  base speaker bodies and reusable fashion bodies
   speakers/<speaker>/face/  face portraits and mic variants
 roleplay/
   outfits/<role>/           role and outfit body variants
@@ -25,5 +25,8 @@ overlays.
 New roleplay art should be added to the matching outfit folder and then
 registered in `apps/current-v3/js/roleplay-art.js` so the renderer can pick it.
 
-Active speakers are `nanami`, `aoi`, `mayu`, and `keita`. Older speakers and
-landscape backgrounds are kept under `legacy/` unless they are needed again.
+Active speakers are `nanami`, `aoi`, `mayu`, and `keita`. Each active speaker
+body folder should keep at least four recent-fashion body variants. Tourist and
+local outfit cutouts can be reused there when they match the current art style.
+Older speakers and landscape backgrounds are kept under `legacy/` unless they
+are needed again.

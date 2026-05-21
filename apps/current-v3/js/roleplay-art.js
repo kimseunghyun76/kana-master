@@ -70,6 +70,29 @@
   };
 
   const DEFAULT_ANCHOR = { box: '1024x1536', feetY: 1480, eyeY: 430, scale: 1 };
+  const ROLE_OUTFIT_ROLES = new Set([
+    'airport_staff',
+    'bus_driver',
+    'cabin_crew',
+    'cafe_staff',
+    'cashier',
+    'clinic_staff',
+    'doctor',
+    'duty_free_staff',
+    'hotel_staff',
+    'immigration_officer',
+    'izakaya_staff',
+    'konbini_staff',
+    'onsen_staff',
+    'pharmacist',
+    'police_staff',
+    'rental_staff',
+    'reservation_staff',
+    'restaurant_staff',
+    'shop_staff',
+    'station_staff',
+    'taxi_driver',
+  ]);
   const CHARACTER_VARIANTS = {
     nanami: {
       local: {
@@ -78,13 +101,14 @@
           `${outfitRoot}/local/nanami-fashion-02.webp`,
         ],
       },
-      rental_staff: { default: `${outfitRoot}/local/nanami-fashion-01.webp` },
+      rental_staff: { default: `${outfitRoot}/rentacar_staff/nanami-01.webp` },
       tourist: {
-        spring: `${outfitRoot}/tourist/nanami-spring.webp`,
+        spring: [`${outfitRoot}/tourist/nanami-spring.webp`, `${outfitRoot}/tourist/nanami-2026-spring.webp`],
         summer: `${outfitRoot}/tourist/nanami-summer.webp`,
         autumn: `${outfitRoot}/tourist/nanami-autumn.webp`,
         winter: `${outfitRoot}/tourist/nanami-winter.webp`,
         default: [
+          `${outfitRoot}/tourist/nanami-2026-spring.webp`,
           `${outfitRoot}/tourist/nanami-spring.webp`,
           `${outfitRoot}/tourist/nanami-summer.webp`,
           `${outfitRoot}/tourist/nanami-autumn.webp`,
@@ -101,10 +125,11 @@
       },
       tourist: {
         spring: `${outfitRoot}/tourist/aoi-spring.webp`,
-        summer: `${outfitRoot}/tourist/aoi-summer.webp`,
+        summer: [`${outfitRoot}/tourist/aoi-summer.webp`, `${outfitRoot}/tourist/aoi-2026-summer.webp`],
         autumn: `${outfitRoot}/tourist/aoi-autumn.webp`,
         winter: `${outfitRoot}/tourist/aoi-winter.webp`,
         default: [
+          `${outfitRoot}/tourist/aoi-2026-summer.webp`,
           `${outfitRoot}/tourist/aoi-spring.webp`,
           `${outfitRoot}/tourist/aoi-summer.webp`,
           `${outfitRoot}/tourist/aoi-autumn.webp`,
@@ -113,41 +138,43 @@
       },
     },
     mayu: {
-      cafe_staff: { default: `${outfitRoot}/cafe_staff/mayu-01.webp` },
-      cabin_crew: { default: `${outfitRoot}/cafe_staff/mayu-01.webp` },
-      cashier: { default: `${outfitRoot}/konbini_staff/mayu-01.webp` },
-      clinic_staff: { default: `${outfitRoot}/pharmacist/mayu-01.webp` },
-      duty_free_staff: { default: `${outfitRoot}/duty_free_staff/mayu-01.webp` },
-      hotel_staff: { default: `${outfitRoot}/cafe_staff/mayu-01.webp` },
-      izakaya_staff: { default: `${outfitRoot}/cafe_staff/mayu-01.webp` },
-      konbini_staff: { default: `${outfitRoot}/konbini_staff/mayu-01.webp` },
+      cafe_staff: { default: [`${outfitRoot}/cafe_staff/mayu-01.webp`, `${outfitRoot}/cafe_staff/mayu-uniform-01.webp`] },
+      cabin_crew: { default: `${outfitRoot}/cabin_crew/mayu-01.webp` },
+      cashier: { default: [`${outfitRoot}/konbini_staff/mayu-01.webp`, `${outfitRoot}/konbini_staff/mayu-uniform-01.webp`] },
+      clinic_staff: { default: [`${outfitRoot}/pharmacist/mayu-01.webp`, `${outfitRoot}/pharmacist/mayu-uniform-01.webp`] },
+      duty_free_staff: { default: [`${outfitRoot}/duty_free_staff/mayu-01.webp`, `${outfitRoot}/duty_free_staff/mayu-uniform-01.webp`] },
+      hotel_staff: { default: `${outfitRoot}/hotel_staff/mayu-01.webp` },
+      izakaya_staff: { default: `${outfitRoot}/izakaya_staff/mayu-01.webp` },
+      konbini_staff: { default: [`${outfitRoot}/konbini_staff/mayu-01.webp`, `${outfitRoot}/konbini_staff/mayu-uniform-01.webp`] },
       local: {
         default: [
           `${outfitRoot}/local/mayu-fashion-01.webp`,
           `${outfitRoot}/local/mayu-fashion-02.webp`,
         ],
       },
-      onsen_staff: { default: `${outfitRoot}/cafe_staff/mayu-01.webp` },
-      pharmacist: { default: `${outfitRoot}/pharmacist/mayu-01.webp` },
-      reservation_staff: { default: `${outfitRoot}/cafe_staff/mayu-01.webp` },
-      restaurant_staff: { default: `${outfitRoot}/cafe_staff/mayu-01.webp` },
-      shop_staff: { default: `${outfitRoot}/cafe_staff/mayu-01.webp` },
+      onsen_staff: { default: `${outfitRoot}/onsen_staff/mayu-01.webp` },
+      pharmacist: { default: [`${outfitRoot}/pharmacist/mayu-01.webp`, `${outfitRoot}/pharmacist/mayu-uniform-01.webp`] },
+      reservation_staff: { default: `${outfitRoot}/hotel_staff/mayu-01.webp` },
+      restaurant_staff: { default: `${outfitRoot}/restaurant_staff/mayu-01.webp` },
+      shop_staff: { default: `${outfitRoot}/shop_staff/mayu-01.webp` },
       tourist: {
         spring: `${outfitRoot}/tourist/mayu-spring-real.webp`,
         summer: `${outfitRoot}/tourist/mayu-summer-real.webp`,
+        autumn: `${outfitRoot}/tourist/mayu-2026-autumn.webp`,
         default: [
+          `${outfitRoot}/tourist/mayu-2026-autumn.webp`,
           `${outfitRoot}/tourist/mayu-spring-real.webp`,
           `${outfitRoot}/tourist/mayu-summer-real.webp`,
         ],
       },
     },
     keita: {
-      airport_staff: { default: `${outfitRoot}/local/keita-fashion-default.webp` },
-      bus_driver: { default: `${outfitRoot}/taxi_driver/keita-01.webp` },
-      doctor: { default: `${outfitRoot}/doctor/keita-01.webp` },
-      hotel_staff: { default: `${outfitRoot}/local/keita-fashion-default.webp` },
-      immigration_officer: { default: `${outfitRoot}/local/keita-fashion-default.webp` },
-      izakaya_staff: { default: `${outfitRoot}/izakaya_staff/keita-01.webp` },
+      airport_staff: { default: `${outfitRoot}/airport_staff/keita-01.webp` },
+      bus_driver: { default: `${outfitRoot}/bus_driver/keita-01.webp` },
+      doctor: { default: [`${outfitRoot}/doctor/keita-01.webp`, `${outfitRoot}/doctor/keita-uniform-01.webp`] },
+      hotel_staff: { default: `${outfitRoot}/hotel_staff/keita-01.webp` },
+      immigration_officer: { default: `${outfitRoot}/immigration_officer/keita-01.webp` },
+      izakaya_staff: { default: [`${outfitRoot}/izakaya_staff/keita-01.webp`, `${outfitRoot}/izakaya_staff/keita-uniform-01.webp`] },
       local: {
         default: [
           `${outfitRoot}/local/keita-fashion-default.webp`,
@@ -155,15 +182,17 @@
           `${outfitRoot}/local/keita-fashion-02.webp`,
         ],
       },
-      police_staff: { default: `${outfitRoot}/local/keita-fashion-default.webp` },
-      rental_staff: { default: `${outfitRoot}/local/keita-fashion-default.webp` },
-      restaurant_staff: { default: `${outfitRoot}/restaurant_staff/keita-01.webp` },
-      shop_staff: { default: `${outfitRoot}/local/keita-fashion-default.webp` },
-      station_staff: { default: `${outfitRoot}/local/keita-fashion-default.webp` },
-      taxi_driver: { default: `${outfitRoot}/taxi_driver/keita-01.webp` },
+      police_staff: { default: `${outfitRoot}/police_staff/keita-01.webp` },
+      rental_staff: { default: `${outfitRoot}/rentacar_staff/keita-01.webp` },
+      restaurant_staff: { default: [`${outfitRoot}/restaurant_staff/keita-01.webp`, `${outfitRoot}/restaurant_staff/keita-uniform-01.webp`] },
+      shop_staff: { default: `${outfitRoot}/shop_staff/keita-01.webp` },
+      station_staff: { default: `${outfitRoot}/station_staff/keita-01.webp` },
+      taxi_driver: { default: [`${outfitRoot}/taxi_driver/keita-01.webp`, `${outfitRoot}/taxi_driver/keita-uniform-01.webp`] },
       tourist: {
+        spring: `${outfitRoot}/tourist/keita-2026-spring.webp`,
         autumn: `${outfitRoot}/tourist/keita-autumn-trend.webp`,
         default: [
+          `${outfitRoot}/tourist/keita-2026-spring.webp`,
           `${outfitRoot}/tourist/keita-autumn-trend.webp`,
           `${outfitRoot}/local/keita-fashion-01.webp`,
           `${outfitRoot}/local/keita-fashion-02.webp`,
@@ -186,7 +215,21 @@
 
   const roleVariant = (identity, role, season = CURRENT_SEASON) => {
     const variants = CHARACTER_VARIANTS[identity.key] || {};
-    const byRole = variants[role] || variants.local || {};
+    const normalizedRole = role === 'cashier' ? 'konbini_staff'
+      : role === 'clinic_staff' ? 'pharmacist'
+      : role === 'rental_staff' ? 'rentacar_staff'
+      : role === 'reservation_staff' ? 'hotel_staff'
+      : role;
+    const byRole = variants[role] || variants[normalizedRole] || {};
+    if (!byRole.default && ROLE_OUTFIT_ROLES.has(role)) {
+      return `${outfitRoot}/${normalizedRole}/${identity.key}-01.webp`;
+    }
+    if (!byRole.default && ROLE_OUTFIT_ROLES.has(normalizedRole)) {
+      return `${outfitRoot}/${normalizedRole}/${identity.key}-01.webp`;
+    }
+    if (!byRole.default && variants.local) {
+      return randomVariant(variants.local[season] || variants.local.default) || identity.body;
+    }
     return randomVariant(byRole[season] || byRole.default) || identity.body;
   };
 
@@ -206,7 +249,7 @@
     airplane: bgPool(`${bgRoot}/airplane/airplane-cabin-01.webp`),
     bus: bgPool(`${bgRoot}/bus/bus-stop-01.webp`, `${bgRoot}/station/station-konbini-portrait-01.webp`, `${bgRoot}/station/station-konbini-portrait-02.webp`),
     dutyFree: bgPool(`${bgRoot}/duty-free/duty-free-shop-01.webp`),
-    hospital: bgPool(`${bgRoot}/pharmacy/pharmacy-clinic-01.webp`),
+    hospital: bgPool(`${bgRoot}/hospital/hospital-reception-01.webp`, `${bgRoot}/pharmacy/pharmacy-clinic-01.webp`),
     immigration: bgPool(`${bgRoot}/immigration/immigration-01.webp`),
     koban: bgPool(`${bgRoot}/koban/koban-lost-found-01.webp`),
     transit: bgPool(`${bgRoot}/station/station-konbini-portrait-01.webp`, `${bgRoot}/station/station-konbini-portrait-02.webp`, `${bgRoot}/bus/bus-stop-01.webp`),

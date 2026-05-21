@@ -33,6 +33,10 @@ scale: 1
 Use seasonal outfits for `tourist`, fashion variants for `local`, and role
 uniforms for staff roles such as `konbini_staff`, `hotel_staff`, `cafe_staff`,
 `station_staff`, `pharmacist`, `doctor`, `police_staff`, and `taxi_driver`.
+Every role folder should keep at least one image for each active speaker
+(`nanami`, `aoi`, `mayu`, `keita`) so future roleplay assignments can vary by
+speaker. Prefer adding true seasonal uniform variants over reusing tourist
+clothes when the role has a recognizable uniform.
 
 After adding real variant files, register them in
 `apps/current-v3/js/roleplay-art.js` under `CHARACTER_VARIANTS`.
@@ -40,14 +44,24 @@ After adding real variant files, register them in
 Current active folders:
 
 ```text
+airport_staff/
+bus_driver/
+cabin_crew/
 cafe_staff/
 doctor/
 duty_free_staff/
+hotel_staff/
+immigration_officer/
 izakaya_staff/
 konbini_staff/
 local/
+onsen_staff/
 pharmacist/
+police_staff/
+rentacar_staff/
 restaurant_staff/
+shop_staff/
+station_staff/
 taxi_driver/
 tourist/
 ```

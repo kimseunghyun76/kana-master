@@ -43,7 +43,7 @@ window.ModuleVisuals = (() => {
     airplane: `${bgRoot}/airplane/airplane-cabin-01.webp`,
     bus: pick(STATION),
     dutyFree: `${bgRoot}/duty-free/duty-free-shop-01.webp`,
-    hospital: `${bgRoot}/pharmacy/pharmacy-clinic-01.webp`,
+    hospital: `${bgRoot}/hospital/hospital-reception-01.webp`,
     immigration: `${bgRoot}/immigration/immigration-01.webp`,
     koban: `${bgRoot}/koban/koban-lost-found-01.webp`,
     transit: pick(STATION),
