@@ -6,70 +6,85 @@
 
 Object.assign(KANA_MAP, {
   // ─────────────────── 특수 박자 (Special Mora) ───────────────────
-  'っ': { romaji:'(tt/kk/ss)', korean:'촉음', english:'dbl.cons.', type:'special', tip:'촉음! 다음 자음을 두 번 발음 — きっぷ(kippu)→"킵-푸" ✈️ 막힌 느낌이에요!',
-    examples:[{word:'きって',meaning:'우표 (stamp)'},{word:'ざっし',meaning:'잡지 (magazine)'},{word:'ちょっと',meaning:'잠깐 (just a moment)'},{word:'きっぷ',meaning:'표 (ticket)'},{word:'がっこう',meaning:'학교 (school)'},{word:'もっと',meaning:'더 (more)'}]},
-  'ッ': { romaji:'(TT/KK/SS)', korean:'촉음(가타)', english:'dbl.cons.', type:'special', tip:'가타가나 촉음! ネット(netto)→"넷-토" 🌐 짧게 막히는 느낌',
-    examples:[{word:'コップ',meaning:'컵 (cup)'},{word:'ベッド',meaning:'침대 (bed)'},{word:'ネット',meaning:'인터넷 (net)'},{word:'バッグ',meaning:'가방 (bag)'},{word:'チケット',meaning:'티켓 (ticket)'},{word:'ショッピング',meaning:'쇼핑 (shopping)'}]},
-  'ー': { romaji:'ā/ī/ū/ē/ō', korean:'장음부', english:'long vowel', type:'special', tip:'장음부! 앞 모음을 길게 늘려요 — コーヒー(코~히~)=커피 ☕',
-    examples:[{word:'コーヒー',meaning:'커피 (coffee)'},{word:'スーパー',meaning:'슈퍼마켓 (supermarket)'},{word:'ケーキ',meaning:'케이크 (cake)'},{word:'ラーメン',meaning:'라멘 (ramen)'},{word:'バター',meaning:'버터 (butter)'},{word:'ビール',meaning:'맥주 (beer)'}]},
-  'おう': { romaji:'ō (오~)', korean:'お+う 장음', english:'long O', type:'special', tip:'お+う→"오~" 장음! とうきょう(도쿄)처럼 おう는 "오~"로 읽어요 🗼',
-    examples:[{word:'おとうさん',meaning:'아버지 (father)'},{word:'おうさま',meaning:'임금님 (king)'},{word:'とうきょう',meaning:'도쿄 (Tokyo)'},{word:'こうえん',meaning:'공원 (park)'},{word:'どうぞ',meaning:'어서요 (please)'},{word:'もうすぐ',meaning:'곧 (soon)'}]},
-  'えい': { romaji:'ē (에~)', korean:'え+い 장음', english:'long E', type:'special', tip:'え+い→"에~" 장음! えいご(영어)처럼 えい는 "에~"로 읽어요 📖',
-    examples:[{word:'えいご',meaning:'영어 (English)'},{word:'えいが',meaning:'영화 (movie)'},{word:'せんせい',meaning:'선생님 (teacher)'},{word:'けいたい',meaning:'휴대폰 (mobile phone)'},{word:'えいきゅう',meaning:'영원 (eternity)'},{word:'めいし',meaning:'명함 (business card)'}]},
-  'ああ': { romaji:'ā (아~)', korean:'あ+あ 장음', english:'long A', type:'special', tip:'あ+あ→"아~" 장음! おかあさん(어머니)의 かあ는 길게 "아~" 👩',
-    examples:[{word:'おかあさん',meaning:'어머니 (mother)'},{word:'おばあさん',meaning:'할머니 (grandmother)'},{word:'おばあちゃん',meaning:'할머니 (grandma, familiar)'},{word:'さあ',meaning:'자~ (now then / come on)'}]},
-  'いい': { romaji:'ī (이~)', korean:'い+い 장음', english:'long I', type:'special', tip:'い+い→"이~" 장음! おにいさん(형/오빠)의 にい는 길게 "이~" 👦',
-    examples:[{word:'おにいさん',meaning:'오빠/형 (older brother)'},{word:'おじいさん',meaning:'할아버지 (grandfather)'},{word:'いい',meaning:'좋다 (good/fine)'},{word:'ちいさい',meaning:'작다 (small)'}]},
-  'うう': { romaji:'ū (우~)', korean:'う+う 장음', english:'long U', type:'special', tip:'う+う→"우~" 장음! ふうせん(풍선)의 うう는 길게 "우~" 🎈',
-    examples:[{word:'ふうせん',meaning:'풍선 (balloon)'},{word:'くうき',meaning:'공기 (air)'},{word:'すうじ',meaning:'숫자 (number)'},{word:'じゆう',meaning:'자유 (freedom)'},{word:'ゆうめい',meaning:'유명하다 (famous)'},{word:'つうきん',meaning:'통근 (commute)'}]},
+  'っ': { romaji:'(tt/kk/ss/pp)', korean:'촉음', english:'dbl.cons.', type:'special', 
+    tip:'다음 자음을 **살짝 막았다가 강하게 터뜨리는** 소리. 숨을 순간적으로 멈추는 느낌! 예: きっぷ → "킵-푸" (입술을 잠깐 막음). 한국어 된소리보다 가볍고 짧게 끊어집니다. ✋',
+    examples:[{word:'きって',meaning:'우표'},{word:'ざっし',meaning:'잡지'},{word:'ちょっと',meaning:'잠깐'},{word:'きっぷ',meaning:'표'},{word:'がっこう',meaning:'학교'}]},
 
-  // ─────────────────── 가타가나 외래어 확장 (Extended Katakana) ───────────────────
-  'ファ': { romaji:'fa', korean:'파', english:'fah', type:'katakana_extended', tip:'フ+ァ→"파(fa)"! 영어 F음 표기용 🔤 ファッション(패션)',
-    examples:[{word:'ファッション',meaning:'패션 (fashion)'},{word:'ソファ',meaning:'소파 (sofa)'},{word:'ファイル',meaning:'파일 (file)'},{word:'ファン',meaning:'팬 (fan)'}]},
-  'フィ': { romaji:'fi', korean:'피', english:'fee', type:'katakana_extended', tip:'フ+ィ→"피(fi)"! フィルム(필름)의 fi 발음 🎬',
-    examples:[{word:'フィルム',meaning:'필름 (film)'},{word:'フィナーレ',meaning:'피날레 (finale)'},{word:'フィットネス',meaning:'피트니스 (fitness)'},{word:'フィンランド',meaning:'핀란드 (Finland)'}]},
-  'フェ': { romaji:'fe', korean:'페', english:'feh', type:'katakana_extended', tip:'フ+ェ→"페(fe)"! カフェ(카페)의 fe 발음 ☕',
-    examples:[{word:'カフェ',meaning:'카페 (cafe)'},{word:'フェリー',meaning:'페리 (ferry)'},{word:'フェスティバル',meaning:'페스티벌 (festival)'},{word:'フェイク',meaning:'가짜 (fake)'}]},
-  'フォ': { romaji:'fo', korean:'포', english:'foh', type:'katakana_extended', tip:'フ+ォ→"포(fo)"! フォーク(포크)의 fo 발음 🍴',
-    examples:[{word:'フォーク',meaning:'포크 (fork)'},{word:'フォーム',meaning:'폼/양식 (form)'},{word:'フォルダ',meaning:'폴더 (folder)'},{word:'フォロー',meaning:'팔로우 (follow)'}]},
-  'ティ': { romaji:'ti', korean:'티', english:'tee', type:'katakana_extended', tip:'テ+ィ→"티(ti)"! ティッシュ(티슈)의 ti 발음 🤧',
-    examples:[{word:'ティッシュ',meaning:'티슈 (tissue)'},{word:'パーティー',meaning:'파티 (party)'},{word:'ティアラ',meaning:'티아라 (tiara)'},{word:'ティーム',meaning:'팀 (team)'}]},
-  'ディ': { romaji:'di', korean:'디', english:'dee', type:'katakana_extended', tip:'デ+ィ→"디(di)"! ディズニー(디즈니)의 di 발음 🏰',
-    examples:[{word:'ディスコ',meaning:'디스코 (disco)'},{word:'ディズニー',meaning:'디즈니 (Disney)'},{word:'ディナー',meaning:'디너 (dinner)'},{word:'メディア',meaning:'미디어 (media)'}]},
-  'トゥ': { romaji:'tu', korean:'투', english:'too', type:'katakana_extended', tip:'ト+ゥ→"투(tu)"! 영어 two/true의 tu 발음 표기용 🔤',
-    examples:[{word:'トゥデイ',meaning:'오늘 (today)'},{word:'トゥルー',meaning:'진실 (true)'},{word:'トゥーン',meaning:'툰/만화 (toon)'}]},
-  'ドゥ': { romaji:'du', korean:'두', english:'doo', type:'katakana_extended', tip:'ド+ゥ→"두(du)"! 드물게 쓰이는 외래어 표기 📝',
-    examples:[{word:'ドゥ',meaning:'두 (do - 드물게 사용 / rarely used)'},{word:'ドゥオ',meaning:'듀오 (duo)'}]},
-  'ウィ': { romaji:'wi', korean:'위', english:'wee', type:'katakana_extended', tip:'ウ+ィ→"위(wi)"! ウィンドウ(윈도우)의 wi 발음 💻',
-    examples:[{word:'ウィンドウ',meaning:'창문/윈도우 (window)'},{word:'ウィキ',meaning:'위키 (wiki)'},{word:'ウィスキー',meaning:'위스키 (whisky)'},{word:'ウィルス',meaning:'바이러스 (virus)'}]},
-  'ウェ': { romaji:'we', korean:'웨', english:'weh', type:'katakana_extended', tip:'ウ+ェ→"웨(we)"! ウェブ(웹)의 we 발음 🌐',
-    examples:[{word:'ウェブ',meaning:'웹 (web)'},{word:'ウェイター',meaning:'웨이터 (waiter)'},{word:'ウェルカム',meaning:'웰컴 (welcome)'},{word:'スウェーデン',meaning:'스웨덴 (Sweden)'}]},
-  'ウォ': { romaji:'wo', korean:'워', english:'woh', type:'katakana_extended', tip:'ウ+ォ→"워(wo)"! ウォーター(워터)의 wo 발음 💧',
-    examples:[{word:'ウォーター',meaning:'물 (water)'},{word:'ウォーク',meaning:'워크 (walk)'},{word:'ウォーミング',meaning:'워밍업 (warming up)'},{word:'ウォレット',meaning:'지갑 (wallet)'}]},
-  'チェ': { romaji:'che', korean:'체', english:'cheh', type:'katakana_extended', tip:'チ+ェ→"체(che)"! チェック(체크)의 che 발음 ✅',
-    examples:[{word:'チェック',meaning:'체크 (check)'},{word:'チェリー',meaning:'체리 (cherry)'},{word:'チェンジ',meaning:'체인지 (change)'},{word:'チェーン',meaning:'체인 (chain)'}]},
-  'シェ': { romaji:'she', korean:'셰', english:'sheh', type:'katakana_extended', tip:'シ+ェ→"셰(she)"! シェフ(셰프)의 she 발음 👨‍🍳',
-    examples:[{word:'シェア',meaning:'공유 (share)'},{word:'シェフ',meaning:'셰프 (chef)'},{word:'シェルター',meaning:'대피소 (shelter)'},{word:'シェイク',meaning:'쉐이크 (shake)'}]},
-  'ジェ': { romaji:'je', korean:'제', english:'jeh', type:'katakana_extended', tip:'ジ+ェ→"제(je)"! ジェット(제트)의 je 발음 ✈️',
-    examples:[{word:'ジェット',meaning:'제트 (jet)'},{word:'ジェリー',meaning:'젤리 (jelly)'},{word:'ジェスチャー',meaning:'제스처 (gesture)'},{word:'ジェネレーション',meaning:'세대 (generation)'}]},
-  'ヴ': { romaji:'vu', korean:'뷔', english:'voo', type:'katakana_extended', tip:'V음 표기용! ヴァイオリン(바이올린)처럼 영어 V를 정확히 표기 🎻',
-    examples:[{word:'ヴァイオリン',meaning:'바이올린 (violin)'},{word:'ヴェネチア',meaning:'베네치아 (Venice)'}]},
-  'ヴァ': { romaji:'va', korean:'바(v)', english:'vah', type:'katakana_extended', tip:'ヴ+ァ→"바(va)"! ヴァイオリン(바이올린) — V+A 발음 🎻',
-    examples:[{word:'ヴァイオリン',meaning:'바이올린 (violin)'},{word:'ヴァカンス',meaning:'바캉스 (vacation)'},{word:'ヴァレンタイン',meaning:'발렌타인 (Valentine)'}]},
-  'ヴィ': { romaji:'vi', korean:'비(v)', english:'vee', type:'katakana_extended', tip:'ヴ+ィ→"비(vi)"! ヴィジョン(비전) — V+I 발음 👁️',
-    examples:[{word:'ヴィラ',meaning:'빌라 (villa)'},{word:'ヴィジョン',meaning:'비전 (vision)'},{word:'ヴィーナス',meaning:'비너스 (Venus)'}]},
-  'ヴェ': { romaji:'ve', korean:'베(v)', english:'veh', type:'katakana_extended', tip:'ヴ+ェ→"베(ve)"! ヴェネチア(베네치아) — V+E 발음 🇮🇹',
-    examples:[{word:'ヴェネチア',meaning:'베네치아 (Venice)'},{word:'ヴェール',meaning:'베일 (veil)'},{word:'ヴェテラン',meaning:'베테랑 (veteran)'}]},
-  'ヴォ': { romaji:'vo', korean:'보(v)', english:'voh', type:'katakana_extended', tip:'ヴ+ォ→"보(vo)"! ヴォーカル(보컬) — V+O 발음 🎤',
-    examples:[{word:'ヴォーカル',meaning:'보컬 (vocal)'},{word:'ヴォリューム',meaning:'볼륨 (volume)'}]},
-  'イェ': { romaji:'ye', korean:'예', english:'yeh', type:'katakana_extended', tip:'イ+ェ→"예(ye)"! イェルサレム(예루살렘) — 드문 외래어 표기 🌍',
-    examples:[{word:'イェルサレム',meaning:'예루살렘 (Jerusalem)'},{word:'イェス',meaning:'예스 (yes - 고어)'}]},
+  'ッ': { romaji:'(TT/KK/SS)', korean:'촉음(가타)', english:'dbl.cons.', type:'special', 
+    tip:'가타가나 촉음. ベッド → "베-또", ネット → "넷-토"처럼 강하게 끊어서 발음. 외래어 리듬을 살리는 핵심입니다. 🔥',
+    examples:[{word:'コップ',meaning:'컵'},{word:'ベッド',meaning:'침대'},{word:'ネット',meaning:'인터넷'},{word:'バッグ',meaning:'가방'}]},
 
-  // ─────────────────── 조사 읽기 예외 (Particle Reading Exceptions) ───────────────────
-  'は_p': { kana:'は', romaji:'wa', korean:'와 (주제조사)', english:'wa (topic)', type:'particle', tip:'조사로 쓰면 "하"가 아니라 "와"! わたしは(나는)에서 は→"와" 💬',
-    examples:[{word:'わたし は',meaning:'나는 (I [topic])'},{word:'これ は',meaning:'이것은 (this is...)'},{word:'きょう は',meaning:'오늘은 (today...)'},{word:'あなた は',meaning:'당신은 (you [topic])'}]},
-  'へ_p': { kana:'へ', romaji:'e', korean:'에 (방향조사)', english:'e (direction)', type:'particle', tip:'조사로 쓰면 "헤"가 아니라 "에"! がっこうへ(학교로)에서 へ→"에" 🏫',
-    examples:[{word:'がっこう へ',meaning:'학교로 (to school)'},{word:'にほん へ',meaning:'일본으로 (to Japan)'},{word:'うち へ',meaning:'집으로 (to home)'},{word:'どこ へ',meaning:'어디로 (to where)'}]},
-  'を_p': { kana:'を', romaji:'o', korean:'을/를 (목적조사)', english:'o (object)', type:'particle', tip:'현대 일본어에서는 "오"로 발음! お와 같은 소리 — 목적어 표시 🗣️',
-    examples:[{word:'みず を',meaning:'물을 (water [object])'},{word:'りんご を',meaning:'사과를 (apple [object])'},{word:'にほんご を',meaning:'일본어를 (Japanese [object])'},{word:'おんがく を',meaning:'음악을 (music [object])'}]}
+  'ー': { romaji:'ā/ī/ū/ē/ō', korean:'장음부', english:'long vowel', type:'special', 
+    tip:'앞 모음을 **2배 길게** 늘려 발음. コーヒー → "코~히~", ラーメン → "라~멘". 노래 부르듯 길게 끌며 연습하세요. ☕',
+    examples:[{word:'コーヒー',meaning:'커피'},{word:'スーパー',meaning:'슈퍼'},{word:'ケーキ',meaning:'케이크'},{word:'ラーメン',meaning:'라멘'}]},
+
+  'おう': { romaji:'ō (오~)', korean:'お+う 장음', english:'long O', type:'special', 
+    tip:'お + う = **"오~" 길게** 끌기. とうきょう → "토~쿄", おとうさん → "오~토~산". 일본 지명·단어에서 매우 자주 나오는 장음 패턴입니다. 🗼',
+    examples:[{word:'とうきょう',meaning:'도쿄'},{word:'おとうさん',meaning:'아버지'},{word:'こうえん',meaning:'공원'}]},
+
+  'えい': { romaji:'ē (エ~)', korean:'え+い 장음', english:'long E', type:'special', 
+    tip:'え + い = **"에~" 길게** 끌기. せんせい → "센세~", えいが → "에~가". 사람 호칭과 외래어에서 자주 등장합니다. 📖',
+    examples:[{word:'せんせい',meaning:'선생님'},{word:'えいが',meaning:'영화'},{word:'えいご',meaning:'영어'}]},
+
+  'ああ': { romaji:'ā (아~)', korean:'あ+あ 장음', english:'long A', type:'special', 
+    tip:'あ + あ = **"아~" 길게** 끌기. おかあさん → "오카~산". 가족 호칭에서 자주 사용됩니다. 👩',
+    examples:[{word:'おかあさん',meaning:'어머니'},{word:'おばあさん',meaning:'할머니'}]},
+
+  'いい': { romaji:'ī (이~)', korean:'い+い 장음', english:'long I', type:'special', 
+    tip:'い + い = **"이~" 길게** 끌기. おにいさん → "오니~산". 친족 호칭에서 중요합니다. 👦',
+    examples:[{word:'おにいさん',meaning:'오빠/형'},{word:'おじいさん',meaning:'할아버지'}]},
+
+  'うう': { romaji:'ū (우~)', korean:'う+う 장음', english:'long U', type:'special', 
+    tip:'う + う = **"우~" 길게** 끌기. ふうせん → "후~센". 길게 끌며 발음 연습이 필요합니다. 🎈',
+    examples:[{word:'ふうせん',meaning:'풍선'},{word:'ゆうめい',meaning:'유명하다'}]},
+
+  // ─────────────────── 가타가나 외래어 확장 ───────────────────
+  'ファ': { romaji:'fa', korean:'파', english:'fah', type:'katakana_extended', 
+    tip:'フ + ァ = **"파(fa)"**. 입술을 살짝 오므리고 F음처럼 아랫입술을 윗니로 가볍게 물며 발음. ファッション, ソファ 등에서 매우 자주 나옵니다. 👠',
+    examples:[{word:'ファッション',meaning:'패션'},{word:'ソファ',meaning:'소파'},{word:'ファン',meaning:'팬'}]},
+
+  'フィ': { romaji:'fi', korean:'피', english:'fee', type:'katakana_extended', 
+    tip:'フ + ィ = **"피(fi)"**. "피" 소리를 낼 때 입을 살짝 모으고 영어 "fee"처럼 가볍게. 필름, 피트니스 등에서 사용.',
+    examples:[{word:'フィルム',meaning:'필름'},{word:'フィットネス',meaning:'피트니스'}]},
+
+  'フェ': { romaji:'fe', korean:'페', english:'feh', type:'katakana_extended', 
+    tip:'フ + ェ = **"페(fe)"**. "페" 소리를 부드럽게. 카페, 페스티벌 등에서 흔합니다.',
+    examples:[{word:'カフェ',meaning:'카페'},{word:'フェスティバル',meaning:'페스티벌'}]},
+
+  'フォ': { romaji:'fo', korean:'포', english:'foh', type:'katakana_extended', 
+    tip:'フ + ォ = **"포(fo)"**. "포" 소리를 입을 동그랗게 모으며. 포크, 폴더 등에서 사용.',
+    examples:[{word:'フォーク',meaning:'포크'},{word:'フォルダ',meaning:'폴더'}]},
+
+  'ティ': { romaji:'ti', korean:'티', english:'tee', type:'katakana_extended', 
+    tip:'テ + ィ = **"티(ti)"**. 혀를 윗잇몸에 살짝 대고 "티" 소리. 파티, 티슈 등에서 자주 나옵니다.',
+    examples:[{word:'パーティー',meaning:'파티'},{word:'ティッシュ',meaning:'티슈'}]},
+
+  'ディ': { romaji:'di', korean:'디', english:'dee', type:'katakana_extended', 
+    tip:'デ + ィ = **"디(di)"**. "디" 소리를 부드럽게. 디즈니, 미디어 등에서 흔합니다.',
+    examples:[{word:'ディズニー',meaning:'디즈니'},{word:'メディア',meaning:'미디어'}]},
+
+  'トゥ': { romaji:'tu', korean:'투', english:'too', type:'katakana_extended', 
+    tip:'ト + ゥ = **"투(tu)"**. 입을 살짝 오므리고 "투" 소리. today, true 등을 표기할 때 사용.',
+    examples:[{word:'トゥデイ',meaning:'투데이'},{word:'トゥルー',meaning:'트루'}]},
+
+  'ウィ': { romaji:'wi', korean:'위', english:'wee', type:'katakana_extended', 
+    tip:'ウ + ィ = **"위(wi)"**. "위" 소리를 가볍게. 윈도우, 위스키 등에서 사용.',
+    examples:[{word:'ウィンドウ',meaning:'윈도우'},{word:'ウィスキー',meaning:'위스키'}]},
+
+  'ヴ': { romaji:'vu', korean:'브(v)', english:'voo', type:'katakana_extended', 
+    tip:'영어 **V음** 전용. 아랫입술을 윗니로 살짝 깨물며 "브" 소리를 냅니다. 바이올린, 베네치아 등에서 사용.',
+    examples:[{word:'ヴァイオリン',meaning:'바이올린'},{word:'ヴェネチア',meaning:'베네치아'}]},
+
+  // ─────────────────── 조사 읽기 예외 ───────────────────
+  'は_p': { kana:'は', romaji:'wa', korean:'와 (주제조사)', english:'wa (topic)', type:'particle', 
+    tip:'조사로 쓰일 때는 **"와"**로 발음! わたしは → "와타시와". 입을 살짝 벌리고 부드럽게 "와" 소리를 내세요. 일본어에서 가장 중요한 발음 예외입니다.',
+    examples:[{word:'わたし は',meaning:'나는'},{word:'きょう は',meaning:'오늘은'}]},
+
+  'へ_p': { kana:'へ', romaji:'e', korean:'에 (방향조사)', english:'e (direction)', type:'particle', 
+    tip:'조사로 쓰일 때는 **"에"**로 발음! がっこうへ → "학교에". 방향을 나타낼 때 사용합니다. 🏫',
+    examples:[{word:'がっこう へ',meaning:'학교로'},{word:'にほん へ',meaning:'일본으로'}]},
+
+  'を_p': { kana:'を', romaji:'o', korean:'을/를 (목적조사)', english:'o (object)', type:'particle', 
+    tip:'**항상 "오"로 발음**합니다. りんごを食べる → "링고오 타베루". 목적어를 표시하는 조사예요. 🍎',
+    examples:[{word:'りんご を',meaning:'사과를'},{word:'にほんご を',meaning:'일본어를'}]}
 });
