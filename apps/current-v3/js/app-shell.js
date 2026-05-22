@@ -17,6 +17,7 @@ window.createAppShell = (ctx) => {
           <span class="app-title">냥멍</span>
         </div>
         <div class="header-right">
+          <a class="stat-pill admin-mode-link" href="/apps/current-v3/admin.html" title="관리자 모드">관리자</a>
           <div class="stat-pill" id="xpPill">
             ${ctx.uiIconWrap('xp', 'stat-pill-icon')}
             <span id="headerXP">0</span> XP

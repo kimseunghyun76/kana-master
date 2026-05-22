@@ -23,6 +23,8 @@ const MIME = {
   '.woff': 'font/woff',
 };
 
+const ADMIN_SNAPSHOT = path.join(BASE, 'apps/current-v3/admin-curriculum.json');
+
 function resolveExistingPath(requestPath) {
   const candidates = [
     requestPath,
@@ -64,6 +66,11 @@ const server = http.createServer((req, res) => {
   }
   if (urlPath === '/') urlPath = '/index.html';
 
+  if (urlPath === '/api/admin/curriculum') {
+    handleAdminCurriculum(req, res);
+    return;
+  }
+
   const filePath = resolveExistingPath(urlPath);
   const ext = path.extname(filePath);
 
@@ -88,6 +95,73 @@ const server = http.createServer((req, res) => {
     res.end(data);
   });
 });
+
+function sendJson(res, status, payload) {
+  res.writeHead(status, {
+    'Content-Type': 'application/json; charset=utf-8',
+    'Cache-Control': 'no-store',
+  });
+  res.end(JSON.stringify(payload));
+}
+
+function handleAdminCurriculum(req, res) {
+  if (req.method === 'GET') {
+    fs.readFile(ADMIN_SNAPSHOT, 'utf8', (err, data) => {
+      if (err) {
+        sendJson(res, 200, { ok: true, exists: false, data: null });
+        return;
+      }
+      try {
+        sendJson(res, 200, { ok: true, exists: true, data: JSON.parse(data) });
+      } catch {
+        sendJson(res, 500, { ok: false, error: 'Saved admin JSON is invalid.' });
+      }
+    });
+    return;
+  }
+
+  if (req.method !== 'PUT') {
+    sendJson(res, 405, { ok: false, error: 'Method not allowed' });
+    return;
+  }
+
+  let body = '';
+  req.on('data', chunk => {
+    body += chunk;
+    if (body.length > 20 * 1024 * 1024) req.destroy();
+  });
+  req.on('end', () => {
+    let parsed;
+    try {
+      parsed = JSON.parse(body || '{}');
+    } catch {
+      sendJson(res, 400, { ok: false, error: 'Invalid JSON body' });
+      return;
+    }
+    const data = parsed?.data;
+    if (!data || typeof data !== 'object') {
+      sendJson(res, 400, { ok: false, error: 'Missing data object' });
+      return;
+    }
+    const out = JSON.stringify(data, null, 2) + '\n';
+    fs.mkdir(path.dirname(ADMIN_SNAPSHOT), { recursive: true }, err => {
+      if (err) {
+        sendJson(res, 500, { ok: false, error: err.message });
+        return;
+      }
+      fs.writeFile(ADMIN_SNAPSHOT, out, 'utf8', err2 => {
+        if (err2) {
+          sendJson(res, 500, { ok: false, error: err2.message });
+          return;
+        }
+        sendJson(res, 200, { ok: true, path: path.relative(BASE, ADMIN_SNAPSHOT) });
+      });
+    });
+  });
+  req.on('error', err => {
+    sendJson(res, 500, { ok: false, error: err.message });
+  });
+}
 
 server.listen(PORT, HOST, () => {
   const localIP = getLocalIP();

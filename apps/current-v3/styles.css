@@ -326,6 +326,12 @@ body.app-v3 .bottom-nav {
   color: #526174;
 }
 
+body.app-v3 .admin-mode-link {
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 800;
+}
+
 body.app-v3 .nav-btn.active {
   color: #28364c;
 }
