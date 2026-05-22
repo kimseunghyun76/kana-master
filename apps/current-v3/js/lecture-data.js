@@ -373,12 +373,36 @@ window.LECTURE_DATA.v3_transport = [
     captionJp: '移動では目的地が大事です。場所の名前に「まで」をつけると、どこまで行くか言えます。'
   },
   {
+    type: 'culture', label: '표 사기', duration: 7000, audio: '切符はどこですか',
+    image: 'images/lecture-scenes/wlevel4b-station-location-help.webp',
+    main: '표·IC카드부터',
+    sub: '역에 들어가기 전 한 가지만 정하자.\n\n切符（きっぷ）はどこですか  표는 어디서 사요?\nICカード、使えますか  IC카드 되나요?\nチャージ、お願いします  충전해 주세요\n\n→ 표나 카드만 해결하면 절반은 끝.',
+    captionKo: '전철은 표를 사거나 IC카드를 충전하는 것부터 시작이야. 표 어디서 사요, IC카드 되나요, 충전해 주세요만 알면 개찰구 앞에서 막히지 않는다.',
+    captionJp: '電車はまず切符かICカードです。「切符はどこですか」「ICカード、使えますか」「チャージ、お願いします」。'
+  },
+  {
     type: 'practice', label: '시간 묻기', duration: 7000, audio: '何分かかりますか',
     image: 'images/lecture-scenes/wlevel4b-station-location-help.webp',
     main: '何分かかりますか',
     sub: '여행에서 자주 묻는 말.\n\n駅までお願いします\n역까지 부탁해요\n\n何分かかりますか\n몇 분 걸려요?\n\nここでいいです\n여기면 돼요\n\n→ 택시와 길 안내 둘 다 쓴다.',
     captionKo: '이동에서는 역까지 부탁해요, 몇 분 걸려요, 여기면 돼요를 자주 쓴다. 택시에서도 길 안내에서도 그대로 쓸 수 있어서 먼저 외워 둘 가치가 크다.',
     captionJp: '駅までお願いします。何分かかりますか。ここでいいです。この三つは移動でよく使います。'
+  },
+  {
+    type: 'practice', label: '환승·출구', duration: 7000, audio: '乗り換えはどこですか',
+    image: 'images/lecture-scenes/wlevel4b-station-location-help.webp',
+    main: '환승과 출구 묻기',
+    sub: '큰 역은 출구를 잘못 나오면 멀어진다.\n\n乗（の）り換（か）えはどこですか  환승은 어디서 해요?\n何番線ですか  몇 번 승강장이에요?\n○○出口はどこですか  ○○ 출구는 어디예요?\n\n→ 번호와 출구 이름만 들으면 된다.',
+    captionKo: '큰 역에서는 환승 위치와 승강장 번호, 출구 이름만 잡으면 헤매지 않는다. 환승은 어디서 해요, 몇 번 승강장이에요, ○○ 출구는 어디예요를 짧게 물어보자.',
+    captionJp: '大きな駅では「乗り換えはどこですか」「何番線ですか」「○○出口はどこですか」を聞けば迷いません。'
+  },
+  {
+    type: 'summary', label: '이동 흐름', duration: 6000, audio: null,
+    image: 'images/lecture-scenes/wlevel4b-station-location-help.webp',
+    main: '표 → 타기 → 출구',
+    sub: '전철 이동은 세 박자.\n\n1. 표·IC카드 해결\n2. ○○まで, 何分かかりますか\n3. 환승·출구 확인\n\n→ 모르면 駅員（えきいん）에게 물어보면 된다.',
+    captionKo: '전철은 표를 해결하고, 목적지까지 얼마나 걸리는지 확인하며 타고, 환승과 출구를 묻는 흐름이다. 헷갈리면 역무원에게 물어보면 친절하게 알려 주니 너무 긴장하지 않아도 된다.',
+    captionJp: '電車は、切符、目的地の確認、乗り換えと出口の流れです。困ったら駅員に聞けば大丈夫です。'
   }
 ];
 

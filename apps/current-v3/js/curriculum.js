@@ -520,6 +520,46 @@ const V3_AIRPLANE_WORD_CARDS = [
   { id:'v3plw_10', japanese:'イヤホン', romaji:'iyahon', korean:'이어폰' },
 ];
 
+/* ── Stage 5 모듈별 단어·한자 카드 (전철·버스·택시) ── */
+const V3_TRANSPORT_WORD_CARDS = [
+  { id:'v3trw_01', japanese:'駅(えき)', romaji:'eki', korean:'역' },
+  { id:'v3trw_02', japanese:'電車(でんしゃ)', romaji:'densha', korean:'전철' },
+  { id:'v3trw_03', japanese:'改札(かいさつ)', romaji:'kaisatsu', korean:'개찰구' },
+  { id:'v3trw_04', japanese:'切符(きっぷ)', romaji:'kippu', korean:'표' },
+  { id:'v3trw_05', japanese:'乗(の)り換(か)え', romaji:'norikae', korean:'환승' },
+  { id:'v3trw_06', japanese:'路線(ろせん)', romaji:'rosen', korean:'노선' },
+  { id:'v3trw_07', japanese:'出口(でぐち)', romaji:'deguchi', korean:'출구' },
+  { id:'v3trw_08', japanese:'番線(ばんせん)', romaji:'bansen', korean:'~번 승강장' },
+  { id:'v3trw_09', japanese:'各駅(かくえき)', romaji:'kakueki', korean:'각역(완행)' },
+  { id:'v3trw_10', japanese:'急行(きゅうこう)', romaji:'kyuukou', korean:'급행' },
+];
+
+const V3_BUS_WORD_CARDS = [
+  { id:'v3bsw_01', japanese:'バス', romaji:'basu', korean:'버스' },
+  { id:'v3bsw_02', japanese:'停留所(ていりゅうじょ)', romaji:'teiryuujo', korean:'정류장' },
+  { id:'v3bsw_03', japanese:'整理券(せいりけん)', romaji:'seiriken', korean:'정리권(승차권)' },
+  { id:'v3bsw_04', japanese:'運賃(うんちん)', romaji:'unchin', korean:'운임' },
+  { id:'v3bsw_05', japanese:'両替(りょうがえ)', romaji:'ryougae', korean:'잔돈 교환' },
+  { id:'v3bsw_06', japanese:'後払(あとばら)い', romaji:'atobarai', korean:'후불' },
+  { id:'v3bsw_07', japanese:'行(い)き先(さき)', romaji:'ikisaki', korean:'행선지' },
+  { id:'v3bsw_08', japanese:'番号(ばんごう)', romaji:'bangou', korean:'번호' },
+  { id:'v3bsw_09', japanese:'次(つぎ)', romaji:'tsugi', korean:'다음' },
+  { id:'v3bsw_10', japanese:'降(お)りる', romaji:'oriru', korean:'내리다' },
+];
+
+const V3_TAXI_WORD_CARDS = [
+  { id:'v3txw_01', japanese:'タクシー', romaji:'takushii', korean:'택시' },
+  { id:'v3txw_02', japanese:'運転手(うんてんしゅ)', romaji:'untenshu', korean:'운전기사' },
+  { id:'v3txw_03', japanese:'住所(じゅうしょ)', romaji:'juusho', korean:'주소' },
+  { id:'v3txw_04', japanese:'目的地(もくてきち)', romaji:'mokutekichi', korean:'목적지' },
+  { id:'v3txw_05', japanese:'料金(りょうきん)', romaji:'ryoukin', korean:'요금' },
+  { id:'v3txw_06', japanese:'領収書(りょうしゅうしょ)', romaji:'ryoushuusho', korean:'영수증' },
+  { id:'v3txw_07', japanese:'信号(しんごう)', romaji:'shingou', korean:'신호등' },
+  { id:'v3txw_08', japanese:'現金(げんきん)', romaji:'genkin', korean:'현금' },
+  { id:'v3txw_09', japanese:'荷物(にもつ)', romaji:'nimotsu', korean:'짐' },
+  { id:'v3txw_10', japanese:'自動(じどう)ドア', romaji:'jidou doa', korean:'자동문' },
+];
+
 const MODULES = [
   {
     id: 'v3_kana_map',
@@ -1012,12 +1052,9 @@ const MODULES = [
     unlockAfter: ['v3_airplane_request'],
     steps: [
       { type: 'lecture', title: '역에서 살아남기', lectureKey: 'v3_transport' },
-      { type: 'vocab_learn', title: '교통·이동 표현', categoryId: 'transport_phrases', limit: 14 },
-      { type: 'vocab_learn', title: '역·환승 질문 카드', items: V3_STATION_QA_CARDS, mode: 'sentence' },
-      { type: 'vocab_learn', title: '시각·소요시간 묻기', categoryId: 's4_time_asking', limit: 8 },
-      { type: 'dialogue_study', title: '택시·목적지 미리보기', dialogueKey: 'station_direction' },
-      { type: 'vocab_quiz', title: '역·환승 즉답 퀴즈', items: V3_STATION_QA_CARDS },
-      { type: 'vocab_quiz', title: '전철·길 찾기 퀴즈', categoryIds: ['transport_phrases','s4_time_asking'], limit: 24 },
+      { type: 'vocab_learn', title: '전철·역 단어·한자', items: V3_TRANSPORT_WORD_CARDS, mode: 'word' },
+      { type: 'vocab_learn', title: '역·환승 질문·답변 문장', items: V3_STATION_QA_CARDS, mode: 'sentence' },
+      { type: 'vocab_quiz', title: '전철·길 찾기 통합 퀴즈', items: V3_TRANSPORT_WORD_CARDS.concat(V3_STATION_QA_CARDS) },
     ],
     roleplay: { id: 'rp_station_direction', name: '목적지까지 가기', nameJp: '目的地まで', icon: '', desc: '어디까지 가 주세요, 얼마나 걸려요', dialogueKey: 'station_direction' }
   },
@@ -1033,11 +1070,9 @@ const MODULES = [
     unlockAfter: ['v3_transport'],
     steps: [
       { type: 'lecture', title: '버스는 타기 전에 한 문장', lectureKey: 'v3_bus_ride' },
-      { type: 'vocab_learn', title: '버스 질문·답변 카드', items: V3_BUS_QA_CARDS, mode: 'sentence' },
-      { type: 'vocab_learn', title: '버스·목적지 표현', categoryIds: ['transport_phrases','directions'], limit: 20 },
-      { type: 'dialogue_study', title: '버스 대화 미리보기', dialogueKey: 'bus_ride' },
-      { type: 'vocab_quiz', title: '버스 즉답 퀴즈', items: V3_BUS_QA_CARDS },
-      { type: 'vocab_quiz', title: '버스 표현 퀴즈', categoryIds: ['transport_phrases','directions'], limit: 22 },
+      { type: 'vocab_learn', title: '버스 단어·한자', items: V3_BUS_WORD_CARDS, mode: 'word' },
+      { type: 'vocab_learn', title: '버스 질문·답변 문장', items: V3_BUS_QA_CARDS, mode: 'sentence' },
+      { type: 'vocab_quiz', title: '버스 통합 퀴즈', items: V3_BUS_WORD_CARDS.concat(V3_BUS_QA_CARDS) },
     ],
     roleplay: { id: 'rp_bus_ride', name: '버스 목적지 확인', nameJp: 'バスの行き先', icon: '', desc: '이 버스가 역에 가나요?', dialogueKey: 'bus_ride' }
   },
@@ -1053,11 +1088,9 @@ const MODULES = [
     unlockAfter: ['v3_bus_ride'],
     steps: [
       { type: 'lecture', title: '택시는 첫 한 줄이 90%', lectureKey: 'v3_taxi_ride' },
-      { type: 'vocab_learn', title: '택시 질문·답변 카드', items: V3_TAXI_QA_CARDS, mode: 'sentence' },
-      { type: 'vocab_learn', title: '택시·결제 표현', categoryIds: ['transport_phrases','shopping_phrases'], limit: 20 },
-      { type: 'dialogue_study', title: '택시 대화 미리보기', dialogueKey: 'taxi_ride' },
-      { type: 'vocab_quiz', title: '택시 즉답 퀴즈', items: V3_TAXI_QA_CARDS },
-      { type: 'vocab_quiz', title: '택시 표현 퀴즈', categoryIds: ['transport_phrases','shopping_phrases'], limit: 22 },
+      { type: 'vocab_learn', title: '택시 단어·한자', items: V3_TAXI_WORD_CARDS, mode: 'word' },
+      { type: 'vocab_learn', title: '택시 질문·답변 문장', items: V3_TAXI_QA_CARDS, mode: 'sentence' },
+      { type: 'vocab_quiz', title: '택시 통합 퀴즈', items: V3_TAXI_WORD_CARDS.concat(V3_TAXI_QA_CARDS) },
     ],
     roleplay: { id: 'rp_taxi_ride', name: '택시로 호텔 가기', nameJp: 'タクシーでホテルへ', icon: '', desc: '호텔까지 부탁해요, 여기서 괜찮아요', dialogueKey: 'taxi_ride' }
   },
