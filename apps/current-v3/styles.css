@@ -4750,6 +4750,79 @@ body.app-v3 .flow-screen.roleplay-comic-mode .no-script-dock .comic-scene-speech
   line-height: 1.35;
 }
 
+/* 말하기 연습: 뒤로 스크롤되는 이전 대화도 '현재 말풍선' 크기 그대로,
+   살짝만 투명하게. 클릭하면 그 줄을 다시 들려준다(다시 듣기). */
+body.app-v3 .flow-screen.roleplay-comic-mode .comic-practice-shell .comic-scene-speech-bubble.previous,
+body.app-v3 .flow-screen.roleplay-comic-mode .comic-practice-shell .comic-scene-speech-bubble.older {
+  opacity: .88;
+  transform: none;
+  filter: none;
+  max-width: 90%;
+  padding: 16px 20px;
+  cursor: pointer;
+}
+body.app-v3 .flow-screen.roleplay-comic-mode .comic-practice-shell .comic-scene-speech-bubble.previous .comic-scene-speech-copy b,
+body.app-v3 .flow-screen.roleplay-comic-mode .comic-practice-shell .comic-scene-speech-bubble.older .comic-scene-speech-copy b {
+  font-size: 22px;
+  font-weight: 900;
+  line-height: 1.38;
+  color: #111927;
+}
+body.app-v3 .flow-screen.roleplay-comic-mode .comic-practice-shell .comic-scene-speech-bubble.previous .comic-scene-speech-copy em,
+body.app-v3 .flow-screen.roleplay-comic-mode .comic-practice-shell .comic-scene-speech-bubble.older .comic-scene-speech-copy em {
+  font-size: 15px;
+  font-weight: 700;
+  color: #344056;
+}
+body.app-v3 .flow-screen.roleplay-comic-mode .comic-practice-shell .comic-scene-speech-bubble.previous:hover,
+body.app-v3 .flow-screen.roleplay-comic-mode .comic-practice-shell .comic-scene-speech-bubble.older:hover {
+  opacity: 1;
+}
+/* 말하기 차례: 현재 말풍선 위에 '듣고 따라 말해보세요' 안내 배지 */
+body.app-v3 .flow-screen.roleplay-comic-mode .comic-practice-shell .comic-scene-speech-bubble.current {
+  position: relative;
+  margin-top: 30px;
+}
+body.app-v3 .flow-screen.roleplay-comic-mode .comic-practice-shell .comic-scene-speech-bubble.current::before {
+  content: "지금 듣고 따라 말해보세요";
+  position: absolute;
+  top: -26px;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #ff7aa2, #ff9d6c);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: -.01em;
+  box-shadow: 0 6px 16px rgba(255, 122, 162, .42);
+  animation: practiceCuePulse 1.8s ease-in-out infinite;
+}
+@keyframes practiceCuePulse {
+  0%, 100% { transform: translateX(-50%) scale(1); }
+  50% { transform: translateX(-50%) scale(1.06); }
+}
+
+/* 다시 듣기 아이콘: 과거 말풍선 우상단에 작게 */
+body.app-v3 .flow-screen.roleplay-comic-mode .comic-scene-speech-bubble[data-replay] {
+  position: relative;
+}
+body.app-v3 .flow-screen.roleplay-comic-mode .comic-scene-speech-replay {
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  display: inline-flex;
+  width: 18px;
+  height: 18px;
+  opacity: .5;
+}
+body.app-v3 .flow-screen.roleplay-comic-mode .comic-scene-replay-icon {
+  width: 18px;
+  height: 18px;
+}
+
 /* ============================================================
    V3 roleplay polish v2
    - Intro card: light pastel + cast row introducing each speaker

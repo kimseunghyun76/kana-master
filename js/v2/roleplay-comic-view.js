@@ -153,13 +153,20 @@ window.createRoleplayComicView = (ctx, deps) => {
     // Avatar removed: the character body is already on stage so the bubble
     // does not need to repeat their face. Tone (current | previous | older)
     // controls vertical stack offset & opacity via CSS.
+    // 이전/지난 대화 말풍선은 클릭하면 그 줄을 다시 들려준다(다시 듣기).
+    const isPast = tone === 'previous' || tone === 'older';
+    const action = isPast
+      ? `App._speakDialogueLine('${line.id}')`
+      : `App.showDialogueDetail('${line.id}')`;
     return `
       <button class="comic-scene-speech-bubble ${tone} speaker-${activeSpeaker}" type="button"
-              onclick="App.showDialogueDetail('${line.id}')">
+              ${isPast ? 'data-replay="1" aria-label="다시 듣기"' : ''}
+              onclick="${action}">
         <span class="comic-scene-speech-copy">
           <b>${ruby(line.japanese || '')}</b>
           <em>${escHtml(line.korean || '')}</em>
         </span>
+        ${isPast ? `<span class="comic-scene-speech-replay" aria-hidden="true">${ctx.uiIconSvg('audio', 'comic-scene-replay-icon')}</span>` : ''}
       </button>
     `;
   }
