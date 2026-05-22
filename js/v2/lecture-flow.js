@@ -455,7 +455,7 @@ window.createLectureFlow = (ctx) => {
         <button class="lec-display-toggle lec-tool-btn lec-pause-btn" id="btnLecPause"
                 aria-label="일시정지"
                 onclick="App._lecPauseToggle()">${_lecturePauseButtonLabel(false)}</button>
-        ${isLast ? `<button class="lec-display-toggle lec-display-replay" onclick="App._lecRestart()" title="처음부터 다시 보기">${ctx.uiLabeledIcon('replay')} 다시 보기</button>` : ''}
+        ${isLast ? `<button class="lec-display-toggle lec-tool-btn lec-display-replay" onclick="App._lecRestart()" type="button" title="처음부터 다시 보기"><span class="lec-tool-icon">↺</span><span class="lec-tool-sub">다시보기</span></button>` : ''}
       </div>
       <div class="lec-controls lec-controls-compact">
         <button class="btn btn-outline lec-nav-button" id="btnLecPrev"

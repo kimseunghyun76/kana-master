@@ -2821,40 +2821,84 @@ body.app-v3 .v3-kana-memory span {
   color: #4b596b;
 }
 
+/* ── 강의 하단 컨트롤 (v3) ─────────────────────────────────
+   도구 줄(강사/성우/모드/자막/제어/다시보기)과 내비 줄(이전/다음)을
+   하단 폭에 꽉 채우고, 모두 같은 라운드·높이·색으로 일치감 있게 정리. */
 body.app-v3 .lec-footer-tools-unified {
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: stretch;
+  gap: 6px;
+  overflow: visible;
+  margin-bottom: 8px;
 }
-
-body.app-v3 .lec-voice-select-wrap {
-  /* Make the instructor toggle prominent so users notice they can swap
-     강사 without leaving the lecture. Stretches across 2 footer cols. */
-  grid-column: span 2;
+body.app-v3 .lec-footer-tools-unified .lec-tool-btn {
+  flex: 1 1 0;
   min-width: 0;
-  padding: 6px 8px;
-  border: 1.5px solid rgba(40, 127, 142, .55);
-  border-radius: 12px;
-  background: linear-gradient(180deg, #ffffff 0%, #e8f8fc 100%);
-  color: #1f6470;
-  font-weight: 800;
+  min-height: 48px;
+  gap: 3px;
+  padding: 6px 4px;
+  border-radius: 13px;
+  background: #ffffff;
+  border: 1.5px solid rgba(82, 105, 140, .2);
+  color: #2a3346;
 }
-body.app-v3 .lec-voice-select-wrap::before {
-  content: '강사';
-  display: block;
-  font-size: 9px;
-  font-weight: 800;
-  letter-spacing: .08em;
-  color: #287f8e;
-  opacity: .85;
+body.app-v3 .lec-footer-tools-unified .lec-tool-icon {
+  color: #2a3346;
+  font-size: 15px;
 }
-
-body.app-v3 .lec-tool-voice-name {
+body.app-v3 .lec-footer-tools-unified .lec-tool-voice-name {
   overflow: hidden;
-  max-width: 80px;
+  max-width: 44px;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 900;
+  color: #2a3346;
 }
+body.app-v3 .lec-footer-tools-unified .lec-tool-sub {
+  color: #7a869b;
+  font-size: 9px;
+}
+
+/* 선택/활성 상태 강조 — 강사·자막·종이모드 */
+body.app-v3 .lec-footer-tools-unified .lec-instructor-toggle,
+body.app-v3 .lec-footer-tools-unified .lec-caption-toggle,
+body.app-v3 .lec-footer-tools-unified .lec-font-toggle.is-plain {
+  border-color: rgba(47, 143, 159, .55);
+  background: linear-gradient(180deg, #ffffff, #e8f8fc);
+}
+body.app-v3 .lec-footer-tools-unified .lec-instructor-toggle .lec-tool-icon,
+body.app-v3 .lec-footer-tools-unified .lec-caption-toggle .lec-tool-icon,
+body.app-v3 .lec-footer-tools-unified .lec-font-toggle.is-plain .lec-tool-icon {
+  color: #1f6470;
+}
+/* 제어(일시정지/재생) — 분홍 강조로 눈에 띄게 */
+body.app-v3 .lec-footer-tools-unified .lec-pause-btn {
+  border-color: rgba(255, 122, 162, .5);
+  background: linear-gradient(180deg, #ffffff, #ffeef4);
+}
+body.app-v3 .lec-footer-tools-unified .lec-pause-btn .lec-tool-icon { color: #d65a86; }
+
+/* 성우 선택 — 일반 도구 버튼처럼(중복 '강사' 라벨 제거), 성별 색만 살짝 */
+body.app-v3 .lec-voice-select-wrap { grid-column: auto; }
+body.app-v3 .lec-voice-select-wrap::before { content: none; }
+body.app-v3 .lec-footer-tools-unified .lec-voice-select-wrap.lec-voice-F { border-color: rgba(255, 122, 162, .5); }
+body.app-v3 .lec-footer-tools-unified .lec-voice-select-wrap.lec-voice-M { border-color: rgba(80, 140, 220, .5); }
+
+/* 내비 줄 — 도구 줄과 같은 라운드/높이로 통일, 폭 꽉 채움 */
+body.app-v3 .lec-controls-compact {
+  display: flex;
+  gap: 8px;
+}
+body.app-v3 .lec-controls-compact .lec-nav-button {
+  flex: 1 1 0;
+  max-width: none;
+  min-height: 50px;
+  border-radius: 14px;
+  font-weight: 800;
+}
+body.app-v3 .lec-controls-compact .lec-nav-button-next { flex-grow: 1.4; }
 
 body.app-v3 .lec-pick-voice-chip {
   touch-action: manipulation;
