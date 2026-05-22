@@ -7336,3 +7336,52 @@ body.app-v3 .completion-fullscreen .completion-actions {
   margin-top: 8px;
 }
 body.app-v3 .completion-fullscreen .completion-actions .btn { width: 100%; min-height: 52px; }
+
+/* ---- 롤플레이 하단 버튼 1단(가로 1줄) ---- */
+body.app-v3 .flow-screen.roleplay-comic-mode .comic-player-actions {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 6px;
+  align-items: stretch;
+}
+body.app-v3 .flow-screen.roleplay-comic-mode .comic-player-actions .btn {
+  flex: 1 1 0;
+  min-width: 0;
+  grid-column: auto;
+  font-size: 12.5px;
+  padding-left: 8px;
+  padding-right: 8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ---- 카드 인트로: 화자 얼굴 + 설명 말풍선 ---- */
+body.app-v3 .step-intro-coach {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 8px;
+  max-width: 420px;
+}
+body.app-v3 .step-intro-coach-face {
+  flex: 0 0 auto;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #fff;
+  box-shadow: 0 6px 14px rgba(71, 99, 136, .24);
+  background: #eef3f9;
+}
+body.app-v3 .step-intro-coach .step-intro-tip {
+  position: relative;
+  flex: 1 1 auto;
+  text-align: left;
+  margin: 0;
+  padding: 12px 14px;
+  border-radius: 14px 14px 14px 4px;
+  background: #fff;
+  border: 1px solid rgba(82, 105, 140, .18);
+  box-shadow: 0 8px 20px rgba(71, 99, 136, .12);
+}

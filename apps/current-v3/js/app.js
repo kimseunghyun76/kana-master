@@ -57,6 +57,14 @@ window.App = (() => {
     stopInlineStroke: () => _stopInlineStroke(),
   });
 
+  // 강의/카드 설명용 — 활성 화자 4명 중 무작위 얼굴(mic)
+  const _SPEAKER_KEYS = ['nanami', 'aoi', 'mayu', 'keita'];
+  function _randomSpeakerFace() {
+    const k = _SPEAKER_KEYS[Math.floor(Math.random() * _SPEAKER_KEYS.length)];
+    const n = 1 + Math.floor(Math.random() * 3);
+    return `/images/v3/characters/speakers/${k}/face/mic-0${n}.webp`;
+  }
+
   function _uiIconSvg(name, cls = '') { return UIIcons.svg(name, cls); }
   function _getStageIconKey(stageId) { return UIIcons.stageIconKey(stageId); }
   function _uiIconWrap(name, cls = 'ui-icon') { return UIIcons.wrap(name, cls); }
@@ -424,6 +432,7 @@ window.App = (() => {
     const tip = isQuiz
       ? '4지선다 ' + count + '문제 · 정답 후 3초, 미답 10초 자동 진행'
       : (mode === 'sentence' ? '문장을 듣고 따라 읽기. 해석은 펼쳐서 확인.' : '단어 뒷면에 한자·영문·관련 단어 정리');
+    const introFace = _randomSpeakerFace();
     document.getElementById('flowBody').innerHTML = `
       <div class="step-intro">
         <div class="step-intro-eyebrow">${kindLabel}</div>
@@ -432,10 +441,11 @@ window.App = (() => {
           <span class="step-intro-pill">${count}${isQuiz ? '문제' : '카드'}</span>
           <span class="step-intro-pill alt">${kindLabel}</span>
         </div>
-        <p class="step-intro-tip">${escHtml(tip)}</p>
-        <img class="step-intro-mascot"
-             src="/images/v3/roleplay/outfits/tourist/nanami-spring.webp"
-             alt="" aria-hidden="true">
+        <div class="step-intro-coach">
+          <img class="step-intro-coach-face" src="${introFace}" alt="" aria-hidden="true"
+               onerror="this.src='/images/v3/characters/speakers/nanami/face/mic-01.webp'">
+          <p class="step-intro-tip">${escHtml(tip)}</p>
+        </div>
       </div>
     `;
     document.getElementById('flowFooter').innerHTML = `
