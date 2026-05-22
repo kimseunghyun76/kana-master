@@ -7388,12 +7388,26 @@ body.app-v3 .step-intro-coach .step-intro-tip {
 
 /* ---- 롤플레이 공용 중앙 팝업 (말하기 완료/요약 등) ---- */
 body.app-v3 .comic-popup-overlay {
+  position: relative;
   display: flex !important;
   align-items: center;
   justify-content: center;
+  min-height: 100%;
   padding: 24px 18px;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
+}
+/* 코믹 자동재생 위에 떠오르는 '대화가 끝났어요' 팝업: flow-screen 전체를 덮음 */
+body.app-v3 .comic-popup-overlay.comic-popup-floating {
+  position: absolute;
+  inset: 0;
+  min-height: 0;
+  z-index: 60;
+  animation: comicDonePopIn .28s ease;
+}
+@keyframes comicDonePopIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 body.app-v3 .comic-popup-overlay::before {
   content: "";
@@ -7430,3 +7444,19 @@ body.app-v3 .comic-popup-actions {
   margin-top: 8px;
 }
 body.app-v3 .comic-popup-actions .btn { width: 100%; min-height: 50px; }
+body.app-v3 .comic-popup-title {
+  font-size: 22px;
+  font-weight: 800;
+  color: #2a3346;
+  letter-spacing: -.01em;
+}
+body.app-v3 .comic-popup-sub {
+  font-size: 14px;
+  line-height: 1.6;
+  color: #6a7588;
+}
+body.app-v3 .comic-done-icon {
+  width: 46px;
+  height: 46px;
+  color: var(--accent, #ff7aa2);
+}

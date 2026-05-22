@@ -900,6 +900,8 @@ window.App = (() => {
   function _restartRoleplayPractice() { return _roleplayFlow.restartPractice(); }
   function _reopenLastPracticeLine() { return _roleplayFlow.reopenLastPracticeLine(); }
   function _replayAll(moduleId, startIndex = 0) { return _roleplayFlow.replayAll(moduleId, startIndex); }
+  function _comicDoneGoPractice() { return _roleplayFlow.comicDoneGoPractice(); }
+  function _comicDoneReplay(moduleId) { return _roleplayFlow.comicDoneReplay(moduleId); }
   function _replayRoleplayCurrentTurn() { return _roleplayFlow.replayCurrentTurn(); }
   function _stopRoleplay() { return _roleplayFlow.stopRoleplay(); }
   function showDialogueDetail(lineId) { return _roleplayFlow.showDialogueDetail(lineId); }
@@ -961,7 +963,8 @@ window.App = (() => {
     if (!tipLine) tipLine = '오늘 외운 문장은 다음 장면에서 그대로 다시 쓰입니다. 짧은 표현부터 입에 붙이는 게 가장 빠른 길이에요.';
 
     document.getElementById('flowBody').innerHTML = `
-      <div class="rp-summary-screen">
+      <div class="comic-popup-overlay rp-summary-overlay">
+       <div class="comic-popup-card rp-summary-screen">
         <header class="rp-summary-head">
           <div class="rp-summary-eyebrow">${_uiIconSvg('roleplay', 'rp-summary-eyebrow-icon')} ROLEPLAY SUMMARY</div>
           <h2 class="rp-summary-title">${escHtml(mod.roleplay.name || mod.name)} 정리</h2>
@@ -996,15 +999,15 @@ window.App = (() => {
           <h3 class="rp-summary-card-title">기억할 한 줄</h3>
           <p class="rp-summary-tip-body">${escHtml(tipLine)}</p>
         </section>
+        <div class="comic-popup-actions">
+          <button class="btn btn-primary" onclick="App._finalizeRoleplay('${mod.id}')">완료하고 보상 받기 →</button>
+          <button class="btn btn-outline" onclick="App.closeFlow()">나중에</button>
+        </div>
+       </div>
       </div>
     `;
 
-    document.getElementById('flowFooter').innerHTML = `
-      <div style="display:flex;gap:10px">
-        <button class="btn btn-primary" onclick="App._finalizeRoleplay('${mod.id}')">완료하고 보상 받기 →</button>
-        <button class="btn btn-outline" onclick="App.closeFlow()">나중에</button>
-      </div>
-    `;
+    document.getElementById('flowFooter').innerHTML = '';
   }
 
   // ── Module Completion ─────────────────────────────────────
@@ -1346,6 +1349,8 @@ window.App = (() => {
     _roleplayComicPracticeNext,
     _roleplayComicPracticePrev,
     _replayAll,
+    _comicDoneGoPractice,
+    _comicDoneReplay,
     _stopRoleplay,
     _startRoleplay,
     _toggleRoleplayReveal,

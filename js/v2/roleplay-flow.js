@@ -625,18 +625,10 @@ window.createRoleplayFlow = (ctx) => {
       },
       onDone: () => {
         _setRoleplayPlaying(false);
-        // Surface a clear next-step guide so the user knows playback ended.
+        // 자동 재생이 끝나면 '대화가 끝났어요' 팝업 + 다음(말하기 연습) 버튼.
         const screen = document.getElementById('flowScreen');
         if (screen?.classList.contains('roleplay-comic-player-mode')) {
-          const frame = document.getElementById('comicVisualFrame');
-          if (frame && !frame.querySelector('.comic-playback-done-tag')) {
-            const tag = document.createElement('div');
-            tag.className = 'comic-playback-done-tag';
-            tag.innerHTML = '<b>대화가 끝났어요</b><span>이제 직접 말해 보세요 →</span>';
-            frame.appendChild(tag);
-          }
-          const footer = document.getElementById('flowFooter');
-          if (footer) footer.classList.add('player-playback-done');
+          _showComicDonePopup(moduleId);
         }
       }
     });
@@ -685,8 +677,50 @@ window.createRoleplayFlow = (ctx) => {
     document.getElementById('flowFooter').innerHTML = '';
   }
 
+  function _dismissComicDonePopup() {
+    document.getElementById('comicDonePopup')?.remove();
+  }
+
+  // 코믹 자동재생이 끝난 직후, 화면을 덮는 '대화가 끝났어요' 팝업 + 다음 이동 버튼.
+  function _showComicDonePopup(moduleId) {
+    _dismissComicDonePopup();
+    const screen = document.getElementById('flowScreen');
+    if (!screen) return;
+    const popup = document.createElement('div');
+    popup.className = 'comic-popup-overlay comic-popup-floating';
+    popup.id = 'comicDonePopup';
+    popup.innerHTML = `
+      <div class="comic-popup-card">
+        <div class="comic-practice-wrap-emoji">${ctx.uiIconSvg('check', 'comic-done-icon')}</div>
+        <div class="comic-popup-title">대화가 끝났어요</div>
+        <div class="comic-popup-sub">전체 대화를 모두 들었어요.<br>이제 직접 말하기 연습을 해볼까요?</div>
+        <div class="comic-popup-actions">
+          <button class="btn btn-primary" onclick="App._comicDoneGoPractice()">말하기 연습 →</button>
+          <button class="btn btn-outline" onclick="App._comicDoneReplay('${moduleId}')">다시 듣기</button>
+        </div>
+      </div>
+    `;
+    // 어두운 배경을 탭하면 팝업만 닫고 코믹 화면(자체 컨트롤)으로 돌아간다.
+    popup.addEventListener('click', (e) => {
+      if (e.target === popup) _dismissComicDonePopup();
+    });
+    screen.appendChild(popup);
+  }
+
+  function _comicDoneGoPractice() {
+    _dismissComicDonePopup();
+    _beginRoleplayPractice();
+  }
+
+  function _comicDoneReplay(moduleId) {
+    _dismissComicDonePopup();
+    _replayAll(moduleId);
+  }
+
   return {
     renderRoleplay: _renderRoleplay,
+    comicDoneGoPractice: _comicDoneGoPractice,
+    comicDoneReplay: _comicDoneReplay,
     beginPractice: _beginRoleplayPractice,
     startComicPlayer: _startRoleplayComicPlayer,
     startComicPlayback: _startRoleplayComicPlayback,
