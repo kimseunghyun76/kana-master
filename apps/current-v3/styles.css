@@ -7385,3 +7385,48 @@ body.app-v3 .step-intro-coach .step-intro-tip {
   border: 1px solid rgba(82, 105, 140, .18);
   box-shadow: 0 8px 20px rgba(71, 99, 136, .12);
 }
+
+/* ---- 롤플레이 공용 중앙 팝업 (말하기 완료/요약 등) ---- */
+body.app-v3 .comic-popup-overlay {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 18px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+body.app-v3 .comic-popup-overlay::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(10, 14, 28, .5);
+  z-index: 0;
+}
+body.app-v3 .comic-popup-card {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 440px;
+  max-height: 100%;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin: auto;
+  padding: 30px 22px;
+  border-radius: 22px;
+  background: #fff;
+  box-shadow: 0 26px 64px rgba(0, 0, 0, .36);
+  text-align: center;
+}
+body.app-v3 .comic-popup-card .comic-practice-wrap-emoji { transform: scale(1.2); margin-bottom: 4px; }
+body.app-v3 .comic-popup-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  margin-top: 8px;
+}
+body.app-v3 .comic-popup-actions .btn { width: 100%; min-height: 50px; }

@@ -476,24 +476,23 @@ window.createRoleplayComicView = (ctx, deps) => {
     document.getElementById('flowStep').textContent = '한 문장씩 따라 읽기 · 완료';
     document.getElementById('flowProgressFill').style.width = '95%';
     document.getElementById('flowBody').innerHTML = `
-      <div class="comic-player-shell comic-practice-shell comic-practice-wrap no-script-dock"
+      <div class="comic-player-shell comic-practice-shell comic-practice-wrap no-script-dock comic-popup-overlay"
            style="--comic-bg:url('${ctx.cssUrlValue(comicSceneAsset)}')">
-        <div class="comic-practice-wrap-card">
-          <div class="comic-practice-wrap-emoji">🎤</div>
+        <div class="comic-practice-wrap-card comic-popup-card">
+          <div class="comic-practice-wrap-emoji">${ctx.uiIconSvg('roleplay', 'completion-main-icon')}</div>
           <h2 class="comic-practice-wrap-title">${total}문장 모두 따라 읽었어요</h2>
           <p class="comic-practice-wrap-sub">
             완료하면 보상을 받습니다. 처음부터 다시 연습하거나, 마지막 라인부터 한 번 더 듣고 마무리할 수도 있어요.
           </p>
+          <div class="comic-popup-actions">
+            <button class="btn btn-primary" type="button" onclick="App._completeRoleplay('${mod.id}')">완료 ✓</button>
+            <button class="btn btn-outline" type="button" onclick="App._restartRoleplayPractice()">↺ 처음부터 다시</button>
+            <button class="btn btn-outline" type="button" onclick="App._reopenLastPracticeLine()">← 마지막 라인 한 번 더</button>
+          </div>
         </div>
       </div>
     `;
-    document.getElementById('flowFooter').innerHTML = `
-      <div class="comic-player-actions">
-        <button class="btn btn-outline" type="button" onclick="App._restartRoleplayPractice()">↺ 처음부터 다시</button>
-        <button class="btn btn-outline" type="button" onclick="App._reopenLastPracticeLine()">← 마지막 라인 한 번 더</button>
-        <button class="btn btn-primary" type="button" onclick="App._completeRoleplay('${mod.id}')">완료 ✓</button>
-      </div>
-    `;
+    document.getElementById('flowFooter').innerHTML = '';
   }
 
   function rerenderPlayerShell(dialogues, panelIndex, activeSourceIndex, mod) {
