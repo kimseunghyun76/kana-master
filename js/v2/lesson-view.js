@@ -145,23 +145,44 @@ window.createLessonView = (ctx) => {
   // V3 lesson card — single cover image + content summary chips (강의/카드/퀴즈/듣기/롤플레이)
   function _renderModuleCardV3(d) {
     const { mod, stage, modLocked, mp, totalSteps, done, pct, completed, visual, moduleImage, statusLabel, requiredTier, tierLabel } = d;
-    const summary = _summarizeSteps(mod);
-    const rpUnlocked = !!mod.roleplay && !modLocked && isRoleplayUnlocked(mod.id, Store.get());
+    const rpUnlocked = !modLocked && isRoleplayUnlocked(mod.id, Store.get());
     const rpDone = mp.roleplayDone;
 
-    const contentChips = summary.map(c => `
-      <button class="v3-mod-chip ${c.key}" type="button"
-              ${modLocked ? 'disabled' : `onclick="event.stopPropagation();App.openModuleStep('${mod.id}', ${c.firstIndex})"`}>
-        <span class="v3-mod-chip-ico">${uiIconSvg(c.iconKey, 'v3-mod-chip-svg')}</span>${c.label}${c.count > 1 ? ` <b>${c.count}</b>` : ''}
+    // 각 단계를 개별 메뉴 칩으로 — 단어 카드/문장 카드를 따로 노출.
+    const chipDefs = [];
+    const seen = {};
+    (mod.steps || []).forEach((s, i) => {
+      let key, label, iconKey;
+      if (s.type === 'lecture') { key = 'lecture'; label = '강의'; iconKey = 'book'; }
+      else if (s.type === 'vocab_learn') {
+        const mode = ContentIndex.getStepMode(s);
+        if (mode === 'sentence') { key = 'learn-sentence'; label = '문장 카드'; iconKey = 'book'; }
+        else { key = 'learn-word'; label = '단어 카드'; iconKey = 'grid'; }
+      }
+      else if (s.type === 'kana_learn' || s.type === 'kana_chart') { key = 'learn-kana'; label = '문자 카드'; iconKey = 'grid'; }
+      else if (s.type === 'vocab_quiz' || s.type === 'kana_quiz') { key = 'quiz'; label = '퀴즈'; iconKey = 'quiz'; }
+      else if (s.type === 'kana_listening' || s.type === 'shadowing') { key = 'listen'; label = '듣기'; iconKey = 'voice'; }
+      else return;
+      if (seen[key]) return;
+      seen[key] = true;
+      chipDefs.push({ key, label, iconKey, index: i });
+    });
+
+    const contentChips = chipDefs.map(c => `
+      <button class="v3-mod-chip ${c.key.replace('learn-', 'learn ')}" type="button"
+              ${modLocked ? 'disabled' : `onclick="event.stopPropagation();App.openModuleStep('${mod.id}', ${c.index})"`}>
+        <span class="v3-mod-chip-ico">${uiIconSvg(c.iconKey, 'v3-mod-chip-svg')}</span>${c.label}
       </button>
     `).join('');
 
-    const rpChip = mod.roleplay ? `
+    // 롤플레이가 여러 개면 각각 칩으로 (현재 데이터는 1개 → mod.roleplay)
+    const roleplays = Array.isArray(mod.roleplays) ? mod.roleplays : (mod.roleplay ? [mod.roleplay] : []);
+    const rpChip = roleplays.map((rp, ri) => `
       <button class="v3-mod-chip rp ${rpUnlocked ? '' : 'is-locked'} ${rpDone ? 'is-done' : ''}" type="button"
-              ${rpUnlocked ? `onclick="event.stopPropagation();App.openModule('${mod.id}', true)"` : 'disabled'}
-              title="${escHtml(mod.roleplay.name)}">
-        <span class="v3-mod-chip-ico">${uiIconSvg(rpDone ? 'check' : (rpUnlocked ? 'roleplay' : 'lock'), 'v3-mod-chip-svg')}</span>롤플레이
-      </button>` : '';
+              ${rpUnlocked ? `onclick="event.stopPropagation();App.openModule('${mod.id}', true${roleplays.length > 1 ? `, ${ri}` : ''})"` : 'disabled'}
+              title="${escHtml(rp.name || '롤플레이')}">
+        <span class="v3-mod-chip-ico">${uiIconSvg(rpDone ? 'check' : (rpUnlocked ? 'roleplay' : 'lock'), 'v3-mod-chip-svg')}</span>${roleplays.length > 1 ? escHtml(rp.name || '롤플레이') : '롤플레이'}
+      </button>`).join('');
 
     const coverState = modLocked
       ? `<span class="v3-mod-cover-badge lock">${uiIconSvg('lock', 'v3-mod-cover-icon')}</span>`

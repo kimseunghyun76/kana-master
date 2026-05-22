@@ -85,7 +85,8 @@ function audit() {
     if (!STAGES.some(stage => stage.id === mod.stageId)) {
       issue(issues, 'error', 'missing-stage', `${mod.id} references missing stage ${mod.stageId}`);
     }
-    if ((mod.steps || []).length < 5) {
+    // 표준 lean 템플릿 = 강의 + 단어카드 + 문장카드 + 퀴즈 (4 steps).
+    if ((mod.steps || []).length < 4) {
       issue(issues, 'warn', 'thin-module', `${mod.id} has only ${(mod.steps || []).length} steps`);
     }
 
@@ -107,7 +108,8 @@ function audit() {
         }
       }
 
-      if (['vocab_learn', 'vocab_quiz'].includes(step.type)) {
+      // 카드 수 검사는 학습 카드(vocab_learn)에만. 퀴즈는 풀이 커도 5문제 랜덤.
+      if (step.type === 'vocab_learn') {
         const cards = ctx.ContentIndex.getVocabItems(step);
         if (cards.length < 10) {
           issue(issues, 'warn', 'small-card-set', `${mod.id} step ${stepIndex + 1} has ${cards.length} cards`);

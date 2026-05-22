@@ -7253,3 +7253,49 @@ body.app-v3 .vc-flat .vc-tip-panel {
 body.app-v3 .vc-flat .vc-related {
   text-align: left;
 }
+
+/* ============================================================
+   카드/퀴즈/결과 폴리시 (요청 반영)
+   ============================================================ */
+/* 단어 카드: 글자 더 크게, 넘치면 2줄·축소 */
+body.app-v3 .vc-flat .vc-jp {
+  font-size: clamp(36px, 12vw, 60px);
+  line-height: 1.1;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+body.app-v3 .vc-flat-meaning { font-size: 21px; }
+
+/* 단어 카드 스크롤: 내용이 길면 flow-body 안에서 스크롤 */
+body.app-v3 .flow-screen:not(.roleplay-comic-mode):not(.module-intro-mode) .flow-body {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+body.app-v3 .vc-stack { max-height: none; }
+
+/* 퀴즈 정답/오답 설명: 폰트·높이 확대 */
+body.app-v3 .quiz-feedback {
+  font-size: 16px;
+  line-height: 1.65;
+  padding: 18px 18px;
+  min-height: 84px;
+  border-radius: 16px;
+}
+
+/* 퀴즈 결과: 화자 얼굴 원형 + 말풍선 강조 */
+body.app-v3 .score-mascot-face {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #fff;
+  box-shadow: 0 8px 18px rgba(71, 99, 136, .28);
+  background: #eef3f9;
+}
+body.app-v3 .score-mascot-row { align-items: center; min-height: 0; }
+body.app-v3 .score-mascot-bubble { font-size: 15px; line-height: 1.5; padding: 14px 16px; }
+body.app-v3 .score-emoji { display: none; }

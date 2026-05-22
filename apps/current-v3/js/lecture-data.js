@@ -322,20 +322,44 @@ window.LECTURE_DATA.v3_reaction_shadowing = [
 
 window.LECTURE_DATA.v3_airport = [
   {
-    type: 'hook', label: '공항의 질문', duration: 6500, audio: null,
-    image: 'images/lecture-scenes/slevel3-help-me-phrase-airport.webp',
+    type: 'hook', label: '공항은 확인 대화', duration: 6500, audio: null,
+    image: 'images/v3/backgrounds/portrait/airport/airport-checkin-01.webp',
     main: '공항은 확인 대화',
-    sub: '공항에서는 새로운 말을 많이 만들 필요 없어.\n\nパスポート\n여권\n\n荷物\n짐 / 수하물\n\n座席\n좌석\n\n질문을 듣고 짧게 확인하면 된다.',
+    sub: '공항에서는 새로운 말을 많이 만들 필요 없어.\n\nパスポート 여권\n荷物 짐 / 수하물\n座席 좌석\n\n질문을 듣고 짧게 확인하면 된다.',
     captionKo: '공항 대화는 대부분 확인이야. 여권, 수하물, 좌석, 탑승 시간 같은 단어를 듣고 네, 아니요, 부탁해요로 답하면 된다. 긴 설명보다 핵심 단어를 알아듣는 게 먼저다.',
     captionJp: '空港では、パスポート、荷物、座席、時間を聞き取ることが大事です。短く答えれば大丈夫です。'
   },
   {
-    type: 'practice', label: '짧게 답하기', duration: 7000, audio: '窓側をお願いします',
-    image: 'images/lecture-scenes/slevel3-help-me-phrase-airport.webp',
-    main: '窓側をお願いします',
-    sub: '원하는 게 있으면 이렇게.\n\n窓側をお願いします\n창가 자리 부탁해요\n\n通路側をお願いします\n통로 자리 부탁해요\n\nこれです\n이거예요\n\n→ 공항은 보여 주고 짧게 말하면 된다.',
-    captionKo: '좌석처럼 원하는 게 있으면 をお願いします를 붙이면 돼. 창가 자리 부탁해요, 통로 자리 부탁해요. 여권이나 예약 화면은 これです라고 보여 주면 충분하다.',
-    captionJp: '希望を言う時は「をお願いします」が便利です。窓側をお願いします。通路側をお願いします。'
+    type: 'point', label: '핵심 단어', duration: 7000, audio: '搭乗券',
+    image: 'images/v3/backgrounds/portrait/airport/airport-checkin-01.webp',
+    main: '먼저 외울 단어',
+    sub: '搭乗券 탑승권\n荷物を預ける 짐을 맡기다\n搭乗口 탑승구\n出発 / 到着 출발 / 도착\n\n→ 단어만 알아들으면 절반은 끝.',
+    captionKo: '공항에서 가장 자주 듣는 단어부터 잡자. 탑승권, 짐을 맡기다, 탑승구, 출발과 도착. 이 단어들이 귀에 들어오면 안내 방송과 직원 질문의 절반은 이미 이해한 셈이다.',
+    captionJp: '空港でよく聞く言葉から覚えましょう。搭乗券、荷物を預ける、搭乗口、出発と到着。これが分かれば半分は理解できます。'
+  },
+  {
+    type: 'practice', label: '직원 질문 알아듣기', duration: 7500, audio: 'お荷物はおいくつですか',
+    image: 'images/v3/backgrounds/portrait/airport/airport-checkin-01.webp',
+    main: '직원이 자주 묻는 말',
+    sub: 'お荷物はおいくつですか 짐은 몇 개예요?\n→ 一つです 하나예요\n\n窓側と通路側、どちらにしますか 창가? 통로?\n→ 窓側をお願いします 창가로 부탁해요',
+    captionKo: '직원의 질문은 패턴이 정해져 있어. 짐이 몇 개인지, 창가와 통로 중 어디인지 묻는다. 미리 답을 알아두면 당황하지 않고 한 단어로 바로 답할 수 있다.',
+    captionJp: '係員の質問は決まっています。荷物の数、窓側か通路側か。答えを用意しておけば、一言で返せます。'
+  },
+  {
+    type: 'practice', label: '원하는 것 부탁하기', duration: 7000, audio: '窓側をお願いします',
+    image: 'images/v3/backgrounds/portrait/airport/airport-checkin-01.webp',
+    main: '○○をお願いします',
+    sub: '窓側をお願いします 창가 자리 부탁해요\n通路側をお願いします 통로 자리 부탁해요\nこれです 이거예요\n\n→ 보여 주고 짧게 말하면 된다.',
+    captionKo: '원하는 게 있으면 をお願いします만 붙이면 돼. 창가 자리, 통로 자리 모두 같은 공식이다. 여권이나 예약 화면은 これです라고 보여 주면 충분하다.',
+    captionJp: '希望は「をお願いします」で伝わります。窓側、通路側も同じ形です。画面はこれですと見せれば十分です。'
+  },
+  {
+    type: 'tip', label: '짧게가 안전', duration: 6000, audio: null,
+    image: 'images/v3/backgrounds/portrait/airport/airport-checkin-01.webp',
+    main: '길게 말하지 않기',
+    sub: '질문이 어려우면\nこれです 이거예요 (보여 주기)\nはい / 大丈夫です 네 / 괜찮아요\n\n→ 정확한 단답이 가장 안전하다.',
+    captionKo: '공항에서는 매끄러운 문장보다 정확한 단답이 안전해. 못 알아들으면 これです로 보여 주고, 확인이면 네, 거절이면 괜찮아요. 짧게 끊을수록 다음 질문도 쉬워진다.',
+    captionJp: '空港では、長い文より短い返事が安全です。分からなければこれですと見せ、はい、大丈夫ですで十分です。'
   }
 ];
 

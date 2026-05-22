@@ -89,31 +89,22 @@ function createQuizResultFlow(ctx) {
       setTimeout(() => TTS.speak(stripFuri(res.jp)), 600);
     }
 
-    // Pick a speaker-character variant matching the tier so result feels
-    // staged rather than a bare info card.
-    const mascots = passed
-      ? ['/images/v3/roleplay/roles/tourist/nanami-spring.webp',
-         '/images/v3/roleplay/roles/tourist/aoi-summer.webp']
-      : ['/images/v3/roleplay/roles/tourist/nanami-autumn.webp',
-         '/images/v3/roleplay/roles/tourist/aoi-winter.webp'];
-    const mascotSrc = mascots[Math.floor(Math.random() * mascots.length)];
-    const speech = passed
-      ? (pct >= 90 ? '완벽해요! 다음 단계로 가요' : pct >= 70 ? '잘했어요! 살짝만 다듬어요' : '통과! 한 번 더 복습하면 더 좋아요')
-      : '괜찮아요, 다시 한 번 가볼게요! 핵심만 짚어서 짧게 가요';
+    // 현재 선택된 화자의 얼굴이 결과 메시지(score-msg)를 말풍선으로 전한다.
+    const speakerKey = (typeof TTS.getDefaultVoice === 'function' && TTS.getDefaultVoice()) || 'nanami';
+    const faceSrc = `/images/v3/characters/speakers/${speakerKey}/face/mic-01.webp`;
     document.getElementById('flowBody').innerHTML = `
       <div class="score-screen fanfare-burst ${passed ? 'score-screen-passed' : ''} has-mascot">
         ${passed ? '<div class="score-fanfare-ring score-fanfare-ring-a"></div><div class="score-fanfare-ring score-fanfare-ring-b"></div>' : ''}
         <div class="score-mascot-row">
-          <img class="score-mascot" src="${mascotSrc}" alt="" aria-hidden="true">
+          <img class="score-mascot score-mascot-face" src="${faceSrc}" alt="" aria-hidden="true"
+               onerror="this.src='/images/v3/characters/speakers/nanami/face/mic-01.webp'">
           <div class="score-mascot-bubble">
-            <b>${speech}</b>
+            <b>${res.msg}</b>
             <span class="score-mascot-tail" aria-hidden="true"></span>
           </div>
         </div>
-        <div class="score-emoji">${ctx.uiIconSvg(res.icon, 'score-tier-icon')}</div>
         <div class="score-title">${res.title}</div>
         <div class="score-exclamation">${ruby(res.jp)}</div>
-        <div class="score-msg">${res.msg}</div>
         <div class="score-ring" id="scoreRing">
           <div class="score-pct">${pct}%</div>
         </div>

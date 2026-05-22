@@ -76,6 +76,7 @@ for (const mod of MODULES) {
       else {
         const empty = slides.filter(s => !(s.captionJp || s.caption || s.text || s.body || s.title));
         if (empty.length) W(`${tag}: lecture '${step.lectureKey}' ${empty.length}/${slides.length} slides have no caption/text`);
+        if (slides.length < 5) W(`${tag}: lecture '${step.lectureKey}' has only ${slides.length} scenes (min 5)`);
       }
     }
 

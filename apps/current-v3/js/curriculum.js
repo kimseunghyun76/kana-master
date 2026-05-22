@@ -480,6 +480,46 @@ const V3_WRAPUP_QA_CARDS = [
   { id:'v3wrap_10', japanese:'では、また', romaji:'dewa, mata', korean:'그럼 또 봐요' },
 ];
 
+// ── 모듈 전용 단어/한자 카드 (STAGE 주제 한정) ──────────────────
+const V3_AIRPORT_WORD_CARDS = [
+  { id:'v3airw_01', japanese:'空港(くうこう)', romaji:'kuukou', korean:'공항' },
+  { id:'v3airw_02', japanese:'飛行機(ひこうき)', romaji:'hikouki', korean:'비행기' },
+  { id:'v3airw_03', japanese:'搭乗券(とうじょうけん)', romaji:'toujouken', korean:'탑승권' },
+  { id:'v3airw_04', japanese:'荷物(にもつ)', romaji:'nimotsu', korean:'짐' },
+  { id:'v3airw_05', japanese:'預(あず)ける', romaji:'azukeru', korean:'맡기다' },
+  { id:'v3airw_06', japanese:'窓側(まどがわ)', romaji:'madogawa', korean:'창가 쪽' },
+  { id:'v3airw_07', japanese:'通路側(つうろがわ)', romaji:'tsuurogawa', korean:'통로 쪽' },
+  { id:'v3airw_08', japanese:'搭乗口(とうじょうぐち)', romaji:'toujouguchi', korean:'탑승구' },
+  { id:'v3airw_09', japanese:'出発(しゅっぱつ)', romaji:'shuppatsu', korean:'출발' },
+  { id:'v3airw_10', japanese:'到着(とうちゃく)', romaji:'touchaku', korean:'도착' },
+];
+
+const V3_IMMIGRATION_WORD_CARDS = [
+  { id:'v3immw_01', japanese:'入国審査(にゅうこくしんさ)', romaji:'nyuukoku shinsa', korean:'입국 심사' },
+  { id:'v3immw_02', japanese:'目的(もくてき)', romaji:'mokuteki', korean:'목적' },
+  { id:'v3immw_03', japanese:'観光(かんこう)', romaji:'kankou', korean:'관광' },
+  { id:'v3immw_04', japanese:'旅行(りょこう)', romaji:'ryokou', korean:'여행' },
+  { id:'v3immw_05', japanese:'滞在(たいざい)', romaji:'taizai', korean:'체류' },
+  { id:'v3immw_06', japanese:'期間(きかん)', romaji:'kikan', korean:'기간' },
+  { id:'v3immw_07', japanese:'パスポート', romaji:'pasupooto', korean:'여권' },
+  { id:'v3immw_08', japanese:'指紋(しもん)', romaji:'shimon', korean:'지문' },
+  { id:'v3immw_09', japanese:'帰国(きこく)', romaji:'kikoku', korean:'귀국' },
+  { id:'v3immw_10', japanese:'滞在先(たいざいさき)', romaji:'taizaisaki', korean:'머무는 곳' },
+];
+
+const V3_AIRPLANE_WORD_CARDS = [
+  { id:'v3plw_01', japanese:'機内(きない)', romaji:'kinai', korean:'기내' },
+  { id:'v3plw_02', japanese:'毛布(もうふ)', romaji:'moufu', korean:'담요' },
+  { id:'v3plw_03', japanese:'水(みず)', romaji:'mizu', korean:'물' },
+  { id:'v3plw_04', japanese:'お茶(ちゃ)', romaji:'ocha', korean:'차' },
+  { id:'v3plw_05', japanese:'枕(まくら)', romaji:'makura', korean:'베개' },
+  { id:'v3plw_06', japanese:'食事(しょくじ)', romaji:'shokuji', korean:'식사' },
+  { id:'v3plw_07', japanese:'座席(ざせき)', romaji:'zaseki', korean:'좌석' },
+  { id:'v3plw_08', japanese:'通路(つうろ)', romaji:'tsuuro', korean:'통로' },
+  { id:'v3plw_09', japanese:'トイレ', romaji:'toire', korean:'화장실' },
+  { id:'v3plw_10', japanese:'イヤホン', romaji:'iyahon', korean:'이어폰' },
+];
+
 const MODULES = [
   {
     id: 'v3_kana_map',
@@ -918,11 +958,9 @@ const MODULES = [
     unlockAfter: ['v3_reaction_shadowing'],
     steps: [
       { type: 'lecture', title: '공항에서는 짧게 답하기', lectureKey: 'v3_airport' },
-      { type: 'vocab_learn', title: '공항·이동 기본어', categoryId: 'place_transport', limit: 14 },
-      { type: 'vocab_learn', title: '체크인 질문·답변 카드', items: V3_AIRPORT_QA_CARDS, mode: 'sentence' },
-      { type: 'dialogue_study', title: '공항 대화 미리보기', dialogueKey: 'airport_checkin' },
-      { type: 'vocab_quiz', title: '공항 체크인 즉답 퀴즈', items: V3_AIRPORT_QA_CARDS },
-      { type: 'vocab_quiz', title: '공항·이동 퀴즈', categoryId: 'place_transport', limit: 14 },
+      { type: 'vocab_learn', title: '공항 단어·한자', items: V3_AIRPORT_WORD_CARDS, mode: 'word' },
+      { type: 'vocab_learn', title: '체크인 질문·답변 문장', items: V3_AIRPORT_QA_CARDS, mode: 'sentence' },
+      { type: 'vocab_quiz', title: '공항 통합 퀴즈', items: V3_AIRPORT_WORD_CARDS.concat(V3_AIRPORT_QA_CARDS) },
     ],
     roleplay: { id: 'rp_airport_checkin', name: '공항 체크인', nameJp: 'チェックイン', icon: '', desc: '좌석과 수하물 확인하기', dialogueKey: 'airport_checkin' }
   },
@@ -938,12 +976,9 @@ const MODULES = [
     unlockAfter: ['v3_airport'],
     steps: [
       { type: 'lecture', title: '입국 심사는 단답이 정답', lectureKey: 'v3_immigration' },
-      { type: 'vocab_learn', title: '입국 질문·답변 카드', items: V3_IMMIGRATION_QA_CARDS, mode: 'sentence' },
-      { type: 'vocab_learn', title: '날짜·기간 단어', categoryId: 'date_basic', limit: 8, mode: 'word' },
-      { type: 'vocab_learn', title: '자기소개·숙소 답변 문장', categoryIds: ['self_intro','hotel_phrases'], limit: 14, mode: 'sentence' },
-      { type: 'dialogue_study', title: '입국 심사 미리보기', dialogueKey: 'immigration_short' },
-      { type: 'vocab_quiz', title: '입국 즉답 퀴즈', items: V3_IMMIGRATION_QA_CARDS },
-      { type: 'vocab_quiz', title: '입국 답변 퀴즈', categoryIds: ['self_intro','hotel_phrases','date_basic'], limit: 22 },
+      { type: 'vocab_learn', title: '입국 심사 단어·한자', items: V3_IMMIGRATION_WORD_CARDS, mode: 'word' },
+      { type: 'vocab_learn', title: '입국 질문·답변 문장', items: V3_IMMIGRATION_QA_CARDS, mode: 'sentence' },
+      { type: 'vocab_quiz', title: '입국 심사 통합 퀴즈', items: V3_IMMIGRATION_WORD_CARDS.concat(V3_IMMIGRATION_QA_CARDS) },
     ],
     roleplay: { id: 'rp_immigration_short', name: '입국 심사 답하기', nameJp: '入国審査', icon: '', desc: '여행이에요, 3일이에요, 호텔에 묵어요', dialogueKey: 'immigration_short' }
   },
@@ -959,11 +994,9 @@ const MODULES = [
     unlockAfter: ['v3_immigration'],
     steps: [
       { type: 'lecture', title: '기내 부탁은 단어 + ください', lectureKey: 'v3_airplane_request' },
-      { type: 'vocab_learn', title: '기내 요청 질문·답변 카드', items: V3_AIRPLANE_QA_CARDS, mode: 'sentence' },
-      { type: 'vocab_learn', title: '부탁·요청 문장', categoryId: 'first_expressions', limit: 12, mode: 'sentence' },
-      { type: 'dialogue_study', title: '기내 요청 미리보기', dialogueKey: 'airplane_request' },
-      { type: 'vocab_quiz', title: '기내 요청 즉답 퀴즈', items: V3_AIRPLANE_QA_CARDS },
-      { type: 'vocab_quiz', title: '기내 요청 퀴즈', categoryIds: ['basic_words','first_expressions'], limit: 20 },
+      { type: 'vocab_learn', title: '기내 단어·한자', items: V3_AIRPLANE_WORD_CARDS, mode: 'word' },
+      { type: 'vocab_learn', title: '기내 요청 질문·답변 문장', items: V3_AIRPLANE_QA_CARDS, mode: 'sentence' },
+      { type: 'vocab_quiz', title: '기내 요청 통합 퀴즈', items: V3_AIRPLANE_WORD_CARDS.concat(V3_AIRPLANE_QA_CARDS) },
     ],
     roleplay: { id: 'rp_airplane_request', name: '기내에서 부탁하기', nameJp: '機内でお願い', icon: '', desc: '물 주세요, 담요 있어요?', dialogueKey: 'airplane_request' }
   },

@@ -696,6 +696,8 @@ window.App = (() => {
           </button>
         </div>
       `;
+      // 단어 카드처럼 진입 시 자동으로 한 번 읽어 준다(바로 읽기).
+      try { TTS.speak(jp); } catch (_) {}
       // record after first paint so quick skim still counts as seen on advance
     }
 
