@@ -76,7 +76,8 @@ for (const mod of MODULES) {
       else {
         const empty = slides.filter(s => !(s.captionJp || s.caption || s.text || s.body || s.title));
         if (empty.length) W(`${tag}: lecture '${step.lectureKey}' ${empty.length}/${slides.length} slides have no caption/text`);
-        if (slides.length < 5) W(`${tag}: lecture '${step.lectureKey}' has only ${slides.length} scenes (min 5)`);
+        // '_tip' 강의는 의도적으로 단일 요약 슬라이드 — 5씬 규칙에서 제외.
+        if (!/_tip$/.test(step.lectureKey) && slides.length < 5) W(`${tag}: lecture '${step.lectureKey}' has only ${slides.length} scenes (min 5)`);
       }
     }
 
