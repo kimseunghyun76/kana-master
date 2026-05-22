@@ -7577,3 +7577,20 @@ body.app-v3 .comic-done-icon {
   height: 46px;
   color: var(--accent, #ff7aa2);
 }
+
+/* 오십음도 팝업 — 표가 들어가도록 카드를 넓히고, 길어지면 카드 내부 스크롤 */
+body.app-v3 .kana-chart-popup {
+  max-width: 560px;
+  text-align: left;
+  padding: 22px 18px;
+  gap: 16px;
+}
+body.app-v3 .kana-chart-popup .v3-kana-chart {
+  width: 100%;
+}
+body.app-v3 .kana-chart-popup .comic-popup-actions.kana-chart-actions {
+  flex-direction: row;
+}
+body.app-v3 .kana-chart-popup .kana-chart-actions .btn {
+  flex: 1 1 0;
+}

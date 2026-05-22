@@ -510,42 +510,48 @@ window.App = (() => {
       </div>
     `).join('');
 
-    document.getElementById('flowBody').innerHTML = `
-      <section class="v3-kana-chart">
-        <div class="v3-kana-chart-hero">
-          <div>
-            <div class="v3-kana-kicker">오십음도 한눈에</div>
-            <h2>가로는 입 모양, 세로는 소리 가족</h2>
-            <p>글자를 하나씩 외우기 전에 표의 위치를 먼저 잡아. 히라가나와 가타가나는 같은 소리를 다른 글자 모양으로 적는다고 보면 된다.</p>
-          </div>
-          <div class="v3-kana-axis" aria-hidden="true">
-            <span>가로: あ·い·う·え·お</span>
-            <span>세로: か·さ·た·な...</span>
-          </div>
-        </div>
-        <div class="v3-kana-columns">
-          <span>행</span>
-          ${columns.map(col => `<span>${escHtml(col)}</span>`).join('')}
-        </div>
-        <div class="v3-kana-table">${tableRows}</div>
-        <div class="v3-kana-memory">
-          <div><b>1분 암기법</b><span>あいうえお를 먼저 소리내고, 다음엔 かさたなはまやらわ 순서만 외워.</span></div>
-          <div><b>여행 기준</b><span>완벽한 필기보다 메뉴판에서 보고 읽는 속도가 먼저야.</span></div>
-          <div><b>헷갈림 처리</b><span>ぬ/め, れ/ね, シ/ツ, ソ/ン은 따로 비교해서 잡으면 된다.</span></div>
-        </div>
-      </section>
-    `;
-
     const isStandalone = stepIndex < 0;
-    document.getElementById('flowFooter').innerHTML = `
-      <div class="kana-chart-actions">
-        ${isStandalone
-          ? `<button class="btn btn-outline" type="button" onclick="App.closeFlow()">← 닫기</button>
-             <button class="btn btn-primary" type="button" onclick="App.closeFlow()">확인</button>`
-          : `<button class="btn btn-outline" type="button" onclick="App._startFlowFromStep('${mod.id}', ${Math.max(0, stepIndex - 1)})">← 강의</button>
-             <button class="btn btn-primary" type="button" onclick="App._completeKanaChart(${stepIndex})">이해했어 →</button>`}
+    const actionsHtml = isStandalone
+      ? `<button class="btn btn-outline" type="button" onclick="App.closeFlow()">← 닫기</button>
+         <button class="btn btn-primary" type="button" onclick="App.closeFlow()">확인</button>`
+      : `<button class="btn btn-outline" type="button" onclick="App._startFlowFromStep('${mod.id}', ${Math.max(0, stepIndex - 1)})">← 강의</button>
+         <button class="btn btn-primary" type="button" onclick="App._completeKanaChart(${stepIndex})">이해했어 →</button>`;
+
+    // 오십음도는 standalone 참고 페이지 — 내용과 버튼을 모두 담은 팝업으로
+    // 띄우고, 표가 길어지면 카드 내부에서 스크롤되게 한다.
+    document.getElementById('flowBody').innerHTML = `
+      <div class="comic-popup-overlay kana-chart-overlay">
+        <div class="comic-popup-card kana-chart-popup">
+          <section class="v3-kana-chart">
+            <div class="v3-kana-chart-hero">
+              <div>
+                <div class="v3-kana-kicker">오십음도 한눈에</div>
+                <h2>가로는 입 모양, 세로는 소리 가족</h2>
+                <p>글자를 하나씩 외우기 전에 표의 위치를 먼저 잡아. 히라가나와 가타가나는 같은 소리를 다른 글자 모양으로 적는다고 보면 된다.</p>
+              </div>
+              <div class="v3-kana-axis" aria-hidden="true">
+                <span>가로: あ·い·う·え·お</span>
+                <span>세로: か·さ·た·な...</span>
+              </div>
+            </div>
+            <div class="v3-kana-columns">
+              <span>행</span>
+              ${columns.map(col => `<span>${escHtml(col)}</span>`).join('')}
+            </div>
+            <div class="v3-kana-table">${tableRows}</div>
+            <div class="v3-kana-memory">
+              <div><b>1분 암기법</b><span>あいうえお를 먼저 소리내고, 다음엔 かさたなはまやらわ 순서만 외워.</span></div>
+              <div><b>여행 기준</b><span>완벽한 필기보다 메뉴판에서 보고 읽는 속도가 먼저야.</span></div>
+              <div><b>헷갈림 처리</b><span>ぬ/め, れ/ね, シ/ツ, ソ/ン은 따로 비교해서 잡으면 된다.</span></div>
+            </div>
+          </section>
+          <div class="comic-popup-actions kana-chart-actions">
+            ${actionsHtml}
+          </div>
+        </div>
       </div>
     `;
+    document.getElementById('flowFooter').innerHTML = '';
   }
 
   function _openKanaChartStandalone() {
