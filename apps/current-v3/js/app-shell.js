@@ -76,6 +76,9 @@ window.createAppShell = (ctx) => {
       </div>
 
       <div class="toast" id="toast"></div>
+
+      <!-- 가나 마스터 섹터 오버레이 -->
+      <div id="kanaSectorOverlay" class="kana-sector-overlay" style="display:none" aria-label="가나 마스터"></div>
     `;
   }
 

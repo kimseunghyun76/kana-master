@@ -7594,3 +7594,447 @@ body.app-v3 .kana-chart-popup .comic-popup-actions.kana-chart-actions {
 body.app-v3 .kana-chart-popup .kana-chart-actions .btn {
   flex: 1 1 0;
 }
+
+/* ================================================================
+   가나 마스터 섹터
+   ================================================================ */
+
+/* ── 오버레이 ── */
+.kana-sector-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: rgba(0,0,0,.55);
+  display: flex;
+  align-items: flex-end;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .24s;
+}
+.kana-sector-overlay.ks-visible {
+  opacity: 1;
+  pointer-events: all;
+}
+
+/* ── 시트 ── */
+.ks-sheet {
+  width: 100%;
+  max-width: 540px;
+  margin: 0 auto;
+  max-height: 92dvh;
+  background: var(--surface1, #1e293b);
+  border-radius: 20px 20px 0 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transform: translateY(40px);
+  transition: transform .24s;
+}
+.ks-visible .ks-sheet {
+  transform: translateY(0);
+}
+
+/* ── 헤더 ── */
+.ks-header {
+  flex-shrink: 0;
+  padding: 18px 16px 12px;
+  background: var(--surface2, #0f172a);
+  border-bottom: 1px solid rgba(255,255,255,.08);
+}
+.ks-header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.ks-header-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.ks-title-icon {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  color: #a78bfa;
+}
+.ks-title-text {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text1, #f1f5f9);
+}
+.ks-close-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  color: var(--text3, #94a3b8);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.ks-close-btn:active { background: rgba(255,255,255,.08); }
+.ks-close-icon { width: 20px; height: 20px; }
+
+/* ── 진행 바 ── */
+.ks-progress-bar-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.ks-progress-bar-track {
+  flex: 1;
+  height: 6px;
+  background: rgba(255,255,255,.1);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.ks-progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #8b5cf6, #3b82f6);
+  border-radius: 3px;
+  transition: width .4s;
+}
+.ks-progress-text {
+  font-size: 12px;
+  color: var(--text3, #94a3b8);
+  white-space: nowrap;
+}
+
+/* ── 다음 레벨 힌트 ── */
+.ks-next-hint {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text2, #cbd5e1);
+  padding: 8px 12px;
+  background: rgba(255,255,255,.05);
+  border-radius: 10px;
+}
+.ks-next-icon { width: 16px; height: 16px; color: #a78bfa; }
+.ks-next-hint b { color: var(--text1, #f1f5f9); }
+.ks-next-hint.ks-all-done { color: #10b981; }
+.ks-next-btn {
+  margin-left: auto;
+  background: #8b5cf6;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 5px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.ks-next-btn:active { opacity: .85; }
+
+/* ── 바디 (스크롤) ── */
+.ks-body {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 12px 14px 24px;
+}
+
+/* ── 그룹 ── */
+.ks-group {
+  margin-bottom: 16px;
+}
+.ks-group-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  padding: 0 4px;
+}
+.ks-group-badge {
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+}
+.ks-group-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text2, #cbd5e1);
+  text-transform: uppercase;
+  letter-spacing: .5px;
+}
+.ks-group-pct {
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--text3, #94a3b8);
+}
+.ks-group-levels {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* ── 레벨 카드 ── */
+.ks-level-card {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  background: var(--surface2, #0f172a);
+  border: 1px solid rgba(255,255,255,.07);
+  border-radius: 12px;
+  cursor: pointer;
+  text-align: left;
+  transition: background .15s, transform .1s;
+  position: relative;
+}
+.ks-level-card:active {
+  background: rgba(255,255,255,.06);
+  transform: scale(.99);
+}
+.ks-level-card.ks-level-done {
+  border-color: rgba(16,185,129,.2);
+  background: rgba(16,185,129,.04);
+}
+
+/* 번호 */
+.ks-level-num {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text2, #cbd5e1);
+  flex-shrink: 0;
+}
+.ks-level-done .ks-level-num {
+  background: rgba(16,185,129,.2);
+  color: #10b981;
+}
+
+/* 본문 */
+.ks-level-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.ks-level-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text1, #f1f5f9);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ks-level-sub {
+  font-size: 12px;
+  color: var(--text3, #94a3b8);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ks-level-chars {
+  font-size: 13px;
+  color: var(--text2, #cbd5e1);
+  letter-spacing: 2px;
+  margin-top: 2px;
+}
+
+/* 메타 (타입배지 + 자수 + 점수) */
+.ks-level-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  flex-shrink: 0;
+}
+.ks-level-type {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+.ks-level-charcount {
+  font-size: 11px;
+  color: var(--text3, #94a3b8);
+}
+.ks-level-score {
+  font-size: 11px;
+  color: #10b981;
+  font-weight: 600;
+}
+
+/* 상태 배지 */
+.ks-level-status {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.ks-level-status.done {
+  color: #10b981;
+}
+.ks-status-icon { width: 18px; height: 18px; }
+
+/* ── 홈 가나 마스터 카드 ── */
+.ks-home-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  background: linear-gradient(135deg, rgba(139,92,246,.15) 0%, rgba(59,130,246,.1) 100%);
+  border: 1px solid rgba(139,92,246,.25);
+  border-radius: 14px;
+  margin: 0 16px 16px;
+  cursor: pointer;
+}
+.ks-home-card:active { opacity: .88; }
+.ks-home-card-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+}
+.ks-home-card-icon {
+  font-size: 20px;
+  font-weight: 700;
+  color: #a78bfa;
+  letter-spacing: 2px;
+  flex-shrink: 0;
+}
+.ks-home-card-info { min-width: 0; }
+.ks-home-card-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text1, #f1f5f9);
+}
+.ks-home-card-sub {
+  font-size: 12px;
+  color: var(--text3, #94a3b8);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ks-home-card-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  flex-shrink: 0;
+}
+.ks-home-card-pct {
+  font-size: 13px;
+  font-weight: 700;
+  color: #a78bfa;
+}
+.ks-home-card-bar {
+  width: 80px;
+  height: 4px;
+  background: rgba(255,255,255,.1);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.ks-home-card-bar > div {
+  height: 100%;
+  background: linear-gradient(90deg, #8b5cf6, #3b82f6);
+  border-radius: 2px;
+  transition: width .4s;
+}
+.ks-home-card-btn {
+  background: #8b5cf6;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 5px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 2px;
+}
+.ks-home-card-btn:active { opacity: .85; }
+
+/* ── Lesson 탭 가나 배너 ── */
+.lesson-kana-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  background: rgba(139,92,246,.1);
+  border: 1px solid rgba(139,92,246,.2);
+  border-radius: 12px;
+  margin-bottom: 10px;
+  cursor: pointer;
+}
+.lesson-kana-banner:active { opacity: .85; }
+.lkb-icon {
+  font-size: 18px;
+  font-weight: 700;
+  color: #a78bfa;
+  letter-spacing: 2px;
+  flex-shrink: 0;
+}
+.lkb-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.lkb-body b {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text1, #f1f5f9);
+}
+.lkb-body span {
+  font-size: 12px;
+  color: var(--text3, #94a3b8);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.lkb-pct {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 3px;
+  font-size: 12px;
+  color: #a78bfa;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+.lkb-pct-bar {
+  width: 56px;
+  height: 4px;
+  background: rgba(255,255,255,.1);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.lkb-pct-bar span {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, #8b5cf6, #3b82f6);
+  border-radius: 2px;
+}
+.lkb-arrow {
+  font-size: 20px;
+  color: var(--text3, #94a3b8);
+  flex-shrink: 0;
+}

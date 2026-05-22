@@ -463,6 +463,9 @@ window.App = (() => {
   }
 
   function _showPracticeComplete(mod) {
+    // 가나 레벨 완료는 전용 완료 화면으로
+    if (mod._kanaLevelId) { _showKanaLevelComplete(mod); return; }
+
     document.getElementById('flowBody').innerHTML = `
       <div class="completion-screen">
         <div class="completion-emoji">${_uiIconSvg('check', 'completion-main-icon')}</div>
@@ -1168,6 +1171,85 @@ window.App = (() => {
     _kanaLearnFlow.renderKanaLearn(mod, mod.steps[0], 0);
   }
 
+  // ── 가나 섹터 ──────────────────────────────────────────────
+  let _kanaSectorView = null;
+
+  function _ensureKanaSectorView() {
+    if (!_kanaSectorView && typeof createKanaSectorView === 'function') {
+      _kanaSectorView = createKanaSectorView({
+        Store,
+        escHtml,
+        uiIconSvg: _uiIconSvg,
+      });
+    }
+    return _kanaSectorView;
+  }
+
+  function openKanaSector() {
+    _ensureKanaSectorView()?.open();
+  }
+
+  function closeKanaSector() {
+    _ensureKanaSectorView()?.close();
+  }
+
+  function openKanaLevel(levelId) {
+    const level = (typeof LEVELS !== 'undefined' ? LEVELS : []).find(l => l.id === levelId);
+    if (!level) return;
+    closeKanaSector();
+
+    const virtMod = {
+      id: `_kana_level_${levelId}`,
+      stageId: 1,
+      name: level.title,
+      icon: (level.chars && level.chars[0]) || 'あ',
+      iconIsText: true,
+      _kanaLevelId: levelId,
+      steps: [
+        { type: 'kana_learn', title: level.subtitle, levelId, customLabel: `레벨 ${levelId}/11 · ${level.title}` },
+        { type: 'kana_quiz',  title: `${level.title} 퀴즈`, levelId },
+      ]
+    };
+    _startPracticeFlow(virtMod);
+  }
+
+  // ── 가나 레벨 완료 화면 ────────────────────────────────────
+  function _showKanaLevelComplete(mod) {
+    const levelId = mod._kanaLevelId;
+    const flow = _flow;
+    // 마지막 kana_quiz 결과에서 점수 추출
+    const score = (flow?._kanaQuiz?.score ?? flow?._lastKanaScore ?? 100);
+    Store.completeKanaLevel(levelId, score);
+    _ensureKanaSectorView()?.refresh();
+
+    confetti(30);
+    Store.addXP(80);
+
+    const nextId = levelId < 11 ? levelId + 1 : null;
+    const nextLevel = nextId ? (typeof LEVELS !== 'undefined' ? LEVELS : []).find(l => l.id === nextId) : null;
+
+    document.getElementById('flowBody').innerHTML = `
+      <div class="completion-screen kana-level-complete">
+        <div class="completion-emoji" style="font-size:48px">${(mod.icon || 'あ')}</div>
+        <div class="completion-title">레벨 ${levelId} 완료!</div>
+        <div class="completion-sub">${escHtml(mod.name)}<br>
+          ${nextLevel ? `다음은 레벨 ${nextId} · <b>${escHtml(nextLevel.title)}</b>` : '모든 레벨 완료! 가나 마스터 달성 🎉'}
+        </div>
+        <div class="completion-unlocks">
+          <div class="cu-title">획득</div>
+          <div class="completion-unlock-item"><span class="cui-icon">${_uiIconSvg('xp', 'completion-inline-icon')}</span> +80 XP</div>
+          <div class="completion-unlock-item"><span class="cui-icon">${_uiIconSvg('check', 'completion-inline-icon')}</span> 레벨 ${levelId} 달성</div>
+        </div>
+      </div>
+    `;
+    document.getElementById('flowFooter').innerHTML = `
+      <div style="display:flex;gap:10px">
+        ${nextLevel ? `<button class="btn btn-primary" onclick="App.openKanaLevel(${nextId})">레벨 ${nextId} 시작 →</button>` : ''}
+        <button class="btn btn-outline" onclick="App.closeFlow(); App.openKanaSector()">가나 맵으로</button>
+      </div>
+    `;
+  }
+
   // ── 연습 플로우 공통 런처 ─────────────────────────────────
   function _startPracticeFlow(virtMod) {
     _flow = { moduleId: virtMod.id, step: 0, _virtMod: virtMod };
@@ -1277,6 +1359,9 @@ window.App = (() => {
     closeProgram,
     openModule,
     openModuleStep: _openModuleStep,
+    openKanaSector,
+    closeKanaSector,
+    openKanaLevel,
     startKanaReview,
     startVocabReview,
     startRandomQuiz,

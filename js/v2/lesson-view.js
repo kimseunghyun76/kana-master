@@ -52,6 +52,28 @@ window.createLessonView = (ctx) => {
           <div class="module-list">
       `;
 
+      // Stage 1: 가나 마스터 섹터 진입 배너 추가
+      if (gameUi && stage.id === 1) {
+        const kp = prog.kanaProgress || {};
+        const total = (typeof LEVELS !== 'undefined' ? LEVELS : []).length;
+        const done = (typeof LEVELS !== 'undefined' ? LEVELS : []).filter(l => kp[l.id]?.learned).length;
+        const pct = total ? Math.round(done / total * 100) : 0;
+        html += `
+          <div class="lesson-kana-banner" onclick="App.openKanaSector()" role="button" tabindex="0">
+            <span class="lkb-icon">あ ア</span>
+            <span class="lkb-body">
+              <b>가나 마스터</b>
+              <span>히라가나·가타가나 11레벨 순차 학습 · ${done}/${total} 완료</span>
+            </span>
+            <span class="lkb-pct">
+              <span class="lkb-pct-bar"><span style="width:${pct}%"></span></span>
+              ${pct}%
+            </span>
+            <span class="lkb-arrow">›</span>
+          </div>
+        `;
+      }
+
       mods.forEach(mod => {
         html += _renderModuleCard(mod, stage, locked, prog);
       });

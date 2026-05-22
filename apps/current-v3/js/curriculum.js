@@ -17,16 +17,6 @@ const STAGES = [
     unlockXP: 0
   },
   {
-    id: 2, key: 'v3_reading',
-    name: '소리 조립',
-    nameJp: '音の組み立て',
-    icon: '',
-    color: '#3b82f6',
-    jlpt: null,
-    desc: '탁음, 요음, 장음, 촉음, は/へ/を처럼 글자가 문장 소리로 바뀌는 규칙.',
-    unlockXP: 0
-  },
-  {
     id: 3, key: 'v3_survival_words',
     name: '문장 전 준비',
     nameJp: '文の前の準備',
@@ -588,96 +578,6 @@ const MODULES = [
       dialogueKey: 'kana_map_practice'
     }
   },
-  {
-    id: 'kana_hira',
-    stageId: 1,
-    accessTier: 'free',
-    name: '히라가나 리듬',
-    nameJp: 'ひらがな',
-    icon: 'あ',
-    iconIsText: true,
-    desc: '문장에 가장 많이 나오는 히라가나를 행 단위 리듬으로 붙이기',
-    xp: 520,
-    unlockAfter: ['v3_kana_map'],
-    steps: [
-      { type: 'lecture', title: '히라가나는 문장 바닥재', lectureKey: 'v3_hiragana_intro' },
-      { type: 'kana_learn', title: '1단계: あ행·か행 10자', levelId: 1, customLabel: '히라가나 1/5' },
-      { type: 'kana_learn', title: '2단계: さ행·た행·な행 15자', levelId: 2, customLabel: '히라가나 2/5' },
-      { type: 'kana_learn', title: '3단계: は행~ん 21자 완성', levelId: 3, customLabel: '히라가나 3/5' },
-      { type: 'kana_learn', title: '4단계: 헷갈림 집중 12자', levelId: 4, customLabel: '모양 구분 4/5' },
-      { type: 'kana_learn', title: '5단계: 탁음·반탁음·요음', levelId: 5, customLabel: '히라가나 5/5' },
-      { type: 'kana_listening', title: '히라가나 46자 소리 찾기', chars: HIRAGANA_BASE },
-      { type: 'kana_quiz', title: '히라가나 46자 최종 퀴즈', kanaType: 'hiragana', chars: HIRAGANA_BASE },
-      { type: 'lecture', title: '히라가나는 하루에 끝내지 말기', lectureKey: 'v3_hiragana_tip' },
-    ],
-    roleplay: {
-      id: 'rp_hiragana_reading',
-      name: '히라가나로 이름 읽기',
-      nameJp: 'ひらがなを読む',
-      icon: 'あ',
-      desc: '간단한 히라가나 글자를 보고 소리 내기',
-      dialogueKey: 'hiragana_reading'
-    }
-  },
-  {
-    id: 'kana_kata',
-    stageId: 1,
-    accessTier: 'free',
-    name: '가타가나 표지판',
-    nameJp: 'カタカナ',
-    icon: 'ア',
-    iconIsText: true,
-    desc: '호텔, 카드, 커피, 택시처럼 이미 아는 소리로 외우는 문자',
-    xp: 520,
-    unlockAfter: ['kana_hira'],
-    steps: [
-      { type: 'lecture', title: '가타가나는 여행 간판 문자', lectureKey: 'v3_katakana_intro' },
-      { type: 'vocab_learn', title: '이미 아는 외래어 10개', mode: 'word', items: V3_KATAW_CARDS },
-      { type: 'vocab_quiz', title: '외래어 의미 퀴즈', items: V3_KATAW_CARDS },
-      { type: 'kana_learn', title: '1단계: ア행~タ행 20자', levelId: 6, customLabel: '가타가나 1/3' },
-      { type: 'kana_learn', title: '2단계: ナ행~ン 26자 완성', levelId: 7, customLabel: '가타가나 2/3' },
-      { type: 'kana_learn', title: '헷갈림: シ・ツ・ソ・ン 구분', kanaType: 'katakana', chars: ['シ','ツ','ソ','ン','ク','ケ','フ','ワ','ヌ','メ'], customLabel: '점·선 방향 3/3' },
-      { type: 'kana_listening', title: '가타가나 46자 소리 찾기', chars: KATAKANA_BASE },
-      { type: 'kana_quiz', title: '가타가나 46자 최종 퀴즈', kanaType: 'katakana', chars: KATAKANA_BASE },
-      { type: 'lecture', title: '가타가나는 단어째로 외우기', lectureKey: 'v3_katakana_tip' },
-    ],
-    roleplay: {
-      id: 'rp_katakana_signs',
-      name: '가타가나 간판 읽기',
-      nameJp: 'カタカナの看板',
-      icon: 'ア',
-      desc: '호텔, 카드, 커피처럼 여행 간판 읽기',
-      dialogueKey: 'katakana_signs'
-    }
-  },
-  {
-    id: 'v3_kana_sound_rules',
-    stageId: 2,
-    accessTier: 'free',
-    name: '소리 변신 규칙',
-    nameJp: '発音と読み方',
-    icon: '',
-    desc: '점, 동그라미, 작은 글자, 긴 소리, 작은 つ가 단어를 어떻게 바꾸는지 익히기',
-    xp: 420,
-    unlockAfter: ['kana_kata'],
-    steps: [
-      { type: 'lecture', title: '글자가 소리로 변하는 순간', lectureKey: 'v3_kana_sound_rules' },
-      { type: 'kana_learn', title: '가타가나 탁음·반탁음·요음', levelId: 8, customLabel: '탁음·요음' },
-      { type: 'kana_learn', title: '외래어 확장: ファ·ティ·ヴ', levelId: 9, customLabel: '외래어 확장' },
-      { type: 'kana_learn', title: '장음·촉음: ー·っ·ッ', levelId: 10, customLabel: '특수 박자' },
-      { type: 'kana_learn', title: '조사 읽기: は→wa·へ→e·を→o', levelId: 11, customLabel: '문장 속 예외' },
-      { type: 'kana_quiz', title: '가타가나 탁음·요음 퀴즈', levelId: 8, customLabel: '탁음 총정리' },
-      { type: 'lecture', title: '단어 안에서만 진짜로 외워진다', lectureKey: 'v3_kana_sound_tip' },
-    ],
-    roleplay: {
-      id: 'rp_sound_rules_counter',
-      name: '소리 변신 듣고 확인',
-      nameJp: '音の変化を確認',
-      icon: '',
-      desc: '탁음, 장음, 작은 つ를 다시 물어보기',
-      dialogueKey: 'sound_rules_counter'
-    }
-  },
 
   {
     id: 'v3_first_greetings',
@@ -716,7 +616,7 @@ const MODULES = [
     icon: '',
     desc: '물, 화장실, 역, 호텔, 카드처럼 여행에서 손으로 가리킬 기본 단어',
     xp: 260,
-    unlockAfter: ['v3_kana_sound_rules'],
+    unlockAfter: ['v3_kana_map'],
     steps: [
       { type: 'lecture', title: '문장 전에 단어 재료부터', lectureKey: 'v3_survival_objects' },
       { type: 'vocab_learn', title: '문장 전 필수 재료 12개', items: V3_PRE_SENTENCE_CARDS, mode: 'sentence' },
@@ -1530,9 +1430,6 @@ const MODULES = [
 
 const MODULE_ORDER = [
   'v3_kana_map',
-  'kana_hira',
-  'kana_kata',
-  'v3_kana_sound_rules',
   'v3_survival_objects',
   'v3_particle_basics',
   'v3_pronouns_places',

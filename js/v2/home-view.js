@@ -60,6 +60,7 @@ window.createHomeView = (ctx) => {
     if (gameUi) html += '<div class="v3-home-shell">';
     html += _renderDashboardHero(next, prog, isFirstVisit);
     if (!isFirstVisit && !gameUi) html += _renderStats(prog);
+    if (gameUi) html += _renderKanaMasterCard(prog);
     if (isFirstVisit) html += _renderPrograms(prog);
     html += _renderRoadmap(prog);
     if (!isFirstVisit) html += _renderPrograms(prog, true);
@@ -402,6 +403,35 @@ window.createHomeView = (ctx) => {
     `;
   }
 
+  function _renderKanaMasterCard(prog) {
+    const kp = prog.kanaProgress || {};
+    const total = (typeof LEVELS !== 'undefined' ? LEVELS : []).length;
+    const done = (typeof LEVELS !== 'undefined' ? LEVELS : []).filter(l => kp[l.id]?.learned).length;
+    const pct = total ? Math.round(done / total * 100) : 0;
+    const nextLevel = (typeof LEVELS !== 'undefined' ? LEVELS : []).find(l => !kp[l.id]?.learned);
+    const nextLabel = nextLevel ? `레벨 ${nextLevel.id} · ${nextLevel.title}` : '완성! 모두 완료';
+    const btnLabel = done === 0 ? '가나 시작하기' : done >= total ? '전체 복습' : '이어서 학습';
+    const btnAction = nextLevel ? `App.openKanaLevel(${nextLevel.id})` : `App.openKanaSector()`;
+
+    return `
+      <div class="ks-home-card" onclick="${btnAction}" role="button" tabindex="0"
+           onkeydown="if(event.key==='Enter')${btnAction}">
+        <div class="ks-home-card-left">
+          <div class="ks-home-card-icon">あ ア</div>
+          <div class="ks-home-card-info">
+            <div class="ks-home-card-title">가나 마스터</div>
+            <div class="ks-home-card-sub">${nextLabel}</div>
+          </div>
+        </div>
+        <div class="ks-home-card-right">
+          <div class="ks-home-card-pct">${done}/${total}</div>
+          <div class="ks-home-card-bar"><div style="width:${pct}%"></div></div>
+          <button class="ks-home-card-btn" type="button" onclick="${btnAction};event.stopPropagation()">${btnLabel}</button>
+        </div>
+      </div>
+    `;
+  }
+
   function _renderRoadmap(prog) {
     if (!gameUi) return _renderRoadmapList(prog);
 
@@ -409,7 +439,9 @@ window.createHomeView = (ctx) => {
     const focusStageId = next ? next.mod.stageId : 1;
 
     // 하나의 깔끔한 표현: 가로 스테이지 카드 캐러셀 (이미지+이모지+이름+진행률)
-    const cards = STAGES.map(stage => {
+    // Stage 1 (문자 게임판)은 가나 섹터로 분리됨 — 단계별 지도에서 제외
+    const travelStages = STAGES.filter(s => s.id !== 1);
+    const cards = travelStages.map(stage => {
       const pct = getStageProgressPct(stage.id, prog);
       const locked = prog.xp < stage.unlockXP;
       const done = pct === 100;
@@ -439,7 +471,7 @@ window.createHomeView = (ctx) => {
     }).join('');
 
     return `
-      <div class="section-title v3-track-title">단계별 학습 지도 <span class="v3-track-count">전체 ${STAGES.length}단계</span></div>
+      <div class="section-title v3-track-title">단계별 학습 지도 <span class="v3-track-count">전체 ${travelStages.length}단계</span></div>
       <div class="v3-stage-carousel-wrap">
         <div class="v3-stage-carousel" role="list">${cards}</div>
         <span class="v3-track-fade" aria-hidden="true"><span class="v3-track-chevron">›</span></span>
