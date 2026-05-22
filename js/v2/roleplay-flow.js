@@ -453,7 +453,7 @@ window.createRoleplayFlow = (ctx) => {
       sourceIndex: line.sourceIndex,
     })), {
       rate: 0.92,
-      gapMs: 3000,
+      gapMs: 800,
       onLineStart: (_idx, line) => {
         _roleplayComicSetPanel(panelIndex, line.sourceIndex);
       },
@@ -593,7 +593,7 @@ window.createRoleplayFlow = (ctx) => {
 
     TTS.speakQueue(lines, {
       rate: 0.92,
-      gapMs: 3000,
+      gapMs: 800,
       onLineStart: (idx, line) => {
         const livePlayback = _getRoleplayPlaybackState();
         if (livePlayback) {
@@ -665,23 +665,24 @@ window.createRoleplayFlow = (ctx) => {
       : `<button class="btn btn-primary" onclick="App.closeFlow()">${gameUi ? '홈으로 →' : '홈으로 →'}</button>`;
 
     document.getElementById('flowBody').innerHTML = `
-      <div class="completion-screen">
-        <div class="completion-emoji">${ctx.uiIconSvg('roleplay', 'completion-main-icon')}</div>
-        <div class="completion-title">${gameUi ? '롤플레이 완료!' : '롤플레이 완료!'}</div>
-        <div class="completion-sub">${escHtml(mod?.roleplay?.name || '')} ${gameUi ? '마스터 완료!' : '마스터 완료!'}<br>${gameUi ? '이제 흐름을 이해하는 단계에서 직접 말하는 단계까지 잘 마쳤어요.' : '이제 흐름을 이해하는 단계에서 직접 말하는 단계까지 잘 마쳤어요.'}</div>
-        <div class="completion-unlocks">
-          <div class="cu-title">${gameUi ? '획득' : '획득'}</div>
-          <div class="completion-unlock-item"><span class="cui-icon">${ctx.uiIconSvg('xp', 'completion-inline-icon')}</span> +${xp} XP</div>
-          <div class="completion-unlock-item"><span class="cui-icon">${ctx.uiIconSvg('roleplay', 'completion-inline-icon')}</span> ${gameUi ? '롤플레이 뱃지' : '롤플레이 뱃지'}</div>
+      <div class="completion-screen completion-fullscreen">
+        <div class="completion-card">
+          <div class="completion-emoji">${ctx.uiIconSvg('roleplay', 'completion-main-icon')}</div>
+          <div class="completion-title">롤플레이 완료!</div>
+          <div class="completion-sub">${escHtml(mod?.roleplay?.name || '')} 마스터 완료!<br>흐름 이해부터 직접 말하기까지 잘 마쳤어요.</div>
+          <div class="completion-unlocks">
+            <div class="cu-title">획득</div>
+            <div class="completion-unlock-item"><span class="cui-icon">${ctx.uiIconSvg('xp', 'completion-inline-icon')}</span> +${xp} XP</div>
+            <div class="completion-unlock-item"><span class="cui-icon">${ctx.uiIconSvg('roleplay', 'completion-inline-icon')}</span> 롤플레이 뱃지</div>
+          </div>
+          <div class="completion-actions">
+            ${nextAction}
+            <button class="btn btn-outline" onclick="App.closeFlow()">홈으로</button>
+          </div>
         </div>
       </div>
     `;
-    document.getElementById('flowFooter').innerHTML = `
-      <div style="display:flex;gap:10px;flex-wrap:wrap">
-        ${nextAction}
-        <button class="btn btn-outline" onclick="App.closeFlow()">${gameUi ? '홈으로' : '홈으로'}</button>
-      </div>
-    `;
+    document.getElementById('flowFooter').innerHTML = '';
   }
 
   return {

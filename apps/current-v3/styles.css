@@ -7299,3 +7299,40 @@ body.app-v3 .score-mascot-face {
 body.app-v3 .score-mascot-row { align-items: center; min-height: 0; }
 body.app-v3 .score-mascot-bubble { font-size: 15px; line-height: 1.5; padding: 14px 16px; }
 body.app-v3 .score-emoji { display: none; }
+
+/* ---- 롤플레이 완료: 화면을 채우는 큰 팝업 + 내부 버튼 ---- */
+body.app-v3 .completion-fullscreen {
+  min-height: 100%;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 18px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  background: linear-gradient(180deg, rgba(255, 247, 251, .96), rgba(241, 251, 255, .97));
+}
+body.app-v3 .completion-fullscreen .completion-card {
+  width: 100%;
+  max-width: 460px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 34px 22px;
+  border-radius: 24px;
+  background: #fff;
+  border: 1px solid rgba(82, 105, 140, .14);
+  box-shadow: 0 26px 64px rgba(71, 99, 136, .26);
+  text-align: center;
+}
+body.app-v3 .completion-fullscreen .completion-emoji { transform: scale(1.25); margin-bottom: 4px; }
+body.app-v3 .completion-fullscreen .completion-title { font-size: 24px; font-weight: 900; }
+body.app-v3 .completion-fullscreen .completion-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  margin-top: 8px;
+}
+body.app-v3 .completion-fullscreen .completion-actions .btn { width: 100%; min-height: 52px; }
