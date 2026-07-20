@@ -436,6 +436,11 @@ window.createRoleplayComicView = (ctx, deps) => {
       return;
     }
     const activeLine = practiceLines[activeIndex];
+    const evalDraft = state.evaluationDrafts?.[activeIndex] || '';
+    const evalResult = state.evaluationResults?.[activeIndex] || null;
+    const evalStatus = evalResult?.status || 'idle';
+    const evalScore = evalResult ? `<b>${evalResult.score}</b>` : '<b>-</b>';
+    const evalMessage = evalResult?.message || '말한 일본어를 입력하면 JSON 사전 기준으로 판정합니다.';
     const panelIndex = panelForLine(activeLine.sourceIndex || 0, dialogues);
     const speakerLabel = roleLabel(activeLine.speaker) || activeLine.speaker || '';
     state.phase = 'comic_practice';
@@ -473,7 +478,19 @@ window.createRoleplayComicView = (ctx, deps) => {
       <div class="comic-player-actions">
         <button class="btn btn-outline" onclick="App._roleplayComicPracticePrev()" ${activeIndex === 0 ? 'disabled' : ''}>← 이전</button>
         <button class="btn btn-outline" onclick="App._speakDialogueLine('${activeLine.id}')">${ctx.uiLabeledIcon('audio')} 다시 듣기</button>
-        <button class="btn btn-primary" onclick="App._roleplayComicPracticeNext()">말했어요 →</button>
+        <div class="roleplay-eval-box roleplay-eval-${escHtml(evalStatus)} comic-roleplay-eval">
+          <label class="roleplay-eval-label" for="rp-eval-input-${activeIndex}">내 답</label>
+          <textarea id="rp-eval-input-${activeIndex}"
+                    class="roleplay-eval-input"
+                    rows="2"
+                    placeholder="예: ありがとうございます"
+                    oninput="App._setRoleplayAnswerDraft(${activeIndex}, this.value)">${escHtml(evalDraft)}</textarea>
+          <div class="roleplay-eval-result">
+            <span class="roleplay-eval-score">점수 ${evalScore}</span>
+            <span>${escHtml(evalMessage)}</span>
+          </div>
+        </div>
+        <button class="btn btn-primary" onclick="App._roleplayComicPracticeNext()">입력 판정 →</button>
       </div>
     `;
   }

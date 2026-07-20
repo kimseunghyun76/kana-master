@@ -105,6 +105,7 @@ window.App = (() => {
   async function init() {
     await Store.load();
     await TTS.init();  // 사전생성 매니페스트 로드
+    RoleplayEvaluator.loadDictionary();
     await _loadSceneIndex();  // 단계/프로그램 장면 이미지 풀 (랜덤)
     _ensureJapaneseVoiceDefaults();
     _shell.build();
@@ -901,6 +902,8 @@ window.App = (() => {
   }
   function _markRoleplayShadow(index) { return _roleplayFlow.markShadow(index); }
   function _markRoleplayOutput(index) { return _roleplayFlow.markOutput(index); }
+  function _setRoleplayAnswerDraft(index, value) { return _roleplayFlow.setAnswerDraft(index, value); }
+  function _evaluateRoleplayOutput(index, transcript = null) { return _roleplayFlow.evaluateOutput(index, transcript); }
   function _speakDialogueLine(lineId) { return _roleplayFlow.speakLine(lineId); }
   function _speakDialogueLineSlow(lineId) { return _roleplayFlow.speakLineSlow(lineId); }
   function _startRoleplay(mod) { return _roleplayFlow.startRoleplay(mod); }
@@ -1449,6 +1452,8 @@ window.App = (() => {
     _setRoleplayVoice,
     _markRoleplayShadow,
     _markRoleplayOutput,
+    _setRoleplayAnswerDraft,
+    _evaluateRoleplayOutput,
     _speakDialogueLine,
     _speakDialogueLineSlow,
     _replayRoleplayCurrentTurn,

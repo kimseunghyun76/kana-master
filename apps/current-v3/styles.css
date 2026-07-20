@@ -259,7 +259,7 @@ body.app-v3 {
      don't show the bare grey html background flanking the 480/520px shell. */
   background:
     linear-gradient(180deg, rgba(255, 247, 251, .30), rgba(241, 251, 255, .42)),
-    url("/images/v3/backgrounds/landscape/wide-life/tourist-street/street-cafe-01.webp") center / cover;
+    url("/images/v3/backgrounds/portrait/tourist-street/street-cafe-portrait-01.webp") center / cover;
 }
 
 body.app-v3 #app {
@@ -269,7 +269,7 @@ body.app-v3 #app {
   max-width: 720px;
   background:
     linear-gradient(180deg, rgba(255, 255, 255, .18), rgba(255, 247, 251, .42)),
-    url("/images/v3/backgrounds/landscape/wide-life/tourist-street/street-cafe-01.webp") center / cover;
+    url("/images/v3/backgrounds/portrait/tourist-street/street-cafe-portrait-01.webp") center / cover;
   border-left: 1px solid rgba(255,255,255,.75);
   border-right: 1px solid rgba(255,255,255,.75);
 }
@@ -1593,7 +1593,7 @@ body.app-v3 {
 body.app-v3 #app {
   background:
     linear-gradient(180deg, rgba(255, 255, 255, .9), rgba(255, 247, 251, .95)),
-    url("/images/v3/backgrounds/landscape/wide-life/tourist-street/street-cafe-01.webp") center / cover;
+    url("/images/v3/backgrounds/portrait/tourist-street/street-cafe-portrait-01.webp") center / cover;
 }
 
 body.app-v3 .app-header,
@@ -2583,7 +2583,7 @@ body.app-v3 {
 body.app-v3 #app {
   background:
     linear-gradient(180deg, rgba(235, 242, 246, .88), rgba(230, 236, 241, .94)),
-    url("/images/v3/backgrounds/landscape/wide-life/tourist-street/street-cafe-01.webp") center / cover;
+    url("/images/v3/backgrounds/portrait/tourist-street/street-cafe-portrait-01.webp") center / cover;
 }
 
 body.app-v3 .view,
@@ -8043,4 +8043,266 @@ body.app-v3 .kana-chart-popup .kana-chart-actions .btn {
   font-size: 20px;
   color: var(--text3, #94a3b8);
   flex-shrink: 0;
+}
+
+/* ---- V3 lecture image-first presentation ---- */
+body.app-v3 .flow-screen.lecture-mode .flow-body,
+body.app-v3 .flow-screen.lecture-mode .lecture-slide {
+  background: #101820;
+}
+
+body.app-v3 .flow-screen.lecture-mode .lec-reel:not(.lec-reel-pick) {
+  width: 100%;
+  height: 100%;
+  min-height: 100%;
+  max-height: none;
+  aspect-ratio: auto;
+  border: 0;
+  border-radius: 0;
+  background: #101820;
+}
+
+body.app-v3 .flow-screen.lecture-mode .lec-reel-backdrop {
+  background: #101820;
+}
+
+body.app-v3 .flow-screen.lecture-mode .lec-scene-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 1;
+  filter: saturate(1.08) contrast(1.02) brightness(1);
+  transform: none;
+  animation: none;
+}
+
+body.app-v3 .flow-screen.lecture-mode .lec-reel-pattern {
+  display: none;
+}
+
+body.app-v3 .flow-screen.lecture-mode .lec-reel-sheen {
+  background:
+    linear-gradient(180deg, rgba(8, 13, 18, .34), rgba(8, 13, 18, .02) 22%, rgba(8, 13, 18, .02) 72%, rgba(8, 13, 18, .22));
+}
+
+body.app-v3 .flow-screen.lecture-mode .lec-scene-topline {
+  top: 10px;
+  left: 10px;
+  right: 10px;
+  width: auto;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: rgba(8, 13, 18, .34);
+  border-color: rgba(255, 255, 255, .14);
+  box-shadow: none;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+body.app-v3 .flow-screen.lecture-mode .lec-topline-meta {
+  max-width: 100%;
+  color: rgba(255, 255, 255, .88);
+}
+
+body.app-v3 .flow-screen.lecture-mode .lec-live-dot {
+  background: #ffffff;
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, .16);
+}
+
+body.app-v3 .flow-screen.lecture-mode .lec-topline-kicker,
+body.app-v3 .flow-screen.lecture-mode .lec-shot-count {
+  color: rgba(255, 255, 255, .78);
+}
+
+body.app-v3 .flow-screen.lecture-mode .lec-board-stack {
+  display: none;
+}
+
+body.app-v3 .flow-screen.lecture-mode .lec-board {
+  width: 100%;
+  max-height: 82px;
+  min-height: 0;
+  margin: 0;
+  padding: 10px 12px;
+  overflow: hidden;
+  border-radius: 12px;
+  background: rgba(8, 13, 18, .58);
+  border: 1px solid rgba(255, 255, 255, .16);
+  color: #ffffff;
+  box-shadow: 0 12px 34px rgba(0, 0, 0, .24);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+body.app-v3 .flow-screen.lecture-mode .lec-board-title-chalk {
+  margin: 0 0 3px;
+  color: #ffffff;
+  font-family: "Noto Sans KR", "Noto Sans JP", system-ui, sans-serif;
+  font-size: clamp(17px, 4.4vw, 24px);
+  line-height: 1.12;
+  letter-spacing: 0;
+  text-shadow: 0 2px 14px rgba(0, 0, 0, .38);
+}
+
+body.app-v3 .flow-screen.lecture-mode .lec-board-body {
+  max-height: 36px;
+  overflow: hidden;
+  color: rgba(255, 255, 255, .9);
+  font-family: "Noto Sans KR", "Noto Sans JP", system-ui, sans-serif;
+  font-size: clamp(12px, 3vw, 15px);
+  line-height: 1.26;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, .34);
+}
+
+body.app-v3 .flow-screen.lecture-mode .lec-board-reading {
+  display: none;
+}
+
+body.app-v3 .flow-screen.lecture-mode .lec-caption-box-solo {
+  display: block;
+  width: 100%;
+  padding: 9px 11px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, .9);
+  border: 1px solid rgba(255, 255, 255, .28);
+  color: #172033;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, .18);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+body.app-v3 .flow-screen.lecture-mode .lec-caption-copy {
+  min-width: 0;
+}
+
+body.app-v3 .flow-screen.lecture-mode .lec-cap-ko,
+body.app-v3 .flow-screen.lecture-mode .lec-cap-jp {
+  max-height: 3.95em;
+  overflow: hidden;
+  color: #172033;
+  font-size: clamp(12.5px, 3vw, 15px);
+  line-height: 1.34;
+}
+
+body.app-v3 .flow-screen.lecture-mode .lec-caption-speaker-face {
+  display: none;
+}
+
+body.app-v3 .flow-screen.lecture-mode .lec-segments {
+  position: absolute;
+  z-index: 5;
+  top: 0;
+  left: 0;
+  right: 0;
+  gap: 2px;
+  padding: 0;
+}
+
+body.app-v3 .flow-screen.lecture-mode .lec-segment {
+  height: 2px;
+  border-radius: 0;
+  background: rgba(255, 255, 255, .18);
+}
+
+body.app-v3 .flow-screen.lecture-mode .lec-segment-fill {
+  background: rgba(255, 255, 255, .92);
+}
+
+body.app-v3 .flow-screen.lecture-mode .lec-timer-track-wide {
+  position: absolute;
+  z-index: 6;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  margin: 0;
+  border-radius: 0;
+  background: rgba(255, 255, 255, .14);
+}
+
+body.app-v3 .flow-screen.lecture-mode .lec-timer-bar {
+  background: rgba(255, 255, 255, .86);
+}
+
+/* ---- Roleplay JSON evaluation ---- */
+body.app-v3 .roleplay-eval-box {
+  width: 100%;
+  display: grid;
+  gap: 7px;
+  margin: 10px 0 0;
+  padding: 10px;
+  border: 1px solid rgba(82, 105, 140, .18);
+  border-radius: 8px;
+  background: #f7fbff;
+}
+
+body.app-v3 .comic-player-actions .roleplay-eval-box {
+  flex: 1 1 100%;
+  min-width: 100%;
+  margin: 4px 0;
+}
+
+body.app-v3 .roleplay-eval-label {
+  color: #4f5f75;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+body.app-v3 .roleplay-eval-input {
+  width: 100%;
+  min-height: 48px;
+  resize: vertical;
+  padding: 9px 10px;
+  border: 1px solid rgba(82, 105, 140, .22);
+  border-radius: 8px;
+  background: #ffffff;
+  color: #243047;
+  font: inherit;
+  line-height: 1.35;
+}
+
+body.app-v3 .roleplay-eval-input:focus {
+  outline: 2px solid rgba(47, 143, 159, .22);
+  border-color: rgba(47, 143, 159, .55);
+}
+
+body.app-v3 .roleplay-eval-result {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+  align-items: center;
+  color: #4f5f75;
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+body.app-v3 .roleplay-eval-score {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 7px;
+  border-radius: 999px;
+  background: #ffffff;
+  color: #243047;
+  border: 1px solid rgba(82, 105, 140, .14);
+  font-weight: 800;
+}
+
+body.app-v3 .roleplay-eval-pass {
+  background: #eefbf4;
+  border-color: rgba(44, 148, 94, .24);
+}
+
+body.app-v3 .roleplay-eval-pass .roleplay-eval-score {
+  color: #187245;
+}
+
+body.app-v3 .roleplay-eval-retry,
+body.app-v3 .roleplay-eval-fail {
+  background: #fff8ed;
+  border-color: rgba(190, 122, 24, .24);
+}
+
+body.app-v3 .roleplay-eval-empty {
+  background: #f7fbff;
 }

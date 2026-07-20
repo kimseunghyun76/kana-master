@@ -47,7 +47,9 @@ window.createRoleplayFlow = (ctx) => {
         practiceSourceSpeaker: practiceSpeaker,
         revealed: [],
         shadowDone: [],
-        outputDone: []
+        outputDone: [],
+        evaluationDrafts: [],
+        evaluationResults: []
       };
     } else if (ctx.getFlow().roleplayState.practiceSourceSpeaker !== practiceSpeaker) {
       Object.assign(ctx.getFlow().roleplayState, {
@@ -55,7 +57,9 @@ window.createRoleplayFlow = (ctx) => {
         practiceSourceSpeaker: practiceSpeaker,
         revealed: [],
         shadowDone: [],
-        outputDone: []
+        outputDone: [],
+        evaluationDrafts: [],
+        evaluationResults: []
       });
     }
     return ctx.getFlow().roleplayState;
@@ -81,6 +85,8 @@ window.createRoleplayFlow = (ctx) => {
     const shadowDone = state.shadowDone || [];
     const outputDone = state.outputDone || [];
     const revealed = state.revealed || [];
+    const evaluationDrafts = state.evaluationDrafts || [];
+    const evaluationResults = state.evaluationResults || [];
     const readyCount = practiceLines.filter((_, idx) => outputDone[idx]).length;
     const allReady = practiceLines.length === 0 || readyCount === practiceLines.length;
     const activeIndex = practiceLines.findIndex((_, idx) => !outputDone[idx]);
@@ -182,6 +188,8 @@ window.createRoleplayFlow = (ctx) => {
     const practiceHtml = practiceLines.length ? practiceLines.map((line, idx) => {
       const answerVisible = !!revealed[idx];
       const outputOk = !!outputDone[idx];
+      const evalResult = evaluationResults[idx];
+      const evalDraft = evaluationDrafts[idx] || '';
       return `
         <div class="roleplay-panel">
           <div class="roleplay-panel-head">
@@ -194,11 +202,12 @@ window.createRoleplayFlow = (ctx) => {
           <div class="roleplay-answer-box">
             ${answerVisible ? ruby(line.japanese || '') : (gameUi ? 'Read the subtitle, then say it in Japanese.' : '먼저 한국어 힌트를 보고 일본어로 말해보세요.')}
           </div>
+          ${_renderEvaluationBox(idx, evalDraft, evalResult)}
           <div class="roleplay-actions">
             <button class="btn btn-outline" onclick="App._toggleRoleplayReveal(${idx})">${answerVisible ? (gameUi ? '정답 가리기' : '정답 가리기') : (gameUi ? '정답 보기' : '정답 보기')}</button>
             <button class="btn btn-outline" onclick="App._speakDialogueLine('${line.id}')">${ctx.uiLabeledIcon('audio')} ${gameUi ? '정답 듣기' : '정답 듣기'}</button>
             <button class="btn btn-outline" onclick="App._speakDialogueLineSlow('${line.id}')">${ctx.uiLabeledIcon('audio')} ${gameUi ? '느리게' : '느리게'}</button>
-            <button class="btn ${outputOk ? 'btn-success' : 'btn-outline'}" onclick="App._markRoleplayOutput(${idx})">${outputOk ? (gameUi ? '말하기 완료' : '말하기 완료') : (gameUi ? '말했어요' : '힌트 보고 말했어요')}</button>
+            <button class="btn ${outputOk ? 'btn-success' : 'btn-outline'}" onclick="App._evaluateRoleplayOutput(${idx})">${outputOk ? (gameUi ? '판정 통과' : '판정 통과') : (gameUi ? '입력 판정' : '입력 판정')}</button>
           </div>
         </div>
       `;
@@ -217,12 +226,13 @@ window.createRoleplayFlow = (ctx) => {
         <div class="roleplay-answer-box">
           ${revealed[activeIndex] ? ruby(activeLine.japanese || '') : (gameUi ? 'Say it first. Open the model line only if you need it.' : '먼저 스스로 말해 보고, 막히면 정답을 확인해 보세요.')}
         </div>
+        ${_renderEvaluationBox(activeIndex, evaluationDrafts[activeIndex] || '', evaluationResults[activeIndex])}
         <div class="roleplay-actions">
           <button class="btn btn-outline" onclick="App._replayRoleplayCurrentTurn()">${ctx.uiLabeledIcon('audio')} ${gameUi ? '현재부터 듣기' : '현재부터 듣기'}</button>
           <button class="btn btn-outline" onclick="App._speakDialogueLineSlow('${activeLine.id}')">${ctx.uiLabeledIcon('audio')} ${gameUi ? '느리게 듣기' : '느리게 듣기'}</button>
           <button class="btn btn-outline" onclick="App._speakDialogueLine('${activeLine.id}')">${ctx.uiLabeledIcon('audio')} ${gameUi ? '정답 듣기' : '정답 듣기'}</button>
           <button class="btn btn-outline" onclick="App._toggleRoleplayReveal(${activeIndex})">${revealed[activeIndex] ? (gameUi ? '정답 가리기' : '정답 가리기') : (gameUi ? '정답 보기' : '정답 보기')}</button>
-          <button class="btn ${outputDone[activeIndex] ? 'btn-success' : 'btn-outline'}" onclick="App._markRoleplayOutput(${activeIndex})">${outputDone[activeIndex] ? (gameUi ? '말하기 완료' : '말하기 완료') : (gameUi ? '말했어요' : '힌트 보고 말했어요')}</button>
+          <button class="btn ${outputDone[activeIndex] ? 'btn-success' : 'btn-outline'}" onclick="App._evaluateRoleplayOutput(${activeIndex})">${outputDone[activeIndex] ? (gameUi ? '판정 통과' : '판정 통과') : (gameUi ? '입력 판정' : '입력 판정')}</button>
         </div>
       </div>
     ` : `
@@ -408,8 +418,7 @@ window.createRoleplayFlow = (ctx) => {
     if (!state || !_isComicPrototype(mod)) return;
     const activeIndex = state.practiceLines?.findIndex((_, idx) => !state.outputDone?.[idx]) ?? -1;
     if (activeIndex < 0) return;
-    state.outputDone[activeIndex] = true;
-    _renderRoleplay(mod);
+    _evaluateRoleplayOutput(activeIndex);
   }
 
   function _roleplayComicPracticePrev() {
@@ -417,7 +426,10 @@ window.createRoleplayFlow = (ctx) => {
     const mod = ctx.getMod(ctx.getFlow()?.moduleId);
     if (!state || !_isComicPrototype(mod)) return;
     const activeIndex = state.practiceLines?.findIndex((_, idx) => !state.outputDone?.[idx]) ?? -1;
-    if (activeIndex > 0) state.outputDone[activeIndex - 1] = false;
+    if (activeIndex > 0) {
+      state.outputDone[activeIndex - 1] = false;
+      if (state.evaluationResults) state.evaluationResults[activeIndex - 1] = null;
+    }
     _renderRoleplay(mod);
   }
 
@@ -481,6 +493,55 @@ window.createRoleplayFlow = (ctx) => {
     if (!ctx.getFlow()?.roleplayState) return;
     ctx.getFlow().roleplayState.outputDone[index] = true;
     _renderRoleplay(ctx.getMod(ctx.getFlow().moduleId));
+  }
+
+  function _setRoleplayAnswerDraft(index, value) {
+    const state = ctx.getFlow()?.roleplayState;
+    if (!state) return;
+    if (!state.evaluationDrafts) state.evaluationDrafts = [];
+    state.evaluationDrafts[index] = value || '';
+  }
+
+  function _evaluateRoleplayOutput(index, transcript = null) {
+    const state = ctx.getFlow()?.roleplayState;
+    const line = state?.practiceLines?.[index];
+    if (!state || !line) return null;
+    if (!state.evaluationDrafts) state.evaluationDrafts = [];
+    if (!state.evaluationResults) state.evaluationResults = [];
+    const input = transcript === null
+      ? (document.getElementById(`rp-eval-input-${index}`)?.value || state.evaluationDrafts[index] || '')
+      : transcript;
+    state.evaluationDrafts[index] = input;
+    const evaluated = RoleplayEvaluator.evaluateLine(line, input);
+    state.evaluationResults[index] = evaluated;
+    if (evaluated.passed) {
+      state.outputDone[index] = true;
+      ctx.showToast?.('판정 통과');
+    } else if (evaluated.status !== 'empty') {
+      state.outputDone[index] = false;
+    }
+    _renderRoleplay(ctx.getMod(ctx.getFlow().moduleId));
+    return evaluated;
+  }
+
+  function _renderEvaluationBox(index, draft = '', result = null) {
+    const status = result?.status || 'idle';
+    const scoreText = result ? `<b>${result.score}</b>` : '<b>-</b>';
+    const message = result?.message || '말한 일본어를 입력하면 JSON 사전 기준으로 판정합니다.';
+    return `
+      <div class="roleplay-eval-box roleplay-eval-${escHtml(status)}">
+        <label class="roleplay-eval-label" for="rp-eval-input-${index}">내 답</label>
+        <textarea id="rp-eval-input-${index}"
+                  class="roleplay-eval-input"
+                  rows="2"
+                  placeholder="예: ありがとうございます"
+                  oninput="App._setRoleplayAnswerDraft(${index}, this.value)">${escHtml(draft)}</textarea>
+        <div class="roleplay-eval-result">
+          <span class="roleplay-eval-score">점수 ${scoreText}</span>
+          <span>${escHtml(message)}</span>
+        </div>
+      </div>
+    `;
   }
 
   function _voiceForSpeaker(speaker) {
@@ -553,7 +614,9 @@ window.createRoleplayFlow = (ctx) => {
         comicPanelIndex: 0,
         revealed: [],
         shadowDone: [],
-        outputDone: []
+        outputDone: [],
+        evaluationDrafts: [],
+        evaluationResults: []
       }
     });
     _renderRoleplay(mod);
@@ -734,6 +797,8 @@ window.createRoleplayFlow = (ctx) => {
     setPracticeSpeaker: _setRoleplayPracticeSpeaker,
     markShadow: _markRoleplayShadow,
     markOutput: _markRoleplayOutput,
+    setAnswerDraft: _setRoleplayAnswerDraft,
+    evaluateOutput: _evaluateRoleplayOutput,
     speakLine: _speakDialogueLine,
     speakLineSlow: _speakDialogueLineSlow,
     startRoleplay: _startRoleplay,
@@ -754,12 +819,15 @@ window.createRoleplayFlow = (ctx) => {
     if (!state?.practiceLines) return;
     state.outputDone = state.practiceLines.map(() => false);
     state.revealed = state.practiceLines.map(() => false);
+    state.evaluationDrafts = state.practiceLines.map(() => '');
+    state.evaluationResults = state.practiceLines.map(() => null);
     _renderRoleplay(ctx.getMod(ctx.getFlow().moduleId));
   }
   function _reopenLastPracticeLine() {
     const state = ctx.getFlow()?.roleplayState;
     if (!state?.practiceLines?.length) return;
     state.outputDone[state.practiceLines.length - 1] = false;
+    if (state.evaluationResults) state.evaluationResults[state.practiceLines.length - 1] = null;
     _renderRoleplay(ctx.getMod(ctx.getFlow().moduleId));
   }
 

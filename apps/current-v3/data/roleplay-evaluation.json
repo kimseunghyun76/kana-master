@@ -1,0 +1,52 @@
+{
+  "version": 1,
+  "thresholds": {
+    "pass": 78,
+    "retry": 52
+  },
+  "feedback": {
+    "empty": "일본어 답을 입력한 뒤 판정해 보세요.",
+    "pass": "핵심 표현이 맞았어요.",
+    "retry": "의미는 가까워요. 빠진 부분을 한 번 더 다듬어 보세요.",
+    "fail": "정답을 듣고 핵심 표현을 다시 말해 보세요."
+  },
+  "phraseAliases": {
+    "すみません": ["sumimasen", "すいません"],
+    "ありがとうございます": ["arigatou gozaimasu", "ありがとう ございます", "ありがとう"],
+    "はい": ["hai", "はい。"],
+    "いいえ": ["iie", "いいえ。"],
+    "だいじょうぶです": ["daijoubu desu", "大丈夫", "だいじょうぶ"],
+    "はいおねがいします": ["hai onegai shimasu", "お願いします", "おねがいします"],
+    "おねがいします": ["onegai shimasu", "お願いします"],
+    "これおください": ["kore wo kudasai", "これください", "これを下さい"],
+    "みずおください": ["mizu wo kudasai", "水ください", "お水をください"],
+    "もういちどおねがいします": ["mou ichido onegai shimasu", "もう一度お願いします", "もう一回お願いします"],
+    "ゆっくりおねがいします": ["yukkuri onegai shimasu", "ゆっくりお願いします"],
+    "わかりません": ["wakarimasen", "分かりません"],
+    "にほんごわすこしだけです": ["nihongo wa sukoshi dake desu", "日本語少しだけです", "日本語は少しです"],
+    "かんこくからきました": ["kankoku kara kimashita", "韓国から来ました"],
+    "りょこうです": ["ryokou desu", "旅行です"],
+    "はいりょこうです": ["hai ryokou desu", "はい、旅行です"],
+    "いえすこしだけです": ["ie sukoshi dake desu", "いいえ、少しだけです", "少しだけです"],
+    "きょうわあさくさにいきます": ["kyou wa asakusa ni ikimasu", "今日は浅草へ行きます"],
+    "しゃしんおおねがいします": ["shashin wo onegai shimasu", "写真お願いします", "写真をお願いします"],
+    "はいはじめてです": ["hai hajimete desu", "初めてです"],
+    "といれわどこですか": ["toire wa doko desu ka", "トイレどこですか"],
+    "ちかいですか": ["chikai desu ka", "近いですか"],
+    "たすかりました": ["tasukarimashita", "助かりました"],
+    "いくらですか": ["ikura desu ka", "いくらですか"],
+    "なんじからですか": ["nan ji kara desu ka", "何時からですか"],
+    "ふたつください": ["futatsu kudasai", "二つください"],
+    "かーどわつかえますか": ["kaado wa tsukaemasu ka", "カード使えますか"],
+    "ふくろわひとつおねがいします": ["fukuro wa hitotsu onegai shimasu", "袋一つお願いします"],
+    "みっかです": ["mikka desu", "三日です", "3日です"],
+    "はいあります": ["hai arimasu", "あります"],
+    "はいひとりです": ["hai hitori desu", "一人です"],
+    "このほてるまでおねがいします": ["kono hoteru made onegai shimasu", "ホテルまでお願いします"],
+    "ここでだいじょうぶです": ["koko de daijoubu desu", "ここで大丈夫"],
+    "りょうしゅうしょおください": ["ryoushuusho wo kudasai", "領収書ください"],
+    "あいすこーひーでおねがいします": ["aisu koohii de onegai shimasu", "アイスコーヒーお願いします"],
+    "てんないです": ["tennai desu", "店内です"],
+    "とーすともおねがいします": ["toosuto mo onegai shimasu", "トーストもお願いします"]
+  }
+}

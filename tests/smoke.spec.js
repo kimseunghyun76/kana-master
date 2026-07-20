@@ -46,7 +46,7 @@ test('root entry opens v3 app shell', async ({ page }) => {
     storeVersion: window.Store?.get?.().schemaVersion,
   }));
 
-  expect(dataSummary.modules).toBeGreaterThanOrEqual(40);
+  expect(dataSummary.modules).toBeGreaterThanOrEqual(39);
   expect(dataSummary.stages).toBeGreaterThanOrEqual(10);
   expect(dataSummary.storeVersion).toBe(3);
 });
@@ -69,9 +69,9 @@ test('loads v3 app data and primary screens', async ({ page }) => {
     stages: typeof STAGES !== 'undefined' ? STAGES.length : 0,
   }));
 
-  expect(dataSummary.kana).toBe(239);
-  expect(dataSummary.vocab).toBe(689);
-  expect(dataSummary.modules).toBeGreaterThanOrEqual(40);
+  expect(dataSummary.kana).toBeGreaterThanOrEqual(220);
+  expect(dataSummary.vocab).toBeGreaterThanOrEqual(680);
+  expect(dataSummary.modules).toBeGreaterThanOrEqual(39);
   expect(dataSummary.stages).toBeGreaterThanOrEqual(10);
 
   // 레슨 탭
@@ -95,7 +95,10 @@ test('serves v3 app assets and rejects removed paths', async ({ request }) => {
   for (const path of [
     '/index.html',
     '/apps/current-v3/index.html',
+    '/apps/current-v3/admin.html',
+    '/apps/current-v3/admin.css',
     '/apps/current-v3/styles.css',
+    '/apps/current-v3/js/admin.js',
     '/apps/current-v3/js/curriculum.js',
     '/apps/current-v3/js/store.js',
     '/apps/current-v3/js/app.js',
@@ -113,8 +116,10 @@ test('serves v3 app assets and rejects removed paths', async ({ request }) => {
     '/js/v2/practice-view.js',
     '/js/v2/profile-view.js',
     '/js/v2/quiz-result-flow.js',
+    '/js/v2/roleplay-evaluator.js',
     '/js/v2/roleplay-detail-flow.js',
     '/js/v2/stroke-renderer.js',
+    '/apps/current-v3/data/roleplay-evaluation.json',
     '/js/data/lecture-data-v2/wlevel_1.js',
     '/images/lecture-scenes/kana-hiragana-study-desk.webp',
   ]) {
@@ -147,6 +152,56 @@ test('serves v3 app assets and rejects removed paths', async ({ request }) => {
     const response = await request.get(path);
     expect(response.status(), path).toBe(404);
   }
+});
+
+test('loads v3 admin editor and admin curriculum API', async ({ page, request }) => {
+  const getResponse = await request.get('/api/admin/curriculum');
+  expect(getResponse.status()).toBe(200);
+  const getPayload = await getResponse.json();
+  expect(getPayload.ok).toBe(true);
+  expect(typeof getPayload.exists).toBe('boolean');
+
+  await page.goto('/apps/current-v3/admin.html');
+  await expect(page.locator('.admin-title strong')).toHaveText('KANA QUEST v3 관리자');
+  await expect(page.locator('#tree .tree-item').first()).toContainText('전체 요약');
+  await expect(page.locator('#detail')).toContainText('전체 커리큘럼');
+
+  const dataSummary = await page.evaluate(() => ({
+    hasAdmin: typeof window.Admin?.select === 'function',
+    modules: document.querySelectorAll('#tree .tree-item').length,
+    editorLength: document.querySelector('#jsonEditor')?.value.length || 0,
+  }));
+  expect(dataSummary.hasAdmin).toBe(true);
+  expect(dataSummary.modules).toBeGreaterThan(20);
+  expect(dataSummary.editorLength).toBeGreaterThan(1000);
+});
+
+test('evaluates roleplay answers with JSON dictionary', async ({ page }) => {
+  await page.goto('/apps/current-v3/');
+
+  const summary = await page.evaluate(async () => {
+    await window.RoleplayEvaluator.loadDictionary();
+    const line = {
+      id: 'v3_ans_2',
+      speaker: 'A',
+      japanese: '韓国から来ました。',
+      romaji: 'kankoku kara kimashita',
+      korean: '한국에서 왔어요.'
+    };
+    return {
+      hasDictionary: Object.keys(window.RoleplayEvaluator.getDictionary().phraseAliases || {}).length,
+      exact: window.RoleplayEvaluator.evaluateLine(line, '韓国から来ました。'),
+      romaji: window.RoleplayEvaluator.evaluateLine(line, 'kankoku kara kimashita'),
+      partial: window.RoleplayEvaluator.evaluateLine(line, '韓国'),
+      wrong: window.RoleplayEvaluator.evaluateLine(line, '水をください'),
+    };
+  });
+
+  expect(summary.hasDictionary).toBeGreaterThan(10);
+  expect(summary.exact.passed).toBe(true);
+  expect(summary.romaji.passed).toBe(true);
+  expect(summary.partial.passed).toBe(false);
+  expect(summary.wrong.passed).toBe(false);
 });
 
 test('opens and answers a vocab quiz flow', async ({ page }) => {

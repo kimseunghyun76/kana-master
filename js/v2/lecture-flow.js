@@ -379,16 +379,12 @@ window.createLectureFlow = (ctx) => {
     const shotClass = `shot-${(idx % 4) + 1}`;
     const nextSlide = slides[idx + 1];
     const prevSlide = slides[idx - 1];
-    const instructor = _lectureInstructor();
     const captionState = _lectureCaptionShow();   // 'off' | 'jp' | 'ko'
     const captionLang = captionState === 'off' ? null : captionState;
     const captionText = captionLang === 'ko' ? slide.captionKo
                        : captionLang === 'jp' ? slide.captionJp : '';
     const hasVisibleCaption = !!captionText;
     const captionsShown = captionState !== 'off';
-    const instructorVoiceKey = _lectureGetVoice();
-    const instructorMeta = typeof VoiceCharacters !== 'undefined' ? VoiceCharacters.meta(instructorVoiceKey) : {};
-    const instructorAvatarStyle = typeof VoiceCharacters !== 'undefined' ? VoiceCharacters.avatarStyle(instructorVoiceKey) : '';
     const slideSegments = slides.map((_, slideIndex) => `
       <div class="lec-segment ${slideIndex < idx ? 'done' : ''} ${slideIndex === idx ? 'active' : ''}">
         <div class="lec-segment-fill"></div>
@@ -426,7 +422,6 @@ window.createLectureFlow = (ctx) => {
             </div>
             ${hasVisibleCaption ? `
             <div class="lec-caption-box lec-caption-box-solo">
-              <div class="lec-caption-speaker-face" style="${instructorAvatarStyle}" title="${escHtml(instructorMeta?.role || '화자')}"></div>
               <div class="lec-caption-copy">
                 ${captionLang === 'jp'
                   ? `<div class="lec-cap-jp" id="lecCapJp">${ruby(slide.captionJp || '')}</div>`
